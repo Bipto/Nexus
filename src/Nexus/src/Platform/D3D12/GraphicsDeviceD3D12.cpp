@@ -155,7 +155,7 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineD3D12>(m_Device.Get(), description);
 	}
 
-	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListSpecification &spec)
+	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListD3D12>(this, spec);
 	}
@@ -170,7 +170,7 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferD3D12>(spec, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerSpecification &spec)
+	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerD3D12>(spec);
 	}
@@ -226,7 +226,7 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureD3D12>(spec, this);
 	}
@@ -341,7 +341,7 @@ namespace Nexus::Graphics
 											  D3D12_RESOURCE_STATES		  after)
 	{
 		D3D12_RESOURCE_STATES resourceState = resource->GetResourceState(layer, level);
-		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetSpecification().MipLevels, resourceState, after);
+		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetDescription().MipLevels, resourceState, after);
 		resource->SetResourceState(layer, level, after);
 	}
 

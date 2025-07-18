@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSet::ResourceSet(const ResourceSetSpecification &spec) : m_Specification(spec)
+	ResourceSet::ResourceSet(const ResourceSetSpecification &spec) : m_Description(spec)
 	{
 		for (const auto &texture : spec.SampledImages)
 		{
@@ -37,9 +37,9 @@ namespace Nexus::Graphics
 		}
 	}
 
-	const ResourceSetSpecification &ResourceSet::GetSpecification() const
+	const ResourceSetSpecification &ResourceSet::GetDescription() const
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t binding)

@@ -11,13 +11,13 @@ namespace Nexus::Graphics
 	class SamplerVk : public Sampler
 	{
 	  public:
-		SamplerVk(GraphicsDeviceVk *device, const SamplerSpecification &spec);
+		SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec);
 		virtual ~SamplerVk();
-		virtual const SamplerSpecification &GetSamplerSpecification() override;
+		virtual const SamplerDescription   &GetSamplerSpecification() override;
 		VkSampler							GetSampler();
 
 	  private:
-		SamplerSpecification m_Specification;
+		SamplerDescription	 m_Description;
 		VkSampler			 m_Sampler;
 		GraphicsDeviceVk	*m_Device = nullptr;
 	};

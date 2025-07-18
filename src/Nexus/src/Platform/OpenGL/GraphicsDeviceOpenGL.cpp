@@ -169,7 +169,7 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineOpenGL>(description, this);
 	}
 
-	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListSpecification &spec)
+	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<CommandListOpenGL>(spec);
@@ -187,7 +187,7 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferOpenGL>(spec, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)
+	Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<SamplerOpenGL>(spec, this);
@@ -301,7 +301,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<TextureOpenGL>(spec, this);

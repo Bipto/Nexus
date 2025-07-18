@@ -13,6 +13,9 @@ namespace Nexus::Graphics
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		m_PipelineLayout = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+
+		std::string debugName = description.DebugName + " - Pipeline Layout";
+		graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
 	}
 
 	GraphicsPipelineVk::~GraphicsPipelineVk()
@@ -50,6 +53,8 @@ namespace Nexus::Graphics
 																   m_PipelineLayout,
 																   m_Description.PrimitiveTopology,
 																   m_Description.Layouts);
+
+			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
 		}
 
 		VkPipeline pipeline = m_Pipelines.at(renderPass);
@@ -131,7 +136,12 @@ namespace Nexus::Graphics
 		NX_ASSERT(description.ComputeShader->GetShaderStage() == ShaderStage::Compute,
 				  "Shader passed to ComputePipelineDescription was not a compute shader");
 
-		m_PipelineLayout = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+		// pipeline layout
+		{
+			m_PipelineLayout	  = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+			std::string debugName = description.DebugName + " - Pipeline Layout";
+			graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
+		}
 
 		Ref<ShaderModuleVk> shaderModule = std::dynamic_pointer_cast<ShaderModuleVk>(description.ComputeShader);
 
@@ -150,6 +160,8 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create compute pipeline");
 		}
+
+		graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, m_Description.DebugName.c_str());
 	}
 
 	ComputePipelineVk::~ComputePipelineVk()

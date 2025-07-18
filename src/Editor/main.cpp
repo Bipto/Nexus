@@ -87,7 +87,7 @@ class EditorApplication : public Nexus::Application
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 		framebufferSpec.Width									  = (uint32_t)size.x;
 		framebufferSpec.Height									  = (uint32_t)size.y;
-		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm},
+		framebufferSpec.ColourAttachmentSpecification.Attachments = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm},
 																	 {Nexus::Graphics::PixelFormat::R32_G32_UInt}};
 		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
 

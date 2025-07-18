@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 namespace Nexus::Vk
 {
 
-	VkFormat					 GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+	VkFormat					 GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format);
 	Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
 	VkFormat					 GetShaderDataType(Nexus::Graphics::ShaderDataType type);
 
@@ -37,10 +37,10 @@ namespace Nexus::Vk
 	VkBlendOp			  GetVkBlendOp(Nexus::Graphics::BlendEquation function);
 	VkBlendFactor		  GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
 	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColor color);
-	VkImageUsageFlagBits  GetVkImageUsageFlags(uint8_t usage);
-	VkImageCreateFlagBits GetVkImageCreateFlagBits(uint8_t usage);
+	VkImageUsageFlagBits  GetVkImageUsageFlags(Graphics::PixelFormat format, uint8_t usage);
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(Graphics::TextureType textureType, uint8_t usage);
 	VkImageType			  GetVkImageType(Graphics::TextureType textureType);
-	VkImageViewType		  GetVkImageViewType(const Graphics::TextureSpecification &spec);
+	VkImageViewType		  GetVkImageViewType(const Graphics::TextureDescription &spec);
 
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
 

@@ -64,12 +64,18 @@ namespace Nexus::Graphics
 
 		/// @brief The task shader to use with the pipeline (optional)
 		Ref<ShaderModule> TaskModule = nullptr;
+
+		/// @brief The debug name of the pipeline, shows in graphics debuggers
+		std::string DebugName = "Graphics Pipeline";
 	};
 
 	struct ComputePipelineDescription
 	{
 		ResourceSetSpecification ResourceSetSpec = {};
 		Ref<ShaderModule>		 ComputeShader	 = nullptr;
+
+		/// @brief The debug name of the pipeline, shows in graphics debuggers
+		std::string DebugName = "Compute Pipeline";
 	};
 
 	struct MeshletPipelineDescription
@@ -110,6 +116,9 @@ namespace Nexus::Graphics
 
 		/// @brief The task shader to use with the pipeline (optional)
 		Ref<ShaderModule> TaskModule = nullptr;
+
+		/// @brief The debug name of the pipeline, shows in graphics debuggers
+		std::string DebugName = "Meshlet Pipeline";
 	};
 
 	struct RayTracingPipelineDescription
@@ -121,6 +130,8 @@ namespace Nexus::Graphics
 		Ref<ShaderModule>		 RayAnyHitShader	   = nullptr;
 		Ref<ShaderModule>		 RayIntersectionShader = nullptr;
 		uint32_t				 MaxRecursionDepth	   = 0;
+		/// @brief The debug name of the pipeline, shows in graphics debuggers
+		std::string DebugName = "Ray Tracing Pipeline";
 	};
 
 	enum class PipelineType

@@ -79,7 +79,9 @@ namespace Nexus::ImGuiUtils
 
 		m_GraphicsDevice = app->GetGraphicsDevice();
 
-		m_CommandList = m_GraphicsDevice->CreateCommandList();
+		Nexus::Graphics::CommandListDescription commandListDesc = {};
+		commandListDesc.DebugName								= "ImGui CommandList";
+		m_CommandList											= m_GraphicsDevice->CreateCommandList(commandListDesc);
 
 		auto vertexSource	= GetImGuiShaderVertexSource();
 		auto fragmentSource = GetImGuiShaderFragmentSource();
@@ -97,17 +99,19 @@ namespace Nexus::ImGuiUtils
 		uniformBufferDesc.Usage									   = Graphics::BufferUsage::Uniform;
 		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.DebugName								   = "ImGui Uniform Buffer";
 		m_UniformBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc));
 
-		Nexus::Graphics::SamplerSpecification samplerSpec;
-		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
-		samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Wrap;
-		samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Wrap;
-		samplerSpec.MinimumLOD	 = 0;
-		samplerSpec.MaximumLOD	 = 0;
-		samplerSpec.LODBias		 = 0;
-		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
-		m_Sampler				 = m_GraphicsDevice->CreateSampler(samplerSpec);
+		Nexus::Graphics::SamplerDescription samplerDesc;
+		samplerDesc.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
+		samplerDesc.AddressModeV = Nexus::Graphics::SamplerAddressMode::Wrap;
+		samplerDesc.AddressModeW = Nexus::Graphics::SamplerAddressMode::Wrap;
+		samplerDesc.MinimumLOD	 = 0;
+		samplerDesc.MaximumLOD	 = 0;
+		samplerDesc.LODBias		 = 0;
+		samplerDesc.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
+		samplerDesc.DebugName	 = "ImGui Sampler";
+		m_Sampler				 = m_GraphicsDevice->CreateSampler(samplerDesc);
 
 		m_Context = ImGui::CreateContext();
 		SetCurrentRenderer(this);
@@ -131,7 +135,7 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending		 = true;
 		pipelineDesc.ColourBlendStates[0].SourceColourBlend		 = Nexus::Graphics::BlendFactor::SourceAlpha;
@@ -159,6 +163,8 @@ namespace Nexus::ImGuiUtils
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
+		pipelineDesc.DebugName = "ImGui Text Pipeline";
+
 		Nexus::Graphics::ResourceSetSpecification resources;
 		resources += m_VertexShader->GetResourceSetSpecification();
 		resources += m_FragmentShader->GetResourceSetSpecification();
@@ -176,7 +182,7 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending = false;
 
@@ -201,6 +207,9 @@ namespace Nexus::ImGuiUtils
 		resources += m_FragmentShader->GetResourceSetSpecification();
 
 		pipelineDesc.ResourceSetSpec = resources;
+
+		pipelineDesc.DebugName = "ImGui Image Pipeline";
+
 		m_ImagePipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
@@ -213,7 +222,7 @@ namespace Nexus::ImGuiUtils
 
 		size_t bufferSize = width * height * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Graphics::TextureSpecification spec = {};
+		Graphics::TextureDescription spec	= {};
 		spec.Type							= Graphics::TextureType::Texture2D;
 		spec.Width							= width;
 		spec.Height							= height;
@@ -461,6 +470,7 @@ namespace Nexus::ImGuiUtils
 			vertexBufferDesc.Usage									  = Graphics::BufferUsage::Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
+			vertexBufferDesc.DebugName								  = "ImGui Vertex Buffer";
 			m_VertexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 		}
 
@@ -473,6 +483,7 @@ namespace Nexus::ImGuiUtils
 			indexBufferDesc.Usage									 = Graphics::BufferUsage::Index;
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
+			indexBufferDesc.DebugName								 = "ImGui Index Buffer";
 			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 		}
 
@@ -701,7 +712,7 @@ namespace Nexus::ImGuiUtils
 			windowSpec.Height	  = vp->Size.y;
 			windowSpec.Borderless = true;
 
-			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification();
+			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
 
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);

@@ -13,7 +13,7 @@ namespace Nexus::GL
 	ViewContextEGL::ViewContextEGL(EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextSpecification &spec)
 		: m_EGLDisplay(display),
 		  m_PBuffer(pbuffer),
-		  m_Specification(spec)
+		  m_Description(spec)
 	{
 		std::vector<EGLint> configAttribs;
 		configAttribs.push_back(EGL_SURFACE_TYPE);
@@ -159,9 +159,9 @@ namespace Nexus::GL
 		eglSwapInterval(m_EGLDisplay, (EGLint)enabled);
 	}
 
-	const ContextSpecification &ViewContextEGL::GetSpecification() const
+	const ContextSpecification &ViewContextEGL::GetDescription() const
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	bool ViewContextEGL::Validate()

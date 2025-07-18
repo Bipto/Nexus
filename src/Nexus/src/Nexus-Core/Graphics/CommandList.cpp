@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-	CommandList::CommandList(const CommandListSpecification &spec) : m_Specification(spec)
+	CommandList::CommandList(const CommandListDescription &spec) : m_Description(spec)
 	{
 	}
 
@@ -428,8 +428,8 @@ namespace Nexus::Graphics
 		return m_Commands;
 	}
 
-	const CommandListSpecification &CommandList::GetSpecification()
+	const CommandListDescription &CommandList::GetDescription()
 	{
-		return m_Specification;
+		return m_Description;
 	}
 }	 // namespace Nexus::Graphics

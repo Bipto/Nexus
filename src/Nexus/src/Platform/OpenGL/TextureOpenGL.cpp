@@ -11,24 +11,18 @@
 
 namespace Nexus::Graphics
 {
-	TextureOpenGL::TextureOpenGL(const TextureSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec), m_Device(graphicsDevice)
+	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec), m_Device(graphicsDevice)
 	{
-		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
-
-		if (spec.Usage & TextureUsage_Cubemap)
-		{
-			NX_ASSERT(spec.ArrayLayers % 6 == 0, "Cubemap texture must have 6 array layers");
-		}
 
 		if (spec.Samples > 1)
 		{
 			NX_ASSERT(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
 		}
 
-		bool isDepth			  = spec.Usage & Graphics::TextureUsage_DepthStencil;
 		m_TextureType			  = GL::GetTextureType(spec);
-		m_InternalFormat		  = GL::GetSizedInternalFormat(spec.Format, isDepth);
+		m_InternalFormat		  = GL::GetSizedInternalFormat(spec.Format);
 		m_BaseType				  = GL::GetPixelType(spec.Format);
 		m_GLInternalTextureFormat = GL::GetGLInternalTextureFormat(spec);
 		m_DataFormat			  = GL::GetPixelDataFormat(spec.Format);
@@ -47,7 +41,7 @@ namespace Nexus::Graphics
 
 				if (context.KHR_debug)
 				{
-					context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Specification.DebugName.c_str());
+					context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
 				}
 			});
 	}
@@ -106,7 +100,7 @@ namespace Nexus::Graphics
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TextureStorage1D(m_Handle, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width));
+				glCall(context.TextureStorage1D(m_Handle, m_Description.MipLevels, m_InternalFormat, m_Description.Width));
 				break;
 	#else
 				throw std::runtime_error("1D textures are not supported by WebGL");
@@ -114,16 +108,15 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(
-					context.TextureStorage2D(m_Handle, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height));
+				glCall(context.TextureStorage2D(m_Handle, m_Description.MipLevels, m_InternalFormat, m_Description.Width, m_Description.Height));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TextureStorage2DMultisample(m_Handle,
-														   m_Specification.MipLevels,
+														   m_Description.MipLevels,
 														   m_InternalFormat,
-														   m_Specification.Width,
-														   m_Specification.Height,
+														   m_Description.Width,
+														   m_Description.Height,
 														   GL_TRUE));
 				break;
 	#else
@@ -133,20 +126,20 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
 				glCall(context.TextureStorage3D(m_Handle,
-												m_Specification.MipLevels,
+												m_Description.MipLevels,
 												m_InternalFormat,
-												m_Specification.Width,
-												m_Specification.Height,
-												m_Specification.Depth));
+												m_Description.Width,
+												m_Description.Height,
+												m_Description.DepthOrArrayLayers));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TextureStorage3DMultisample(m_Handle,
-														   m_Specification.Samples,
+														   m_Description.Samples,
 														   m_InternalFormat,
-														   m_Specification.Width,
-														   m_Specification.Height,
-														   m_Specification.Depth,
+														   m_Description.Width,
+														   m_Description.Height,
+														   m_Description.DepthOrArrayLayers,
 														   GL_TRUE));
 				break;
 	#else
@@ -168,7 +161,7 @@ namespace Nexus::Graphics
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TexStorage1D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width));
+				glCall(context.TexStorage1D(m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width));
 				break;
 	#else
 				throw std::runtime_error("1D textures are not supported by WebGL");
@@ -176,16 +169,15 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(
-					context.TexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height));
+				glCall(context.TexStorage2D(m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width, m_Description.Height));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TexStorage2DMultisample(m_TextureType,
-													   m_Specification.Samples,
+													   m_Description.Samples,
 													   m_InternalFormat,
-													   m_Specification.Width,
-													   m_Specification.Height,
+													   m_Description.Width,
+													   m_Description.Height,
 													   GL_TRUE));
 				break;
 	#else
@@ -195,20 +187,20 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
 				glCall(context.TexStorage3D(m_TextureType,
-											m_Specification.MipLevels,
+											m_Description.MipLevels,
 											m_InternalFormat,
-											m_Specification.Width,
-											m_Specification.Height,
-											m_Specification.ArrayLayers));
+											m_Description.Width,
+											m_Description.Height,
+											m_Description.DepthOrArrayLayers));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TexStorage3DMultisample(m_TextureType,
-													   m_Specification.Samples,
+													   m_Description.Samples,
 													   m_InternalFormat,
-													   m_Specification.Width,
-													   m_Specification.Height,
-													   m_Specification.ArrayLayers,
+													   m_Description.Width,
+													   m_Description.Height,
+													   m_Description.DepthOrArrayLayers,
 													   GL_TRUE));
 				break;
 	#else

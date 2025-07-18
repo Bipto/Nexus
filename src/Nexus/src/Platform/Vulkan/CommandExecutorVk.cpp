@@ -808,7 +808,7 @@ namespace Nexus::Graphics
 		VkRenderingAttachmentInfo colourAttachment = {};
 		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 
-		if (swapchain->GetSpecification().Samples == 1)
+		if (swapchain->GetDescription().Samples == 1)
 		{
 			colourAttachment.imageView	 = swapchain->GetColourImageView();
 			colourAttachment.imageLayout = swapchain->GetColorImageLayout();
@@ -884,7 +884,7 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
 		Ref<SwapchainVk> swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-		const auto		&swapchainDesc = swapchainVk->GetSpecification();
+		const auto		&swapchainDesc = swapchainVk->GetDescription();
 
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 											  swapchainVk->GetColourImage(),
@@ -1015,7 +1015,7 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(textureIndex);
 
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetSpecification().MipLevels; mipLevel++)
+			for (uint32_t mipLevel = 0; mipLevel < texture->GetDescription().MipLevels; mipLevel++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
@@ -1033,7 +1033,7 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
 
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetSpecification().MipLevels; mipLevel++)
+			for (uint32_t mipLevel = 0; mipLevel < texture->GetDescription().MipLevels; mipLevel++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
@@ -1094,7 +1094,7 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachment);
 
-			for (uint32_t level = 0; level < texture->GetSpecification().MipLevels; level++)
+			for (uint32_t level = 0; level < texture->GetDescription().MipLevels; level++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),

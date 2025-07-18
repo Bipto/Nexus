@@ -24,6 +24,11 @@ namespace Nexus::Graphics
 					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
 					glCall(context.BufferData(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
 				}
+
+				if (context.KHR_debug)
+				{
+					context.ObjectLabelKHR(GL_BUFFER, m_BufferHandle, -1, m_BufferDescription.DebugName.c_str());
+				}
 			});
 	}
 

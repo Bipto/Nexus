@@ -284,8 +284,9 @@ namespace Nexus::Graphics
 						 SetBlendFactorCommand>
 		RenderCommandData;
 
-	struct CommandListSpecification
+	struct CommandListDescription
 	{
+		std::string DebugName = "CommandList";
 	};
 
 	/// @brief A class representing a command list
@@ -293,7 +294,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		/// @brief A constructor creating a new command list
-		CommandList(const CommandListSpecification &spec);
+		CommandList(const CommandListDescription &spec);
 
 		/// @brief A virtual destructor allowing resources to be cleaned up
 		virtual ~CommandList()
@@ -378,10 +379,10 @@ namespace Nexus::Graphics
 		void SetBlendFactor(const BlendFactorDesc &blendFactor);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
-		const CommandListSpecification		 &GetSpecification();
+		const CommandListDescription		 &GetDescription();
 
 	  private:
-		CommandListSpecification	   m_Specification = {};
+		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
 		bool						   m_Started = false;
 	};

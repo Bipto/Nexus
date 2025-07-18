@@ -165,7 +165,7 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineVk>(description, this);
 	}
 
-	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListSpecification &spec)
+	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListVk>(this, spec);
 	}
@@ -180,7 +180,7 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferVk>(spec, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerSpecification &spec)
+	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerVk>(this, spec);
 	}
@@ -268,7 +268,7 @@ namespace Nexus::Graphics
 		NX_ASSERT(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureVk>(spec, this);
 	}

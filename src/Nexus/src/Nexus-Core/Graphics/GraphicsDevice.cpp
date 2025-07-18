@@ -148,7 +148,7 @@ namespace Nexus::Graphics
 													  uint32_t	   width,
 													  uint32_t	   height)
 	{
-		size_t bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+		size_t bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Readback;
@@ -225,7 +225,7 @@ namespace Nexus::Graphics
 
 		stbi_set_flip_vertically_on_load(true);
 
-		TextureSpecification spec;
+		TextureDescription	 spec;
 		unsigned char		*data = stbi_load(filepath, &width, &height, &receivedChannels, requestedChannels);
 		spec.Width				  = (uint32_t)width;
 		spec.Height				  = (uint32_t)height;

@@ -20,7 +20,7 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-			Nexus::Graphics::TextureSpecification textureSpec = {};
+			Nexus::Graphics::TextureDescription textureSpec	  = {};
 			textureSpec.Width								  = 512;
 			textureSpec.Height								  = 512;
 			textureSpec.Format								  = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
@@ -46,8 +46,8 @@ namespace Demos
 			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectDesc));
 
 			Nexus::Graphics::IndirectDispatchArguments args = {};
-			args.GroupCountX								= m_Texture->GetSpecification().Width;
-			args.GroupCountY								= m_Texture->GetSpecification().Height;
+			args.GroupCountX								= m_Texture->GetDescription().Width;
+			args.GroupCountY								= m_Texture->GetDescription().Height;
 			args.GroupCountZ								= 1;
 			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}

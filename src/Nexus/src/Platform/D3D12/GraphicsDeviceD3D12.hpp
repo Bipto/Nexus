@@ -27,11 +27,11 @@ namespace Nexus::Graphics
 
 		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) override;
 		virtual Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) override;
-		virtual Ref<CommandList>	  CreateCommandList(const CommandListSpecification &spec = {}) override;
+		virtual Ref<CommandList>	  CreateCommandList(const CommandListDescription &spec = {}) override;
 		virtual Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) override;
 
 		virtual Ref<Framebuffer>  CreateFramebuffer(const FramebufferSpecification &spec) override;
-		virtual Ref<Sampler>	  CreateSampler(const SamplerSpecification &spec) override;
+		virtual Ref<Sampler>	  CreateSampler(const SamplerDescription &spec) override;
 		virtual Ref<TimingQuery>  CreateTimingQuery() override;
 		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
 
@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 			return -1.0f;
 		}
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
-		virtual Ref<Texture>			   CreateTexture(const TextureSpecification &spec) override;
+		virtual Ref<Texture>			   CreateTexture(const TextureDescription &spec) override;
 		virtual Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
 		virtual Ref<Fence>				   CreateFence(const FenceDescription &desc) override;
 		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;

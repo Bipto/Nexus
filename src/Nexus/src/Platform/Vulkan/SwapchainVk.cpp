@@ -339,7 +339,7 @@ namespace Nexus::Graphics
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(graphicsDevice->GetPhysicalDevice());
 
-		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
 		CreateImage(m_SwapchainSize.width,
 					m_SwapchainSize.height,
 					VK_FORMAT_D24_UNORM_S8_UINT,
@@ -356,7 +356,7 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice)
 	{
-		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
 
 		CreateImage(m_SwapchainSize.width,
 					m_SwapchainSize.height,
@@ -397,12 +397,12 @@ namespace Nexus::Graphics
 		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
 		{
 			NX_ASSERT(m_SwapchainImageViews[i] != VK_NULL_HANDLE, "Swapchain image view is null");
-			NX_ASSERT(m_ResolveImageView != VK_NULL_HANDLE || m_Specification.Samples == 1, "Resolve view is null");
+			NX_ASSERT(m_ResolveImageView != VK_NULL_HANDLE || m_Description.Samples == 1, "Resolve view is null");
 			NX_ASSERT(m_DepthImageView, "Depth view is null");
 
 			Vk::VulkanFramebufferDescription framebufferDesc = {};
 
-			if (m_Specification.Samples == 1)
+			if (m_Description.Samples == 1)
 			{
 				framebufferDesc.ColourImageViews.push_back(m_SwapchainImageViews[i]);
 			}
@@ -413,7 +413,7 @@ namespace Nexus::Graphics
 
 			framebufferDesc.DepthImageView = m_DepthImageView;
 
-			if (m_Specification.Samples != 1)
+			if (m_Description.Samples != 1)
 			{
 				framebufferDesc.ResolveImageView = m_SwapchainImageViews[i];
 			}
@@ -431,7 +431,7 @@ namespace Nexus::Graphics
 		Vk::VulkanRenderPassDescription desc = {};
 		desc.DepthFormat					 = m_DepthFormat;
 
-		if (m_Specification.Samples == 1)
+		if (m_Description.Samples == 1)
 		{
 			desc.ColourAttachments.push_back(m_SurfaceFormat.format);
 		}
@@ -441,7 +441,7 @@ namespace Nexus::Graphics
 			desc.ResolveFormat = m_SurfaceFormat.format;
 		}
 
-		desc.Samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+		desc.Samples	 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
 		desc.IsSwapchain = true;
 
 		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice, desc);

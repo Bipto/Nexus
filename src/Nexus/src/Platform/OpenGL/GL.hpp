@@ -74,7 +74,7 @@ namespace Nexus::GL
 	void   GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool hasMipmaps);
 	GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
 	GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
-	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format);
 
 	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 	GLenum GetTopology(Nexus::Graphics::Topology topology);
@@ -84,9 +84,9 @@ namespace Nexus::GL
 	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc);
 
 	GLenum GetAccessMask(Graphics::ShaderAccess access);
-	GLenum GetTextureType(const Graphics::TextureSpecification &spec);
+	GLenum GetTextureType(const Graphics::TextureDescription &spec);
 
-	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec);
 	void					ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context);
 	void					AttachTexture(GLuint					   framebuffer,
 										  Ref<Graphics::TextureOpenGL> texture,

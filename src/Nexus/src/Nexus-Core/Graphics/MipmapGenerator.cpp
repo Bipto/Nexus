@@ -55,22 +55,22 @@ namespace Nexus::Graphics
 	{
 		std::vector<char> pixels = {};
 
-		const uint32_t textureWidth	 = texture->GetSpecification().Width;
-		const uint32_t textureHeight = texture->GetSpecification().Height;
+		const uint32_t textureWidth	 = texture->GetDescription().Width;
+		const uint32_t textureHeight = texture->GetDescription().Height;
 
 		auto [mipWidth, mipHeight] = Utils::GetMipSize(textureWidth, textureHeight, levelToGenerate);
 
 		// generate mip
 		{
 			Nexus::Graphics::FramebufferSpecification framebufferSpec;
-			framebufferSpec.ColorAttachmentSpecification = {texture->GetSpecification().Format};
+			framebufferSpec.ColourAttachmentSpecification = {texture->GetDescription().Format};
 			framebufferSpec.Width						 = mipWidth;
 			framebufferSpec.Height						 = mipHeight;
-			framebufferSpec.Samples						 = texture->GetSpecification().Samples;
+			framebufferSpec.Samples						  = texture->GetDescription().Samples;
 
 			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 
-			Nexus::Graphics::SamplerSpecification samplerSpec;
+			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
 			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);

@@ -427,7 +427,7 @@ namespace Nexus::Graphics
 
 		Nexus::Ref<Nexus::Graphics::TextureD3D12> framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
 		Microsoft::WRL::ComPtr<ID3D12Resource2>	  swapchainTexture	 = swapchainD3D12->RetrieveBufferHandle();
-		DXGI_FORMAT								  format		 = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
+		DXGI_FORMAT								  format			 = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 		D3D12_RESOURCE_STATES					  swapchainState = swapchainD3D12->GetCurrentTextureState();
 
 		if (framebufferD3D12->GetFramebufferSpecification().Width > swapchainD3D12->GetWindow()->GetWindowSize().X)
@@ -488,11 +488,11 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
 
-		size_t	 sizeInBytes	  = GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+		size_t	 sizeInBytes	  = GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 		size_t	 rowPitch		  = sizeInBytes * command.BufferTextureCopy.TextureSubresource.Width;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.TextureSubresource.MipLevel,
 																command.BufferTextureCopy.TextureSubresource.ArrayLayer,
-																command.BufferTextureCopy.TextureHandle->GetSpecification().MipLevels);
+																command.BufferTextureCopy.TextureHandle->GetDescription().MipLevels);
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureSubresource.X;
@@ -553,8 +553,8 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
 
-		size_t sizeInBytes = GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
-		size_t rowPitch	   = sizeInBytes * texture->GetSpecification().Width;
+		size_t sizeInBytes = GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+		size_t rowPitch	   = sizeInBytes * texture->GetDescription().Width;
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.TextureBufferCopy.TextureSubresource.X;
@@ -731,7 +731,7 @@ namespace Nexus::Graphics
 		{
 			Ref<SwapchainD3D12> swapchainD3D12 = std::dynamic_pointer_cast<SwapchainD3D12>(sc);
 
-			if (sc->GetSpecification().Samples == 1)
+			if (sc->GetDescription().Samples == 1)
 			{
 				std::vector<D3D12_RESOURCE_BARRIER> barriers;
 				GraphicsDeviceD3D12				   *deviceD3D12 = (GraphicsDeviceD3D12 *)device;

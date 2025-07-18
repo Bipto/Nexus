@@ -8,7 +8,7 @@
 
 namespace Nexus::Vk
 {
-	VkFormat GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat)
+	VkFormat GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format)
 	{
 		switch (format)
 		{
@@ -17,7 +17,7 @@ namespace Nexus::Vk
 			case Nexus::Graphics::PixelFormat::R8_UInt: return VK_FORMAT_R8_UINT;
 			case Nexus::Graphics::PixelFormat::R8_SInt: return VK_FORMAT_R8_SINT;
 
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return depthFormat ? VK_FORMAT_D16_UNORM : VK_FORMAT_R16_UNORM;
+			case Nexus::Graphics::PixelFormat::R16_UNorm: return VK_FORMAT_R16_UNORM;
 			case Nexus::Graphics::PixelFormat::R16_SNorm: return VK_FORMAT_R16_SNORM;
 			case Nexus::Graphics::PixelFormat::R16_UInt: return VK_FORMAT_R16_UINT;
 			case Nexus::Graphics::PixelFormat::R16_SInt: return VK_FORMAT_R16_SINT;
@@ -25,7 +25,7 @@ namespace Nexus::Vk
 
 			case Nexus::Graphics::PixelFormat::R32_UInt: return VK_FORMAT_R32_UINT;
 			case Nexus::Graphics::PixelFormat::R32_SInt: return VK_FORMAT_R32_SINT;
-			case Nexus::Graphics::PixelFormat::R32_Float: return depthFormat ? VK_FORMAT_D32_SFLOAT : VK_FORMAT_R32_SFLOAT;
+			case Nexus::Graphics::PixelFormat::R32_Float: return VK_FORMAT_R32_SFLOAT;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_UNorm: return VK_FORMAT_R8G8_UNORM;
 			case Nexus::Graphics::PixelFormat::R8_G8_SNorm: return VK_FORMAT_R8G8_SNORM;
@@ -60,9 +60,6 @@ namespace Nexus::Vk
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return VK_FORMAT_R32G32B32A32_SINT;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return VK_FORMAT_R32G32B32A32_SFLOAT;
 
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return VK_FORMAT_D32_SFLOAT_S8_UINT;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return VK_FORMAT_D24_UNORM_S8_UINT;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
@@ -85,6 +82,11 @@ namespace Nexus::Vk
 			case Nexus::Graphics::PixelFormat::BC5_SNorm: return VK_FORMAT_BC5_SNORM_BLOCK;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm: return VK_FORMAT_BC7_UNORM_BLOCK;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return VK_FORMAT_BC7_SRGB_BLOCK;
+
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return VK_FORMAT_D16_UNORM;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return VK_FORMAT_D24_UNORM_S8_UINT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return VK_FORMAT_D32_SFLOAT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return VK_FORMAT_D32_SFLOAT_S8_UINT;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -144,7 +146,7 @@ namespace Nexus::Vk
 			case VK_FORMAT_R32G32B32A32_SINT: return Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt;
 			case VK_FORMAT_R32G32B32A32_SFLOAT: return Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
 
-			case VK_FORMAT_D32_SFLOAT_S8_UINT: return Nexus::Graphics::PixelFormat::D32_Float_S8_UInt;
+			case VK_FORMAT_D32_SFLOAT_S8_UINT: return Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt;
 			case VK_FORMAT_D24_UNORM_S8_UINT: return Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 			case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm;
@@ -365,11 +367,12 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkImageUsageFlagBits GetVkImageUsageFlags(uint8_t usage)
+	VkImageUsageFlagBits GetVkImageUsageFlags(Graphics::PixelFormat format, uint8_t usage)
 	{
 		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-		if (usage & Nexus::Graphics::TextureUsage_DepthStencil)
+		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(format);
+		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
 		{
 			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 		}
@@ -393,11 +396,11 @@ namespace Nexus::Vk
 		return flags;
 	}
 
-	VkImageCreateFlagBits GetVkImageCreateFlagBits(uint8_t usage)
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(Graphics::TextureType textureType, uint8_t usage)
 	{
 		VkImageCreateFlagBits flags = VkImageCreateFlagBits();
 
-		if (usage & Nexus::Graphics::TextureUsage_Cubemap)
+		if (textureType == Graphics::TextureType::TextureCube)
 		{
 			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
 		}
@@ -410,19 +413,20 @@ namespace Nexus::Vk
 		switch (textureType)
 		{
 			case Graphics::TextureType::Texture1D: return VK_IMAGE_TYPE_1D;
-			case Graphics::TextureType::Texture2D: return VK_IMAGE_TYPE_2D;
+			case Graphics::TextureType::Texture2D:
+			case Graphics::TextureType::TextureCube: return VK_IMAGE_TYPE_2D;
 			case Graphics::TextureType::Texture3D: return VK_IMAGE_TYPE_3D;
 			default: throw std::runtime_error("Failed to find a valid image type");
 		}
 	}
 
-	VkImageViewType GetVkImageViewType(const Graphics::TextureSpecification &spec)
+	VkImageViewType GetVkImageViewType(const Graphics::TextureDescription &spec)
 	{
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
 			{
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
 				}
@@ -433,32 +437,29 @@ namespace Nexus::Vk
 			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.DepthOrArrayLayers > 1)
 				{
-					if (spec.ArrayLayers > 6)
-					{
-						return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-					}
-					else
-					{
-						return VK_IMAGE_VIEW_TYPE_CUBE;
-					}
+					return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 				}
 				else
 				{
-					if (spec.ArrayLayers > 1)
-					{
-						return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-					}
-					else
-					{
-						return VK_IMAGE_VIEW_TYPE_2D;
-					}
+					return VK_IMAGE_VIEW_TYPE_2D;
 				}
 			}
 			case Graphics::TextureType::Texture3D:
 			{
 				return VK_IMAGE_VIEW_TYPE_3D;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_CUBE;
+				}
 			}
 		}
 
@@ -1237,9 +1238,9 @@ namespace Nexus::Vk
 
 		std::vector<VkFormat> vkColourFormats;
 
-		for (uint32_t i = 0; i < colourTargetCount; i++) { vkColourFormats.push_back(Vk::GetVkPixelDataFormat(colourFormats[i], false)); }
+		for (uint32_t i = 0; i < colourTargetCount; i++) { vkColourFormats.push_back(Vk::GetVkPixelDataFormat(colourFormats[i])); }
 
-		VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(depthFormat, true);
+		VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(depthFormat);
 
 		VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
 		pipelineRenderingCreateInfo.sType						  = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;

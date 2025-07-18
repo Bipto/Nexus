@@ -161,7 +161,7 @@ namespace Nexus::Graphics
 		Nexus::Graphics::MeshFactory factory(m_Device);
 		m_Cube = factory.CreateCube();
 
-		Graphics::TextureSpecification textureSpec = {};
+		Graphics::TextureDescription textureSpec   = {};
 		textureSpec.Width						   = 1;
 		textureSpec.Height						   = 1;
 		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
@@ -470,7 +470,7 @@ namespace Nexus::Graphics
 		cubemapBufferDesc.SizeInBytes			  = sizeof(CubemapCameraUniforms);
 		m_CubemapUniformBuffer					  = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cubemapBufferDesc));
 
-		Nexus::Graphics::SamplerSpecification samplerSpec = {};
+		Nexus::Graphics::SamplerDescription samplerSpec	  = {};
 		samplerSpec.AddressModeU						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW						  = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -531,7 +531,7 @@ namespace Nexus::Graphics
 			m_ModelTransformUniformBuffer				= Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(transformBufferDesc));
 		}
 
-		Nexus::Graphics::SamplerSpecification samplerSpec = {};
+		Nexus::Graphics::SamplerDescription samplerSpec	  = {};
 		samplerSpec.AddressModeU						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW						  = Nexus::Graphics::SamplerAddressMode::Clamp;

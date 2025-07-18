@@ -6,7 +6,7 @@
 
 namespace Nexus::D3D12
 {
-	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format, bool isDepth)
+	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format)
 	{
 		switch (format)
 		{
@@ -15,7 +15,7 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R8_UInt: return DXGI_FORMAT_R8_UINT;
 			case Nexus::Graphics::PixelFormat::R8_SInt: return DXGI_FORMAT_R8_SINT;
 
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return isDepth ? DXGI_FORMAT_R16_TYPELESS : DXGI_FORMAT_R16_UNORM;
+			case Nexus::Graphics::PixelFormat::R16_UNorm: return DXGI_FORMAT_R16_UNORM;
 			case Nexus::Graphics::PixelFormat::R16_SNorm: return DXGI_FORMAT_R16_SNORM;
 			case Nexus::Graphics::PixelFormat::R16_UInt: return DXGI_FORMAT_R16_UINT;
 			case Nexus::Graphics::PixelFormat::R16_SInt: return DXGI_FORMAT_R16_SINT;
@@ -23,7 +23,7 @@ namespace Nexus::D3D12
 
 			case Nexus::Graphics::PixelFormat::R32_UInt: return DXGI_FORMAT_R32_UINT;
 			case Nexus::Graphics::PixelFormat::R32_SInt: return DXGI_FORMAT_R32_SINT;
-			case Nexus::Graphics::PixelFormat::R32_Float: return isDepth ? DXGI_FORMAT_R32_TYPELESS : DXGI_FORMAT_R32_FLOAT;
+			case Nexus::Graphics::PixelFormat::R32_Float: return DXGI_FORMAT_R32_FLOAT;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_UNorm: return DXGI_FORMAT_R8G8_UNORM;
 			case Nexus::Graphics::PixelFormat::R8_G8_SNorm: return DXGI_FORMAT_R8G8_SNORM;
@@ -58,9 +58,6 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return DXGI_FORMAT_R32G32B32A32_SINT;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(isDepth); return DXGI_FORMAT_D24_UNORM_S8_UINT;
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(isDepth); return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return DXGI_FORMAT_R10G10B10A2_UNORM;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return DXGI_FORMAT_R10G10B10A2_UINT;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return DXGI_FORMAT_R11G11B10_FLOAT;
@@ -79,6 +76,11 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::BC5_SNorm: return DXGI_FORMAT_BC5_SNORM;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm: return DXGI_FORMAT_BC7_UNORM;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return DXGI_FORMAT_BC7_UNORM_SRGB;
+
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return DXGI_FORMAT_D16_UNORM;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return DXGI_FORMAT_D32_FLOAT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -306,13 +308,14 @@ namespace Nexus::D3D12
 		switch (textureType)
 		{
 			case Nexus::Graphics::TextureType::Texture1D: return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
-			case Nexus::Graphics::TextureType::Texture2D: return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+			case Nexus::Graphics::TextureType::Texture2D:
+			case Nexus::Graphics::TextureType::TextureCube: return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 			case Nexus::Graphics::TextureType::Texture3D: return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 			default: throw std::runtime_error("Failed to find a valid resource dimension");
 		}
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags(uint8_t textureUsage)
+	D3D12_RESOURCE_FLAGS GetResourceFlags(Graphics::PixelFormat format, uint8_t textureUsage)
 	{
 		D3D12_RESOURCE_FLAGS flags = {};
 
@@ -321,7 +324,8 @@ namespace Nexus::D3D12
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
 
-		if (textureUsage & Graphics::TextureUsage_DepthStencil)
+		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(format);
+		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
@@ -334,7 +338,7 @@ namespace Nexus::D3D12
 		return flags;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec)
+	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureDescription &spec)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -342,13 +346,13 @@ namespace Nexus::D3D12
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
 					srvDesc.Texture1DArray.MipLevels	   = spec.MipLevels;
 					srvDesc.Texture1DArray.MostDetailedMip = 0;
-					srvDesc.Texture1DArray.FirstArraySlice = spec.Depth;
-					srvDesc.Texture1DArray.ArraySize	   = spec.ArrayLayers;
+					srvDesc.Texture1DArray.FirstArraySlice = 0;
+					srvDesc.Texture1DArray.ArraySize	   = spec.DepthOrArrayLayers;
 				}
 				else
 				{
@@ -360,54 +364,34 @@ namespace Nexus::D3D12
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.DepthOrArrayLayers > 1)
 				{
-					if (spec.ArrayLayers == 6)
+					if (spec.Samples > 1)
 					{
-						srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
-						srvDesc.TextureCube.MostDetailedMip = 0;
-						srvDesc.TextureCube.MipLevels		= spec.MipLevels;
+						srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+						srvDesc.Texture2DMSArray.FirstArraySlice = 0;
+						srvDesc.Texture2DMSArray.ArraySize		 = spec.DepthOrArrayLayers;
 					}
 					else
 					{
-						srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-						srvDesc.TextureCubeArray.First2DArrayFace = spec.Depth;
-						srvDesc.TextureCubeArray.NumCubes		  = spec.ArrayLayers / 6;
-						srvDesc.TextureCubeArray.MostDetailedMip  = 0;
-						srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
+						srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+						srvDesc.Texture2DArray.MostDetailedMip = 0;
+						srvDesc.Texture2DArray.FirstArraySlice = 0;
+						srvDesc.Texture2DArray.ArraySize	   = spec.DepthOrArrayLayers;
+						srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
 					}
 				}
 				else
 				{
-					if (spec.ArrayLayers > 1)
+					if (spec.Samples > 1)
 					{
-						if (spec.Samples > 1)
-						{
-							srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-							srvDesc.Texture2DMSArray.FirstArraySlice = spec.Depth;
-							srvDesc.Texture2DMSArray.ArraySize		 = spec.ArrayLayers;
-						}
-						else
-						{
-							srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-							srvDesc.Texture2DArray.MostDetailedMip = 0;
-							srvDesc.Texture2DArray.FirstArraySlice = spec.Depth;
-							srvDesc.Texture2DArray.ArraySize	   = spec.ArrayLayers;
-							srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
-						}
+						srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
 					}
 					else
 					{
-						if (spec.Samples > 1)
-						{
-							srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
-						}
-						else
-						{
-							srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE2D;
-							srvDesc.Texture2D.MostDetailedMip = 0;
-							srvDesc.Texture2D.MipLevels		  = spec.MipLevels;
-						}
+						srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE2D;
+						srvDesc.Texture2D.MostDetailedMip = 0;
+						srvDesc.Texture2D.MipLevels		  = spec.MipLevels;
 					}
 				}
 
@@ -418,7 +402,24 @@ namespace Nexus::D3D12
 				srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE3D;
 				srvDesc.Texture3D.MostDetailedMip = 0;
 				srvDesc.Texture3D.MipLevels		  = spec.MipLevels;
-
+				break;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers == 1)
+				{
+					srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
+					srvDesc.TextureCube.MostDetailedMip = 0;
+					srvDesc.TextureCube.MipLevels		= spec.MipLevels;
+				}
+				else
+				{
+					srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+					srvDesc.TextureCubeArray.First2DArrayFace = 0;
+					srvDesc.TextureCubeArray.NumCubes		  = spec.DepthOrArrayLayers;
+					srvDesc.TextureCubeArray.MostDetailedMip  = 0;
+					srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
+				}
 				break;
 			}
 			default: throw std::runtime_error("Failed to find a valid TextureType");
@@ -432,13 +433,13 @@ namespace Nexus::D3D12
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
 		Ref<Graphics::Texture>				  texture = view.TextureHandle;
-		const Graphics::TextureSpecification &spec	  = texture->GetSpecification();
-		uav.Format									  = D3D12::GetD3D12PixelFormat(spec.Format, false);
+		const Graphics::TextureDescription	 &spec	  = texture->GetDescription();
+		uav.Format									  = D3D12::GetD3D12PixelFormat(spec.Format);
 
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					uav.ViewDimension	   = D3D12_UAV_DIMENSION_TEXTURE1D;
 					uav.Texture1D.MipSlice = view.MipLevel;
@@ -454,7 +455,7 @@ namespace Nexus::D3D12
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					uav.ViewDimension				   = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 					uav.Texture2DArray.FirstArraySlice = view.ArrayLayer;

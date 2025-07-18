@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 
 		for (uint32_t index = 0; index < m_Description.ColourTargetCount; index++)
 		{
-			DXGI_FORMAT colourFormat = D3D12::GetD3D12PixelFormat(m_Description.ColourFormats.at(index), false);
+			DXGI_FORMAT colourFormat = D3D12::GetD3D12PixelFormat(m_Description.ColourFormats.at(index));
 			rtvFormats.push_back(colourFormat);
 		}
 
@@ -138,7 +138,7 @@ namespace Nexus::Graphics
 
 		for (uint32_t rtvIndex = 0; rtvIndex < rtvFormats.size(); rtvIndex++) { pipelineDesc.RTVFormats[rtvIndex] = rtvFormats.at(rtvIndex); }
 
-		DXGI_FORMAT depthFormat						 = D3D12::GetD3D12PixelFormat(m_Description.DepthFormat, true);
+		DXGI_FORMAT depthFormat						 = D3D12::GetD3D12PixelFormat(m_Description.DepthFormat);
 		pipelineDesc.DSVFormat						 = depthFormat;
 		pipelineDesc.BlendState						 = D3D12::CreateBlendStateDesc(m_Description.ColourBlendStates);
 		pipelineDesc.DepthStencilState				 = D3D12::CreateDepthStencilDesc(m_Description.DepthStencilDesc);
@@ -157,6 +157,9 @@ namespace Nexus::Graphics
 			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
 			NX_ERROR(message);
 		}
+
+		std::wstring debugName = {m_Description.DebugName.begin(), m_Description.DebugName.end()};
+		m_PipelineStateObject->SetName(debugName.c_str());
 	}
 
 	ComputePipelineD3D12::ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description) : ComputePipeline(description)
@@ -199,6 +202,9 @@ namespace Nexus::Graphics
 			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
 			NX_ERROR(message);
 		}
+
+		std::wstring debugName = {m_Description.DebugName.begin(), m_Description.DebugName.end()};
+		m_PipelineStateObject->SetName(debugName.c_str());
 	}
 }	 // namespace Nexus::Graphics
 

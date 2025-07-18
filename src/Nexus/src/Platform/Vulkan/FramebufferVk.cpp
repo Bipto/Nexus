@@ -6,7 +6,7 @@ namespace Nexus::Graphics
 {
 	FramebufferVk::FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device) : Framebuffer(spec), m_Device(device)
 	{
-		m_Specification = spec;
+		m_Description = spec;
 		CreateRenderPass();
 		Recreate();
 	}
@@ -19,12 +19,12 @@ namespace Nexus::Graphics
 
 	const FramebufferSpecification FramebufferVk::GetFramebufferSpecification()
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	void FramebufferVk::SetFramebufferSpecification(const FramebufferSpecification &spec)
 	{
-		m_Specification = spec;
+		m_Description = spec;
 		Recreate();
 	}
 
@@ -72,20 +72,20 @@ namespace Nexus::Graphics
 	{
 		m_ColorAttachments.clear();
 
-		for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+		for (int i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
 		{
-			const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments.at(i);
+			const auto &colorAttachmentSpec = m_Description.ColourAttachmentSpecification.Attachments.at(i);
 
 			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
 			{
 				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
 			}
 
-			Graphics::TextureSpecification spec = {};
-			spec.Width							= m_Specification.Width;
-			spec.Height							= m_Specification.Height;
+			Graphics::TextureDescription spec	= {};
+			spec.Width							= m_Description.Width;
+			spec.Height							= m_Description.Height;
 			spec.Format							= colorAttachmentSpec.TextureFormat;
-			spec.Samples						= m_Specification.Samples;
+			spec.Samples						= m_Description.Samples;
 			spec.Usage							= Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
 
 			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
@@ -97,14 +97,14 @@ namespace Nexus::Graphics
 	{
 		// the specification does not contain a depth attachment, so we do not create
 		// one
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
-			Graphics::TextureSpecification spec = {};
-			spec.Width							= m_Specification.Width;
-			spec.Height							= m_Specification.Height;
-			spec.Format							= m_Specification.DepthAttachmentSpecification.DepthFormat;
-			spec.Samples						= m_Specification.Samples;
-			spec.Usage							= Graphics::TextureUsage_DepthStencil;
+			Graphics::TextureDescription spec	= {};
+			spec.Width							= m_Description.Width;
+			spec.Height							= m_Description.Height;
+			spec.Format							= m_Description.DepthAttachmentSpecification.DepthFormat;
+			spec.Samples						= m_Description.Samples;
+			spec.Usage							= 0;
 			Ref<Texture> texture				= Ref<Texture>(m_Device->CreateTexture(spec));
 			m_DepthAttachment					= std::dynamic_pointer_cast<TextureVk>(texture);
 		}
@@ -114,18 +114,18 @@ namespace Nexus::Graphics
 	{
 		Vk::VulkanRenderPassDescription renderPassDesc = {};
 
-		for (const auto &colourAttachment : m_Specification.ColorAttachmentSpecification.Attachments)
+		for (const auto &colourAttachment : m_Description.ColourAttachmentSpecification.Attachments)
 		{
-			renderPassDesc.ColourAttachments.push_back(Vk::GetVkPixelDataFormat(colourAttachment.TextureFormat, false));
+			renderPassDesc.ColourAttachments.push_back(Vk::GetVkPixelDataFormat(colourAttachment.TextureFormat));
 		}
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != Nexus::Graphics::PixelFormat::Invalid)
+		if (m_Description.DepthAttachmentSpecification.DepthFormat != Nexus::Graphics::PixelFormat::Invalid)
 		{
-			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
+			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(m_Description.DepthAttachmentSpecification.DepthFormat);
 		}
 
 		renderPassDesc.ResolveFormat = {};
-		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
 
 		m_RenderPass = Vk::CreateRenderPass(m_Device, renderPassDesc);
 	}
@@ -136,13 +136,13 @@ namespace Nexus::Graphics
 
 		for (Ref<TextureVk> colourAttachment : m_ColorAttachments) { framebufferDesc.ColourImageViews.push_back(colourAttachment->GetImageView()); }
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
 			framebufferDesc.DepthImageView = m_DepthAttachment->GetImageView();
 		}
 
-		framebufferDesc.Width			 = m_Specification.Width;
-		framebufferDesc.Height			 = m_Specification.Height;
+		framebufferDesc.Width			 = m_Description.Width;
+		framebufferDesc.Height			 = m_Description.Height;
 		framebufferDesc.VulkanRenderPass = m_RenderPass;
 
 		m_Framebuffer = Vk::CreateFramebuffer(m_Device->GetVkDevice(), framebufferDesc);

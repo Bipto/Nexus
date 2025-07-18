@@ -57,6 +57,9 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create buffer");
 		}
+
+		std::wstring debugName = {m_BufferDescription.DebugName.begin(), m_BufferDescription.DebugName.end()};
+		m_BufferHandle->SetName(debugName.c_str());
 	}
 
 	DeviceBufferD3D12::~DeviceBufferD3D12()

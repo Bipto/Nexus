@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 		Image image	 = {};
 		image.Width	 = width;
 		image.Height = height;
-		image.Format = texture->GetSpecification().Format;
+		image.Format = texture->GetDescription().Format;
 		image.Pixels = pixels;
 
 		return image;

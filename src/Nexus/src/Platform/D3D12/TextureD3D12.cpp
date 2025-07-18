@@ -7,33 +7,35 @@
 
 namespace Nexus::Graphics
 {
-	TextureD3D12::TextureD3D12(const TextureSpecification &spec, GraphicsDeviceD3D12 *device) : Texture(spec), m_Device(device)
+	TextureD3D12::TextureD3D12(const TextureDescription &spec, GraphicsDeviceD3D12 *device) : Texture(spec), m_Device(device)
 	{
-		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
-		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
-
-		if (spec.Usage & TextureUsage_Cubemap)
-		{
-			NX_ASSERT(spec.ArrayLayers % 6 == 0, "Cubemap texture must have 6 array layers");
-		}
+		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one mip level");
 
 		if (spec.Samples > 1)
 		{
 			NX_ASSERT(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
 		}
 
-		bool isDepth = (spec.Usage & TextureUsage_DepthStencil) != 0;
-
 		D3D12_RESOURCE_DIMENSION dimension = D3D12::GetResourceDimensions(spec.Type);
-		D3D12_RESOURCE_FLAGS	 flags	   = D3D12::GetResourceFlags(spec.Usage);
-		m_TextureFormat					   = D3D12::GetD3D12PixelFormat(spec.Format, isDepth);
+		D3D12_RESOURCE_FLAGS	 flags	   = D3D12::GetResourceFlags(spec.Format, spec.Usage);
+		m_TextureFormat					   = D3D12::GetD3D12PixelFormat(spec.Format);
 
 		D3D12_RESOURCE_DESC1 textureDesc = {};
 		textureDesc.Dimension			 = dimension;
 		textureDesc.Alignment			 = 0;
 		textureDesc.Width				 = spec.Width;
 		textureDesc.Height				 = spec.Height;
-		textureDesc.DepthOrArraySize	 = spec.ArrayLayers;
+
+		if (spec.Type == TextureType::TextureCube)
+		{
+			textureDesc.DepthOrArraySize = spec.DepthOrArrayLayers * 6;
+		}
+		else
+		{
+			textureDesc.DepthOrArraySize = spec.DepthOrArrayLayers;
+		}
+
 		textureDesc.MipLevels			 = spec.MipLevels;
 		textureDesc.Format				 = m_TextureFormat;
 		textureDesc.SampleDesc.Count	 = spec.Samples;
@@ -55,12 +57,12 @@ namespace Nexus::Graphics
 			throw std::runtime_error(errorMessage.c_str());
 		}
 
-		for (uint32_t arrayLayer = 0; arrayLayer < spec.ArrayLayers; arrayLayer++)
+		for (uint32_t arrayLayer = 0; arrayLayer < spec.DepthOrArrayLayers; arrayLayer++)
 		{
 			for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_ResourceStates.push_back(D3D12_RESOURCE_STATE_COMMON); }
 		}
 
-		std::wstring name = std::wstring(m_Specification.DebugName.begin(), m_Specification.DebugName.end());
+		std::wstring name = std::wstring(m_Description.DebugName.begin(), m_Description.DebugName.end());
 		m_Texture->SetName(name.c_str());
 	}
 
@@ -75,18 +77,18 @@ namespace Nexus::Graphics
 
 	void TextureD3D12::SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state)
 	{
-		/* NX_ASSERT(arrayLayer <= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels"); */
+		/* NX_ASSERT(arrayLayer <= m_Description.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels"); */
 
-		m_ResourceStates[arrayLayer * m_Specification.MipLevels + mipLevel] = state;
+		m_ResourceStates[arrayLayer * m_Description.MipLevels + mipLevel] = state;
 	}
 
 	D3D12_RESOURCE_STATES TextureD3D12::GetResourceState(uint32_t arrayLayer, uint32_t mipLevel)
 	{
-		/* NX_ASSERT(arrayLayer <= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels"); */
+		/* NX_ASSERT(arrayLayer <= m_Description.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels"); */
 
-		return m_ResourceStates[arrayLayer * m_Specification.MipLevels + mipLevel];
+		return m_ResourceStates[arrayLayer * m_Description.MipLevels + mipLevel];
 	}
 
 	Microsoft::WRL::ComPtr<ID3D12Resource2> TextureD3D12::GetHandle()

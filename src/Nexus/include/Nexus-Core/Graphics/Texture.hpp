@@ -14,36 +14,34 @@ namespace Nexus::Graphics
 	{
 		Texture1D = 0,
 		Texture2D = 1,
-		Texture3D = 2
+		Texture3D	= 2,
+		TextureCube = 3
 	};
 
 	enum TextureUsageFlags : uint8_t
 	{
-		TextureUsage_Cubemap	  = BIT(0),
-		TextureUsage_DepthStencil = BIT(1),
-		TextureUsage_RenderTarget = BIT(2),
-		TextureUsage_Sampled	  = BIT(3),
-		TextureUsage_Storage	  = BIT(4)
+		TextureUsage_RenderTarget = BIT(0),
+		TextureUsage_Sampled	  = BIT(1),
+		TextureUsage_Storage	  = BIT(2)
 	};
 
-	struct TextureSpecification
+	struct TextureDescription
 	{
-		PixelFormat Format		= PixelFormat::R8_G8_B8_A8_UNorm;
-		uint32_t	Width		= 0;
-		uint32_t	Height		= 0;
-		uint32_t	Depth		= 1;
-		uint32_t	MipLevels	= 1;
-		uint32_t	ArrayLayers = 1;
-		TextureType Type		= TextureType::Texture2D;
-		uint32_t	Samples		= 1;
-		uint8_t		Usage		= 0;
-		std::string DebugName	= "Texture";
+		TextureType Type			   = TextureType::Texture2D;
+		PixelFormat Format			   = PixelFormat::R8_G8_B8_A8_UNorm;
+		uint32_t	Width			   = 0;
+		uint32_t	Height			   = 0;
+		uint32_t	DepthOrArrayLayers = 1;
+		uint32_t	MipLevels		   = 1;
+		uint32_t	Samples			   = 1;
+		uint8_t		Usage			   = 0;
+		std::string DebugName		   = "Texture";
 	};
 
 	class NX_API Texture
 	{
 	  public:
-		Texture(const TextureSpecification &spec) : m_Specification(spec)
+		Texture(const TextureDescription &spec) : m_Description(spec)
 		{
 		}
 
@@ -51,23 +49,23 @@ namespace Nexus::Graphics
 		{
 		}
 
-		const TextureSpecification &GetSpecification() const
+		const TextureDescription &GetDescription() const
 		{
-			return m_Specification;
+			return m_Description;
+		}
+
+		bool IsColour() const
+		{
+			return GetPixelFormatType(m_Description.Format) == PixelFormatType::Colour;
 		}
 
 		bool IsDepth() const
 		{
-			if (m_Specification.Usage & Graphics::TextureUsage_DepthStencil)
-			{
-				return true;
-			}
-
-			return false;
+			return GetPixelFormatType(m_Description.Format) == PixelFormatType::DepthStencil;
 		}
 
 	  protected:
-		TextureSpecification m_Specification = {};
+		TextureDescription m_Description = {};
 	};
 
 }	 // namespace Nexus::Graphics

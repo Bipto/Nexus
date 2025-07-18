@@ -11,7 +11,7 @@ namespace Nexus::GL
 	ViewContextWGL::ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *context, const ContextSpecification &spec)
 		: m_HWND(hwnd),
 		  m_HDC(hdc),
-		  m_Specification(spec),
+		  m_Description(spec),
 		  m_PBuffer(context)
 	{
 		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
@@ -76,9 +76,9 @@ namespace Nexus::GL
 		wglSwapIntervalEXT(enabled);
 	}
 
-	const ContextSpecification &ViewContextWGL::GetSpecification() const
+	const ContextSpecification &ViewContextWGL::GetDescription() const
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec)

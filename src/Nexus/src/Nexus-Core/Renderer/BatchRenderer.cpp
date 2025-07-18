@@ -362,10 +362,10 @@ namespace Nexus::Graphics
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
-		Graphics::TextureSpecification textureSpec = {};
+		Graphics::TextureDescription textureSpec   = {};
 		textureSpec.Width						   = 1;
 		textureSpec.Height						   = 1;
-		textureSpec.ArrayLayers					   = 1;
+		textureSpec.DepthOrArrayLayers			   = 1;
 		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
 		textureSpec.Usage						   = Graphics::TextureUsage_Sampled;
 		m_BlankTexture							   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
@@ -405,7 +405,7 @@ namespace Nexus::Graphics
 		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
 		m_UniformBuffer										 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
 
-		Nexus::Graphics::SamplerSpecification samplerSpec {};
+		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
 		m_Sampler				 = m_Device->CreateSampler(samplerSpec);
 	}

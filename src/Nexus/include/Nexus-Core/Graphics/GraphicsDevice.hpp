@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
-		virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
+		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
 
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 		/// specification
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
-		virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
+		virtual Ref<Sampler> CreateSampler(const SamplerDescription &spec) = 0;
 
 		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
@@ -124,7 +124,7 @@ namespace Nexus::Graphics
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
+		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
 
 		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
 

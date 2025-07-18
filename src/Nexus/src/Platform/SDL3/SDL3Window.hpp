@@ -195,10 +195,10 @@ namespace Nexus
 
 		void SetupTimer();
 
-		const WindowSpecification &GetSpecification() const;
+		const WindowSpecification &GetDescription() const;
 
 	  private:
-		WindowSpecification m_Specification = {};
+		WindowSpecification m_Description = {};
 
 		/// @brief A pointer to the underlying SDL window
 		SDL_Window *m_Window;

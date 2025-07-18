@@ -4,7 +4,7 @@
 
 namespace Nexus::Graphics
 {
-	SamplerVk::SamplerVk(GraphicsDeviceVk *device, const SamplerSpecification &spec) : m_Device(device)
+	SamplerVk::SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec) : m_Device(device)
 	{
 		VkFilter			min, max;
 		VkSamplerMipmapMode mipmapMode;
@@ -43,6 +43,8 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create sampler");
 		}
+
+		device->SetObjectName(VK_OBJECT_TYPE_SAMPLER, (uint64_t)m_Sampler, m_Description.DebugName.c_str());
 	}
 
 	SamplerVk::~SamplerVk()
@@ -50,9 +52,9 @@ namespace Nexus::Graphics
 		vkDestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
 	}
 
-	const SamplerSpecification &SamplerVk::GetSamplerSpecification()
+	const SamplerDescription &SamplerVk::GetSamplerSpecification()
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	VkSampler SamplerVk::GetSampler()

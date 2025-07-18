@@ -13,6 +13,6 @@ namespace Nexus::GL
 		}
 		virtual void						Swap()					 = 0;
 		virtual void						SetVSync(bool enabled)	 = 0;
-		virtual const ContextSpecification &GetSpecification() const = 0;
+		virtual const ContextSpecification &GetDescription() const	 = 0;
 	};
 }	 // namespace Nexus::GL

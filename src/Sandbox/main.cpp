@@ -19,7 +19,7 @@ int main()
 	Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 	framebufferSpec.Width									  = 512;
 	framebufferSpec.Height									  = 512;
-	framebufferSpec.ColorAttachmentSpecification			  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}};
+	framebufferSpec.ColourAttachmentSpecification			  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}};
 
 	Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = device->CreateFramebuffer(framebufferSpec);
 }

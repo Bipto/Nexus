@@ -13,11 +13,23 @@
 
 namespace Nexus::Graphics
 {
-	CommandListD3D12::CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListSpecification &spec) : CommandList(spec)
+	CommandListD3D12::CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListDescription &spec) : CommandList(spec)
 	{
 		auto d3d12Device = device->GetDevice();
 		d3d12Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator));
 		d3d12Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_CommandList));
+
+		// set CommandList name
+		{
+			std::wstring debugName = {spec.DebugName.begin(), spec.DebugName.end()};
+			m_CommandList->SetName(debugName.c_str());
+		}
+
+		{
+			std::string	 allocatorName = spec.DebugName + " - Command Allocator";
+			std::wstring debugName	   = {allocatorName.begin(), allocatorName.end()};
+			m_CommandAllocator->SetName(debugName.c_str());
+		}
 	}
 
 	CommandListD3D12::~CommandListD3D12()

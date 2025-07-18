@@ -10,9 +10,9 @@ namespace Nexus::Graphics
 	class SamplerD3D12 : public Sampler
 	{
 	  public:
-		SamplerD3D12(const SamplerSpecification &spec);
+		SamplerD3D12(const SamplerDescription &spec);
 		virtual ~SamplerD3D12();
-		virtual const SamplerSpecification &GetSamplerSpecification() override;
+		virtual const SamplerDescription &GetSamplerSpecification() override;
 
 		D3D12_FILTER			   GetFilter();
 		D3D12_TEXTURE_ADDRESS_MODE GetAddressModeU();
@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 		D3D12_COMPARISON_FUNC	   GetComparisonFunc();
 
 	  private:
-		SamplerSpecification	   m_Specification;
+		SamplerDescription		   m_Description;
 		D3D12_FILTER			   m_SamplerFilter;
 		D3D12_TEXTURE_ADDRESS_MODE m_AddressModeU;
 		D3D12_TEXTURE_ADDRESS_MODE m_AddressModeV;

@@ -43,7 +43,7 @@ namespace Nexus::GL
 									   Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
 									   const ContextSpecification			 &spec)
 		: m_Device(graphicsDevice),
-		  m_Specification(spec),
+		  m_Description(spec),
 		  m_CanvasName(canvasName)
 	{
 		CreateFramebuffer();
@@ -99,9 +99,9 @@ namespace Nexus::GL
 	{
 	}
 
-	const ContextSpecification &Nexus::GL::ViewContextWebGL::GetSpecification() const
+	const ContextSpecification &Nexus::GL::ViewContextWebGL::GetDescription() const
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	void Nexus::GL::ViewContextWebGL::HandleResize()
@@ -119,7 +119,7 @@ namespace Nexus::GL
 
 		std::cout << "Creating framebuffer: [Width: " << framebufferSpec.Width << ", Height: " << framebufferSpec.Height << "]" << std::endl;
 
-		framebufferSpec.ColorAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+		framebufferSpec.ColourAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
 		framebufferSpec.DepthAttachmentSpecification			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 		framebufferSpec.Samples									 = 1;
 		m_Framebuffer											 = m_Device->CreateFramebuffer(framebufferSpec);

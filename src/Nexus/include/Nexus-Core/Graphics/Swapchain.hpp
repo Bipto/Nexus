@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 	class Swapchain
 	{
 	  public:
-		Swapchain(const SwapchainSpecification &spec) : m_Specification(spec)
+		Swapchain(const SwapchainSpecification &spec) : m_Description(spec)
 		{
 		}
 
@@ -32,13 +32,13 @@ namespace Nexus::Graphics
 		virtual PixelFormat				 GetColourFormat()					  = 0;
 		virtual PixelFormat				 GetDepthFormat()					  = 0;
 
-		const SwapchainSpecification &GetSpecification()
+		const SwapchainSpecification &GetDescription()
 		{
-			return m_Specification;
+			return m_Description;
 		}
 
 	  protected:
-		SwapchainSpecification m_Specification;
+		SwapchainSpecification m_Description;
 
 	  private:
 		friend class GraphicsDevice;

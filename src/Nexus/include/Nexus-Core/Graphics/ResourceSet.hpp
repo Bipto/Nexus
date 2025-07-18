@@ -93,7 +93,7 @@ namespace Nexus::Graphics
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
 		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								= 0;
 
-		const ResourceSetSpecification &GetSpecification() const;
+		const ResourceSetSpecification &GetDescription() const;
 		static constexpr uint32_t		DescriptorSetCount = 64;
 		static uint32_t					GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
 
@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 		const std::map<std::string, StorageBufferView>	  &GetBoundStorageBuffers() const;
 
 	  protected:
-		ResourceSetSpecification		   m_Specification;
+		ResourceSetSpecification		   m_Description;
 		std::map<std::string, BindingInfo> m_CombinedImageSamplerBindingInfos;
 		std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
 		std::map<std::string, BindingInfo> m_StorageImageBindingInfos;

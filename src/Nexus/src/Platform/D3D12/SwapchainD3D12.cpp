@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::SwapBuffers()
 	{
-		if (m_Specification.Samples > 1)
+		if (m_Description.Samples > 1)
 		{
 			Resolve();
 		}
@@ -348,9 +348,9 @@ namespace Nexus::Graphics
 		Nexus::Graphics::FramebufferSpecification spec;
 		spec.Width						  = m_SwapchainWidth;
 		spec.Height						  = m_SwapchainHeight;
-		spec.ColorAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+		spec.ColourAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
 		spec.DepthAttachmentSpecification = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
-		spec.Samples					  = m_Specification.Samples;
+		spec.Samples					   = m_Description.Samples;
 
 		m_MultisampledFramebuffer = m_Device->CreateFramebuffer(spec);
 	}
@@ -369,7 +369,7 @@ namespace Nexus::Graphics
 
 		Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
 
-		DXGI_FORMAT			  format		   = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
+		DXGI_FORMAT			  format		   = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0, 0);
 		D3D12_RESOURCE_STATES swapchainState   = GetCurrentTextureState();
 

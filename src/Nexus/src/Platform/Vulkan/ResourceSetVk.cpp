@@ -260,7 +260,7 @@ namespace Nexus::Graphics
 		m_Device->ImmediateSubmit(
 			[&](VkCommandBuffer cmd)
 			{
-				for (uint32_t i = 0; i < textureVk->GetSpecification().MipLevels; i++)
+				for (uint32_t i = 0; i < textureVk->GetDescription().MipLevels; i++)
 				{
 					m_Device->TransitionVulkanImageLayout(cmd,
 														  textureVk->GetImage(),
@@ -305,7 +305,7 @@ namespace Nexus::Graphics
 		m_Device->ImmediateSubmit(
 			[&](VkCommandBuffer cmd)
 			{
-				for (uint32_t i = 0; i < textureVk->GetSpecification().MipLevels; i++)
+				for (uint32_t i = 0; i < textureVk->GetDescription().MipLevels; i++)
 				{
 					m_Device->TransitionVulkanImageLayout(cmd,
 														  textureVk->GetImage(),

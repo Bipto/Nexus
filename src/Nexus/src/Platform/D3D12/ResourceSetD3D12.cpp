@@ -203,7 +203,7 @@ namespace Nexus::Graphics
 			const BindingInfo &info	 = m_CombinedImageSamplerBindingInfos.at(name);
 			const uint32_t	   index = GetLinearDescriptorSlot(info.Set, info.Binding);
 
-			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(texture->GetSpecification());
+			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(texture->GetDescription());
 
 			D3D12_CPU_DESCRIPTOR_HANDLE textureHandle  = m_TextureCPUDescriptors.at(index);
 			auto						resourceHandle = d3d12Texture->GetHandle();
@@ -288,7 +288,7 @@ namespace Nexus::Graphics
 
 	bool ResourceSetD3D12::HasConstantBuffers() const
 	{
-		return m_Specification.UniformBuffers.size() > 0;
+		return m_Description.UniformBuffers.size() > 0;
 	}
 
 	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerStartHandle() const

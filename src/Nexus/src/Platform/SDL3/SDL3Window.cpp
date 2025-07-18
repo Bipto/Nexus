@@ -7,7 +7,7 @@
 
 namespace Nexus
 {
-	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps)
+	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Description(windowProps)
 	{
 		std::string idSelector = "#" + windowProps.CanvasId;
 		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
@@ -244,19 +244,19 @@ namespace Nexus
 
 	void SDL3Window::SetRendersPerSecond(std::optional<uint32_t> amount)
 	{
-		m_Specification.RendersPerSecond = amount;
+		m_Description.RendersPerSecond = amount;
 		SetupTimer();
 	}
 
 	void SDL3Window::SetUpdatesPerSecond(std::optional<uint32_t> amount)
 	{
-		m_Specification.UpdatesPerSecond = amount;
+		m_Description.UpdatesPerSecond = amount;
 		SetupTimer();
 	}
 
 	void SDL3Window::SetTicksPerSecond(std::optional<uint32_t> amount)
 	{
-		m_Specification.TicksPerSecond = amount;
+		m_Description.TicksPerSecond = amount;
 		SetupTimer();
 	}
 
@@ -295,7 +295,7 @@ namespace Nexus
 		info.screen	 = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0);
 		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 #elif defined(NX_PLATFORM_WEB)
-		info.canvasId = m_Specification.CanvasId;
+		info.canvasId = m_Description.CanvasId;
 #elif defined(NX_PLATFORM_ANDROID)
 		info.nativeWindow = (ANativeWindow *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
 #endif
@@ -650,19 +650,19 @@ namespace Nexus
 		std::optional<double> secondsPerUpdate = {};
 		std::optional<double> secondsPerTick   = {};
 
-		if (m_Specification.RendersPerSecond.has_value())
+		if (m_Description.RendersPerSecond.has_value())
 		{
-			secondsPerRender = 1.0 / m_Specification.RendersPerSecond.value();
+			secondsPerRender = 1.0 / m_Description.RendersPerSecond.value();
 		}
 
-		if (m_Specification.UpdatesPerSecond.has_value())
+		if (m_Description.UpdatesPerSecond.has_value())
 		{
-			secondsPerUpdate = 1.0 / m_Specification.UpdatesPerSecond.value();
+			secondsPerUpdate = 1.0 / m_Description.UpdatesPerSecond.value();
 		}
 
-		if (m_Specification.TicksPerSecond.has_value())
+		if (m_Description.TicksPerSecond.has_value())
 		{
-			secondsPerTick = 1.0 / m_Specification.TicksPerSecond.value();
+			secondsPerTick = 1.0 / m_Description.TicksPerSecond.value();
 		}
 
 		m_RenderTimer.Every(
@@ -714,9 +714,9 @@ namespace Nexus
 			secondsPerTick);
 	}
 
-	const WindowSpecification &SDL3Window::GetSpecification() const
+	const WindowSpecification &SDL3Window::GetDescription() const
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 }	 // namespace Nexus

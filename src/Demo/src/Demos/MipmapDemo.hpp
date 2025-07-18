@@ -32,7 +32,7 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
-			Nexus::Graphics::SamplerSpecification samplerSpec {};
+			Nexus::Graphics::SamplerDescription samplerSpec {};
 			samplerSpec.MinimumLOD						 = m_SelectedMip;
 			samplerSpec.MaximumLOD						 = m_SelectedMip;
 			Nexus::Ref<Nexus::Graphics::Sampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -94,7 +94,7 @@ namespace Demos
 		virtual void RenderUI() override
 		{
 			ImGui::Image(m_TextureID, {256, 256});
-			ImGui::DragInt("Mip", &m_SelectedMip, 1.0f, 0, m_Texture->GetSpecification().MipLevels);
+			ImGui::DragInt("Mip", &m_SelectedMip, 1.0f, 0, m_Texture->GetDescription().MipLevels);
 		}
 
 		virtual std::string GetInfo() const override
@@ -118,7 +118,7 @@ namespace Demos
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 			pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
 			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);

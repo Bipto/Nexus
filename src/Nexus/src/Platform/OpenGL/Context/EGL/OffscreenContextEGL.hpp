@@ -29,7 +29,7 @@ namespace Nexus::GL
 		EGLDisplay m_EGLDisplay = {};
 		EGLContext m_Context	= {};
 
-		ContextSpecification m_Specification;
+		ContextSpecification m_Description;
 		GladGLContext		 m_GladContext = {};
 	};
 }	 // namespace Nexus::GL

@@ -702,7 +702,7 @@ namespace Nexus::Graphics
 				if (Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture))
 				{
 					texture->Bind(location);
-					glSampler->Bind(location, texture->GetSpecification().MipLevels > 1);
+					glSampler->Bind(location, texture->GetDescription().MipLevels > 1);
 				}
 			}
 		}
@@ -735,11 +735,11 @@ namespace Nexus::Graphics
 			{
 	#if !defined(__EMSCRIPTEN__)
 				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
-				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
+				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetDescription().Format);
 				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
 
 				GLboolean layered = GL_FALSE;
-				if (texture->GetSpecification().ArrayLayers > 1)
+				if (texture->GetDescription().DepthOrArrayLayers > 1)
 				{
 					layered = GL_TRUE;
 				}

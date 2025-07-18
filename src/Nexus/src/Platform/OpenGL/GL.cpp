@@ -220,9 +220,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_Float:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_UNSIGNED_INT_24_8;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
 	#if defined(__EMSCRIPTEN__)
@@ -251,6 +248,11 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::BC5_SNorm:
 			case Nexus::Graphics::PixelFormat::BC7_UNorm:
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_UNSIGNED_BYTE;
+
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return GL_UNSIGNED_SHORT;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_UNSIGNED_INT_24_8;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_FLOAT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -306,9 +308,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA_INTEGER;
 
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return GL_DEPTH_STENCIL;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGBA;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGBA_INTEGER;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_RGB;
@@ -332,11 +331,16 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::BC7_UNorm:
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_RGBA;
 
+			case Nexus::Graphics::PixelFormat::D16_UNorm:
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_DEPTH;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_DEPTH_STENCIL;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
 
-	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat)
+	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format)
 	{
 		switch (format)
 		{
@@ -345,7 +349,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R8_UInt: return GL_R8UI;
 			case Nexus::Graphics::PixelFormat::R8_SInt: return GL_R8I;
 
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return depthFormat ? GL_DEPTH_COMPONENT16 : GL_R16;
+			case Nexus::Graphics::PixelFormat::R16_UNorm: return GL_R16;
 			case Nexus::Graphics::PixelFormat::R16_SNorm: return GL_R16I;
 			case Nexus::Graphics::PixelFormat::R16_UInt: return GL_R16UI;
 			case Nexus::Graphics::PixelFormat::R16_SInt: return GL_R16I;
@@ -353,7 +357,7 @@ namespace Nexus::GL
 
 			case Nexus::Graphics::PixelFormat::R32_UInt: return GL_R32UI;
 			case Nexus::Graphics::PixelFormat::R32_SInt: return GL_R32I;
-			case Nexus::Graphics::PixelFormat::R32_Float: return depthFormat ? GL_DEPTH_COMPONENT32F : GL_R32F;
+			case Nexus::Graphics::PixelFormat::R32_Float: return GL_R32F;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_UNorm: return GL_RG8;
 			case Nexus::Graphics::PixelFormat::R8_G8_SNorm: return GL_RG8I;
@@ -388,9 +392,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA32I;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_RGBA32F;
 
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(depthFormat); return GL_DEPTH32F_STENCIL8;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(depthFormat); return GL_DEPTH24_STENCIL8;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGB10_A2;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGB10_A2UI;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_R11F_G11F_B10F;
@@ -412,6 +413,11 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::BC5_SNorm: return GL_COMPRESSED_SIGNED_RG_RGTC2;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm: return GL_COMPRESSED_RGBA_BPTC_UNORM;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM;
+
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return GL_DEPTH_COMPONENT16;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_DEPTH24_STENCIL8;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_DEPTH_COMPONENT32;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_DEPTH32F_STENCIL8;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -479,14 +485,14 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GetTextureType(const Graphics::TextureSpecification &spec)
+	GLenum GetTextureType(const Graphics::TextureDescription &spec)
 	{
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
 			{
 	#if !defined(__EMSCRIPTEN__)
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					return GL_TEXTURE_1D_ARRAY;
 				}
@@ -500,44 +506,43 @@ namespace Nexus::GL
 			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.DepthOrArrayLayers > 1)
 				{
-					if (spec.ArrayLayers > 6)
-					{
-						return GL_TEXTURE_CUBE_MAP_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_CUBE_MAP;
-					}
+					return GL_TEXTURE_2D_ARRAY;
 				}
 				else
 				{
-					if (spec.ArrayLayers > 1)
-					{
-						return GL_TEXTURE_2D_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_2D;
-					}
+					return GL_TEXTURE_2D;
 				}
 			}
 			case Graphics::TextureType::Texture3D:
 			{
 				return GL_TEXTURE_3D;
 			}
+
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers > 1)
+				{
+					return GL_TEXTURE_CUBE_MAP_ARRAY;
+				}
+				else
+				{
+					return GL_TEXTURE_CUBE_MAP;
+				}
+				break;
+			}
 			default: throw std::runtime_error("Failed to find a valid texture type");
 		}
 	}
 
-	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec)
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec)
 	{
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
 			{
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					return GLInternalTextureFormat::Texture1DArray;
 				}
@@ -549,46 +554,43 @@ namespace Nexus::GL
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.Samples > 1)
 				{
-					if (spec.ArrayLayers > 6)
+					if (spec.DepthOrArrayLayers > 1)
 					{
-						return GLInternalTextureFormat::CubemapArray;
+						return GLInternalTextureFormat::Texture2DArrayMultisample;
 					}
 					else
 					{
-						return GLInternalTextureFormat::Cubemap;
+						return GLInternalTextureFormat::Texture2DMultisample;
 					}
 				}
 				else
 				{
-					if (spec.Samples > 1)
+					if (spec.DepthOrArrayLayers > 1)
 					{
-						if (spec.ArrayLayers > 1)
-						{
-							return GLInternalTextureFormat::Texture2DArrayMultisample;
-						}
-						else
-						{
-							return GLInternalTextureFormat::Texture2DMultisample;
-						}
+						return GLInternalTextureFormat::Texture2DArray;
 					}
 					else
 					{
-						if (spec.ArrayLayers > 1)
-						{
-							return GLInternalTextureFormat::Texture2DArray;
-						}
-						else
-						{
-							return GLInternalTextureFormat::Texture2D;
-						}
+						return GLInternalTextureFormat::Texture2D;
 					}
 				}
 			}
 			case Graphics::TextureType::Texture3D:
 			{
 				return GLInternalTextureFormat::Texture3D;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers > 6)
+				{
+					return GLInternalTextureFormat::CubemapArray;
+				}
+				else
+				{
+					return GLInternalTextureFormat::Cubemap;
+				}
 			}
 			default: throw std::runtime_error("Failed to find a valid GLInternalTextureFormat");
 		}
@@ -1048,11 +1050,11 @@ namespace Nexus::GL
 								Graphics::SubresourceDescription  subresource,
 								const GladGLContext				 &context)
 	{
-		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+		NX_ASSERT(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		if (subresource.Depth > 1)
 		{
-			NX_ASSERT(texture->GetSpecification().Type == Graphics::TextureType::Texture3D,
+			NX_ASSERT(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
 					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
@@ -1063,7 +1065,7 @@ namespace Nexus::GL
 
 		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
-							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		switch (texture->GetInternalGLTextureFormat())
 		{
@@ -1121,11 +1123,11 @@ namespace Nexus::GL
 								   Graphics::SubresourceDescription	 subresource,
 								   const GladGLContext				&context)
 	{
-		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+		NX_ASSERT(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		if (subresource.Depth > 1)
 		{
-			NX_ASSERT(texture->GetSpecification().Type == Graphics::TextureType::Texture3D,
+			NX_ASSERT(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
 					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
@@ -1138,7 +1140,7 @@ namespace Nexus::GL
 
 		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
-							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		switch (texture->GetInternalGLTextureFormat())
 		{
@@ -1223,7 +1225,7 @@ namespace Nexus::GL
 								Graphics::SubresourceDescription  subresource,
 								const GladGLContext				 &context)
 	{
-		const auto &textureSpecification = texture->GetSpecification();
+		const auto &textureSpecification = texture->GetDescription();
 
 		size_t layerSize =
 			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);
@@ -1268,7 +1270,7 @@ namespace Nexus::GL
 								   Graphics::SubresourceDescription	 subresource,
 								   const GladGLContext				&context)
 	{
-		const auto &textureSpecification = texture->GetSpecification();
+		const auto &textureSpecification = texture->GetDescription();
 
 		size_t layerSize =
 			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);

@@ -163,7 +163,7 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	bufferDesc.Access										 = Nexus::Graphics::BufferMemoryAccess::Readback;
 	Nexus::Ref<Nexus::Graphics::DeviceBuffer> readbackBuffer = device->CreateDeviceBuffer(bufferDesc);
 
-	Nexus::Graphics::TextureSpecification textureSpec = {};
+	Nexus::Graphics::TextureDescription textureSpec	  = {};
 	textureSpec.Width								  = 1;
 	textureSpec.Height								  = 1;
 	textureSpec.ArrayLayers							  = 1;

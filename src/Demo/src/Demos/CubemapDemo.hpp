@@ -41,7 +41,7 @@ namespace Demos
 
 			m_Camera.SetPosition(glm::vec3(0, 0, 0));
 
-			Nexus::Graphics::SamplerSpecification samplerSpec {};
+			Nexus::Graphics::SamplerDescription samplerSpec {};
 			samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
 			samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
 			samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -151,7 +151,7 @@ namespace Demos
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 

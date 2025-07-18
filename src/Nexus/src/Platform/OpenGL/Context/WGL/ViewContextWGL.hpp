@@ -19,7 +19,7 @@ namespace Nexus::GL
 		virtual bool						MakeCurrent() override;
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
-		virtual const ContextSpecification &GetSpecification() const override;
+		virtual const ContextSpecification &GetDescription() const override;
 		virtual bool						Validate() override;
 		virtual const GladGLContext		   &GetContext() const override;
 
@@ -32,7 +32,7 @@ namespace Nexus::GL
 		HGLRC m_HGLRC = {};
 
 		OffscreenContextWGL *m_PBuffer		 = {};
-		ContextSpecification m_Specification = {};
+		ContextSpecification m_Description	 = {};
 
 		OpenGLFunctionContext m_FunctionContext = {};
 	};

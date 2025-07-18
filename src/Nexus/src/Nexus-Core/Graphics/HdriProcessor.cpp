@@ -76,10 +76,10 @@ namespace Nexus::Graphics
 			Utils::FlipPixelsHorizontally(pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
 		}
 
-		Graphics::TextureSpecification textureSpec = {};
+		Graphics::TextureDescription textureSpec   = {};
 		textureSpec.Width						   = m_Width;
 		textureSpec.Height						   = m_Height;
-		textureSpec.ArrayLayers					   = 1;
+		textureSpec.DepthOrArrayLayers			   = 1;
 		textureSpec.MipLevels					   = 1;
 		textureSpec.Usage						   = Nexus::Graphics::TextureUsage_Sampled;
 		textureSpec.Type						   = Graphics::TextureType::Texture2D;
@@ -94,20 +94,20 @@ namespace Nexus::Graphics
 		framebufferSpec.Width									  = size;
 		framebufferSpec.Height									  = size;
 		framebufferSpec.Samples									  = 1;
-		framebufferSpec.ColorAttachmentSpecification			  = {PixelFormat::R32_G32_B32_A32_Float};
+		framebufferSpec.ColourAttachmentSpecification			  = {PixelFormat::R32_G32_B32_A32_Float};
 		framebufferSpec.DepthAttachmentSpecification			  = PixelFormat::D24_UNorm_S8_UInt;
 
 		Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 		Ref<CommandList> commandList = m_Device->CreateCommandList();
 
-		Graphics::TextureSpecification cubemapSpec = {};
+		Graphics::TextureDescription cubemapSpec   = {};
+		cubemapSpec.Type						   = Graphics::TextureType::TextureCube;
+		cubemapSpec.Usage						   = Graphics::TextureUsage_Sampled;
+		cubemapSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
 		cubemapSpec.Width						   = size;
 		cubemapSpec.Height						   = size;
 		cubemapSpec.MipLevels					   = 1;
-		cubemapSpec.ArrayLayers					   = 6;
-		cubemapSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		cubemapSpec.Type						   = Graphics::TextureType::Texture2D;
-		cubemapSpec.Usage						   = Graphics::TextureUsage_Cubemap | Graphics::TextureUsage_Sampled;
+		cubemapSpec.DepthOrArrayLayers			   = 1;
 		Ref<Texture> cubemap					   = Ref<Texture>(m_Device->CreateTexture(cubemapSpec));
 
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 		pipelineDescription.ResourceSetSpec.SampledImages  = {{"equirectangularMap", 1, 0}};
 
-		pipelineDescription.ColourFormats[0]  = framebufferSpec.ColorAttachmentSpecification.Attachments[0].TextureFormat;
+		pipelineDescription.ColourFormats[0]  = framebufferSpec.ColourAttachmentSpecification.Attachments[0].TextureFormat;
 		pipelineDescription.ColourTargetCount = 1;
 		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
 
@@ -128,7 +128,7 @@ namespace Nexus::Graphics
 		Ref<GraphicsPipeline> pipeline	  = m_Device->CreateGraphicsPipeline(pipelineDescription);
 		Ref<ResourceSet>	  resourceSet = m_Device->CreateResourceSet(pipeline);
 
-		Nexus::Graphics::SamplerSpecification samplerSpec {};
+		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;

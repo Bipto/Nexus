@@ -16,7 +16,7 @@
 
 namespace Nexus::GL
 {
-	OffscreenContextEGL::OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display) : m_Specification(spec)
+	OffscreenContextEGL::OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display) : m_Description(spec)
 
 	{
 		m_EGLDisplay = display;

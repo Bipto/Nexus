@@ -62,6 +62,9 @@ namespace Nexus::Graphics
 
 		/// @brief The stride of each item in the buffer in bytes
 		size_t StrideInBytes = 0;
+
+		/// @brief A debug name for the buffer, shows up in debugging tools
+		std::string DebugName = "DeviceBuffer";
 	};
 
 	class DeviceBuffer
