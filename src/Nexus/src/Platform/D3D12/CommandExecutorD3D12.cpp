@@ -10,14 +10,29 @@
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 
+	#include <WinPixEventRuntime/pix3.h>
+
 namespace Nexus::Graphics
 {
 	CommandExecutorD3D12::CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device) : m_Device(device)
 	{
+		m_PixModule = LoadLibrary("WinPixEventRuntime.dll");
+		if (m_PixModule)
+		{
+			m_PIXBeginEvent = (PIXBeginEventFn)GetProcAddress(m_PixModule, "PIXBeginEventOnCommandList");
+			m_PIXEndEvent	= (PIXEndEventFn)GetProcAddress(m_PixModule, "PIXEndEventOnCommandList");
+			m_PIXSetMarker	= (PIXSetMarkerFn)GetProcAddress(m_PixModule, "PIXSetMarkerOnCommandList");
+		}
+		else
+		{
+			NX_WARNING("Failed to load PIX, some debugging functionality may not work correctly");
+		}
 	}
 
 	CommandExecutorD3D12::~CommandExecutorD3D12()
 	{
+		FreeLibrary(m_PixModule);
+		m_PixModule = NULL;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device)
@@ -678,19 +693,26 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
 	{
-		std::wstring groupName = std::wstring(command.GroupName.begin(), command.GroupName.end());
-		m_CommandList->BeginEvent(0, groupName.c_str(), (UINT)groupName.size() * sizeof(wchar_t));
+		if (m_PIXBeginEvent && m_PIXEndEvent)
+		{
+			m_PIXBeginEvent(m_CommandList.Get(), PIX_COLOR_DEFAULT, command.GroupName.c_str());
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
-		m_CommandList->EndEvent();
+		if (m_PIXBeginEvent && m_PIXEndEvent)
+		{
+			m_PIXEndEvent(m_CommandList.Get());
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
 	{
-		std::wstring markerGroup = std::wstring(command.MarkerName.begin(), command.MarkerName.end());
-		m_CommandList->SetMarker(0, markerGroup.c_str(), (UINT)markerGroup.size() * sizeof(wchar_t));
+		if (m_PIXSetMarker)
+		{
+			m_PIXSetMarker(m_CommandList.Get(), PIX_COLOR_DEFAULT, command.MarkerName.c_str());
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)

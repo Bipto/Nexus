@@ -6,6 +6,10 @@
 	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 
+typedef void(WINAPI *PIXBeginEventFn)(ID3D12GraphicsCommandList *, UINT64, PCSTR);
+typedef void(WINAPI *PIXEndEventFn)(ID3D12GraphicsCommandList *);
+typedef void(WINAPI *PIXSetMarkerFn)(ID3D12GraphicsCommandList *, UINT64, PCSTR);
+
 namespace Nexus::Graphics
 {
 	// forward declarations
@@ -79,6 +83,11 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DispatchIndirectCommandSignature	 = nullptr;
 
 		std::map<D3D12_INDIRECT_ARGUMENT_TYPE, std::map<size_t, Microsoft::WRL::ComPtr<ID3D12CommandSignature>>> m_IndirectCommandSignatures = {};
+
+		HMODULE			m_PixModule		= NULL;
+		PIXBeginEventFn m_PIXBeginEvent = NULL;
+		PIXEndEventFn	m_PIXEndEvent	= NULL;
+		PIXSetMarkerFn	m_PIXSetMarker	= NULL;
 	};
 }	 // namespace Nexus::Graphics
 
