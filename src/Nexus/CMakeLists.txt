@@ -271,7 +271,9 @@ endif()
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 
-set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 17)
+if (DEFINED NX_PLATFORM_VULKAN)
+  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 17)
+endif()
 
 set(NX_INCLUDE_VISIBILITY PUBLIC)
 set(NX_LINK_VISIBILITY PUBLIC)

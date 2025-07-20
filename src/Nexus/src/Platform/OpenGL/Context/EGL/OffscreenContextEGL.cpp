@@ -97,21 +97,21 @@ namespace Nexus::GL
 				contextAttribs.push_back(spec.VersionMajor);
 				contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
 				contextAttribs.push_back(spec.VersionMinor);
+
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
+				if (spec.UseCoreProfile)
+				{
+					contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
+				}
+				else
+				{
+					contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
+				}
 			}
 			else
 			{
 				contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
 				contextAttribs.push_back(spec.VersionMajor);
-			}
-
-			contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
-			if (spec.UseCoreProfile)
-			{
-				contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
-			}
-			else
-			{
-				contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
 			}
 
 			if (spec.Debug)
@@ -136,20 +136,36 @@ namespace Nexus::GL
 			std::cout << errorMessage << std::endl;
 		}
 
-		if (!MakeCurrent())
+		if (!eglMakeCurrent(m_EGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, m_Context))
 		{
 			std::cout << "Could not make context current: ";
 			const char *errorMessage = eglGetErrorString(eglGetError());
 			std::cout << errorMessage << std::endl;
 		}
 
-		gladLoaderLoadGLContext(&m_GladContext);
+        if (spec.GLVersion == OpenGLVersion::OpenGL)
+        {
+            if (!gladLoaderLoadGLContext(&m_GladContext))
+            {
+                std::cout << "Failed to load OpenGL function pointers" << std::endl;
+            }
+        }
+        else
+        {
+            if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
+            {
+                std::cout << "Failed to load OpenGLES function pointers" << std::endl;
+            }
+        }
+
+
+
 	}
 
 	OffscreenContextEGL::~OffscreenContextEGL()
 	{
 		GL::ClearCurrentContext();
-		gladLoaderUnloadGLContext(&m_GladContext);
+        gladLoaderUnloadGLContext(&m_GladContext);
 		eglDestroyContext(m_EGLDisplay, m_Context);
 		eglTerminate(m_EGLDisplay);
 	}

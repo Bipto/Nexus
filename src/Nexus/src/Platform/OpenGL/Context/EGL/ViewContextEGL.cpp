@@ -85,23 +85,23 @@ namespace Nexus::GL
 			contextAttribs.push_back(spec.VersionMajor);
 			contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION);
 			contextAttribs.push_back(spec.VersionMinor);
+
+            if (spec.UseCoreProfile)
+            {
+                contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
+                contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
+            }
+            else
+            {
+                contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
+                contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
+            }
 		}
 		else
 		{
 			contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
 			contextAttribs.push_back(spec.VersionMajor);
 			contextAttribs.push_back(EGL_NONE);
-		}
-
-		if (spec.UseCoreProfile)
-		{
-			contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
-			contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
-		}
-		else
-		{
-			contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
-			contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
 		}
 
 		if (spec.Debug)
@@ -130,10 +130,28 @@ namespace Nexus::GL
 			std::cout << errorMessage << std::endl;
 		}
 
-		SetVSync(spec.Vsync);
+        if (!eglMakeCurrent(m_EGLDisplay, m_Surface, m_Surface, m_Context))
+        {
+            std::cout << "Failed to make context current" << std::endl;
+        }
 
-		MakeCurrent();
-		gladLoaderLoadGLContext(&m_GladContext);
+        eglSwapInterval(m_EGLDisplay, (EGLint)spec.Vsync);
+
+        if (spec.GLVersion == OpenGLVersion::OpenGL)
+        {
+            if (!gladLoaderLoadGLContext(&m_GladContext))
+            {
+                std::cout << "Failed to load OpenGL function pointers" << std::endl;
+            }
+
+        }
+        else
+        {
+            if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
+            {
+                std::cout << "Failed to load OpenGLES function pointers" << std::endl;
+            }
+        }
 	}
 
 	ViewContextEGL::~ViewContextEGL()

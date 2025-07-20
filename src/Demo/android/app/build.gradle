@@ -16,12 +16,19 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        externalNativeBuild{
-            cmake{
-                arguments "-DANDROID_APP_PLATFORM=android-19", "-DANDROID_STL=c++_static"
-                arguments "-DNX_PLATFORM_OPENGL=1", "-DNX_PLATFORM_OPENAL=1", "-DNX_BUILD_DEMO=1"
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_APP_PLATFORM=android-19", "-DANDROID_STL=c++_static",
+                        "-DNX_PLATFORM_OPENGL=1", "-DNX_PLATFORM_OPENAL=1", "-DNX_BUILD_DEMO=1", "-DNX_BUILD_TYPE=SHARED"
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
             }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "../../../../CMakeLists.txt"
+            version "3.31.6"
         }
     }
 
@@ -34,13 +41,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
-    }
-
-    externalNativeBuild{
-        cmake{
-            path '../../../../CMakeLists.txt'
-            version = "3.31.6"
-        }
     }
 
     sourceSets.main{

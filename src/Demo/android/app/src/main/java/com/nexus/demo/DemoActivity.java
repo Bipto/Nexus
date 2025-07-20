@@ -30,6 +30,7 @@ public class DemoActivity extends SDLActivity {
     protected String[] getLibraries() {
         // Return the list of libraries including custom ones
         return new String[]{
+                "Nexus",
                 "Demo"
         };
     }
