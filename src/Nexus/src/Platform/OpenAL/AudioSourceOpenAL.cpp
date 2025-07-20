@@ -123,7 +123,7 @@ namespace Nexus::Audio
 	void AudioSourceOpenAL::SetStaticSourceBuffer(Ref<AudioBuffer> buffer)
 	{
 		Ref<AudioBufferOpenAL> alBuffer = std::dynamic_pointer_cast<AudioBufferOpenAL>(buffer);
-		alSourcei(m_Source, AL_BUFFER, alBuffer->GetHandle());
+		alSourcei(m_Source, AL_BUFFER, (ALint)alBuffer->GetHandle());
 		m_StaticBuffer = buffer;
 	}
 
@@ -221,21 +221,21 @@ namespace Nexus::Audio
 	{
 		ALfloat position[3];
 		alGetSourcefv(m_Source, AL_POSITION, position);
-		return {position[0], position[1], position[3]};
+		return {position[0], position[1], position[2]};
 	}
 
 	glm::vec3 AudioSourceOpenAL::GetVelocity() const
 	{
 		ALfloat velocity[3];
 		alGetSourcefv(m_Source, AL_VELOCITY, velocity);
-		return {velocity[0], velocity[1], velocity[3]};
+		return {velocity[0], velocity[1], velocity[2]};
 	}
 
 	glm::vec3 AudioSourceOpenAL::GetDirection() const
 	{
 		ALfloat direction[3];
 		alGetSourcefv(m_Source, AL_DIRECTION, direction);
-		return {direction[0], direction[1], direction[3]};
+		return {direction[0], direction[1], direction[2]};
 	}
 
 	bool AudioSourceOpenAL::GetIsRelative() const

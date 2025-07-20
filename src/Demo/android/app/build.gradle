@@ -19,7 +19,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_APP_PLATFORM=android-19", "-DANDROID_STL=c++_static",
-                        "-DNX_PLATFORM_OPENGL=1", "-DNX_PLATFORM_OPENAL=1", "-DNX_BUILD_DEMO=1", "-DNX_BUILD_TYPE=SHARED"
+                        "-DNX_PLATFORM_OPENGL=1", "-DNX_PLATFORM_OPENAL=1", "-DNX_PLATFORM_VULKAN=1", "-DNX_BUILD_DEMO=1", "-DNX_BUILD_TYPE=SHARED"
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
             }
         }

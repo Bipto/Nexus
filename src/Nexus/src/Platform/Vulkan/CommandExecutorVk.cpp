@@ -125,7 +125,16 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		m_CurrentlyBoundPipeline = command.lock();
+		if (Ref<Pipeline> pipeline = command.lock())
+		{
+			m_CurrentlyBoundPipeline = pipeline;
+
+			if (pipeline->GetType() != PipelineType::Graphics)
+			{
+				Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+			}
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DrawDescription command, GraphicsDevice *device)

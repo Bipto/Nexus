@@ -798,11 +798,6 @@ namespace Nexus::Graphics
 				extensions.push_back(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME);
 				m_DeviceFeatures.Supports8BitIndices = true;
 			}
-			else if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME);
-				m_DeviceFeatures.Supports8BitIndices = true;
-			}
 		}
 
 		// this is used to set debug object names and groups
