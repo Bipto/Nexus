@@ -214,7 +214,7 @@ namespace Nexus::Graphics
 			indexBufferView.BufferHandle			  = cube->GetIndexBuffer();
 			indexBufferView.Offset					  = 0;
 			indexBufferView.Size					  = cube->GetIndexBuffer()->GetSizeInBytes();
-			indexBufferView.BufferFormat			  = Nexus::Graphics::IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat			  = Nexus::Graphics::IndexFormat::UInt32;
 			commandList->SetIndexBuffer(indexBufferView);
 
 			auto indexCount = cube->GetIndexBuffer()->GetCount();

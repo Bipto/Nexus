@@ -423,13 +423,13 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexFormat format)
 	{
 		switch (format)
 		{
-			case Nexus::Graphics::IndexBufferFormat::UInt8: return GL_UNSIGNED_BYTE;
-			case Nexus::Graphics::IndexBufferFormat::UInt16: return GL_UNSIGNED_SHORT;
-			case Nexus::Graphics::IndexBufferFormat::UInt32: return GL_UNSIGNED_INT;
+			case Nexus::Graphics::IndexFormat::UInt8: return GL_UNSIGNED_BYTE;
+			case Nexus::Graphics::IndexFormat::UInt16: return GL_UNSIGNED_SHORT;
+			case Nexus::Graphics::IndexFormat::UInt32: return GL_UNSIGNED_INT;
 			default: throw std::runtime_error("Failed to find a valid index buffer format");
 		}
 	}

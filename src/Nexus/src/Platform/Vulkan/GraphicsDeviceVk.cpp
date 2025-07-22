@@ -35,6 +35,11 @@ namespace Nexus::Graphics
 		LoadExtensionFunctions();
 
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
+
+		VkAccelerationStructureGeometryTrianglesDataKHR triangles = {};
+
+		VkAccelerationStructureGeometryKHR geometry = {};
+		geometry.sType								= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 	}
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -666,6 +671,9 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksEXT");
 		m_ExtensionFunctions.vkCmdDrawMeshTasksIndirectEXT =
 			(PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksIndirectEXT");
+
+		m_ExtensionFunctions.vkGetBufferDeviceAddressKHR =
+			(PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetBufferDeviceAddressKHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -813,6 +821,19 @@ namespace Nexus::Graphics
 			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
 		}
 
+		// ray tracing
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+			}
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+			}
+		}
+
 		return extensions;
 	}
 
@@ -833,6 +854,15 @@ namespace Nexus::Graphics
 		for (const auto &property : properties) { extensions.push_back(property.extensionName); }
 
 		return extensions;
+	}
+
+	VkDeviceAddress GraphicsDeviceVk::GetBufferDeviceAddress(Ref<DeviceBufferVk> buffer)
+	{
+		VkBufferDeviceAddressInfo info = {};
+		info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+		info.pNext					   = nullptr;
+		info.buffer					   = buffer->GetVkBuffer();
+		return m_ExtensionFunctions.vkGetBufferDeviceAddressKHR(m_Device, &info);
 	}
 
 	Vk::AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
@@ -884,15 +914,24 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
-	bool GraphicsDeviceVk::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	bool GraphicsDeviceVk::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8: return m_DeviceFeatures.Supports8BitIndices;
-			case IndexBufferFormat::UInt16:
-			case IndexBufferFormat::UInt32: return true;
+			case IndexFormat::UInt8: return m_DeviceFeatures.Supports8BitIndices;
+			case IndexFormat::UInt16:
+			case IndexFormat::UInt32: return true;
 			default: throw std::runtime_error("Failed to find valid index buffer format");
 		}
+	}
+
+	AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
+		const AccelerationStructureBuildDescription &description,
+		size_t										 primitiveCount) const
+	{
+		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
+
+		return AccelerationStructureBuildSizeDescription();
 	}
 
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)

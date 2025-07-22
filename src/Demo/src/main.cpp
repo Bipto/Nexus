@@ -21,6 +21,7 @@
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/Models.hpp"
+#include "Demos/RayTracingDemo.hpp"
 #include "Demos/Splines.hpp"
 #include "Demos/StorageBufferDemo.hpp"
 #include "Demos/Texturing.hpp"
@@ -108,6 +109,8 @@ class DemoApplication : public Nexus::Application
 		{
 			RegisterGraphicsDemo<Demos::GeometryShaderDemo>("Geometry Shader");
 		}
+
+		RegisterGraphicsDemo<Demos::RayTracingDemo>("Ray Tracing");
 
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");

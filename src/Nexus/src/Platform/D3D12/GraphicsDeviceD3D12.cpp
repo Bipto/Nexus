@@ -401,15 +401,22 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
-	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8: return false;
-			case IndexBufferFormat::UInt16:
-			case IndexBufferFormat::UInt32: return true;
+			case IndexFormat::UInt8: return false;
+			case IndexFormat::UInt16:
+			case IndexFormat::UInt32: return true;
 			default: throw std::runtime_error("Failed to find index buffer format");
 		}
+	}
+
+	AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
+		const AccelerationStructureBuildDescription &description,
+		size_t										 primitiveCount) const
+	{
+		return AccelerationStructureBuildSizeDescription();
 	}
 
 	void GraphicsDeviceD3D12::InitUploadCommandList()

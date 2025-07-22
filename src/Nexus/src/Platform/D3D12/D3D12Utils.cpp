@@ -268,12 +268,12 @@ namespace Nexus::D3D12
 	}
 
 	DXGI_FORMAT
-	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexFormat format)
 	{
 		switch (format)
 		{
-			case Nexus::Graphics::IndexBufferFormat::UInt16: return DXGI_FORMAT_R16_UINT;
-			case Nexus::Graphics::IndexBufferFormat::UInt32: return DXGI_FORMAT_R32_UINT;
+			case Nexus::Graphics::IndexFormat::UInt16: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::IndexFormat::UInt32: return DXGI_FORMAT_R32_UINT;
 			default: throw std::runtime_error("Invalid index buffer format entered");
 		}
 	}

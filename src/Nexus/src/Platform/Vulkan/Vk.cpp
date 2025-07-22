@@ -490,13 +490,13 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format)
 	{
 		switch (format)
 		{
-			case Nexus::Graphics::IndexBufferFormat::UInt8: return VK_INDEX_TYPE_UINT8_EXT;
-			case Nexus::Graphics::IndexBufferFormat::UInt16: return VK_INDEX_TYPE_UINT16;
-			case Nexus::Graphics::IndexBufferFormat::UInt32: return VK_INDEX_TYPE_UINT32;
+			case Nexus::Graphics::IndexFormat::UInt8: return VK_INDEX_TYPE_UINT8_EXT;
+			case Nexus::Graphics::IndexFormat::UInt16: return VK_INDEX_TYPE_UINT16;
+			case Nexus::Graphics::IndexFormat::UInt32: return VK_INDEX_TYPE_UINT32;
 			default: throw std::runtime_error("Failed to find a valid index buffer format");
 		}
 	}

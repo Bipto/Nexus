@@ -46,7 +46,7 @@ namespace Nexus::Vk
 
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
 
-	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format);
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
 	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc);

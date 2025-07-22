@@ -62,7 +62,9 @@ namespace Nexus::Graphics
 
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
-		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const override;
+		virtual bool							  IsIndexBufferFormatSupported(IndexFormat format) const override;
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
+																					size_t primitiveCount) const final;
 
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
 

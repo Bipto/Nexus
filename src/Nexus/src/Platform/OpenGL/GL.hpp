@@ -76,7 +76,7 @@ namespace Nexus::GL
 	GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
 	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format);
 
-	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexFormat format);
 	GLenum GetTopology(Nexus::Graphics::Topology topology);
 
 	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);

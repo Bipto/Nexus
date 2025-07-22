@@ -583,7 +583,7 @@ namespace Nexus::ImGuiUtils
 					indexBufferView.BufferHandle			  = m_IndexBuffer;
 					indexBufferView.Offset					  = 0;
 					indexBufferView.Size					  = m_IndexBuffer->GetSizeInBytes();
-					indexBufferView.BufferFormat			  = Graphics::IndexBufferFormat::UInt16;
+					indexBufferView.BufferFormat			  = Graphics::IndexFormat::UInt16;
 					m_CommandList->SetIndexBuffer(indexBufferView);
 
 					Nexus::Graphics::Viewport viewport;

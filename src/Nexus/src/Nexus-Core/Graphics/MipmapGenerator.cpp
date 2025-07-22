@@ -111,7 +111,7 @@ namespace Nexus::Graphics
 			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
-			indexBufferView.BufferFormat	  = IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat	  = IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			m_CommandList->SetResourceSet(m_ResourceSet);

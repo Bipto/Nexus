@@ -129,7 +129,7 @@ namespace Demos
 				indexBufferView.BufferHandle					 = mesh->GetIndexBuffer();
 				indexBufferView.Offset							 = 0;
 				indexBufferView.Size							 = mesh->GetIndexBuffer()->GetSizeInBytes();
-				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexFormat::UInt32;
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = mesh->GetIndexBuffer()->GetCount();

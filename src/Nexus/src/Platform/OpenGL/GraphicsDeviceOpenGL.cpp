@@ -140,16 +140,24 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
-	bool GraphicsDeviceOpenGL::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	bool GraphicsDeviceOpenGL::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8:
-			case IndexBufferFormat::UInt16:
-			case IndexBufferFormat::UInt32: return true;
+			case IndexFormat::UInt8:
+			case IndexFormat::UInt16:
+			case IndexFormat::UInt32: return true;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
+	}
+
+	AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::GetAccelerationStructureBuildSize(
+		const AccelerationStructureBuildDescription &description,
+		size_t										 primitiveCount) const
+	{
+		NX_ASSERT(0, "Ray tracing not supported on OpenGL backend");
+		return AccelerationStructureBuildSizeDescription();
 	}
 
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()

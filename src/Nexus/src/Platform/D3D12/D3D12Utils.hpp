@@ -31,7 +31,7 @@ namespace Nexus::D3D12
 	GetD3D12TextureAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
 
 	DXGI_FORMAT
-	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexFormat format);
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE
 	GetPipelineTopology(Nexus::Graphics::Topology topology);
 

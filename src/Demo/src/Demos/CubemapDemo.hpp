@@ -106,7 +106,7 @@ namespace Demos
 			indexBufferView.BufferHandle					 = m_Cube->GetIndexBuffer();
 			indexBufferView.Offset							 = 0;
 			indexBufferView.Size							 = m_Cube->GetIndexBuffer()->GetSizeInBytes();
-			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			auto indexCount = m_Cube->GetIndexBuffer()->GetCount();
