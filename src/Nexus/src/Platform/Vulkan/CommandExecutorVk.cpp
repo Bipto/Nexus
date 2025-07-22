@@ -128,11 +128,20 @@ namespace Nexus::Graphics
 		if (Ref<Pipeline> pipeline = command.lock())
 		{
 			m_CurrentlyBoundPipeline = pipeline;
+			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 
 			if (pipeline->GetType() != PipelineType::Graphics)
 			{
-				Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+			}
+			else
+			{
+				GraphicsDeviceVk		   *deviceVk	   = (GraphicsDeviceVk *)device;
+				const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
+				if (deviceFeatures.DynamicRenderingAvailable)
+				{
+					pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+				}
 			}
 		}
 	}
@@ -1075,7 +1084,8 @@ namespace Nexus::Graphics
 			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 			if (features.DynamicRenderingAvailable)
 			{
-				vkCmdEndRendering(m_CommandBuffer);
+				const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+				functions.vkCmdEndRenderingKHR(m_CommandBuffer);
 			}
 			else
 			{
@@ -1142,9 +1152,8 @@ namespace Nexus::Graphics
 			if (!features.DynamicRenderingAvailable)
 			{
 				renderPass = swapchainVk->GetRenderPass();
+				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
-
-			vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 		}
 		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
 		{
@@ -1155,9 +1164,8 @@ namespace Nexus::Graphics
 			{
 				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 				renderPass						 = framebufferVk->GetRenderPass();
+				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
-
-			vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 		}
 		else
 		{

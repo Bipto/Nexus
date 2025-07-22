@@ -381,12 +381,41 @@ namespace Nexus::Graphics
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();
 
+		bool IsRecording() const;
+
 	  private:
 		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
 		bool						   m_Started = false;
+		uint32_t					   m_DebugGroups = 0;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands
 	typedef void (*RenderCommand)(Ref<CommandList> commandList);
+
+	class ScopedDebugGroup
+	{
+	  public:
+		ScopedDebugGroup(const std::string &name, Ref<CommandList> commandList) : m_CommandList(commandList)
+		{
+			if (m_CommandList->IsRecording())
+			{
+				m_CommandList->BeginDebugGroup(name);
+			}
+		}
+
+		~ScopedDebugGroup()
+		{
+			if (m_CommandList->IsRecording())
+			{
+				m_CommandList->EndDebugGroup();
+			}
+		}
+
+		ScopedDebugGroup(const ScopedDebugGroup &)			  = delete;
+		ScopedDebugGroup &operator=(const ScopedDebugGroup &) = delete;
+
+	  private:
+		Ref<CommandList> m_CommandList = nullptr;
+	};
 }	 // namespace Nexus::Graphics

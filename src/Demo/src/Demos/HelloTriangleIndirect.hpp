@@ -54,6 +54,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
+			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 			m_CommandList->SetPipeline(m_Pipeline);
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 
