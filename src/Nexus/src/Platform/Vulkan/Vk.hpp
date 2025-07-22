@@ -13,6 +13,8 @@
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 
+	#include "PNextBuilder.hpp"
+
 const uint32_t FRAMES_IN_FLIGHT = 3;
 
 namespace Nexus::Graphics

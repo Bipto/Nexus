@@ -136,7 +136,7 @@ namespace Nexus::Graphics
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 
 		void SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
-		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice, bool debug);
+		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
 
 		void CreateCommandStructures();
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
 								VkImage				 &image,
 								VkDeviceMemory		 &imageMemory);
 
-		std::vector<const char *> GetRequiredDeviceExtensions(bool debug);
+		std::vector<const char *> GetRequiredDeviceExtensions();
 		std::vector<std::string>  GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 
 	  private:

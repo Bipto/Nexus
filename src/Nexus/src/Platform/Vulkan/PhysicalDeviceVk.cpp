@@ -44,4 +44,9 @@ namespace Nexus::Graphics
 
 		return false;
 	}
+
+	bool PhysicalDeviceVk::IsVersionGreaterThan(uint32_t version) const
+	{
+		return m_VkPhysicalDeviceProperties.apiVersion >= version;
+	}
 }	 // namespace Nexus::Graphics

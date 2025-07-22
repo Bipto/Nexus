@@ -18,6 +18,7 @@ namespace Nexus::Graphics
 		const VkPhysicalDeviceProperties &GetVkPhysicalDeviceProperties() const;
 
 		bool IsExtensionSupported(const char *extension) const;
+		bool IsVersionGreaterThan(uint32_t version) const;
 
 	  private:
 		std::string			   m_Name	  = {};

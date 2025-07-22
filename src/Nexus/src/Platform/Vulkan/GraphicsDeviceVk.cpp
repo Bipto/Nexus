@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 		  m_DeviceConfig(config)
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
-		CreateDevice(physicalDeviceVk, config.Debug);
+		CreateDevice(physicalDeviceVk);
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
 
@@ -48,15 +48,6 @@ namespace Nexus::Graphics
 
 		// cleanup allocators
 		{
-			char *statsString = nullptr;
-			vmaBuildStatsString(m_Allocator, &statsString, false);
-
-			std::ofstream outFile("VmaStats.json");
-			outFile << statsString;
-			outFile.close();
-
-			vmaFreeStatsString(m_Allocator, statsString);
-
 			vmaDestroyAllocator(m_Allocator);
 		}
 
@@ -471,11 +462,11 @@ namespace Nexus::Graphics
 		m_PresentQueueFamilyIndex  = presentIndex;
 	}
 
-	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice, bool debug)
+	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		SelectQueueFamilies(physicalDevice);
 
-		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions(debug);
+		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
 		const float				  queuePriority[]  = {1.0f};
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -498,76 +489,87 @@ namespace Nexus::Graphics
 		queueCreateInfo.queueCount				= 1;
 		queueCreateInfo.pQueuePriorities		= &priority;
 
+		Vk::PNextBuilder builder = {};
+
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy		= VK_TRUE;
 		deviceFeatures.sampleRateShading		= VK_TRUE;
 		deviceFeatures.independentBlend			= VK_TRUE;
 		deviceFeatures.depthBounds				= VK_TRUE;
 
-		VkDeviceCreateInfo createInfo = {};
-		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pNext			  = nullptr;
+		VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
+		deviceFeatures2.sType					  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		deviceFeatures2.pNext					  = nullptr;
+		deviceFeatures2.features				  = deviceFeatures;
 
-		VkPhysicalDeviceFeatures2 features2	 = {};
-		features2.sType						 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-		features2.features.samplerAnisotropy = VK_TRUE;
-		features2.features.sampleRateShading = VK_TRUE;
-		features2.features.independentBlend	 = VK_TRUE;
-		features2.features.depthBounds		 = VK_TRUE;
+		// we need to check if VkPhysicalDeviceFeatures2 is supported
+		if (m_PhysicalDevice->IsVersionGreaterThan(VK_VERSION_1_1) ||
+			m_PhysicalDevice->IsExtensionSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+		{
+			builder.Add(deviceFeatures2);
+		}
 
 		VkPhysicalDeviceIndexTypeUint8FeaturesEXT indexType8Features = {};
 		indexType8Features.sType									 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT;
 		indexType8Features.pNext									 = nullptr;
 		indexType8Features.indexTypeUint8							 = VK_TRUE;
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME))
+		{
+			builder.Add(indexType8Features);
+		}
 
 		VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = {};
 		extendedDynamicStateFeatures.sType				  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
 		extendedDynamicStateFeatures.pNext				  = nullptr;
-		extendedDynamicStateFeatures.extendedDynamicState = VK_FALSE;
-		features2.pNext									  = &extendedDynamicStateFeatures;
-
+		extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
 		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
 		{
-			extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
+			builder.Add(extendedDynamicStateFeatures);
 		}
-
-		createInfo.pNext				   = &features2;
-		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
-		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
-		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
-		createInfo.pEnabledFeatures		   = nullptr;
-		createInfo.enabledExtensionCount   = deviceExtensions.size();
-		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-		createInfo.enabledLayerCount	   = 0;
 
 		VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderFeatures = {};
 		meshShaderFeatures.sType								 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
-		meshShaderFeatures.taskShader							 = VK_FALSE;
-		meshShaderFeatures.meshShader							 = VK_FALSE;
-		meshShaderFeatures.multiviewMeshShader					  = VK_FALSE;
-		meshShaderFeatures.primitiveFragmentShadingRateMeshShader = VK_FALSE;
-
+		meshShaderFeatures.pNext								 = nullptr;
+		meshShaderFeatures.taskShader							 = VK_TRUE;
+		meshShaderFeatures.meshShader							 = VK_TRUE;
 		if (m_Features.SupportsMeshTaskShaders)
 		{
-			meshShaderFeatures.taskShader = VK_TRUE;
-			meshShaderFeatures.meshShader = VK_TRUE;
+			builder.Add(meshShaderFeatures);
 		}
 
 		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
 		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-		dynamicRenderingFeatures.pNext									  = &meshShaderFeatures;
-		dynamicRenderingFeatures.dynamicRendering						  = VK_FALSE;
-
-		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
+		dynamicRenderingFeatures.pNext									  = nullptr;
+		dynamicRenderingFeatures.dynamicRendering						  = VK_TRUE;
+		if (m_DeviceConfig.UseDynamicRenderingIfAvailable && m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
-			{
-				dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
-				features2.pNext							  = &dynamicRenderingFeatures;
-			}
+			builder.Add(dynamicRenderingFeatures);
 		}
 
-		vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetVkPhysicalDevice(), &features2);
+		VkDeviceCreateInfo createInfo = {};
+		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext			  = nullptr;
+
+		// we need to check if VkPhysicalDeviceFeatures2 is supported
+		if (m_PhysicalDevice->IsVersionGreaterThan(VK_VERSION_1_1) ||
+			m_PhysicalDevice->IsExtensionSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+		{
+			createInfo.pNext			= builder.GetHead();
+			createInfo.pEnabledFeatures = nullptr;
+		}
+		else
+		{
+			createInfo.pNext			= nullptr;
+			createInfo.pEnabledFeatures = &deviceFeatures;
+		}
+
+		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
+		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
+		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
+		createInfo.enabledExtensionCount   = deviceExtensions.size();
+		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+		createInfo.enabledLayerCount	   = 0;
+
 		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create device");
@@ -734,7 +736,7 @@ namespace Nexus::Graphics
 		vkBindImageMemory(m_Device, image, imageMemory, 0);
 	}
 
-	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions(bool debug)
+	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
 	{
 		std::vector<const char *> extensions;
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -786,7 +788,12 @@ namespace Nexus::Graphics
 				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME))
 				{
 					extensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
-					m_Features.SupportsMeshTaskShaders = true;
+
+					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_4_EXTENSION_NAME))
+					{
+						extensions.push_back(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+						m_Features.SupportsMeshTaskShaders = true;
+					}
 				}
 			}
 		}
@@ -801,12 +808,9 @@ namespace Nexus::Graphics
 		}
 
 		// this is used to set debug object names and groups
-		if (debug)
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
-			}
+			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
 		}
 
 		return extensions;
