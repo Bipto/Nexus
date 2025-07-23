@@ -19,6 +19,7 @@ namespace Nexus::Graphics
 		virtual const DeviceBufferDescription &GetDescription() const final;
 
 		VkBuffer GetVkBuffer() const;
+		VkDeviceAddress GetDeviceAddress() const;
 
 	  private:
 		DeviceBufferDescription m_BufferDescription = {};

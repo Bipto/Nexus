@@ -12,6 +12,7 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
 
 	#include "PNextBuilder.hpp"
 
@@ -49,7 +50,7 @@ namespace Nexus::Vk
 	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format);
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
-	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc);
+	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
 	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc);
 
 	bool				  SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
@@ -57,6 +58,14 @@ namespace Nexus::Vk
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
 	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
+
+	VkAccelerationStructureTypeKHR		   GetAccelerationStructureType(Graphics::AccelerationStructureType type);
+	VkBuildAccelerationStructureFlagsKHR   GetAccelerationStructureFlags(uint8_t flags);
+	VkBuildAccelerationStructureModeKHR	   GetAccelerationStructureBuildMode(Graphics::AccelerationStructureBuildMode mode);
+	VkGeometryTypeKHR					   GetAccelerationStructureGeometryType(Graphics::GeometryType type);
+	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
+	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry);
+	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddress(Graphics::DeviceBufferOrHostAddress address);
 
 	struct VulkanRenderPassDescription
 	{

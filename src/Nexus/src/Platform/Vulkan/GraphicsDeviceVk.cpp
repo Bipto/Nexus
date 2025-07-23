@@ -929,9 +929,40 @@ namespace Nexus::Graphics
 		const AccelerationStructureBuildDescription &description,
 		size_t										 primitiveCount) const
 	{
+		std::vector<VkAccelerationStructureGeometryKHR> geometries = {};
+
+		for (const auto &geometry : description.Geometry)
+		{
+			VkAccelerationStructureGeometryKHR asGeometry = {};
+			asGeometry.sType							  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+			asGeometry.pNext							  = nullptr;
+			asGeometry.flags							  = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
+			asGeometry.geometryType						  = Vk::GetAccelerationStructureGeometryType(geometry.Type);
+		}
+
+		VkAccelerationStructureBuildGeometryInfoKHR buildInfo = {};
+		buildInfo.sType										  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+		buildInfo.pNext										  = nullptr;
+		buildInfo.type										  = Vk::GetAccelerationStructureType(description.Type);
+		buildInfo.flags										  = Vk::GetAccelerationStructureFlags(description.Flags);
+		buildInfo.mode										  = Vk::GetAccelerationStructureBuildMode(description.Mode);
+		buildInfo.ppGeometries								  = nullptr;
+
 		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
 
-		return AccelerationStructureBuildSizeDescription();
+		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = buildSizes.accelerationStructureSize,
+														  .UpdateScratchSize		 = buildSizes.updateScratchSize,
+														  .BuildScratchSize			 = buildSizes.buildScratchSize};
+	}
+
+	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const
+	{
+		return m_PhysicalDevice->IsExtensionSupported(extension);
+	}
+
+	bool GraphicsDeviceVk::IsVersionGreaterThan(uint32_t version) const
+	{
+		return m_PhysicalDevice->IsVersionGreaterThan(version);
 	}
 
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)

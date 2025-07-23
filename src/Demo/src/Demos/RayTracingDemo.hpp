@@ -48,7 +48,7 @@ namespace Demos
 				m_IndexBuffer->SetData(indices.data(), 0, indices.size() * sizeof(uint32_t));
 			}
 
-			Nexus::Graphics::AccelerationStructureTriangleGeometryDescription triangleDesc = {};
+			Nexus::Graphics::AccelerationStructureTriangleGeometry triangleDesc			   = {};
 			triangleDesc.VertexBuffer													   = m_VertexBuffer;
 			triangleDesc.VertexBufferFormat												   = Nexus::Graphics::VertexFormat::R32G32B32_Float;
 			triangleDesc.VertexBufferStride												   = sizeof(Nexus::Graphics::VertexPosition);
@@ -60,7 +60,7 @@ namespace Demos
 			Nexus::Graphics::AccelerationStructureGeometryDescription geometryDesc = {};
 			geometryDesc.Type													   = Nexus::Graphics::GeometryType::Triangles;
 			geometryDesc.Flags													   = 0;
-			geometryDesc.Data													   = triangleDesc;
+			geometryDesc.Geometry												   = triangleDesc;
 
 			Nexus::Graphics::AccelerationStructureBuildDescription buildDesc = {};
 			buildDesc.Type													 = Nexus::Graphics::AccelerationStructureType::BottomLevel;

@@ -4,6 +4,8 @@
 #include "ResourceSetVk.hpp"
 #include "ShaderModuleVk.hpp"
 
+#include "Nexus-Core/Graphics/Utils.hpp"
+
 #if defined(NX_PLATFORM_VULKAN)
 
 namespace Nexus::Vk
@@ -511,7 +513,7 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc)
+	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
 	{
 		VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
@@ -540,12 +542,17 @@ namespace Nexus::Vk
 			flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 		}
 
+		if (device->IsVersionGreaterThan(VK_VERSION_1_2) || device->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+		{
+			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+		}
+
 		return flags;
 	}
 
-	VkBufferCreateInfo GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc)
+	VkBufferCreateInfo GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
 	{
-		VkBufferUsageFlags bufferUsage = GetVkBufferUsage(desc);
+		VkBufferUsageFlags bufferUsage = GetVkBufferUsage(desc, device);
 
 		VkBufferCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -614,6 +621,128 @@ namespace Nexus::Vk
 			case Graphics::ImageAspect::Stencil: return VK_IMAGE_ASPECT_STENCIL_BIT;
 			case Graphics::ImageAspect::DepthStencil: return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 			default: throw std::runtime_error("Failed to find valid aspect flags");
+		}
+	}
+
+	VkAccelerationStructureTypeKHR GetAccelerationStructureType(Graphics::AccelerationStructureType type)
+	{
+		switch (type)
+		{
+			case Graphics::AccelerationStructureType::BottomLevel: return VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+			case Graphics::AccelerationStructureType::TopLevel: return VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+			default: throw std::runtime_error("Failed to find a valid acceleration structure type");
+		}
+	}
+
+	VkBuildAccelerationStructureFlagsKHR GetAccelerationStructureFlags(uint8_t flags)
+	{
+		VkBuildAccelerationStructureFlagBitsKHR vulkanFlags = {};
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::AllowUpdate)
+		{
+			vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR);
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::AllowCompaction)
+		{
+			vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastTrace)
+		{
+			vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastBuild)
+		{
+			vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR);
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::MinimizeMemory)
+		{
+			vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR);
+		}
+
+		return vulkanFlags;
+	}
+
+	VkBuildAccelerationStructureModeKHR GetAccelerationStructureBuildMode(Graphics::AccelerationStructureBuildMode mode)
+	{
+		switch (mode)
+		{
+			case Graphics::AccelerationStructureBuildMode::Build: return VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+			case Graphics::AccelerationStructureBuildMode::Update: return VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR;
+			default: throw std::runtime_error("Failed to find a valid build mode");
+		}
+	}
+
+	VkGeometryTypeKHR GetAccelerationStructureGeometryType(Graphics::GeometryType type)
+	{
+		switch (type)
+		{
+			case Graphics::GeometryType::AxisAlignedBoundingBoxes: return VK_GEOMETRY_TYPE_AABBS_KHR;
+			case Graphics::GeometryType::Instance: return VK_GEOMETRY_TYPE_INSTANCES_KHR;
+			case Graphics::GeometryType::Triangles: return VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+			default: throw std::runtime_error("Failed to find a valid geometry type");
+		}
+	}
+
+	VkGeometryFlagsKHR GetAccelerationStructureGeometryFlags(uint8_t flags)
+	{
+		VkGeometryFlagsKHR geometryFlags = {};
+
+		if (flags & Graphics::AccelerationStructureGeometryFlags::Opaque)
+		{
+			geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_GEOMETRY_OPAQUE_BIT_KHR);
+		}
+
+		if (flags & Graphics::AccelerationStructureGeometryFlags::NoDuplicateAnyhit)
+		{
+			geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
+		}
+
+		return geometryFlags;
+	}
+
+	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry)
+	{
+		switch (geometry.Type)
+		{
+			case Graphics::GeometryType::AxisAlignedBoundingBoxes:
+			{
+				Graphics::AccelerationStructureAABBGeometry aabbs = std::get<Graphics::AccelerationStructureAABBGeometry>(geometry.Geometry);
+
+				VkAccelerationStructureGeometryAabbsDataKHR outAabbs = {};
+				outAabbs.sType										 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
+				outAabbs.pNext										 = nullptr;
+				outAabbs.stride										 = aabbs.Stride;
+				outAabbs.data										 = Vk::GetDeviceOrHostAddress(aabbs.AABBs);
+
+				return VkAccelerationStructureGeometryDataKHR {.aabbs = outAabbs};
+			}
+
+			case Graphics::GeometryType::Instance:
+			case Graphics::GeometryType::Triangles:
+			default: throw std::runtime_error("Failed to get geometry");
+		}
+	}
+
+	VkDeviceOrHostAddressConstKHR GetDeviceOrHostAddress(Graphics::DeviceBufferOrHostAddress address)
+	{
+		Ref<Graphics::DeviceBuffer>					   bufferAddress;
+		Graphics::HostAddress						   hostAddress = nullptr;
+		Nexus::Graphics::DeviceBufferOrHostAddressType addressType =
+			Graphics::Utils::ExtractDeviceBufferOrHostAddress(address, bufferAddress, hostAddress);
+
+		switch (addressType)
+		{
+			case Graphics::DeviceBufferOrHostAddressType::DeviceBuffer:
+			{
+			}
+			case Graphics::DeviceBufferOrHostAddressType::HostAddress:
+			{
+			}
+			default: throw std::runtime_error("Failed to find a valid address type");
 		}
 	}
 

@@ -4,6 +4,15 @@
 
 namespace Nexus::Graphics
 {
+	enum class DeviceBufferOrHostAddressType
+	{
+		DeviceBuffer,
+		HostAddress
+	};
+
+	typedef const void									*HostAddress;
+	typedef std::variant<Ref<DeviceBuffer>, HostAddress> DeviceBufferOrHostAddress;
+
 	enum class AccelerationStructureType
 	{
 		BottomLevel,
@@ -13,7 +22,8 @@ namespace Nexus::Graphics
 	enum class GeometryType
 	{
 		Triangles,
-		AxisAlignedBoundingBoxes
+		AxisAlignedBoundingBoxes,
+		Instance
 	};
 
 	enum class VertexFormat
@@ -32,21 +42,28 @@ namespace Nexus::Graphics
 		R8G8_Snorm
 	};
 
-	struct AccelerationStructureTriangleGeometryDescription
+	struct AccelerationStructureTriangleGeometry
 	{
-		Ref<DeviceBuffer> VertexBuffer		 = nullptr;
-		VertexFormat	  VertexBufferFormat = VertexFormat::R32G32B32_Float;
-		size_t			  VertexBufferStride = 0;
-		size_t			  VertexCount		 = 0;
-		Ref<DeviceBuffer> IndexBuffer		 = nullptr;
-		IndexFormat		  IndexBufferFormat	 = IndexFormat::UInt32;
-		Ref<DeviceBuffer> TransformBuffer	 = nullptr;
+		DeviceBufferOrHostAddress VertexBuffer;
+		VertexFormat			  VertexBufferFormat = VertexFormat::R32G32B32_Float;
+		size_t					  VertexBufferStride = 0;
+		size_t					  VertexCount		 = 0;
+		DeviceBufferOrHostAddress IndexBuffer;
+		IndexFormat				  IndexBufferFormat = IndexFormat::UInt32;
+		DeviceBufferOrHostAddress TransformBuffer;
 	};
 
-	struct AccelerationStructureAABBGeometryDescription
+	struct AccelerationStructureAABBGeometry
 	{
-		size_t			  AABBCount = 0;
-		Ref<DeviceBuffer> AABBs		= nullptr;
+		size_t					  AABBCount = 0;
+		DeviceBufferOrHostAddress AABBs;
+		size_t					  Stride = 0;
+	};
+
+	struct AccelerationStructureInstanceGeometry
+	{
+		DeviceBufferOrHostAddress InstanceBuffer;
+		size_t					  Stride = 0;
 	};
 
 	enum AccelerationStructureGeometryFlags : uint8_t
@@ -55,11 +72,14 @@ namespace Nexus::Graphics
 		NoDuplicateAnyhit = BIT(1)
 	};
 
+	typedef std::variant<AccelerationStructureTriangleGeometry, AccelerationStructureAABBGeometry, AccelerationStructureInstanceGeometry>
+		AccelerationStructureGeometry;
+
 	struct AccelerationStructureGeometryDescription
 	{
-		GeometryType																								 Type  = GeometryType::Triangles;
-		uint8_t																										 Flags = 0;
-		std::variant<AccelerationStructureTriangleGeometryDescription, AccelerationStructureAABBGeometryDescription> Data;
+		GeometryType				  Type	= GeometryType::Triangles;
+		uint8_t						  Flags = 0;
+		AccelerationStructureGeometry Geometry;
 	};
 
 	enum AccelerationStructureBuildFlags

@@ -136,6 +136,9 @@ namespace Nexus::Graphics
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
 																					size_t primitiveCount) const final;
 
+		bool IsExtensionSupported(const char *extension) const;
+		bool IsVersionGreaterThan(uint32_t version) const;
+
 		// vulkan functions
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
