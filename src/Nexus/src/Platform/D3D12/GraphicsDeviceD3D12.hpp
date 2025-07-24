@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
-																					size_t primitiveCount) const final;
+																					const std::vector<uint32_t> &primitiveCounts) const final;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

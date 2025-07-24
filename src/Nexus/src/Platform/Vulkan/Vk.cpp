@@ -561,7 +561,7 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc)
+	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
 	{
 		VmaAllocationCreateInfo createInfo = {};
 		createInfo.usage				   = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
@@ -722,14 +722,43 @@ namespace Nexus::Vk
 			}
 
 			case Graphics::GeometryType::Instance:
+			{
+				Graphics::AccelerationStructureInstanceGeometry instances =
+					std::get<Graphics::AccelerationStructureInstanceGeometry>(geometry.Geometry);
+
+				VkAccelerationStructureGeometryInstancesDataKHR instanceGeometry = {};
+				instanceGeometry.sType			 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+				instanceGeometry.pNext			 = nullptr;
+				instanceGeometry.arrayOfPointers = instances.ArrayOfPointers;
+				instanceGeometry.data			 = Vk::GetDeviceOrHostAddress(instances.InstanceBuffer);
+
+				return VkAccelerationStructureGeometryDataKHR {.instances = instanceGeometry};
+			}
 			case Graphics::GeometryType::Triangles:
+			{
+				Graphics::AccelerationStructureTriangleGeometry triangles =
+					std::get<Graphics::AccelerationStructureTriangleGeometry>(geometry.Geometry);
+
+				VkAccelerationStructureGeometryTrianglesDataKHR triangleGeometry = {};
+				triangleGeometry.sType		   = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+				triangleGeometry.pNext		   = nullptr;
+				triangleGeometry.vertexFormat  = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
+				triangleGeometry.vertexData	   = Vk::GetDeviceOrHostAddress(triangles.VertexBuffer);
+				triangleGeometry.vertexStride  = triangles.VertexBufferStride;
+				triangleGeometry.maxVertex	   = triangles.VertexCount - 1;
+				triangleGeometry.indexType	   = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat);
+				triangleGeometry.indexData	   = Vk::GetDeviceOrHostAddress(triangles.IndexBuffer);
+				triangleGeometry.transformData = Vk::GetDeviceOrHostAddress(triangles.TransformBuffer);
+
+				return VkAccelerationStructureGeometryDataKHR {.triangles = triangleGeometry};
+			}
 			default: throw std::runtime_error("Failed to get geometry");
 		}
 	}
 
 	VkDeviceOrHostAddressConstKHR GetDeviceOrHostAddress(Graphics::DeviceBufferOrHostAddress address)
 	{
-		Ref<Graphics::DeviceBuffer>					   bufferAddress;
+		Graphics::DeviceBufferAddress				   bufferAddress;
 		Graphics::HostAddress						   hostAddress = nullptr;
 		Nexus::Graphics::DeviceBufferOrHostAddressType addressType =
 			Graphics::Utils::ExtractDeviceBufferOrHostAddress(address, bufferAddress, hostAddress);
@@ -738,11 +767,35 @@ namespace Nexus::Vk
 		{
 			case Graphics::DeviceBufferOrHostAddressType::DeviceBuffer:
 			{
+				Ref<Graphics::DeviceBufferVk> vulkanBuffer = std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferAddress.Buffer);
+				VkDeviceAddress				  address	   = vulkanBuffer->GetDeviceAddress() + bufferAddress.Offset;
+				return VkDeviceOrHostAddressConstKHR {.deviceAddress = address};
 			}
 			case Graphics::DeviceBufferOrHostAddressType::HostAddress:
 			{
+				return VkDeviceOrHostAddressConstKHR {.hostAddress = hostAddress};
 			}
 			default: throw std::runtime_error("Failed to find a valid address type");
+		}
+	}
+
+	VkFormat GetVulkanVertexFormat(Graphics::VertexFormat format)
+	{
+		switch (format)
+		{
+			case Graphics::VertexFormat::R32G32_SFloat: return VK_FORMAT_R32G32_SFLOAT;
+			case Graphics::VertexFormat::R32G32B32_SFloat: return VK_FORMAT_R32G32B32_SFLOAT;
+			case Graphics::VertexFormat::R16G16_SFloat: return VK_FORMAT_R16G16_SFLOAT;
+			case Graphics::VertexFormat::R16G16B16A16_SFloat: return VK_FORMAT_R16G16B16A16_SFLOAT;
+			case Graphics::VertexFormat::R16G16_SNorm: return VK_FORMAT_R16G16_SNORM;
+			case Graphics::VertexFormat::R16G16B16A16_SNorm: return VK_FORMAT_R16G16B16A16_SNORM;
+			case Graphics::VertexFormat::R16G16B16A16_UNorm: return VK_FORMAT_R16G16B16A16_UNORM;
+			case Graphics::VertexFormat::R16G16_UNorm: return VK_FORMAT_R16G16_UNORM;
+			case Graphics::VertexFormat::R10G10B10A2_UNorm: return VK_FORMAT_A2R10G10B10_UNORM_PACK32;
+			case Graphics::VertexFormat::R8G8_UNorm: return VK_FORMAT_R8G8_UNORM;
+			case Graphics::VertexFormat::R8G8B8A8_UNorm: return VK_FORMAT_R8G8B8A8_UNORM;
+			case Graphics::VertexFormat::R8G8_SNorm: return VK_FORMAT_R8G8_SNORM;
+			default: throw std::runtime_error("Failed to find a valid vertex format");
 		}
 	}
 

@@ -28,6 +28,7 @@ namespace Nexus::Graphics
 	{
 		bool DynamicRenderingAvailable = false;
 		bool Supports8BitIndices	   = false;
+		bool SupportsRayTracing		   = false;
 	};
 
 	struct DeviceExtensionFunctions
@@ -57,7 +58,8 @@ namespace Nexus::Graphics
 		PFN_vkCmdDrawMeshTasksEXT		  vkCmdDrawMeshTasksEXT			= VK_NULL_HANDLE;
 		PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = VK_NULL_HANDLE;
 
-		PFN_vkGetBufferDeviceAddressKHR vkGetBufferDeviceAddressKHR = VK_NULL_HANDLE;
+		PFN_vkGetBufferDeviceAddressKHR				vkGetBufferDeviceAddressKHR				= VK_NULL_HANDLE;
+		PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR = VK_NULL_HANDLE;
 	};
 
 	class GraphicsDeviceVk final : public GraphicsDevice
@@ -134,7 +136,7 @@ namespace Nexus::Graphics
 		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
-																					size_t primitiveCount) const final;
+																					const std::vector<uint32_t> &primitiveCount) const final;
 
 		bool IsExtensionSupported(const char *extension) const;
 		bool IsVersionGreaterThan(uint32_t version) const;

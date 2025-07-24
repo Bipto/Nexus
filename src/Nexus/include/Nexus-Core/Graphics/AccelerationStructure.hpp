@@ -4,14 +4,20 @@
 
 namespace Nexus::Graphics
 {
+	struct DeviceBufferAddress
+	{
+		Ref<DeviceBuffer> Buffer = nullptr;
+		size_t			  Offset = 0;
+	};
+
 	enum class DeviceBufferOrHostAddressType
 	{
 		DeviceBuffer,
 		HostAddress
 	};
 
-	typedef const void									*HostAddress;
-	typedef std::variant<Ref<DeviceBuffer>, HostAddress> DeviceBufferOrHostAddress;
+	typedef const void									  *HostAddress;
+	typedef std::variant<DeviceBufferAddress, HostAddress> DeviceBufferOrHostAddress;
 
 	enum class AccelerationStructureType
 	{
@@ -28,24 +34,24 @@ namespace Nexus::Graphics
 
 	enum class VertexFormat
 	{
-		R32G32_Float,
-		R32G32B32_Float,
-		R16G16_Float,
-		R16G16B16A16_Float,
-		R16G16_Snorm,
-		R16G16B16A16_Snorm,
-		R16G16B16A16_Unorm,
-		R16G16_Unorm,
-		R10G10B10A2_Unorm,
-		R8G8_Unorm,
-		R8G8B8A8_Unorm,
-		R8G8_Snorm
+		R32G32_SFloat,
+		R32G32B32_SFloat,
+		R16G16_SFloat,
+		R16G16B16A16_SFloat,
+		R16G16_SNorm,
+		R16G16B16A16_SNorm,
+		R16G16B16A16_UNorm,
+		R16G16_UNorm,
+		R10G10B10A2_UNorm,
+		R8G8_UNorm,
+		R8G8B8A8_UNorm,
+		R8G8_SNorm
 	};
 
 	struct AccelerationStructureTriangleGeometry
 	{
 		DeviceBufferOrHostAddress VertexBuffer;
-		VertexFormat			  VertexBufferFormat = VertexFormat::R32G32B32_Float;
+		VertexFormat			  VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
 		size_t					  VertexBufferStride = 0;
 		size_t					  VertexCount		 = 0;
 		DeviceBufferOrHostAddress IndexBuffer;
@@ -63,7 +69,8 @@ namespace Nexus::Graphics
 	struct AccelerationStructureInstanceGeometry
 	{
 		DeviceBufferOrHostAddress InstanceBuffer;
-		size_t					  Stride = 0;
+		size_t					  Stride		  = 0;
+		bool					  ArrayOfPointers = false;
 	};
 
 	enum AccelerationStructureGeometryFlags : uint8_t
@@ -99,10 +106,11 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureBuildDescription
 	{
-		AccelerationStructureType							  Type	   = AccelerationStructureType::BottomLevel;
-		uint8_t												  Flags	   = 0;
-		std::vector<AccelerationStructureGeometryDescription> Geometry = {};
-		AccelerationStructureBuildMode						  Mode	   = AccelerationStructureBuildMode::Build;
+		AccelerationStructureType							  Type			  = AccelerationStructureType::BottomLevel;
+		uint8_t												  Flags			  = 0;
+		std::vector<AccelerationStructureGeometryDescription> Geometry		  = {};
+		std::vector<uint32_t>								  PrimitiveCounts = {};
+		AccelerationStructureBuildMode						  Mode			  = AccelerationStructureBuildMode::Build;
 	};
 
 	struct AccelerationStructureBuildSizeDescription

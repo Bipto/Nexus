@@ -5,10 +5,10 @@
 namespace Nexus::Graphics::Utils
 {
 	Graphics::DeviceBufferOrHostAddressType ExtractDeviceBufferOrHostAddress(Graphics::DeviceBufferOrHostAddress address,
-																			 Ref<Graphics::DeviceBuffer>		&deviceBuffer,
+																			 Graphics::DeviceBufferAddress		&deviceBuffer,
 																			 Graphics::HostAddress				&hostAddress)
 	{
-		if (Ref<Graphics::DeviceBuffer> *buffer = std::get_if<Ref<DeviceBuffer>>(&address))
+		if (Graphics::DeviceBufferAddress *buffer = std::get_if<Graphics::DeviceBufferAddress>(&address))
 		{
 			deviceBuffer = *buffer;
 			return Graphics::DeviceBufferOrHostAddressType::DeviceBuffer;

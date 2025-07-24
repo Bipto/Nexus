@@ -551,6 +551,15 @@ namespace Nexus::Graphics
 			builder.Add(dynamicRenderingFeatures);
 		}
 
+		VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {};
+		bufferDeviceAddressFeatures.sType				= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_KHR;
+		bufferDeviceAddressFeatures.pNext				= nullptr;
+		bufferDeviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
+		if (IsVersionGreaterThan(VK_VERSION_1_2) || IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+		{
+			builder.Add(bufferDeviceAddressFeatures);
+		}
+
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.pNext			  = nullptr;
@@ -590,6 +599,11 @@ namespace Nexus::Graphics
 		allocatorInfo.physicalDevice		 = physicalDevice->GetVkPhysicalDevice();
 		allocatorInfo.device				 = m_Device;
 		allocatorInfo.instance				 = instance;
+
+		if (IsVersionGreaterThan(VK_VERSION_1_2) || IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+		{
+			allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+		}
 
 		if (vmaCreateAllocator(&allocatorInfo, &m_Allocator) != VK_SUCCESS)
 		{
@@ -674,6 +688,9 @@ namespace Nexus::Graphics
 
 		m_ExtensionFunctions.vkGetBufferDeviceAddressKHR =
 			(PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetBufferDeviceAddressKHR");
+
+		m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR =
+			(PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureBuildSizesKHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -832,6 +849,17 @@ namespace Nexus::Graphics
 			{
 				extensions.push_back(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
 			}
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+					m_DeviceFeatures.SupportsRayTracing = true;
+				}
+			}
 		}
 
 		return extensions;
@@ -927,7 +955,7 @@ namespace Nexus::Graphics
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
 		const AccelerationStructureBuildDescription &description,
-		size_t										 primitiveCount) const
+		const std::vector<uint32_t>					&primitiveCount) const
 	{
 		std::vector<VkAccelerationStructureGeometryKHR> geometries = {};
 
@@ -938,6 +966,8 @@ namespace Nexus::Graphics
 			asGeometry.pNext							  = nullptr;
 			asGeometry.flags							  = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
 			asGeometry.geometryType						  = Vk::GetAccelerationStructureGeometryType(geometry.Type);
+			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry);
+			geometries.push_back(asGeometry);
 		}
 
 		VkAccelerationStructureBuildGeometryInfoKHR buildInfo = {};
@@ -946,9 +976,19 @@ namespace Nexus::Graphics
 		buildInfo.type										  = Vk::GetAccelerationStructureType(description.Type);
 		buildInfo.flags										  = Vk::GetAccelerationStructureFlags(description.Flags);
 		buildInfo.mode										  = Vk::GetAccelerationStructureBuildMode(description.Mode);
-		buildInfo.ppGeometries								  = nullptr;
+		buildInfo.geometryCount								  = geometries.size();
+		buildInfo.pGeometries								  = geometries.data();
 
 		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
+
+		if (m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR)
+		{
+			m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR(m_Device,
+																		 VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
+																		 &buildInfo,
+																		 primitiveCount.data(),
+																		 &buildSizes);
+		}
 
 		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = buildSizes.accelerationStructureSize,
 														  .UpdateScratchSize		 = buildSizes.updateScratchSize,

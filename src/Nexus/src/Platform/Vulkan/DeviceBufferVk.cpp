@@ -7,7 +7,7 @@ namespace Nexus::Graphics
 	DeviceBufferVk::DeviceBufferVk(const DeviceBufferDescription &desc, GraphicsDeviceVk *device) : m_BufferDescription(desc), m_Device(device)
 	{
 		VkBufferCreateInfo		bufferCreateInfo = Vk::GetVkBufferCreateInfo(desc, device);
-		VmaAllocationCreateInfo vmaAllocInfo	 = Vk::GetVmaAllocationCreateInfo(desc);
+		VmaAllocationCreateInfo vmaAllocInfo	 = Vk::GetVmaAllocationCreateInfo(desc, device);
 
 		NX_ASSERT(vmaCreateBuffer(device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) ==
 					  VK_SUCCESS,

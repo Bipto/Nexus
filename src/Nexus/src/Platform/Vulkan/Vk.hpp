@@ -51,7 +51,7 @@ namespace Nexus::Vk
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
 	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
-	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc);
+	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
 
 	bool				  SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
 	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
@@ -66,6 +66,7 @@ namespace Nexus::Vk
 	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
 	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry);
 	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddress(Graphics::DeviceBufferOrHostAddress address);
+	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
 
 	struct VulkanRenderPassDescription
 	{

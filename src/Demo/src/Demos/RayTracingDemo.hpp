@@ -49,11 +49,11 @@ namespace Demos
 			}
 
 			Nexus::Graphics::AccelerationStructureTriangleGeometry triangleDesc			   = {};
-			triangleDesc.VertexBuffer													   = m_VertexBuffer;
-			triangleDesc.VertexBufferFormat												   = Nexus::Graphics::VertexFormat::R32G32B32_Float;
+			triangleDesc.VertexBuffer		= Nexus::Graphics::DeviceBufferAddress {.Buffer = m_VertexBuffer, .Offset = 0};
+			triangleDesc.VertexBufferFormat = Nexus::Graphics::VertexFormat::R32G32B32_SFloat;
 			triangleDesc.VertexBufferStride												   = sizeof(Nexus::Graphics::VertexPosition);
 			triangleDesc.VertexCount													   = 3;
-			triangleDesc.IndexBuffer													   = m_IndexBuffer;
+			triangleDesc.IndexBuffer = Nexus::Graphics::DeviceBufferAddress {.Buffer = m_IndexBuffer, .Offset = 0};
 			triangleDesc.IndexBufferFormat												   = Nexus::Graphics::IndexFormat::UInt32;
 			triangleDesc.TransformBuffer												   = nullptr;
 
@@ -68,7 +68,10 @@ namespace Demos
 			buildDesc.Geometry												 = {geometryDesc};
 			buildDesc.Mode													 = Nexus::Graphics::AccelerationStructureBuildMode::Build;
 
-			Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize = m_GraphicsDevice->GetAccelerationStructureBuildSize(buildDesc, 1);
+			std::vector<uint32_t> primitiveCounts = {1};
+
+			Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
+				m_GraphicsDevice->GetAccelerationStructureBuildSize(buildDesc, primitiveCounts);
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override

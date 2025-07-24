@@ -5,6 +5,6 @@
 namespace Nexus::Graphics::Utils
 {
 	DeviceBufferOrHostAddressType ExtractDeviceBufferOrHostAddress(Graphics::DeviceBufferOrHostAddress address,
-																   Ref<Graphics::DeviceBuffer>		  &deviceBuffer,
+																   Graphics::DeviceBufferAddress	  &deviceBuffer,
 																   Graphics::HostAddress			  &hostAddress);
 }

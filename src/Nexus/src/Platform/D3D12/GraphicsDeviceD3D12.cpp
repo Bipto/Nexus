@@ -414,7 +414,7 @@ namespace Nexus::Graphics
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
 		const AccelerationStructureBuildDescription &description,
-		size_t										 primitiveCount) const
+		const std::vector<uint32_t>					&primitiveCount) const
 	{
 		return AccelerationStructureBuildSizeDescription();
 	}
