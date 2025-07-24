@@ -560,6 +560,15 @@ namespace Nexus::Graphics
 			builder.Add(bufferDeviceAddressFeatures);
 		}
 
+		VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures = {};
+		accelerationStructureFeatures.sType					= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
+		accelerationStructureFeatures.pNext					= nullptr;
+		accelerationStructureFeatures.accelerationStructure = VK_TRUE;
+		if (m_DeviceFeatures.SupportsRayTracing)
+		{
+			builder.Add(accelerationStructureFeatures);
+		}
+
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.pNext			  = nullptr;
@@ -980,6 +989,8 @@ namespace Nexus::Graphics
 		buildInfo.pGeometries								  = geometries.data();
 
 		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
+		buildSizes.sType									= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+		buildSizes.pNext									= nullptr;
 
 		if (m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR)
 		{
