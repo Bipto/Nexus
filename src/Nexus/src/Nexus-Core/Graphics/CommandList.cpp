@@ -435,6 +435,35 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
+	void CommandList::SetStencilReference(uint32_t stencilReference)
+	{
+		SetStencilReferenceCommand command;
+		command.StencilReference = stencilReference;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
+	{
+		BuildAccelerationStructuresCommand command;
+		command.BuildDescriptions = description;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
+	{
+		m_Commands.push_back(description);
+	}
+
+	void CommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
+	{
+		m_Commands.push_back(description);
+	}
+
+	void CommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
+	{
+		m_Commands.push_back(description);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

@@ -5,6 +5,7 @@
 	#include "vulkan/vulkan.h"
 	#include "vk_mem_alloc.h"
 
+	#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
@@ -12,7 +13,6 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
-	#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
 
 	#include "PNextBuilder.hpp"
 
@@ -65,8 +65,14 @@ namespace Nexus::Vk
 	VkGeometryTypeKHR					   GetAccelerationStructureGeometryType(Graphics::GeometryType type);
 	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
 	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry);
-	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddress(Graphics::DeviceBufferOrHostAddress address);
+	VkDeviceOrHostAddressKHR			   GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address);
+	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address);
 	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
+	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
+		const Graphics::AccelerationStructureGeometryBuildDescription &description);
+	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+																	 const std::vector<VkAccelerationStructureGeometryKHR>		   &geometry);
+	VkAccelerationStructureBuildRangeInfoKHR	GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range);
 
 	struct VulkanRenderPassDescription
 	{

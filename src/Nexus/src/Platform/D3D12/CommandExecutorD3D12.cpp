@@ -428,7 +428,7 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::TextureD3D12> framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
 		Microsoft::WRL::ComPtr<ID3D12Resource2>	  swapchainTexture	 = swapchainD3D12->RetrieveBufferHandle();
 		DXGI_FORMAT								  format			 = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
-		D3D12_RESOURCE_STATES					  swapchainState = swapchainD3D12->GetCurrentTextureState();
+		D3D12_RESOURCE_STATES					  swapchainState	 = swapchainD3D12->GetCurrentTextureState();
 
 		if (framebufferD3D12->GetFramebufferSpecification().Width > swapchainD3D12->GetWindow()->GetWindowSize().X)
 		{
@@ -723,6 +723,27 @@ namespace Nexus::Graphics
 								command.BlendFactorDesc.Alpha};
 
 		m_CommandList->OMSetBlendFactor(blendFactor);
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device)
+	{
+		m_CommandList->OMSetStencilRef(command.StencilReference);
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
 	}
 
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)

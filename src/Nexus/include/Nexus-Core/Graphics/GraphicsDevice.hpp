@@ -105,6 +105,8 @@ namespace Nexus::Graphics
 
 		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
+		virtual Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
+
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
 		/// the supported shading language of the backend
 		/// @return The supported shading language of the backend
@@ -173,8 +175,9 @@ namespace Nexus::Graphics
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
 		virtual bool									  IsIndexBufferFormatSupported(IndexFormat format) const		 = 0;
-		virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
-																							const std::vector<uint32_t> &primitiveCount) const = 0;
+		virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
+			const AccelerationStructureGeometryBuildDescription &description,
+			const std::vector<uint32_t>							&primitiveCount) const = 0;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;

@@ -42,12 +42,13 @@ namespace Nexus::Graphics
 
 	enum BufferUsage : uint8_t
 	{
-		Vertex				  = BIT(0),
-		Index				  = BIT(1),
-		Uniform				  = BIT(2),
-		Storage				  = BIT(3),
-		Indirect			  = BIT(4),
-		AccelerationStructure = BIT(5)
+		Vertex									= BIT(0),
+		Index									= BIT(1),
+		Uniform									= BIT(2),
+		Storage									= BIT(3),
+		Indirect								= BIT(4),
+		AccelerationStructureStorage			= BIT(5),
+		AccelerationStructureBuildInputReadOnly = BIT(6)
 	};
 
 	struct DeviceBufferDescription

@@ -30,10 +30,11 @@ namespace Nexus::Graphics
 		Ref<CommandList>	  CreateCommandList(const CommandListDescription &spec = {}) final;
 		Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) final;
 
-		Ref<Framebuffer>  CreateFramebuffer(const FramebufferSpecification &spec) final;
-		Ref<Sampler>	  CreateSampler(const SamplerDescription &spec) final;
-		Ref<TimingQuery>  CreateTimingQuery() final;
-		Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<TimingQuery>			CreateTimingQuery() final;
+		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final
 		{
@@ -97,7 +98,7 @@ namespace Nexus::Graphics
 		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
 		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
-		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
 																					const std::vector<uint32_t> &primitiveCounts) const final;
 
 	  private:
@@ -130,7 +131,7 @@ namespace Nexus::Graphics
 		std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
 
 		std::unique_ptr<CommandExecutorD3D12>	   m_CommandExecutor = nullptr;
-		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator = nullptr;
+		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator		 = nullptr;
 
 		DeviceFeatures m_Features = {};
 		DeviceLimits   m_Limits	  = {};

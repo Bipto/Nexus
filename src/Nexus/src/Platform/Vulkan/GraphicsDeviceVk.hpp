@@ -58,8 +58,15 @@ namespace Nexus::Graphics
 		PFN_vkCmdDrawMeshTasksEXT		  vkCmdDrawMeshTasksEXT			= VK_NULL_HANDLE;
 		PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = VK_NULL_HANDLE;
 
-		PFN_vkGetBufferDeviceAddressKHR				vkGetBufferDeviceAddressKHR				= VK_NULL_HANDLE;
-		PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR = VK_NULL_HANDLE;
+		PFN_vkGetBufferDeviceAddressKHR				   vkGetBufferDeviceAddressKHR				  = VK_NULL_HANDLE;
+		PFN_vkGetAccelerationStructureBuildSizesKHR	   vkGetAccelerationStructureBuildSizesKHR	  = VK_NULL_HANDLE;
+		PFN_vkCreateAccelerationStructureKHR		   vkCreateAccelerationStructureKHR			  = VK_NULL_HANDLE;
+		PFN_vkDestroyAccelerationStructureKHR		   vkDestroyAccelerationStructureKHR		  = VK_NULL_HANDLE;
+		PFN_vkCmdBuildAccelerationStructuresKHR		   vkCmdBuildAccelerationStructuresKHR		  = VK_NULL_HANDLE;
+		PFN_vkCmdCopyAccelerationStructureKHR		   vkCmdCopyAccelerationStructureKHR		  = VK_NULL_HANDLE;
+		PFN_vkCmdCopyAccelerationStructureToMemoryKHR  vkCmdCopyAccelerationStructureToMemoryKHR  = VK_NULL_HANDLE;
+		PFN_vkCmdCopyMemoryToAccelerationStructureKHR  vkCmdCopyMemoryToAccelerationStructureKHR  = VK_NULL_HANDLE;
+		PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR = VK_NULL_HANDLE;
 	};
 
 	class GraphicsDeviceVk final : public GraphicsDevice
@@ -76,14 +83,15 @@ namespace Nexus::Graphics
 		const char						*GetDeviceName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<CommandList>	  CreateCommandList(const CommandListDescription &spec = {}) final;
-		Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) final;
-		Ref<Framebuffer>	  CreateFramebuffer(const FramebufferSpecification &spec) final;
-		Ref<Sampler>		  CreateSampler(const SamplerDescription &spec) final;
-		Ref<TimingQuery>	  CreateTimingQuery() final;
-		Ref<DeviceBuffer>	  CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<GraphicsPipeline>		CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<ComputePipeline>		CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<CommandList>			CreateCommandList(const CommandListDescription &spec = {}) final;
+		Ref<ResourceSet>			CreateResourceSet(const ResourceSetSpecification &spec) final;
+		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<TimingQuery>			CreateTimingQuery() final;
+		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
 		const GraphicsCapabilities GetGraphicsCapabilities() const final;
 		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
@@ -135,7 +143,7 @@ namespace Nexus::Graphics
 		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
 		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
-		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
 																					const std::vector<uint32_t> &primitiveCount) const final;
 
 		bool IsExtensionSupported(const char *extension) const;

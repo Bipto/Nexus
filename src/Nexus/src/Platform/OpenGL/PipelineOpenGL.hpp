@@ -38,8 +38,10 @@ namespace Nexus::Graphics
 		void CreateVAO(const GladGLContext &context);
 		void DestroyVAO(const GladGLContext &context);
 
+		void SetStencilReference(const GladGLContext &context, uint32_t stencilReference);
+
 	  private:
-		void SetupDepthStencil(const GladGLContext &context);
+		void SetupDepthStencil(const GladGLContext &context, uint32_t stencilReference);
 		void SetupRasterizer(const GladGLContext &context);
 		void SetupBlending(const GladGLContext &context);
 		void SetShader(const GladGLContext &context);

@@ -664,6 +664,35 @@ namespace Nexus::Graphics
 			});
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device)
+	{
+		if (m_CurrentlyBoundPipeline.has_value())
+		{
+			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			if (pipeline->GetType() == PipelineType::Graphics)
+			{
+				Ref<GraphicsPipelineOpenGL> pipelineGL = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline);
+				GL::ExecuteGLCommands([&](const GladGLContext &context) { pipelineGL->SetStencilReference(context, command.StencilReference); });
+			}
+		}
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());

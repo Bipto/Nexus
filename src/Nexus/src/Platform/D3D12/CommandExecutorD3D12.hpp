@@ -57,6 +57,11 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device) override;
+		virtual void ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device) override;
 
 		void SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device);
 		void SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device);

@@ -153,8 +153,8 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::GetAccelerationStructureBuildSize(
-		const AccelerationStructureBuildDescription &description,
-		const std::vector<uint32_t>					&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description,
+		const std::vector<uint32_t>							&primitiveCount) const
 	{
 		NX_ASSERT(0, "Ray tracing not supported on OpenGL backend");
 		return AccelerationStructureBuildSizeDescription();
@@ -211,6 +211,11 @@ namespace Nexus::Graphics
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<DeviceBufferOpenGL>(desc, this);
+	}
+
+	Ref<IAccelerationStructure> GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	{
+		return nullptr;
 	}
 
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const

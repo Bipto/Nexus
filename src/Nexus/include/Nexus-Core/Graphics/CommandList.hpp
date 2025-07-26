@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AccelerationStructure.hpp"
 #include "Color.hpp"
 #include "DeviceBuffer.hpp"
 #include "Framebuffer.hpp"
@@ -254,6 +255,16 @@ namespace Nexus::Graphics
 		BlendFactorDesc BlendFactorDesc = {};
 	};
 
+	struct SetStencilReferenceCommand
+	{
+		uint32_t StencilReference = {};
+	};
+
+	struct BuildAccelerationStructuresCommand
+	{
+		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -281,7 +292,12 @@ namespace Nexus::Graphics
 						 BeginDebugGroupCommand,
 						 EndDebugGroupCommand,
 						 InsertDebugMarkerCommand,
-						 SetBlendFactorCommand>
+						 SetBlendFactorCommand,
+						 SetStencilReferenceCommand,
+						 BuildAccelerationStructuresCommand,
+						 AccelerationStructureCopyDescription,
+						 AccelerationStructureDeviceBufferCopyDescription,
+						 DeviceBufferAccelerationStructureCopyDescription>
 		RenderCommandData;
 
 	struct CommandListDescription
@@ -377,6 +393,16 @@ namespace Nexus::Graphics
 		void InsertDebugMarker(const std::string &name);
 
 		void SetBlendFactor(const BlendFactorDesc &blendFactor);
+
+		void SetStencilReference(uint32_t stencilReference);
+
+		void BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description);
+
+		void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
+
+		void CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description);
+
+		void CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();

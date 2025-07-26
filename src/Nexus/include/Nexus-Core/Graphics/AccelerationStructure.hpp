@@ -4,10 +4,18 @@
 
 namespace Nexus::Graphics
 {
+	class IAccelerationStructure;
+
 	struct DeviceBufferAddress
 	{
 		Ref<DeviceBuffer> Buffer = nullptr;
 		size_t			  Offset = 0;
+	};
+
+	struct AccelerationStructureAddress
+	{
+		Ref<IAccelerationStructure> AccelerationStructure = nullptr;
+		size_t						Offset				  = 0;
 	};
 
 	enum class DeviceBufferOrHostAddressType
@@ -15,9 +23,6 @@ namespace Nexus::Graphics
 		DeviceBuffer,
 		HostAddress
 	};
-
-	typedef const void									  *HostAddress;
-	typedef std::variant<DeviceBufferAddress, HostAddress> DeviceBufferOrHostAddress;
 
 	enum class AccelerationStructureType
 	{
@@ -50,27 +55,27 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureTriangleGeometry
 	{
-		DeviceBufferOrHostAddress VertexBuffer;
-		VertexFormat			  VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
-		size_t					  VertexBufferStride = 0;
-		size_t					  VertexCount		 = 0;
-		DeviceBufferOrHostAddress IndexBuffer;
-		IndexFormat				  IndexBufferFormat = IndexFormat::UInt32;
-		DeviceBufferOrHostAddress TransformBuffer;
+		DeviceBufferAddress VertexBuffer;
+		VertexFormat		VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
+		size_t				VertexBufferStride = 0;
+		size_t				VertexCount		   = 0;
+		DeviceBufferAddress IndexBuffer;
+		IndexFormat			IndexBufferFormat = IndexFormat::UInt32;
+		DeviceBufferAddress TransformBuffer;
 	};
 
 	struct AccelerationStructureAABBGeometry
 	{
-		size_t					  AABBCount = 0;
-		DeviceBufferOrHostAddress AABBs;
-		size_t					  Stride = 0;
+		size_t				AABBCount = 0;
+		DeviceBufferAddress AABBs;
+		size_t				Stride = 0;
 	};
 
 	struct AccelerationStructureInstanceGeometry
 	{
-		DeviceBufferOrHostAddress InstanceBuffer;
-		size_t					  Stride		  = 0;
-		bool					  ArrayOfPointers = false;
+		DeviceBufferAddress InstanceBuffer;
+		size_t				Stride			= 0;
+		bool				ArrayOfPointers = false;
 	};
 
 	enum AccelerationStructureGeometryFlags : uint8_t
@@ -104,13 +109,69 @@ namespace Nexus::Graphics
 		Update
 	};
 
-	struct AccelerationStructureBuildDescription
+	enum class AccelerationStructureCopyMode
+	{
+		Clone,
+		Compact,
+		Serialize,
+		Deserialize
+	};
+
+	struct AccelerationStructureDescription
+	{
+		AccelerationStructureType Type		= AccelerationStructureType::BottomLevel;
+		std::string				  DebugName = "Acceleration Structure";
+		Ref<DeviceBuffer>		  Buffer	= nullptr;
+		size_t					  Offset	= 0;
+		size_t					  Size		= 0;
+	};
+
+	struct AccelerationStructureBuildRange
+	{
+		uint32_t PrimitiveCount	 = 0;
+		uint32_t PrimitiveOffset = 0;
+		uint32_t FirstVertex	 = 0;
+		uint32_t TransformOffset = 0;
+	};
+
+	struct AccelerationStructureGeometryBuildDescription
 	{
 		AccelerationStructureType							  Type			  = AccelerationStructureType::BottomLevel;
 		uint8_t												  Flags			  = 0;
 		std::vector<AccelerationStructureGeometryDescription> Geometry		  = {};
 		std::vector<uint32_t>								  PrimitiveCounts = {};
 		AccelerationStructureBuildMode						  Mode			  = AccelerationStructureBuildMode::Build;
+		Ref<IAccelerationStructure>							  Source;
+		Ref<IAccelerationStructure>							  Destination;
+		DeviceBufferAddress									  ScratchBuffer;
+	};
+
+	struct AccelerationStructureBuildDescription
+	{
+		AccelerationStructureGeometryBuildDescription Geometry	 = {};
+		std::vector<AccelerationStructureBuildRange>  BuildRange = {};
+	};
+
+	struct AccelerationStructureCopyDescription
+	{
+		AccelerationStructureAddress  Source;
+		AccelerationStructureCopyMode Mode = AccelerationStructureCopyMode::Clone;
+	};
+
+	struct AccelerationStructureDeviceBufferCopyDescription
+	{
+		AccelerationStructureAddress  Source;
+		DeviceBufferAddress			  Destination;
+		size_t						  WriteOffset = 0;
+		AccelerationStructureCopyMode Mode		  = AccelerationStructureCopyMode::Clone;
+	};
+
+	struct DeviceBufferAccelerationStructureCopyDescription
+	{
+		DeviceBufferAddress			  Source	  = {};
+		AccelerationStructureAddress  Destination = {};
+		size_t						  ReadOffset  = 0;
+		AccelerationStructureCopyMode Mode		  = AccelerationStructureCopyMode::Clone;
 	};
 
 	struct AccelerationStructureBuildSizeDescription
@@ -119,4 +180,15 @@ namespace Nexus::Graphics
 		size_t UpdateScratchSize		 = 0;
 		size_t BuildScratchSize			 = 0;
 	};
+
+	class IAccelerationStructure
+	{
+	  public:
+		virtual ~IAccelerationStructure()
+		{
+		}
+
+		virtual const AccelerationStructureDescription &GetDescription() const = 0;
+	};
+
 }	 // namespace Nexus::Graphics

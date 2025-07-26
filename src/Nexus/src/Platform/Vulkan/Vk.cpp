@@ -1,10 +1,9 @@
 #include "Vk.hpp"
 
+#include "AccelerationStructureVk.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "ResourceSetVk.hpp"
 #include "ShaderModuleVk.hpp"
-
-#include "Nexus-Core/Graphics/Utils.hpp"
 
 #if defined(NX_PLATFORM_VULKAN)
 
@@ -542,6 +541,19 @@ namespace Nexus::Vk
 			flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 		}
 
+		if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+		{
+			if (desc.Usage & Graphics::BufferUsage::AccelerationStructureStorage)
+			{
+				flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
+			}
+
+			if (desc.Usage & Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly)
+			{
+				flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+			}
+		}
+
 		if (device->IsVersionGreaterThan(VK_VERSION_1_2) || device->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
@@ -716,7 +728,7 @@ namespace Nexus::Vk
 				outAabbs.sType										 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
 				outAabbs.pNext										 = nullptr;
 				outAabbs.stride										 = aabbs.Stride;
-				outAabbs.data										 = Vk::GetDeviceOrHostAddress(aabbs.AABBs);
+				outAabbs.data										 = Vk::GetDeviceOrHostAddressConst(aabbs.AABBs);
 
 				return VkAccelerationStructureGeometryDataKHR {.aabbs = outAabbs};
 			}
@@ -730,7 +742,7 @@ namespace Nexus::Vk
 				instanceGeometry.sType			 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
 				instanceGeometry.pNext			 = nullptr;
 				instanceGeometry.arrayOfPointers = instances.ArrayOfPointers;
-				instanceGeometry.data			 = Vk::GetDeviceOrHostAddress(instances.InstanceBuffer);
+				instanceGeometry.data			 = Vk::GetDeviceOrHostAddressConst(instances.InstanceBuffer);
 
 				return VkAccelerationStructureGeometryDataKHR {.instances = instanceGeometry};
 			}
@@ -743,12 +755,12 @@ namespace Nexus::Vk
 				triangleGeometry.sType		   = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
 				triangleGeometry.pNext		   = nullptr;
 				triangleGeometry.vertexFormat  = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
-				triangleGeometry.vertexData	   = Vk::GetDeviceOrHostAddress(triangles.VertexBuffer);
+				triangleGeometry.vertexData	   = Vk::GetDeviceOrHostAddressConst(triangles.VertexBuffer);
 				triangleGeometry.vertexStride  = triangles.VertexBufferStride;
 				triangleGeometry.maxVertex	   = triangles.VertexCount - 1;
 				triangleGeometry.indexType	   = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat);
-				triangleGeometry.indexData	   = Vk::GetDeviceOrHostAddress(triangles.IndexBuffer);
-				triangleGeometry.transformData = Vk::GetDeviceOrHostAddress(triangles.TransformBuffer);
+				triangleGeometry.indexData	   = Vk::GetDeviceOrHostAddressConst(triangles.IndexBuffer);
+				triangleGeometry.transformData = Vk::GetDeviceOrHostAddressConst(triangles.TransformBuffer);
 
 				return VkAccelerationStructureGeometryDataKHR {.triangles = triangleGeometry};
 			}
@@ -756,26 +768,31 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkDeviceOrHostAddressConstKHR GetDeviceOrHostAddress(Graphics::DeviceBufferOrHostAddress address)
+	VkDeviceOrHostAddressKHR GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address)
 	{
-		Graphics::DeviceBufferAddress				   bufferAddress;
-		Graphics::HostAddress						   hostAddress = nullptr;
-		Nexus::Graphics::DeviceBufferOrHostAddressType addressType =
-			Graphics::Utils::ExtractDeviceBufferOrHostAddress(address, bufferAddress, hostAddress);
-
-		switch (addressType)
+		if (address.Buffer)
 		{
-			case Graphics::DeviceBufferOrHostAddressType::DeviceBuffer:
-			{
-				Ref<Graphics::DeviceBufferVk> vulkanBuffer = std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferAddress.Buffer);
-				VkDeviceAddress				  address	   = vulkanBuffer->GetDeviceAddress() + bufferAddress.Offset;
-				return VkDeviceOrHostAddressConstKHR {.deviceAddress = address};
-			}
-			case Graphics::DeviceBufferOrHostAddressType::HostAddress:
-			{
-				return VkDeviceOrHostAddressConstKHR {.hostAddress = hostAddress};
-			}
-			default: throw std::runtime_error("Failed to find a valid address type");
+			Ref<Graphics::DeviceBufferVk> vulkanBuffer	= std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(address.Buffer);
+			VkDeviceAddress				  deviceAddress = vulkanBuffer->GetDeviceAddress() + address.Offset;
+			return VkDeviceOrHostAddressKHR {.deviceAddress = deviceAddress};
+		}
+		else
+		{
+			return VkDeviceOrHostAddressKHR {.deviceAddress = 0};
+		}
+	}
+
+	VkDeviceOrHostAddressConstKHR GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address)
+	{
+		if (address.Buffer)
+		{
+			Ref<Graphics::DeviceBufferVk> vulkanBuffer	= std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(address.Buffer);
+			VkDeviceAddress				  deviceAddress = vulkanBuffer->GetDeviceAddress() + address.Offset;
+			return VkDeviceOrHostAddressConstKHR {.deviceAddress = deviceAddress};
+		}
+		else
+		{
+			return VkDeviceOrHostAddressConstKHR {.deviceAddress = 0};
 		}
 	}
 
@@ -797,6 +814,70 @@ namespace Nexus::Vk
 			case Graphics::VertexFormat::R8G8_SNorm: return VK_FORMAT_R8G8_SNORM;
 			default: throw std::runtime_error("Failed to find a valid vertex format");
 		}
+	}
+
+	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
+		const Graphics::AccelerationStructureGeometryBuildDescription &description)
+	{
+		std::vector<VkAccelerationStructureGeometryKHR> geometries;
+		geometries.reserve(description.Geometry.size());
+
+		for (const auto &geometry : description.Geometry)
+		{
+			VkAccelerationStructureGeometryKHR asGeometry = {};
+			asGeometry.sType							  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+			asGeometry.pNext							  = nullptr;
+			asGeometry.flags							  = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
+			asGeometry.geometryType						  = Vk::GetAccelerationStructureGeometryType(geometry.Type);
+			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry);
+			geometries.push_back(asGeometry);
+		}
+
+		return geometries;
+	}
+
+	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+																	 const std::vector<VkAccelerationStructureGeometryKHR>		   &geometry)
+	{
+		VkAccelerationStructureBuildGeometryInfoKHR buildInfo = {};
+		buildInfo.sType										  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+		buildInfo.pNext										  = nullptr;
+		buildInfo.type										  = Vk::GetAccelerationStructureType(description.Type);
+		buildInfo.flags										  = Vk::GetAccelerationStructureFlags(description.Flags);
+		buildInfo.mode										  = Vk::GetAccelerationStructureBuildMode(description.Mode);
+		buildInfo.geometryCount								  = geometry.size();
+		buildInfo.pGeometries								  = geometry.data();
+		buildInfo.srcAccelerationStructure					  = VK_NULL_HANDLE;
+		buildInfo.dstAccelerationStructure					  = VK_NULL_HANDLE;
+		buildInfo.scratchData.deviceAddress					  = 0;
+
+		if (description.Source)
+		{
+			Ref<Graphics::AccelerationStructureVk> accelerationStructure =
+				std::dynamic_pointer_cast<Graphics::AccelerationStructureVk>(description.Source);
+			buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
+		}
+
+		if (description.Destination)
+		{
+			Ref<Graphics::AccelerationStructureVk> accelerationStructure =
+				std::dynamic_pointer_cast<Graphics::AccelerationStructureVk>(description.Destination);
+			buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
+		}
+
+		buildInfo.scratchData = Vk::GetDeviceOrHostAddress(description.ScratchBuffer);
+
+		return buildInfo;
+	}
+
+	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range)
+	{
+		VkAccelerationStructureBuildRangeInfoKHR rangeInfo = {};
+		rangeInfo.primitiveCount						   = range.PrimitiveCount;
+		rangeInfo.primitiveOffset						   = range.PrimitiveOffset;
+		rangeInfo.firstVertex							   = range.FirstVertex;
+		rangeInfo.transformOffset						   = range.TransformOffset;
+		return rangeInfo;
 	}
 
 	VkRenderPass CreateVkRenderPass(VkDevice device, const VulkanRenderPassDescription &desc)
@@ -1459,7 +1540,10 @@ namespace Nexus::Vk
 		dynamicInfo.pNext							 = nullptr;
 		dynamicInfo.flags							 = 0;
 
-		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_BLEND_CONSTANTS};
+		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
+													 VK_DYNAMIC_STATE_SCISSOR,
+													 VK_DYNAMIC_STATE_BLEND_CONSTANTS,
+													 VK_DYNAMIC_STATE_STENCIL_REFERENCE};
 
 		dynamicInfo.dynamicStateCount = dynamicStates.size();
 		dynamicInfo.pDynamicStates	  = dynamicStates.data();

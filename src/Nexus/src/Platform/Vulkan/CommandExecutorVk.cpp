@@ -127,7 +127,7 @@ namespace Nexus::Graphics
 
 		if (Ref<Pipeline> pipeline = command.lock())
 		{
-			m_CurrentlyBoundPipeline = pipeline;
+			m_CurrentlyBoundPipeline   = pipeline;
 			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 
 			if (pipeline->GetType() != PipelineType::Graphics)
@@ -792,6 +792,69 @@ namespace Nexus::Graphics
 								   command.BlendFactorDesc.Alpha};
 
 		vkCmdSetBlendConstants(m_CommandBuffer, blendConstants);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device)
+	{
+		vkCmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.StencilReference);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
+	{
+		// return early if the function is not available to use
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (!functions.vkCmdBuildAccelerationStructuresKHR)
+		{
+			return;
+		}
+
+		// create storage for the data
+		std::vector<std::vector<VkAccelerationStructureGeometryKHR>>	   accelerationStructureGeometries = {};
+		std::vector<VkAccelerationStructureBuildGeometryInfoKHR>		   buildGeometries				   = {};
+		std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>> buildRanges					   = {};
+
+		// loop through all requested builds
+		for (const auto &[buildGeometryInfo, buildRangeInfos] : command.BuildDescriptions)
+		{
+			// validate that required members have been filled in correctly
+			NX_ASSERT(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
+			NX_ASSERT(buildGeometryInfo.ScratchBuffer.Buffer, "Acceleration structure build must have a scratch buffer");
+
+			if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
+			{
+				NX_ASSERT(buildGeometryInfo.Source, "Acceleration structure update must have a source");
+			}
+
+			// create a new vector to hold the information for the individual build
+			std::vector<VkAccelerationStructureGeometryKHR> &accelerationStructureGeometry = accelerationStructureGeometries.emplace_back();
+
+			// create the new build description
+			buildGeometries.push_back(Vk::GetGeometryBuildInfo(buildGeometryInfo, accelerationStructureGeometry));
+
+			// create a new vector to hold the build range
+			std::vector<VkAccelerationStructureBuildRangeInfoKHR> &geometryBuildRange = buildRanges.emplace_back();
+
+			// iterate through each build range and convert them to Vulkan types
+			for (const auto &buildRange : buildRangeInfos) { geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(buildRange)); }
+		}
+
+		// execute the acceleration structure build
+		functions.vkCmdBuildAccelerationStructuresKHR(m_CommandBuffer,
+													  command.BuildDescriptions.size(),
+													  buildGeometries.data(),
+													  (const VkAccelerationStructureBuildRangeInfoKHR *const *)buildRanges.data());
+	}
+
+	void CommandExecutorVk::ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
 	}
 
 	void BeginRenderPass(GraphicsDeviceVk			 *device,

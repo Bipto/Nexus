@@ -16,6 +16,7 @@
 	#include "SwapchainVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
+	#include "AccelerationStructureVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -189,6 +190,11 @@ namespace Nexus::Graphics
 	Ref<DeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferVk>(desc, this);
+	}
+
+	Ref<IAccelerationStructure> GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	{
+		return CreateRef<AccelerationStructureVk>(desc, this);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
@@ -700,6 +706,21 @@ namespace Nexus::Graphics
 
 		m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR =
 			(PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureBuildSizesKHR");
+
+		m_ExtensionFunctions.vkCreateAccelerationStructureKHR =
+			(PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCreateAccelerationStructureKHR");
+		m_ExtensionFunctions.vkDestroyAccelerationStructureKHR =
+			(PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkDestroyAccelerationStructureKHR");
+		m_ExtensionFunctions.vkCmdBuildAccelerationStructuresKHR =
+			(PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBuildAccelerationStructuresKHR");
+		m_ExtensionFunctions.vkCmdCopyAccelerationStructureKHR =
+			(PFN_vkCmdCopyAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyAccelerationStructureKHR");
+		m_ExtensionFunctions.vkCmdCopyAccelerationStructureToMemoryKHR =
+			(PFN_vkCmdCopyAccelerationStructureToMemoryKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyAccelerationStructureToMemoryKHR");
+		m_ExtensionFunctions.vkCmdCopyMemoryToAccelerationStructureKHR =
+			(PFN_vkCmdCopyMemoryToAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyMemoryToAccelerationStructureKHR");
+		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
+			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -963,30 +984,11 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
-		const AccelerationStructureBuildDescription &description,
-		const std::vector<uint32_t>					&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description,
+		const std::vector<uint32_t>							&primitiveCount) const
 	{
-		std::vector<VkAccelerationStructureGeometryKHR> geometries = {};
-
-		for (const auto &geometry : description.Geometry)
-		{
-			VkAccelerationStructureGeometryKHR asGeometry = {};
-			asGeometry.sType							  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-			asGeometry.pNext							  = nullptr;
-			asGeometry.flags							  = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
-			asGeometry.geometryType						  = Vk::GetAccelerationStructureGeometryType(geometry.Type);
-			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry);
-			geometries.push_back(asGeometry);
-		}
-
-		VkAccelerationStructureBuildGeometryInfoKHR buildInfo = {};
-		buildInfo.sType										  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-		buildInfo.pNext										  = nullptr;
-		buildInfo.type										  = Vk::GetAccelerationStructureType(description.Type);
-		buildInfo.flags										  = Vk::GetAccelerationStructureFlags(description.Flags);
-		buildInfo.mode										  = Vk::GetAccelerationStructureBuildMode(description.Mode);
-		buildInfo.geometryCount								  = geometries.size();
-		buildInfo.pGeometries								  = geometries.data();
+		std::vector<VkAccelerationStructureGeometryKHR> geometries = Vk::GetVulkanAccelerationStructureGeometries(description);
+		VkAccelerationStructureBuildGeometryInfoKHR		buildInfo  = Vk::GetGeometryBuildInfo(description, geometries);
 
 		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
 		buildSizes.sType									= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;

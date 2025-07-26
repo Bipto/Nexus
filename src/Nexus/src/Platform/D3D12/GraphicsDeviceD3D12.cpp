@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 
 		if (fence)
 		{
-			Ref<FenceD3D12> fenceD3D12	= std::dynamic_pointer_cast<FenceD3D12>(fence);
+			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
 			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
@@ -183,6 +183,11 @@ namespace Nexus::Graphics
 	Ref<DeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferD3D12>(desc, this);
+	}
+
+	Ref<IAccelerationStructure> GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	{
+		return Ref<IAccelerationStructure>();
 	}
 
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
@@ -413,8 +418,8 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
-		const AccelerationStructureBuildDescription &description,
-		const std::vector<uint32_t>					&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description,
+		const std::vector<uint32_t>							&primitiveCount) const
 	{
 		return AccelerationStructureBuildSizeDescription();
 	}

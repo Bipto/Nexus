@@ -35,6 +35,7 @@ namespace Nexus::Graphics
 		virtual Ref<Sampler>		  CreateSampler(const SamplerDescription &spec) override;
 		virtual Ref<TimingQuery>	  CreateTimingQuery() override;
 		virtual Ref<DeviceBuffer>	  CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		Ref<IAccelerationStructure>	  CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 		virtual Ref<Texture>			   CreateTexture(const TextureDescription &spec) override;
@@ -63,7 +64,7 @@ namespace Nexus::Graphics
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
 		virtual bool							  IsIndexBufferFormatSupported(IndexFormat format) const override;
-		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureBuildDescription &description,
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
 																					const std::vector<uint32_t> &primitiveCount) const final;
 
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
