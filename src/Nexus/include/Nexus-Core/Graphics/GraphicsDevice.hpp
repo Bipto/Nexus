@@ -68,6 +68,10 @@ namespace Nexus::Graphics
 
 		virtual Ref<ComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
+		virtual Ref<MeshletPipeline> CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
+
+		virtual Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
+
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
 		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
@@ -172,9 +176,9 @@ namespace Nexus::Graphics
 
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const = 0;
 
-		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
-		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
-		virtual bool									  IsIndexBufferFormatSupported(IndexFormat format) const		 = 0;
+		virtual const DeviceFeatures					 &GetPhysicalDeviceFeatures() const						 = 0;
+		virtual const DeviceLimits						 &GetPhysicalDeviceLimits() const						 = 0;
+		virtual bool									  IsIndexBufferFormatSupported(IndexFormat format) const = 0;
 		virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
 			const AccelerationStructureGeometryBuildDescription &description,
 			const std::vector<uint32_t>							&primitiveCount) const = 0;

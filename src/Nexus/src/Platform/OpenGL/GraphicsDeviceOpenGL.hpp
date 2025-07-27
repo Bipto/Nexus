@@ -20,60 +20,63 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
-		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
+		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) final;
+		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
-		virtual const std::string				 GetAPIName() override;
-		virtual const char						*GetDeviceName() override;
-		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
+		const std::string				 GetAPIName() override;
+		const char						*GetDeviceName() override;
+		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) override;
-		virtual Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) override;
-		virtual Ref<CommandList>	  CreateCommandList(const CommandListDescription &spec = {}) override;
-		virtual Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) override;
-		virtual Ref<Framebuffer>	  CreateFramebuffer(const FramebufferSpecification &spec) override;
-		virtual Ref<Sampler>		  CreateSampler(const SamplerDescription &spec) override;
-		virtual Ref<TimingQuery>	  CreateTimingQuery() override;
-		virtual Ref<DeviceBuffer>	  CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+
+		Ref<CommandList>			  CreateCommandList(const CommandListDescription &spec = {}) final;
+		Ref<ResourceSet>			  CreateResourceSet(const ResourceSetSpecification &spec) final;
+		Ref<Framebuffer>			  CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Sampler>				  CreateSampler(const SamplerDescription &spec) final;
+		Ref<TimingQuery>			  CreateTimingQuery() final;
+		Ref<DeviceBuffer>			  CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		Ref<IAccelerationStructure>	  CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
-		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
-		virtual Ref<Texture>			   CreateTexture(const TextureDescription &spec) override;
-		virtual Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
-		virtual Ref<Fence>				   CreateFence(const FenceDescription &desc) override;
-		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
-		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
-		virtual ShaderLanguage			   GetSupportedShaderFormat() override;
-		virtual bool					   IsBufferUsageSupported(BufferUsage usage) override;
-		virtual void					   WaitForIdle() override;
-		virtual float					   GetUVCorrection() override
+		const GraphicsCapabilities GetGraphicsCapabilities() const final;
+		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
+		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
+		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		ShaderLanguage			   GetSupportedShaderFormat() final;
+		bool					   IsBufferUsageSupported(BufferUsage usage) final;
+		void					   WaitForIdle() final;
+		float					   GetUVCorrection() final
 		{
 			return 1.0f;
 		}
-		virtual bool IsUVOriginTopLeft() override
+		bool IsUVOriginTopLeft() final
 		{
 			return false;
 		};
 
-		virtual GraphicsAPI GetGraphicsAPI() override;
+		GraphicsAPI GetGraphicsAPI() final;
 
-		virtual bool Validate() override;
+		bool Validate() final;
 
 		GL::IOffscreenContext *GetOffscreenContext();
 
-		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
-		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
-		virtual bool							  IsIndexBufferFormatSupported(IndexFormat format) const override;
+		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
+		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
+		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
 																					const std::vector<uint32_t> &primitiveCount) const final;
 
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
 
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
+		Ref<ShaderModule>		  CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) final;
 		std::vector<std::string>  GetSupportedExtensions(const GladGLContext &context);
 
-		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
+		PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 
 	  private:
 		const char				  *m_GlslVersion;

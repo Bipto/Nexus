@@ -76,7 +76,7 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
+			Nexus::Graphics::MeshletPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
@@ -91,12 +91,12 @@ namespace Demos
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/mesh_shaders/hello_triangle_mesh.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
-			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+			m_Pipeline = m_GraphicsDevice->CreateMeshletPipeline(pipelineDescription);
 		}
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::MeshletPipeline>  m_Pipeline;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

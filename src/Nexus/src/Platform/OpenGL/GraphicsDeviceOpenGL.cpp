@@ -177,6 +177,18 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineOpenGL>(description, this);
 	}
 
+	Ref<MeshletPipeline> GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	{
+		NX_ASSERT(false, "Meshlet pipelines are not supported by OpenGL");
+		return nullptr;
+	}
+
+	Ref<RayTracingPipeline> GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	{
+		NX_ASSERT(false, "Ray tracing pipelines are not supported by OpenGL");
+		return nullptr;
+	}
+
 	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());

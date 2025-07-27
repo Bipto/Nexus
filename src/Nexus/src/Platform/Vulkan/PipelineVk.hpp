@@ -41,6 +41,21 @@ namespace Nexus::Graphics
 
 	class MeshletPipelineVk : public MeshletPipeline, public PipelineVk
 	{
+	  public:
+		MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
+		~MeshletPipelineVk();
+		VkPipelineLayout GetPipelineLayout();
+
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
+
+	  private:
+		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
+
+	  private:
+		VkPipelineLayout				   m_PipelineLayout;
+		std::map<VkRenderPass, VkPipeline> m_Pipelines;
+		GraphicsDeviceVk				  *m_GraphicsDevice;
 	};
 
 	class ComputePipelineVk : public ComputePipeline, public PipelineVk

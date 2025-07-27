@@ -56,14 +56,8 @@ namespace Nexus::Graphics
 		/// @brief The tesselation evaluation shader to use with the pipeline (optional)
 		Ref<ShaderModule> TesselationEvaluationModule = nullptr;
 
-		/// @brief The vertex shader to use with the pipeline (optional)
+		/// @brief The vertex shader to use with the pipeline
 		Ref<ShaderModule> VertexModule = nullptr;
-
-		/// @brief The mesh shader to use with the pipeline (optional)
-		Ref<ShaderModule> MeshModule = nullptr;
-
-		/// @brief The task shader to use with the pipeline (optional)
-		Ref<ShaderModule> TaskModule = nullptr;
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Graphics Pipeline";
@@ -121,15 +115,28 @@ namespace Nexus::Graphics
 		std::string DebugName = "Meshlet Pipeline";
 	};
 
+	enum class ShaderGroupType
+	{
+		General,
+		Triangles,
+		Procedural
+	};
+
+	struct ShaderGroup
+	{
+		ShaderGroupType Type			   = ShaderGroupType::General;
+		uint32_t		GeneralShader	   = ~0U;
+		uint32_t		ClosestHitShader   = ~0U;
+		uint32_t		AnyHitShader	   = ~0U;
+		uint32_t		IntersectionShader = ~0U;
+	};
+
 	struct RayTracingPipelineDescription
 	{
-		ResourceSetSpecification ResourceSetSpec	   = {};
-		Ref<ShaderModule>		 RayGenShader		   = nullptr;
-		Ref<ShaderModule>		 RayMissShader		   = nullptr;
-		Ref<ShaderModule>		 RayClosestHitShader   = nullptr;
-		Ref<ShaderModule>		 RayAnyHitShader	   = nullptr;
-		Ref<ShaderModule>		 RayIntersectionShader = nullptr;
-		uint32_t				 MaxRecursionDepth	   = 0;
+		std::vector<ShaderModule> Shaders			= {};
+		std::vector<ShaderGroup>  ShaderGroups		= {};
+		ResourceSetSpecification  ResourceSetSpec	= {};
+		uint32_t				  MaxRecursionDepth = 0;
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Ray Tracing Pipeline";
 	};
@@ -235,7 +242,7 @@ namespace Nexus::Graphics
 		{
 		}
 
-		~MeshletPipeline()
+		virtual ~MeshletPipeline()
 		{
 		}
 
@@ -256,5 +263,35 @@ namespace Nexus::Graphics
 
 	  protected:
 		MeshletPipelineDescription m_Description = {};
+	};
+
+	class RayTracingPipeline : public Pipeline
+	{
+	  public:
+		RayTracingPipeline(const RayTracingPipelineDescription &description) : m_Description(description)
+		{
+		}
+
+		virtual ~RayTracingPipeline()
+		{
+		}
+
+		const RayTracingPipelineDescription &GetPipelineDescription()
+		{
+			return m_Description;
+		}
+
+		virtual PipelineType GetType() const final
+		{
+			return PipelineType::RayTracing;
+		}
+
+		virtual ResourceSetSpecification GetResourceSetSpecification() const final
+		{
+			return m_Description.ResourceSetSpec;
+		}
+
+	  protected:
+		RayTracingPipelineDescription m_Description = {};
 	};
 }	 // namespace Nexus::Graphics

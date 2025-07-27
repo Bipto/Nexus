@@ -25,10 +25,12 @@ namespace Nexus::Graphics
 		const char						*GetDeviceName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<CommandList>	  CreateCommandList(const CommandListDescription &spec = {}) final;
-		Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) final;
+		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		Ref<CommandList>		CreateCommandList(const CommandListDescription &spec = {}) final;
+		Ref<ResourceSet>		CreateResourceSet(const ResourceSetSpecification &spec) final;
 
 		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
 		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;

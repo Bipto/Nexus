@@ -85,6 +85,9 @@ namespace Nexus::Graphics
 
 		Ref<GraphicsPipeline>		CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
 		Ref<ComputePipeline>		CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<MeshletPipeline>		CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<RayTracingPipeline>		CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+
 		Ref<CommandList>			CreateCommandList(const CommandListDescription &spec = {}) final;
 		Ref<ResourceSet>			CreateResourceSet(const ResourceSetSpecification &spec) final;
 		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;

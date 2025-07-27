@@ -112,6 +112,78 @@ namespace Nexus::Graphics
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanVertexModule));
 		}
 
+		return shaderStages;
+	}
+
+	MeshletPipelineVk::MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
+		: MeshletPipeline(description),
+		  m_GraphicsDevice(graphicsDevice)
+	{
+		m_PipelineLayout = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+
+		std::string debugName = description.DebugName + " - Pipeline Layout";
+		graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
+	}
+
+	MeshletPipelineVk::~MeshletPipelineVk()
+	{
+		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+
+		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+	}
+
+	VkPipelineLayout MeshletPipelineVk::GetPipelineLayout()
+	{
+		return m_PipelineLayout;
+	}
+
+	void MeshletPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
+	{
+		if (m_Pipelines.find(renderPass) == m_Pipelines.end())
+		{
+			std::vector<VkPipelineShaderStageCreateInfo> shaderStages = GetShaderStages();
+			m_Pipelines[renderPass]									  = Vk::CreateGraphicsPipeline(renderPass,
+																   m_GraphicsDevice,
+																   m_Description.DepthStencilDesc,
+																   m_Description.RasterizerStateDesc,
+																   m_Description.ColourTargetSampleCount,
+																   shaderStages,
+																   m_Description.ColourTargetCount,
+																   m_Description.ColourFormats,
+																   m_Description.ColourBlendStates,
+																   m_Description.DepthFormat,
+																   m_PipelineLayout,
+																   m_Description.PrimitiveTopology,
+																								   {});
+
+			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
+		}
+
+		VkPipeline pipeline = m_Pipelines.at(renderPass);
+		NX_ASSERT(pipeline, "Failed to find a valid pipeline");
+		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	}
+
+	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	{
+		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		for (const auto &set : descriptorSets)
+		{
+			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+		}
+	}
+
+	std::vector<VkPipelineShaderStageCreateInfo> MeshletPipelineVk::GetShaderStages()
+	{
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+
+		if (m_Description.FragmentModule)
+		{
+			auto vulkanFragmentModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.FragmentModule);
+			NX_ASSERT(vulkanFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
+			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanFragmentModule));
+		}
+
 		if (m_Description.MeshModule)
 		{
 			auto vulkanMeshModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);

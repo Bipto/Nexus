@@ -162,6 +162,16 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineVk>(description, this);
 	}
 
+	Ref<MeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	{
+		return CreateRef<MeshletPipelineVk>(description, this);
+	}
+
+	Ref<RayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	{
+		return nullptr;
+	}
+
 	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListVk>(this, spec);

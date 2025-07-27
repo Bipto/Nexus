@@ -155,9 +155,19 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineD3D12>(m_Device.Get(), description);
 	}
 
+	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	{
+		return Ref<MeshletPipeline>();
+	}
+
 	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListD3D12>(this, spec);
+	}
+
+	Ref<RayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	{
+		return Ref<RayTracingPipeline>();
 	}
 
 	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)

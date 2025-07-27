@@ -130,12 +130,14 @@ namespace Nexus::Graphics
 			m_CurrentlyBoundPipeline   = pipeline;
 			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 
-			if (pipeline->GetType() != PipelineType::Graphics)
+			if (pipeline->GetType() != PipelineType::Graphics && pipeline->GetType() != PipelineType::Meshlet)
 			{
 				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
 			}
 			else
 			{
+				// we immediately bind the graphics/meshlet pipeline if dynamic rendering is available, otherwise we need to know which VkRenderPass
+				// to use with it
 				GraphicsDeviceVk		   *deviceVk	   = (GraphicsDeviceVk *)device;
 				const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
 				if (deviceFeatures.DynamicRenderingAvailable)
