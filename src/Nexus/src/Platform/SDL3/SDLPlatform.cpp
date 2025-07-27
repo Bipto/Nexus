@@ -2,6 +2,7 @@
 
 #include "FileDialogsSDL3.hpp"
 #include "SDL3Include.hpp"
+#include "SDL3MessageBox.hpp"
 #include "SDL3Window.hpp"
 
 #include "Nexus-Core/Events/EventHandler.hpp"
@@ -588,6 +589,11 @@ namespace Nexus::Platform
 		IWindow *window = new SDL3Window(windowProps);
 		m_Windows.push_back(window);
 		return window;
+	}
+
+	NX_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description)
+	{
+		return new MessageBoxSDL3(description);
 	}
 
 	OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany)

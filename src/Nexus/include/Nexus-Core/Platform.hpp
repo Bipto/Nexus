@@ -9,6 +9,7 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
+#include "Nexus-Core/MessageBox.hpp"
 #include "Nexus-Core/Monitor.hpp"
 #include "Nexus-Core/Utils/SharedLibrary.hpp"
 
@@ -52,6 +53,7 @@ namespace Nexus::Platform
 	NX_API void		PollEvents(Application *app);
 	NX_API void		WaitEvent(Application *app);
 	NX_API IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
+	NX_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 
 	NX_API OpenFileDialog	*CreateOpenFileDialog(IWindow							  *window,
 												  const std::vector<FileDialogFilter> &filters,
