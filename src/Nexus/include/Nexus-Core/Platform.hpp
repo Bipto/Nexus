@@ -11,6 +11,7 @@
 #include "Nexus-Core/Input/Mouse.hpp"
 #include "Nexus-Core/MessageBox.hpp"
 #include "Nexus-Core/Monitor.hpp"
+#include "Nexus-Core/Threading/Thread.hpp"
 #include "Nexus-Core/Utils/SharedLibrary.hpp"
 
 namespace Nexus::Platform
@@ -47,12 +48,12 @@ namespace Nexus::Platform
 	NX_API std::optional<Mouse> GetMouseById(uint32_t id);
 	NX_API std::optional<Gamepad> GetGamepadById(uint32_t id);
 
-	NX_API void		Initialise();
-	NX_API void		Shutdown();
-	NX_API void		Update();
-	NX_API void		PollEvents(Application *app);
-	NX_API void		WaitEvent(Application *app);
-	NX_API IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
+	NX_API void				 Initialise();
+	NX_API void				 Shutdown();
+	NX_API void				 Update();
+	NX_API void				 PollEvents(Application *app);
+	NX_API void				 WaitEvent(Application *app);
+	NX_API IWindow			*CreatePlatformWindow(const WindowSpecification &windowProps);
 	NX_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 
 	NX_API OpenFileDialog	*CreateOpenFileDialog(IWindow							  *window,
@@ -75,6 +76,7 @@ namespace Nexus::Platform
 
 	NX_API const char *GetRootPath();
 	NX_API const char *GetApplicationPath(const char *org, const char *app);
+	NX_API ThreadBase *CreateThreadBase(const ThreadDescription &description, std::function<void()> function);
 
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;

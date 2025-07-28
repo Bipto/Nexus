@@ -3,6 +3,7 @@
 #include "FileDialogsSDL3.hpp"
 #include "SDL3Include.hpp"
 #include "SDL3MessageBox.hpp"
+#include "SDL3Thread.hpp"
 #include "SDL3Window.hpp"
 
 #include "Nexus-Core/Events/EventHandler.hpp"
@@ -755,6 +756,11 @@ namespace Nexus::Platform
 	const char *GetApplicationPath(const char *org, const char *app)
 	{
 		return SDL_GetPrefPath(org, app);
+	}
+
+	NX_API ThreadBase *CreateThreadBase(const ThreadDescription &description, std::function<void()> function)
+	{
+		return new SDL3Thread(description, function);
 	}
 
 	std::optional<IWindow *> GetKeyboardFocus()

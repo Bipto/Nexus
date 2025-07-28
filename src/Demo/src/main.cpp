@@ -37,6 +37,8 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
+#include "Nexus-Core/Threading/Thread.hpp"
+
 struct DemoInfo
 {
 	std::string Name;
@@ -56,6 +58,9 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
+		Nexus::ThreadDescription threadDesc {.Name = "Message Thread", .StackSize = 0};
+		Nexus::Thread			 thread(threadDesc, [](const std::string &message) { std::cout << message << std::endl; }, "Hello from SDL Thread!");
+
 		Nexus::MessageBoxDescription messageBoxDesc = {};
 		messageBoxDesc.Title						= "MessageBox";
 		messageBoxDesc.Message						= "This is some text in a messagebox";
