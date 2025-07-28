@@ -13,6 +13,7 @@ namespace Nexus
 		void Join();
 
 		const ThreadDescription &GetDescription() const final;
+		ThreadState				 GetThreadState() const final;
 
 	  private:
 		ThreadDescription	  m_Description;

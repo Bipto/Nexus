@@ -2,6 +2,31 @@
 
 namespace Nexus
 {
+	SDL_ThreadPriority GetSDLThreadPriority(ThreadPriority priority)
+	{
+		switch (priority)
+		{
+			case ThreadPriority::Low: return SDL_THREAD_PRIORITY_LOW;
+			case ThreadPriority::Normal: return SDL_THREAD_PRIORITY_NORMAL;
+			case ThreadPriority::High: return SDL_THREAD_PRIORITY_HIGH;
+			case ThreadPriority::TimeCritical: return SDL_THREAD_PRIORITY_TIME_CRITICAL;
+			case ThreadPriority::Default:
+			default: throw std::runtime_error("Failed to find a valid thread priority");
+		}
+	}
+
+	ThreadState GetNXThreadState(SDL_ThreadState state)
+	{
+		switch (state)
+		{
+			case SDL_THREAD_UNKNOWN: return ThreadState::Uknown;
+			case SDL_THREAD_ALIVE: return ThreadState::Alive;
+			case SDL_THREAD_DETACHED: return ThreadState::Detached;
+			case SDL_THREAD_COMPLETE: return ThreadState::Complete;
+			default: throw std::runtime_error("Failed to find a valid thread state");
+		}
+	}
+
 	Nexus::SDL3Thread::SDL3Thread(const ThreadDescription &description, std::function<void()> function) : m_Description(description)
 	{
 		m_Function = std::move(function);
@@ -38,9 +63,24 @@ namespace Nexus
 		return m_Description;
 	}
 
+	ThreadState SDL3Thread::GetThreadState() const
+	{
+		SDL_ThreadState threadState = SDL_GetThreadState(m_Thread);
+		return GetNXThreadState(threadState);
+	}
+
+	// this is the entry point for all SDL3 threads
 	int SDL3Thread::ThreadEntry(void *data)
 	{
 		auto *self = static_cast<SDL3Thread *>(data);
+
+		ThreadPriority priority = self->m_Description.Priority;
+		if (priority != ThreadPriority::Default)
+		{
+			SDL_ThreadPriority sdlPriority = GetSDLThreadPriority(priority);
+			SDL_SetCurrentThreadPriority(sdlPriority);
+		}
+
 		if (self && self->m_Function)
 		{
 			self->m_Function();

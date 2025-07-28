@@ -4,10 +4,28 @@
 
 namespace Nexus
 {
+	enum class ThreadPriority
+	{
+		Default,
+		Low,
+		Normal,
+		High,
+		TimeCritical
+	};
+
+	enum class ThreadState
+	{
+		Uknown,
+		Alive,
+		Detached,
+		Complete
+	};
+
 	struct ThreadDescription
 	{
 		std::string Name	  = "Thread";
 		uint64_t	StackSize = 0;
+		ThreadPriority Priority	 = ThreadPriority::Default;
 	};
 
 	class NX_API ThreadBase
@@ -15,6 +33,9 @@ namespace Nexus
 	  public:
 		virtual ~ThreadBase()									= default;
 		virtual const ThreadDescription &GetDescription() const = 0;
+		virtual ThreadState				 GetThreadState() const = 0;
+		virtual void					 Wait() const;
+		virtual void					 Detach() const;
 
 	  private:
 		std::function<void()> m_Function;
@@ -31,12 +52,14 @@ namespace Nexus
 			CreateBase(description);
 		}
 
-		virtual ~Thread()
-		{
-		}
+		virtual ~Thread() = default;
+		const ThreadDescription &GetDescription() const;
+		ThreadState				 GetThreadState() const;
+		void					 Wait() const;
+		void					 Detach() const;
 
 	  private:
-		inline void CreateBase(const ThreadDescription &description);
+		void CreateBase(const ThreadDescription &description);
 
 	  private:
 		std::unique_ptr<ThreadBase> m_ThreadBase = nullptr;
