@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-namespace Nexus
+namespace Nexus::Threading
 {
 	enum class ThreadPriority
 	{
@@ -34,14 +34,14 @@ namespace Nexus
 		virtual ~ThreadBase()									= default;
 		virtual const ThreadDescription &GetDescription() const = 0;
 		virtual ThreadState				 GetThreadState() const = 0;
-		virtual void					 Wait() const;
-		virtual void					 Detach() const;
+		virtual void					 Wait() const			= 0;
+		virtual void					 Detach() const			= 0;
 
 	  private:
 		std::function<void()> m_Function;
 	};
 
-	class NX_API Thread
+	class NX_API Thread final
 	{
 	  public:
 		template<typename Func, typename... Args>

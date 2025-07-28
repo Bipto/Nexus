@@ -11,6 +11,10 @@
 #include "Nexus-Core/Input/Mouse.hpp"
 #include "Nexus-Core/MessageBox.hpp"
 #include "Nexus-Core/Monitor.hpp"
+#include "Nexus-Core/Threading/Condition.hpp"
+#include "Nexus-Core/Threading/Mutex.hpp"
+#include "Nexus-Core/Threading/ReadWriteLock.hpp"
+#include "Nexus-Core/Threading/Semaphore.hpp"
 #include "Nexus-Core/Threading/Thread.hpp"
 #include "Nexus-Core/Utils/SharedLibrary.hpp"
 
@@ -76,7 +80,11 @@ namespace Nexus::Platform
 
 	NX_API const char *GetRootPath();
 	NX_API const char *GetApplicationPath(const char *org, const char *app);
-	NX_API ThreadBase *CreateThreadBase(const ThreadDescription &description, std::function<void()> function);
+	NX_API Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function);
+	NX_API Threading::MutexBase *CreateMutexBase();
+	NX_API Threading::ConditionBase *CreateConditionBase();
+	NX_API Threading::SemaphoreBase *CreateSemaphoreBase(uint32_t startingValue);
+	NX_API Threading::ReadWriteLockBase *CreateReadWriteLockBase();
 
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;

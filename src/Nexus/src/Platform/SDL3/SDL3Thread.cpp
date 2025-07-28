@@ -1,6 +1,6 @@
 #include "SDL3Thread.hpp"
 
-namespace Nexus
+namespace Nexus::Threading
 {
 	SDL_ThreadPriority GetSDLThreadPriority(ThreadPriority priority)
 	{
@@ -27,7 +27,7 @@ namespace Nexus
 		}
 	}
 
-	Nexus::SDL3Thread::SDL3Thread(const ThreadDescription &description, std::function<void()> function) : m_Description(description)
+	SDL3Thread::SDL3Thread(const ThreadDescription &description, std::function<void()> function) : m_Description(description)
 	{
 		m_Function = std::move(function);
 
@@ -67,6 +67,16 @@ namespace Nexus
 	{
 		SDL_ThreadState threadState = SDL_GetThreadState(m_Thread);
 		return GetNXThreadState(threadState);
+	}
+
+	void SDL3Thread::Wait() const
+	{
+		SDL_WaitThread(m_Thread, nullptr);
+	}
+
+	void SDL3Thread::Detach() const
+	{
+		SDL_DetachThread(m_Thread);
 	}
 
 	// this is the entry point for all SDL3 threads

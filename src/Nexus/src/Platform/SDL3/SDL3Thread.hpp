@@ -3,7 +3,7 @@
 
 #include "Nexus-Core/Threading/Thread.hpp"
 
-namespace Nexus
+namespace Nexus::Threading
 {
 	class SDL3Thread final : public ThreadBase
 	{
@@ -14,6 +14,8 @@ namespace Nexus
 
 		const ThreadDescription &GetDescription() const final;
 		ThreadState				 GetThreadState() const final;
+		void					 Wait() const final;
+		void					 Detach() const final;
 
 	  private:
 		ThreadDescription	  m_Description;

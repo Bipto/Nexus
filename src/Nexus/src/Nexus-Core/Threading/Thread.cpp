@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/Platform.hpp"
 
-namespace Nexus
+namespace Nexus::Threading
 {
 	void Thread::CreateBase(const ThreadDescription &description)
 	{

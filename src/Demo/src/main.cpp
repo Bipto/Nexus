@@ -37,6 +37,10 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
+#include "Nexus-Core/Threading/Condition.hpp"
+#include "Nexus-Core/Threading/Mutex.hpp"
+#include "Nexus-Core/Threading/ReadWriteLock.hpp"
+#include "Nexus-Core/Threading/Semaphore.hpp"
 #include "Nexus-Core/Threading/Thread.hpp"
 
 struct DemoInfo
@@ -58,8 +62,10 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		Nexus::ThreadDescription threadDesc {.Name = "Message Thread", .StackSize = 0};
-		Nexus::Thread			 thread(threadDesc, [](const std::string &message) { std::cout << message << std::endl; }, "Hello from SDL Thread!");
+		Nexus::Threading::ThreadDescription threadDesc {.Name = "Message Thread", .StackSize = 0};
+		Nexus::Threading::Thread thread(threadDesc, [](const std::string &message) { std::cout << message << std::endl; }, "Hello from SDL Thread!");
+		Nexus::Threading::Condition condition;
+		condition.Signal();
 
 		Nexus::MessageBoxDescription messageBoxDesc = {};
 		messageBoxDesc.Title						= "MessageBox";
