@@ -17,6 +17,7 @@ namespace Nexus::AL
 			default: throw std::runtime_error("Failed to find a valid audio format");
 		}
 	}
+
 	Audio::SourceType GetSourceType(ALint type)
 	{
 		switch (type)

@@ -29,14 +29,20 @@ namespace Nexus::Audio
 		/// @return The AudioSource that provides a context to play the sound
 		virtual Ref<AudioSource> CreateAudioSource() = 0;
 
-		/// @brief A method that will play a sound effect from an AudioSource
-		/// @param source The AudioSource to play the effect from
+		/// @brief A method that will play an AudioSource
+		/// @param source The AudioSource to play
 		virtual void Play(Ref<AudioSource> source) = 0;
 
+		/// @brief A virtual method that pauses an AudioSource from playing
+		/// @param source The AudioSource to pause
 		virtual void Pause(Ref<AudioSource> source) = 0;
 
+		/// @brief A virtual method that stops an AudioSource from playing
+		/// @param source The AudioSource to stop
 		virtual void Stop(Ref<AudioSource> source) = 0;
 
+		/// @brief A virtual method that rewinds an AudioSource
+		/// @param source The AudioSource to rewind
 		virtual void Rewind(Ref<AudioSource> source) = 0;
 	};
 }	 // namespace Nexus::Audio
