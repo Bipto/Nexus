@@ -36,11 +36,6 @@ namespace Nexus::Graphics
 		LoadExtensionFunctions();
 
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
-
-		VkAccelerationStructureGeometryTrianglesDataKHR triangles = {};
-
-		VkAccelerationStructureGeometryKHR geometry = {};
-		geometry.sType								= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 	}
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -885,19 +880,19 @@ namespace Nexus::Graphics
 				extensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
 			}
 
-			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME))
 			{
-				extensions.push_back(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
-			}
+				extensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
 
-			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
-
-				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
 				{
-					extensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
-					m_DeviceFeatures.SupportsRayTracing = true;
+					extensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+
+					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+					{
+						extensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+						m_DeviceFeatures.SupportsRayTracing = true;
+					}
 				}
 			}
 		}

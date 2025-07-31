@@ -58,6 +58,7 @@ def generate_pdf():
         "-t", output_format,
         "--toc",
         "--citeproc",
+        "--pdf-engine=xelatex",
         "-o", "output." + output_format
     ]
 

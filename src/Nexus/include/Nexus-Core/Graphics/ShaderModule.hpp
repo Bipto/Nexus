@@ -41,6 +41,10 @@ namespace Nexus::Graphics
 		std::vector<ShaderAttribute> OutputAttributes;
 	};
 
+	struct ShaderReflectionData
+	{
+	};
+
 	class ShaderModule
 	{
 	  public:

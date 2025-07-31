@@ -62,11 +62,6 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		Nexus::Threading::ThreadDescription threadDesc {.Name = "Message Thread", .StackSize = 0};
-		Nexus::Threading::Thread thread(threadDesc, [](const std::string &message) { std::cout << message << std::endl; }, "Hello from SDL Thread!");
-		Nexus::Threading::Condition condition;
-		condition.Signal();
-
 		Nexus::MessageBoxDescription messageBoxDesc = {};
 		messageBoxDesc.Title						= "MessageBox";
 		messageBoxDesc.Message						= "This is some text in a messagebox";
@@ -344,7 +339,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

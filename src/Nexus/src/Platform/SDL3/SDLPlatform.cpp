@@ -762,6 +762,29 @@ namespace Nexus::Platform
 		return SDL_GetPrefPath(org, app);
 	}
 
+	NX_API void Delay(TimeSpan timespan, DelayAccuracy accuracy)
+	{
+		switch (accuracy)
+		{
+			case DelayAccuracy::Milliseconds:
+			{
+				SDL_Delay(timespan.GetMilliseconds<uint32_t>());
+				break;
+			}
+			case DelayAccuracy::Nanoseconds:
+			{
+				SDL_DelayNS(timespan.GetNanoseconds<uint64_t>());
+				break;
+			}
+			case DelayAccuracy::Precise:
+			{
+				SDL_DelayPrecise(timespan.GetNanoseconds<uint64_t>());
+				break;
+			}
+			default: throw std::runtime_error("Failed to find a valid delay accuracy");
+		}
+	}
+
 	NX_API Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function)
 	{
 		return new Threading::SDL3Thread(description, function);

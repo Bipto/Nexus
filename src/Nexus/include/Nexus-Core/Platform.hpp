@@ -80,6 +80,16 @@ namespace Nexus::Platform
 
 	NX_API const char *GetRootPath();
 	NX_API const char *GetApplicationPath(const char *org, const char *app);
+
+	enum class DelayAccuracy
+	{
+		Milliseconds,
+		Nanoseconds,
+		Precise
+	};
+
+	NX_API void Delay(TimeSpan timespan, DelayAccuracy accuracy);
+
 	NX_API Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function);
 	NX_API Threading::MutexBase *CreateMutexBase();
 	NX_API Threading::ConditionBase *CreateConditionBase();
