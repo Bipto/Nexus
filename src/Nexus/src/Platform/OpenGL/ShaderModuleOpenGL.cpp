@@ -6,6 +6,8 @@
 
 	#include "GraphicsDeviceOpenGL.hpp"
 
+	#include "OpenGLShaderParser.hpp"
+
 namespace Nexus::Graphics
 {
 	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec,
@@ -15,6 +17,9 @@ namespace Nexus::Graphics
 		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage)),
 		  m_Device(device)
 	{
+		OpenGL::OpenGLShaderParser shaderParser;
+		auto					   resources = shaderParser.ReflectShader(shaderModuleSpec.Source);
+
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
