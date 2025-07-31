@@ -69,25 +69,57 @@ namespace Nexus::Graphics
 		m_CommandExecutor->Reset();
 		VkCommandBuffer vkCmdBuffer = commandListVk->GetCurrentCommandBuffer();
 
-		VkSubmitInfo submitInfo			= {};
-		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount	= 0;
-		submitInfo.pWaitSemaphores		= nullptr;
-		submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-		submitInfo.commandBufferCount	= 1;
-		submitInfo.pCommandBuffers		= &vkCmdBuffer;
-		submitInfo.signalSemaphoreCount = 0;
-		submitInfo.pSignalSemaphores	= nullptr;
-
-		VkFence vulkanFence = nullptr;
-
-		if (fence)
+		if (m_ExtensionFunctions.vkQueueSubmit2KHR)
 		{
-			Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-			vulkanFence			  = apiFence->GetHandle();
-		}
+			VkCommandBufferSubmitInfoKHR commandBufferInfo = {};
+			commandBufferInfo.sType						   = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+			commandBufferInfo.pNext						   = nullptr;
+			commandBufferInfo.commandBuffer				   = vkCmdBuffer;
+			commandBufferInfo.deviceMask				   = 0;
 
-		NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+			VkSubmitInfo2KHR submitInfo			= {};
+			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
+			submitInfo.pNext					= nullptr;
+			submitInfo.flags					= 0;
+			submitInfo.waitSemaphoreInfoCount	= 0;
+			submitInfo.pWaitSemaphoreInfos		= nullptr;
+			submitInfo.commandBufferInfoCount	= 1;
+			submitInfo.pCommandBufferInfos		= &commandBufferInfo;
+			submitInfo.signalSemaphoreInfoCount = 0;
+			submitInfo.pSignalSemaphoreInfos	= nullptr;
+
+			VkFence vulkanFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vulkanFence			  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		}
+		else
+		{
+			VkSubmitInfo submitInfo			= {};
+			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.waitSemaphoreCount	= 0;
+			submitInfo.pWaitSemaphores		= nullptr;
+			submitInfo.pWaitDstStageMask	= &waitDestStageMask;
+			submitInfo.commandBufferCount	= 1;
+			submitInfo.pCommandBuffers		= &vkCmdBuffer;
+			submitInfo.signalSemaphoreCount = 0;
+			submitInfo.pSignalSemaphores	= nullptr;
+
+			VkFence vulkanFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vulkanFence			  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		}
 	}
 
 	void GraphicsDeviceVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
@@ -106,25 +138,62 @@ namespace Nexus::Graphics
 			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
 		}
 
-		VkSubmitInfo submitInfo			= {};
-		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount	= 0;
-		submitInfo.pWaitSemaphores		= nullptr;
-		submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-		submitInfo.commandBufferCount	= commandBuffers.size();
-		submitInfo.pCommandBuffers		= commandBuffers.data();
-		submitInfo.signalSemaphoreCount = 0;
-		submitInfo.pSignalSemaphores	= nullptr;
-
-		VkFence vkFence = nullptr;
-
-		if (fence)
+		if (m_ExtensionFunctions.vkQueueSubmit2KHR)
 		{
-			Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-			vkFence				  = apiFence->GetHandle();
-		}
+			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
 
-		NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
+			for (VkCommandBuffer commandBuffer : commandBuffers)
+			{
+				VkCommandBufferSubmitInfoKHR &commandBufferInfo = commandBufferInfos.emplace_back();
+				commandBufferInfo.sType							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+				commandBufferInfo.pNext							= nullptr;
+				commandBufferInfo.commandBuffer					= commandBuffer;
+				commandBufferInfo.deviceMask					= 0;
+			}
+
+			VkSubmitInfo2KHR submitInfo			= {};
+			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
+			submitInfo.pNext					= nullptr;
+			submitInfo.flags					= 0;
+			submitInfo.waitSemaphoreInfoCount	= 0;
+			submitInfo.pWaitSemaphoreInfos		= nullptr;
+			submitInfo.commandBufferInfoCount	= commandBufferInfos.size();
+			submitInfo.pCommandBufferInfos		= commandBufferInfos.data();
+			submitInfo.signalSemaphoreInfoCount = 0;
+			submitInfo.pSignalSemaphoreInfos	= nullptr;
+
+			VkFence vulkanFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vulkanFence			  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		}
+		else
+		{
+			VkSubmitInfo submitInfo			= {};
+			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.waitSemaphoreCount	= 0;
+			submitInfo.pWaitSemaphores		= nullptr;
+			submitInfo.pWaitDstStageMask	= &waitDestStageMask;
+			submitInfo.commandBufferCount	= commandBuffers.size();
+			submitInfo.pCommandBuffers		= commandBuffers.data();
+			submitInfo.signalSemaphoreCount = 0;
+			submitInfo.pSignalSemaphores	= nullptr;
+
+			VkFence vkFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vkFence				  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
+		}
 	}
 
 	const std::string GraphicsDeviceVk::GetAPIName()
@@ -580,6 +649,15 @@ namespace Nexus::Graphics
 			builder.Add(accelerationStructureFeatures);
 		}
 
+		VkPhysicalDeviceSynchronization2FeaturesKHR synchronizationFeatures = {};
+		synchronizationFeatures.sType										= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR;
+		synchronizationFeatures.pNext										= nullptr;
+		synchronizationFeatures.synchronization2							= VK_TRUE;
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
+		{
+			builder.Add(synchronizationFeatures);
+		}
+
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.pNext			  = nullptr;
@@ -726,6 +804,8 @@ namespace Nexus::Graphics
 			(PFN_vkCmdCopyMemoryToAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyMemoryToAccelerationStructureKHR");
 		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
 			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
+
+		m_ExtensionFunctions.vkQueueSubmit2KHR = (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -871,6 +951,11 @@ namespace Nexus::Graphics
 		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
 		}
 
 		// ray tracing

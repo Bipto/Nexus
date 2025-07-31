@@ -67,6 +67,8 @@ namespace Nexus::Graphics
 		PFN_vkCmdCopyAccelerationStructureToMemoryKHR  vkCmdCopyAccelerationStructureToMemoryKHR  = VK_NULL_HANDLE;
 		PFN_vkCmdCopyMemoryToAccelerationStructureKHR  vkCmdCopyMemoryToAccelerationStructureKHR  = VK_NULL_HANDLE;
 		PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR = VK_NULL_HANDLE;
+
+		PFN_vkQueueSubmit2KHR vkQueueSubmit2KHR = VK_NULL_HANDLE;
 	};
 
 	class GraphicsDeviceVk final : public GraphicsDevice
