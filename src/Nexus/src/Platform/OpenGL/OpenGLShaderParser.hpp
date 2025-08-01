@@ -4,22 +4,26 @@
 
 namespace Nexus::OpenGL
 {
-
-	struct ReflectedShaderUniforms
-	{
-		std::string LayoutQualififer = {};
-		std::string LayoutValue		 = {};
-		std::string StorageQualifier = {};
-		std::string Type			 = {};
-		std::string Name			 = {};
-		std::string ArraySuffix		 = {};
-	};
-
 	struct ReflectedBufferMember
 	{
 		std::string Type		= {};
 		std::string Name		= {};
 		std::string ArraySuffix = {};
+	};
+
+	struct ReflectedCustomStructs
+	{
+		std::string						   Name	   = {};
+		std::vector<ReflectedBufferMember> Members = {};
+	};
+
+	struct ReflectedShaderUniforms
+	{
+		std::string LayoutQualififers = {};
+		std::string StorageQualifier = {};
+		std::string Type			 = {};
+		std::string Name			 = {};
+		std::string ArraySuffix		 = {};
 	};
 
 	struct ReflectedShaderBuffer
@@ -33,6 +37,7 @@ namespace Nexus::OpenGL
 
 	struct ShaderReflectionData
 	{
+		std::vector<ReflectedCustomStructs>	 CustomStructs	= {};
 		std::vector<ReflectedShaderUniforms> Uniforms		= {};
 		std::vector<ReflectedShaderBuffer>	 Buffers		= {};
 	};
