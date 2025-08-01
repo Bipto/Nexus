@@ -102,13 +102,11 @@ namespace Nexus::Utils
 
 	NX_API uint64_t GetCurrentTimeAsInt();
 
-	// djb2 algorithm
-	inline size_t Hash(const std::string &text)
+	template<typename T>
+	inline size_t Hash(const T &input)
 	{
-		size_t hash = 5381;
-		for (char c : text) { hash = ((hash << 5) + hash) + c; }
-
-		return hash;
+		std::hash<T> hasher;
+		return hasher(input);
 	}
 
 	inline Point2D<uint32_t> GetMipSize(uint32_t baseWidth, uint32_t baseHeight, uint32_t level)
