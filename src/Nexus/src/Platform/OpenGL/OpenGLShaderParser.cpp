@@ -36,7 +36,8 @@ namespace Nexus::OpenGL
 
 		// reflect uniform blocks
 		{
-			std::regex pattern(R"((?:layout\s*\(\s*([^)]+)\s*\)\s*)?uniform\s+(\w+)\s*\{([\s\S]*?)\}\s*(\w+)?\s*;)", std::regex::ECMAScript);
+			std::regex pattern(R"((?:layout\s*\(\s*([^)]+)\s*\)\s*)?(uniform|buffer|shared)\s+(\w+)\s*\{([\s\S]*?)\}\s*(\w+)?\s*;)",
+							   std::regex::ECMAScript);
 
 			auto begin = std::sregex_iterator(source.begin(), source.end(), pattern);
 			auto end   = std::sregex_iterator();
@@ -45,13 +46,15 @@ namespace Nexus::OpenGL
 			{
 				std::smatch match = *i;
 
-				ReflectedUniformBuffer &buffer = reflectionData.UniformBuffers.emplace_back();
-				buffer.LayoutQualifiers		   = match[1];
-				buffer.BlockName			   = match[2];
+				ReflectedShaderBuffer &buffer = reflectionData.Buffers.emplace_back();
+				buffer.LayoutQualifiers		  = match[1];
+				buffer.StorageQualifier		  = match[2];
+				buffer.BlockName			  = match[3];
+				buffer.InstanceName			  = match[5].matched ? match[5].str() : std::string {};
 
 				// extract members
 				{
-					std::string blockContents = match[3];
+					std::string blockContents = match[4];
 					std::regex	memberPattern(R"(\s*(\w+)\s+(\w+)(\s*\[\s*\d*\s*\])?\s*;)");
 
 					auto memberBegin = std::sregex_iterator(blockContents.begin(), blockContents.end(), memberPattern);
@@ -61,7 +64,7 @@ namespace Nexus::OpenGL
 					{
 						std::smatch memberMatch = *it;
 
-						ReflectedUniformMember member;
+						ReflectedBufferMember member;
 						member.Type		   = memberMatch[1];
 						member.Name		   = memberMatch[2];
 						member.ArraySuffix = memberMatch[3];
@@ -69,8 +72,6 @@ namespace Nexus::OpenGL
 						buffer.Members.emplace_back(std::move(member));
 					}
 				}
-
-				buffer.InstanceName = match[4];
 			}
 		}
 
