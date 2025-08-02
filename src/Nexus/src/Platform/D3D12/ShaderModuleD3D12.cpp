@@ -4,6 +4,9 @@
 
 	#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 
+	#include <dxcapi.h>
+	#include <d3d12shader.h>
+
 std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
 {
 	switch (stage)
@@ -23,6 +26,17 @@ std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
 
 namespace Nexus::Graphics
 {
+	UINT GetComponentCount(BYTE mask)
+	{
+		UINT count = 0;
+		for (UINT i = 0; i < 4; ++i)
+		{
+			if (mask & (1 << i))
+				++count;
+		}
+		return count;
+	}
+
 	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
 		: ShaderModule(shaderModuleSpec, resourceSpec)
 	{
@@ -43,7 +57,8 @@ namespace Nexus::Graphics
 		std::string	 shaderVersion = GetShaderVersion(shaderModuleSpec.ShadingStage);
 		std::wstring wsShaderVersion(shaderVersion.begin(), shaderVersion.end());
 
-		std::vector<LPCWSTR> compilationArguments = {L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS};
+		std::vector<LPCWSTR> compilationArguments =
+			{L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS, L"-Qstrip_reflect"};
 
 	#if defined(DEBUG) || defined(_DEBUG)
 		compilationArguments.push_back(DXC_ARG_DEBUG);
@@ -62,11 +77,66 @@ namespace Nexus::Graphics
 												IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf()));
 
 		compiledShaderBuffer->GetResult(&m_ShaderBlob);
+
+		ReflectShader(utils, compiledShaderBuffer);
 	}
 
 	Microsoft::WRL::ComPtr<IDxcBlob> ShaderModuleD3D12::GetBlob() const
 	{
 		return m_ShaderBlob;
+	}
+
+	ShaderReflectionData ShaderModuleD3D12::Reflect() const
+	{
+		ShaderReflectionData data;
+		return data;
+	}
+
+	void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult)
+	{
+		m_ReflectionData.Inputs.clear();
+
+		Microsoft::WRL::ComPtr<IDxcBlob> reflectionData;
+		compileResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(reflectionData.GetAddressOf()), nullptr);
+
+		DxcBuffer reflectionBuffer;
+		reflectionBuffer.Ptr	  = reflectionData->GetBufferPointer();
+		reflectionBuffer.Size	  = reflectionData->GetBufferSize();
+		reflectionBuffer.Encoding = 0;
+
+		Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection;
+		utils->CreateReflection(&reflectionBuffer, IID_PPV_ARGS(shaderReflection.GetAddressOf()));
+
+		D3D12_SHADER_DESC shaderDesc;
+		shaderReflection->GetDesc(&shaderDesc);
+
+		for (UINT i = 0; i < shaderDesc.InputParameters; ++i)
+		{
+			D3D12_SIGNATURE_PARAMETER_DESC input;
+			shaderReflection->GetInputParameterDesc(i, &input);
+
+			std::string					name		   = input.SemanticName ? input.SemanticName : "";
+			std::string					fullName	   = name + std::to_string(input.SemanticIndex);
+			UINT						index		   = input.SemanticIndex;
+			D3D_REGISTER_COMPONENT_TYPE type		   = input.ComponentType;
+			UINT						inputRegister  = input.Register;
+			D3D_NAME					valueType	   = input.SystemValueType;
+			UINT						componentCount = GetComponentCount(input.Mask);
+
+			Nexus::Graphics::Attribute &attribute = m_ReflectionData.Inputs.emplace_back();
+			attribute.Binding					  = inputRegister;
+			attribute.Name						  = fullName;
+		}
+
+		for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
+		{
+			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
+			shaderReflection->GetResourceBindingDesc(i, &bindDesc);
+
+			std::string			  name		= bindDesc.Name;
+			D3D_SHADER_INPUT_TYPE type		= bindDesc.Type;
+			D3D_SRV_DIMENSION	  dimension = bindDesc.Dimension;
+		}
 	}
 }	 // namespace Nexus::Graphics
 

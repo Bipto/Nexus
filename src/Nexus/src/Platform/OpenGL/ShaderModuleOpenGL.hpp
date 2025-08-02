@@ -18,6 +18,7 @@ namespace Nexus::Graphics
 		virtual ~ShaderModuleOpenGL();
 		GLenum	 GetGLShaderStage();
 		uint32_t GetHandle();
+		ShaderReflectionData Reflect() const final;
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device		= nullptr;

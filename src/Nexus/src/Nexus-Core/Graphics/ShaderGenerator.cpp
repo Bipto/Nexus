@@ -140,9 +140,9 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::SignedByte;
-					case 2: return ShaderDataType::SignedByte2;
-					case 4: return ShaderDataType::SignedByte4;
+					case 1: return ShaderDataType::R8_SInt;
+					case 2: return ShaderDataType::R8G8_SInt;
+					case 4: return ShaderDataType::R8G8B8A8_SInt;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -150,9 +150,9 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::Byte;
-					case 2: return ShaderDataType::Byte2;
-					case 4: return ShaderDataType::Byte4;
+					case 1: return ShaderDataType::R8_UInt;
+					case 2: return ShaderDataType::R8G8_UInt;
+					case 4: return ShaderDataType::R8G8B8A8_UInt;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -160,9 +160,9 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::Short;
-					case 2: return ShaderDataType::Short2;
-					case 4: return ShaderDataType::Short4;
+					case 1: return ShaderDataType::R16_SInt;
+					case 2: return ShaderDataType::R16G16_SInt;
+					case 4: return ShaderDataType::R16G16B16A16_SInt;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -170,9 +170,9 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::UShort;
-					case 2: return ShaderDataType::UShort2;
-					case 4: return ShaderDataType::UShort4;
+					case 1: return ShaderDataType::R16_UInt;
+					case 2: return ShaderDataType::R16G16_UInt;
+					case 4: return ShaderDataType::R16G16B16A16_UInt;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -180,10 +180,10 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::Int;
-					case 2: return ShaderDataType::Int2;
-					case 3: return ShaderDataType::Int3;
-					case 4: return ShaderDataType::Int4;
+					case 1: return ShaderDataType::R32_SInt;
+					case 2: return ShaderDataType::R32G32_SInt;
+					case 3: return ShaderDataType::R32G32B32_SInt;
+					case 4: return ShaderDataType::R32G32B32A32_SInt;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -191,9 +191,9 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::UShort;
-					case 2: return ShaderDataType::UShort2;
-					case 4: return ShaderDataType::UShort4;
+					case 1: return ShaderDataType::R16_UInt;
+					case 2: return ShaderDataType::R16G16_UInt;
+					case 4: return ShaderDataType::R16G16B16A16_UInt;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -201,9 +201,9 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::Half;
-					case 2: return ShaderDataType::Half2;
-					case 4: return ShaderDataType::Half4;
+					case 1: return ShaderDataType::R16_SFloat;
+					case 2: return ShaderDataType::R16G16_SFloat;
+					case 4: return ShaderDataType::R16G16B16A16_SFloat;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}
@@ -211,10 +211,10 @@ namespace Nexus::Graphics
 			{
 				switch (type.vecsize)
 				{
-					case 1: return ShaderDataType::Float;
-					case 2: return ShaderDataType::Float2;
-					case 3: return ShaderDataType::Float3;
-					case 4: return ShaderDataType::Float4;
+					case 1: return ShaderDataType::R32_SFloat;
+					case 2: return ShaderDataType::R32G32_SFloat;
+					case 3: return ShaderDataType::R32G32B32_SFloat;
+					case 4: return ShaderDataType::R32G32B32A32_SFloat;
 					default: throw std::runtime_error("Invalid variable count");
 				}
 			}

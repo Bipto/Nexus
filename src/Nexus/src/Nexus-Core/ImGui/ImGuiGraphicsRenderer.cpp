@@ -157,9 +157,9 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
 
 		pipelineDesc.Layouts = {
-			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD")},
+			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
@@ -196,9 +196,9 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
 
 		pipelineDesc.Layouts = {
-			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD")},
+			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 

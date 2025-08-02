@@ -56,6 +56,11 @@ namespace Nexus::Graphics
 	{
 		return m_Handle;
 	}
+
+	ShaderReflectionData ShaderModuleOpenGL::Reflect() const
+	{
+		return ShaderReflectionData();
+	}
 }	 // namespace Nexus::Graphics
 
 #endif

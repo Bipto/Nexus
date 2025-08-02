@@ -12,9 +12,14 @@ namespace Nexus::Graphics
 	  public:
 		ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
 		Microsoft::WRL::ComPtr<IDxcBlob> GetBlob() const;
+		ShaderReflectionData			 Reflect() const final;
+
+	  private:
+		void ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult);
 
 	  private:
 		Microsoft::WRL::ComPtr<IDxcBlob> m_ShaderBlob = nullptr;
+		ShaderReflectionData			 m_ReflectionData = {};
 	};
 }	 // namespace Nexus::Graphics
 

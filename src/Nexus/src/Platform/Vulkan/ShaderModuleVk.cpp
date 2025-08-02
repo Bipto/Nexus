@@ -25,6 +25,11 @@ namespace Nexus::Graphics
 		return m_ShaderModule;
 	}
 
+	ShaderReflectionData ShaderModuleVk::Reflect() const
+	{
+		return ShaderReflectionData();
+	}
+
 	void ShaderModuleVk::CreateShaderModule()
 	{
 		VkShaderModuleCreateInfo createInfo = {};

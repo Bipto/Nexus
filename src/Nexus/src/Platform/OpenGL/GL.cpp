@@ -692,252 +692,288 @@ namespace Nexus::GL
 	{
 		switch (element.Type)
 		{
-			case Graphics::ShaderDataType::Byte:
+			case Graphics::ShaderDataType::R8_UInt:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Byte2:
+
+			case Graphics::ShaderDataType::R8G8_UInt:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Byte4:
+
+			case Graphics::ShaderDataType::R8G8B8A8_UInt:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::NormByte:
+			case Graphics::ShaderDataType::R8_UNorm:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::NormByte2:
+
+			case Graphics::ShaderDataType::R8G8_UNorm:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::NormByte4:
+			case Graphics::ShaderDataType::R8G8B8A8_UNorm:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Float:
+			case Graphics::ShaderDataType::R32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Float2:
+
+			case Graphics::ShaderDataType::R32G32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Float3:
+
+			case Graphics::ShaderDataType::R32G32B32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 3;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Float4:
+
+			case Graphics::ShaderDataType::R32G32B32A32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Half:
+			case Graphics::ShaderDataType::R16_SFloat:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Half2:
+
+			case Graphics::ShaderDataType::R16G16_SFloat:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Half4:
+
+			case Graphics::ShaderDataType::R16G16B16A16_SFloat:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Int:
+			case Graphics::ShaderDataType::R32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Int2:
+
+			case Graphics::ShaderDataType::R32G32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Int3:
+
+			case Graphics::ShaderDataType::R32G32B32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 3;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Int4:
+
+			case Graphics::ShaderDataType::R32G32B32A32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
 
-			case Graphics::ShaderDataType::SignedByte:
+			case Graphics::ShaderDataType::R8_SInt:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte2:
+
+			case Graphics::ShaderDataType::R8G8_SInt:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte4:
+			case Graphics::ShaderDataType::R8G8B8A8_SInt:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::SignedByteNormalized:
+			case Graphics::ShaderDataType::R16_SNorm:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte2Normalized:
+
+			case Graphics::ShaderDataType::R16G16_SNorm:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte4Normalized:
+
+			case Graphics::ShaderDataType::R16G16B16A16_SNorm:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Short:
+			case Graphics::ShaderDataType::R16_SInt:
 				baseType	   = GL_SHORT;
 				componentCount = 1;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Short2:
+
+			case Graphics::ShaderDataType::R16G16_SInt:
 				baseType	   = GL_SHORT;
 				componentCount = 2;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Short4:
+
+			case Graphics::ShaderDataType::R16G16B16A16_SInt:
 				baseType	   = GL_SHORT;
 				componentCount = 4;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 
-			case Graphics::ShaderDataType::ShortNormalized:
+			case Graphics::ShaderDataType::R8_SNorm:
 				baseType	   = GL_SHORT;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Short2Normalized:
+			case Graphics::ShaderDataType::R8G8_SNorm:
 				baseType	   = GL_SHORT;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Short4Normalized:
+			case Graphics::ShaderDataType::R8G8B8A8_SNorm:
 				baseType	   = GL_SHORT;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::UInt:
+			case Graphics::ShaderDataType::R32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UInt2:
+
+			case Graphics::ShaderDataType::R32G32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UInt3:
+
+			case Graphics::ShaderDataType::R32G32B32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 3;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UInt4:
+
+			case Graphics::ShaderDataType::R32G32B32A32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
 
-			case Graphics::ShaderDataType::UShort:
+			case Graphics::ShaderDataType::R16_UInt:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 1;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UShort2:
+
+			case Graphics::ShaderDataType::R16G16_UInt:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 2;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UShort4:
+
+			case Graphics::ShaderDataType::R16G16B16A16_UInt:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
+				break;
+
+			case Graphics::ShaderDataType::R16_UNorm:
+				baseType	   = GL_UNSIGNED_SHORT;
+				componentCount = 1;
+				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
+				break;
+			case Graphics::ShaderDataType::R16G16_UNorm:
+				baseType	   = GL_UNSIGNED_SHORT;
+				componentCount = 2;
+				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
+				break;
+			case Graphics::ShaderDataType::R16G16B16A16_UNorm:
+				baseType	   = GL_UNSIGNED_SHORT;
+				componentCount = 4;
+				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::UShortNormalized:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::UShort2Normalized:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::UShort4Normalized:
-				baseType	   = GL_UNSIGNED_SHORT;
+			case Graphics::ShaderDataType::A2B10G10R10_UNorm:
+				baseType	   = GL_INT_2_10_10_10_REV;
 				componentCount = 4;
 				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
+
+			case Graphics::ShaderDataType::A2B10G10R10_UInt:
+				baseType	   = GL_UNSIGNED_INT_2_10_10_10_REV;
+				componentCount = 4;
+				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
+				break;
+
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
 	}

@@ -15,6 +15,7 @@ namespace Nexus::Graphics
 		ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec, GraphicsDeviceVk *device);
 		virtual ~ShaderModuleVk();
 		VkShaderModule GetShaderModule();
+		ShaderReflectionData Reflect() const final;
 
 	  private:
 		void CreateShaderModule();

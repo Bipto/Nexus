@@ -133,7 +133,7 @@ namespace Nexus::Graphics
 
 	struct RayTracingPipelineDescription
 	{
-		std::vector<ShaderModule> Shaders			= {};
+		std::vector<Ref<ShaderModule>> Shaders			 = {};
 		std::vector<ShaderGroup>  ShaderGroups		= {};
 		ResourceSetSpecification  ResourceSetSpec	= {};
 		uint32_t				  MaxRecursionDepth = 0;

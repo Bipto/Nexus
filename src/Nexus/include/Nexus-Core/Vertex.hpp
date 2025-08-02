@@ -153,11 +153,7 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			/* Nexus::Graphics::VertexBufferLayout layout =
-				Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float3)},
-													StepRate::Vertex); */
-
-			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
 														  sizeof(VertexPosition),
 														  StepRate::Vertex};
 
@@ -195,7 +191,7 @@ namespace Nexus::Graphics
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
 			Nexus::Graphics::VertexBufferLayout layout = {
-				{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}},
+				{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"}},
 				sizeof(VertexPositionTexCoord),
 				StepRate::Vertex};
 			return layout;
@@ -239,9 +235,9 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"}},
 														  sizeof(VertexPositionTexCoordColor),
 														  StepRate::Vertex};
 			return layout;
@@ -285,9 +281,9 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
 														  sizeof(VertexPositionTexCoordNormal),
 														  StepRate::Vertex};
 			return layout;
@@ -343,11 +339,11 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
 														  sizeof(VertexPositionTexCoordNormalTangentBitangent),
 														  StepRate::Vertex};
 			return layout;
@@ -408,12 +404,12 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
 														  sizeof(VertexPositionTexCoordNormalColourTangentBitangent),
 														  StepRate::Vertex};
 			return layout;

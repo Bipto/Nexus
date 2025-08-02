@@ -179,56 +179,60 @@ namespace Nexus::D3D12
 	{
 		switch (element.Type)
 		{
-			case Nexus::Graphics::ShaderDataType::Byte: return DXGI_FORMAT_R8_UINT;
-			case Nexus::Graphics::ShaderDataType::Byte2: return DXGI_FORMAT_R8G8_UINT;
-			case Nexus::Graphics::ShaderDataType::Byte4: return DXGI_FORMAT_R8G8B8A8_UINT;
+			case Nexus::Graphics::ShaderDataType::R8_UInt: return DXGI_FORMAT_R8_UINT;
+			case Nexus::Graphics::ShaderDataType::R8G8_UInt: return DXGI_FORMAT_R8G8_UINT;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_UInt: return DXGI_FORMAT_R8G8B8A8_UINT;
 
-			case Nexus::Graphics::ShaderDataType::NormByte: return DXGI_FORMAT_R8_UNORM;
-			case Nexus::Graphics::ShaderDataType::NormByte2: return DXGI_FORMAT_R8G8_UNORM;
-			case Nexus::Graphics::ShaderDataType::NormByte4: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case Nexus::Graphics::ShaderDataType::R8_UNorm: return DXGI_FORMAT_R8_UNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8_UNorm: return DXGI_FORMAT_R8G8_UNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm: return DXGI_FORMAT_R8G8B8A8_UNORM;
 
-			case Nexus::Graphics::ShaderDataType::Float: return DXGI_FORMAT_R32_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Float2: return DXGI_FORMAT_R32G32_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Float3: return DXGI_FORMAT_R32G32B32_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Float4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32_SFloat: return DXGI_FORMAT_R32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32G32_SFloat: return DXGI_FORMAT_R32G32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32_SFloat: return DXGI_FORMAT_R32G32B32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::ShaderDataType::Half: return DXGI_FORMAT_R16_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Half2: return DXGI_FORMAT_R16G16_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Half4: return DXGI_FORMAT_R16G16B16A16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R16_SFloat: return DXGI_FORMAT_R16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R16G16_SFloat: return DXGI_FORMAT_R16G16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_SFloat: return DXGI_FORMAT_R16G16B16A16_FLOAT;
 
-			case Nexus::Graphics::ShaderDataType::Int: return DXGI_FORMAT_R32_SINT;
-			case Nexus::Graphics::ShaderDataType::Int2: return DXGI_FORMAT_R32G32_SINT;
-			case Nexus::Graphics::ShaderDataType::Int3: return DXGI_FORMAT_R32G32B32_SINT;
-			case Nexus::Graphics::ShaderDataType::Int4: return DXGI_FORMAT_R32G32B32A32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32_SInt: return DXGI_FORMAT_R32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32G32_SInt: return DXGI_FORMAT_R32G32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32_SInt: return DXGI_FORMAT_R32G32B32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32A32_SInt: return DXGI_FORMAT_R32G32B32A32_SINT;
 
-			case Nexus::Graphics::ShaderDataType::SignedByte: return DXGI_FORMAT_R8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte2: return DXGI_FORMAT_R8G8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte4: return DXGI_FORMAT_R8G8B8A8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8_SInt: return DXGI_FORMAT_R8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8_SInt: return DXGI_FORMAT_R8G8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_SInt: return DXGI_FORMAT_R8G8B8A8_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::SignedByteNormalized: return DXGI_FORMAT_R8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte2Normalized: return DXGI_FORMAT_R8G8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte4Normalized: return DXGI_FORMAT_R8G8B8A8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8_SNorm: return DXGI_FORMAT_R8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8_SNorm: return DXGI_FORMAT_R8G8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_SNorm: return DXGI_FORMAT_R8G8B8A8_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::Short: return DXGI_FORMAT_R16_UINT;
-			case Nexus::Graphics::ShaderDataType::Short2: return DXGI_FORMAT_R16G16_UINT;
-			case Nexus::Graphics::ShaderDataType::Short4: return DXGI_FORMAT_R16G16B16A16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16_SInt: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16_SInt: return DXGI_FORMAT_R16G16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_SInt: return DXGI_FORMAT_R16G16B16A16_UINT;
 
-			case Nexus::Graphics::ShaderDataType::ShortNormalized: return DXGI_FORMAT_R16_SNORM;
-			case Nexus::Graphics::ShaderDataType::Short2Normalized: return DXGI_FORMAT_R16G16_SNORM;
-			case Nexus::Graphics::ShaderDataType::Short4Normalized: return DXGI_FORMAT_R16G16B16A16_SNORM;
+			case Nexus::Graphics::ShaderDataType::R16_SNorm: return DXGI_FORMAT_R16_SNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16_SNorm: return DXGI_FORMAT_R16G16_SNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_SNorm: return DXGI_FORMAT_R16G16B16A16_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::UInt: return DXGI_FORMAT_R32_UINT;
-			case Nexus::Graphics::ShaderDataType::UInt2: return DXGI_FORMAT_R32G32_UINT;
-			case Nexus::Graphics::ShaderDataType::UInt3: return DXGI_FORMAT_R32G32B32_UINT;
-			case Nexus::Graphics::ShaderDataType::UInt4: return DXGI_FORMAT_R32G32B32A32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32_UInt: return DXGI_FORMAT_R32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32G32_UInt: return DXGI_FORMAT_R32G32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32_UInt: return DXGI_FORMAT_R32G32B32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32A32_UInt: return DXGI_FORMAT_R32G32B32A32_UINT;
 
-			case Nexus::Graphics::ShaderDataType::UShort: return DXGI_FORMAT_R16_UINT;
-			case Nexus::Graphics::ShaderDataType::UShort2: return DXGI_FORMAT_R16G16_UINT;
-			case Nexus::Graphics::ShaderDataType::UShort4: return DXGI_FORMAT_R16G16B16A16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16_UInt: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16_UInt: return DXGI_FORMAT_R16G16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_UInt: return DXGI_FORMAT_R16G16B16A16_UINT;
 
-			case Nexus::Graphics::ShaderDataType::UShortNormalized: return DXGI_FORMAT_R16_UNORM;
-			case Nexus::Graphics::ShaderDataType::UShort2Normalized: return DXGI_FORMAT_R16G16_UNORM;
-			case Nexus::Graphics::ShaderDataType::UShort4Normalized: return DXGI_FORMAT_R16G16B16A16_UNORM;
+			case Nexus::Graphics::ShaderDataType::R16_UNorm: return DXGI_FORMAT_R16_UNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16_UNorm: return DXGI_FORMAT_R16G16_UNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_UNorm: return DXGI_FORMAT_R16G16B16A16_UNORM;
+
+			case Nexus::Graphics::ShaderDataType::A2B10G10R10_UInt: return DXGI_FORMAT_R10G10B10A2_UINT;
+			case Nexus::Graphics::ShaderDataType::A2B10G10R10_UNorm: return DXGI_FORMAT_R10G10B10A2_UNORM;
+
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
 	}

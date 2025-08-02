@@ -182,18 +182,18 @@ namespace Demos
 																 {"normalMapSampler", 1, 1},
 																 {"specularMapSampler", 1, 2}};
 
-			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
 																sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING),
 																Nexus::Graphics::StepRate::Vertex};
 
-			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"}},
 																  sizeof(glm::mat4),
 																  Nexus::Graphics::StepRate::Instance};
 
