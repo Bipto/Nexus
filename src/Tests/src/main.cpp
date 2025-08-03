@@ -166,7 +166,7 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	Nexus::Graphics::TextureDescription textureSpec	  = {};
 	textureSpec.Width								  = 1;
 	textureSpec.Height								  = 1;
-	textureSpec.ArrayLayers							  = 1;
+	textureSpec.DepthOrArrayLayers					  = 1;
 	textureSpec.MipLevels							  = 1;
 
 	Nexus::Ref<Nexus::Graphics::Texture> sourceTexture = device->CreateTexture(textureSpec);

@@ -6,12 +6,121 @@
 
 namespace Nexus::Graphics
 {
+	enum class ResourceDimension
+	{
+		None,
+		Texture1D,
+		Texture1DArray,
+		Texture2D,
+		Texture2DArray,
+		Texture2DMS,
+		Texture2DMSArray,
+		Texture3D,
+		TextureCube,
+		TextureCubeArray,
+		TextureRectangle
+	};
+
+	enum class StorageResourceAccess
+	{
+		None,
+		Read,
+		Write,
+		ReadWrite,
+		ReadByteAddress,
+		ReadWriteByteAddress,
+		ReadStructured,
+		ReadWriteStructured,
+		AppendStructured,
+		ConsumeStructured,
+		ReadWriteStructuredWithCounter,
+		FeedbackTexture
+	};
+
+	enum class ReflectedShaderDataType
+	{
+		Bool,
+		Bool2,
+		Bool3,
+		Bool4,
+
+		Int,
+		Int2,
+		Int3,
+		Int4,
+
+		AtomicUint,
+
+		UInt,
+		UInt2,
+		UInt3,
+		UInt4,
+
+		Half,
+		Half2,
+		Half3,
+		Half4,
+
+		Float,
+		Float2,
+		Float3,
+		Float4,
+
+		Double,
+		Double2,
+		Double3,
+		Double4,
+
+		Mat2x2,
+		Mat2x3,
+		Mat2x4,
+		Mat3x2,
+		Mat3x3,
+		Mat3x4,
+		Mat4x2,
+		Mat4x3,
+		Mat4x4,
+
+		DMat2x2,
+		DMat2x3,
+		DMat2x4,
+		DMat3x2,
+		DMat3x3,
+		DMat3x4,
+		DMat4x2,
+		DMat4x3,
+		DMat4x4,
+
+		FeedbackTexture,
+		StorageImage,
+		Texture,
+		TextureBuffer,
+		Sampler,
+		ComparisonSampler,
+		CombinedImageSampler,
+		UniformBuffer,
+		StorageBuffer,
+		Struct,
+		AccelerationStructure,
+		Shared
+	};
+
+	struct ReflectedResource
+	{
+		std::string			  Name					= {};
+		ResourceDimension	  Dimension				= ResourceDimension::None;
+		StorageResourceAccess StorageResourceAccess = StorageResourceAccess::None;
+		uint32_t			  BindingPoint			= 0;
+		uint32_t			  BindingCount			= 0;
+		uint32_t			  RegisterSpace			= 0;
+	};
 
 	struct Attribute
 	{
-		std::string	   Name	   = {};
-		ShaderDataType Type	   = {};
-		uint32_t	   Binding = {};
+		std::string				Name		= {};
+		ReflectedShaderDataType Type		= {};
+		uint32_t				Binding		= {};
+		uint32_t				StreamIndex = {};
 	};
 
 	struct ReflectedBufferMember
@@ -19,7 +128,7 @@ namespace Nexus::Graphics
 		std::string			   Name		 = {};
 		size_t				   Offset	 = 0;
 		size_t				   Size		 = 0;
-		std::optional<int32_t> ArraySize = {};
+		std::optional<uint32_t> ArraySize = {};
 		ShaderDataType		   Type		 = {};
 	};
 
@@ -35,36 +144,13 @@ namespace Nexus::Graphics
 		std::vector<ReflectedBufferMember> Members = {};
 	};
 
-	struct ReflectedSampler
-	{
-		std::string Name = {};
-	};
-
-	enum class ImageType
-	{
-		Storage,
-		Sampled
-	};
-
-	struct ReflectedImages
-	{
-		std::string Name = {};
-		ImageType	Type = ImageType::Sampled;
-	};
-
 	struct ShaderReflectionData
 	{
-		std::vector<Attribute>				Inputs;
-		std::vector<Attribute>				Outputs;
-		std::vector<ReflectedUniformBuffer> UniformBuffers = {};
-		std::vector<ReflectedStorageBuffer> StorageBuffers = {};
-		std::vector<ReflectedSampler>		Samplers	   = {};
-		std::vector<ReflectedImages>		Images		   = {};
-
-		ShaderReflectionData()							   = default;
-		ShaderReflectionData(const ShaderReflectionData &) = default;
-		ShaderReflectionData(ShaderReflectionData &&)	   = default;
-		~ShaderReflectionData()							   = default;
+		std::vector<Attribute>								 Inputs;
+		std::vector<Attribute>								 Outputs;
+		std::vector<ReflectedUniformBuffer>					 UniformBuffers = {};
+		std::vector<ReflectedStorageBuffer>					 StorageBuffers = {};
+		std::map<ReflectedShaderDataType, ReflectedResource> Resources		= {};
 	};
 
 	enum class ShaderStage

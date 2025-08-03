@@ -6,9 +6,9 @@ namespace Nexus::OpenGL
 {
 	struct ReflectedBufferMember
 	{
-		std::string Type		= {};
-		std::string Name		= {};
-		std::string ArraySuffix = {};
+		std::string				Type	  = {};
+		std::string				Name	  = {};
+		std::optional<uint32_t> ArraySize = {};
 	};
 
 	struct ReflectedCustomStructs
@@ -17,35 +17,37 @@ namespace Nexus::OpenGL
 		std::vector<ReflectedBufferMember> Members = {};
 	};
 
-	struct ReflectedShaderUniforms
+	struct ReflectedShaderResource
 	{
-		std::string LayoutQualififers = {};
-		std::string StorageQualifier = {};
-		std::string Type			 = {};
-		std::string Name			 = {};
-		std::string ArraySuffix		 = {};
+		std::string				LayoutQualififers = {};
+		std::string				MemoryQualififers = {};
+		std::string				StorageQualifier  = {};
+		std::string				Type			  = {};
+		std::string				Name			  = {};
+		std::optional<uint32_t> ArraySize		  = {};
 	};
 
 	struct ReflectedShaderBuffer
 	{
-		std::string							LayoutQualifiers = {};
-		std::string							StorageQualifier = {};
-		std::string							BlockName		 = {};
-		std::string							InstanceName	 = {};
-		std::vector<ReflectedBufferMember>	Members			 = {};
+		std::string						   LayoutQualifiers	 = {};
+		std::string						   MemoryQualififers = {};
+		std::string						   StorageQualifier	 = {};
+		std::string						   BlockName		 = {};
+		std::string						   InstanceName		 = {};
+		std::vector<ReflectedBufferMember> Members			 = {};
 	};
 
-	struct ShaderReflectionData
+	struct ReflectedShaderResources
 	{
-		std::vector<ReflectedCustomStructs>	 CustomStructs	= {};
-		std::vector<ReflectedShaderUniforms> Uniforms		= {};
-		std::vector<ReflectedShaderBuffer>	 Buffers		= {};
+		std::vector<ReflectedCustomStructs>	 CustomStructs = {};
+		std::vector<ReflectedShaderResource> Uniforms	   = {};
+		std::vector<ReflectedShaderBuffer>	 Buffers	   = {};
 	};
 
 	class OpenGLShaderParser
 	{
 	  public:
 		OpenGLShaderParser();
-		ShaderReflectionData ReflectShader(const std::string &source);
+		ReflectedShaderResources ReflectShader(const std::string &source);
 	};
 }	 // namespace Nexus::OpenGL

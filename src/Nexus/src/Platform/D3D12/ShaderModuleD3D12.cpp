@@ -92,9 +92,132 @@ namespace Nexus::Graphics
 		return data;
 	}
 
+	ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
+	{
+		switch (componentType)
+		{
+			case D3D_REGISTER_COMPONENT_UINT32:
+			{
+				switch (componentCount)
+				{
+					case 1: return ReflectedShaderDataType::UInt;
+					case 2: return ReflectedShaderDataType::UInt2;
+					case 3: return ReflectedShaderDataType::UInt3;
+					case 4: return ReflectedShaderDataType::UInt4;
+					default: throw std::runtime_error("Failed to find a valid type");
+				}
+			}
+			case D3D_REGISTER_COMPONENT_SINT32:
+			{
+				switch (componentCount)
+				{
+					case 1: return ReflectedShaderDataType::Int;
+					case 2: return ReflectedShaderDataType::Int2;
+					case 3: return ReflectedShaderDataType::Int3;
+					case 4: return ReflectedShaderDataType::Int4;
+					default: throw std::runtime_error("Failed to find a valid type");
+				}
+			}
+			case D3D_REGISTER_COMPONENT_FLOAT32:
+			{
+				switch (componentCount)
+				{
+					case 1: return ReflectedShaderDataType::Float;
+					case 2: return ReflectedShaderDataType::Float2;
+					case 3: return ReflectedShaderDataType::Float3;
+					case 4: return ReflectedShaderDataType::Float4;
+					default: throw std::runtime_error("Failed to find a valid type");
+				}
+			}
+			default: throw std::runtime_error("Failed to find valid register component type");
+		}
+	}
+
+	void ExtractAttribute(std::vector<Attribute> &attributes, D3D12_SIGNATURE_PARAMETER_DESC shaderParameter)
+	{
+		std::string					name		   = shaderParameter.SemanticName ? shaderParameter.SemanticName : "";
+		std::string					fullName	   = name + std::to_string(shaderParameter.SemanticIndex);
+		UINT						index		   = shaderParameter.SemanticIndex;
+		D3D_REGISTER_COMPONENT_TYPE type		   = shaderParameter.ComponentType;
+		UINT						inputRegister  = shaderParameter.Register;
+		D3D_NAME					valueType	   = shaderParameter.SystemValueType;
+		UINT						componentCount = GetComponentCount(shaderParameter.Mask);
+		UINT						streamIndex	   = shaderParameter.Stream;
+
+		Nexus::Graphics::Attribute &attribute = attributes.emplace_back();
+		attribute.Binding					  = inputRegister;
+		attribute.Name						  = fullName;
+		attribute.Type						  = ExtractComponentType(type, componentCount);
+		attribute.StreamIndex				  = streamIndex;
+	}
+
+	std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type, UINT flags)
+	{
+		switch (type)
+		{
+			case D3D_SIT_CBUFFER: return {ReflectedShaderDataType::UniformBuffer, StorageResourceAccess::None};
+			case D3D_SIT_TBUFFER: return {ReflectedShaderDataType::TextureBuffer, StorageResourceAccess::None};
+			case D3D_SIT_TEXTURE: return {ReflectedShaderDataType::Texture, StorageResourceAccess::None};
+			case D3D_SIT_SAMPLER:
+			{
+				if (flags & D3D_SIF_COMPARISON_SAMPLER)
+				{
+					return {ReflectedShaderDataType::ComparisonSampler, StorageResourceAccess::None};
+				}
+				else
+				{
+					return {ReflectedShaderDataType::Sampler, StorageResourceAccess::None};
+				}
+			}
+			case D3D_SIT_UAV_RWTYPED: return {ReflectedShaderDataType::StorageImage, StorageResourceAccess::ReadWrite};
+			case D3D_SIT_STRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::Read};
+			case D3D_SIT_UAV_RWSTRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWrite};
+			case D3D_SIT_BYTEADDRESS: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadByteAddress};
+			case D3D_SIT_UAV_RWBYTEADDRESS: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWriteByteAddress};
+			case D3D_SIT_UAV_APPEND_STRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::AppendStructured};
+			case D3D_SIT_UAV_CONSUME_STRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ConsumeStructured};
+			case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
+				return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWriteStructuredWithCounter};
+			case D3D_SIT_RTACCELERATIONSTRUCTURE: return {ReflectedShaderDataType::AccelerationStructure, StorageResourceAccess::None};
+			case D3D_SIT_UAV_FEEDBACKTEXTURE: return {ReflectedShaderDataType::FeedbackTexture, StorageResourceAccess::None};
+
+			default: throw std::runtime_error("Failed to find a valid resource type");
+		}
+	}
+
+	ResourceDimension ExtractDimension(D3D_SRV_DIMENSION dimension)
+	{
+		switch (dimension)
+		{
+			case D3D_SRV_DIMENSION_TEXTURE1D: return ResourceDimension::Texture1D;
+			case D3D_SRV_DIMENSION_TEXTURE1DARRAY: return ResourceDimension::Texture1DArray;
+			case D3D_SRV_DIMENSION_TEXTURE2D: return ResourceDimension::Texture2D;
+			case D3D_SRV_DIMENSION_TEXTURE2DARRAY: return ResourceDimension::Texture2DArray;
+			case D3D_SRV_DIMENSION_TEXTURE2DMS: return ResourceDimension::Texture2DMS;
+			case D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: return ResourceDimension::Texture2DMSArray;
+			case D3D_SRV_DIMENSION_TEXTURE3D: return ResourceDimension::Texture3D;
+			case D3D_SRV_DIMENSION_TEXTURECUBE: return ResourceDimension::TextureCube;
+			case D3D_SRV_DIMENSION_TEXTURECUBEARRAY: return ResourceDimension::TextureCubeArray;
+			default: return ResourceDimension::None;
+		}
+	}
+
+	void ExtractResource(ShaderReflectionData &reflectionData, D3D12_SHADER_INPUT_BIND_DESC resource)
+	{
+		auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
+
+		ReflectedResource &reflectedResource	= reflectionData.Resources[dataType];
+		reflectedResource.Name					= resource.Name;
+		reflectedResource.StorageResourceAccess = storageAccess;
+		reflectedResource.Dimension				= ExtractDimension(resource.Dimension);
+		reflectedResource.BindingPoint			= resource.BindPoint;
+		reflectedResource.BindingCount			= resource.BindCount;
+		reflectedResource.RegisterSpace			= resource.Space;
+	}
+
 	void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult)
 	{
-		m_ReflectionData.Inputs.clear();
+		m_ReflectionData = {};
 
 		Microsoft::WRL::ComPtr<IDxcBlob> reflectionData;
 		compileResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(reflectionData.GetAddressOf()), nullptr);
@@ -114,28 +237,21 @@ namespace Nexus::Graphics
 		{
 			D3D12_SIGNATURE_PARAMETER_DESC input;
 			shaderReflection->GetInputParameterDesc(i, &input);
+			ExtractAttribute(m_ReflectionData.Inputs, input);
+		}
 
-			std::string					name		   = input.SemanticName ? input.SemanticName : "";
-			std::string					fullName	   = name + std::to_string(input.SemanticIndex);
-			UINT						index		   = input.SemanticIndex;
-			D3D_REGISTER_COMPONENT_TYPE type		   = input.ComponentType;
-			UINT						inputRegister  = input.Register;
-			D3D_NAME					valueType	   = input.SystemValueType;
-			UINT						componentCount = GetComponentCount(input.Mask);
-
-			Nexus::Graphics::Attribute &attribute = m_ReflectionData.Inputs.emplace_back();
-			attribute.Binding					  = inputRegister;
-			attribute.Name						  = fullName;
+		for (UINT i = 0; i < shaderDesc.OutputParameters; ++i)
+		{
+			D3D12_SIGNATURE_PARAMETER_DESC output;
+			shaderReflection->GetOutputParameterDesc(i, &output);
+			ExtractAttribute(m_ReflectionData.Outputs, output);
 		}
 
 		for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
 		{
 			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
 			shaderReflection->GetResourceBindingDesc(i, &bindDesc);
-
-			std::string			  name		= bindDesc.Name;
-			D3D_SHADER_INPUT_TYPE type		= bindDesc.Type;
-			D3D_SRV_DIMENSION	  dimension = bindDesc.Dimension;
+			ExtractResource(m_ReflectionData, bindDesc);
 		}
 	}
 }	 // namespace Nexus::Graphics

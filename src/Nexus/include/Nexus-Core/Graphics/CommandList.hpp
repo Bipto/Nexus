@@ -265,6 +265,86 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
+	enum class BarrierStage
+	{
+		None,
+		All,
+		Graphics,
+		VertexInput,
+		VertexShader,
+		FragmentShader,
+		TesselationControlShader,
+		TesselationEvaluationShader,
+		GeometryShader,
+		ComputeShader,
+		RenderTarget,
+		TransferSource,
+		TransferDestination,
+		Resolve
+	};
+
+	enum class BarrierAccess
+	{
+		None,
+		All,
+		VertexBuffer,
+		IndexBuffer,
+		RenderTarget,
+		StorageImage,
+		DepthStencilRead,
+		DepthStencilWrite,
+		ResolveSource,
+		ResolveDestination,
+		CopySource,
+		CopyDestination,
+		DrawIndirect,
+	};
+
+	enum class BarrierLayout
+	{
+		Undefined,
+		General,
+		Present,
+		RenderTarget,
+		DepthStencilRead,
+		DepthStencilWrite,
+		CopySource,
+		CopyDestination,
+		ResolveSource,
+		ResolveDestimation,
+		ShaderReadOnly,
+		ShaderReadWrite
+	};
+
+	struct MemoryBarrierDesc
+	{
+		BarrierStage  BeforeStage  = BarrierStage::All;
+		BarrierStage  AfterStage   = BarrierStage::All;
+		BarrierAccess BeforeAccess = BarrierAccess::All;
+		BarrierAccess AfterAccess  = BarrierAccess::All;
+	};
+
+	struct TextureBarrierDesc
+	{
+		Ref<Graphics::Texture> Texture			= nullptr;
+		BarrierStage		   BeforeStage		= BarrierStage::All;
+		BarrierStage		   AfterStage		= BarrierStage::All;
+		BarrierLayout		   BeforeLayout		= BarrierLayout::General;
+		BarrierLayout		   AfterLayout		= BarrierLayout::General;
+		BarrierAccess		   BeforeAccess		= BarrierAccess::All;
+		BarrierAccess		   AfterAccess		= BarrierAccess::All;
+		SubresourceDescription SubresourceRange = {};
+	};
+
+	struct BufferBarrierDesc
+	{
+		Ref<Graphics::DeviceBuffer> Buffer		 = nullptr;
+		BarrierStage				BeforeStage	 = BarrierStage::All;
+		BarrierStage				AfterStage	 = BarrierStage::All;
+		BarrierAccess				BeforeAccess = BarrierAccess::All;
+		BarrierAccess				AfterAccess	 = BarrierAccess::All;
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
