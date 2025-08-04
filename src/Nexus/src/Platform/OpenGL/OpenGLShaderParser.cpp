@@ -126,7 +126,7 @@ namespace Nexus::OpenGL
 
 				// extract members
 				{
-					std::string blockContents = match[4];
+					std::string blockContents = match[5];
 					std::regex	memberPattern(R"(\s*(\w+)\s+(\w+)((?:\s*\[\s*\d*\s*\])*)\s*;)");
 
 					auto memberBegin = std::sregex_iterator(blockContents.begin(), blockContents.end(), memberPattern);

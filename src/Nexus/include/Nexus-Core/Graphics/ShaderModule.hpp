@@ -102,17 +102,22 @@ namespace Nexus::Graphics
 		StorageBuffer,
 		Struct,
 		AccelerationStructure,
-		Shared
+		Shared,
+		InputAttachment,
+		PushConstant,
+		ShaderRecord
 	};
 
 	struct ReflectedResource
 	{
-		std::string			  Name					= {};
-		ResourceDimension	  Dimension				= ResourceDimension::None;
-		StorageResourceAccess StorageResourceAccess = StorageResourceAccess::None;
-		uint32_t			  BindingPoint			= 0;
-		uint32_t			  BindingCount			= 0;
-		uint32_t			  RegisterSpace			= 0;
+		ReflectedShaderDataType Type				  = ReflectedShaderDataType::UniformBuffer;
+		std::string				Name				  = {};
+		ResourceDimension		Dimension			  = ResourceDimension::None;
+		StorageResourceAccess	StorageResourceAccess = StorageResourceAccess::None;
+		uint32_t				DescriptorSet		  = 0;
+		uint32_t				BindingPoint		  = 0;
+		uint32_t				BindingCount		  = 0;
+		uint32_t				RegisterSpace		  = 0;
 	};
 
 	struct Attribute
@@ -125,11 +130,11 @@ namespace Nexus::Graphics
 
 	struct ReflectedBufferMember
 	{
-		std::string			   Name		 = {};
-		size_t				   Offset	 = 0;
-		size_t				   Size		 = 0;
+		std::string				Name	  = {};
+		size_t					Offset	  = 0;
+		size_t					Size	  = 0;
 		std::optional<uint32_t> ArraySize = {};
-		ShaderDataType		   Type		 = {};
+		ShaderDataType			Type	  = {};
 	};
 
 	struct ReflectedUniformBuffer
@@ -146,11 +151,11 @@ namespace Nexus::Graphics
 
 	struct ShaderReflectionData
 	{
-		std::vector<Attribute>								 Inputs;
-		std::vector<Attribute>								 Outputs;
-		std::vector<ReflectedUniformBuffer>					 UniformBuffers = {};
-		std::vector<ReflectedStorageBuffer>					 StorageBuffers = {};
-		std::map<ReflectedShaderDataType, ReflectedResource> Resources		= {};
+		std::vector<Attribute>				Inputs;
+		std::vector<Attribute>				Outputs;
+		std::vector<ReflectedUniformBuffer> UniformBuffers = {};
+		std::vector<ReflectedStorageBuffer> StorageBuffers = {};
+		std::vector<ReflectedResource>		Resources	   = {};
 	};
 
 	enum class ShaderStage

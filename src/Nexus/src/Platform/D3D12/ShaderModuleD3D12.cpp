@@ -206,7 +206,8 @@ namespace Nexus::Graphics
 	{
 		auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
 
-		ReflectedResource &reflectedResource	= reflectionData.Resources[dataType];
+		ReflectedResource &reflectedResource	= reflectionData.Resources.emplace_back();
+		reflectedResource.Type					= dataType;
 		reflectedResource.Name					= resource.Name;
 		reflectedResource.StorageResourceAccess = storageAccess;
 		reflectedResource.Dimension				= ExtractDimension(resource.Dimension);

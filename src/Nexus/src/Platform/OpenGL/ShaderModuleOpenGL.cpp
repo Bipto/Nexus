@@ -16,8 +16,6 @@ namespace Nexus::Graphics
 		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage)),
 		  m_Device(device)
 	{
-		auto resources = Reflect();
-
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
@@ -407,13 +405,14 @@ namespace Nexus::Graphics
 		return {};
 	}
 
-	std::pair<ReflectedShaderDataType, ReflectedResource> ExtractResourceType(const OpenGL::ReflectedShaderResource &uniform)
+	ReflectedResource ExtractResourceType(const OpenGL::ReflectedShaderResource &uniform)
 	{
 		ResourceDimension		dimension			  = {};
 		StorageResourceAccess	storageResourceAccess = {};
 		ReflectedShaderDataType type = StringToReflectedShaderDataType(uniform.Type, dimension, storageResourceAccess, uniform.MemoryQualififers);
 
 		ReflectedResource reflectedResource		= {};
+		reflectedResource.Type					= type;
 		reflectedResource.Dimension				= dimension;
 		reflectedResource.StorageResourceAccess = storageResourceAccess;
 		reflectedResource.Name					= uniform.Name;
@@ -438,10 +437,10 @@ namespace Nexus::Graphics
 			reflectedResource.BindingCount = 1;
 		}
 
-		return {type, reflectedResource};
+		return reflectedResource;
 	}
 
-	std::pair<ReflectedShaderDataType, ReflectedResource> ExtractBuffer(const OpenGL::ReflectedShaderBuffer &reflectedBuffer)
+	ReflectedResource ExtractBuffer(const OpenGL::ReflectedShaderBuffer &reflectedBuffer)
 	{
 		ResourceDimension		dimension			  = {};
 		StorageResourceAccess	storageResourceAccess = {};
@@ -449,6 +448,7 @@ namespace Nexus::Graphics
 			StringToReflectedShaderDataType(reflectedBuffer.StorageQualifier, dimension, storageResourceAccess, reflectedBuffer.MemoryQualififers);
 
 		ReflectedResource reflectedResource		= {};
+		reflectedResource.Type					= type;
 		reflectedResource.Dimension				= dimension;
 		reflectedResource.StorageResourceAccess = storageResourceAccess;
 		reflectedResource.Name					= reflectedBuffer.InstanceName.empty() ? reflectedBuffer.InstanceName : reflectedBuffer.BlockName;
@@ -465,7 +465,7 @@ namespace Nexus::Graphics
 
 		reflectedResource.BindingCount = 1;
 
-		return {type, reflectedResource};
+		return reflectedResource;
 	}
 
 	ShaderReflectionData ExtractReflectionData(const OpenGL::ReflectedShaderResources &data)
@@ -477,35 +477,35 @@ namespace Nexus::Graphics
 			// inputs
 			if (resource.StorageQualifier == "in" || resource.StorageQualifier == "attribute")
 			{
-				auto [type, reflectedResource] = ExtractResourceType(resource);
+				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
 
 				Attribute &attribute = reflectionData.Inputs.emplace_back();
 				attribute.Name		 = reflectedResource.Name;
 				attribute.Binding	 = reflectedResource.BindingPoint;
-				attribute.Type		 = type;
+				attribute.Type		 = reflectedResource.Type;
 			}
 			// outputs
 			else if (resource.StorageQualifier == "out")
 			{
-				auto [type, reflectedResource] = ExtractResourceType(resource);
+				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
 
 				Attribute &attribute = reflectionData.Outputs.emplace_back();
 				attribute.Name		 = reflectedResource.Name;
 				attribute.Binding	 = reflectedResource.BindingPoint;
-				attribute.Type		 = type;
+				attribute.Type		 = reflectedResource.Type;
 			}
 			// for regular uniforms (buffers and textures/samplers etc...)
 			else
 			{
-				auto [type, reflectedResource] = ExtractResourceType(resource);
-				reflectionData.Resources[type] = reflectedResource;
+				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
+				reflectionData.Resources.push_back(reflectedResource);
 			}
 		}
 
 		for (const auto &buffer : data.Buffers)
 		{
-			auto [type, reflectedBuffer]   = ExtractBuffer(buffer);
-			reflectionData.Resources[type] = reflectedBuffer;
+			Graphics::ReflectedResource reflectedBuffer = ExtractBuffer(buffer);
+			reflectionData.Resources.push_back(reflectedBuffer);
 		}
 
 		return reflectionData;
