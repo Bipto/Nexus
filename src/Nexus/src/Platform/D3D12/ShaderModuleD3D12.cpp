@@ -156,7 +156,7 @@ namespace Nexus::Graphics
 		switch (type)
 		{
 			case D3D_SIT_CBUFFER: return {ReflectedShaderDataType::UniformBuffer, StorageResourceAccess::None};
-			case D3D_SIT_TBUFFER: return {ReflectedShaderDataType::TextureBuffer, StorageResourceAccess::None};
+			case D3D_SIT_TBUFFER: return {ReflectedShaderDataType::UniformTextureBuffer, StorageResourceAccess::Read};
 			case D3D_SIT_TEXTURE: return {ReflectedShaderDataType::Texture, StorageResourceAccess::None};
 			case D3D_SIT_SAMPLER:
 			{
@@ -169,7 +169,7 @@ namespace Nexus::Graphics
 					return {ReflectedShaderDataType::Sampler, StorageResourceAccess::None};
 				}
 			}
-			case D3D_SIT_UAV_RWTYPED: return {ReflectedShaderDataType::StorageImage, StorageResourceAccess::ReadWrite};
+			case D3D_SIT_UAV_RWTYPED: return {ReflectedShaderDataType::StorageTextureBuffer, StorageResourceAccess::ReadWrite};
 			case D3D_SIT_STRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::Read};
 			case D3D_SIT_UAV_RWSTRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWrite};
 			case D3D_SIT_BYTEADDRESS: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadByteAddress};

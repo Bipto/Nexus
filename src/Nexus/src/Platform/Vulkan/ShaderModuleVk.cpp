@@ -15,6 +15,7 @@ namespace Nexus::Graphics
 		  m_GraphicsDevice(device)
 	{
 		CreateShaderModule();
+		Reflect();
 	}
 
 	ShaderModuleVk::~ShaderModuleVk()
@@ -25,6 +26,314 @@ namespace Nexus::Graphics
 	VkShaderModule ShaderModuleVk::GetShaderModule()
 	{
 		return m_ShaderModule;
+	}
+
+	void ExtractAttribute(Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler)
+	{
+		attribute.Binding = compiler.get_decoration(spirvResource.id, spv::DecorationLocation);
+		attribute.Name	  = spirvResource.name;
+
+		const spirv_cross::SPIRType &type = compiler.get_type(spirvResource.type_id);
+
+		switch (type.basetype)
+		{
+			case spirv_cross::SPIRType::BaseType::Boolean:
+			{
+				switch (type.vecsize)
+				{
+					case 1:
+					{
+						attribute.Type = ReflectedShaderDataType::Bool;
+						break;
+					}
+					case 2:
+					{
+						attribute.Type = ReflectedShaderDataType::Bool2;
+						break;
+					}
+					case 3:
+					{
+						attribute.Type = ReflectedShaderDataType::Bool3;
+						break;
+					}
+					case 4:
+					{
+						attribute.Type = ReflectedShaderDataType::Bool4;
+						break;
+					}
+					default: throw std::runtime_error("Failed to find a valid vector size");
+				}
+				break;
+			}
+			case spirv_cross::SPIRType::BaseType::Int:
+			{
+				switch (type.vecsize)
+				{
+					case 1:
+					{
+						attribute.Type = ReflectedShaderDataType::Int;
+						break;
+					}
+					case 2:
+					{
+						attribute.Type = ReflectedShaderDataType::Int2;
+						break;
+					}
+					case 3:
+					{
+						attribute.Type = ReflectedShaderDataType::Int3;
+						break;
+					}
+					case 4:
+					{
+						attribute.Type = ReflectedShaderDataType::Int4;
+						break;
+					}
+					default: throw std::runtime_error("Failed to find a valid vector size");
+				}
+				break;
+			}
+			case spirv_cross::SPIRType::BaseType::UInt:
+			{
+				switch (type.vecsize)
+				{
+					case 1:
+					{
+						attribute.Type = ReflectedShaderDataType::UInt;
+						break;
+					}
+					case 2:
+					{
+						attribute.Type = ReflectedShaderDataType::UInt2;
+						break;
+					}
+					case 3:
+					{
+						attribute.Type = ReflectedShaderDataType::UInt3;
+						break;
+					}
+					case 4:
+					{
+						attribute.Type = ReflectedShaderDataType::UInt4;
+						break;
+					}
+					default: throw std::runtime_error("Failed to find a valid vector size");
+				}
+				break;
+			}
+			case spirv_cross::SPIRType::BaseType::Float:
+			{
+				// we are reflecting a matrix
+				if (type.columns > 1)
+				{
+					switch (type.vecsize)
+					{
+						case 2:
+						{
+							switch (type.columns)
+							{
+								case 2:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat2x2;
+									break;
+								}
+								case 3:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat2x3;
+									break;
+								}
+								case 4:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat2x4;
+									break;
+								}
+								default: throw std::runtime_error("Failed to find a valid matrix type");
+							}
+						}
+						case 3:
+						{
+							switch (type.columns)
+							{
+								case 2:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat3x2;
+									break;
+								}
+								case 3:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat3x3;
+									break;
+								}
+								case 4:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat3x4;
+									break;
+								}
+								default: throw std::runtime_error("Failed to find a valid matrix type");
+							}
+						}
+						case 4:
+						{
+							switch (type.columns)
+							{
+								case 2:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat4x2;
+									break;
+								}
+								case 3:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat4x3;
+									break;
+								}
+								case 4:
+								{
+									attribute.Type = ReflectedShaderDataType::Mat4x4;
+									break;
+								}
+								default: throw std::runtime_error("Failed to find a valid matrix type");
+							}
+						}
+						default: throw std::runtime_error("Failed to find a valid matrix type");
+					}
+				}
+				// we are reflecting a vector
+				else
+				{
+					switch (type.vecsize)
+					{
+						case 1:
+						{
+							attribute.Type = ReflectedShaderDataType::Float;
+							break;
+						}
+						case 2:
+						{
+							attribute.Type = ReflectedShaderDataType::Float2;
+							break;
+						}
+						case 3:
+						{
+							attribute.Type = ReflectedShaderDataType::Float3;
+							break;
+						}
+						case 4:
+						{
+							attribute.Type = ReflectedShaderDataType::Float4;
+							break;
+						}
+						default: throw std::runtime_error("Failed to find a valid vector size");
+					}
+				}
+				break;
+			}
+			case spirv_cross::SPIRType::BaseType::Double:
+			{
+				// we are reflecting a matrix
+				if (type.columns > 1)
+				{
+					switch (type.vecsize)
+					{
+						case 2:
+						{
+							switch (type.columns)
+							{
+								case 2:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat2x2;
+									break;
+								}
+								case 3:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat2x3;
+									break;
+								}
+								case 4:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat2x4;
+									break;
+								}
+								default: throw std::runtime_error("Failed to find a valid matrix type");
+							}
+						}
+						case 3:
+						{
+							switch (type.columns)
+							{
+								case 2:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat3x2;
+									break;
+								}
+								case 3:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat3x3;
+									break;
+								}
+								case 4:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat3x4;
+									break;
+								}
+								default: throw std::runtime_error("Failed to find a valid matrix type");
+							}
+						}
+						case 4:
+						{
+							switch (type.columns)
+							{
+								case 2:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat4x2;
+									break;
+								}
+								case 3:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat4x3;
+									break;
+								}
+								case 4:
+								{
+									attribute.Type = ReflectedShaderDataType::DMat4x4;
+									break;
+								}
+								default: throw std::runtime_error("Failed to find a valid matrix type");
+							}
+						}
+						default: throw std::runtime_error("Failed to find a valid matrix type");
+					}
+				}
+				// we are reflecting a vector
+				else
+				{
+					switch (type.vecsize)
+					{
+						case 1:
+						{
+							attribute.Type = ReflectedShaderDataType::Double;
+							break;
+						}
+						case 2:
+						{
+							attribute.Type = ReflectedShaderDataType::Double2;
+							break;
+						}
+						case 3:
+						{
+							attribute.Type = ReflectedShaderDataType::Double3;
+							break;
+						}
+						case 4:
+						{
+							attribute.Type = ReflectedShaderDataType::Double4;
+							break;
+						}
+						default: throw std::runtime_error("Failed to find a valid vector size");
+					}
+				}
+				break;
+			}
+		}
 	}
 
 	void ExtractResource(ReflectedResource			 &reflectedResource,
@@ -101,7 +410,8 @@ namespace Nexus::Graphics
 				}
 				case spv::Dim::DimBuffer:
 				{
-					dataType = ReflectedShaderDataType::TextureBuffer;
+					reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+					dataType								= ReflectedShaderDataType::UniformTextureBuffer;
 					break;
 				}
 				case spv::Dim::DimCube:
@@ -137,6 +447,44 @@ namespace Nexus::Graphics
 				dataType = ReflectedShaderDataType::ComparisonSampler;
 			}
 		}
+		else if (dataType == ReflectedShaderDataType::StorageBuffer)
+		{
+			auto flags		 = compiler.get_buffer_block_flags(spirvResource.id);
+			bool isReadonly	 = flags.get(spv::DecorationNonWritable);
+			bool isWriteOnly = flags.get(spv::DecorationNonReadable);
+
+			if (isReadonly)
+			{
+				reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+			}
+			else if (isWriteOnly)
+			{
+				reflectedResource.StorageResourceAccess = StorageResourceAccess::Write;
+			}
+			else
+			{
+				reflectedResource.StorageResourceAccess = StorageResourceAccess::ReadWrite;
+			}
+		}
+		else if (dataType == ReflectedShaderDataType::StorageImage)
+		{
+			auto flags		 = compiler.get_decoration_bitset(spirvResource.id);
+			bool isReadonly	 = flags.get(spv::DecorationNonWritable);
+			bool isWriteOnly = flags.get(spv::DecorationNonReadable);
+
+			if (isReadonly)
+			{
+				reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+			}
+			else if (isWriteOnly)
+			{
+				reflectedResource.StorageResourceAccess = StorageResourceAccess::Write;
+			}
+			else
+			{
+				reflectedResource.StorageResourceAccess = StorageResourceAccess::ReadWrite;
+			}
+		}
 	}
 
 	ShaderReflectionData ShaderModuleVk::Reflect() const
@@ -145,6 +493,18 @@ namespace Nexus::Graphics
 
 		spirv_cross::Compiler		 compiler(m_ModuleSpecification.SpirvBinary);
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+		for (const auto &input : resources.stage_inputs)
+		{
+			Attribute &attribute = reflectionData.Inputs.emplace_back();
+			ExtractAttribute(attribute, input, compiler);
+		}
+
+		for (const auto &output : resources.stage_outputs)
+		{
+			Attribute &attribute = reflectionData.Outputs.emplace_back();
+			ExtractAttribute(attribute, output, compiler);
+		}
 
 		for (const auto &uniformBuffer : resources.uniform_buffers)
 		{

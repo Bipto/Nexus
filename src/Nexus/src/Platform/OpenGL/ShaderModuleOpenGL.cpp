@@ -239,7 +239,14 @@ namespace Nexus::Graphics
 		else if (type == "textureBuffer")
 		{
 			dimension = ResourceDimension::None;
-			return ReflectedShaderDataType::Texture;
+			storageResourceAccess = StorageResourceAccess::Read;
+			return ReflectedShaderDataType::UniformTextureBuffer;
+		}
+		else if (type == "samplerBuffer")
+		{
+			dimension			  = ResourceDimension::None;
+			storageResourceAccess = StorageResourceAccess::ReadWrite;
+			return ReflectedShaderDataType::StorageTextureBuffer;
 		}
 		else if (type == "texture2DMS")
 		{
