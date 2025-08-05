@@ -62,17 +62,6 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		Nexus::MessageBoxDescription messageBoxDesc = {};
-		messageBoxDesc.Title						= "MessageBox";
-		messageBoxDesc.Message						= "This is some text in a messagebox";
-		messageBoxDesc.Type							= Nexus::MessageBoxType::None;
-		messageBoxDesc.Buttons						= {Nexus::MessageBoxButton {.Key = Nexus::DefaultKey::Escape, .ID = 0, .Text = "Click me!"}};
-		messageBoxDesc.ParentWindow					= Nexus::GetApplication()->GetPrimaryWindow();
-		std::unique_ptr<Nexus::MessageDialogBox> messageBox =
-			std::unique_ptr<Nexus::MessageDialogBox>(Nexus::Platform::CreateMessageBox(messageBoxDesc));
-
-		int32_t returnValue = messageBox->Show();
-
 		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);

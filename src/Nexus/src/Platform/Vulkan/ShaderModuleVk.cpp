@@ -149,6 +149,7 @@ namespace Nexus::Graphics
 								}
 								default: throw std::runtime_error("Failed to find a valid matrix type");
 							}
+							break;
 						}
 						case 3:
 						{
@@ -171,6 +172,7 @@ namespace Nexus::Graphics
 								}
 								default: throw std::runtime_error("Failed to find a valid matrix type");
 							}
+							break;
 						}
 						case 4:
 						{
@@ -193,6 +195,7 @@ namespace Nexus::Graphics
 								}
 								default: throw std::runtime_error("Failed to find a valid matrix type");
 							}
+							break;
 						}
 						default: throw std::runtime_error("Failed to find a valid matrix type");
 					}
@@ -255,6 +258,7 @@ namespace Nexus::Graphics
 								}
 								default: throw std::runtime_error("Failed to find a valid matrix type");
 							}
+							break;
 						}
 						case 3:
 						{
@@ -277,6 +281,7 @@ namespace Nexus::Graphics
 								}
 								default: throw std::runtime_error("Failed to find a valid matrix type");
 							}
+							break;
 						}
 						case 4:
 						{
@@ -299,6 +304,7 @@ namespace Nexus::Graphics
 								}
 								default: throw std::runtime_error("Failed to find a valid matrix type");
 							}
+							break;
 						}
 						default: throw std::runtime_error("Failed to find a valid matrix type");
 					}
