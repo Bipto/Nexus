@@ -453,8 +453,8 @@ namespace Nexus::GL
 		{
 			case Nexus::Graphics::ShaderStage::Compute: return GL_COMPUTE_SHADER;
 			case Nexus::Graphics::ShaderStage::Geometry: return GL_GEOMETRY_SHADER;
-			case Nexus::Graphics::ShaderStage::TesselationControl: return GL_TESS_CONTROL_SHADER;
-			case Nexus::Graphics::ShaderStage::TesselationEvaluation: return GL_TESS_EVALUATION_SHADER;
+			case Nexus::Graphics::ShaderStage::TessellationControl: return GL_TESS_CONTROL_SHADER;
+			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return GL_TESS_EVALUATION_SHADER;
 			case Nexus::Graphics::ShaderStage::Fragment: return GL_FRAGMENT_SHADER;
 			case Nexus::Graphics::ShaderStage::Vertex: return GL_VERTEX_SHADER;
 

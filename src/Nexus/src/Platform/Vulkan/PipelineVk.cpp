@@ -92,7 +92,7 @@ namespace Nexus::Graphics
 		if (m_Description.TesselationControlModule)
 		{
 			auto vulkanTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.TesselationControlModule);
-			NX_ASSERT(vulkanTesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl,
+			NX_ASSERT(vulkanTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
 					  "Shader module is not a tesselation control shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanTesselationControlModule));
 		}
@@ -100,7 +100,7 @@ namespace Nexus::Graphics
 		if (m_Description.TesselationEvaluationModule)
 		{
 			auto vulkanTesselationEvaluation = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.TesselationEvaluationModule);
-			NX_ASSERT(vulkanTesselationEvaluation->GetShaderStage() == ShaderStage::TesselationEvaluation,
+			NX_ASSERT(vulkanTesselationEvaluation->GetShaderStage() == ShaderStage::TessellationEvaluation,
 					  "Shader module is not a tesselation evaluation shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanTesselationEvaluation));
 		}

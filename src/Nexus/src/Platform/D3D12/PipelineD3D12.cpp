@@ -102,7 +102,7 @@ namespace Nexus::Graphics
 		if (m_Description.TesselationControlModule)
 		{
 			auto d3d12TesselationControlModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.TesselationControlModule);
-			NX_ASSERT(d3d12TesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl,
+			NX_ASSERT(d3d12TesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
 					  "Shader module is not a tesselation control shader");
 			auto blob = d3d12TesselationControlModule->GetBlob();
 
@@ -113,7 +113,7 @@ namespace Nexus::Graphics
 		if (m_Description.TesselationEvaluationModule)
 		{
 			auto d3d12TesselationEvaluationModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.TesselationEvaluationModule);
-			NX_ASSERT(d3d12TesselationEvaluationModule->GetShaderStage() == ShaderStage::TesselationEvaluation,
+			NX_ASSERT(d3d12TesselationEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
 					  "Shader module is not a tesselation evaluation shader");
 			auto blob = d3d12TesselationEvaluationModule->GetBlob();
 

@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 #include "Nexus-Core/Graphics/Sampler.hpp"
+#include "Nexus-Core/Graphics/ShaderResources.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"

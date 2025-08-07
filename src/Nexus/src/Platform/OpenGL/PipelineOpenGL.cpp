@@ -362,7 +362,7 @@ namespace Nexus::Graphics
 				if (m_Description.TesselationControlModule)
 				{
 					auto glTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationControlModule);
-					NX_ASSERT(glTesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl,
+					NX_ASSERT(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
 							  "Shader module is not a tesselation control shader");
 					modules.push_back(glTesselationControlModule);
 				}
@@ -370,7 +370,7 @@ namespace Nexus::Graphics
 				if (m_Description.TesselationEvaluationModule)
 				{
 					auto glEvaluationModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationEvaluationModule);
-					NX_ASSERT(glEvaluationModule->GetShaderStage() == ShaderStage::TesselationEvaluation,
+					NX_ASSERT(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
 							  "Shader module is not a tesselation evaluation shader");
 					modules.push_back(glEvaluationModule);
 				}

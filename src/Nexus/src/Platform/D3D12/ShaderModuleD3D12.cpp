@@ -13,8 +13,8 @@ std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
 	{
 		case Nexus::Graphics::ShaderStage::Fragment: return "ps_6_0";
 		case Nexus::Graphics::ShaderStage::Geometry: return "gs_6_0";
-		case Nexus::Graphics::ShaderStage::TesselationControl: return "hs_6_0";
-		case Nexus::Graphics::ShaderStage::TesselationEvaluation: return "ds_6_0";
+		case Nexus::Graphics::ShaderStage::TessellationControl: return "hs_6_0";
+		case Nexus::Graphics::ShaderStage::TessellationEvaluation: return "ds_6_0";
 		case Nexus::Graphics::ShaderStage::Vertex: return "vs_6_0";
 		case Nexus::Graphics::ShaderStage::Compute: return "cs_6_0";
 		case Nexus::Graphics::ShaderStage::Task: return "ts_6_0";

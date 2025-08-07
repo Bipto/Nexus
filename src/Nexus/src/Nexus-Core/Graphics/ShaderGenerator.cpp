@@ -14,8 +14,8 @@ spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
 		case Nexus::Graphics::ShaderStage::Compute: return spv::ExecutionModel::ExecutionModelGLCompute;
 		case Nexus::Graphics::ShaderStage::Fragment: return spv::ExecutionModel::ExecutionModelFragment;
 		case Nexus::Graphics::ShaderStage::Geometry: return spv::ExecutionModel::ExecutionModelGeometry;
-		case Nexus::Graphics::ShaderStage::TesselationControl: return spv::ExecutionModel::ExecutionModelTessellationControl;
-		case Nexus::Graphics::ShaderStage::TesselationEvaluation: return spv::ExecutionModel::ExecutionModelTessellationEvaluation;
+		case Nexus::Graphics::ShaderStage::TessellationControl: return spv::ExecutionModel::ExecutionModelTessellationControl;
+		case Nexus::Graphics::ShaderStage::TessellationEvaluation: return spv::ExecutionModel::ExecutionModelTessellationEvaluation;
 		case Nexus::Graphics::ShaderStage::Vertex: return spv::ExecutionModel::ExecutionModelVertex;
 		case Nexus::Graphics::ShaderStage::RayGeneration: return spv::ExecutionModel::ExecutionModelRayGenerationKHR;
 		case Nexus::Graphics::ShaderStage::RayAnyHit: return spv::ExecutionModel::ExecutionModelAnyHitKHR;
@@ -37,8 +37,8 @@ namespace Nexus::Graphics
 			case ShaderStage::Compute: return shaderc_glsl_compute_shader;
 			case ShaderStage::Fragment: return shaderc_glsl_fragment_shader;
 			case ShaderStage::Geometry: return shaderc_glsl_geometry_shader;
-			case ShaderStage::TesselationControl: return shaderc_glsl_tess_control_shader;
-			case ShaderStage::TesselationEvaluation: return shaderc_glsl_tess_evaluation_shader;
+			case ShaderStage::TessellationControl: return shaderc_glsl_tess_control_shader;
+			case ShaderStage::TessellationEvaluation: return shaderc_glsl_tess_evaluation_shader;
 			case ShaderStage::Vertex: return shaderc_glsl_vertex_shader;
 			case Nexus::Graphics::ShaderStage::RayGeneration: return shaderc_glsl_raygen_shader;
 			case Nexus::Graphics::ShaderStage::RayAnyHit: return shaderc_glsl_anyhit_shader;
@@ -60,13 +60,6 @@ namespace Nexus::Graphics
 		{
 			uint32_t set	 = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
 			uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
-
-			// example of how to retrieve resource information
-			/* const auto &baseType = compiler.get_type(image.base_type_id);
-			const auto &type = compiler.get_type(image.type_id);
-			if (type.image.dim == spv::Dim2D)
-			{
-			} */
 
 			uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
 			compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
@@ -376,8 +369,8 @@ namespace Nexus::Graphics
 			case Nexus::Graphics::ShaderStage::Compute: return "cs_main";
 			case Nexus::Graphics::ShaderStage::Fragment: return "fs_main";
 			case Nexus::Graphics::ShaderStage::Geometry: return "gs_main";
-			case Nexus::Graphics::ShaderStage::TesselationControl: return "tcs_main";
-			case Nexus::Graphics::ShaderStage::TesselationEvaluation: return "tes_main";
+			case Nexus::Graphics::ShaderStage::TessellationControl: return "tcs_main";
+			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return "tes_main";
 			case Nexus::Graphics::ShaderStage::Vertex: return "vs_main";
 			case Nexus::Graphics::ShaderStage::Mesh: return "ms_main";
 			case Nexus::Graphics::ShaderStage::Task: return "ts_main";

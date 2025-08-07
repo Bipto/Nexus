@@ -4,6 +4,7 @@
 #include "ResourceSet.hpp"
 #include "Scissor.hpp"
 #include "ShaderModule.hpp"
+#include "ShaderResources.hpp"
 #include "Structures.hpp"
 #include "Viewport.hpp"
 
@@ -134,9 +135,9 @@ namespace Nexus::Graphics
 	struct RayTracingPipelineDescription
 	{
 		std::vector<Ref<ShaderModule>> Shaders			 = {};
-		std::vector<ShaderGroup>  ShaderGroups		= {};
-		ResourceSetSpecification  ResourceSetSpec	= {};
-		uint32_t				  MaxRecursionDepth = 0;
+		std::vector<ShaderGroup>	   ShaderGroups		 = {};
+		ResourceSetSpecification	   ResourceSetSpec	 = {};
+		uint32_t					   MaxRecursionDepth = 0;
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Ray Tracing Pipeline";
 	};
@@ -149,6 +150,101 @@ namespace Nexus::Graphics
 		RayTracing
 	};
 
+	inline ShaderResource ReflectedShaderResourceToShaderResource(const ReflectedResource &resource, ShaderStage stage)
+	{
+		ShaderResource output;
+
+		switch (resource.Type)
+		{
+			case ReflectedShaderDataType::StorageImage:
+			{
+				output.Type = ResourceType::StorageImage;
+				break;
+			}
+			case ReflectedShaderDataType::Texture:
+			{
+				output.Type = ResourceType::Texture;
+				break;
+			}
+			case ReflectedShaderDataType::UniformTextureBuffer:
+			{
+				output.Type = ResourceType::UniformTextureBuffer;
+				break;
+			}
+			case ReflectedShaderDataType::StorageTextureBuffer:
+			{
+				output.Type = ResourceType::StorageTextureBuffer;
+				break;
+			}
+			case ReflectedShaderDataType::Sampler:
+			{
+				output.Type = ResourceType::Sampler;
+				break;
+			}
+			case ReflectedShaderDataType::ComparisonSampler:
+			{
+				output.Type = ResourceType::ComparisonSampler;
+				break;
+			}
+			case ReflectedShaderDataType::CombinedImageSampler:
+			{
+				output.Type = ResourceType::CombinedImageSampler;
+				break;
+			}
+			case ReflectedShaderDataType::UniformBuffer:
+			{
+				output.Type = ResourceType::UniformBuffer;
+				break;
+			}
+			case ReflectedShaderDataType::StorageBuffer:
+			{
+				output.Type = ResourceType::StorageBuffer;
+				break;
+			}
+			case ReflectedShaderDataType::AccelerationStructure:
+			{
+				output.Type = ResourceType::AccelerationStructure;
+				break;
+			}
+			default: throw std::runtime_error("Failed to find a valid resource type");
+		}
+
+		switch (resource.StorageResourceAccess)
+		{
+			case StorageResourceAccess::Read:
+			case StorageResourceAccess::ReadByteAddress:
+			case StorageResourceAccess::ReadStructured:
+			{
+				output.Access = ResourceAccess::SRV;
+				break;
+			}
+			case StorageResourceAccess::ReadWrite:
+			case StorageResourceAccess::ReadWriteByteAddress:
+			case StorageResourceAccess::ReadWriteStructured:
+			case StorageResourceAccess::AppendStructured:
+			case StorageResourceAccess::ConsumeStructured:
+			case StorageResourceAccess::ReadWriteStructuredWithCounter:
+			{
+				output.Access = ResourceAccess::UAV;
+				break;
+			}
+			default:
+			{
+				output.Access = ResourceAccess::None;
+				break;
+			}
+		}
+
+		output.Name			 = resource.Name;
+		output.Set			 = resource.DescriptorSet;
+		output.Binding		 = resource.BindingPoint;
+		output.ResourceCount = resource.BindingCount;
+		output.RegisterSpace = resource.RegisterSpace;
+		output.Stage		 = stage;
+
+		return output;
+	}
+
 	class Pipeline
 	{
 	  public:
@@ -156,8 +252,37 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual PipelineType			 GetType() const					 = 0;
-		virtual ResourceSetSpecification GetResourceSetSpecification() const = 0;
+		virtual PipelineType				   GetType() const					   = 0;
+		virtual ResourceSetSpecification	   GetResourceSetSpecification() const = 0;
+		virtual std::vector<Ref<ShaderModule>> GetShaderStages() const			   = 0;
+
+		std::map<std::string, ShaderResource> GetRequiredShaderResources() const
+		{
+			std::map<std::string, ShaderResource> requiredResources;
+
+			std::vector<Ref<ShaderModule>> shaderStages = GetShaderStages();
+			for (Ref<ShaderModule> module : shaderStages)
+			{
+				ShaderReflectionData reflectionData = module->Reflect();
+				for (const auto &resource : reflectionData.Resources)
+				{
+					if (requiredResources.find(resource.Name) != requiredResources.end())
+					{
+						ShaderResource &requiredResource = requiredResources.at(resource.Name);
+						ShaderResource	newResource		 = ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
+						NX_ASSERT(newResource == requiredResource, "Shader resources that share the same name must match across stages");
+						requiredResource.Stage |= module->GetShaderStage();
+					}
+					else
+					{
+						ShaderResource newResource		 = ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
+						requiredResources[resource.Name] = newResource;
+					}
+				}
+			}
+
+			return requiredResources;
+		}
 	};
 
 	/// @brief A pure virtual class representing an API specific pipeline
@@ -198,6 +323,38 @@ namespace Nexus::Graphics
 			return m_Description.ResourceSetSpec;
 		}
 
+		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		{
+			std::vector<Ref<ShaderModule>> stages;
+
+			if (m_Description.VertexModule)
+			{
+				stages.push_back(m_Description.VertexModule);
+			}
+
+			if (m_Description.FragmentModule)
+			{
+				stages.push_back(m_Description.FragmentModule);
+			}
+
+			if (m_Description.GeometryModule)
+			{
+				stages.push_back(m_Description.GeometryModule);
+			}
+
+			if (m_Description.TesselationControlModule)
+			{
+				stages.push_back(m_Description.TesselationControlModule);
+			}
+
+			if (m_Description.TesselationEvaluationModule)
+			{
+				stages.push_back(m_Description.TesselationEvaluationModule);
+			}
+
+			return stages;
+		}
+
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
 		GraphicsPipelineDescription m_Description = {};
@@ -231,6 +388,18 @@ namespace Nexus::Graphics
 			return m_Description.ResourceSetSpec;
 		}
 
+		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		{
+			std::vector<Ref<ShaderModule>> stages;
+
+			if (m_Description.ComputeShader)
+			{
+				stages.push_back(m_Description.ComputeShader);
+			}
+
+			return stages;
+		}
+
 	  protected:
 		ComputePipelineDescription m_Description = {};
 	};
@@ -261,6 +430,28 @@ namespace Nexus::Graphics
 			return m_Description.ResourceSetSpec;
 		}
 
+		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		{
+			std::vector<Ref<ShaderModule>> stages;
+
+			if (m_Description.TaskModule)
+			{
+				stages.push_back(m_Description.TaskModule);
+			}
+
+			if (m_Description.MeshModule)
+			{
+				stages.push_back(m_Description.MeshModule);
+			}
+
+			if (m_Description.FragmentModule)
+			{
+				stages.push_back(m_Description.FragmentModule);
+			}
+
+			return stages;
+		}
+
 	  protected:
 		MeshletPipelineDescription m_Description = {};
 	};
@@ -289,6 +480,11 @@ namespace Nexus::Graphics
 		virtual ResourceSetSpecification GetResourceSetSpecification() const final
 		{
 			return m_Description.ResourceSetSpec;
+		}
+
+		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		{
+			return {};
 		}
 
 	  protected:
