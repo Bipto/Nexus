@@ -93,35 +93,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CreateResourceSetSpecification(const spirv_cross::Compiler &compiler, ResourceSetSpecification &resources)
-	{
-		spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources();
-
-		for (const auto &image : shaderResources.sampled_images)
-		{
-			uint32_t set	 = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
-			uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
-
-			ResourceBinding resource;
-			resource.Name	 = image.name;
-			resource.Set	 = set;
-			resource.Binding = binding;
-			resources.SampledImages.push_back(resource);
-		}
-
-		for (const auto &uniformBuffer : shaderResources.uniform_buffers)
-		{
-			uint32_t set	 = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
-			uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
-
-			ResourceBinding resource;
-			resource.Name	 = uniformBuffer.name;
-			resource.Set	 = set;
-			resource.Binding = binding;
-			resources.UniformBuffers.push_back(resource);
-		}
-	}
-
 	ShaderDataType GetShaderDataTypeFromSpirvCrossType(const spirv_cross::Compiler &compiler, const spirv_cross::Resource &resource)
 	{
 		const auto &baseType = compiler.get_type(resource.base_type_id);
@@ -242,7 +213,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources)
+	CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options)
 	{
 		CompilationResult output;
 		output.Successful	= false;
@@ -282,7 +253,6 @@ namespace Nexus::Graphics
 				glOptions.es	  = false;
 				compiler.set_common_options(glOptions);
 				GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
-				CreateResourceSetSpecification(compiler, resources);
 				ToLinearResourceSet(compiler, options.OutputFormat);
 				output.Source = compiler.compile();
 				break;
@@ -294,7 +264,6 @@ namespace Nexus::Graphics
 				glOptions.es	  = true;
 				compiler.set_common_options(glOptions);
 				GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
-				CreateResourceSetSpecification(compiler, resources);
 				ToLinearResourceSet(compiler, options.OutputFormat);
 				output.Source = compiler.compile();
 				break;
@@ -319,7 +288,6 @@ namespace Nexus::Graphics
 				hlslOptions.force_storage_buffer_as_uav			  = true;
 				compiler.set_hlsl_options(hlslOptions);
 				GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
-				CreateResourceSetSpecification(compiler, resources);
 				ToLinearResourceSet(compiler, options.OutputFormat);
 				output.Source = compiler.compile();
 				break;
@@ -331,7 +299,6 @@ namespace Nexus::Graphics
 				glOptions.es	  = false;
 				compiler.set_common_options(glOptions);
 				GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
-				CreateResourceSetSpecification(compiler, resources);
 				output.Source = source;
 				break;
 			}

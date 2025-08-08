@@ -163,13 +163,7 @@ namespace Nexus::ImGuiUtils
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
-		pipelineDesc.DebugName = "ImGui Text Pipeline";
-
-		Nexus::Graphics::ResourceSetSpecification resources;
-		resources += m_VertexShader->GetResourceSetSpecification();
-		resources += m_FragmentShader->GetResourceSetSpecification();
-
-		pipelineDesc.ResourceSetSpec = resources;
+		pipelineDesc.DebugName		 = "ImGui Text Pipeline";
 		m_TextPipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
@@ -201,12 +195,6 @@ namespace Nexus::ImGuiUtils
 												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
-
-		Nexus::Graphics::ResourceSetSpecification resources;
-		resources += m_VertexShader->GetResourceSetSpecification();
-		resources += m_FragmentShader->GetResourceSetSpecification();
-
-		pipelineDesc.ResourceSetSpec = resources;
 
 		pipelineDesc.DebugName = "ImGui Image Pipeline";
 

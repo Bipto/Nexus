@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 	class ResourceSetD3D12 : public ResourceSet
 	{
 	  public:
-		ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device);
+		ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device);
 		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
 		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
@@ -23,13 +23,10 @@ namespace Nexus::Graphics
 
 		bool HasConstantBufferTextureHeap() const;
 		bool HasSamplerHeap() const;
-		bool HasConstantBuffers() const;
 
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerStartHandle() const;
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureConstantBufferStartHandle() const;
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetStorageBufferStartHandle() const;
-
-		void EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)>);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap			   = nullptr;

@@ -491,12 +491,12 @@ namespace Nexus::D3D12
 		return uav;
 	}
 
-	void CreateRootSignature(const Nexus::Graphics::ResourceSetSpecification &resourceSet,
-							 ID3D12Device9									 *device,
-							 Microsoft::WRL::ComPtr<ID3DBlob>				 &inRootSignatureBlob,
-							 Microsoft::WRL::ComPtr<ID3D12RootSignature>	 &inRootSignature)
+	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
+							 ID3D12Device9										   *device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature)
 	{
-		D3D12_ROOT_SIGNATURE_DESC desc = {};
+		/* D3D12_ROOT_SIGNATURE_DESC desc = {};
 		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		desc.NumParameters	   = 0;
 		desc.NumStaticSamplers = 0;
@@ -655,7 +655,9 @@ namespace Nexus::D3D12
 		{
 			std::string errorMessage = std::string((char *)errorBlob->GetBufferPointer());
 			NX_ERROR(errorMessage);
-		}
+		} */
+
+		NX_ASSERT(false, "Not implemented");
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts)

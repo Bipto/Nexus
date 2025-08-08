@@ -446,9 +446,6 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_CubemapFragmentShader, "cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {{"skybox", 1, 0}};
-
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
@@ -491,9 +488,7 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ModelFragmentShader, "model.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.Layouts						   = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {{"diffuseMapSampler", 1, 0}, {"normalMapSampler", 1, 1}, {"specularMapSampler", 1, 2}};
+		pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
@@ -554,9 +549,7 @@ namespace Nexus::Graphics
 																							  "clearscreen.frag.glsl",
 																							  Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.Layouts						   = {m_FullscreenQuad.GetVertexBufferLayout()};
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {};
+		pipelineDescription.Layouts = {m_FullscreenQuad.GetVertexBufferLayout()};
 
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;

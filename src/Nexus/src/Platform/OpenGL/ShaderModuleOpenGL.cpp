@@ -9,10 +9,8 @@
 
 namespace Nexus::Graphics
 {
-	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec,
-										   const ResourceSetSpecification  &resourceSpec,
-										   GraphicsDeviceOpenGL			   *device)
-		: ShaderModule(shaderModuleSpec, resourceSpec),
+	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceOpenGL *device)
+		: ShaderModule(shaderModuleSpec),
 		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage)),
 		  m_Device(device)
 	{

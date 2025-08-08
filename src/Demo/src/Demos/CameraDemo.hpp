@@ -167,10 +167,6 @@ namespace Demos
 			pipelineDescription.FragmentModule =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/3d.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 1, 0}};
-
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;

@@ -8,10 +8,8 @@
 
 namespace Nexus::Graphics
 {
-	ShaderModuleVk::ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec,
-								   const ResourceSetSpecification  &resourceSpec,
-								   GraphicsDeviceVk				   *device)
-		: ShaderModule(shaderModuleSpec, resourceSpec),
+	ShaderModuleVk::ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceVk *device)
+		: ShaderModule(shaderModuleSpec),
 		  m_GraphicsDevice(device)
 	{
 		CreateShaderModule();

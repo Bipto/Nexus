@@ -9,9 +9,9 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetD3D12::ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device) : ResourceSet(spec)
+	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : ResourceSet(pipeline)
 	{
-		m_Device		 = device;
+		/* m_Device		 = device;
 		auto d3d12Device = m_Device->GetDevice();
 
 		size_t samplerCount		   = spec.SampledImages.size();
@@ -126,12 +126,14 @@ namespace Nexus::Graphics
 					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
 			}
-		}
+		} */
 	}
 
 	void ResourceSetD3D12::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
 	{
-		const BindingInfo &info		   = m_StorageBufferBindingInfos.at(name);
+		NX_ASSERT(false, "Not implemented");
+
+		/* const BindingInfo &info		   = m_StorageBufferBindingInfos.at(name);
 		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto			   d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
@@ -168,12 +170,14 @@ namespace Nexus::Graphics
 			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 
 			m_BoundStorageBuffers[name] = storageBuffer;
-		}
+		} */
 	}
 
 	void ResourceSetD3D12::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
+		NX_ASSERT(false, "Not implemented");
+
+		/* const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
 		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto			   d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle))
@@ -190,12 +194,14 @@ namespace Nexus::Graphics
 			d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
 
 			m_BoundUniformBuffers[name] = uniformBuffer;
-		}
+		} */
 	}
 
 	void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
 	{
-		const auto d3d12Device = m_Device->GetDevice();
+		NX_ASSERT(false, "Not implemented");
+
+		/* const auto d3d12Device = m_Device->GetDevice();
 		// write texture
 		{
 			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
@@ -243,12 +249,14 @@ namespace Nexus::Graphics
 		CombinedImageSampler ciSampler {};
 		ciSampler.ImageTexture			   = texture;
 		ciSampler.ImageSampler			   = sampler;
-		m_BoundCombinedImageSamplers[name] = ciSampler;
+		m_BoundCombinedImageSamplers[name] = ciSampler; */
 	}
 
 	void ResourceSetD3D12::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
-		const auto d3d12Device = m_Device->GetDevice();
+		NX_ASSERT(false, "Not implemented");
+
+		/* const auto d3d12Device = m_Device->GetDevice();
 
 		// write storage image
 		{
@@ -263,7 +271,7 @@ namespace Nexus::Graphics
 			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 		}
 
-		m_BoundStorageImages[name] = view;
+		m_BoundStorageImages[name] = view; */
 	}
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetSamplerDescriptorHeap()
@@ -286,11 +294,6 @@ namespace Nexus::Graphics
 		return m_SamplerDescriptorHeap;
 	}
 
-	bool ResourceSetD3D12::HasConstantBuffers() const
-	{
-		return m_Description.UniformBuffers.size() > 0;
-	}
-
 	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerStartHandle() const
 	{
 		return m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
@@ -304,17 +307,6 @@ namespace Nexus::Graphics
 	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetStorageBufferStartHandle() const
 	{
 		return m_StorageBufferDescriptorStartHandle;
-	}
-
-	void ResourceSetD3D12::EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)> func)
-	{
-		for (const auto &[name, storageBuffer] : m_BoundStorageBuffers)
-		{
-			const BindingInfo &info = m_StorageBufferBindingInfos.at(name);
-			const uint32_t	   slot = GetLinearDescriptorSlot(info.Set, info.Binding);
-
-			func(slot, storageBuffer);
-		}
 	}
 }	 // namespace Nexus::Graphics
 

@@ -36,7 +36,6 @@ namespace Nexus::Graphics
 	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
 	{
 		ShaderModuleSpecification moduleSpec;
-		ResourceSetSpecification  resourceSetSpec;
 
 		auto startTime = std::chrono::system_clock::now();
 
@@ -48,7 +47,7 @@ namespace Nexus::Graphics
 		options.ShaderName	 = name;
 		options.OutputFormat = GetSupportedShaderFormat();
 
-		auto result = generator.Generate(source, options, resourceSetSpec);
+		auto result = generator.Generate(source, options);
 
 		if (!result.Successful)
 		{
@@ -66,7 +65,7 @@ namespace Nexus::Graphics
 		moduleSpec.InputAttributes	= result.InputAttributes;
 		moduleSpec.OutputAttributes = result.OutputAttributes;
 
-		return CreateShaderModule(moduleSpec, resourceSetSpec);
+		return CreateShaderModule(moduleSpec);
 	}
 
 	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
@@ -200,8 +199,7 @@ namespace Nexus::Graphics
 			if (cache.Validate(hash))
 			{
 				const ShaderModuleSpecification &shaderSpec	  = cache.GetShaderSpecification();
-				const ResourceSetSpecification	&resourceSpec = cache.GetResourceSpecification();
-				module										  = CreateShaderModule(shaderSpec, resourceSpec);
+				module										  = CreateShaderModule(shaderSpec);
 				shaderCreated								  = true;
 			}
 		}
@@ -209,7 +207,7 @@ namespace Nexus::Graphics
 		if (!shaderCreated)
 		{
 			module			   = CreateShaderModuleFromSpirvSource(source, name, stage);
-			CachedShader cache = CachedShader::FromModule(module->GetModuleSpecification(), module->GetResourceSetSpecification(), hash);
+			CachedShader cache = CachedShader::FromModule(module->GetModuleSpecification(), hash);
 			cache.Cache(filepath);
 		}
 
@@ -266,11 +264,6 @@ namespace Nexus::Graphics
 	Ref<Texture> GraphicsDevice::CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb)
 	{
 		return CreateTexture2D(filepath.c_str(), generateMips, srgb);
-	}
-
-	Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
-	{
-		return CreateResourceSet(pipeline->GetResourceSetSpecification());
 	}
 
 	void GraphicsDevice::SubmitCommandList(Ref<CommandList> commandList)

@@ -33,7 +33,7 @@ namespace Nexus::Graphics
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
 		Ref<CommandList>			  CreateCommandList(const CommandListDescription &spec = {}) final;
-		Ref<ResourceSet>			  CreateResourceSet(const ResourceSetSpecification &spec) final;
+		Ref<ResourceSet>			  CreateResourceSet(Ref<Pipeline> pipeline) final;
 		Ref<Framebuffer>			  CreateFramebuffer(const FramebufferSpecification &spec) final;
 		Ref<Sampler>				  CreateSampler(const SamplerDescription &spec) final;
 		Ref<TimingQuery>			  CreateTimingQuery() final;
@@ -73,7 +73,7 @@ namespace Nexus::Graphics
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
 
 	  private:
-		Ref<ShaderModule>		  CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) final;
+		Ref<ShaderModule>		  CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
 		std::vector<std::string>  GetSupportedExtensions(const GladGLContext &context);
 
 		PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;

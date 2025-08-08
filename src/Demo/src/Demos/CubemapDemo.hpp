@@ -145,10 +145,6 @@ namespace Demos
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"skybox", 1, 0}};
-
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;

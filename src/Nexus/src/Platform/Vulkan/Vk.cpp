@@ -2,6 +2,7 @@
 
 #include "AccelerationStructureVk.hpp"
 #include "GraphicsDeviceVk.hpp"
+#include "PipelineVk.hpp"
 #include "ResourceSetVk.hpp"
 #include "ShaderModuleVk.hpp"
 
@@ -471,6 +472,12 @@ namespace Nexus::Vk
 		throw std::runtime_error("Failed to find a valid image view type");
 	}
 
+	bool IsSingleShaderStage(Graphics::ShaderStage stage)
+	{
+		uint16_t value = static_cast<uint16_t>(stage);
+		return value != 0 && (value & (value - 1)) == 0;
+	}
+
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage)
 	{
 		switch (stage)
@@ -493,6 +500,78 @@ namespace Nexus::Vk
 
 			default: throw std::runtime_error("Failed to find a valid shader stage");
 		}
+	}
+
+	VkShaderStageFlagBits GetVkShaderStageFlagsFromShaderStages(const Nexus::Graphics::ShaderStageFlags &flags)
+	{
+		VkShaderStageFlags vkStageFlags = 0;
+
+		if (flags.HasFlag(Graphics::ShaderStage::Compute))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::Fragment))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::Geometry))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::TessellationControl))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::TessellationEvaluation))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::Vertex))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_VERTEX_BIT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::RayGeneration))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::RayMiss))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_MISS_BIT_KHR;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::RayClosestHit))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::RayAnyHit))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::RayIntersection))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::Mesh))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_MESH_BIT_EXT;
+		}
+
+		if (flags.HasFlag(Graphics::ShaderStage::Task))
+		{
+			vkStageFlags |= VK_SHADER_STAGE_TASK_BIT_EXT;
+		}
+
+		return VkShaderStageFlagBits(vkStageFlags);
 	}
 
 	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format)
@@ -1404,19 +1483,6 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)
-	{
-		VkPipelineLayoutCreateInfo info = {};
-		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		info.pNext						= nullptr;
-		info.flags						= 0;
-		info.setLayoutCount				= layouts.size();
-		info.pSetLayouts				= layouts.data();
-		info.pushConstantRangeCount		= 0;
-		info.pPushConstantRanges		= nullptr;
-		return info;
-	}
-
 	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module)
 	{
 		VkPipelineShaderStageCreateInfo createInfo = {};
@@ -1428,21 +1494,78 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	VkPipelineLayout CreatePipelineLayout(const Graphics::ResourceSetSpecification &resourceSetInfo, Graphics::GraphicsDeviceVk *device)
+	VkDescriptorType GetDescriptorType(Graphics::ShaderResource resource)
 	{
-		std::unique_ptr<Graphics::ResourceSetVk> resourceSet = std::make_unique<Graphics::ResourceSetVk>(resourceSetInfo, device);
+		switch (resource.Type)
+		{
+			case Graphics::ResourceType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			case Graphics::ResourceType::Texture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			case Graphics::ResourceType::UniformTextureBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+			case Graphics::ResourceType::StorageTextureBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ComparisonSampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
+			case Graphics::ResourceType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			case Graphics::ResourceType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			case Graphics::ResourceType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			case Graphics::ResourceType::AccelerationStructure: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+			default: throw std::runtime_error("Could not find a valid descriptor type");
+		}
+	}
 
-		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
-		std::vector<VkDescriptorSetLayout> layouts;
-		for (const auto &layout : pipelineLayouts) { layouts.push_back(layout.second); }
+	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline				   *pipeline,
+										  Graphics::GraphicsDeviceVk		   *device,
+										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
+										  std::map<VkDescriptorType, uint32_t> &descriptorCounts)
+	{
+		// retrieve the resources that are referenced by the shaders
+		const auto &shaderResources = pipeline->GetRequiredShaderResources();
 
+		// create storage for descriptor set layout bindings
+		std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> sets;
+
+		// iterate through all resources and convert them into Vulkan structures
+		for (const auto &[name, resourceInfo] : shaderResources)
+		{
+			VkDescriptorType descriptorType = GetDescriptorType(resourceInfo);
+
+			VkDescriptorSetLayoutBinding &layoutBinding = sets[resourceInfo.Set].emplace_back();
+			layoutBinding.binding						= resourceInfo.Binding;
+			layoutBinding.descriptorCount				= resourceInfo.ResourceCount;
+			layoutBinding.descriptorType				= descriptorType;
+			layoutBinding.stageFlags					= Vk::GetVkShaderStageFlagsFromShaderStages(resourceInfo.Stage);
+			layoutBinding.pImmutableSamplers			= nullptr;
+
+			descriptorCounts[descriptorType] += resourceInfo.ResourceCount;
+		}
+
+		// iterate through each vector of descriptor set layout bindings and create the layout
+		for (const auto &[setIndex, layoutBindings] : sets)
+		{
+			VkDescriptorSetLayoutCreateInfo createInfo = {};
+			createInfo.sType						   = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			createInfo.pNext						   = nullptr;
+			createInfo.flags						   = 0;
+			createInfo.pBindings					   = layoutBindings.data();
+			createInfo.bindingCount					   = layoutBindings.size();
+
+			VkDescriptorSetLayout &layout = descriptorSetLayouts.emplace_back();
+			NX_ASSERT(vkCreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
+					  "Failed to create descriptor set layout");
+		}
+
+		// create the actual VkPipelineLayout
 		VkPipelineLayout layout;
 
-		VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
-		if (vkCreatePipelineLayout(device->GetVkDevice(), &layoutInfo, nullptr, &layout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create pipeline layout");
-		}
+		VkPipelineLayoutCreateInfo info = {};
+		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		info.pNext						= nullptr;
+		info.flags						= 0;
+		info.setLayoutCount				= descriptorSetLayouts.size();
+		info.pSetLayouts				= descriptorSetLayouts.data();
+		info.pushConstantRangeCount		= 0;
+		info.pPushConstantRanges		= nullptr;
+
+		NX_ASSERT(vkCreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
 
 		return layout;
 	}

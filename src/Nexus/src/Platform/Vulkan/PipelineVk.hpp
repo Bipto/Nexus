@@ -15,8 +15,28 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) = 0;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)						   = 0;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass)					 = 0;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) = 0;
+
+		const std::vector<VkDescriptorSetLayout> &GetDescriptorSetLayouts() const
+		{
+			return m_DescriptorSetLayouts;
+		}
+
+		const std::map<VkDescriptorType, uint32_t> &GetDescriptorCounts() const
+		{
+			return m_DescriptorCounts;
+		}
+
+		VkPipelineLayout GetPipelineLayout() const
+		{
+			return m_PipelineLayout;
+		}
+
+	  protected:
+		std::vector<VkDescriptorSetLayout>	 m_DescriptorSetLayouts = {};
+		std::map<VkDescriptorType, uint32_t> m_DescriptorCounts;
+		VkPipelineLayout					 m_PipelineLayout;
 	};
 
 	class GraphicsPipelineVk : public GraphicsPipeline, public PipelineVk
@@ -34,7 +54,6 @@ namespace Nexus::Graphics
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
 	  private:
-		VkPipelineLayout				   m_PipelineLayout;
 		std::map<VkRenderPass, VkPipeline> m_Pipelines;
 		GraphicsDeviceVk				  *m_GraphicsDevice;
 	};
@@ -53,7 +72,6 @@ namespace Nexus::Graphics
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
 	  private:
-		VkPipelineLayout				   m_PipelineLayout;
 		std::map<VkRenderPass, VkPipeline> m_Pipelines;
 		GraphicsDeviceVk				  *m_GraphicsDevice;
 	};
@@ -67,7 +85,6 @@ namespace Nexus::Graphics
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
-		VkPipelineLayout  m_PipelineLayout;
 		VkPipeline		  m_Pipeline;
 		GraphicsDeviceVk *m_GraphicsDevice;
 	};

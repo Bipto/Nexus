@@ -126,10 +126,6 @@ namespace Demos
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
 			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Transform", 0, 0}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 1, 0}};
-
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;

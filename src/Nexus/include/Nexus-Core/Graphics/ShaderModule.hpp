@@ -77,9 +77,7 @@ namespace Nexus::Graphics
 	class ShaderModule
 	{
 	  public:
-		ShaderModule(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
-			: m_ModuleSpecification(shaderModuleSpec),
-			  m_ResourceSetSpecification(resourceSpec)
+		ShaderModule(const ShaderModuleSpecification &shaderModuleSpec) : m_ModuleSpecification(shaderModuleSpec)
 		{
 		}
 
@@ -95,15 +93,9 @@ namespace Nexus::Graphics
 			return m_ModuleSpecification;
 		}
 
-		const ResourceSetSpecification &GetResourceSetSpecification() const
-		{
-			return m_ResourceSetSpecification;
-		}
-
 		virtual ShaderReflectionData Reflect() const = 0;
 
 	  protected:
 		ShaderModuleSpecification m_ModuleSpecification;
-		ResourceSetSpecification  m_ResourceSetSpecification;
 	};
 }	 // namespace Nexus::Graphics

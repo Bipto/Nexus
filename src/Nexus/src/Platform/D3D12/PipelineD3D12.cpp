@@ -14,7 +14,8 @@ namespace Nexus::Graphics
 		: GraphicsPipeline(description),
 		  m_Description(description)
 	{
-		D3D12::CreateRootSignature(description.ResourceSetSpec, device, m_RootSignatureBlob, m_RootSignature);
+		NX_ASSERT(false, "Not implemented");
+		// D3D12::CreateRootSignature(description.ResourceSetSpec, device, m_RootSignatureBlob, m_RootSignature);
 		m_InputLayout = D3D12::CreateInputLayout(description.Layouts);
 		CreatePipeline(device);
 		m_PrimitiveTopology = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
@@ -164,7 +165,8 @@ namespace Nexus::Graphics
 
 	ComputePipelineD3D12::ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description) : ComputePipeline(description)
 	{
-		D3D12::CreateRootSignature(description.ResourceSetSpec, device, m_RootSignatureBlob, m_RootSignature);
+		NX_ASSERT(false, "Not implemented");
+		// D3D12::CreateRootSignature(description.ResourceSetSpec, device, m_RootSignatureBlob, m_RootSignature);
 		CreatePipeline(device);
 	}
 

@@ -117,8 +117,6 @@ namespace Nexus::Graphics
 			m_Device->CreateShaderModuleFromSpirvSource(HdriVertexShaderSource, "hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		pipelineDescription.FragmentModule =
 			m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {{"equirectangularMap", 1, 0}};
 
 		pipelineDescription.ColourFormats[0]  = framebufferSpec.ColourAttachmentSpecification.Attachments[0].TextureFormat;
 		pipelineDescription.ColourTargetCount = 1;

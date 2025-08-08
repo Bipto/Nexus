@@ -3,6 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "D3D12Include.hpp"
+	#include "Nexus-Core/Graphics/ShaderResources.hpp"
 	#include "Nexus-Core/Graphics/PixelFormat.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
@@ -43,10 +44,10 @@ namespace Nexus::D3D12
 	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
 
 	// pipeline
-	void CreateRootSignature(const Nexus::Graphics::ResourceSetSpecification &resourceSet,
-							 ID3D12Device9									 *device,
-							 Microsoft::WRL::ComPtr<ID3DBlob>				 &inRootSignatureBlob,
-							 Microsoft::WRL::ComPtr<ID3D12RootSignature>	 &inRootSignature);
+	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
+							 ID3D12Device9										   *device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature);
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
 	D3D_PRIMITIVE_TOPOLOGY				  CreatePrimitiveTopology(Graphics::Topology topology);

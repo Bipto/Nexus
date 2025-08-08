@@ -4,7 +4,7 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetOpenGL::ResourceSetOpenGL(const ResourceSetSpecification &spec) : ResourceSet(spec)
+	ResourceSetOpenGL::ResourceSetOpenGL(Ref<Pipeline> pipeline) : ResourceSet(pipeline)
 	{
 	}
 

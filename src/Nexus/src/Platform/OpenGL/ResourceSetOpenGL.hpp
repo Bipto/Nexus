@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class ResourceSetOpenGL : public ResourceSet
 	{
 	  public:
-		ResourceSetOpenGL(const ResourceSetSpecification &spec);
+		ResourceSetOpenGL(Ref<Pipeline> pipeline);
 		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
 		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;

@@ -32,7 +32,6 @@ namespace Demos
 			Nexus::Graphics::ComputePipelineDescription desc = {};
 			desc.ComputeShader =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute.glsl", Nexus::Graphics::ShaderStage::Compute);
-			desc.ResourceSetSpec.StorageImages = {{"out_tex", 0, 0}};
 			m_ComputePipeline				   = m_GraphicsDevice->CreateComputePipeline(desc);
 
 			m_ResourceSet		  = m_GraphicsDevice->CreateResourceSet(m_ComputePipeline);

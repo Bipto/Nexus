@@ -102,10 +102,10 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->GetOffscreenContext();
 	}
 
-	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ShaderModuleOpenGL>(moduleSpec, resources, this);
+		return CreateRef<ShaderModuleOpenGL>(moduleSpec, this);
 	}
 
 	std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(const GladGLContext &context)
@@ -195,10 +195,10 @@ namespace Nexus::Graphics
 		return CreateRef<CommandListOpenGL>(spec);
 	}
 
-	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
+	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ResourceSetOpenGL>(spec);
+		return CreateRef<ResourceSetOpenGL>(pipeline);
 	}
 
 	Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)

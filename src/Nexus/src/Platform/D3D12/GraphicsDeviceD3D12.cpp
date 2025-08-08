@@ -140,9 +140,9 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
-		return CreateRef<ShaderModuleD3D12>(moduleSpec, resources);
+		return CreateRef<ShaderModuleD3D12>(moduleSpec);
 	}
 
 	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
@@ -170,9 +170,10 @@ namespace Nexus::Graphics
 		return Ref<RayTracingPipeline>();
 	}
 
-	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
+	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		return CreateRef<ResourceSetD3D12>(spec, this);
+		// return CreateRef<ResourceSetD3D12>(spec, this);
+		return nullptr;
 	}
 
 	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)

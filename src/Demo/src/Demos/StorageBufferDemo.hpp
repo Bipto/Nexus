@@ -139,10 +139,6 @@ namespace Demos
 			uploadBufferDesc.SizeInBytes							  = sizeof(glm::mat4);
 			m_UploadBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(uploadBufferDesc);
 
-			pipelineDescription.ResourceSetSpec.StorageBuffers = {{"TransformBuffer", 0, 0}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 1, 0}};
-
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;

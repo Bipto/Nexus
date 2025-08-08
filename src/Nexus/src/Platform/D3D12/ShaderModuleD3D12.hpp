@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 	class ShaderModuleD3D12 : public ShaderModule
 	{
 	  public:
-		ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
+		ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec);
 		Microsoft::WRL::ComPtr<IDxcBlob> GetBlob() const;
 		ShaderReflectionData			 Reflect() const final;
 

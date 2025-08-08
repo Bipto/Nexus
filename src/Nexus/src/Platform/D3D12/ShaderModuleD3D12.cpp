@@ -37,8 +37,7 @@ namespace Nexus::Graphics
 		return count;
 	}
 
-	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
-		: ShaderModule(shaderModuleSpec, resourceSpec)
+	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec) : ShaderModule(shaderModuleSpec)
 	{
 		Microsoft::WRL::ComPtr<IDxcCompiler3>	   compiler;
 		Microsoft::WRL::ComPtr<IDxcUtils>		   utils;

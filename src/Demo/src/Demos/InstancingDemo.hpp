@@ -176,12 +176,6 @@ namespace Demos
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/instancing.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0},
-																 {"normalMapSampler", 1, 1},
-																 {"specularMapSampler", 1, 2}};
-
 			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
 																 {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
 																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},

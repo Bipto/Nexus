@@ -37,12 +37,6 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
-#include "Nexus-Core/Threading/Condition.hpp"
-#include "Nexus-Core/Threading/Mutex.hpp"
-#include "Nexus-Core/Threading/ReadWriteLock.hpp"
-#include "Nexus-Core/Threading/Semaphore.hpp"
-#include "Nexus-Core/Threading/Thread.hpp"
-
 struct DemoInfo
 {
 	std::string Name;

@@ -211,9 +211,9 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
-		return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
+		return CreateRef<ShaderModuleVk>(moduleSpec, this);
 	}
 
 	Ref<GraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
@@ -241,9 +241,9 @@ namespace Nexus::Graphics
 		return CreateRef<CommandListVk>(this, spec);
 	}
 
-	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
+	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		return CreateRef<ResourceSetVk>(spec, this);
+		return CreateRef<ResourceSetVk>(pipeline, this);
 	}
 
 	Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)

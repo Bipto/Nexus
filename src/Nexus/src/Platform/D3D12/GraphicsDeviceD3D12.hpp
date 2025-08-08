@@ -30,7 +30,7 @@ namespace Nexus::Graphics
 		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 		Ref<CommandList>		CreateCommandList(const CommandListDescription &spec = {}) final;
-		Ref<ResourceSet>		CreateResourceSet(const ResourceSetSpecification &spec) final;
+		Ref<ResourceSet>		CreateResourceSet(Ref<Pipeline> pipeline) final;
 
 		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
 		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
@@ -104,7 +104,7 @@ namespace Nexus::Graphics
 																					const std::vector<uint32_t> &primitiveCounts) const final;
 
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
+		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 		void					  InitUploadCommandList();
 		void					  DispatchUploadCommandList();
 

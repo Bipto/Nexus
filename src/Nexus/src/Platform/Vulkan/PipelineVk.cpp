@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 		: GraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
-		m_PipelineLayout = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+		m_PipelineLayout = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
 
 		std::string debugName = description.DebugName + " - Pipeline Layout";
 		graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
@@ -23,6 +23,11 @@ namespace Nexus::Graphics
 		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
 
 		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+
+		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+		}
 	}
 
 	const GraphicsPipelineDescription &GraphicsPipelineVk::GetPipelineDescription() const
@@ -119,7 +124,7 @@ namespace Nexus::Graphics
 		: MeshletPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
-		m_PipelineLayout = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+		m_PipelineLayout = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
 
 		std::string debugName = description.DebugName + " - Pipeline Layout";
 		graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
@@ -130,6 +135,11 @@ namespace Nexus::Graphics
 		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
 
 		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+
+		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+		}
 	}
 
 	VkPipelineLayout MeshletPipelineVk::GetPipelineLayout()
@@ -210,7 +220,7 @@ namespace Nexus::Graphics
 
 		// pipeline layout
 		{
-			m_PipelineLayout	  = Vk::CreatePipelineLayout(m_Description.ResourceSetSpec, graphicsDevice);
+			m_PipelineLayout	  = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
 			std::string debugName = description.DebugName + " - Pipeline Layout";
 			graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
 		}
@@ -238,6 +248,12 @@ namespace Nexus::Graphics
 
 	ComputePipelineVk::~ComputePipelineVk()
 	{
+		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+
+		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+		}
 	}
 
 	void ComputePipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/nxpch.hpp"
+
 namespace Nexus::Graphics
 {
 	enum class ResourceDimension
@@ -109,24 +111,6 @@ namespace Nexus::Graphics
 		ShaderRecord
 	};
 
-	enum class ShaderStage : uint16_t
-	{
-		Invalid = 0,
-		Compute,
-		Fragment,
-		Geometry,
-		TessellationControl,
-		TessellationEvaluation,
-		Vertex,
-		RayGeneration,
-		RayMiss,
-		RayClosestHit,
-		RayAnyHit,
-		RayIntersection,
-		Mesh,
-		Task,
-	};
-
 	enum class ResourceType
 	{
 		StorageImage,
@@ -141,27 +125,43 @@ namespace Nexus::Graphics
 		AccelerationStructure
 	};
 
-	inline ShaderStage operator|(ShaderStage lhs, ShaderStage rhs)
+	enum class ShaderStage
 	{
-		return static_cast<ShaderStage>(static_cast<uint16_t>(lhs) | static_cast<uint16_t>(rhs));
-	}
+		Invalid = 0,
+		Compute,
+		Fragment,
+		Geometry,
+		TessellationControl,
+		TessellationEvaluation,
+		Vertex,
+		RayGeneration,
+		RayMiss,
+		RayClosestHit,
+		RayAnyHit,
+		RayIntersection,
+		Mesh,
+		Task
+	};
 
-	inline ShaderStage operator&(ShaderStage lhs, ShaderStage rhs)
+	class ShaderStageFlags
 	{
-		return static_cast<ShaderStage>(static_cast<uint16_t>(lhs) & static_cast<uint16_t>(rhs));
-	}
+	  public:
+		ShaderStageFlags()			= default;
+		virtual ~ShaderStageFlags() = default;
 
-	inline ShaderStage &operator|=(ShaderStage &lhs, ShaderStage rhs)
-	{
-		lhs = lhs | rhs;
-		return lhs;
-	}
+		inline void AddFlag(ShaderStage stage)
+		{
+			m_ShaderStages.push_back(stage);
+		}
 
-	inline ShaderStage &operator&=(ShaderStage &lhs, ShaderStage rhs)
-	{
-		lhs = lhs & rhs;
-		return lhs;
-	}
+		inline bool HasFlag(ShaderStage stage) const
+		{
+			return std::find(m_ShaderStages.begin(), m_ShaderStages.end(), stage) != m_ShaderStages.end();
+		}
+
+	  private:
+		std::vector<ShaderStage> m_ShaderStages = {};
+	};
 
 	enum class ResourceAccess
 	{
@@ -172,14 +172,14 @@ namespace Nexus::Graphics
 
 	struct ShaderResource
 	{
-		ResourceType   Type			 = ResourceType::StorageImage;
-		std::string	   Name			 = "Resource";
-		uint32_t	   Set			 = 0;
-		uint32_t	   Binding		 = 0;
-		uint32_t	   RegisterSpace = 0;
-		uint32_t	   ResourceCount = 0;
-		ShaderStage	   Stage		 = ShaderStage::Invalid;
-		ResourceAccess Access		 = ResourceAccess::None;
+		ResourceType	 Type		   = ResourceType::StorageImage;
+		std::string		 Name		   = "Resource";
+		uint32_t		 Set		   = 0;
+		uint32_t		 Binding	   = 0;
+		uint32_t		 RegisterSpace = 0;
+		uint32_t		 ResourceCount = 0;
+		ShaderStageFlags Stage		   = {};
+		ResourceAccess	 Access		   = ResourceAccess::None;
 	};
 
 	inline bool operator==(const ShaderResource &lhs, const ShaderResource &rhs)

@@ -178,10 +178,6 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0}};
-
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;

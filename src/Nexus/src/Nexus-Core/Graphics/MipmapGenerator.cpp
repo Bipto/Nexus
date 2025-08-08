@@ -44,8 +44,6 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount = 1;
 		pipelineDescription.DepthFormat		  = PixelFormat::D24_UNorm_S8_UInt;
 
-		pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
-
 		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
 		m_Pipeline					= m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);

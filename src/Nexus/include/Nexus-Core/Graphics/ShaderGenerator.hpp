@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 		/// @param options A set of configuration options to use when generating a
 		/// native shader string
 		/// @return A compilation result returning the output of the shader generation
-		CompilationResult Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources);
+		CompilationResult Generate(const std::string &source, ShaderGenerationOptions options);
 	};
 
 	std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage);

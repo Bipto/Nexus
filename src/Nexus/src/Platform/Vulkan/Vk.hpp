@@ -5,6 +5,7 @@
 	#include "vulkan/vulkan.h"
 	#include "vk_mem_alloc.h"
 
+	#include "Nexus-Core/Graphics/Pipeline.hpp"
 	#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
@@ -46,6 +47,7 @@ namespace Nexus::Vk
 	VkImageViewType		  GetVkImageViewType(const Graphics::TextureDescription &spec);
 
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
+	VkShaderStageFlagBits GetVkShaderStageFlagsFromShaderStages(const Nexus::Graphics::ShaderStageFlags &flags);
 
 	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format);
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
@@ -123,7 +125,11 @@ namespace Nexus::Vk
 
 	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module);
 
-	VkPipelineLayout CreatePipelineLayout(const Graphics::ResourceSetSpecification &resourceSetInfo, Graphics::GraphicsDeviceVk *device);
+	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline				   *pipeline,
+										  Graphics::GraphicsDeviceVk		   *device,
+										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
+										  std::map<VkDescriptorType, uint32_t> &descriptorCounts);
+
 	VkPipeline		 CreateGraphicsPipeline(VkRenderPass											renderPass,
 											Graphics::GraphicsDeviceVk							   *device,
 											const Graphics::DepthStencilDescription				   &depthStencilDesc,

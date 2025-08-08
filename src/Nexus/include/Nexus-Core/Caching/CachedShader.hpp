@@ -9,43 +9,14 @@
 
 #include "yaml-cpp/yaml.h"
 
-namespace YAML
-{
-	template<>
-	struct convert<Nexus::Graphics::ResourceBinding>
-	{
-		static Node encode(const Nexus::Graphics::ResourceBinding &rhs)
-		{
-			Node node;
-			node.push_back(rhs.Name);
-			node.push_back(rhs.Set);
-			node.push_back(rhs.Binding);
-			return node;
-		}
-
-		static bool decode(const Node &node, Nexus::Graphics::ResourceBinding &rhs)
-		{
-			if (!node.IsSequence() || node.size() != 3)
-			{
-				return false;
-			}
-
-			rhs.Name	= node[0].as<std::string>();
-			rhs.Set		= node[1].as<uint32_t>();
-			rhs.Binding = node[2].as<uint32_t>();
-			return true;
-		}
-	};
-}	 // namespace YAML
-
 namespace Nexus::Graphics
 {
 	class NX_API CachedShader
 	{
 	  public:
-		static CachedShader FromModule(const ShaderModuleSpecification &shaderSpec, const ResourceSetSpecification &resourceSpec, size_t hash)
+		static CachedShader FromModule(const ShaderModuleSpecification &shaderSpec, size_t hash)
 		{
-			return CachedShader(shaderSpec, resourceSpec, hash);
+			return CachedShader(shaderSpec, hash);
 		}
 
 		static CachedShader LoadFromFile(const std::string &path)
@@ -65,11 +36,6 @@ namespace Nexus::Graphics
 			shaderYAML["SPIRV"]	 = m_ShaderSpec.SpirvBinary;
 			container["Shader"]	 = shaderYAML;
 
-			YAML::Node resourceYAML;
-			resourceYAML["SampledImages"]  = m_ResourceSpec.SampledImages;
-			resourceYAML["UniformBuffers"] = m_ResourceSpec.UniformBuffers;
-			container["Resources"]		   = resourceYAML;
-
 			YAML::Emitter out;
 			out << container;
 
@@ -79,11 +45,6 @@ namespace Nexus::Graphics
 		const ShaderModuleSpecification &GetShaderSpecification() const
 		{
 			return m_ShaderSpec;
-		}
-
-		const ResourceSetSpecification &GetResourceSpecification() const
-		{
-			return m_ResourceSpec;
 		}
 
 		size_t GetHash() const
@@ -97,10 +58,7 @@ namespace Nexus::Graphics
 		}
 
 	  private:
-		CachedShader(const ShaderModuleSpecification &shaderSpec, const ResourceSetSpecification &resourceSpec, size_t hash)
-			: m_ShaderSpec(shaderSpec),
-			  m_ResourceSpec(resourceSpec),
-			  m_Hash(hash)
+		CachedShader(const ShaderModuleSpecification &shaderSpec, size_t hash) : m_ShaderSpec(shaderSpec), m_Hash(hash)
 		{
 		}
 
@@ -116,10 +74,7 @@ namespace Nexus::Graphics
 			std::string			  source	 = shaderNode["Source"].as<std::string>();
 			ShaderStage			  stage		 = (ShaderStage)shaderNode["Stage"].as<uint32_t>();
 			std::vector<uint32_t> spirv		 = shaderNode["SPIRV"].as<std::vector<uint32_t>>();
-
-			YAML::Node					 resourcesNode	= node["Resources"];
-			std::vector<ResourceBinding> sampledImages	= resourcesNode["SampledImages"].as<std::vector<ResourceBinding>>();
-			std::vector<ResourceBinding> uniformBuffers = resourcesNode["UniformBuffers"].as<std::vector<ResourceBinding>>();
+			;
 
 			m_Hash = hash;
 
@@ -127,14 +82,10 @@ namespace Nexus::Graphics
 			m_ShaderSpec.Source		  = source;
 			m_ShaderSpec.ShadingStage = stage;
 			m_ShaderSpec.SpirvBinary  = spirv;
-
-			m_ResourceSpec.SampledImages  = sampledImages;
-			m_ResourceSpec.UniformBuffers = uniformBuffers;
 		}
 
 	  private:
 		ShaderModuleSpecification m_ShaderSpec	 = {};
-		ResourceSetSpecification  m_ResourceSpec = {};
 		size_t					  m_Hash		 = {};
 	};
 }	 // namespace Nexus::Graphics

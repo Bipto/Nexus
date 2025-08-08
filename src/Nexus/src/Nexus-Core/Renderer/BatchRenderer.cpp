@@ -204,31 +204,6 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
-	{
-		Nexus::Graphics::ResourceSetSpecification resourceSpec;
-		resourceSpec.SampledImages = {{"texture0", 1, 0},
-									  {"texture1", 1, 1},
-									  {"texture2", 1, 2},
-									  {"texture3", 1, 3},
-									  {"texture4", 1, 4},
-									  {"texture5", 1, 5},
-									  {"texture6", 1, 6},
-									  {"texture7", 1, 7},
-									  {"texture8", 1, 8},
-									  {"texture9", 1, 9},
-									  {"texture10", 1, 10},
-									  {"texture11", 1, 11},
-									  {"texture12", 1, 12},
-									  {"texture13", 1, 13},
-									  {"texture14", 1, 14},
-									  {"texture15", 1, 15}};
-
-		resourceSpec.UniformBuffers = {{"MVP", 0, 0}};
-
-		return resourceSpec;
-	}
-
 	const uint32_t MAX_VERTEX_COUNT	 = 1024;
 	const uint32_t MAX_TEXTURE_COUNT = 16;
 
@@ -292,7 +267,6 @@ namespace Nexus::Graphics
 		description.Layouts								 = {Nexus::Graphics::BatchVertex::GetLayout()};
 		description.VertexModule						 = vertexModule;
 		description.FragmentModule						 = fragmentModule;
-		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
 		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		description.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;

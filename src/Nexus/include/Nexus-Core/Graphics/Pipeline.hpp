@@ -23,10 +23,6 @@ namespace Nexus::Graphics
 		/// @brief How the pipeline should handle the vertex buffer data
 		Topology PrimitiveTopology = Topology::TriangleList;
 
-		/// @brief A resource set specification describing how resources are allocated
-		/// in the pipeline
-		ResourceSetSpecification ResourceSetSpec;
-
 		/// @brief An array containing the colour formats that will be used with the pipeline
 		std::array<PixelFormat, 8> ColourFormats;
 
@@ -66,7 +62,6 @@ namespace Nexus::Graphics
 
 	struct ComputePipelineDescription
 	{
-		ResourceSetSpecification ResourceSetSpec = {};
 		Ref<ShaderModule>		 ComputeShader	 = nullptr;
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
@@ -83,10 +78,6 @@ namespace Nexus::Graphics
 
 		/// @brief How the pipeline should handle the vertex buffer data
 		Topology PrimitiveTopology = Topology::TriangleList;
-
-		/// @brief A resource set specification describing how resources are allocated
-		/// in the pipeline
-		ResourceSetSpecification ResourceSetSpec;
 
 		/// @brief An array containing the colour formats that will be used with the pipeline
 		std::array<PixelFormat, 8> ColourFormats;
@@ -136,7 +127,6 @@ namespace Nexus::Graphics
 	{
 		std::vector<Ref<ShaderModule>> Shaders			 = {};
 		std::vector<ShaderGroup>	   ShaderGroups		 = {};
-		ResourceSetSpecification	   ResourceSetSpec	 = {};
 		uint32_t					   MaxRecursionDepth = 0;
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Ray Tracing Pipeline";
@@ -240,7 +230,7 @@ namespace Nexus::Graphics
 		output.Binding		 = resource.BindingPoint;
 		output.ResourceCount = resource.BindingCount;
 		output.RegisterSpace = resource.RegisterSpace;
-		output.Stage		 = stage;
+		output.Stage.AddFlag(stage);
 
 		return output;
 	}
@@ -253,7 +243,6 @@ namespace Nexus::Graphics
 		}
 
 		virtual PipelineType				   GetType() const					   = 0;
-		virtual ResourceSetSpecification	   GetResourceSetSpecification() const = 0;
 		virtual std::vector<Ref<ShaderModule>> GetShaderStages() const			   = 0;
 
 		std::map<std::string, ShaderResource> GetRequiredShaderResources() const
@@ -271,7 +260,7 @@ namespace Nexus::Graphics
 						ShaderResource &requiredResource = requiredResources.at(resource.Name);
 						ShaderResource	newResource		 = ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
 						NX_ASSERT(newResource == requiredResource, "Shader resources that share the same name must match across stages");
-						requiredResource.Stage |= module->GetShaderStage();
+						requiredResource.Stage.AddFlag(module->GetShaderStage());
 					}
 					else
 					{
@@ -308,19 +297,9 @@ namespace Nexus::Graphics
 		/// @return A const reference to a pipelinedescription
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const = 0;
 
-		bool HasResources() const
-		{
-			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
-		}
-
 		virtual PipelineType GetType() const final
 		{
 			return PipelineType::Graphics;
-		}
-
-		virtual ResourceSetSpecification GetResourceSetSpecification() const final
-		{
-			return m_Description.ResourceSetSpec;
 		}
 
 		std::vector<Ref<ShaderModule>> GetShaderStages() const final
@@ -383,11 +362,6 @@ namespace Nexus::Graphics
 			return PipelineType::Compute;
 		}
 
-		virtual ResourceSetSpecification GetResourceSetSpecification() const final
-		{
-			return m_Description.ResourceSetSpec;
-		}
-
 		std::vector<Ref<ShaderModule>> GetShaderStages() const final
 		{
 			std::vector<Ref<ShaderModule>> stages;
@@ -423,11 +397,6 @@ namespace Nexus::Graphics
 		virtual PipelineType GetType() const final
 		{
 			return PipelineType::Compute;
-		}
-
-		virtual ResourceSetSpecification GetResourceSetSpecification() const final
-		{
-			return m_Description.ResourceSetSpec;
 		}
 
 		std::vector<Ref<ShaderModule>> GetShaderStages() const final
@@ -475,11 +444,6 @@ namespace Nexus::Graphics
 		virtual PipelineType GetType() const final
 		{
 			return PipelineType::RayTracing;
-		}
-
-		virtual ResourceSetSpecification GetResourceSetSpecification() const final
-		{
-			return m_Description.ResourceSetSpec;
 		}
 
 		std::vector<Ref<ShaderModule>> GetShaderStages() const final
