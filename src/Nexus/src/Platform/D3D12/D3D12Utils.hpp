@@ -14,6 +14,12 @@
 
 namespace Nexus::D3D12
 {
+	struct DescriptorHandleSlots
+	{
+		std::map<std::string, uint32_t> SamplerIndexes	  = {};
+		std::map<std::string, uint32_t> NonSamplerIndexes = {};
+	};
+
 	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
 
 	DXGI_FORMAT

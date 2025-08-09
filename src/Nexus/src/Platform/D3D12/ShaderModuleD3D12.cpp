@@ -87,8 +87,7 @@ namespace Nexus::Graphics
 
 	ShaderReflectionData ShaderModuleD3D12::Reflect() const
 	{
-		ShaderReflectionData data;
-		return data;
+		return m_ReflectionData;
 	}
 
 	ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)

@@ -436,9 +436,9 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		Ref<Graphics::Texture>				  texture = view.TextureHandle;
-		const Graphics::TextureDescription	 &spec	  = texture->GetDescription();
-		uav.Format									  = D3D12::GetD3D12PixelFormat(spec.Format);
+		Ref<Graphics::Texture>				texture = view.TextureHandle;
+		const Graphics::TextureDescription &spec	= texture->GetDescription();
+		uav.Format									= D3D12::GetD3D12PixelFormat(spec.Format);
 
 		switch (spec.Type)
 		{
@@ -491,160 +491,184 @@ namespace Nexus::D3D12
 		return uav;
 	}
 
+	D3D12_SHADER_VISIBILITY GetShaderVisibility(const Graphics::ShaderStageFlags &flags)
+	{
+		// if we don't specify any shader stages or we supply multiple, then we have to make it visible to all shader stages
+		if (flags.IsEmpty() || flags.GetCount() > 1)
+		{
+			return D3D12_SHADER_VISIBILITY_ALL;
+		}
+
+		// otherwise return the correct shader stage
+		if (flags.HasFlag(Graphics::ShaderStage::Vertex))
+		{
+			return D3D12_SHADER_VISIBILITY_VERTEX;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::TessellationControl))
+		{
+			return D3D12_SHADER_VISIBILITY_HULL;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::TessellationEvaluation))
+		{
+			return D3D12_SHADER_VISIBILITY_DOMAIN;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Geometry))
+		{
+			return D3D12_SHADER_VISIBILITY_GEOMETRY;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Fragment))
+		{
+			return D3D12_SHADER_VISIBILITY_PIXEL;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Task))
+		{
+			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Mesh))
+		{
+			return D3D12_SHADER_VISIBILITY_MESH;
+		}
+		else
+		{
+			return D3D12_SHADER_VISIBILITY_ALL;
+		}
+	}
+
+	D3D12_DESCRIPTOR_RANGE_TYPE GetDescriptorRangeType(const Graphics::ShaderResource &resource)
+	{
+		switch (resource.Type)
+		{
+			case Graphics::ResourceType::AccelerationStructure:
+			case Graphics::ResourceType::Texture:
+			{
+				return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			}
+			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ComparisonSampler:
+			{
+				return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			}
+			case Graphics::ResourceType::UniformBuffer:
+			{
+				return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			}
+			case Graphics::ResourceType::StorageImage:
+			case Graphics::ResourceType::StorageTextureBuffer:
+			case Graphics::ResourceType::CombinedImageSampler:
+			case Graphics::ResourceType::StorageBuffer:
+			case Graphics::ResourceType::UniformTextureBuffer:
+			{
+				switch (resource.Access)
+				{
+					case Graphics::StorageResourceAccess::ReadByteAddress:
+					case Graphics::StorageResourceAccess::ReadStructured:
+					{
+						return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+					}
+					case Graphics::StorageResourceAccess::ReadWriteStructured:
+					case Graphics::StorageResourceAccess::ReadWriteByteAddress:
+					case Graphics::StorageResourceAccess::AppendStructured:
+					case Graphics::StorageResourceAccess::ConsumeStructured:
+					case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter:
+					case Graphics::StorageResourceAccess::FeedbackTexture:
+					{
+						return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+					}
+					default: throw std::runtime_error("Failed to find a valid access type");
+				}
+			}
+			default: throw std::runtime_error("Failed to find a valid descriptor range type");
+		}
+	}
+
 	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
 							 ID3D12Device9										   *device,
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature)
 	{
-		/* D3D12_ROOT_SIGNATURE_DESC desc = {};
-		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
-		desc.NumParameters	   = 0;
-		desc.NumStaticSamplers = 0;
-
-		std::vector<D3D12_DESCRIPTOR_RANGE> samplerRanges;
-		std::vector<D3D12_DESCRIPTOR_RANGE> textureConstantBufferRanges;
-		std::vector<D3D12_DESCRIPTOR_RANGE> storageImageRanges;
-		std::vector<D3D12_DESCRIPTOR_RANGE> storageBufferRanges;
-
-		for (size_t i = 0; i < resourceSet.SampledImages.size(); i++)
+		struct DescriptorRangeInfo
 		{
-			const auto &textureInfo = resourceSet.SampledImages.at(i);
-			uint32_t	slot		= Graphics::ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
+			std::vector<D3D12_DESCRIPTOR_RANGE> SamplerRanges = {};
+			std::vector<D3D12_DESCRIPTOR_RANGE> OtherRanges	  = {};
+		};
 
-			D3D12_DESCRIPTOR_RANGE samplerRange			   = {};
-			samplerRange.RangeType						   = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-			samplerRange.BaseShaderRegister				   = slot;
-			samplerRange.NumDescriptors					   = 1;
-			samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			samplerRange.RegisterSpace					   = 0;
-			samplerRanges.push_back(samplerRange);
+		// create storage for descriptor ranges and root parameters
+		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges;
+		std::vector<D3D12_ROOT_PARAMETER>					   rootParameters;
 
-			D3D12_DESCRIPTOR_RANGE textureRange			   = {};
-			textureRange.RangeType						   = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-			textureRange.BaseShaderRegister				   = slot;
-			textureRange.NumDescriptors					   = 1;
-			textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			textureRange.RegisterSpace					   = 0;
-			textureConstantBufferRanges.push_back(textureRange);
-		}
+		DescriptorHandleSlots descriptorHandleSlots = {};
+		uint32_t			  samplerIndex			= 0;
+		uint32_t			  nonSamplerIndex		= 0;
 
-		for (size_t i = 0; i < resourceSet.UniformBuffers.size(); i++)
+		// iterate through resources and create descriptor range
+		for (const auto &[name, resourceInfo] : resources)
 		{
-			const auto &uniformBufferInfo = resourceSet.UniformBuffers.at(i);
-			uint32_t	slot			  = Graphics::ResourceSet::GetLinearDescriptorSlot(uniformBufferInfo.Set, uniformBufferInfo.Binding);
+			D3D12_SHADER_VISIBILITY		visibility	   = GetShaderVisibility(resourceInfo.Stage);
+			D3D12_DESCRIPTOR_RANGE_TYPE descriptorType = GetDescriptorRangeType(resourceInfo);
 
-			D3D12_DESCRIPTOR_RANGE constantBufferRange			  = {};
-			constantBufferRange.RangeType						  = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			constantBufferRange.BaseShaderRegister				  = slot;
-			constantBufferRange.NumDescriptors					  = 1;
-			constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			constantBufferRange.RegisterSpace					  = 0;
-			textureConstantBufferRanges.push_back(constantBufferRange);
-		}
-
-		for (size_t i = 0; i < resourceSet.StorageImages.size(); i++)
-		{
-			const auto &storageImageInfo = resourceSet.StorageImages.at(i);
-			uint32_t	slot			 = Graphics::ResourceSet::GetLinearDescriptorSlot(storageImageInfo.Set, storageImageInfo.Binding);
-
-			D3D12_DESCRIPTOR_RANGE storageImageRange			= {};
-			storageImageRange.RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-			storageImageRange.BaseShaderRegister				= slot;
-			storageImageRange.NumDescriptors					= 1;
-			storageImageRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			storageImageRange.RegisterSpace						= 0;
-			storageImageRanges.push_back(storageImageRange);
-		}
-
-		for (size_t i = 0; i < resourceSet.StorageBuffers.size(); i++)
-		{
-			const auto &storageBufferInfo = resourceSet.StorageBuffers.at(i);
-			uint32_t	slot			  = Graphics::ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
-
-			D3D12_DESCRIPTOR_RANGE storageBufferRange			 = {};
-			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-			storageBufferRange.BaseShaderRegister				 = slot;
-			storageBufferRange.NumDescriptors					 = 1;
-			storageBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			storageBufferRange.RegisterSpace					 = 0;
-			storageBufferRanges.push_back(storageBufferRange);
-		}
-
-		std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-
-		// sampler parameter
-		{
-			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-			descriptorTable.NumDescriptorRanges			= samplerRanges.size();
-			descriptorTable.pDescriptorRanges			= samplerRanges.data();
-
-			D3D12_ROOT_PARAMETER parameter = {};
-			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			parameter.DescriptorTable	   = descriptorTable;
-			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
-
-			if (samplerRanges.size() > 0)
+			// samplers cannot share a descriptor range with other descriptors so we need them to be separate
+			if (descriptorType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER)
 			{
-				rootParameters.push_back(parameter);
+				D3D12_DESCRIPTOR_RANGE &range							= descriptorRanges[visibility].SamplerRanges.emplace_back();
+				range.RangeType											= GetDescriptorRangeType(resourceInfo);
+				range.BaseShaderRegister								= resourceInfo.Binding;
+				range.NumDescriptors									= resourceInfo.ResourceCount;
+				range.OffsetInDescriptorsFromTableStart					= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				range.RegisterSpace										= resourceInfo.RegisterSpace;
+				descriptorHandleSlots.SamplerIndexes[resourceInfo.Name] = samplerIndex++;
+			}
+			else
+			{
+				D3D12_DESCRIPTOR_RANGE &range							   = descriptorRanges[visibility].OtherRanges.emplace_back();
+				range.RangeType											   = GetDescriptorRangeType(resourceInfo);
+				range.BaseShaderRegister								   = resourceInfo.Binding;
+				range.NumDescriptors									   = resourceInfo.ResourceCount;
+				range.OffsetInDescriptorsFromTableStart					   = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				range.RegisterSpace										   = resourceInfo.RegisterSpace;
+				descriptorHandleSlots.NonSamplerIndexes[resourceInfo.Name] = nonSamplerIndex++;
 			}
 		}
 
-		// texture constant buffer parameter
+		// create the descriptor tables for the ranges
+		for (const auto &[shaderVisibility, descriptorRange] : descriptorRanges)
 		{
-			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-			descriptorTable.NumDescriptorRanges			= textureConstantBufferRanges.size();
-			descriptorTable.pDescriptorRanges			= textureConstantBufferRanges.data();
-
-			D3D12_ROOT_PARAMETER parameter = {};
-			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			parameter.DescriptorTable	   = descriptorTable;
-			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
-
-			if (textureConstantBufferRanges.size() > 0)
+			if (!descriptorRange.SamplerRanges.empty())
 			{
-				rootParameters.push_back(parameter);
+				D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+				descriptorTable.pDescriptorRanges			= descriptorRange.SamplerRanges.data();
+				descriptorTable.NumDescriptorRanges			= descriptorRange.SamplerRanges.size();
+
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				rootParameter.DescriptorTable		= descriptorTable;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+			}
+
+			if (!descriptorRange.OtherRanges.empty())
+			{
+				D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+				descriptorTable.pDescriptorRanges			= descriptorRange.OtherRanges.data();
+				descriptorTable.NumDescriptorRanges			= descriptorRange.OtherRanges.size();
+
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				rootParameter.DescriptorTable		= descriptorTable;
+				rootParameter.ShaderVisibility		= shaderVisibility;
 			}
 		}
 
-		// storage image parameter
-		{
-			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-			descriptorTable.NumDescriptorRanges			= storageImageRanges.size();
-			descriptorTable.pDescriptorRanges			= storageImageRanges.data();
+		// create the D3D12 root signature
+		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+		rootSignatureDesc.Flags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		rootSignatureDesc.NumStaticSamplers = 0;
+		rootSignatureDesc.pStaticSamplers	= nullptr;
+		rootSignatureDesc.NumParameters		= rootParameters.size();
+		rootSignatureDesc.pParameters		= rootParameters.data();
 
-			D3D12_ROOT_PARAMETER parameter = {};
-			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			parameter.DescriptorTable	   = descriptorTable;
-			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
-
-			if (storageImageRanges.size() > 0)
-			{
-				rootParameters.push_back(parameter);
-			}
-		}
-
-		// storage buffer parameter
-		{
-			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-			descriptorTable.NumDescriptorRanges			= storageBufferRanges.size();
-			descriptorTable.pDescriptorRanges			= storageBufferRanges.data();
-
-			D3D12_ROOT_PARAMETER parameter = {};
-			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			parameter.DescriptorTable	   = descriptorTable;
-			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
-
-			if (storageBufferRanges.size() > 0)
-			{
-				rootParameters.push_back(parameter);
-			}
-		}
-
-		desc.NumParameters = rootParameters.size();
-		desc.pParameters   = rootParameters.data();
-
+		// serialize the root signature and report any errors if they occur
 		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
-		if (SUCCEEDED(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob)))
+		if (SUCCEEDED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob)))
 		{
 			device->CreateRootSignature(0,
 										inRootSignatureBlob->GetBufferPointer(),
@@ -654,10 +678,8 @@ namespace Nexus::D3D12
 		else
 		{
 			std::string errorMessage = std::string((char *)errorBlob->GetBufferPointer());
-			NX_ERROR(errorMessage);
-		} */
-
-		NX_ASSERT(false, "Not implemented");
+			throw std::runtime_error(errorMessage);
+		}
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts)

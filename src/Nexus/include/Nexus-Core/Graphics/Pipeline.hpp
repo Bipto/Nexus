@@ -62,7 +62,7 @@ namespace Nexus::Graphics
 
 	struct ComputePipelineDescription
 	{
-		Ref<ShaderModule>		 ComputeShader	 = nullptr;
+		Ref<ShaderModule> ComputeShader = nullptr;
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Compute Pipeline";
@@ -199,38 +199,14 @@ namespace Nexus::Graphics
 			default: throw std::runtime_error("Failed to find a valid resource type");
 		}
 
-		switch (resource.StorageResourceAccess)
-		{
-			case StorageResourceAccess::Read:
-			case StorageResourceAccess::ReadByteAddress:
-			case StorageResourceAccess::ReadStructured:
-			{
-				output.Access = ResourceAccess::SRV;
-				break;
-			}
-			case StorageResourceAccess::ReadWrite:
-			case StorageResourceAccess::ReadWriteByteAddress:
-			case StorageResourceAccess::ReadWriteStructured:
-			case StorageResourceAccess::AppendStructured:
-			case StorageResourceAccess::ConsumeStructured:
-			case StorageResourceAccess::ReadWriteStructuredWithCounter:
-			{
-				output.Access = ResourceAccess::UAV;
-				break;
-			}
-			default:
-			{
-				output.Access = ResourceAccess::None;
-				break;
-			}
-		}
-
+		output.Access		 = resource.StorageResourceAccess;
 		output.Name			 = resource.Name;
 		output.Set			 = resource.DescriptorSet;
 		output.Binding		 = resource.BindingPoint;
 		output.ResourceCount = resource.BindingCount;
 		output.RegisterSpace = resource.RegisterSpace;
 		output.Stage.AddFlag(stage);
+		output.Dimension = resource.Dimension;
 
 		return output;
 	}
@@ -242,8 +218,8 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual PipelineType				   GetType() const					   = 0;
-		virtual std::vector<Ref<ShaderModule>> GetShaderStages() const			   = 0;
+		virtual PipelineType				   GetType() const		   = 0;
+		virtual std::vector<Ref<ShaderModule>> GetShaderStages() const = 0;
 
 		std::map<std::string, ShaderResource> GetRequiredShaderResources() const
 		{

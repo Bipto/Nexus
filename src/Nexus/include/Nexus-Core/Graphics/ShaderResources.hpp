@@ -159,15 +159,18 @@ namespace Nexus::Graphics
 			return std::find(m_ShaderStages.begin(), m_ShaderStages.end(), stage) != m_ShaderStages.end();
 		}
 
+		inline bool IsEmpty() const
+		{
+			return m_ShaderStages.empty();
+		}
+
+		inline size_t GetCount() const
+		{
+			return m_ShaderStages.size();
+		}
+
 	  private:
 		std::vector<ShaderStage> m_ShaderStages = {};
-	};
-
-	enum class ResourceAccess
-	{
-		None,
-		UAV,
-		SRV
 	};
 
 	struct ShaderResource
@@ -179,7 +182,8 @@ namespace Nexus::Graphics
 		uint32_t		 RegisterSpace = 0;
 		uint32_t		 ResourceCount = 0;
 		ShaderStageFlags Stage		   = {};
-		ResourceAccess	 Access		   = ResourceAccess::None;
+		StorageResourceAccess Access		= StorageResourceAccess::None;
+		ResourceDimension	  Dimension		= ResourceDimension::None;
 	};
 
 	inline bool operator==(const ShaderResource &lhs, const ShaderResource &rhs)
