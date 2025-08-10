@@ -14,10 +14,25 @@
 
 namespace Nexus::D3D12
 {
-	struct DescriptorHandleSlots
+	enum class DescriptorHandleSource
+	{
+		SRV_UAV_CBV,
+		Sampler
+	};
+
+	struct DescriptorTableInfo
+	{
+		size_t				   Offset = 0;
+		DescriptorHandleSource Source = DescriptorHandleSource::SRV_UAV_CBV;
+	};
+
+	struct DescriptorHandleInfo
 	{
 		std::map<std::string, uint32_t> SamplerIndexes	  = {};
 		std::map<std::string, uint32_t> NonSamplerIndexes = {};
+		std::vector<DescriptorTableInfo> DescriptorTables	   = {};
+		uint32_t						 SamplerHeapCount	   = 0;
+		uint32_t						 SRV_UAV_CBV_HeapCount = 0;
 	};
 
 	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
@@ -53,7 +68,8 @@ namespace Nexus::D3D12
 	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
 							 ID3D12Device9										   *device,
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
-							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature);
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
+							 DescriptorHandleInfo								   &descriptorHandleInfo);
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
 	D3D_PRIMITIVE_TOPOLOGY				  CreatePrimitiveTopology(Graphics::Topology topology);

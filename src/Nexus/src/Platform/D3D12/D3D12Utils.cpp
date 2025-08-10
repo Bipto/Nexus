@@ -560,11 +560,14 @@ namespace Nexus::D3D12
 			{
 				switch (resource.Access)
 				{
+					case Graphics::StorageResourceAccess::Read:
 					case Graphics::StorageResourceAccess::ReadByteAddress:
 					case Graphics::StorageResourceAccess::ReadStructured:
 					{
 						return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 					}
+					case Graphics::StorageResourceAccess::Write:
+					case Graphics::StorageResourceAccess::ReadWrite:
 					case Graphics::StorageResourceAccess::ReadWriteStructured:
 					case Graphics::StorageResourceAccess::ReadWriteByteAddress:
 					case Graphics::StorageResourceAccess::AppendStructured:
@@ -584,7 +587,8 @@ namespace Nexus::D3D12
 	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
 							 ID3D12Device9										   *device,
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
-							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature)
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
+							 DescriptorHandleInfo								   &descriptorHandleInfo)
 	{
 		struct DescriptorRangeInfo
 		{
@@ -596,7 +600,6 @@ namespace Nexus::D3D12
 		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges;
 		std::vector<D3D12_ROOT_PARAMETER>					   rootParameters;
 
-		DescriptorHandleSlots descriptorHandleSlots = {};
 		uint32_t			  samplerIndex			= 0;
 		uint32_t			  nonSamplerIndex		= 0;
 
@@ -615,7 +618,9 @@ namespace Nexus::D3D12
 				range.NumDescriptors									= resourceInfo.ResourceCount;
 				range.OffsetInDescriptorsFromTableStart					= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				range.RegisterSpace										= resourceInfo.RegisterSpace;
-				descriptorHandleSlots.SamplerIndexes[resourceInfo.Name] = samplerIndex++;
+				descriptorHandleInfo.SamplerIndexes[resourceInfo.Name]	= samplerIndex;
+				samplerIndex += resourceInfo.ResourceCount;
+				descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
 			}
 			else
 			{
@@ -625,9 +630,14 @@ namespace Nexus::D3D12
 				range.NumDescriptors									   = resourceInfo.ResourceCount;
 				range.OffsetInDescriptorsFromTableStart					   = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				range.RegisterSpace										   = resourceInfo.RegisterSpace;
-				descriptorHandleSlots.NonSamplerIndexes[resourceInfo.Name] = nonSamplerIndex++;
+				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name]  = nonSamplerIndex;
+				nonSamplerIndex += resourceInfo.ResourceCount;
+				descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
 			}
 		}
+
+		size_t currentSamplerOffset	   = 0;
+		size_t currentNonSamplerOffset = 0;
 
 		// create the descriptor tables for the ranges
 		for (const auto &[shaderVisibility, descriptorRange] : descriptorRanges)
@@ -642,6 +652,12 @@ namespace Nexus::D3D12
 				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 				rootParameter.DescriptorTable		= descriptorTable;
 				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
+				descriptorTableInfo.Source				 = DescriptorHandleSource::Sampler;
+				descriptorTableInfo.Offset				 = currentSamplerOffset;
+
+				for (const auto &range : descriptorRange.SamplerRanges) { currentSamplerOffset += range.NumDescriptors; }
 			}
 
 			if (!descriptorRange.OtherRanges.empty())
@@ -654,6 +670,12 @@ namespace Nexus::D3D12
 				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 				rootParameter.DescriptorTable		= descriptorTable;
 				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
+				descriptorTableInfo.Source				 = DescriptorHandleSource::SRV_UAV_CBV;
+				descriptorTableInfo.Offset				 = currentNonSamplerOffset;
+
+				for (const auto &range : descriptorRange.OtherRanges) { currentNonSamplerOffset += range.NumDescriptors; }
 			}
 		}
 

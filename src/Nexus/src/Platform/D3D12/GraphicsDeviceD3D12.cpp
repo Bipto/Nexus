@@ -172,8 +172,7 @@ namespace Nexus::Graphics
 
 	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		// return CreateRef<ResourceSetD3D12>(spec, this);
-		return nullptr;
+		return CreateRef<ResourceSetD3D12>(pipeline, this);
 	}
 
 	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)

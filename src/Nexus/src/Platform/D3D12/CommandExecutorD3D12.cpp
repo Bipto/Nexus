@@ -238,57 +238,23 @@ namespace Nexus::Graphics
 											   D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 		}
 
-		std::vector<ID3D12DescriptorHeap *> heaps;
-		if (d3d12ResourceSet->HasSamplerHeap())
-		{
-			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> samplerDescriptorHeap = d3d12ResourceSet->GetSamplerDescriptorHeap();
-			heaps.push_back(samplerDescriptorHeap.Get());
-		}
-
-		if (d3d12ResourceSet->HasConstantBufferTextureHeap())
-		{
-			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> textureConstantBufferDescriptorHeap =
-				d3d12ResourceSet->GetTextureConstantBufferDescriptorHeap();
-			heaps.push_back(textureConstantBufferDescriptorHeap.Get());
-		}
-
+		const std::vector<ID3D12DescriptorHeap *> &heaps = d3d12ResourceSet->GetDescriptorHeaps();
 		m_CommandList->SetDescriptorHeaps(heaps.size(), heaps.data());
 
-		uint32_t descriptorIndex = 0;
+		uint32_t heapIndex = 0;
 
 		if (pipelineType == PipelineType::Graphics)
 		{
-			// bind samplers
-			if (d3d12ResourceSet->HasSamplerHeap())
+			for (const D3D12_GPU_DESCRIPTOR_HANDLE &descriptorTable : d3d12ResourceSet->GetDescriptorTables())
 			{
-				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerStartHandle());
-			}
-
-			// bind textures/constant buffers
-			if (d3d12ResourceSet->HasConstantBufferTextureHeap())
-			{
-				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
-			}
-
-			if (d3d12ResourceSet->GetBoundStorageBuffers().size() > 0)
-			{
-				// m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
-				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetStorageBufferStartHandle());
+				m_CommandList->SetGraphicsRootDescriptorTable(heapIndex++, descriptorTable);
 			}
 		}
-
 		else if (pipelineType == PipelineType::Compute)
 		{
-			// bind samplers
-			if (d3d12ResourceSet->HasSamplerHeap())
+			for (const D3D12_GPU_DESCRIPTOR_HANDLE &descriptorTable : d3d12ResourceSet->GetDescriptorTables())
 			{
-				m_CommandList->SetComputeRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerStartHandle());
-			}
-
-			// bind textures/constant buffers
-			if (d3d12ResourceSet->HasConstantBufferTextureHeap())
-			{
-				m_CommandList->SetComputeRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
+				m_CommandList->SetComputeRootDescriptorTable(heapIndex++, descriptorTable);
 			}
 		}
 		else

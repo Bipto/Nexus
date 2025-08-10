@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 		  m_Description(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources, device, m_RootSignatureBlob, m_RootSignature);
+		D3D12::CreateRootSignature(resources, device, m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);
 		m_InputLayout = D3D12::CreateInputLayout(description.Layouts);
 		CreatePipeline(device);
 		m_PrimitiveTopology = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
@@ -50,6 +50,11 @@ namespace Nexus::Graphics
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
 		commandList->SetGraphicsRootSignature(m_RootSignature.Get());
 		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+	}
+
+	const D3D12::DescriptorHandleInfo &GraphicsPipelineD3D12::GetDescriptorHandleInfo()
+	{
+		return m_DescriptorHandleInfo;
 	}
 
 	void GraphicsPipelineD3D12::CreatePipeline(ID3D12Device9 *device)
@@ -166,7 +171,7 @@ namespace Nexus::Graphics
 	ComputePipelineD3D12::ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description) : ComputePipeline(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources, device, m_RootSignatureBlob, m_RootSignature);
+		D3D12::CreateRootSignature(resources, device, m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);
 		CreatePipeline(device);
 	}
 
@@ -178,6 +183,11 @@ namespace Nexus::Graphics
 	{
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
 		commandList->SetComputeRootSignature(m_RootSignature.Get());
+	}
+
+	const D3D12::DescriptorHandleInfo &ComputePipelineD3D12::GetDescriptorHandleInfo()
+	{
+		return m_DescriptorHandleInfo;
 	}
 
 	void ComputePipelineD3D12::CreatePipeline(ID3D12Device9 *device)
