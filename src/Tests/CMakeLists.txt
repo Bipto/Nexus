@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 project("Tests")
 
-enable_testing()
-
 add_subdirectory(external/googletest)
 add_executable(Tests src/main.cpp)
 

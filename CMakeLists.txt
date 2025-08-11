@@ -21,6 +21,7 @@ if (DEFINED NX_BUILD_UI_TESTS)
 endif()
 
 if (DEFINED NX_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(src/Tests)
   endif()
 
