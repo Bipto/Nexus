@@ -491,6 +491,45 @@ namespace Nexus::D3D12
 		return uav;
 	}
 
+	void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress)
+	{
+		switch (access)
+		{
+			case Graphics::StorageResourceAccess::Read:
+			case Graphics::StorageResourceAccess::ReadStructured:
+			{
+				readonly	= true;
+				byteAddress = false;
+				return;
+			}
+			case Graphics::StorageResourceAccess::ReadByteAddress:
+			{
+				readonly	= true;
+				byteAddress = true;
+				return;
+			}
+			case Graphics::StorageResourceAccess::Write:
+			case Graphics::StorageResourceAccess::ReadWrite:
+			case Graphics::StorageResourceAccess::ReadWriteStructured:
+			case Graphics::StorageResourceAccess::AppendStructured:
+			case Graphics::StorageResourceAccess::ConsumeStructured:
+			case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter:
+			{
+				readonly	= false;
+				byteAddress = false;
+				return;
+			}
+			case Graphics::StorageResourceAccess::ReadWriteByteAddress:
+			{
+				readonly	= false;
+				byteAddress = true;
+				return;
+			}
+
+			default: throw std::runtime_error("Failed to find a valid access modifier");
+		}
+	}
+
 	D3D12_SHADER_VISIBILITY GetShaderVisibility(const Graphics::ShaderStageFlags &flags)
 	{
 		// if we don't specify any shader stages or we supply multiple, then we have to make it visible to all shader stages
@@ -619,6 +658,8 @@ namespace Nexus::D3D12
 				range.NumDescriptors									= resourceInfo.ResourceCount;
 				range.OffsetInDescriptorsFromTableStart					= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				range.RegisterSpace										= resourceInfo.RegisterSpace;
+
+				// retrieve and then increment offset
 				descriptorHandleInfo.SamplerIndexes[resourceInfo.Name]	= samplerIndex;
 				samplerIndex += resourceInfo.ResourceCount;
 				descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
@@ -631,9 +672,17 @@ namespace Nexus::D3D12
 				range.NumDescriptors									   = resourceInfo.ResourceCount;
 				range.OffsetInDescriptorsFromTableStart					   = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				range.RegisterSpace										   = resourceInfo.RegisterSpace;
+
+				// retrieve and then increment offset
 				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name]  = nonSamplerIndex;
 				nonSamplerIndex += resourceInfo.ResourceCount;
 				descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
+
+				// if the resource is a storage buffer, we need to record how to bind it correctly in D3D12, e.g. StructuredBuffer/ByteAddressBuffer
+				if (resourceInfo.Type == Graphics::ResourceType::StorageBuffer)
+				{
+					descriptorHandleInfo.StorageBuffers[name] = resourceInfo.Access;
+				}
 			}
 		}
 

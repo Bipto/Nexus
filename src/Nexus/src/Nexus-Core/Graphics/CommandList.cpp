@@ -464,6 +464,10 @@ namespace Nexus::Graphics
 		m_Commands.push_back(description);
 	}
 
+	void CommandList::WritePushConstants(const PushConstantsDesc &pushConstantDesc)
+	{
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

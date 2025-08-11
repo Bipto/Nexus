@@ -33,9 +33,9 @@ namespace Nexus::Graphics
 		std::map<std::string, D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerDescriptorHandles	   = {};
 		std::map<std::string, D3D12_CPU_DESCRIPTOR_HANDLE> m_SRV_UAV_CBV_DescriptorHandles = {};
 
-		std::map<std::string, std::string> m_CombinedImageSamplerMap = {};
+		D3D12::DescriptorHandleInfo				 m_DescriptorHandleInfo = {};
+		std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_DescriptorTables		= {};
 
-		std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_DescriptorTables = {};
 		GraphicsDeviceD3D12 *m_Device = nullptr;
 	};
 }	 // namespace Nexus::Graphics

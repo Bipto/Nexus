@@ -28,12 +28,13 @@ namespace Nexus::D3D12
 
 	struct DescriptorHandleInfo
 	{
-		std::map<std::string, uint32_t> SamplerIndexes	  = {};
-		std::map<std::string, uint32_t> NonSamplerIndexes = {};
-		std::vector<DescriptorTableInfo> DescriptorTables	   = {};
-		uint32_t						 SamplerHeapCount	   = 0;
-		uint32_t						 SRV_UAV_CBV_HeapCount = 0;
-		std::map<std::string, std::string> CombinedImageSamplerMap = {};
+		std::map<std::string, uint32_t>						   SamplerIndexes		   = {};
+		std::map<std::string, uint32_t>						   NonSamplerIndexes	   = {};
+		std::vector<DescriptorTableInfo>					   DescriptorTables		   = {};
+		uint32_t											   SamplerHeapCount		   = 0;
+		uint32_t											   SRV_UAV_CBV_HeapCount   = 0;
+		std::map<std::string, std::string>					   CombinedImageSamplerMap = {};
+		std::map<std::string, Graphics::StorageResourceAccess> StorageBuffers		   = {};
 	};
 
 	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
@@ -58,12 +59,14 @@ namespace Nexus::D3D12
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE
 	GetPipelineTopology(Nexus::Graphics::Topology topology);
 
-	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc);
+	D3D12_HEAP_TYPE			 GetHeapType(const Graphics::DeviceBufferDescription &desc);
 	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
 	D3D12_RESOURCE_FLAGS	 GetResourceFlags(Graphics::PixelFormat format, uint8_t textureUsage);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC	 CreateTextureSrvView(const Graphics::TextureDescription &spec);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
+
+	void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress);
 
 	// pipeline
 	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,

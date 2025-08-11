@@ -345,6 +345,14 @@ namespace Nexus::Graphics
 		BarrierAccess				AfterAccess	 = BarrierAccess::All;
 	};
 
+	struct PushConstantsDesc
+	{
+		std::string Name   = {};
+		const void *Data   = nullptr;
+		size_t		Offset = 0;
+		size_t		Size   = 0;
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -483,6 +491,8 @@ namespace Nexus::Graphics
 		void CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description);
 
 		void CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description);
+
+		void WritePushConstants(const PushConstantsDesc &pushConstantDesc);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();

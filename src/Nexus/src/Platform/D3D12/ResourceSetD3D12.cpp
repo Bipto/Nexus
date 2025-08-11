@@ -13,22 +13,21 @@ namespace Nexus::Graphics
 	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : ResourceSet(pipeline), m_Device(device)
 	{
 		Ref<PipelineD3D12>						  pipelineD3D12		   = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
-		const Nexus::D3D12::DescriptorHandleInfo &descriptorHandleInfo = pipelineD3D12->GetDescriptorHandleInfo();
-		Microsoft::WRL::ComPtr<ID3D12Device9>	  d3dDevice			   = m_Device->GetDevice();
-		m_CombinedImageSamplerMap									   = descriptorHandleInfo.CombinedImageSamplerMap;
+		m_DescriptorHandleInfo										   = pipelineD3D12->GetDescriptorHandleInfo();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice				   = m_Device->GetDevice();
 
 		// create sampler heap
-		if (descriptorHandleInfo.SamplerHeapCount > 0)
+		if (m_DescriptorHandleInfo.SamplerHeapCount > 0)
 		{
 			D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
-			samplerHeapDesc.NumDescriptors			   = descriptorHandleInfo.SamplerHeapCount;
+			samplerHeapDesc.NumDescriptors			   = m_DescriptorHandleInfo.SamplerHeapCount;
 			samplerHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 			samplerHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 			samplerHeapDesc.NodeMask				   = 0;
 
 			d3dDevice->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&m_SamplerDescriptorHeap));
 
-			for (const auto &[name, offset] : descriptorHandleInfo.SamplerIndexes)
+			for (const auto &[name, offset] : m_DescriptorHandleInfo.SamplerIndexes)
 			{
 				D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle = m_SamplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 				descriptorHandle.ptr += d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) * offset;
@@ -37,17 +36,17 @@ namespace Nexus::Graphics
 		}
 
 		// create SRV UAV CBV heap
-		if (descriptorHandleInfo.SRV_UAV_CBV_HeapCount > 0)
+		if (m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount > 0)
 		{
 			D3D12_DESCRIPTOR_HEAP_DESC srvUavCbvHeapDesc = {};
-			srvUavCbvHeapDesc.NumDescriptors			 = descriptorHandleInfo.SRV_UAV_CBV_HeapCount;
+			srvUavCbvHeapDesc.NumDescriptors			 = m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount;
 			srvUavCbvHeapDesc.Type						 = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 			srvUavCbvHeapDesc.Flags						 = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 			srvUavCbvHeapDesc.NodeMask					 = 0;
 
 			d3dDevice->CreateDescriptorHeap(&srvUavCbvHeapDesc, IID_PPV_ARGS(&m_SRV_UAV_CBV_DescriptorHeap));
 
-			for (const auto &[name, offset] : descriptorHandleInfo.NonSamplerIndexes)
+			for (const auto &[name, offset] : m_DescriptorHandleInfo.NonSamplerIndexes)
 			{
 				D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle = m_SRV_UAV_CBV_DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 				descriptorHandle.ptr += d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;
@@ -56,7 +55,7 @@ namespace Nexus::Graphics
 		}
 
 		// create descriptor table handles
-		for (const D3D12::DescriptorTableInfo &descriptorTableInfo : descriptorHandleInfo.DescriptorTables)
+		for (const D3D12::DescriptorTableInfo &descriptorTableInfo : m_DescriptorHandleInfo.DescriptorTables)
 		{
 			switch (descriptorTableInfo.Source)
 			{
@@ -99,36 +98,70 @@ namespace Nexus::Graphics
 		{
 			NX_ASSERT(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
-			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-			uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+			StorageResourceAccess access = m_DescriptorHandleInfo.StorageBuffers.at(name);
+			bool				  readonly;
+			bool				  byteAddress;
+			D3D12::GetShaderAccessModifiers(access, readonly, byteAddress);
 
-			// storage buffers are accessed in 4 byte chunks
-			uavDesc.Format							 = DXGI_FORMAT_R32_TYPELESS;
-
-			size_t bufferOffset = storageBuffer.Offset;
-			if (bufferOffset > 0)
+			// use SRV for readonly optimizations
+			if (readonly)
 			{
-				bufferOffset = Utils::AlignTo<size_t>(bufferOffset, 4);
+				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+				srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_BUFFER;
+
+				if (byteAddress)
+				{
+					srvDesc.Format					   = DXGI_FORMAT_R32_TYPELESS;
+					srvDesc.Buffer.FirstElement		   = Utils::AlignTo<size_t>(storageBuffer.Offset, 4);
+					srvDesc.Buffer.NumElements		   = storageBuffer.SizeInBytes / 4;
+					srvDesc.Buffer.StructureByteStride = 0;
+					srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_RAW;
+				}
+				else
+				{
+					size_t stride					   = storageBuffer.BufferHandle->GetStrideInBytes();
+					srvDesc.Format					   = DXGI_FORMAT_UNKNOWN;
+					srvDesc.Buffer.FirstElement		   = (storageBuffer.Offset / stride);
+					srvDesc.Buffer.NumElements		   = (storageBuffer.SizeInBytes / stride);
+					srvDesc.Buffer.StructureByteStride = stride;
+					srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_NONE;
+				}
+
+				auto						resourceHandle = d3d12StorageBuffer->GetHandle();
+				D3D12_CPU_DESCRIPTOR_HANDLE srvHandle	   = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+				d3d12Device->CreateShaderResourceView(resourceHandle.Get(), &srvDesc, srvHandle);
 			}
-			uavDesc.Buffer.FirstElement = bufferOffset;
-
-			size_t bufferSize = storageBuffer.SizeInBytes;
-
-			// convert into multiples of 4
-			if (bufferSize > 0)
+			// create UAV to allow read/write
+			else
 			{
-				bufferSize /= 4;
+				D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+				uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+
+				if (byteAddress)
+				{
+					// storage buffers are accessed in 4 byte chunks
+					uavDesc.Format						= DXGI_FORMAT_R32_TYPELESS;
+					uavDesc.Buffer.FirstElement			= Utils::AlignTo<size_t>(storageBuffer.Offset, 4);
+					uavDesc.Buffer.NumElements			= storageBuffer.SizeInBytes / 4;
+					uavDesc.Buffer.StructureByteStride	= 0;
+					uavDesc.Buffer.CounterOffsetInBytes = 0;
+					uavDesc.Buffer.Flags				= D3D12_BUFFER_UAV_FLAG_RAW;
+				}
+				else
+				{
+					size_t stride						= storageBuffer.BufferHandle->GetStrideInBytes();
+					uavDesc.Format						= DXGI_FORMAT_UNKNOWN;
+					uavDesc.Buffer.FirstElement			= (storageBuffer.Offset / stride);
+					uavDesc.Buffer.CounterOffsetInBytes = 0;
+					uavDesc.Buffer.NumElements			= (storageBuffer.SizeInBytes / stride);
+					uavDesc.Buffer.StructureByteStride	= stride;
+					uavDesc.Buffer.Flags				= D3D12_BUFFER_UAV_FLAG_NONE;
+				}
+
+				auto						resourceHandle = d3d12StorageBuffer->GetHandle();
+				D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+				d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 			}
-			uavDesc.Buffer.NumElements = bufferSize;
-
-			// access as a raw buffer (no stride as it is assumed that the buffer is some multiple of 4 bytes)
-			uavDesc.Buffer.StructureByteStride		 = 0;
-			uavDesc.Buffer.CounterOffsetInBytes		 = 0;
-			uavDesc.Buffer.Flags					 = D3D12_BUFFER_UAV_FLAG_RAW;
-
-			auto						resourceHandle = d3d12StorageBuffer->GetHandle();
-			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_SRV_UAV_CBV_DescriptorHandles.at(name);
-			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 
 			m_BoundStorageBuffers[name] = storageBuffer;
 		}
@@ -171,7 +204,7 @@ namespace Nexus::Graphics
 		// write sampler
 		{
 			// find the relevant sampler for the given texture
-			std::string samplerName = m_CombinedImageSamplerMap.at(name);
+			std::string samplerName = m_DescriptorHandleInfo.CombinedImageSamplerMap.at(name);
 
 			auto			   d3d12Device	= m_Device->GetDevice();
 			Ref<SamplerD3D12>  d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
