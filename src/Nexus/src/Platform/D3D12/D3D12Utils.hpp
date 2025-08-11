@@ -33,6 +33,7 @@ namespace Nexus::D3D12
 		std::vector<DescriptorTableInfo> DescriptorTables	   = {};
 		uint32_t						 SamplerHeapCount	   = 0;
 		uint32_t						 SRV_UAV_CBV_HeapCount = 0;
+		std::map<std::string, std::string> CombinedImageSamplerMap = {};
 	};
 
 	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);

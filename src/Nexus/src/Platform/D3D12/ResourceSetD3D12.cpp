@@ -15,6 +15,7 @@ namespace Nexus::Graphics
 		Ref<PipelineD3D12>						  pipelineD3D12		   = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
 		const Nexus::D3D12::DescriptorHandleInfo &descriptorHandleInfo = pipelineD3D12->GetDescriptorHandleInfo();
 		Microsoft::WRL::ComPtr<ID3D12Device9>	  d3dDevice			   = m_Device->GetDevice();
+		m_CombinedImageSamplerMap									   = descriptorHandleInfo.CombinedImageSamplerMap;
 
 		// create sampler heap
 		if (descriptorHandleInfo.SamplerHeapCount > 0)
@@ -112,9 +113,11 @@ namespace Nexus::Graphics
 			uavDesc.Buffer.FirstElement = bufferOffset;
 
 			size_t bufferSize = storageBuffer.SizeInBytes;
+
+			// convert into multiples of 4
 			if (bufferSize > 0)
 			{
-				bufferSize = Utils::AlignTo<size_t>(bufferSize, 4);
+				bufferSize /= 4;
 			}
 			uavDesc.Buffer.NumElements = bufferSize;
 
@@ -167,8 +170,8 @@ namespace Nexus::Graphics
 
 		// write sampler
 		{
-			// TODO: This is hacky and needs replacing
-			std::string samplerName = "_" + name + "_sampler";
+			// find the relevant sampler for the given texture
+			std::string samplerName = m_CombinedImageSamplerMap.at(name);
 
 			auto			   d3d12Device	= m_Device->GetDevice();
 			Ref<SamplerD3D12>  d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);

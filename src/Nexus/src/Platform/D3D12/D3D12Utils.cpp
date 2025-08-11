@@ -590,6 +590,7 @@ namespace Nexus::D3D12
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
 							 DescriptorHandleInfo								   &descriptorHandleInfo)
 	{
+		// a util struct to temporarily store the different types of ranges prior to creating the root signature
 		struct DescriptorRangeInfo
 		{
 			std::vector<D3D12_DESCRIPTOR_RANGE> SamplerRanges = {};
@@ -633,6 +634,27 @@ namespace Nexus::D3D12
 				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name]  = nonSamplerIndex;
 				nonSamplerIndex += resourceInfo.ResourceCount;
 				descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
+			}
+		}
+
+		// loop through all resources to find textures
+		for (const auto &[textureName, textureInfo] : resources)
+		{
+			// if the resource is a texture, loop through to find any samplers
+			if (textureInfo.Type == Graphics::ResourceType::Texture)
+			{
+				for (const auto &[samplerName, samplerInfo] : resources)
+				{
+					// if the resource is a sampler, then we need to compare it against the texture to check if it forms a combined image sampler
+					if (samplerInfo.Type == Graphics::ResourceType::Sampler)
+					{
+						// we have found a combined image sampler
+						if (textureInfo.Binding == samplerInfo.Binding && textureInfo.ResourceCount == samplerInfo.ResourceCount)
+						{
+							descriptorHandleInfo.CombinedImageSamplerMap[textureName] = samplerName;
+						}
+					}
+				}
 			}
 		}
 
