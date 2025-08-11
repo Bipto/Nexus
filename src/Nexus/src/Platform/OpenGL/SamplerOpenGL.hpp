@@ -12,9 +12,9 @@ namespace Nexus::Graphics
 	class SamplerOpenGL : public Sampler
 	{
 	  public:
-		SamplerOpenGL(const SamplerSpecification &spec, GraphicsDeviceOpenGL *device);
+		SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device);
 		virtual ~SamplerOpenGL();
-		virtual const SamplerSpecification &GetSamplerSpecification() override;
+		virtual const SamplerDescription   &GetSamplerSpecification() override;
 		unsigned int						GetHandle() const;
 
 		void Bind(uint32_t slot, bool hasMips);
@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device = nullptr;
-		SamplerSpecification m_Specification;
+		SamplerDescription	  m_Description;
 		unsigned int		 m_Handle = 0;
 	};
 }	 // namespace Nexus::Graphics

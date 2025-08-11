@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class TextureOpenGL : public Texture
 	{
 	  public:
-		TextureOpenGL(const TextureSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice);
+		TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~TextureOpenGL();
 
 		void	 Bind(uint32_t slot);

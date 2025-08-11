@@ -3,6 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "D3D12Include.hpp"
+	#include "D3D12Utils.hpp"
 	#include "Nexus-Core/Graphics/Pipeline.hpp"
 
 namespace Nexus::Graphics
@@ -14,7 +15,8 @@ namespace Nexus::Graphics
 		virtual ~PipelineD3D12()
 		{
 		}
-		virtual void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) = 0;
+		virtual void							   Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) = 0;
+		virtual const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo()											= 0;
 	};
 
 	class GraphicsPipelineD3D12 : public GraphicsPipeline, public PipelineD3D12
@@ -22,22 +24,15 @@ namespace Nexus::Graphics
 	  public:
 		GraphicsPipelineD3D12(ID3D12Device9 *device, const GraphicsPipelineDescription &description);
 		virtual ~GraphicsPipelineD3D12();
-		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
+		virtual const GraphicsPipelineDescription  &GetPipelineDescription() const override;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature();
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPipelineState();
-		D3D_PRIMITIVE_TOPOLOGY					   GetD3DPrimitiveTopology();
+		D3D_PRIMITIVE_TOPOLOGY						GetD3DPrimitiveTopology();
 
-		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
+		void							   Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
+		const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() final;
 
 	  private:
-		void CreateInputLayout();
-		void CreatePrimitiveTopology();
-
-		D3D12_RASTERIZER_DESC	 CreateRasterizerState();
-		D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc();
-		D3D12_BLEND_DESC		 CreateBlendStateDesc();
-		D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc();
-
 		void CreatePipeline(ID3D12Device9 *device);
 
 	  private:
@@ -45,6 +40,7 @@ namespace Nexus::Graphics
 
 		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
+		D3D12::DescriptorHandleInfo					m_DescriptorHandleInfo = {};
 
 		std::vector<D3D12_INPUT_ELEMENT_DESC>		m_InputLayout;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
@@ -57,6 +53,7 @@ namespace Nexus::Graphics
 		ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description);
 		virtual ~ComputePipelineD3D12();
 		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
+		const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() final;
 
 	  private:
 		void CreatePipeline(ID3D12Device9 *device);
@@ -64,7 +61,8 @@ namespace Nexus::Graphics
 	  private:
 		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
-		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject  = nullptr;
+		D3D12::DescriptorHandleInfo					m_DescriptorHandleInfo = {};
 	};
 }	 // namespace Nexus::Graphics
 

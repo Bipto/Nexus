@@ -49,6 +49,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
+			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 			m_CommandList->SetPipeline(m_Pipeline);
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 
@@ -80,7 +81,7 @@ namespace Demos
 			indexBufferView.BufferHandle					 = m_IndexBuffer;
 			indexBufferView.Offset							 = 0;
 			indexBufferView.Size							 = m_IndexBuffer->GetSizeInBytes();
-			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			Nexus::Graphics::DrawIndexedDescription drawDesc = {};
@@ -111,7 +112,7 @@ namespace Demos
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 

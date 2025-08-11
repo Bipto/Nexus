@@ -48,6 +48,12 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device) override;
+		virtual void ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device) override;
 
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
@@ -68,8 +74,6 @@ namespace Nexus::Graphics
 		RenderTarget m_CurrentRenderTarget;
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
-
-		std::map<uint32_t, size_t> m_VertexBufferStrides;
 
 		std::vector<RenderCommandData> m_Commands;
 		size_t						   m_CurrentCommandIndex = 0;

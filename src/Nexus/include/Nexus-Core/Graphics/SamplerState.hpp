@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 		MinLinear_MagLinear_MipLinear
 	};
 
-	struct SamplerSpecification
+	struct SamplerDescription
 	{
 		SamplerAddressMode AddressModeU				 = SamplerAddressMode::Wrap;
 		SamplerAddressMode AddressModeV				 = SamplerAddressMode::Wrap;
@@ -68,5 +68,6 @@ namespace Nexus::Graphics
 		uint32_t		   MaximumLOD				 = UINT32_MAX;
 		int32_t			   LODBias					 = 1;
 		BorderColor		   TextureBorderColor		 = BorderColor::OpaqueBlack;
+		std::string		   DebugName				 = "Sampler";
 	};
 }	 // namespace Nexus::Graphics

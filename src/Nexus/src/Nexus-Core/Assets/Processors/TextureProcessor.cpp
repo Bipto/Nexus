@@ -11,11 +11,11 @@ namespace Nexus::Processors
 		std::vector<Graphics::Image> mips = {};
 		Ref<Graphics::Texture>		 texture = device->CreateTexture2D(filepath.c_str(), m_GenerateMips, m_Srgb);
 
-		for (uint32_t arrayLayer = 0; arrayLayer < texture->GetSpecification().ArrayLayers; arrayLayer++)
+		for (uint32_t arrayLayer = 0; arrayLayer < texture->GetDescription().DepthOrArrayLayers; arrayLayer++)
 		{
-			for (uint32_t level = 0; level < texture->GetSpecification().MipLevels; level++)
+			for (uint32_t level = 0; level < texture->GetDescription().MipLevels; level++)
 			{
-				Point2D<uint32_t> size = Utils::GetMipSize(texture->GetSpecification().Width, texture->GetSpecification().Height, arrayLayer);
+				Point2D<uint32_t> size = Utils::GetMipSize(texture->GetDescription().Width, texture->GetDescription().Height, arrayLayer);
 				Graphics::Image	  mip  = Graphics::Image::FromTexture(device, texture, arrayLayer, level, 0, 0, 0, size.X, size.Y);
 
 				if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
@@ -33,7 +33,7 @@ namespace Nexus::Processors
 		std::ofstream file(outputFilePath, std::ios::binary);
 
 		file << "Texture2D ";
-		file << (uint32_t)texture->GetSpecification().Format << " ";
+		file << (uint32_t)texture->GetDescription().Format << " ";
 		file << mips.size() << " ";
 
 		for (size_t level = 0; level < mips.size(); level++)

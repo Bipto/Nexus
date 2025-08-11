@@ -41,7 +41,7 @@ namespace Demos
 
 			m_Camera.SetPosition(glm::vec3(0, 0, 0));
 
-			Nexus::Graphics::SamplerSpecification samplerSpec {};
+			Nexus::Graphics::SamplerDescription samplerSpec {};
 			samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
 			samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
 			samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -106,7 +106,7 @@ namespace Demos
 			indexBufferView.BufferHandle					 = m_Cube->GetIndexBuffer();
 			indexBufferView.Offset							 = 0;
 			indexBufferView.Size							 = m_Cube->GetIndexBuffer()->GetSizeInBytes();
-			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			auto indexCount = m_Cube->GetIndexBuffer()->GetCount();
@@ -145,13 +145,9 @@ namespace Demos
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"skybox", 1, 0}};
-
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 

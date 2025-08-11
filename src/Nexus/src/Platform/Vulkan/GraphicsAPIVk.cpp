@@ -87,10 +87,12 @@ namespace Nexus::Graphics
 	{
 		std::vector<const char *> extensionNames = PlatformVk::GetRequiredExtensions();
 
+		// required for putting markers in command buffers
+		extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
 		if (debug)
 		{
 			extensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-			extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 			extensionNames.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 		}
 

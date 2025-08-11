@@ -44,8 +44,6 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount = 1;
 		pipelineDescription.DepthFormat		  = PixelFormat::D24_UNorm_S8_UInt;
 
-		pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
-
 		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
 		m_Pipeline					= m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
@@ -55,22 +53,22 @@ namespace Nexus::Graphics
 	{
 		std::vector<char> pixels = {};
 
-		const uint32_t textureWidth	 = texture->GetSpecification().Width;
-		const uint32_t textureHeight = texture->GetSpecification().Height;
+		const uint32_t textureWidth	 = texture->GetDescription().Width;
+		const uint32_t textureHeight = texture->GetDescription().Height;
 
 		auto [mipWidth, mipHeight] = Utils::GetMipSize(textureWidth, textureHeight, levelToGenerate);
 
 		// generate mip
 		{
 			Nexus::Graphics::FramebufferSpecification framebufferSpec;
-			framebufferSpec.ColorAttachmentSpecification = {texture->GetSpecification().Format};
+			framebufferSpec.ColourAttachmentSpecification = {texture->GetDescription().Format};
 			framebufferSpec.Width						 = mipWidth;
 			framebufferSpec.Height						 = mipHeight;
-			framebufferSpec.Samples						 = texture->GetSpecification().Samples;
+			framebufferSpec.Samples						  = texture->GetDescription().Samples;
 
 			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 
-			Nexus::Graphics::SamplerSpecification samplerSpec;
+			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
 			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
@@ -111,7 +109,7 @@ namespace Nexus::Graphics
 			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
-			indexBufferView.BufferFormat	  = IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat	  = IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			m_CommandList->SetResourceSet(m_ResourceSet);

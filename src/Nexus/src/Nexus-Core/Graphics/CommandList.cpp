@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-	CommandList::CommandList(const CommandListSpecification &spec) : m_Specification(spec)
+	CommandList::CommandList(const CommandListDescription &spec) : m_Description(spec)
 	{
 	}
 
@@ -15,7 +15,8 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.clear();
-		m_Started = true;
+		m_Started	  = true;
+		m_DebugGroups = 0;
 	}
 
 	void CommandList::End()
@@ -25,6 +26,13 @@ namespace Nexus::Graphics
 			NX_ERROR("Attempting to end a CommandList but the CommandList was not begun");
 		}
 
+		// clean up any unclosed debug groups
+		for (uint32_t i = 0; i < m_DebugGroups; i++) { EndDebugGroup(); }
+
+		// reset the debug group counter
+		m_DebugGroups = 0;
+
+		// end recording into the CommandList
 		m_Started = false;
 	}
 
@@ -387,6 +395,8 @@ namespace Nexus::Graphics
 		BeginDebugGroupCommand command;
 		command.GroupName = name;
 		m_Commands.push_back(command);
+
+		m_DebugGroups++;
 	}
 
 	void CommandList::EndDebugGroup()
@@ -400,6 +410,8 @@ namespace Nexus::Graphics
 
 		EndDebugGroupCommand command;
 		m_Commands.push_back(command);
+
+		m_DebugGroups--;
 	}
 
 	void CommandList::InsertDebugMarker(const std::string &name)
@@ -416,13 +428,58 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
+	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
+	{
+		SetBlendFactorCommand command;
+		command.BlendFactorDesc = blendFactor;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::SetStencilReference(uint32_t stencilReference)
+	{
+		SetStencilReferenceCommand command;
+		command.StencilReference = stencilReference;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
+	{
+		BuildAccelerationStructuresCommand command;
+		command.BuildDescriptions = description;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
+	{
+		m_Commands.push_back(description);
+	}
+
+	void CommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
+	{
+		m_Commands.push_back(description);
+	}
+
+	void CommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
+	{
+		m_Commands.push_back(description);
+	}
+
+	void CommandList::WritePushConstants(const PushConstantsDesc &pushConstantDesc)
+	{
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;
 	}
 
-	const CommandListSpecification &CommandList::GetSpecification()
+	const CommandListDescription &CommandList::GetDescription()
 	{
-		return m_Specification;
+		return m_Description;
+	}
+
+	bool CommandList::IsRecording() const
+	{
+		return m_Started;
 	}
 }	 // namespace Nexus::Graphics

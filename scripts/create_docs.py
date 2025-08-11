@@ -21,21 +21,28 @@ def generate_pdf():
 
     # Create the root element
     root = ET.Element("{http://docbook.org/ns/docbook}doxygen")
+    
+    added_titles = set()
 
     # Loop through all XML files in the directory
+    added_functions = set()
+
     for filename in os.listdir(xml_dir):
-        print(filename)
         if filename.endswith(".xml") and filename != "index.xml":
             filepath = os.path.join(xml_dir, filename)
             try:
                 tree = ET.parse(filepath)
                 file_root = tree.getroot()
-
-                # Append <section> elements (with namespace)
-                if file_root.tag == f"{{{ns['db']}}}section":
-                    root.append(file_root)
+                
+                title_elem = file_root.find(f".//{{{ns['db']}}}title")
+                if title_elem is not None:
+                    title_text = title_elem.text.strip()
+                    if title_text not in added_functions:
+                        added_functions.add(title_text)
+                        root.append(file_root)
             except ET.ParseError as e:
                 print(f"Skipping {filename}: {e}")
+
 
     # Write the combined XML to a file
     tree = ET.ElementTree(root)
@@ -51,6 +58,7 @@ def generate_pdf():
         "-t", output_format,
         "--toc",
         "--citeproc",
+        "--pdf-engine=xelatex",
         "-o", "output." + output_format
     ]
 

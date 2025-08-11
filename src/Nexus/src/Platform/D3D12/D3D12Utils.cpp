@@ -6,7 +6,7 @@
 
 namespace Nexus::D3D12
 {
-	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format, bool isDepth)
+	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format)
 	{
 		switch (format)
 		{
@@ -15,7 +15,7 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R8_UInt: return DXGI_FORMAT_R8_UINT;
 			case Nexus::Graphics::PixelFormat::R8_SInt: return DXGI_FORMAT_R8_SINT;
 
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return isDepth ? DXGI_FORMAT_R16_TYPELESS : DXGI_FORMAT_R16_UNORM;
+			case Nexus::Graphics::PixelFormat::R16_UNorm: return DXGI_FORMAT_R16_UNORM;
 			case Nexus::Graphics::PixelFormat::R16_SNorm: return DXGI_FORMAT_R16_SNORM;
 			case Nexus::Graphics::PixelFormat::R16_UInt: return DXGI_FORMAT_R16_UINT;
 			case Nexus::Graphics::PixelFormat::R16_SInt: return DXGI_FORMAT_R16_SINT;
@@ -23,7 +23,7 @@ namespace Nexus::D3D12
 
 			case Nexus::Graphics::PixelFormat::R32_UInt: return DXGI_FORMAT_R32_UINT;
 			case Nexus::Graphics::PixelFormat::R32_SInt: return DXGI_FORMAT_R32_SINT;
-			case Nexus::Graphics::PixelFormat::R32_Float: return isDepth ? DXGI_FORMAT_R32_TYPELESS : DXGI_FORMAT_R32_FLOAT;
+			case Nexus::Graphics::PixelFormat::R32_Float: return DXGI_FORMAT_R32_FLOAT;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_UNorm: return DXGI_FORMAT_R8G8_UNORM;
 			case Nexus::Graphics::PixelFormat::R8_G8_SNorm: return DXGI_FORMAT_R8G8_SNORM;
@@ -58,9 +58,6 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return DXGI_FORMAT_R32G32B32A32_SINT;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(isDepth); return DXGI_FORMAT_D24_UNORM_S8_UINT;
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(isDepth); return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return DXGI_FORMAT_R10G10B10A2_UNORM;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return DXGI_FORMAT_R10G10B10A2_UINT;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return DXGI_FORMAT_R11G11B10_FLOAT;
@@ -79,6 +76,11 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::BC5_SNorm: return DXGI_FORMAT_BC5_SNORM;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm: return DXGI_FORMAT_BC7_UNORM;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return DXGI_FORMAT_BC7_UNORM_SRGB;
+
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return DXGI_FORMAT_D16_UNORM;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return DXGI_FORMAT_D32_FLOAT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -143,14 +145,18 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::BlendFactor::Zero: return D3D12_BLEND_ZERO;
 			case Nexus::Graphics::BlendFactor::One: return D3D12_BLEND_ONE;
-			case Nexus::Graphics::BlendFactor::SourceColor: return D3D12_BLEND_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceColor: return D3D12_BLEND_INV_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::DestinationColor: return D3D12_BLEND_DEST_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationColor: return D3D12_BLEND_INV_DEST_COLOR;
+			case Nexus::Graphics::BlendFactor::SourceColour: return D3D12_BLEND_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusSourceColour: return D3D12_BLEND_INV_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::DestinationColour: return D3D12_BLEND_DEST_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusDestinationColour: return D3D12_BLEND_INV_DEST_COLOR;
 			case Nexus::Graphics::BlendFactor::SourceAlpha: return D3D12_BLEND_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha: return D3D12_BLEND_INV_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::DestinationAlpha: return D3D12_BLEND_DEST_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha: return D3D12_BLEND_INV_DEST_ALPHA;
+			case Nexus::Graphics::BlendFactor::FactorColour: return D3D12_BLEND_BLEND_FACTOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorColour: return D3D12_BLEND_INV_BLEND_FACTOR;
+			case Nexus::Graphics::BlendFactor::FactorAlpha: return D3D12_BLEND_ALPHA_FACTOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha: return D3D12_BLEND_INV_ALPHA_FACTOR;
 			default: throw std::runtime_error("Failed to find a valid blend function");
 		}
 	}
@@ -173,56 +179,60 @@ namespace Nexus::D3D12
 	{
 		switch (element.Type)
 		{
-			case Nexus::Graphics::ShaderDataType::Byte: return DXGI_FORMAT_R8_UINT;
-			case Nexus::Graphics::ShaderDataType::Byte2: return DXGI_FORMAT_R8G8_UINT;
-			case Nexus::Graphics::ShaderDataType::Byte4: return DXGI_FORMAT_R8G8B8A8_UINT;
+			case Nexus::Graphics::ShaderDataType::R8_UInt: return DXGI_FORMAT_R8_UINT;
+			case Nexus::Graphics::ShaderDataType::R8G8_UInt: return DXGI_FORMAT_R8G8_UINT;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_UInt: return DXGI_FORMAT_R8G8B8A8_UINT;
 
-			case Nexus::Graphics::ShaderDataType::NormByte: return DXGI_FORMAT_R8_UNORM;
-			case Nexus::Graphics::ShaderDataType::NormByte2: return DXGI_FORMAT_R8G8_UNORM;
-			case Nexus::Graphics::ShaderDataType::NormByte4: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case Nexus::Graphics::ShaderDataType::R8_UNorm: return DXGI_FORMAT_R8_UNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8_UNorm: return DXGI_FORMAT_R8G8_UNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm: return DXGI_FORMAT_R8G8B8A8_UNORM;
 
-			case Nexus::Graphics::ShaderDataType::Float: return DXGI_FORMAT_R32_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Float2: return DXGI_FORMAT_R32G32_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Float3: return DXGI_FORMAT_R32G32B32_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Float4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32_SFloat: return DXGI_FORMAT_R32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32G32_SFloat: return DXGI_FORMAT_R32G32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32_SFloat: return DXGI_FORMAT_R32G32B32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::ShaderDataType::Half: return DXGI_FORMAT_R16_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Half2: return DXGI_FORMAT_R16G16_FLOAT;
-			case Nexus::Graphics::ShaderDataType::Half4: return DXGI_FORMAT_R16G16B16A16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R16_SFloat: return DXGI_FORMAT_R16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R16G16_SFloat: return DXGI_FORMAT_R16G16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_SFloat: return DXGI_FORMAT_R16G16B16A16_FLOAT;
 
-			case Nexus::Graphics::ShaderDataType::Int: return DXGI_FORMAT_R32_SINT;
-			case Nexus::Graphics::ShaderDataType::Int2: return DXGI_FORMAT_R32G32_SINT;
-			case Nexus::Graphics::ShaderDataType::Int3: return DXGI_FORMAT_R32G32B32_SINT;
-			case Nexus::Graphics::ShaderDataType::Int4: return DXGI_FORMAT_R32G32B32A32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32_SInt: return DXGI_FORMAT_R32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32G32_SInt: return DXGI_FORMAT_R32G32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32_SInt: return DXGI_FORMAT_R32G32B32_SINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32A32_SInt: return DXGI_FORMAT_R32G32B32A32_SINT;
 
-			case Nexus::Graphics::ShaderDataType::SignedByte: return DXGI_FORMAT_R8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte2: return DXGI_FORMAT_R8G8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte4: return DXGI_FORMAT_R8G8B8A8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8_SInt: return DXGI_FORMAT_R8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8_SInt: return DXGI_FORMAT_R8G8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_SInt: return DXGI_FORMAT_R8G8B8A8_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::SignedByteNormalized: return DXGI_FORMAT_R8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte2Normalized: return DXGI_FORMAT_R8G8_SNORM;
-			case Nexus::Graphics::ShaderDataType::SignedByte4Normalized: return DXGI_FORMAT_R8G8B8A8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8_SNorm: return DXGI_FORMAT_R8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8_SNorm: return DXGI_FORMAT_R8G8_SNORM;
+			case Nexus::Graphics::ShaderDataType::R8G8B8A8_SNorm: return DXGI_FORMAT_R8G8B8A8_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::Short: return DXGI_FORMAT_R16_UINT;
-			case Nexus::Graphics::ShaderDataType::Short2: return DXGI_FORMAT_R16G16_UINT;
-			case Nexus::Graphics::ShaderDataType::Short4: return DXGI_FORMAT_R16G16B16A16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16_SInt: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16_SInt: return DXGI_FORMAT_R16G16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_SInt: return DXGI_FORMAT_R16G16B16A16_UINT;
 
-			case Nexus::Graphics::ShaderDataType::ShortNormalized: return DXGI_FORMAT_R16_SNORM;
-			case Nexus::Graphics::ShaderDataType::Short2Normalized: return DXGI_FORMAT_R16G16_SNORM;
-			case Nexus::Graphics::ShaderDataType::Short4Normalized: return DXGI_FORMAT_R16G16B16A16_SNORM;
+			case Nexus::Graphics::ShaderDataType::R16_SNorm: return DXGI_FORMAT_R16_SNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16_SNorm: return DXGI_FORMAT_R16G16_SNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_SNorm: return DXGI_FORMAT_R16G16B16A16_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::UInt: return DXGI_FORMAT_R32_UINT;
-			case Nexus::Graphics::ShaderDataType::UInt2: return DXGI_FORMAT_R32G32_UINT;
-			case Nexus::Graphics::ShaderDataType::UInt3: return DXGI_FORMAT_R32G32B32_UINT;
-			case Nexus::Graphics::ShaderDataType::UInt4: return DXGI_FORMAT_R32G32B32A32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32_UInt: return DXGI_FORMAT_R32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32G32_UInt: return DXGI_FORMAT_R32G32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32_UInt: return DXGI_FORMAT_R32G32B32_UINT;
+			case Nexus::Graphics::ShaderDataType::R32G32B32A32_UInt: return DXGI_FORMAT_R32G32B32A32_UINT;
 
-			case Nexus::Graphics::ShaderDataType::UShort: return DXGI_FORMAT_R16_UINT;
-			case Nexus::Graphics::ShaderDataType::UShort2: return DXGI_FORMAT_R16G16_UINT;
-			case Nexus::Graphics::ShaderDataType::UShort4: return DXGI_FORMAT_R16G16B16A16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16_UInt: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16_UInt: return DXGI_FORMAT_R16G16_UINT;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_UInt: return DXGI_FORMAT_R16G16B16A16_UINT;
 
-			case Nexus::Graphics::ShaderDataType::UShortNormalized: return DXGI_FORMAT_R16_UNORM;
-			case Nexus::Graphics::ShaderDataType::UShort2Normalized: return DXGI_FORMAT_R16G16_UNORM;
-			case Nexus::Graphics::ShaderDataType::UShort4Normalized: return DXGI_FORMAT_R16G16B16A16_UNORM;
+			case Nexus::Graphics::ShaderDataType::R16_UNorm: return DXGI_FORMAT_R16_UNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16_UNorm: return DXGI_FORMAT_R16G16_UNORM;
+			case Nexus::Graphics::ShaderDataType::R16G16B16A16_UNorm: return DXGI_FORMAT_R16G16B16A16_UNORM;
+
+			case Nexus::Graphics::ShaderDataType::A2B10G10R10_UInt: return DXGI_FORMAT_R10G10B10A2_UINT;
+			case Nexus::Graphics::ShaderDataType::A2B10G10R10_UNorm: return DXGI_FORMAT_R10G10B10A2_UNORM;
+
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
 	}
@@ -262,12 +272,12 @@ namespace Nexus::D3D12
 	}
 
 	DXGI_FORMAT
-	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexFormat format)
 	{
 		switch (format)
 		{
-			case Nexus::Graphics::IndexBufferFormat::UInt16: return DXGI_FORMAT_R16_UINT;
-			case Nexus::Graphics::IndexBufferFormat::UInt32: return DXGI_FORMAT_R32_UINT;
+			case Nexus::Graphics::IndexFormat::UInt16: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::IndexFormat::UInt32: return DXGI_FORMAT_R32_UINT;
 			default: throw std::runtime_error("Invalid index buffer format entered");
 		}
 	}
@@ -302,13 +312,14 @@ namespace Nexus::D3D12
 		switch (textureType)
 		{
 			case Nexus::Graphics::TextureType::Texture1D: return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
-			case Nexus::Graphics::TextureType::Texture2D: return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+			case Nexus::Graphics::TextureType::Texture2D:
+			case Nexus::Graphics::TextureType::TextureCube: return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 			case Nexus::Graphics::TextureType::Texture3D: return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 			default: throw std::runtime_error("Failed to find a valid resource dimension");
 		}
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags(uint8_t textureUsage)
+	D3D12_RESOURCE_FLAGS GetResourceFlags(Graphics::PixelFormat format, uint8_t textureUsage)
 	{
 		D3D12_RESOURCE_FLAGS flags = {};
 
@@ -317,7 +328,8 @@ namespace Nexus::D3D12
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
 
-		if (textureUsage & Graphics::TextureUsage_DepthStencil)
+		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(format);
+		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
@@ -330,7 +342,7 @@ namespace Nexus::D3D12
 		return flags;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec)
+	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureDescription &spec)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -338,13 +350,13 @@ namespace Nexus::D3D12
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
 					srvDesc.Texture1DArray.MipLevels	   = spec.MipLevels;
 					srvDesc.Texture1DArray.MostDetailedMip = 0;
-					srvDesc.Texture1DArray.FirstArraySlice = spec.Depth;
-					srvDesc.Texture1DArray.ArraySize	   = spec.ArrayLayers;
+					srvDesc.Texture1DArray.FirstArraySlice = 0;
+					srvDesc.Texture1DArray.ArraySize	   = spec.DepthOrArrayLayers;
 				}
 				else
 				{
@@ -356,54 +368,34 @@ namespace Nexus::D3D12
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.DepthOrArrayLayers > 1)
 				{
-					if (spec.ArrayLayers == 6)
+					if (spec.Samples > 1)
 					{
-						srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
-						srvDesc.TextureCube.MostDetailedMip = 0;
-						srvDesc.TextureCube.MipLevels		= spec.MipLevels;
+						srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+						srvDesc.Texture2DMSArray.FirstArraySlice = 0;
+						srvDesc.Texture2DMSArray.ArraySize		 = spec.DepthOrArrayLayers;
 					}
 					else
 					{
-						srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-						srvDesc.TextureCubeArray.First2DArrayFace = spec.Depth;
-						srvDesc.TextureCubeArray.NumCubes		  = spec.ArrayLayers / 6;
-						srvDesc.TextureCubeArray.MostDetailedMip  = 0;
-						srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
+						srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+						srvDesc.Texture2DArray.MostDetailedMip = 0;
+						srvDesc.Texture2DArray.FirstArraySlice = 0;
+						srvDesc.Texture2DArray.ArraySize	   = spec.DepthOrArrayLayers;
+						srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
 					}
 				}
 				else
 				{
-					if (spec.ArrayLayers > 1)
+					if (spec.Samples > 1)
 					{
-						if (spec.Samples > 1)
-						{
-							srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-							srvDesc.Texture2DMSArray.FirstArraySlice = spec.Depth;
-							srvDesc.Texture2DMSArray.ArraySize		 = spec.ArrayLayers;
-						}
-						else
-						{
-							srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-							srvDesc.Texture2DArray.MostDetailedMip = 0;
-							srvDesc.Texture2DArray.FirstArraySlice = spec.Depth;
-							srvDesc.Texture2DArray.ArraySize	   = spec.ArrayLayers;
-							srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
-						}
+						srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
 					}
 					else
 					{
-						if (spec.Samples > 1)
-						{
-							srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
-						}
-						else
-						{
-							srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE2D;
-							srvDesc.Texture2D.MostDetailedMip = 0;
-							srvDesc.Texture2D.MipLevels		  = spec.MipLevels;
-						}
+						srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE2D;
+						srvDesc.Texture2D.MostDetailedMip = 0;
+						srvDesc.Texture2D.MipLevels		  = spec.MipLevels;
 					}
 				}
 
@@ -414,7 +406,24 @@ namespace Nexus::D3D12
 				srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE3D;
 				srvDesc.Texture3D.MostDetailedMip = 0;
 				srvDesc.Texture3D.MipLevels		  = spec.MipLevels;
-
+				break;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers == 1)
+				{
+					srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
+					srvDesc.TextureCube.MostDetailedMip = 0;
+					srvDesc.TextureCube.MipLevels		= spec.MipLevels;
+				}
+				else
+				{
+					srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+					srvDesc.TextureCubeArray.First2DArrayFace = 0;
+					srvDesc.TextureCubeArray.NumCubes		  = spec.DepthOrArrayLayers;
+					srvDesc.TextureCubeArray.MostDetailedMip  = 0;
+					srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
+				}
 				break;
 			}
 			default: throw std::runtime_error("Failed to find a valid TextureType");
@@ -427,14 +436,14 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		Ref<Graphics::Texture>				  texture = view.TextureHandle;
-		const Graphics::TextureSpecification &spec	  = texture->GetSpecification();
-		uav.Format									  = D3D12::GetD3D12PixelFormat(spec.Format, false);
+		Ref<Graphics::Texture>				texture = view.TextureHandle;
+		const Graphics::TextureDescription &spec	= texture->GetDescription();
+		uav.Format									= D3D12::GetD3D12PixelFormat(spec.Format);
 
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					uav.ViewDimension	   = D3D12_UAV_DIMENSION_TEXTURE1D;
 					uav.Texture1D.MipSlice = view.MipLevel;
@@ -450,7 +459,7 @@ namespace Nexus::D3D12
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					uav.ViewDimension				   = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 					uav.Texture2DArray.FirstArraySlice = view.ArrayLayer;
@@ -480,6 +489,445 @@ namespace Nexus::D3D12
 		}
 
 		return uav;
+	}
+
+	void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress)
+	{
+		switch (access)
+		{
+			case Graphics::StorageResourceAccess::Read:
+			case Graphics::StorageResourceAccess::ReadStructured:
+			{
+				readonly	= true;
+				byteAddress = false;
+				return;
+			}
+			case Graphics::StorageResourceAccess::ReadByteAddress:
+			{
+				readonly	= true;
+				byteAddress = true;
+				return;
+			}
+			case Graphics::StorageResourceAccess::Write:
+			case Graphics::StorageResourceAccess::ReadWrite:
+			case Graphics::StorageResourceAccess::ReadWriteStructured:
+			case Graphics::StorageResourceAccess::AppendStructured:
+			case Graphics::StorageResourceAccess::ConsumeStructured:
+			case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter:
+			{
+				readonly	= false;
+				byteAddress = false;
+				return;
+			}
+			case Graphics::StorageResourceAccess::ReadWriteByteAddress:
+			{
+				readonly	= false;
+				byteAddress = true;
+				return;
+			}
+
+			default: throw std::runtime_error("Failed to find a valid access modifier");
+		}
+	}
+
+	D3D12_SHADER_VISIBILITY GetShaderVisibility(const Graphics::ShaderStageFlags &flags)
+	{
+		// if we don't specify any shader stages or we supply multiple, then we have to make it visible to all shader stages
+		if (flags.IsEmpty() || flags.GetCount() > 1)
+		{
+			return D3D12_SHADER_VISIBILITY_ALL;
+		}
+
+		// otherwise return the correct shader stage
+		if (flags.HasFlag(Graphics::ShaderStage::Vertex))
+		{
+			return D3D12_SHADER_VISIBILITY_VERTEX;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::TessellationControl))
+		{
+			return D3D12_SHADER_VISIBILITY_HULL;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::TessellationEvaluation))
+		{
+			return D3D12_SHADER_VISIBILITY_DOMAIN;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Geometry))
+		{
+			return D3D12_SHADER_VISIBILITY_GEOMETRY;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Fragment))
+		{
+			return D3D12_SHADER_VISIBILITY_PIXEL;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Task))
+		{
+			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+		}
+		else if (flags.HasFlag(Graphics::ShaderStage::Mesh))
+		{
+			return D3D12_SHADER_VISIBILITY_MESH;
+		}
+		else
+		{
+			return D3D12_SHADER_VISIBILITY_ALL;
+		}
+	}
+
+	D3D12_DESCRIPTOR_RANGE_TYPE GetDescriptorRangeType(const Graphics::ShaderResource &resource)
+	{
+		switch (resource.Type)
+		{
+			case Graphics::ResourceType::AccelerationStructure:
+			case Graphics::ResourceType::Texture:
+			{
+				return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			}
+			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ComparisonSampler:
+			{
+				return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			}
+			case Graphics::ResourceType::UniformBuffer:
+			{
+				return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			}
+			case Graphics::ResourceType::StorageImage:
+			case Graphics::ResourceType::StorageTextureBuffer:
+			case Graphics::ResourceType::CombinedImageSampler:
+			case Graphics::ResourceType::StorageBuffer:
+			case Graphics::ResourceType::UniformTextureBuffer:
+			{
+				switch (resource.Access)
+				{
+					case Graphics::StorageResourceAccess::Read:
+					case Graphics::StorageResourceAccess::ReadByteAddress:
+					case Graphics::StorageResourceAccess::ReadStructured:
+					{
+						return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+					}
+					case Graphics::StorageResourceAccess::Write:
+					case Graphics::StorageResourceAccess::ReadWrite:
+					case Graphics::StorageResourceAccess::ReadWriteStructured:
+					case Graphics::StorageResourceAccess::ReadWriteByteAddress:
+					case Graphics::StorageResourceAccess::AppendStructured:
+					case Graphics::StorageResourceAccess::ConsumeStructured:
+					case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter:
+					case Graphics::StorageResourceAccess::FeedbackTexture:
+					{
+						return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+					}
+					default: throw std::runtime_error("Failed to find a valid access type");
+				}
+			}
+			default: throw std::runtime_error("Failed to find a valid descriptor range type");
+		}
+	}
+
+	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
+							 ID3D12Device9										   *device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
+							 DescriptorHandleInfo								   &descriptorHandleInfo)
+	{
+		// a util struct to temporarily store the different types of ranges prior to creating the root signature
+		struct DescriptorRangeInfo
+		{
+			std::vector<D3D12_DESCRIPTOR_RANGE> SamplerRanges = {};
+			std::vector<D3D12_DESCRIPTOR_RANGE> OtherRanges	  = {};
+		};
+
+		// create storage for descriptor ranges and root parameters
+		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges;
+		std::vector<D3D12_ROOT_PARAMETER>					   rootParameters;
+
+		uint32_t			  samplerIndex			= 0;
+		uint32_t			  nonSamplerIndex		= 0;
+
+		// iterate through resources and create descriptor range
+		for (const auto &[name, resourceInfo] : resources)
+		{
+			D3D12_SHADER_VISIBILITY		visibility	   = GetShaderVisibility(resourceInfo.Stage);
+			D3D12_DESCRIPTOR_RANGE_TYPE descriptorType = GetDescriptorRangeType(resourceInfo);
+
+			// samplers cannot share a descriptor range with other descriptors so we need them to be separate
+			if (descriptorType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER)
+			{
+				D3D12_DESCRIPTOR_RANGE &range							= descriptorRanges[visibility].SamplerRanges.emplace_back();
+				range.RangeType											= GetDescriptorRangeType(resourceInfo);
+				range.BaseShaderRegister								= resourceInfo.Binding;
+				range.NumDescriptors									= resourceInfo.ResourceCount;
+				range.OffsetInDescriptorsFromTableStart					= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				range.RegisterSpace										= resourceInfo.RegisterSpace;
+
+				// retrieve and then increment offset
+				descriptorHandleInfo.SamplerIndexes[resourceInfo.Name]	= samplerIndex;
+				samplerIndex += resourceInfo.ResourceCount;
+				descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
+			}
+			else
+			{
+				D3D12_DESCRIPTOR_RANGE &range							   = descriptorRanges[visibility].OtherRanges.emplace_back();
+				range.RangeType											   = GetDescriptorRangeType(resourceInfo);
+				range.BaseShaderRegister								   = resourceInfo.Binding;
+				range.NumDescriptors									   = resourceInfo.ResourceCount;
+				range.OffsetInDescriptorsFromTableStart					   = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				range.RegisterSpace										   = resourceInfo.RegisterSpace;
+
+				// retrieve and then increment offset
+				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name]  = nonSamplerIndex;
+				nonSamplerIndex += resourceInfo.ResourceCount;
+				descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
+
+				// if the resource is a storage buffer, we need to record how to bind it correctly in D3D12, e.g. StructuredBuffer/ByteAddressBuffer
+				if (resourceInfo.Type == Graphics::ResourceType::StorageBuffer)
+				{
+					descriptorHandleInfo.StorageBuffers[name] = resourceInfo.Access;
+				}
+			}
+		}
+
+		// loop through all resources to find textures
+		for (const auto &[textureName, textureInfo] : resources)
+		{
+			// if the resource is a texture, loop through to find any samplers
+			if (textureInfo.Type == Graphics::ResourceType::Texture)
+			{
+				for (const auto &[samplerName, samplerInfo] : resources)
+				{
+					// if the resource is a sampler, then we need to compare it against the texture to check if it forms a combined image sampler
+					if (samplerInfo.Type == Graphics::ResourceType::Sampler)
+					{
+						// we have found a combined image sampler
+						if (textureInfo.Binding == samplerInfo.Binding && textureInfo.ResourceCount == samplerInfo.ResourceCount)
+						{
+							descriptorHandleInfo.CombinedImageSamplerMap[textureName] = samplerName;
+						}
+					}
+				}
+			}
+		}
+
+		size_t currentSamplerOffset	   = 0;
+		size_t currentNonSamplerOffset = 0;
+
+		// create the descriptor tables for the ranges
+		for (const auto &[shaderVisibility, descriptorRange] : descriptorRanges)
+		{
+			if (!descriptorRange.SamplerRanges.empty())
+			{
+				D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+				descriptorTable.pDescriptorRanges			= descriptorRange.SamplerRanges.data();
+				descriptorTable.NumDescriptorRanges			= descriptorRange.SamplerRanges.size();
+
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				rootParameter.DescriptorTable		= descriptorTable;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
+				descriptorTableInfo.Source				 = DescriptorHandleSource::Sampler;
+				descriptorTableInfo.Offset				 = currentSamplerOffset;
+
+				for (const auto &range : descriptorRange.SamplerRanges) { currentSamplerOffset += range.NumDescriptors; }
+			}
+
+			if (!descriptorRange.OtherRanges.empty())
+			{
+				D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+				descriptorTable.pDescriptorRanges			= descriptorRange.OtherRanges.data();
+				descriptorTable.NumDescriptorRanges			= descriptorRange.OtherRanges.size();
+
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				rootParameter.DescriptorTable		= descriptorTable;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
+				descriptorTableInfo.Source				 = DescriptorHandleSource::SRV_UAV_CBV;
+				descriptorTableInfo.Offset				 = currentNonSamplerOffset;
+
+				for (const auto &range : descriptorRange.OtherRanges) { currentNonSamplerOffset += range.NumDescriptors; }
+			}
+		}
+
+		// create the D3D12 root signature
+		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+		rootSignatureDesc.Flags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		rootSignatureDesc.NumStaticSamplers = 0;
+		rootSignatureDesc.pStaticSamplers	= nullptr;
+		rootSignatureDesc.NumParameters		= rootParameters.size();
+		rootSignatureDesc.pParameters		= rootParameters.data();
+
+		// serialize the root signature and report any errors if they occur
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+		if (SUCCEEDED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob)))
+		{
+			device->CreateRootSignature(0,
+										inRootSignatureBlob->GetBufferPointer(),
+										inRootSignatureBlob->GetBufferSize(),
+										IID_PPV_ARGS(&inRootSignature));
+		}
+		else
+		{
+			std::string errorMessage = std::string((char *)errorBlob->GetBufferPointer());
+			throw std::runtime_error(errorMessage);
+		}
+	}
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts)
+	{
+		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayouts = {};
+
+		uint32_t elementIndex = 0;
+		for (uint32_t layoutIndex = 0; layoutIndex < layouts.size(); layoutIndex++)
+		{
+			const auto &layout = layouts.at(layoutIndex);
+
+			for (uint32_t i = 0; i < layout.GetNumberOfElements(); i++)
+			{
+				const auto &element = layout.GetElement(i);
+
+				D3D12_INPUT_CLASSIFICATION classification =
+					layout.IsInstanceBuffer() ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+
+				D3D12_INPUT_ELEMENT_DESC desc =
+					{element.Name.c_str(), elementIndex, D3D12::GetD3D12BaseType(element), layoutIndex, (UINT)element.Offset, classification, 0};
+
+				if (layout.IsInstanceBuffer())
+				{
+					desc.InstanceDataStepRate = layout.GetInstanceStepRate();
+				}
+
+				inputLayouts.push_back(desc);
+				elementIndex++;
+			}
+		}
+
+		return inputLayouts;
+	}
+
+	D3D_PRIMITIVE_TOPOLOGY CreatePrimitiveTopology(Graphics::Topology topology)
+	{
+		switch (topology)
+		{
+			case Graphics::Topology::LineList: return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+			case Graphics::Topology::LineStrip: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+			case Graphics::Topology::PointList: return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+			case Graphics::Topology::TriangleList: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			case Graphics::Topology::TriangleStrip: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+			default: throw std::runtime_error("Failed to find a valid topology");
+		}
+	}
+
+	D3D12_RASTERIZER_DESC CreateRasterizerState(const Graphics::RasterizerStateDescription &rasterizerState)
+	{
+		D3D12_RASTERIZER_DESC desc {};
+		desc.FillMode = D3D12_FILL_MODE_SOLID;
+		desc.CullMode = D3D12::GetCullMode(rasterizerState.TriangleCullMode);
+
+		if (rasterizerState.TriangleFrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
+		{
+			desc.FrontCounterClockwise = true;
+		}
+		else
+		{
+			desc.FrontCounterClockwise = false;
+		}
+
+		desc.DepthBias			   = 0;
+		desc.DepthBiasClamp		   = .0f;
+		desc.SlopeScaledDepthBias  = .0f;
+		desc.DepthClipEnable	   = FALSE;
+		desc.MultisampleEnable	   = FALSE;
+		desc.AntialiasedLineEnable = FALSE;
+		desc.ForcedSampleCount	   = 0;
+		return desc;
+	}
+
+	D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc()
+	{
+		D3D12_STREAM_OUTPUT_DESC desc {};
+		desc.NumEntries		  = 0;
+		desc.NumStrides		  = 0;
+		desc.pBufferStrides	  = nullptr;
+		desc.RasterizedStream = 0;
+		return desc;
+	}
+
+	D3D12_BLEND_DESC CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates)
+	{
+		D3D12_BLEND_DESC desc {};
+		desc.AlphaToCoverageEnable	= FALSE;
+		desc.IndependentBlendEnable = TRUE;
+
+		for (size_t i = 0; i < colourBlendStates.size(); i++)
+		{
+			desc.RenderTarget[i].BlendEnable	= colourBlendStates[i].EnableBlending;
+			desc.RenderTarget[i].SrcBlend		= D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].SrcBlend		= D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].DestBlend		= D3D12::GetBlendFunction(colourBlendStates[i].DestinationColourBlend);
+			desc.RenderTarget[i].BlendOp		= D3D12::GetBlendEquation(colourBlendStates[i].ColorBlendFunction);
+			desc.RenderTarget[i].SrcBlendAlpha	= D3D12::GetBlendFunction(colourBlendStates[i].SourceAlphaBlend);
+			desc.RenderTarget[i].DestBlendAlpha = D3D12::GetBlendFunction(colourBlendStates[i].DestinationAlphaBlend);
+			desc.RenderTarget[i].BlendOpAlpha	= D3D12::GetBlendEquation(colourBlendStates[i].AlphaBlendFunction);
+			desc.RenderTarget[i].LogicOpEnable	= FALSE;
+			desc.RenderTarget[i].LogicOp		= D3D12_LOGIC_OP_NOOP;
+
+			uint8_t writeMask = 0;
+			if (colourBlendStates[i].PixelWriteMask.Red)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_RED;
+			}
+			if (colourBlendStates[i].PixelWriteMask.Green)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
+			}
+			if (colourBlendStates[i].PixelWriteMask.Blue)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
+			}
+			if (colourBlendStates[i].PixelWriteMask.Alpha)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
+			}
+
+			desc.RenderTarget[i].RenderTargetWriteMask = writeMask;
+		}
+
+		return desc;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc)
+	{
+		D3D12_DEPTH_STENCIL_DESC desc {};
+		desc.DepthEnable = depthStencilDesc.EnableDepthTest;
+		desc.DepthFunc	 = D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
+
+		if (depthStencilDesc.EnableDepthWrite)
+		{
+			desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		}
+		else
+		{
+			desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		}
+
+		desc.StencilEnable	  = depthStencilDesc.EnableStencilTest;
+		desc.StencilReadMask  = depthStencilDesc.StencilCompareMask;
+		desc.StencilWriteMask = depthStencilDesc.StencilWriteMask;
+
+		desc.FrontFace.StencilFunc		  = D3D12::GetComparisonFunction(depthStencilDesc.Front.StencilComparisonFunction);
+		desc.FrontFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthFailOperation);
+		desc.FrontFace.StencilFailOp	  = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
+		desc.FrontFace.StencilPassOp	  = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
+
+		desc.BackFace.StencilFunc		 = D3D12::GetComparisonFunction(depthStencilDesc.Back.StencilComparisonFunction);
+		desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
+		desc.BackFace.StencilFailOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
+		desc.BackFace.StencilPassOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+
+		return desc;
 	}
 }	 // namespace Nexus::D3D12
 #endif

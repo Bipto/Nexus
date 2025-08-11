@@ -6,6 +6,7 @@
 	#include "PhysicalDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 	#include "SwapchainVk.hpp"
+	#include "DeviceBufferVk.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -27,6 +28,7 @@ namespace Nexus::Graphics
 	{
 		bool DynamicRenderingAvailable = false;
 		bool Supports8BitIndices	   = false;
+		bool SupportsRayTracing		   = false;
 	};
 
 	struct DeviceExtensionFunctions
@@ -55,51 +57,67 @@ namespace Nexus::Graphics
 
 		PFN_vkCmdDrawMeshTasksEXT		  vkCmdDrawMeshTasksEXT			= VK_NULL_HANDLE;
 		PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = VK_NULL_HANDLE;
+
+		PFN_vkGetBufferDeviceAddressKHR				   vkGetBufferDeviceAddressKHR				  = VK_NULL_HANDLE;
+		PFN_vkGetAccelerationStructureBuildSizesKHR	   vkGetAccelerationStructureBuildSizesKHR	  = VK_NULL_HANDLE;
+		PFN_vkCreateAccelerationStructureKHR		   vkCreateAccelerationStructureKHR			  = VK_NULL_HANDLE;
+		PFN_vkDestroyAccelerationStructureKHR		   vkDestroyAccelerationStructureKHR		  = VK_NULL_HANDLE;
+		PFN_vkCmdBuildAccelerationStructuresKHR		   vkCmdBuildAccelerationStructuresKHR		  = VK_NULL_HANDLE;
+		PFN_vkCmdCopyAccelerationStructureKHR		   vkCmdCopyAccelerationStructureKHR		  = VK_NULL_HANDLE;
+		PFN_vkCmdCopyAccelerationStructureToMemoryKHR  vkCmdCopyAccelerationStructureToMemoryKHR  = VK_NULL_HANDLE;
+		PFN_vkCmdCopyMemoryToAccelerationStructureKHR  vkCmdCopyMemoryToAccelerationStructureKHR  = VK_NULL_HANDLE;
+		PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR = VK_NULL_HANDLE;
+
+		PFN_vkQueueSubmit2KHR vkQueueSubmit2KHR = VK_NULL_HANDLE;
 	};
 
-	class GraphicsDeviceVk : public GraphicsDevice
+	class GraphicsDeviceVk final : public GraphicsDevice
 	{
 	  public:
 		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
-		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
-		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
+		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) final;
+		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
 
-		virtual const std::string				 GetAPIName() override;
-		virtual const char						*GetDeviceName() override;
-		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
+		const std::string				 GetAPIName() final;
+		const char						*GetDeviceName() final;
+		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) override;
-		virtual Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) override;
-		virtual Ref<CommandList>	  CreateCommandList(const CommandListSpecification &spec = {}) override;
-		virtual Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) override;
-		virtual Ref<Framebuffer>	  CreateFramebuffer(const FramebufferSpecification &spec) override;
-		virtual Ref<Sampler>		  CreateSampler(const SamplerSpecification &spec) override;
-		virtual Ref<TimingQuery>	  CreateTimingQuery() override;
-		virtual Ref<DeviceBuffer>	  CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		Ref<GraphicsPipeline>		CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<ComputePipeline>		CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<MeshletPipeline>		CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<RayTracingPipeline>		CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
-		virtual Ref<Texture>			   CreateTexture(const TextureSpecification &spec) override;
-		virtual Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
-		virtual Ref<Fence>				   CreateFence(const FenceDescription &desc) override;
-		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
-		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
+		Ref<CommandList>			CreateCommandList(const CommandListDescription &spec = {}) final;
+		Ref<ResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
+		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<TimingQuery>			CreateTimingQuery() final;
+		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
-		virtual ShaderLanguage GetSupportedShaderFormat() override;
-		virtual bool		   IsBufferUsageSupported(BufferUsage usage) override;
-		virtual void		   WaitForIdle() override;
-		virtual float		   GetUVCorrection() override
+		const GraphicsCapabilities GetGraphicsCapabilities() const final;
+		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
+		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
+		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
+
+		ShaderLanguage GetSupportedShaderFormat() final;
+		bool		   IsBufferUsageSupported(BufferUsage usage) final;
+		void		   WaitForIdle() final;
+		float		   GetUVCorrection() final
 		{
 			return -1.0f;
 		}
-		virtual bool IsUVOriginTopLeft() override
+		bool IsUVOriginTopLeft() final
 		{
 			return true;
 		};
 
-		virtual GraphicsAPI GetGraphicsAPI() override;
+		GraphicsAPI GetGraphicsAPI() final;
 
 		void							SetObjectName(VkObjectType type, uint64_t handle, const char *name);
 		const DeviceExtensionFunctions &GetExtensionFunctions() const;
@@ -124,19 +142,24 @@ namespace Nexus::Graphics
 
 		const VulkanDeviceFeatures GetDeviceFeatures() const;
 
-		virtual bool Validate() override;
+		bool Validate() final;
 
-		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
-		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
-		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
-		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const override;
+		PixelFormatProperties					  GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
+		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
+		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
+		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
+																					const std::vector<uint32_t> &primitiveCount) const final;
+
+		bool IsExtensionSupported(const char *extension) const;
+		bool IsVersionGreaterThan(uint32_t version) const;
 
 		// vulkan functions
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
+		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 
 		void SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
-		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice, bool debug);
+		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
 
 		void CreateCommandStructures();
@@ -156,8 +179,10 @@ namespace Nexus::Graphics
 								VkImage				 &image,
 								VkDeviceMemory		 &imageMemory);
 
-		std::vector<const char *> GetRequiredDeviceExtensions(bool debug);
+		std::vector<const char *> GetRequiredDeviceExtensions();
 		std::vector<std::string>  GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
+
+		VkDeviceAddress GetBufferDeviceAddress(Ref<DeviceBufferVk> buffer);
 
 	  private:
 		std::shared_ptr<PhysicalDeviceVk> m_PhysicalDevice = nullptr;

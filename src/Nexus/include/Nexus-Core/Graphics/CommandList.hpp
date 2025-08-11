@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AccelerationStructure.hpp"
 #include "Color.hpp"
 #include "DeviceBuffer.hpp"
 #include "Framebuffer.hpp"
@@ -127,9 +128,16 @@ namespace Nexus::Graphics
 		std::optional<ClearRect> Rect = {};
 	};
 
+	struct BlendFactorDesc
+	{
+		float Red	= 0.0f;
+		float Green = 0.0f;
+		float Blue	= 0.0f;
+		float Alpha = 0.0f;
+	};
+
 	/// @brief A struct representing a draw command to be executed using a vertex
 	/// buffer
-
 	struct DrawDescription
 	{
 		uint32_t VertexCount   = 0;
@@ -150,15 +158,17 @@ namespace Nexus::Graphics
 	struct DrawIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = nullptr;
-		uint32_t		  Offset		 = 0;
-		uint32_t		  DrawCount		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
+		size_t			  DrawCount		 = 0;
 	};
 
 	struct DrawIndirectIndexedDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = nullptr;
-		uint32_t		  Offset		 = 0;
-		uint32_t		  DrawCount		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
+		size_t			  DrawCount		 = 0;
 	};
 
 	struct DispatchDescription
@@ -171,7 +181,8 @@ namespace Nexus::Graphics
 	struct DispatchIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = {};
-		uint32_t		  Offset		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
 	};
 
 	struct DrawMeshDescription
@@ -184,8 +195,9 @@ namespace Nexus::Graphics
 	struct DrawMeshIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = {};
-		uint32_t		  Offset		 = 0;
-		uint32_t		  DrawCount		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
+		size_t			  DrawCount		 = 0;
 	};
 
 	struct ClearColorTargetCommand
@@ -238,6 +250,109 @@ namespace Nexus::Graphics
 		TextureCopyDescription TextureCopy = {};
 	};
 
+	struct SetBlendFactorCommand
+	{
+		BlendFactorDesc BlendFactorDesc = {};
+	};
+
+	struct SetStencilReferenceCommand
+	{
+		uint32_t StencilReference = {};
+	};
+
+	struct BuildAccelerationStructuresCommand
+	{
+		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
+	};
+
+	enum class BarrierStage
+	{
+		None,
+		All,
+		Graphics,
+		VertexInput,
+		VertexShader,
+		FragmentShader,
+		TesselationControlShader,
+		TesselationEvaluationShader,
+		GeometryShader,
+		ComputeShader,
+		RenderTarget,
+		TransferSource,
+		TransferDestination,
+		Resolve
+	};
+
+	enum class BarrierAccess
+	{
+		None,
+		All,
+		VertexBuffer,
+		IndexBuffer,
+		RenderTarget,
+		StorageImage,
+		DepthStencilRead,
+		DepthStencilWrite,
+		ResolveSource,
+		ResolveDestination,
+		CopySource,
+		CopyDestination,
+		DrawIndirect,
+	};
+
+	enum class BarrierLayout
+	{
+		Undefined,
+		General,
+		Present,
+		RenderTarget,
+		DepthStencilRead,
+		DepthStencilWrite,
+		CopySource,
+		CopyDestination,
+		ResolveSource,
+		ResolveDestimation,
+		ShaderReadOnly,
+		ShaderReadWrite
+	};
+
+	struct MemoryBarrierDesc
+	{
+		BarrierStage  BeforeStage  = BarrierStage::All;
+		BarrierStage  AfterStage   = BarrierStage::All;
+		BarrierAccess BeforeAccess = BarrierAccess::All;
+		BarrierAccess AfterAccess  = BarrierAccess::All;
+	};
+
+	struct TextureBarrierDesc
+	{
+		Ref<Graphics::Texture> Texture			= nullptr;
+		BarrierStage		   BeforeStage		= BarrierStage::All;
+		BarrierStage		   AfterStage		= BarrierStage::All;
+		BarrierLayout		   BeforeLayout		= BarrierLayout::General;
+		BarrierLayout		   AfterLayout		= BarrierLayout::General;
+		BarrierAccess		   BeforeAccess		= BarrierAccess::All;
+		BarrierAccess		   AfterAccess		= BarrierAccess::All;
+		SubresourceDescription SubresourceRange = {};
+	};
+
+	struct BufferBarrierDesc
+	{
+		Ref<Graphics::DeviceBuffer> Buffer		 = nullptr;
+		BarrierStage				BeforeStage	 = BarrierStage::All;
+		BarrierStage				AfterStage	 = BarrierStage::All;
+		BarrierAccess				BeforeAccess = BarrierAccess::All;
+		BarrierAccess				AfterAccess	 = BarrierAccess::All;
+	};
+
+	struct PushConstantsDesc
+	{
+		std::string Name   = {};
+		const void *Data   = nullptr;
+		size_t		Offset = 0;
+		size_t		Size   = 0;
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -264,11 +379,18 @@ namespace Nexus::Graphics
 						 CopyTextureToTextureCommand,
 						 BeginDebugGroupCommand,
 						 EndDebugGroupCommand,
-						 InsertDebugMarkerCommand>
+						 InsertDebugMarkerCommand,
+						 SetBlendFactorCommand,
+						 SetStencilReferenceCommand,
+						 BuildAccelerationStructuresCommand,
+						 AccelerationStructureCopyDescription,
+						 AccelerationStructureDeviceBufferCopyDescription,
+						 DeviceBufferAccelerationStructureCopyDescription>
 		RenderCommandData;
 
-	struct CommandListSpecification
+	struct CommandListDescription
 	{
+		std::string DebugName = "CommandList";
 	};
 
 	/// @brief A class representing a command list
@@ -276,7 +398,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		/// @brief A constructor creating a new command list
-		CommandList(const CommandListSpecification &spec);
+		CommandList(const CommandListDescription &spec);
 
 		/// @brief A virtual destructor allowing resources to be cleaned up
 		virtual ~CommandList()
@@ -358,15 +480,58 @@ namespace Nexus::Graphics
 
 		void InsertDebugMarker(const std::string &name);
 
+		void SetBlendFactor(const BlendFactorDesc &blendFactor);
+
+		void SetStencilReference(uint32_t stencilReference);
+
+		void BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description);
+
+		void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
+
+		void CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description);
+
+		void CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description);
+
+		void WritePushConstants(const PushConstantsDesc &pushConstantDesc);
+
 		const std::vector<RenderCommandData> &GetCommandData() const;
-		const CommandListSpecification		 &GetSpecification();
+		const CommandListDescription		 &GetDescription();
+
+		bool IsRecording() const;
 
 	  private:
-		CommandListSpecification	   m_Specification = {};
+		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
 		bool						   m_Started = false;
+		uint32_t					   m_DebugGroups = 0;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands
 	typedef void (*RenderCommand)(Ref<CommandList> commandList);
+
+	class ScopedDebugGroup
+	{
+	  public:
+		ScopedDebugGroup(const std::string &name, Ref<CommandList> commandList) : m_CommandList(commandList)
+		{
+			if (m_CommandList->IsRecording())
+			{
+				m_CommandList->BeginDebugGroup(name);
+			}
+		}
+
+		~ScopedDebugGroup()
+		{
+			if (m_CommandList->IsRecording())
+			{
+				m_CommandList->EndDebugGroup();
+			}
+		}
+
+		ScopedDebugGroup(const ScopedDebugGroup &)			  = delete;
+		ScopedDebugGroup &operator=(const ScopedDebugGroup &) = delete;
+
+	  private:
+		Ref<CommandList> m_CommandList = nullptr;
+	};
 }	 // namespace Nexus::Graphics

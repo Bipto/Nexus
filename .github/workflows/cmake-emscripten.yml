@@ -63,7 +63,7 @@ jobs:
 
 
       - name: Build
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target Tests
   
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}

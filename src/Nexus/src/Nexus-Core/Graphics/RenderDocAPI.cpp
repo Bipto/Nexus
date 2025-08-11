@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		m_API->StartFrameCapture(nullptr, nullptr);
+		m_API->EndFrameCapture(nullptr, nullptr);
 	}
 
 	void RenderDocAPI::TriggerFrameCapture()

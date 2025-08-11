@@ -27,11 +27,11 @@ namespace Nexus::Graphics
 	void FramebufferOpenGL::BindAsDrawBuffer(const GladGLContext &context)
 	{
 		glCall(context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
-		auto width	= m_Specification.Width;
-		auto height = m_Specification.Height;
+		auto width	= m_Description.Width;
+		auto height = m_Description.Height;
 
 		std::vector<GLenum> drawBuffers;
-		for (size_t i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+		for (size_t i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
 		{
 			drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
@@ -76,12 +76,12 @@ namespace Nexus::Graphics
 
 	const FramebufferSpecification FramebufferOpenGL::GetFramebufferSpecification()
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	void FramebufferOpenGL::SetFramebufferSpecification(const FramebufferSpecification &spec)
 	{
-		m_Specification = spec;
+		m_Description = spec;
 		Recreate();
 	}
 
@@ -99,20 +99,18 @@ namespace Nexus::Graphics
 	{
 		m_ColorAttachments.clear();
 
-		for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+		for (int i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
 		{
-			const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments[i];
+			const auto &colorAttachmentSpec = m_Description.ColourAttachmentSpecification.Attachments[i];
 
-			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
-			{
-				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
-			}
+			NX_ASSERT(GetPixelFormatType(colorAttachmentSpec.TextureFormat) == Graphics::PixelFormatType::Colour,
+					  "Depth attachment must have a valid colour format");
 
-			Graphics::TextureSpecification textureSpec = {};
-			textureSpec.Width						   = m_Specification.Width;
-			textureSpec.Height						   = m_Specification.Height;
+			Graphics::TextureDescription textureSpec = {};
+			textureSpec.Width						   = m_Description.Width;
+			textureSpec.Height						   = m_Description.Height;
 			textureSpec.Format						   = colorAttachmentSpec.TextureFormat;
-			textureSpec.Samples						   = m_Specification.Samples;
+			textureSpec.Samples						   = m_Description.Samples;
 			textureSpec.Usage						   = Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
 
 			Ref<Texture>	   texture	 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
@@ -122,14 +120,17 @@ namespace Nexus::Graphics
 			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::Colour, i, context);
 		}
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
-			Graphics::TextureSpecification textureSpec = {};
-			textureSpec.Width						   = m_Specification.Width;
-			textureSpec.Height						   = m_Specification.Height;
-			textureSpec.Format						   = m_Specification.DepthAttachmentSpecification.DepthFormat;
-			textureSpec.Samples						   = m_Specification.Samples;
-			textureSpec.Usage						   = Graphics::TextureUsage_DepthStencil;
+			NX_ASSERT(GetPixelFormatType(m_Description.DepthAttachmentSpecification.DepthFormat) == Graphics::PixelFormatType::DepthStencil,
+					  "Depth attachment must have a valid depth format");
+
+			Graphics::TextureDescription textureSpec = {};
+			textureSpec.Width						   = m_Description.Width;
+			textureSpec.Height						   = m_Description.Height;
+			textureSpec.Format						   = m_Description.DepthAttachmentSpecification.DepthFormat;
+			textureSpec.Samples						   = m_Description.Samples;
+			textureSpec.Usage						   = 0;
 			m_DepthAttachment						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);

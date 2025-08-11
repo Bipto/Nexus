@@ -16,6 +16,7 @@
 	#include "SwapchainVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
+	#include "AccelerationStructureVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -25,7 +26,7 @@ namespace Nexus::Graphics
 		  m_DeviceConfig(config)
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
-		CreateDevice(physicalDeviceVk, config.Debug);
+		CreateDevice(physicalDeviceVk);
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
 
@@ -68,25 +69,57 @@ namespace Nexus::Graphics
 		m_CommandExecutor->Reset();
 		VkCommandBuffer vkCmdBuffer = commandListVk->GetCurrentCommandBuffer();
 
-		VkSubmitInfo submitInfo			= {};
-		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount	= 0;
-		submitInfo.pWaitSemaphores		= nullptr;
-		submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-		submitInfo.commandBufferCount	= 1;
-		submitInfo.pCommandBuffers		= &vkCmdBuffer;
-		submitInfo.signalSemaphoreCount = 0;
-		submitInfo.pSignalSemaphores	= nullptr;
-
-		VkFence vulkanFence = nullptr;
-
-		if (fence)
+		if (m_ExtensionFunctions.vkQueueSubmit2KHR)
 		{
-			Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-			vulkanFence			  = apiFence->GetHandle();
-		}
+			VkCommandBufferSubmitInfoKHR commandBufferInfo = {};
+			commandBufferInfo.sType						   = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+			commandBufferInfo.pNext						   = nullptr;
+			commandBufferInfo.commandBuffer				   = vkCmdBuffer;
+			commandBufferInfo.deviceMask				   = 0;
 
-		NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+			VkSubmitInfo2KHR submitInfo			= {};
+			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
+			submitInfo.pNext					= nullptr;
+			submitInfo.flags					= 0;
+			submitInfo.waitSemaphoreInfoCount	= 0;
+			submitInfo.pWaitSemaphoreInfos		= nullptr;
+			submitInfo.commandBufferInfoCount	= 1;
+			submitInfo.pCommandBufferInfos		= &commandBufferInfo;
+			submitInfo.signalSemaphoreInfoCount = 0;
+			submitInfo.pSignalSemaphoreInfos	= nullptr;
+
+			VkFence vulkanFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vulkanFence			  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		}
+		else
+		{
+			VkSubmitInfo submitInfo			= {};
+			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.waitSemaphoreCount	= 0;
+			submitInfo.pWaitSemaphores		= nullptr;
+			submitInfo.pWaitDstStageMask	= &waitDestStageMask;
+			submitInfo.commandBufferCount	= 1;
+			submitInfo.pCommandBuffers		= &vkCmdBuffer;
+			submitInfo.signalSemaphoreCount = 0;
+			submitInfo.pSignalSemaphores	= nullptr;
+
+			VkFence vulkanFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vulkanFence			  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		}
 	}
 
 	void GraphicsDeviceVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
@@ -105,25 +138,62 @@ namespace Nexus::Graphics
 			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
 		}
 
-		VkSubmitInfo submitInfo			= {};
-		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount	= 0;
-		submitInfo.pWaitSemaphores		= nullptr;
-		submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-		submitInfo.commandBufferCount	= commandBuffers.size();
-		submitInfo.pCommandBuffers		= commandBuffers.data();
-		submitInfo.signalSemaphoreCount = 0;
-		submitInfo.pSignalSemaphores	= nullptr;
-
-		VkFence vkFence = nullptr;
-
-		if (fence)
+		if (m_ExtensionFunctions.vkQueueSubmit2KHR)
 		{
-			Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-			vkFence				  = apiFence->GetHandle();
-		}
+			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
 
-		NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
+			for (VkCommandBuffer commandBuffer : commandBuffers)
+			{
+				VkCommandBufferSubmitInfoKHR &commandBufferInfo = commandBufferInfos.emplace_back();
+				commandBufferInfo.sType							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+				commandBufferInfo.pNext							= nullptr;
+				commandBufferInfo.commandBuffer					= commandBuffer;
+				commandBufferInfo.deviceMask					= 0;
+			}
+
+			VkSubmitInfo2KHR submitInfo			= {};
+			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
+			submitInfo.pNext					= nullptr;
+			submitInfo.flags					= 0;
+			submitInfo.waitSemaphoreInfoCount	= 0;
+			submitInfo.pWaitSemaphoreInfos		= nullptr;
+			submitInfo.commandBufferInfoCount	= commandBufferInfos.size();
+			submitInfo.pCommandBufferInfos		= commandBufferInfos.data();
+			submitInfo.signalSemaphoreInfoCount = 0;
+			submitInfo.pSignalSemaphoreInfos	= nullptr;
+
+			VkFence vulkanFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vulkanFence			  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		}
+		else
+		{
+			VkSubmitInfo submitInfo			= {};
+			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.waitSemaphoreCount	= 0;
+			submitInfo.pWaitSemaphores		= nullptr;
+			submitInfo.pWaitDstStageMask	= &waitDestStageMask;
+			submitInfo.commandBufferCount	= commandBuffers.size();
+			submitInfo.pCommandBuffers		= commandBuffers.data();
+			submitInfo.signalSemaphoreCount = 0;
+			submitInfo.pSignalSemaphores	= nullptr;
+
+			VkFence vkFence = nullptr;
+
+			if (fence)
+			{
+				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+				vkFence				  = apiFence->GetHandle();
+			}
+
+			NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
+		}
 	}
 
 	const std::string GraphicsDeviceVk::GetAPIName()
@@ -141,9 +211,9 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
-		return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
+		return CreateRef<ShaderModuleVk>(moduleSpec, this);
 	}
 
 	Ref<GraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
@@ -156,14 +226,24 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineVk>(description, this);
 	}
 
-	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListSpecification &spec)
+	Ref<MeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	{
+		return CreateRef<MeshletPipelineVk>(description, this);
+	}
+
+	Ref<RayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	{
+		return nullptr;
+	}
+
+	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListVk>(this, spec);
 	}
 
-	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
+	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		return CreateRef<ResourceSetVk>(spec, this);
+		return CreateRef<ResourceSetVk>(pipeline, this);
 	}
 
 	Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
@@ -171,7 +251,7 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferVk>(spec, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerSpecification &spec)
+	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerVk>(this, spec);
 	}
@@ -184,6 +264,11 @@ namespace Nexus::Graphics
 	Ref<DeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferVk>(desc, this);
+	}
+
+	Ref<IAccelerationStructure> GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	{
+		return CreateRef<AccelerationStructureVk>(desc, this);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
@@ -259,7 +344,7 @@ namespace Nexus::Graphics
 		NX_ASSERT(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureVk>(spec, this);
 	}
@@ -462,11 +547,11 @@ namespace Nexus::Graphics
 		m_PresentQueueFamilyIndex  = presentIndex;
 	}
 
-	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice, bool debug)
+	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		SelectQueueFamilies(physicalDevice);
 
-		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions(debug);
+		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
 		const float				  queuePriority[]  = {1.0f};
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -489,72 +574,114 @@ namespace Nexus::Graphics
 		queueCreateInfo.queueCount				= 1;
 		queueCreateInfo.pQueuePriorities		= &priority;
 
+		Vk::PNextBuilder builder = {};
+
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy		= VK_TRUE;
 		deviceFeatures.sampleRateShading		= VK_TRUE;
 		deviceFeatures.independentBlend			= VK_TRUE;
+		deviceFeatures.depthBounds				= VK_TRUE;
 
-		VkDeviceCreateInfo createInfo = {};
-		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pNext			  = nullptr;
+		VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
+		deviceFeatures2.sType					  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		deviceFeatures2.pNext					  = nullptr;
+		deviceFeatures2.features				  = deviceFeatures;
 
-		VkPhysicalDeviceFeatures2 features2	 = {};
-		features2.sType						 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-		features2.features.samplerAnisotropy = VK_TRUE;
-		features2.features.samplerAnisotropy = VK_TRUE;
-		features2.features.independentBlend	 = VK_TRUE;
+		// we need to check if VkPhysicalDeviceFeatures2 is supported
+		if (m_PhysicalDevice->IsVersionGreaterThan(VK_VERSION_1_1) ||
+			m_PhysicalDevice->IsExtensionSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+		{
+			builder.Add(deviceFeatures2);
+		}
 
 		VkPhysicalDeviceIndexTypeUint8FeaturesEXT indexType8Features = {};
 		indexType8Features.sType									 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT;
 		indexType8Features.pNext									 = nullptr;
 		indexType8Features.indexTypeUint8							 = VK_TRUE;
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME))
+		{
+			builder.Add(indexType8Features);
+		}
 
 		VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = {};
 		extendedDynamicStateFeatures.sType				  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
 		extendedDynamicStateFeatures.pNext				  = nullptr;
-		extendedDynamicStateFeatures.extendedDynamicState = VK_FALSE;
-		features2.pNext									  = &extendedDynamicStateFeatures;
-
+		extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
 		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
 		{
-			extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
+			builder.Add(extendedDynamicStateFeatures);
 		}
-
-		createInfo.pNext				   = &features2;
-		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
-		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
-		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
-		createInfo.pEnabledFeatures		   = nullptr;
-		createInfo.enabledExtensionCount   = deviceExtensions.size();
-		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-		createInfo.enabledLayerCount	   = 0;
 
 		VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderFeatures = {};
 		meshShaderFeatures.sType								 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
-		meshShaderFeatures.taskShader							 = VK_FALSE;
-		meshShaderFeatures.meshShader							 = VK_FALSE;
-
+		meshShaderFeatures.pNext								 = nullptr;
+		meshShaderFeatures.taskShader							 = VK_TRUE;
+		meshShaderFeatures.meshShader							 = VK_TRUE;
 		if (m_Features.SupportsMeshTaskShaders)
 		{
-			meshShaderFeatures.taskShader = VK_TRUE;
-			meshShaderFeatures.meshShader = VK_TRUE;
+			builder.Add(meshShaderFeatures);
 		}
 
 		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
 		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-		dynamicRenderingFeatures.pNext									  = &meshShaderFeatures;
-		dynamicRenderingFeatures.dynamicRendering						  = VK_FALSE;
-
-		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
+		dynamicRenderingFeatures.pNext									  = nullptr;
+		dynamicRenderingFeatures.dynamicRendering						  = VK_TRUE;
+		if (m_DeviceConfig.UseDynamicRenderingIfAvailable && m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
-			{
-				dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
-				features2.pNext							  = &dynamicRenderingFeatures;
-			}
+			builder.Add(dynamicRenderingFeatures);
 		}
 
-		vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetVkPhysicalDevice(), &features2);
+		VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {};
+		bufferDeviceAddressFeatures.sType				= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_KHR;
+		bufferDeviceAddressFeatures.pNext				= nullptr;
+		bufferDeviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
+		if (IsVersionGreaterThan(VK_VERSION_1_2) || IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+		{
+			builder.Add(bufferDeviceAddressFeatures);
+		}
+
+		VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures = {};
+		accelerationStructureFeatures.sType					= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
+		accelerationStructureFeatures.pNext					= nullptr;
+		accelerationStructureFeatures.accelerationStructure = VK_TRUE;
+		if (m_DeviceFeatures.SupportsRayTracing)
+		{
+			builder.Add(accelerationStructureFeatures);
+		}
+
+		VkPhysicalDeviceSynchronization2FeaturesKHR synchronizationFeatures = {};
+		synchronizationFeatures.sType										= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR;
+		synchronizationFeatures.pNext										= nullptr;
+		synchronizationFeatures.synchronization2							= VK_TRUE;
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
+		{
+			builder.Add(synchronizationFeatures);
+		}
+
+		VkDeviceCreateInfo createInfo = {};
+		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext			  = nullptr;
+
+		// we need to check if VkPhysicalDeviceFeatures2 is supported
+		if (m_PhysicalDevice->IsVersionGreaterThan(VK_VERSION_1_1) ||
+			m_PhysicalDevice->IsExtensionSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+		{
+			createInfo.pNext			= builder.GetHead();
+			createInfo.pEnabledFeatures = nullptr;
+		}
+		else
+		{
+			createInfo.pNext			= nullptr;
+			createInfo.pEnabledFeatures = &deviceFeatures;
+		}
+
+		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
+		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
+		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
+		createInfo.enabledExtensionCount   = deviceExtensions.size();
+		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+		createInfo.enabledLayerCount	   = 0;
+
 		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create device");
@@ -570,6 +697,11 @@ namespace Nexus::Graphics
 		allocatorInfo.physicalDevice		 = physicalDevice->GetVkPhysicalDevice();
 		allocatorInfo.device				 = m_Device;
 		allocatorInfo.instance				 = instance;
+
+		if (IsVersionGreaterThan(VK_VERSION_1_2) || IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+		{
+			allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+		}
 
 		if (vmaCreateAllocator(&allocatorInfo, &m_Allocator) != VK_SUCCESS)
 		{
@@ -651,6 +783,29 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksEXT");
 		m_ExtensionFunctions.vkCmdDrawMeshTasksIndirectEXT =
 			(PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksIndirectEXT");
+
+		m_ExtensionFunctions.vkGetBufferDeviceAddressKHR =
+			(PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetBufferDeviceAddressKHR");
+
+		m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR =
+			(PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureBuildSizesKHR");
+
+		m_ExtensionFunctions.vkCreateAccelerationStructureKHR =
+			(PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCreateAccelerationStructureKHR");
+		m_ExtensionFunctions.vkDestroyAccelerationStructureKHR =
+			(PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkDestroyAccelerationStructureKHR");
+		m_ExtensionFunctions.vkCmdBuildAccelerationStructuresKHR =
+			(PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBuildAccelerationStructuresKHR");
+		m_ExtensionFunctions.vkCmdCopyAccelerationStructureKHR =
+			(PFN_vkCmdCopyAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyAccelerationStructureKHR");
+		m_ExtensionFunctions.vkCmdCopyAccelerationStructureToMemoryKHR =
+			(PFN_vkCmdCopyAccelerationStructureToMemoryKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyAccelerationStructureToMemoryKHR");
+		m_ExtensionFunctions.vkCmdCopyMemoryToAccelerationStructureKHR =
+			(PFN_vkCmdCopyMemoryToAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyMemoryToAccelerationStructureKHR");
+		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
+			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
+
+		m_ExtensionFunctions.vkQueueSubmit2KHR = (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -721,7 +876,7 @@ namespace Nexus::Graphics
 		vkBindImageMemory(m_Device, image, imageMemory, 0);
 	}
 
-	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions(bool debug)
+	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
 	{
 		std::vector<const char *> extensions;
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -773,7 +928,12 @@ namespace Nexus::Graphics
 				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME))
 				{
 					extensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
-					m_Features.SupportsMeshTaskShaders = true;
+
+					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_4_EXTENSION_NAME))
+					{
+						extensions.push_back(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
+						m_Features.SupportsMeshTaskShaders = true;
+					}
 				}
 			}
 		}
@@ -785,19 +945,40 @@ namespace Nexus::Graphics
 				extensions.push_back(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME);
 				m_DeviceFeatures.Supports8BitIndices = true;
 			}
-			else if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME);
-				m_DeviceFeatures.Supports8BitIndices = true;
-			}
 		}
 
 		// this is used to set debug object names and groups
-		if (debug)
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
+			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+		}
+
+		// ray tracing
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
 			{
-				extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+				extensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+			}
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
+
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+
+					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+					{
+						extensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+						m_DeviceFeatures.SupportsRayTracing = true;
+					}
+				}
 			}
 		}
 
@@ -821,6 +1002,15 @@ namespace Nexus::Graphics
 		for (const auto &property : properties) { extensions.push_back(property.extensionName); }
 
 		return extensions;
+	}
+
+	VkDeviceAddress GraphicsDeviceVk::GetBufferDeviceAddress(Ref<DeviceBufferVk> buffer)
+	{
+		VkBufferDeviceAddressInfo info = {};
+		info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+		info.pNext					   = nullptr;
+		info.buffer					   = buffer->GetVkBuffer();
+		return m_ExtensionFunctions.vkGetBufferDeviceAddressKHR(m_Device, &info);
 	}
 
 	Vk::AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
@@ -872,15 +1062,50 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
-	bool GraphicsDeviceVk::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	bool GraphicsDeviceVk::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8: return m_DeviceFeatures.Supports8BitIndices;
-			case IndexBufferFormat::UInt16:
-			case IndexBufferFormat::UInt32: return true;
+			case IndexFormat::UInt8: return m_DeviceFeatures.Supports8BitIndices;
+			case IndexFormat::UInt16:
+			case IndexFormat::UInt32: return true;
 			default: throw std::runtime_error("Failed to find valid index buffer format");
 		}
+	}
+
+	AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
+		const AccelerationStructureGeometryBuildDescription &description,
+		const std::vector<uint32_t>							&primitiveCount) const
+	{
+		std::vector<VkAccelerationStructureGeometryKHR> geometries = Vk::GetVulkanAccelerationStructureGeometries(description);
+		VkAccelerationStructureBuildGeometryInfoKHR		buildInfo  = Vk::GetGeometryBuildInfo(description, geometries);
+
+		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
+		buildSizes.sType									= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+		buildSizes.pNext									= nullptr;
+
+		if (m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR)
+		{
+			m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR(m_Device,
+																		 VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
+																		 &buildInfo,
+																		 primitiveCount.data(),
+																		 &buildSizes);
+		}
+
+		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = buildSizes.accelerationStructureSize,
+														  .UpdateScratchSize		 = buildSizes.updateScratchSize,
+														  .BuildScratchSize			 = buildSizes.buildScratchSize};
+	}
+
+	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const
+	{
+		return m_PhysicalDevice->IsExtensionSupported(extension);
+	}
+
+	bool GraphicsDeviceVk::IsVersionGreaterThan(uint32_t version) const
+	{
+		return m_PhysicalDevice->IsVersionGreaterThan(version);
 	}
 
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)

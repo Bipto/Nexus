@@ -1,7 +1,13 @@
 #include "Nexus-Core/Platform.hpp"
 
 #include "FileDialogsSDL3.hpp"
+#include "SDL3Condition.hpp"
 #include "SDL3Include.hpp"
+#include "SDL3MessageBox.hpp"
+#include "SDL3Mutex.hpp"
+#include "SDL3ReadWriteLock.hpp"
+#include "SDL3Semaphore.hpp"
+#include "SDL3Thread.hpp"
 #include "SDL3Window.hpp"
 
 #include "Nexus-Core/Events/EventHandler.hpp"
@@ -590,6 +596,11 @@ namespace Nexus::Platform
 		return window;
 	}
 
+	NX_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description)
+	{
+		return new MessageBoxSDL3(description);
+	}
+
 	OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany)
 	{
 		return new OpenFileDialogSDL3(window, filters, defaultLocation, allowMany);
@@ -749,6 +760,54 @@ namespace Nexus::Platform
 	const char *GetApplicationPath(const char *org, const char *app)
 	{
 		return SDL_GetPrefPath(org, app);
+	}
+
+	NX_API void Delay(TimeSpan timespan, DelayAccuracy accuracy)
+	{
+		switch (accuracy)
+		{
+			case DelayAccuracy::Milliseconds:
+			{
+				SDL_Delay(timespan.GetMilliseconds<uint32_t>());
+				break;
+			}
+			case DelayAccuracy::Nanoseconds:
+			{
+				SDL_DelayNS(timespan.GetNanoseconds<uint64_t>());
+				break;
+			}
+			case DelayAccuracy::Precise:
+			{
+				SDL_DelayPrecise(timespan.GetNanoseconds<uint64_t>());
+				break;
+			}
+			default: throw std::runtime_error("Failed to find a valid delay accuracy");
+		}
+	}
+
+	NX_API Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function)
+	{
+		return new Threading::SDL3Thread(description, function);
+	}
+
+	NX_API Threading::MutexBase *CreateMutexBase()
+	{
+		return new Threading::SDL3Mutex();
+	}
+
+	NX_API Threading::ConditionBase *CreateConditionBase()
+	{
+		return new Threading::SDL3Condition();
+	}
+
+	NX_API Threading::SemaphoreBase *CreateSemaphoreBase(uint32_t startingValue)
+	{
+		return new Threading::SDL3Semaphore(startingValue);
+	}
+
+	NX_API Threading::ReadWriteLockBase *CreateReadWriteLockBase()
+	{
+		return new Threading::SDL3ReadWriteLock();
 	}
 
 	std::optional<IWindow *> GetKeyboardFocus()

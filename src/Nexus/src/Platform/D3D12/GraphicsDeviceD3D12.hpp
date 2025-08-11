@@ -12,50 +12,53 @@ namespace Nexus::Graphics
 {
 	class TextureD3D12;
 
-	class GraphicsDeviceD3D12 : public GraphicsDevice
+	class GraphicsDeviceD3D12 final : public GraphicsDevice
 	{
 	  public:
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
-		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
-		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
+		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) final;
+		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
 
-		virtual const std::string				 GetAPIName() override;
-		virtual const char						*GetDeviceName() override;
-		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
+		const std::string				 GetAPIName() final;
+		const char						*GetDeviceName() final;
+		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) override;
-		virtual Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) override;
-		virtual Ref<CommandList>	  CreateCommandList(const CommandListSpecification &spec = {}) override;
-		virtual Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) override;
+		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		Ref<CommandList>		CreateCommandList(const CommandListDescription &spec = {}) final;
+		Ref<ResourceSet>		CreateResourceSet(Ref<Pipeline> pipeline) final;
 
-		virtual Ref<Framebuffer>  CreateFramebuffer(const FramebufferSpecification &spec) override;
-		virtual Ref<Sampler>	  CreateSampler(const SamplerSpecification &spec) override;
-		virtual Ref<TimingQuery>  CreateTimingQuery() override;
-		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<TimingQuery>			CreateTimingQuery() final;
+		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
-		virtual ShaderLanguage GetSupportedShaderFormat() override
+		ShaderLanguage GetSupportedShaderFormat() final
 		{
 			return ShaderLanguage::HLSL;
 		}
 
-		virtual bool IsBufferUsageSupported(BufferUsage usage) override;
+		bool IsBufferUsageSupported(BufferUsage usage) final;
 
-		virtual void		WaitForIdle() override;
-		virtual GraphicsAPI GetGraphicsAPI() override;
+		void		WaitForIdle() final;
+		GraphicsAPI GetGraphicsAPI() final;
 
-		virtual float GetUVCorrection()
+		float GetUVCorrection() final
 		{
 			return -1.0f;
 		}
-		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
-		virtual Ref<Texture>			   CreateTexture(const TextureSpecification &spec) override;
-		virtual Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
-		virtual Ref<Fence>				   CreateFence(const FenceDescription &desc) override;
-		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
-		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
-		virtual bool					   IsUVOriginTopLeft() override
+		const GraphicsCapabilities GetGraphicsCapabilities() const final;
+		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
+		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
+		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		bool					   IsUVOriginTopLeft() final
 		{
 			return true;
 		};
@@ -91,15 +94,17 @@ namespace Nexus::Graphics
 		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
 		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
 
-		virtual bool Validate() override;
+		bool Validate() final;
 
-		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
-		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
-		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
-		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const override;
+		PixelFormatProperties					  GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
+		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
+		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
+		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
+																					const std::vector<uint32_t> &primitiveCounts) const final;
 
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
+		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 		void					  InitUploadCommandList();
 		void					  DispatchUploadCommandList();
 
@@ -128,7 +133,7 @@ namespace Nexus::Graphics
 		std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
 
 		std::unique_ptr<CommandExecutorD3D12>	   m_CommandExecutor = nullptr;
-		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator = nullptr;
+		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator		 = nullptr;
 
 		DeviceFeatures m_Features = {};
 		DeviceLimits   m_Limits	  = {};

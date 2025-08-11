@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 
 	void FramebufferD3D12::SetFramebufferSpecification(const FramebufferSpecification &spec)
 	{
-		m_Specification = spec;
+		m_Description = spec;
 
 		m_ColorDescriptorHeap = nullptr;
 		m_DepthDescriptorHeap = nullptr;
@@ -81,39 +81,40 @@ namespace Nexus::Graphics
 
 	const FramebufferSpecification FramebufferD3D12::GetFramebufferSpecification()
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	void FramebufferD3D12::CreateAttachments()
 	{
-		for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+		for (int i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
 		{
-			const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments.at(i);
+			const auto &colorAttachmentSpec = m_Description.ColourAttachmentSpecification.Attachments.at(i);
 
-			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
-			{
-				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
-			}
+			NX_ASSERT(GetPixelFormatType(colorAttachmentSpec.TextureFormat) == Graphics::PixelFormatType::Colour,
+					  "Depth attachment must have a valid colour format");
 
-			Graphics::TextureSpecification spec = {};
-			spec.Width							= m_Specification.Width;
-			spec.Height							= m_Specification.Height;
+			Graphics::TextureDescription spec	= {};
+			spec.Width							= m_Description.Width;
+			spec.Height							= m_Description.Height;
 			spec.Format							= colorAttachmentSpec.TextureFormat;
-			spec.Samples						= m_Specification.Samples;
+			spec.Samples						= m_Description.Samples;
 			spec.Usage							= Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
 
 			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
 			m_ColorAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(texture));
 		}
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
-			Graphics::TextureSpecification spec = {};
-			spec.Width							= m_Specification.Width;
-			spec.Height							= m_Specification.Height;
-			spec.Format							= m_Specification.DepthAttachmentSpecification.DepthFormat;
-			spec.Usage							= Graphics::TextureUsage_DepthStencil;
-			spec.Samples						= m_Specification.Samples;
+			NX_ASSERT(GetPixelFormatType(m_Description.DepthAttachmentSpecification.DepthFormat) == Graphics::PixelFormatType::DepthStencil,
+					  "Depth attachment must have a depth format");
+
+			Graphics::TextureDescription spec = {};
+			spec.Width						  = m_Description.Width;
+			spec.Height						  = m_Description.Height;
+			spec.Format						  = m_Description.DepthAttachmentSpecification.DepthFormat;
+			spec.Usage						  = 0;
+			spec.Samples					  = m_Description.Samples;
 
 			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
 			m_DepthAttachment	 = std::dynamic_pointer_cast<TextureD3D12>(texture);
@@ -127,7 +128,7 @@ namespace Nexus::Graphics
 		// create descriptor heaps
 		D3D12_DESCRIPTOR_HEAP_DESC colorDescriptorHeapDesc;
 		colorDescriptorHeapDesc.Type		   = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		colorDescriptorHeapDesc.NumDescriptors = m_Specification.ColorAttachmentSpecification.Attachments.size();
+		colorDescriptorHeapDesc.NumDescriptors = m_Description.ColourAttachmentSpecification.Attachments.size();
 		colorDescriptorHeapDesc.NodeMask	   = 0;
 		colorDescriptorHeapDesc.Flags		   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		d3d12Device->CreateDescriptorHeap(&colorDescriptorHeapDesc, IID_PPV_ARGS(&m_ColorDescriptorHeap));
@@ -141,15 +142,15 @@ namespace Nexus::Graphics
 
 		// retrieve descriptor handles
 		auto cpuHandle = m_ColorDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		for (uint32_t i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+		for (uint32_t i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
 		{
 			auto texture = m_ColorAttachments.at(i);
 			m_ColorAttachmentCPUHandles.push_back(cpuHandle);
 
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
-			rtvDesc.Format = D3D12::GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
+			rtvDesc.Format = D3D12::GetD3D12PixelFormat(m_Description.ColourAttachmentSpecification.Attachments[i].TextureFormat);
 
-			if (m_Specification.Samples > 1)
+			if (m_Description.Samples > 1)
 			{
 				rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
 			}
@@ -170,14 +171,14 @@ namespace Nexus::Graphics
 
 		m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
 			auto texture = m_DepthAttachment;
 
 			D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-			dsvDesc.Format = D3D12::GetD3D12PixelFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
+			dsvDesc.Format = D3D12::GetD3D12PixelFormat(m_Description.DepthAttachmentSpecification.DepthFormat);
 
-			if (m_Specification.Samples > 1)
+			if (m_Description.Samples > 1)
 			{
 				dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
 			}

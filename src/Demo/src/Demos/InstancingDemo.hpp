@@ -62,7 +62,7 @@ namespace Demos
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
 
-			Nexus::Graphics::SamplerSpecification samplerSpec {};
+			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 		}
 
@@ -130,7 +130,7 @@ namespace Demos
 				indexBufferView.BufferHandle					 = m_CubeMesh->GetIndexBuffer();
 				indexBufferView.Offset							 = 0;
 				indexBufferView.Size							 = m_CubeMesh->GetIndexBuffer()->GetSizeInBytes();
-				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexFormat::UInt32;
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = m_CubeMesh->GetIndexBuffer()->GetCount();
@@ -176,24 +176,18 @@ namespace Demos
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/instancing.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0},
-																 {"normalMapSampler", 1, 1},
-																 {"specularMapSampler", 1, 2}};
-
-			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
 																sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING),
 																Nexus::Graphics::StepRate::Vertex};
 
-			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}},
+			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"}},
 																  sizeof(glm::mat4),
 																  Nexus::Graphics::StepRate::Instance};
 
@@ -205,7 +199,7 @@ namespace Demos
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

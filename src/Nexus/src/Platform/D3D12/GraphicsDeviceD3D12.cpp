@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 
 		if (fence)
 		{
-			Ref<FenceD3D12> fenceD3D12	= std::dynamic_pointer_cast<FenceD3D12>(fence);
+			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
 			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
@@ -140,9 +140,9 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
-		return CreateRef<ShaderModuleD3D12>(moduleSpec, resources);
+		return CreateRef<ShaderModuleD3D12>(moduleSpec);
 	}
 
 	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
@@ -155,14 +155,24 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineD3D12>(m_Device.Get(), description);
 	}
 
-	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListSpecification &spec)
+	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	{
+		return Ref<MeshletPipeline>();
+	}
+
+	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListD3D12>(this, spec);
 	}
 
-	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
+	Ref<RayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return CreateRef<ResourceSetD3D12>(spec, this);
+		return Ref<RayTracingPipeline>();
+	}
+
+	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
+	{
+		return CreateRef<ResourceSetD3D12>(pipeline, this);
 	}
 
 	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
@@ -170,7 +180,7 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferD3D12>(spec, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerSpecification &spec)
+	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerD3D12>(spec);
 	}
@@ -183,6 +193,11 @@ namespace Nexus::Graphics
 	Ref<DeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferD3D12>(desc, this);
+	}
+
+	Ref<IAccelerationStructure> GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	{
+		return Ref<IAccelerationStructure>();
 	}
 
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
@@ -226,7 +241,7 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureD3D12>(spec, this);
 	}
@@ -341,7 +356,7 @@ namespace Nexus::Graphics
 											  D3D12_RESOURCE_STATES		  after)
 	{
 		D3D12_RESOURCE_STATES resourceState = resource->GetResourceState(layer, level);
-		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetSpecification().MipLevels, resourceState, after);
+		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetDescription().MipLevels, resourceState, after);
 		resource->SetResourceState(layer, level, after);
 	}
 
@@ -401,15 +416,22 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
-	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8: return false;
-			case IndexBufferFormat::UInt16:
-			case IndexBufferFormat::UInt32: return true;
+			case IndexFormat::UInt8: return false;
+			case IndexFormat::UInt16:
+			case IndexFormat::UInt32: return true;
 			default: throw std::runtime_error("Failed to find index buffer format");
 		}
+	}
+
+	AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
+		const AccelerationStructureGeometryBuildDescription &description,
+		const std::vector<uint32_t>							&primitiveCount) const
+	{
+		return AccelerationStructureBuildSizeDescription();
 	}
 
 	void GraphicsDeviceD3D12::InitUploadCommandList()

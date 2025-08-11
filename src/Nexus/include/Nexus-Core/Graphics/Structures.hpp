@@ -45,16 +45,16 @@ namespace Nexus::Graphics
 		One,
 
 		/// @brief All channels will use the source colour
-		SourceColor,
+		SourceColour,
 
 		/// @brief All channels will use the inverse of the source data (1 - RGB)
-		OneMinusSourceColor,
+		OneMinusSourceColour,
 
 		/// @brief All channels will use the destination colour
-		DestinationColor,
+		DestinationColour,
 
 		/// @brief All channels will use the inverse of the destination data (1 - RGB)
-		OneMinusDestinationColor,
+		OneMinusDestinationColour,
 
 		/// @brief All channels will use the alpha channel of the source
 		SourceAlpha,
@@ -67,6 +67,18 @@ namespace Nexus::Graphics
 
 		/// @brief All channels will use the inverse of the desination alpha (1 - A)
 		OneMinusDestinationAlpha,
+
+		/// @brief All channels will use the factor specified by SetBlendFactor
+		FactorColour,
+
+		/// @brief All channels will use the inverse of the factor specified by SetBlendFactor
+		OneMinusFactorColour,
+
+		/// @brief All channels will use the alpha of the factor specified by SetBlendFactor
+		FactorAlpha,
+
+		/// @brief All channels will use the inverse of the factor specified by SetBlendFactor
+		OneMinusFactorAlpha
 	};
 
 	/// @brief A struct representing a mask of pixels to be written
@@ -239,6 +251,15 @@ namespace Nexus::Graphics
 
 		/// @brief A struct containing how pixels should be treated if the are facing away from the camera
 		StencilState Back = {};
+
+		/// @brief Whether the pipeline should discard pixels outside of the specified depth range
+		bool EnableDepthsBoundsTest = false;
+
+		/// @brief The minimum value that the depth can be before the pixel is discarded
+		float MinDepth = 0.0f;
+
+		/// @brief The maximum value that the depth can be before the pixel is discarded
+		float MaxDepth = 1.0f;
 	};
 
 	/// @brief A struct representing how triangles should be rendered onto the
@@ -265,13 +286,13 @@ namespace Nexus::Graphics
 		bool EnableBlending = false;
 
 		/// @brief How to perform blending on the output of the source colour
-		BlendFactor SourceColourBlend = BlendFactor::SourceColor;
+		BlendFactor SourceColourBlend = BlendFactor::SourceColour;
 
 		/// @brief How to perform blending on the output of the source alpha
 		BlendFactor SourceAlphaBlend = BlendFactor::One;
 
 		/// @brief How to perform blending on the output of the destination colour
-		BlendFactor DestinationColourBlend = BlendFactor::DestinationColor;
+		BlendFactor DestinationColourBlend = BlendFactor::DestinationColour;
 
 		/// @brief How to perform blending on the output of the destination alpha
 		BlendFactor DestinationAlphaBlend = BlendFactor::DestinationAlpha;

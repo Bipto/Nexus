@@ -7,20 +7,20 @@
 
 namespace Nexus::Graphics
 {
-	enum class IndexBufferFormat
+	enum class IndexFormat
 	{
 		UInt8,
 		UInt16,
 		UInt32
 	};
 
-	inline uint32_t GetIndexFormatSizeInBytes(IndexBufferFormat format)
+	inline uint32_t GetIndexFormatSizeInBytes(IndexFormat format)
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8: return sizeof(uint8_t);
-			case IndexBufferFormat::UInt16: return sizeof(uint16_t);
-			case IndexBufferFormat::UInt32: return sizeof(uint32_t);
+			case IndexFormat::UInt8: return sizeof(uint8_t);
+			case IndexFormat::UInt16: return sizeof(uint16_t);
+			case IndexFormat::UInt32: return sizeof(uint32_t);
 			default: throw std::runtime_error("Failed to find a valid index buffer format");
 		}
 	}
@@ -42,11 +42,13 @@ namespace Nexus::Graphics
 
 	enum BufferUsage : uint8_t
 	{
-		Vertex	 = BIT(0),
-		Index	 = BIT(1),
-		Uniform	 = BIT(2),
-		Storage	 = BIT(3),
-		Indirect = BIT(4)
+		Vertex									= BIT(0),
+		Index									= BIT(1),
+		Uniform									= BIT(2),
+		Storage									= BIT(3),
+		Indirect								= BIT(4),
+		AccelerationStructureStorage			= BIT(5),
+		AccelerationStructureBuildInputReadOnly = BIT(6)
 	};
 
 	struct DeviceBufferDescription
@@ -62,6 +64,9 @@ namespace Nexus::Graphics
 
 		/// @brief The stride of each item in the buffer in bytes
 		size_t StrideInBytes = 0;
+
+		/// @brief A debug name for the buffer, shows up in debugging tools
+		std::string DebugName = "DeviceBuffer";
 	};
 
 	class DeviceBuffer
@@ -124,7 +129,7 @@ namespace Nexus::Graphics
 		Ref<DeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
 		size_t			  Size		   = 0;
-		IndexBufferFormat BufferFormat = IndexBufferFormat::UInt32;
+		IndexFormat		  BufferFormat = IndexFormat::UInt32;
 	};
 
 	struct UniformBufferView

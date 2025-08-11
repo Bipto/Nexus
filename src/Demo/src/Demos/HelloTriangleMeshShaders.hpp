@@ -25,7 +25,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
-			m_CommandList->BeginDebugGroup("Rendering triangle");
+			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 
 			m_CommandList->SetPipeline(m_Pipeline);
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
@@ -54,8 +54,6 @@ namespace Demos
 			drawDesc.WorkGroupCountZ					  = 1;
 			m_CommandList->DrawMesh(drawDesc);
 
-			m_CommandList->EndDebugGroup();
-
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -78,13 +76,13 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
+			Nexus::Graphics::MeshletPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.MeshModule =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/mesh_shaders/hello_triangle_mesh.mesh.glsl",
@@ -93,12 +91,12 @@ namespace Demos
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/mesh_shaders/hello_triangle_mesh.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
-			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+			m_Pipeline = m_GraphicsDevice->CreateMeshletPipeline(pipelineDescription);
 		}
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::MeshletPipeline>  m_Pipeline;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

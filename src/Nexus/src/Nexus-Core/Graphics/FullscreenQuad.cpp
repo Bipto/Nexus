@@ -29,13 +29,15 @@ namespace Nexus::Graphics
 		if (m_HasUV)
 		{
 			return Nexus::Graphics::VertexBufferLayout(
-				{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}},
+				{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"}},
 				sizeof(glm::vec3) + sizeof(glm::vec2),
 				StepRate::Vertex);
 		}
 		else
 		{
-			return Nexus::Graphics::VertexBufferLayout({{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}}, sizeof(glm::vec3), StepRate::Vertex);
+			return Nexus::Graphics::VertexBufferLayout({{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
+													   sizeof(glm::vec3),
+													   StepRate::Vertex);
 		}
 	}
 

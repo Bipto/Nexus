@@ -204,31 +204,6 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
-	{
-		Nexus::Graphics::ResourceSetSpecification resourceSpec;
-		resourceSpec.SampledImages = {{"texture0", 1, 0},
-									  {"texture1", 1, 1},
-									  {"texture2", 1, 2},
-									  {"texture3", 1, 3},
-									  {"texture4", 1, 4},
-									  {"texture5", 1, 5},
-									  {"texture6", 1, 6},
-									  {"texture7", 1, 7},
-									  {"texture8", 1, 8},
-									  {"texture9", 1, 9},
-									  {"texture10", 1, 10},
-									  {"texture11", 1, 11},
-									  {"texture12", 1, 12},
-									  {"texture13", 1, 13},
-									  {"texture14", 1, 14},
-									  {"texture15", 1, 15}};
-
-		resourceSpec.UniformBuffers = {{"MVP", 0, 0}};
-
-		return resourceSpec;
-	}
-
 	const uint32_t MAX_VERTEX_COUNT	 = 1024;
 	const uint32_t MAX_TEXTURE_COUNT = 16;
 
@@ -292,7 +267,6 @@ namespace Nexus::Graphics
 		description.Layouts								 = {Nexus::Graphics::BatchVertex::GetLayout()};
 		description.VertexModule						 = vertexModule;
 		description.FragmentModule						 = fragmentModule;
-		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
 		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		description.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;
@@ -362,10 +336,10 @@ namespace Nexus::Graphics
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
-		Graphics::TextureSpecification textureSpec = {};
+		Graphics::TextureDescription textureSpec   = {};
 		textureSpec.Width						   = 1;
 		textureSpec.Height						   = 1;
-		textureSpec.ArrayLayers					   = 1;
+		textureSpec.DepthOrArrayLayers			   = 1;
 		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
 		textureSpec.Usage						   = Graphics::TextureUsage_Sampled;
 		m_BlankTexture							   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
@@ -405,7 +379,7 @@ namespace Nexus::Graphics
 		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
 		m_UniformBuffer										 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
 
-		Nexus::Graphics::SamplerSpecification samplerSpec {};
+		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
 		m_Sampler				 = m_Device->CreateSampler(samplerSpec);
 	}
@@ -1195,7 +1169,7 @@ namespace Nexus::Graphics
 		indexBufferView.BufferHandle	= info.IndexBuffer;
 		indexBufferView.Offset			= 0;
 		indexBufferView.Size			= info.IndexBuffer->GetSizeInBytes();
-		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
+		indexBufferView.BufferFormat	= Graphics::IndexFormat::UInt32;
 		m_CommandList->SetIndexBuffer(indexBufferView);
 
 		DrawIndexedDescription drawDesc = {};

@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
+#include "AccelerationStructure.hpp"
 #include "CommandList.hpp"
 #include "DeviceBuffer.hpp"
 #include "Fence.hpp"
@@ -67,9 +68,13 @@ namespace Nexus::Graphics
 
 		virtual Ref<ComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
+		virtual Ref<MeshletPipeline> CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
+
+		virtual Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
+
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
-		virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
+		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
 
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
@@ -87,22 +92,19 @@ namespace Nexus::Graphics
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set
 		/// @return A pointer to a resource set
-		virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
-
-		/// @brief A method that creates a new resource set from a pipeline
-		/// @param pipeline A pipeline to use when creating the resource set
-		/// @return A pointer to a resource set
-		Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
+		virtual Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline) = 0;
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
-		virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
+		virtual Ref<Sampler> CreateSampler(const SamplerDescription &spec) = 0;
 
 		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
 		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
+
+		virtual Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
 		/// the supported shading language of the backend
@@ -124,7 +126,7 @@ namespace Nexus::Graphics
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
+		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
 
 		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
 
@@ -169,12 +171,15 @@ namespace Nexus::Graphics
 
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const = 0;
 
-		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
-		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
-		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const = 0;
+		virtual const DeviceFeatures					 &GetPhysicalDeviceFeatures() const						 = 0;
+		virtual const DeviceLimits						 &GetPhysicalDeviceLimits() const						 = 0;
+		virtual bool									  IsIndexBufferFormatSupported(IndexFormat format) const = 0;
+		virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
+			const AccelerationStructureGeometryBuildDescription &description,
+			const std::vector<uint32_t>							&primitiveCount) const = 0;
 
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
+		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;
 		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:

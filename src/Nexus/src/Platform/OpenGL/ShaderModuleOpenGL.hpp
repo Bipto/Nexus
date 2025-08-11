@@ -12,12 +12,11 @@ namespace Nexus::Graphics
 	class ShaderModuleOpenGL : public ShaderModule
 	{
 	  public:
-		ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec,
-						   const ResourceSetSpecification  &resourceSpec,
-						   GraphicsDeviceOpenGL			   *device);
+		ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceOpenGL *device);
 		virtual ~ShaderModuleOpenGL();
 		GLenum	 GetGLShaderStage();
 		uint32_t GetHandle();
+		ShaderReflectionData Reflect() const final;
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device		= nullptr;

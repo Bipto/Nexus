@@ -23,7 +23,7 @@ namespace Nexus::GL
 		virtual bool						MakeCurrent() override;
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
-		virtual const ContextSpecification &GetSpecification() const override;
+		virtual const ContextSpecification &GetDescription() const override;
 		virtual bool						Validate() override;
 		void								HandleResize();
 
@@ -32,7 +32,7 @@ namespace Nexus::GL
 
 	  private:
 		Nexus::Graphics::GraphicsDeviceOpenGL *m_Device		   = nullptr;
-		ContextSpecification				   m_Specification = {};
+		ContextSpecification				   m_Description   = {};
 		std::string							   m_CanvasName	   = {};
 
 		Ref<Graphics::Framebuffer> m_Framebuffer			= nullptr;

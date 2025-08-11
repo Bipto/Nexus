@@ -142,7 +142,7 @@ namespace Nexus
 
 	  private:
 		/// @brief The specification that the application was created with
-		ApplicationSpecification m_Specification {};
+		ApplicationSpecification m_Description {};
 
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;

@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 	class TextureVk : public Texture
 	{
 	  public:
-		TextureVk(const TextureSpecification &spec, GraphicsDeviceVk *device);
+		TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device);
 		virtual ~TextureVk();
 
 		VkImage		GetImage();

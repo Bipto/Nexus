@@ -82,14 +82,18 @@ namespace Nexus::GL
 		{
 			case Nexus::Graphics::BlendFactor::Zero: return GL_ZERO;
 			case Nexus::Graphics::BlendFactor::One: return GL_ONE;
-			case Nexus::Graphics::BlendFactor::SourceColor: return GL_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceColor: return GL_ONE_MINUS_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::DestinationColor: return GL_DST_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationColor: return GL_ONE_MINUS_DST_COLOR;
+			case Nexus::Graphics::BlendFactor::SourceColour: return GL_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::DestinationColour: return GL_DST_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
 			case Nexus::Graphics::BlendFactor::SourceAlpha: return GL_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::DestinationAlpha: return GL_DST_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+			case Nexus::Graphics::BlendFactor::FactorColour: return GL_CONSTANT_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorColour: return GL_ONE_MINUS_CONSTANT_COLOR;
+			case Nexus::Graphics::BlendFactor::FactorAlpha: return GL_CONSTANT_ALPHA;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
 		}
 
 		throw std::runtime_error("Failed to find a valid blend function");
@@ -216,9 +220,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_Float:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_UNSIGNED_INT_24_8;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
 	#if defined(__EMSCRIPTEN__)
@@ -247,6 +248,11 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::BC5_SNorm:
 			case Nexus::Graphics::PixelFormat::BC7_UNorm:
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_UNSIGNED_BYTE;
+
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return GL_UNSIGNED_SHORT;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_UNSIGNED_INT_24_8;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_FLOAT;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -302,9 +308,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA_INTEGER;
 
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return GL_DEPTH_STENCIL;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGBA;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGBA_INTEGER;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_RGB;
@@ -328,11 +331,16 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::BC7_UNorm:
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_RGBA;
 
+			case Nexus::Graphics::PixelFormat::D16_UNorm:
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_DEPTH;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_DEPTH_STENCIL;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
 
-	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat)
+	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format)
 	{
 		switch (format)
 		{
@@ -341,7 +349,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R8_UInt: return GL_R8UI;
 			case Nexus::Graphics::PixelFormat::R8_SInt: return GL_R8I;
 
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return depthFormat ? GL_DEPTH_COMPONENT16 : GL_R16;
+			case Nexus::Graphics::PixelFormat::R16_UNorm: return GL_R16;
 			case Nexus::Graphics::PixelFormat::R16_SNorm: return GL_R16I;
 			case Nexus::Graphics::PixelFormat::R16_UInt: return GL_R16UI;
 			case Nexus::Graphics::PixelFormat::R16_SInt: return GL_R16I;
@@ -349,7 +357,7 @@ namespace Nexus::GL
 
 			case Nexus::Graphics::PixelFormat::R32_UInt: return GL_R32UI;
 			case Nexus::Graphics::PixelFormat::R32_SInt: return GL_R32I;
-			case Nexus::Graphics::PixelFormat::R32_Float: return depthFormat ? GL_DEPTH_COMPONENT32F : GL_R32F;
+			case Nexus::Graphics::PixelFormat::R32_Float: return GL_R32F;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_UNorm: return GL_RG8;
 			case Nexus::Graphics::PixelFormat::R8_G8_SNorm: return GL_RG8I;
@@ -384,9 +392,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA32I;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_RGBA32F;
 
-			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(depthFormat); return GL_DEPTH32F_STENCIL8;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(depthFormat); return GL_DEPTH24_STENCIL8;
-
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGB10_A2;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGB10_A2UI;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_R11F_G11F_B10F;
@@ -409,17 +414,22 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::BC7_UNorm: return GL_COMPRESSED_RGBA_BPTC_UNORM;
 			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM;
 
+			case Nexus::Graphics::PixelFormat::D16_UNorm: return GL_DEPTH_COMPONENT16;
+			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_DEPTH24_STENCIL8;
+			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_DEPTH_COMPONENT32;
+			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_DEPTH32F_STENCIL8;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
 
-	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexFormat format)
 	{
 		switch (format)
 		{
-			case Nexus::Graphics::IndexBufferFormat::UInt8: return GL_UNSIGNED_BYTE;
-			case Nexus::Graphics::IndexBufferFormat::UInt16: return GL_UNSIGNED_SHORT;
-			case Nexus::Graphics::IndexBufferFormat::UInt32: return GL_UNSIGNED_INT;
+			case Nexus::Graphics::IndexFormat::UInt8: return GL_UNSIGNED_BYTE;
+			case Nexus::Graphics::IndexFormat::UInt16: return GL_UNSIGNED_SHORT;
+			case Nexus::Graphics::IndexFormat::UInt32: return GL_UNSIGNED_INT;
 			default: throw std::runtime_error("Failed to find a valid index buffer format");
 		}
 	}
@@ -443,8 +453,8 @@ namespace Nexus::GL
 		{
 			case Nexus::Graphics::ShaderStage::Compute: return GL_COMPUTE_SHADER;
 			case Nexus::Graphics::ShaderStage::Geometry: return GL_GEOMETRY_SHADER;
-			case Nexus::Graphics::ShaderStage::TesselationControl: return GL_TESS_CONTROL_SHADER;
-			case Nexus::Graphics::ShaderStage::TesselationEvaluation: return GL_TESS_EVALUATION_SHADER;
+			case Nexus::Graphics::ShaderStage::TessellationControl: return GL_TESS_CONTROL_SHADER;
+			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return GL_TESS_EVALUATION_SHADER;
 			case Nexus::Graphics::ShaderStage::Fragment: return GL_FRAGMENT_SHADER;
 			case Nexus::Graphics::ShaderStage::Vertex: return GL_VERTEX_SHADER;
 
@@ -475,14 +485,14 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GetTextureType(const Graphics::TextureSpecification &spec)
+	GLenum GetTextureType(const Graphics::TextureDescription &spec)
 	{
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
 			{
 	#if !defined(__EMSCRIPTEN__)
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					return GL_TEXTURE_1D_ARRAY;
 				}
@@ -496,44 +506,43 @@ namespace Nexus::GL
 			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.DepthOrArrayLayers > 1)
 				{
-					if (spec.ArrayLayers > 6)
-					{
-						return GL_TEXTURE_CUBE_MAP_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_CUBE_MAP;
-					}
+					return GL_TEXTURE_2D_ARRAY;
 				}
 				else
 				{
-					if (spec.ArrayLayers > 1)
-					{
-						return GL_TEXTURE_2D_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_2D;
-					}
+					return GL_TEXTURE_2D;
 				}
 			}
 			case Graphics::TextureType::Texture3D:
 			{
 				return GL_TEXTURE_3D;
 			}
+
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers > 1)
+				{
+					return GL_TEXTURE_CUBE_MAP_ARRAY;
+				}
+				else
+				{
+					return GL_TEXTURE_CUBE_MAP;
+				}
+				break;
+			}
 			default: throw std::runtime_error("Failed to find a valid texture type");
 		}
 	}
 
-	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec)
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec)
 	{
 		switch (spec.Type)
 		{
 			case Graphics::TextureType::Texture1D:
 			{
-				if (spec.ArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 1)
 				{
 					return GLInternalTextureFormat::Texture1DArray;
 				}
@@ -545,46 +554,43 @@ namespace Nexus::GL
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.Samples > 1)
 				{
-					if (spec.ArrayLayers > 6)
+					if (spec.DepthOrArrayLayers > 1)
 					{
-						return GLInternalTextureFormat::CubemapArray;
+						return GLInternalTextureFormat::Texture2DArrayMultisample;
 					}
 					else
 					{
-						return GLInternalTextureFormat::Cubemap;
+						return GLInternalTextureFormat::Texture2DMultisample;
 					}
 				}
 				else
 				{
-					if (spec.Samples > 1)
+					if (spec.DepthOrArrayLayers > 1)
 					{
-						if (spec.ArrayLayers > 1)
-						{
-							return GLInternalTextureFormat::Texture2DArrayMultisample;
-						}
-						else
-						{
-							return GLInternalTextureFormat::Texture2DMultisample;
-						}
+						return GLInternalTextureFormat::Texture2DArray;
 					}
 					else
 					{
-						if (spec.ArrayLayers > 1)
-						{
-							return GLInternalTextureFormat::Texture2DArray;
-						}
-						else
-						{
-							return GLInternalTextureFormat::Texture2D;
-						}
+						return GLInternalTextureFormat::Texture2D;
 					}
 				}
 			}
 			case Graphics::TextureType::Texture3D:
 			{
 				return GLInternalTextureFormat::Texture3D;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (spec.DepthOrArrayLayers > 6)
+				{
+					return GLInternalTextureFormat::CubemapArray;
+				}
+				else
+				{
+					return GLInternalTextureFormat::Cubemap;
+				}
 			}
 			default: throw std::runtime_error("Failed to find a valid GLInternalTextureFormat");
 		}
@@ -686,252 +692,288 @@ namespace Nexus::GL
 	{
 		switch (element.Type)
 		{
-			case Graphics::ShaderDataType::Byte:
+			case Graphics::ShaderDataType::R8_UInt:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Byte2:
+
+			case Graphics::ShaderDataType::R8G8_UInt:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Byte4:
+
+			case Graphics::ShaderDataType::R8G8B8A8_UInt:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::NormByte:
+			case Graphics::ShaderDataType::R8_UNorm:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::NormByte2:
+
+			case Graphics::ShaderDataType::R8G8_UNorm:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::NormByte4:
+			case Graphics::ShaderDataType::R8G8B8A8_UNorm:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Float:
+			case Graphics::ShaderDataType::R32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Float2:
+
+			case Graphics::ShaderDataType::R32G32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Float3:
+
+			case Graphics::ShaderDataType::R32G32B32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 3;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Float4:
+
+			case Graphics::ShaderDataType::R32G32B32A32_SFloat:
 				baseType	   = GL_FLOAT;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Half:
+			case Graphics::ShaderDataType::R16_SFloat:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Half2:
+
+			case Graphics::ShaderDataType::R16G16_SFloat:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Half4:
+
+			case Graphics::ShaderDataType::R16G16B16A16_SFloat:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Int:
+			case Graphics::ShaderDataType::R32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Int2:
+
+			case Graphics::ShaderDataType::R32G32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Int3:
+
+			case Graphics::ShaderDataType::R32G32B32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 3;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Int4:
+
+			case Graphics::ShaderDataType::R32G32B32A32_SInt:
 				baseType	   = GL_INT;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
 
-			case Graphics::ShaderDataType::SignedByte:
+			case Graphics::ShaderDataType::R8_SInt:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte2:
+
+			case Graphics::ShaderDataType::R8G8_SInt:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte4:
+			case Graphics::ShaderDataType::R8G8B8A8_SInt:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::SignedByteNormalized:
+			case Graphics::ShaderDataType::R16_SNorm:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte2Normalized:
+
+			case Graphics::ShaderDataType::R16G16_SNorm:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::SignedByte4Normalized:
+
+			case Graphics::ShaderDataType::R16G16B16A16_SNorm:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::Short:
+			case Graphics::ShaderDataType::R16_SInt:
 				baseType	   = GL_SHORT;
 				componentCount = 1;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Short2:
+
+			case Graphics::ShaderDataType::R16G16_SInt:
 				baseType	   = GL_SHORT;
 				componentCount = 2;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::Short4:
+
+			case Graphics::ShaderDataType::R16G16B16A16_SInt:
 				baseType	   = GL_SHORT;
 				componentCount = 4;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 
-			case Graphics::ShaderDataType::ShortNormalized:
+			case Graphics::ShaderDataType::R8_SNorm:
 				baseType	   = GL_SHORT;
 				componentCount = 1;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Short2Normalized:
+			case Graphics::ShaderDataType::R8G8_SNorm:
 				baseType	   = GL_SHORT;
 				componentCount = 2;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
-			case Graphics::ShaderDataType::Short4Normalized:
+			case Graphics::ShaderDataType::R8G8B8A8_SNorm:
 				baseType	   = GL_SHORT;
 				componentCount = 4;
 				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::UInt:
+			case Graphics::ShaderDataType::R32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 1;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UInt2:
+
+			case Graphics::ShaderDataType::R32G32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 2;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UInt3:
+
+			case Graphics::ShaderDataType::R32G32B32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 3;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UInt4:
+
+			case Graphics::ShaderDataType::R32G32B32A32_UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 4;
 				normalized	   = false;
 				primitiveType  = GLPrimitiveType::Int;
 				break;
 
-			case Graphics::ShaderDataType::UShort:
+			case Graphics::ShaderDataType::R16_UInt:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 1;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UShort2:
+
+			case Graphics::ShaderDataType::R16G16_UInt:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 2;
 				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
-			case Graphics::ShaderDataType::UShort4:
+
+			case Graphics::ShaderDataType::R16G16B16A16_UInt:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
+				break;
+
+			case Graphics::ShaderDataType::R16_UNorm:
+				baseType	   = GL_UNSIGNED_SHORT;
+				componentCount = 1;
+				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
+				break;
+			case Graphics::ShaderDataType::R16G16_UNorm:
+				baseType	   = GL_UNSIGNED_SHORT;
+				componentCount = 2;
+				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
+				break;
+			case Graphics::ShaderDataType::R16G16B16A16_UNorm:
+				baseType	   = GL_UNSIGNED_SHORT;
+				componentCount = 4;
+				normalized	   = true;
 				primitiveType  = GLPrimitiveType::Float;
 				break;
 
-			case Graphics::ShaderDataType::UShortNormalized:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::UShort2Normalized:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::UShort4Normalized:
-				baseType	   = GL_UNSIGNED_SHORT;
+			case Graphics::ShaderDataType::A2B10G10R10_UNorm:
+				baseType	   = GL_INT_2_10_10_10_REV;
 				componentCount = 4;
 				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
+
+			case Graphics::ShaderDataType::A2B10G10R10_UInt:
+				baseType	   = GL_UNSIGNED_INT_2_10_10_10_REV;
+				componentCount = 4;
+				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
+				break;
+
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
 	}
@@ -1044,11 +1086,11 @@ namespace Nexus::GL
 								Graphics::SubresourceDescription  subresource,
 								const GladGLContext				 &context)
 	{
-		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+		NX_ASSERT(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		if (subresource.Depth > 1)
 		{
-			NX_ASSERT(texture->GetSpecification().Type == Graphics::TextureType::Texture3D,
+			NX_ASSERT(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
 					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
@@ -1059,7 +1101,7 @@ namespace Nexus::GL
 
 		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
-							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		switch (texture->GetInternalGLTextureFormat())
 		{
@@ -1090,16 +1132,6 @@ namespace Nexus::GL
 												 (const void *)(uint64_t)bufferOffset));
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(context.TextureSubImage2D(texture->GetHandle(),
-												 subresource.MipLevel,
-												 subresource.X,
-												 subresource.Y,
-												 subresource.Width,
-												 subresource.Height,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)bufferOffset));
-				break;
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
@@ -1127,11 +1159,11 @@ namespace Nexus::GL
 								   Graphics::SubresourceDescription	 subresource,
 								   const GladGLContext				&context)
 	{
-		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+		NX_ASSERT(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		if (subresource.Depth > 1)
 		{
-			NX_ASSERT(texture->GetSpecification().Type == Graphics::TextureType::Texture3D,
+			NX_ASSERT(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
 					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
@@ -1144,7 +1176,7 @@ namespace Nexus::GL
 
 		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
-							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		switch (texture->GetInternalGLTextureFormat())
 		{
@@ -1229,7 +1261,7 @@ namespace Nexus::GL
 								Graphics::SubresourceDescription  subresource,
 								const GladGLContext				 &context)
 	{
-		const auto &textureSpecification = texture->GetSpecification();
+		const auto &textureSpecification = texture->GetDescription();
 
 		size_t layerSize =
 			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);
@@ -1274,7 +1306,7 @@ namespace Nexus::GL
 								   Graphics::SubresourceDescription	 subresource,
 								   const GladGLContext				&context)
 	{
-		const auto &textureSpecification = texture->GetSpecification();
+		const auto &textureSpecification = texture->GetDescription();
 
 		size_t layerSize =
 			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);
@@ -1329,6 +1361,150 @@ namespace Nexus::GL
 		else
 		{
 			CopyTextureToBufferNonDSA(texture, buffer, bufferOffset, subresource, context);
+		}
+	}
+
+	void CopyTextureToTextureDSA(Ref<Graphics::TextureOpenGL>			 source,
+								 Ref<Graphics::TextureOpenGL>			 destination,
+								 const Graphics::TextureCopyDescription &copyDesc,
+								 const GladGLContext					&context)
+	{
+		GLenum srcGlAspect		 = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+		GLenum srcAttachmentType = GL::GetAttachmentType(copyDesc.SourceSubresource.Aspect, 0);
+		GLenum dstGlAspect		 = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+		GLenum dstAttachmentType = GL::GetAttachmentType(copyDesc.DestinationSubresource.Aspect, 0);
+
+		for (uint32_t layer = copyDesc.SourceSubresource.Z; layer < copyDesc.SourceSubresource.Depth; layer++)
+		{
+			GLuint sourceFramebufferHandle = 0;
+			GLuint destFramebufferHandle   = 0;
+
+			// set up source framebuffer
+			{
+				context.CreateFramebuffers(1, &sourceFramebufferHandle);
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+				GL::AttachTexture(sourceFramebufferHandle,
+								  source,
+								  copyDesc.SourceSubresource.MipLevel,
+								  layer,
+								  copyDesc.SourceSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(sourceFramebufferHandle, context);
+			}
+
+			// set up dest framebuffer
+			{
+				context.CreateFramebuffers(1, &destFramebufferHandle);
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+				GL::AttachTexture(destFramebufferHandle,
+								  destination,
+								  copyDesc.DestinationSubresource.MipLevel,
+								  layer,
+								  copyDesc.DestinationSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(destFramebufferHandle, context);
+			}
+
+			context.BlitNamedFramebuffer(sourceFramebufferHandle,
+										 destFramebufferHandle,
+										 copyDesc.SourceSubresource.X,
+										 copyDesc.SourceSubresource.Y,
+										 copyDesc.SourceSubresource.Width,
+										 copyDesc.SourceSubresource.Height,
+										 copyDesc.DestinationSubresource.X,
+										 copyDesc.DestinationSubresource.Y,
+										 copyDesc.DestinationSubresource.Width,
+										 copyDesc.DestinationSubresource.Height,
+										 GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+										 GL_NEAREST);
+
+			std::array<uint32_t, 2> framebuffers = {sourceFramebufferHandle, destFramebufferHandle};
+			context.DeleteFramebuffers(framebuffers.size(), framebuffers.data());
+		}
+	}
+
+	void CopyTextureToTextureNonDSA(Ref<Graphics::TextureOpenGL>			source,
+									Ref<Graphics::TextureOpenGL>			destination,
+									const Graphics::TextureCopyDescription &copyDesc,
+									const GladGLContext					   &context)
+	{
+		GLenum srcGlAspect		 = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+		GLenum srcAttachmentType = GL::GetAttachmentType(copyDesc.SourceSubresource.Aspect, 0);
+		GLenum dstGlAspect		 = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+		GLenum dstAttachmentType = GL::GetAttachmentType(copyDesc.DestinationSubresource.Aspect, 0);
+
+		for (uint32_t layer = copyDesc.SourceSubresource.Z; layer < copyDesc.SourceSubresource.Depth; layer++)
+		{
+			GLuint sourceFramebufferHandle = 0;
+			GLuint destFramebufferHandle   = 0;
+
+			// set up source framebuffer
+			{
+				glCall(context.GenFramebuffers(1, &sourceFramebufferHandle));
+				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+				GL::AttachTexture(sourceFramebufferHandle,
+								  source,
+								  copyDesc.SourceSubresource.MipLevel,
+								  layer,
+								  copyDesc.SourceSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(sourceFramebufferHandle, context);
+			}
+
+			// set up dest framebuffer
+			{
+				glCall(context.GenFramebuffers(1, &destFramebufferHandle));
+				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+				GL::AttachTexture(destFramebufferHandle,
+								  destination,
+								  copyDesc.DestinationSubresource.MipLevel,
+								  layer,
+								  copyDesc.DestinationSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(destFramebufferHandle, context);
+			}
+
+			context.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
+			context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
+
+			// copy all attached aspect masks
+			context.BlitFramebuffer(copyDesc.SourceSubresource.X,
+									copyDesc.SourceSubresource.Y,
+									copyDesc.SourceSubresource.Width,
+									copyDesc.SourceSubresource.Height,
+									copyDesc.DestinationSubresource.X,
+									copyDesc.DestinationSubresource.Y,
+									copyDesc.DestinationSubresource.Width,
+									copyDesc.DestinationSubresource.Height,
+									GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+									GL_NEAREST);
+
+			context.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+			context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+			glCall(context.DeleteFramebuffers(1, &sourceFramebufferHandle));
+			glCall(context.DeleteFramebuffers(1, &destFramebufferHandle));
+		}
+	}
+
+	void CopyTextureToTexture(Ref<Graphics::TextureOpenGL>			  source,
+							  Ref<Graphics::TextureOpenGL>			  destination,
+							  const Graphics::TextureCopyDescription &copyDesc,
+							  const GladGLContext					 &context)
+	{
+		if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+		{
+			CopyTextureToTextureDSA(source, destination, copyDesc, context);
+		}
+		else
+		{
+			CopyTextureToTextureNonDSA(source, destination, copyDesc, context);
 		}
 	}
 

@@ -15,11 +15,29 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides) = 0;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)						   = 0;
-	};
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass)					 = 0;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) = 0;
 
-	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
+		const std::vector<VkDescriptorSetLayout> &GetDescriptorSetLayouts() const
+		{
+			return m_DescriptorSetLayouts;
+		}
+
+		const std::map<VkDescriptorType, uint32_t> &GetDescriptorCounts() const
+		{
+			return m_DescriptorCounts;
+		}
+
+		VkPipelineLayout GetPipelineLayout() const
+		{
+			return m_PipelineLayout;
+		}
+
+	  protected:
+		std::vector<VkDescriptorSetLayout>	 m_DescriptorSetLayouts = {};
+		std::map<VkDescriptorType, uint32_t> m_DescriptorCounts;
+		VkPipelineLayout					 m_PipelineLayout;
+	};
 
 	class GraphicsPipelineVk : public GraphicsPipeline, public PipelineVk
 	{
@@ -29,30 +47,33 @@ namespace Nexus::Graphics
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 		VkPipelineLayout						   GetPipelineLayout();
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &) final;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
-		VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
-		VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
-		VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags);
-		VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo();
-		std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates();
-		VkPipelineDepthStencilStateCreateInfo			 CreatePipelineDepthStencilStateCreateInfo();
-
-		VkPrimitiveTopology GetPrimitiveTopology();
-		VkPolygonMode		GetPolygonMode();
-		VkCullModeFlags		GetCullMode();
-
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
-		void	   CreatePipelineLayout();
-		VkPipeline CreateGraphicsPipeline(VkRenderPass renderPass);
+	  private:
+		std::map<VkRenderPass, VkPipeline> m_Pipelines;
+		GraphicsDeviceVk				  *m_GraphicsDevice;
+	};
+
+	class MeshletPipelineVk : public MeshletPipeline, public PipelineVk
+	{
+	  public:
+		MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
+		~MeshletPipelineVk();
+		VkPipelineLayout GetPipelineLayout();
+
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
-		VkPipelineLayout															 m_PipelineLayout;
-		std::map<VkRenderPass, VkPipeline>											 m_Pipelines;
-		GraphicsDeviceVk															*m_GraphicsDevice;
+		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
+
+	  private:
+		std::map<VkRenderPass, VkPipeline> m_Pipelines;
+		GraphicsDeviceVk				  *m_GraphicsDevice;
 	};
 
 	class ComputePipelineVk : public ComputePipeline, public PipelineVk
@@ -60,11 +81,10 @@ namespace Nexus::Graphics
 	  public:
 		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		virtual ~ComputePipelineVk();
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides) final;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
-		VkPipelineLayout  m_PipelineLayout;
 		VkPipeline		  m_Pipeline;
 		GraphicsDeviceVk *m_GraphicsDevice;
 	};

@@ -100,10 +100,10 @@ namespace Nexus::Processors
 		memcpy(pixels.data(), texture->pcData, pixels.size());
 		Nexus::Utils::FlipPixelsVertically(pixels.data(), texture->mWidth, texture->mHeight, Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Nexus::Graphics::TextureSpecification textureSpec = {};
+		Nexus::Graphics::TextureDescription textureSpec	  = {};
 		textureSpec.Format								  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		textureSpec.MipLevels							  = 1;
-		textureSpec.ArrayLayers							  = 1;
+		textureSpec.DepthOrArrayLayers					  = 1;
 		textureSpec.Width								  = texture->mWidth;
 		textureSpec.Height								  = texture->mHeight;
 		textureSpec.Type								  = Nexus::Graphics::TextureType::Texture2D;
@@ -111,12 +111,12 @@ namespace Nexus::Processors
 
 		Nexus::Ref<Nexus::Graphics::Texture> createdTexture = Nexus::Ref<Nexus::Graphics::Texture>(device->CreateTexture(textureSpec));
 
-		Graphics::DeviceBufferDescription bufferDesc   = {};
-		bufferDesc.Access							   = Graphics::BufferMemoryAccess::Upload;
-		bufferDesc.Usage							   = BUFFER_USAGE_NONE;
-		bufferDesc.SizeInBytes						   = pixels.size();
-		bufferDesc.StrideInBytes					   = pixels.size();
-		Ref<Graphics::DeviceBuffer> buffer			   = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access							 = Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.Usage							 = BUFFER_USAGE_NONE;
+		bufferDesc.SizeInBytes						 = pixels.size();
+		bufferDesc.StrideInBytes					 = pixels.size();
+		Ref<Graphics::DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
 
 		Ref<Graphics::CommandList> cmdList = device->CreateCommandList();
 

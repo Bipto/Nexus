@@ -6,166 +6,162 @@
 	#include "Nexus-Core/Utils/Utils.hpp"
 	#include "SamplerD3D12.hpp"
 	#include "TextureD3D12.hpp"
+	#include "PipelineD3D12.hpp"
 
 namespace Nexus::Graphics
 {
-	ResourceSetD3D12::ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device) : ResourceSet(spec)
+	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : ResourceSet(pipeline), m_Device(device)
 	{
-		m_Device		 = device;
-		auto d3d12Device = m_Device->GetDevice();
+		Ref<PipelineD3D12>						  pipelineD3D12		   = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
+		m_DescriptorHandleInfo										   = pipelineD3D12->GetDescriptorHandleInfo();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice				   = m_Device->GetDevice();
 
-		size_t samplerCount		   = spec.SampledImages.size();
-		size_t constantBufferCount = spec.UniformBuffers.size();
-		size_t storageImageCount   = spec.StorageImages.size();
-		size_t storageBufferCount  = spec.StorageBuffers.size();
-		size_t viewCount		   = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size() + spec.StorageBuffers.size();
-
-		if (samplerCount > 0)
+		// create sampler heap
+		if (m_DescriptorHandleInfo.SamplerHeapCount > 0)
 		{
-			D3D12_DESCRIPTOR_HEAP_DESC samplerDesc;
-			samplerDesc.NumDescriptors = samplerCount;
-			samplerDesc.Type		   = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-			samplerDesc.Flags		   = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-			samplerDesc.NodeMask	   = 0;
+			D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
+			samplerHeapDesc.NumDescriptors			   = m_DescriptorHandleInfo.SamplerHeapCount;
+			samplerHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+			samplerHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			samplerHeapDesc.NodeMask				   = 0;
 
-			d3d12Device->CreateDescriptorHeap(&samplerDesc, IID_PPV_ARGS(&m_SamplerDescriptorHeap));
+			d3dDevice->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&m_SamplerDescriptorHeap));
 
-			auto cpuLocation = m_SamplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-			auto gpuLocation = m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-			for (size_t i = 0; i < samplerCount; i++)
+			for (const auto &[name, offset] : m_DescriptorHandleInfo.SamplerIndexes)
 			{
-				const auto	  &textureInfo = spec.SampledImages.at(i);
-				const uint32_t slot		   = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
-
-				m_SamplerCPUDescriptors[slot] = cpuLocation;
-				m_SamplerGPUDescriptors[slot] = gpuLocation;
-
-				cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-				gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle = m_SamplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				descriptorHandle.ptr += d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) * offset;
+				m_SamplerDescriptorHandles[name] = descriptorHandle;
 			}
 		}
 
-		if (viewCount > 0)
+		// create SRV UAV CBV heap
+		if (m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount > 0)
 		{
-			D3D12_DESCRIPTOR_HEAP_DESC constantBufferTextureDesc;
-			constantBufferTextureDesc.NumDescriptors = viewCount;
-			constantBufferTextureDesc.Type			 = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-			constantBufferTextureDesc.Flags			 = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-			constantBufferTextureDesc.NodeMask		 = 0;
+			D3D12_DESCRIPTOR_HEAP_DESC srvUavCbvHeapDesc = {};
+			srvUavCbvHeapDesc.NumDescriptors			 = m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount;
+			srvUavCbvHeapDesc.Type						 = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			srvUavCbvHeapDesc.Flags						 = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			srvUavCbvHeapDesc.NodeMask					 = 0;
 
-			d3d12Device->CreateDescriptorHeap(&constantBufferTextureDesc, IID_PPV_ARGS(&m_TextureConstantBufferDescriptorHeap));
+			d3dDevice->CreateDescriptorHeap(&srvUavCbvHeapDesc, IID_PPV_ARGS(&m_SRV_UAV_CBV_DescriptorHeap));
 
-			auto cpuLocation = m_TextureConstantBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-			auto gpuLocation = m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-			if (spec.StorageBuffers.size() > 0)
+			for (const auto &[name, offset] : m_DescriptorHandleInfo.NonSamplerIndexes)
 			{
-				size_t offsetAmount					 = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size();
-				m_StorageBufferDescriptorStartHandle = m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-				m_StorageBufferDescriptorStartHandle.ptr +=
-					offsetAmount * d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle = m_SRV_UAV_CBV_DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				descriptorHandle.ptr += d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;
+				m_SRV_UAV_CBV_DescriptorHandles[name] = descriptorHandle;
 			}
+		}
 
-			// create texture handles
+		// create descriptor table handles
+		for (const D3D12::DescriptorTableInfo &descriptorTableInfo : m_DescriptorHandleInfo.DescriptorTables)
+		{
+			switch (descriptorTableInfo.Source)
 			{
-				for (size_t i = 0; i < spec.SampledImages.size(); i++)
+				case D3D12::DescriptorHandleSource::Sampler:
 				{
-					const auto	  &textureInfo = spec.SampledImages.at(i);
-					const uint32_t slot		   = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
+					D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle = m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+					descriptorHandle.ptr +=
+						(d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) * descriptorTableInfo.Offset);
+					m_DescriptorTables.push_back(descriptorHandle);
 
-					m_TextureCPUDescriptors[slot] = cpuLocation;
-					m_TextureGPUDescriptors[slot] = gpuLocation;
-
-					cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					break;
 				}
-			}
-
-			// create constant buffer handles
-			{
-				for (size_t i = 0; i < spec.UniformBuffers.size(); i++)
+				case D3D12::DescriptorHandleSource::SRV_UAV_CBV:
 				{
-					const auto	  &constantBufferInfo = spec.UniformBuffers.at(i);
-					const uint32_t slot				  = ResourceSet::GetLinearDescriptorSlot(constantBufferInfo.Set, constantBufferInfo.Binding);
-
-					m_ConstantBufferCPUDescriptors[slot] = cpuLocation;
-					m_ConstantBufferGPUDescriptors[slot] = gpuLocation;
-
-					cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle = m_SRV_UAV_CBV_DescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+					descriptorHandle.ptr +=
+						(d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * descriptorTableInfo.Offset);
+					m_DescriptorTables.push_back(descriptorHandle);
+					break;
 				}
+				default: throw std::runtime_error("Failed to find a valid descriptor handle source");
 			}
+		}
 
-			// create storage image handles
-			{
-				for (size_t i = 0; i < spec.StorageImages.size(); i++)
-				{
-					const auto	  &storageImageInfo = spec.StorageImages.at(i);
-					const uint32_t slot				= ResourceSet::GetLinearDescriptorSlot(storageImageInfo.Set, storageImageInfo.Binding);
+		if (m_SamplerDescriptorHeap)
+		{
+			m_DescriptorHeapArray.push_back(m_SamplerDescriptorHeap.Get());
+		}
 
-					m_StorageImageCPUDescriptors[slot] = cpuLocation;
-					m_StorageImageGPUDescriptors[slot] = gpuLocation;
-
-					cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				}
-			}
-
-			// create storage buffer handles
-			{
-				for (size_t i = 0; i < spec.StorageBuffers.size(); i++)
-				{
-					const auto	  &storageBufferInfo = spec.StorageBuffers.at(i);
-					const uint32_t slot				 = ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
-
-					m_StorageBufferCPUDescriptors[slot] = cpuLocation;
-					m_StorageBufferGPUDescriptors[slot] = gpuLocation;
-
-					cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				}
-			}
+		if (m_SRV_UAV_CBV_DescriptorHeap)
+		{
+			m_DescriptorHeapArray.push_back(m_SRV_UAV_CBV_DescriptorHeap.Get());
 		}
 	}
 
 	void ResourceSetD3D12::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
 	{
-		const BindingInfo &info		   = m_StorageBufferBindingInfos.at(name);
-		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto			   d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
 		{
 			NX_ASSERT(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
-			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-			uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+			StorageResourceAccess access = m_DescriptorHandleInfo.StorageBuffers.at(name);
+			bool				  readonly;
+			bool				  byteAddress;
+			D3D12::GetShaderAccessModifiers(access, readonly, byteAddress);
 
-			// storage buffers are accessed in 4 byte chunks
-			uavDesc.Format							 = DXGI_FORMAT_R32_TYPELESS;
-
-			size_t bufferOffset = storageBuffer.Offset;
-			if (bufferOffset > 0)
+			// use SRV for readonly optimizations
+			if (readonly)
 			{
-				bufferOffset /= 4;
-			}
-			uavDesc.Buffer.FirstElement = bufferOffset;
+				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+				srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_BUFFER;
 
-			size_t bufferSize = storageBuffer.SizeInBytes;
-			if (bufferSize > 0)
+				if (byteAddress)
+				{
+					srvDesc.Format					   = DXGI_FORMAT_R32_TYPELESS;
+					srvDesc.Buffer.FirstElement		   = Utils::AlignTo<size_t>(storageBuffer.Offset, 4);
+					srvDesc.Buffer.NumElements		   = storageBuffer.SizeInBytes / 4;
+					srvDesc.Buffer.StructureByteStride = 0;
+					srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_RAW;
+				}
+				else
+				{
+					size_t stride					   = storageBuffer.BufferHandle->GetStrideInBytes();
+					srvDesc.Format					   = DXGI_FORMAT_UNKNOWN;
+					srvDesc.Buffer.FirstElement		   = (storageBuffer.Offset / stride);
+					srvDesc.Buffer.NumElements		   = (storageBuffer.SizeInBytes / stride);
+					srvDesc.Buffer.StructureByteStride = stride;
+					srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_NONE;
+				}
+
+				auto						resourceHandle = d3d12StorageBuffer->GetHandle();
+				D3D12_CPU_DESCRIPTOR_HANDLE srvHandle	   = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+				d3d12Device->CreateShaderResourceView(resourceHandle.Get(), &srvDesc, srvHandle);
+			}
+			// create UAV to allow read/write
+			else
 			{
-				bufferSize /= 4;
+				D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+				uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+
+				if (byteAddress)
+				{
+					// storage buffers are accessed in 4 byte chunks
+					uavDesc.Format						= DXGI_FORMAT_R32_TYPELESS;
+					uavDesc.Buffer.FirstElement			= Utils::AlignTo<size_t>(storageBuffer.Offset, 4);
+					uavDesc.Buffer.NumElements			= storageBuffer.SizeInBytes / 4;
+					uavDesc.Buffer.StructureByteStride	= 0;
+					uavDesc.Buffer.CounterOffsetInBytes = 0;
+					uavDesc.Buffer.Flags				= D3D12_BUFFER_UAV_FLAG_RAW;
+				}
+				else
+				{
+					size_t stride						= storageBuffer.BufferHandle->GetStrideInBytes();
+					uavDesc.Format						= DXGI_FORMAT_UNKNOWN;
+					uavDesc.Buffer.FirstElement			= (storageBuffer.Offset / stride);
+					uavDesc.Buffer.CounterOffsetInBytes = 0;
+					uavDesc.Buffer.NumElements			= (storageBuffer.SizeInBytes / stride);
+					uavDesc.Buffer.StructureByteStride	= stride;
+					uavDesc.Buffer.Flags				= D3D12_BUFFER_UAV_FLAG_NONE;
+				}
+
+				auto						resourceHandle = d3d12StorageBuffer->GetHandle();
+				D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+				d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 			}
-			uavDesc.Buffer.NumElements = bufferSize;
-
-			// access as a raw buffer (no stride as it is assumed that the buffer is some multiple of 4 bytes)
-			uavDesc.Buffer.StructureByteStride		 = 0;
-			uavDesc.Buffer.CounterOffsetInBytes		 = 0;
-			uavDesc.Buffer.Flags					 = D3D12_BUFFER_UAV_FLAG_RAW;
-
-			auto						resourceHandle = d3d12StorageBuffer->GetHandle();
-			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_StorageBufferCPUDescriptors.at(index);
-			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 
 			m_BoundStorageBuffers[name] = storageBuffer;
 		}
@@ -173,9 +169,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetD3D12::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
-		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
-		auto			   d3d12Device = m_Device->GetDevice();
+		auto d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle))
 		{
 			NX_ASSERT(d3d12UniformBuffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
@@ -187,7 +181,7 @@ namespace Nexus::Graphics
 			size_t bufferViewSize = Utils::AlignTo<size_t>(uniformBuffer.Size, 256);
 			desc.SizeInBytes	  = bufferViewSize;
 
-			d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
+			d3d12Device->CreateConstantBufferView(&desc, m_SRV_UAV_CBV_DescriptorHandles.at(name));
 
 			m_BoundUniformBuffers[name] = uniformBuffer;
 		}
@@ -200,20 +194,18 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
 
-			const BindingInfo &info	 = m_CombinedImageSamplerBindingInfos.at(name);
-			const uint32_t	   index = GetLinearDescriptorSlot(info.Set, info.Binding);
+			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(texture->GetDescription());
 
-			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(texture->GetSpecification());
-
-			D3D12_CPU_DESCRIPTOR_HANDLE textureHandle  = m_TextureCPUDescriptors.at(index);
+			D3D12_CPU_DESCRIPTOR_HANDLE textureHandle  = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 			auto						resourceHandle = d3d12Texture->GetHandle();
 			d3d12Device->CreateShaderResourceView(resourceHandle.Get(), &srv, textureHandle);
 		}
 
 		// write sampler
 		{
-			const BindingInfo &info			= m_CombinedImageSamplerBindingInfos.at(name);
-			const uint32_t	   index		= GetLinearDescriptorSlot(info.Set, info.Binding);
+			// find the relevant sampler for the given texture
+			std::string samplerName = m_DescriptorHandleInfo.CombinedImageSamplerMap.at(name);
+
 			auto			   d3d12Device	= m_Device->GetDevice();
 			Ref<SamplerD3D12>  d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
 
@@ -236,7 +228,7 @@ namespace Nexus::Graphics
 			sd.MinLOD		  = spec.MinimumLOD;
 			sd.MaxLOD		  = spec.MaximumLOD;
 
-			D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+			D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerDescriptorHandles.at(samplerName);
 			d3d12Device->CreateSampler(&sd, samplerHandle);
 		}
 
@@ -252,13 +244,11 @@ namespace Nexus::Graphics
 
 		// write storage image
 		{
-			const BindingInfo &info			= m_StorageImageBindingInfos.at(name);
-			Ref<TextureD3D12>  d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(view.TextureHandle);
-			const uint32_t	   index		= GetLinearDescriptorSlot(info.Set, info.Binding);
+			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(view.TextureHandle);
 
 			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(view);
 
-			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_StorageImageCPUDescriptors.at(index);
+			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 			auto						resourceHandle = d3d12Texture->GetHandle();
 			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 		}
@@ -273,48 +263,17 @@ namespace Nexus::Graphics
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetTextureConstantBufferDescriptorHeap()
 	{
-		return m_TextureConstantBufferDescriptorHeap;
+		return m_SRV_UAV_CBV_DescriptorHeap;
 	}
 
-	bool ResourceSetD3D12::HasConstantBufferTextureHeap() const
+	const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> &ResourceSetD3D12::GetDescriptorTables() const
 	{
-		return m_TextureConstantBufferDescriptorHeap;
+		return m_DescriptorTables;
 	}
 
-	bool ResourceSetD3D12::HasSamplerHeap() const
+	const std::vector<ID3D12DescriptorHeap *> &ResourceSetD3D12::GetDescriptorHeaps() const
 	{
-		return m_SamplerDescriptorHeap;
-	}
-
-	bool ResourceSetD3D12::HasConstantBuffers() const
-	{
-		return m_Specification.UniformBuffers.size() > 0;
-	}
-
-	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerStartHandle() const
-	{
-		return m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	}
-
-	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureConstantBufferStartHandle() const
-	{
-		return m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	}
-
-	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetStorageBufferStartHandle() const
-	{
-		return m_StorageBufferDescriptorStartHandle;
-	}
-
-	void ResourceSetD3D12::EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)> func)
-	{
-		for (const auto &[name, storageBuffer] : m_BoundStorageBuffers)
-		{
-			const BindingInfo &info = m_StorageBufferBindingInfos.at(name);
-			const uint32_t	   slot = GetLinearDescriptorSlot(info.Set, info.Binding);
-
-			func(slot, storageBuffer);
-		}
+		return m_DescriptorHeapArray;
 	}
 }	 // namespace Nexus::Graphics
 

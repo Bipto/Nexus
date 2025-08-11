@@ -161,7 +161,7 @@ namespace Nexus::Graphics
 		Nexus::Graphics::MeshFactory factory(m_Device);
 		m_Cube = factory.CreateCube();
 
-		Graphics::TextureSpecification textureSpec = {};
+		Graphics::TextureDescription textureSpec   = {};
 		textureSpec.Width						   = 1;
 		textureSpec.Height						   = 1;
 		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
@@ -276,7 +276,7 @@ namespace Nexus::Graphics
 			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
-			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat	  = Graphics::IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			DrawIndexedDescription drawDesc = {};
@@ -384,7 +384,7 @@ namespace Nexus::Graphics
 			IndexBufferView	  indexBufferView = {};
 			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
-			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
+			indexBufferView.BufferFormat	  = Graphics::IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			DrawIndexedDescription drawDesc = {};
@@ -446,9 +446,6 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_CubemapFragmentShader, "cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {{"skybox", 1, 0}};
-
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
@@ -470,7 +467,7 @@ namespace Nexus::Graphics
 		cubemapBufferDesc.SizeInBytes			  = sizeof(CubemapCameraUniforms);
 		m_CubemapUniformBuffer					  = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cubemapBufferDesc));
 
-		Nexus::Graphics::SamplerSpecification samplerSpec = {};
+		Nexus::Graphics::SamplerDescription samplerSpec	  = {};
 		samplerSpec.AddressModeU						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW						  = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -491,9 +488,7 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ModelFragmentShader, "model.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.Layouts						   = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {{"diffuseMapSampler", 1, 0}, {"normalMapSampler", 1, 1}, {"specularMapSampler", 1, 2}};
+		pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
@@ -531,7 +526,7 @@ namespace Nexus::Graphics
 			m_ModelTransformUniformBuffer				= Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(transformBufferDesc));
 		}
 
-		Nexus::Graphics::SamplerSpecification samplerSpec = {};
+		Nexus::Graphics::SamplerDescription samplerSpec	  = {};
 		samplerSpec.AddressModeU						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV						  = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW						  = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -554,9 +549,7 @@ namespace Nexus::Graphics
 																							  "clearscreen.frag.glsl",
 																							  Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.Layouts						   = {m_FullscreenQuad.GetVertexBufferLayout()};
-		pipelineDescription.ResourceSetSpec.UniformBuffers = {};
-		pipelineDescription.ResourceSetSpec.SampledImages  = {};
+		pipelineDescription.Layouts = {m_FullscreenQuad.GetVertexBufferLayout()};
 
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;

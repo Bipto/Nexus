@@ -9,7 +9,13 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
+#include "Nexus-Core/MessageBox.hpp"
 #include "Nexus-Core/Monitor.hpp"
+#include "Nexus-Core/Threading/Condition.hpp"
+#include "Nexus-Core/Threading/Mutex.hpp"
+#include "Nexus-Core/Threading/ReadWriteLock.hpp"
+#include "Nexus-Core/Threading/Semaphore.hpp"
+#include "Nexus-Core/Threading/Thread.hpp"
 #include "Nexus-Core/Utils/SharedLibrary.hpp"
 
 namespace Nexus::Platform
@@ -46,12 +52,13 @@ namespace Nexus::Platform
 	NX_API std::optional<Mouse> GetMouseById(uint32_t id);
 	NX_API std::optional<Gamepad> GetGamepadById(uint32_t id);
 
-	NX_API void		Initialise();
-	NX_API void		Shutdown();
-	NX_API void		Update();
-	NX_API void		PollEvents(Application *app);
-	NX_API void		WaitEvent(Application *app);
-	NX_API IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
+	NX_API void				 Initialise();
+	NX_API void				 Shutdown();
+	NX_API void				 Update();
+	NX_API void				 PollEvents(Application *app);
+	NX_API void				 WaitEvent(Application *app);
+	NX_API IWindow			*CreatePlatformWindow(const WindowSpecification &windowProps);
+	NX_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 
 	NX_API OpenFileDialog	*CreateOpenFileDialog(IWindow							  *window,
 												  const std::vector<FileDialogFilter> &filters,
@@ -73,6 +80,21 @@ namespace Nexus::Platform
 
 	NX_API const char *GetRootPath();
 	NX_API const char *GetApplicationPath(const char *org, const char *app);
+
+	enum class DelayAccuracy
+	{
+		Milliseconds,
+		Nanoseconds,
+		Precise
+	};
+
+	NX_API void Delay(TimeSpan timespan, DelayAccuracy accuracy);
+
+	NX_API Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function);
+	NX_API Threading::MutexBase *CreateMutexBase();
+	NX_API Threading::ConditionBase *CreateConditionBase();
+	NX_API Threading::SemaphoreBase *CreateSemaphoreBase(uint32_t startingValue);
+	NX_API Threading::ReadWriteLockBase *CreateReadWriteLockBase();
 
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;

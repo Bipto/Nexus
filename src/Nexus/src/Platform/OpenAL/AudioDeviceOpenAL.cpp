@@ -77,47 +77,38 @@ namespace Nexus::Audio
 		}
 	}
 
-	Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
+	Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBuffer()
 	{
-		nqr::WavDecoder decoder;
-
-		nqr::AudioData data;
-		decoder.LoadFromPath(&data, filepath);
-
-		auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
-		auto fileSize	   = data.samples.size() * sizeof(float);
-		auto sampleRate	   = data.sampleRate;
-		auto format		   = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
-		auto dataPtr	   = (ALvoid *)data.samples.data();
-
-		return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
+		return CreateRef<AudioBufferOpenAL>(this);
 	}
 
-	Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromMP3File(const std::string &filepath)
+	Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource()
 	{
-		nqr::Mp3Decoder decoder;
-
-		nqr::AudioData data;
-		decoder.LoadFromPath(&data, filepath);
-
-		auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
-		auto fileSize	   = data.samples.size() * sizeof(float);
-		auto sampleRate	   = data.sampleRate;
-		auto format		   = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
-		auto dataPtr	   = (ALvoid *)data.samples.data();
-
-		return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
+		return CreateRef<AudioSourceOpenAL>();
 	}
 
-	Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<Audio::AudioBuffer> buffer)
+	void AudioDeviceOpenAL::Play(Ref<AudioSource> source)
 	{
-		return CreateRef<AudioSourceOpenAL>(buffer);
+		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		alSourcePlay(alSource->GetSource());
 	}
 
-	void AudioDeviceOpenAL::PlaySource(Ref<Audio::AudioSource> source)
+	void AudioDeviceOpenAL::Pause(Ref<AudioSource> source)
 	{
-		Ref<AudioSourceOpenAL> s = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
-		alSourcePlay(s->GetSource());
+		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		alSourcePause(alSource->GetSource());
+	}
+
+	void AudioDeviceOpenAL::Stop(Ref<AudioSource> source)
+	{
+		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		alSourceStop(alSource->GetSource());
+	}
+
+	void AudioDeviceOpenAL::Rewind(Ref<AudioSource> source)
+	{
+		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		alSourceRewind(alSource->GetSource());
 	}
 }	 // namespace Nexus::Audio
 

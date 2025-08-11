@@ -20,7 +20,7 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-			Nexus::Graphics::TextureSpecification textureSpec = {};
+			Nexus::Graphics::TextureDescription textureSpec	  = {};
 			textureSpec.Width								  = 512;
 			textureSpec.Height								  = 512;
 			textureSpec.Format								  = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
@@ -32,7 +32,6 @@ namespace Demos
 			Nexus::Graphics::ComputePipelineDescription desc = {};
 			desc.ComputeShader =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute.glsl", Nexus::Graphics::ShaderStage::Compute);
-			desc.ResourceSetSpec.StorageImages = {{"out_tex", 0, 0}};
 			m_ComputePipeline				   = m_GraphicsDevice->CreateComputePipeline(desc);
 
 			m_ResourceSet		  = m_GraphicsDevice->CreateResourceSet(m_ComputePipeline);
@@ -46,8 +45,8 @@ namespace Demos
 			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectDesc));
 
 			Nexus::Graphics::IndirectDispatchArguments args = {};
-			args.GroupCountX								= m_Texture->GetSpecification().Width;
-			args.GroupCountY								= m_Texture->GetSpecification().Height;
+			args.GroupCountX								= m_Texture->GetDescription().Width;
+			args.GroupCountY								= m_Texture->GetDescription().Height;
 			args.GroupCountZ								= 1;
 			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}
@@ -68,6 +67,7 @@ namespace Demos
 			Nexus::Graphics::DispatchIndirectDescription dispatchDesc = {};
 			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer;
 			dispatchDesc.Offset										  = 0;
+			dispatchDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DispatchIndirect(dispatchDesc);
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));

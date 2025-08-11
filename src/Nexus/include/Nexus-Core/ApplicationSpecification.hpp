@@ -14,6 +14,14 @@ namespace Nexus::Audio
 
 namespace Nexus::Graphics
 {
+	enum class PresentMode
+	{
+		Immediate,
+		Mailbox,
+		Fifo,
+		FifoRelaxed
+	};
+
 	/// @brief An enum class representing whether VSync is enabled
 	enum class VSyncState
 	{

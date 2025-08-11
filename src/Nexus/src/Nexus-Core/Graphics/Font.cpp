@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 		m_TextureWidth	= columnCount * m_MaxCharacterSize.X;
 		m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
 
-		Graphics::TextureSpecification textureSpec;
+		Graphics::TextureDescription textureSpec;
 		textureSpec.Format = PixelFormat::R8_UNorm;
 		textureSpec.Width  = m_TextureWidth;
 		textureSpec.Height = m_TextureHeight;

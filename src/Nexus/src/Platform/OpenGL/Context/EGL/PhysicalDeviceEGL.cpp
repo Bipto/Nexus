@@ -6,9 +6,13 @@ namespace Nexus::Graphics
 	{
 		GL::ContextSpecification spec;
 		spec.GLVersion = GL::OpenGLVersion::OpenGL;
+        spec.VersionMajor = 4;
+        spec.VersionMinor = 6;
 
 #if defined(__ANDROID__)
 		spec.GLVersion = GL::OpenGLVersion::OpenGLES;
+        spec.VersionMajor = 3;
+        spec.VersionMinor = 0;
 #endif
 
 		spec.Debug = debug;

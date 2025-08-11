@@ -14,7 +14,7 @@ namespace Nexus
 {
 	Application::Application(const ApplicationSpecification &spec)
 	{
-		m_Specification = spec;
+		m_Description = spec;
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 
@@ -41,7 +41,7 @@ namespace Nexus
 	{
 		Platform::Update();
 
-		if (m_Specification.EventDriven)
+		if (m_Description.EventDriven)
 		{
 			Platform::WaitEvent(this);
 		}
@@ -113,7 +113,7 @@ namespace Nexus
 
 	const char *Application::GetApplicationPath()
 	{
-		return Platform::GetApplicationPath(m_Specification.Organization, m_Specification.App);
+		return Platform::GetApplicationPath(m_Description.Organization, m_Description.App);
 	}
 
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)

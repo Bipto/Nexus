@@ -108,19 +108,24 @@ namespace Nexus::Graphics
 			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
-				ExecuteGraphicsCommand(
-					std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
-					m_CurrentlyBoundVertexBuffers,
-					m_BoundIndexBuffer,
-					command.VertexStart,
-					command.InstanceStart,
-					[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
-					{
-						glCall(context.DrawArraysInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-														   command.VertexStart,
-														   command.VertexCount,
-														   command.InstanceCount));
-					});
+				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+									   m_CurrentlyBoundVertexBuffers,
+									   m_BoundIndexBuffer,
+									   command.VertexStart,
+									   command.InstanceStart,
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+									   {
+										   GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+
+										   if (command.InstanceCount == 1)
+										   {
+											   context.DrawArrays(topology, command.VertexStart, command.VertexCount);
+										   }
+										   else
+										   {
+											   context.DrawArraysInstanced(topology, command.VertexStart, command.VertexCount, command.InstanceCount);
+										   }
+									   });
 			}
 		}
 	}
@@ -151,11 +156,16 @@ namespace Nexus::Graphics
 					command.InstanceStart,
 					[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
 					{
-						glCall(context.DrawElementsInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-															 command.IndexCount,
-															 indexFormat,
-															 (void *)(uint64_t)offset,
-															 command.InstanceCount));
+						GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+
+						if (command.InstanceCount == 1)
+						{
+							context.DrawElements(topology, command.IndexCount, indexFormat, (void *)(uint64_t)offset);
+						}
+						else
+						{
+							context.DrawElementsInstanced(topology, command.IndexCount, indexFormat, (void *)(uint64_t)offset, command.InstanceCount);
+						}
 					});
 			}
 		}
@@ -176,25 +186,33 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
 
-				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
-									   m_CurrentlyBoundVertexBuffers,
-									   m_BoundIndexBuffer,
-									   0,
-									   0,
-									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
-									   {
-										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+				ExecuteGraphicsCommand(
+					std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+					m_CurrentlyBoundVertexBuffers,
+					m_BoundIndexBuffer,
+					0,
+					0,
+					[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+					{
+						context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+						GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
 
-										   uint32_t indirectOffset = command.Offset;
-										   for (uint32_t i = 0; i < command.DrawCount; i++)
-										   {
-											   context.DrawArraysIndirect(
-												   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-												   (const void *)(uint64_t)indirectOffset);
-										   }
+						if (context.MultiDrawArraysIndirect)
+						{
+							context.MultiDrawArraysIndirect(topology, (const void *)(uint64_t)command.Offset, command.DrawCount, command.Stride);
+						}
+						else
+						{
+							uint32_t indirectOffset = command.Offset;
+							for (uint32_t i = 0; i < command.DrawCount; i++)
+							{
+								context.DrawArraysIndirect(topology, (const void *)(uint64_t)indirectOffset);
+							}
+							indirectOffset += command.Stride;
+						}
 
-										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-									   });
+						context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+					});
 	#endif
 			}
 		}
@@ -228,14 +246,29 @@ namespace Nexus::Graphics
 									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
 									   {
 										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
-										   uint32_t indirectOffset = command.Offset;
-										   for (uint32_t i = 0; i < command.DrawCount; i++)
+										   GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+
+										   if (context.MultiDrawElementsIndirect)
 										   {
-											   context.DrawElementsIndirect(
-												   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-												   indexFormat,
-												   (const void *)(uint64_t)indirectOffset);
+											   context.MultiDrawElementsIndirect(topology,
+																				 indexFormat,
+																				 (const void *)(uint64_t)command.Offset,
+																				 command.DrawCount,
+																				 command.Stride);
 										   }
+										   else
+										   {
+											   uint32_t indirectOffset = command.Offset;
+											   for (uint32_t i = 0; i < command.DrawCount; i++)
+											   {
+												   context.DrawElementsIndirect(
+													   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+													   indexFormat,
+													   (const void *)(uint64_t)indirectOffset);
+												   indirectOffset += command.Stride;
+											   }
+										   }
+
 										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 									   });
 
@@ -572,71 +605,7 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>			  destTexture	= std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
 		const TextureCopyDescription &copyDesc		= command.TextureCopy;
 
-		GLenum srcGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
-		GLenum srcAttachmentType = GL::GetAttachmentType(command.TextureCopy.SourceSubresource.Aspect, 0);
-		GLenum dstGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
-		GLenum dstAttachmentType = GL::GetAttachmentType(command.TextureCopy.DestinationSubresource.Aspect, 0);
-
-		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context)
-			{
-				for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
-				{
-					GLuint sourceFramebufferHandle = 0;
-					GLuint destFramebufferHandle   = 0;
-
-					// set up source framebuffer
-					{
-						glCall(context.GenFramebuffers(1, &sourceFramebufferHandle));
-						glCall(context.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
-						GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
-						GL::AttachTexture(sourceFramebufferHandle,
-										  sourceTexture,
-										  command.TextureCopy.SourceSubresource.MipLevel,
-										  layer,
-										  copyDesc.SourceSubresource.Aspect,
-										  0,
-										  context);
-						GL::ValidateFramebuffer(sourceFramebufferHandle, context);
-					}
-
-					// set up dest framebuffer
-					{
-						glCall(context.GenFramebuffers(1, &destFramebufferHandle));
-						glCall(context.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
-						GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
-						GL::AttachTexture(destFramebufferHandle,
-										  destTexture,
-										  command.TextureCopy.DestinationSubresource.MipLevel,
-										  layer,
-										  copyDesc.DestinationSubresource.Aspect,
-										  0,
-										  context);
-						GL::ValidateFramebuffer(destFramebufferHandle, context);
-					}
-
-					context.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
-					context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
-
-					// copy all attached aspect masks
-					context.BlitFramebuffer(command.TextureCopy.SourceSubresource.X,
-											command.TextureCopy.SourceSubresource.Y,
-											command.TextureCopy.SourceSubresource.Width,
-											command.TextureCopy.SourceSubresource.Height,
-											command.TextureCopy.DestinationSubresource.X,
-											command.TextureCopy.DestinationSubresource.Y,
-											command.TextureCopy.DestinationSubresource.Width,
-											command.TextureCopy.DestinationSubresource.Height,
-											GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
-											GL_NEAREST);
-
-					context.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-					context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-					glCall(context.DeleteFramebuffers(1, &sourceFramebufferHandle));
-					glCall(context.DeleteFramebuffers(1, &destFramebufferHandle));
-				}
-			});
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToTexture(sourceTexture, destTexture, copyDesc, context); });
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
@@ -684,6 +653,46 @@ namespace Nexus::Graphics
 			});
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
+	{
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context) {
+				context.BlendColor(command.BlendFactorDesc.Red,
+								   command.BlendFactorDesc.Green,
+								   command.BlendFactorDesc.Blue,
+								   command.BlendFactorDesc.Alpha);
+			});
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device)
+	{
+		if (m_CurrentlyBoundPipeline.has_value())
+		{
+			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			if (pipeline->GetType() == PipelineType::Graphics)
+			{
+				Ref<GraphicsPipelineOpenGL> pipelineGL = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline);
+				GL::ExecuteGLCommands([&](const GladGLContext &context) { pipelineGL->SetStencilReference(context, command.StencilReference); });
+			}
+		}
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
@@ -722,7 +731,7 @@ namespace Nexus::Graphics
 				if (Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture))
 				{
 					texture->Bind(location);
-					glSampler->Bind(location, texture->GetSpecification().MipLevels > 1);
+					glSampler->Bind(location, texture->GetDescription().MipLevels > 1);
 				}
 			}
 		}
@@ -755,11 +764,11 @@ namespace Nexus::Graphics
 			{
 	#if !defined(__EMSCRIPTEN__)
 				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
-				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
+				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetDescription().Format);
 				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
 
 				GLboolean layered = GL_FALSE;
-				if (texture->GetSpecification().ArrayLayers > 1)
+				if (texture->GetDescription().DepthOrArrayLayers > 1)
 				{
 					layered = GL_TRUE;
 				}

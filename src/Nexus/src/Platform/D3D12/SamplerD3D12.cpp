@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	SamplerD3D12::SamplerD3D12(const SamplerSpecification &spec) : m_Specification(spec)
+	SamplerD3D12::SamplerD3D12(const SamplerDescription &spec) : m_Description(spec)
 	{
 		m_SamplerFilter	 = D3D12::GetD3D12Filter(spec.SampleFilter);
 		m_AddressModeU	 = D3D12::GetD3D12TextureAddressMode(spec.AddressModeU);
@@ -19,9 +19,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	const SamplerSpecification &SamplerD3D12::GetSamplerSpecification()
+	const SamplerDescription &SamplerD3D12::GetSamplerSpecification()
 	{
-		return m_Specification;
+		return m_Description;
 	}
 
 	D3D12_FILTER SamplerD3D12::GetFilter()

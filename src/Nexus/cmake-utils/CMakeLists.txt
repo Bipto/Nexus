@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 macro(nexus_copy_required_binaries)
   if (WIN32)
-    get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
   add_custom_command(
       TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
@@ -11,11 +9,11 @@ macro(nexus_copy_required_binaries)
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
   add_custom_command(
-      TARGET ${PROJECT_NAME} PRE_LINK
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_02_20/bin/x64/dxcompiler.dll
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
+    TARGET ${PROJECT_NAME} PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/src/Nexus/external/winpixeventruntime.1.0.240308001/bin/x64/WinPixEventRuntime.dll
+      $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
   endif()
 endmacro()
 

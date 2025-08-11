@@ -67,7 +67,7 @@ namespace Nexus::Graphics
 		uint32_t Height = 720;
 
 		/// @brief Settings to use when creating a set of colour attachments
-		FramebufferColorAttachmentSpecification ColorAttachmentSpecification;
+		FramebufferColorAttachmentSpecification ColourAttachmentSpecification;
 
 		/// @brief Settings to use when creating a depth attachment
 		FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
@@ -81,7 +81,7 @@ namespace Nexus::Graphics
 	  public:
 		/// @brief A constructor that sets the initial specification of a framebuffer
 		/// @param spec A reference to a specification to create the framebuffer with
-		Framebuffer(const FramebufferSpecification &spec) : m_Specification(spec)
+		Framebuffer(const FramebufferSpecification &spec) : m_Description(spec)
 		{
 		}
 
@@ -92,7 +92,7 @@ namespace Nexus::Graphics
 		/// @return An integer representing the number of colour attachments
 		int GetColorTextureCount()
 		{
-			return m_Specification.ColorAttachmentSpecification.Attachments.size();
+			return m_Description.ColourAttachmentSpecification.Attachments.size();
 		}
 
 		/// @brief A method to check whether a framebuffer has a colour attachment
@@ -100,7 +100,7 @@ namespace Nexus::Graphics
 		/// attachment
 		virtual bool HasColorTexture()
 		{
-			return m_Specification.ColorAttachmentSpecification.Attachments.size() > 0;
+			return m_Description.ColourAttachmentSpecification.Attachments.size() > 0;
 		}
 
 		/// @brief A method to check whether a framebuffer has a depth attachment
@@ -108,7 +108,7 @@ namespace Nexus::Graphics
 		/// attachment
 		virtual bool HasDepthTexture()
 		{
-			return m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
+			return m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
 		}
 
 		/// @brief A pure virtual method to return the FramebufferSpecification
@@ -141,7 +141,7 @@ namespace Nexus::Graphics
 
 	  protected:
 		/// @brief An object containing the specification of a framebuffer
-		FramebufferSpecification m_Specification;
+		FramebufferSpecification m_Description;
 
 	  private:
 		/// @brief Recreates the framebuffer to the size specified in the

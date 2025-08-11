@@ -54,7 +54,7 @@ namespace Demos
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
-			Nexus::Graphics::SamplerSpecification samplerSpec {};
+			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 		}
 
@@ -129,7 +129,7 @@ namespace Demos
 				indexBufferView.BufferHandle					 = mesh->GetIndexBuffer();
 				indexBufferView.Offset							 = 0;
 				indexBufferView.Size							 = mesh->GetIndexBuffer()->GetSizeInBytes();
-				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexFormat::UInt32;
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = mesh->GetIndexBuffer()->GetCount();
@@ -178,13 +178,9 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
-
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0}};
-
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 

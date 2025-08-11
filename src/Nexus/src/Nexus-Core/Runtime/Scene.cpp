@@ -123,7 +123,7 @@ namespace Nexus
 	{
 		auto graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
 
-		Graphics::SamplerSpecification samplerSpec = {};
+		Graphics::SamplerDescription samplerSpec   = {};
 		samplerSpec.AddressModeU				   = Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV				   = Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW				   = Graphics::SamplerAddressMode::Clamp;

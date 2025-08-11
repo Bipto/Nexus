@@ -21,6 +21,7 @@
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/Models.hpp"
+#include "Demos/RayTracingDemo.hpp"
 #include "Demos/Splines.hpp"
 #include "Demos/StorageBufferDemo.hpp"
 #include "Demos/Texturing.hpp"
@@ -108,6 +109,8 @@ class DemoApplication : public Nexus::Application
 		{
 			RegisterGraphicsDemo<Demos::GeometryShaderDemo>("Geometry Shader");
 		}
+
+		RegisterGraphicsDemo<Demos::RayTracingDemo>("Ray Tracing");
 
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
@@ -284,6 +287,15 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
+			float value = 0.0f;
+
+			Nexus::Graphics::PushConstantsDesc pushConstants;
+			pushConstants.Name	 = "PushConstants";
+			pushConstants.Data	 = &value;
+			pushConstants.Size	 = sizeof(value);
+			pushConstants.Offset = 0;
+			m_CommandList->WritePushConstants(pushConstants);
+
 			m_CommandList->End();
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
@@ -319,7 +331,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

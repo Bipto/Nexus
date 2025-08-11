@@ -52,3 +52,6 @@
 [submodule "src/Nexus/external/D3D12MemoryAllocator"]
 	path = src/Nexus/external/D3D12MemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
+[submodule "src/Nexus/external/SPIRV-Reflect"]
+	path = src/Nexus/external/SPIRV-Reflect
+	url = https://github.com/KhronosGroup/SPIRV-Reflect.git

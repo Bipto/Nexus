@@ -22,7 +22,7 @@ namespace Demos
 			Nexus::Graphics::FramebufferSpecification spec;
 			spec.Width						  = 1280;
 			spec.Height						  = 720;
-			spec.ColorAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+			spec.ColourAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
 			spec.Samples					  = 1;
 
 			m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);

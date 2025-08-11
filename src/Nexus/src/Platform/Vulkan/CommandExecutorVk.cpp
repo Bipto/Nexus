@@ -49,6 +49,7 @@ namespace Nexus::Graphics
 				const auto &element = commands.at(m_CurrentCommandIndex);
 				std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
 			}
+			m_Commands.clear();
 		}
 
 		// end
@@ -124,7 +125,27 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		m_CurrentlyBoundPipeline = command.lock();
+		if (Ref<Pipeline> pipeline = command.lock())
+		{
+			m_CurrentlyBoundPipeline   = pipeline;
+			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+
+			if (pipeline->GetType() != PipelineType::Graphics && pipeline->GetType() != PipelineType::Meshlet)
+			{
+				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+			}
+			else
+			{
+				// we immediately bind the graphics/meshlet pipeline if dynamic rendering is available, otherwise we need to know which VkRenderPass
+				// to use with it
+				GraphicsDeviceVk		   *deviceVk	   = (GraphicsDeviceVk *)device;
+				const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
+				if (deviceFeatures.DynamicRenderingAvailable)
+				{
+					pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+				}
+			}
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DrawDescription command, GraphicsDevice *device)
@@ -162,11 +183,7 @@ namespace Nexus::Graphics
 
 		BindGraphicsPipeline();
 
-		vkCmdDrawIndirect(m_CommandBuffer,
-						  indirectBuffer->GetVkBuffer(),
-						  command.Offset,
-						  command.DrawCount,
-						  indirectBuffer->GetDescription().StrideInBytes);
+		vkCmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device)
@@ -180,11 +197,7 @@ namespace Nexus::Graphics
 
 		BindGraphicsPipeline();
 
-		vkCmdDrawIndexedIndirect(m_CommandBuffer,
-								 indirectBuffer->GetVkBuffer(),
-								 command.Offset,
-								 command.DrawCount,
-								 indirectBuffer->GetDescription().StrideInBytes);
+		vkCmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DispatchDescription command, GraphicsDevice *device)
@@ -245,7 +258,7 @@ namespace Nexus::Graphics
 													indirectBuffer->GetVkBuffer(),
 													command.Offset,
 													command.DrawCount,
-													indirectBuffer->GetStrideInBytes());
+													command.Stride);
 		}
 	}
 
@@ -773,6 +786,79 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorVk::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
+	{
+		float blendConstants[4] = {command.BlendFactorDesc.Red,
+								   command.BlendFactorDesc.Green,
+								   command.BlendFactorDesc.Blue,
+								   command.BlendFactorDesc.Alpha};
+
+		vkCmdSetBlendConstants(m_CommandBuffer, blendConstants);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device)
+	{
+		vkCmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.StencilReference);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
+	{
+		// return early if the function is not available to use
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (!functions.vkCmdBuildAccelerationStructuresKHR)
+		{
+			return;
+		}
+
+		// create storage for the data
+		std::vector<std::vector<VkAccelerationStructureGeometryKHR>>	   accelerationStructureGeometries = {};
+		std::vector<VkAccelerationStructureBuildGeometryInfoKHR>		   buildGeometries				   = {};
+		std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>> buildRanges					   = {};
+
+		// loop through all requested builds
+		for (const auto &[buildGeometryInfo, buildRangeInfos] : command.BuildDescriptions)
+		{
+			// validate that required members have been filled in correctly
+			NX_ASSERT(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
+			NX_ASSERT(buildGeometryInfo.ScratchBuffer.Buffer, "Acceleration structure build must have a scratch buffer");
+
+			if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
+			{
+				NX_ASSERT(buildGeometryInfo.Source, "Acceleration structure update must have a source");
+			}
+
+			// create a new vector to hold the information for the individual build
+			std::vector<VkAccelerationStructureGeometryKHR> &accelerationStructureGeometry = accelerationStructureGeometries.emplace_back();
+
+			// create the new build description
+			buildGeometries.push_back(Vk::GetGeometryBuildInfo(buildGeometryInfo, accelerationStructureGeometry));
+
+			// create a new vector to hold the build range
+			std::vector<VkAccelerationStructureBuildRangeInfoKHR> &geometryBuildRange = buildRanges.emplace_back();
+
+			// iterate through each build range and convert them to Vulkan types
+			for (const auto &buildRange : buildRangeInfos) { geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(buildRange)); }
+		}
+
+		// execute the acceleration structure build
+		functions.vkCmdBuildAccelerationStructuresKHR(m_CommandBuffer,
+													  command.BuildDescriptions.size(),
+													  buildGeometries.data(),
+													  (const VkAccelerationStructureBuildRangeInfoKHR *const *)buildRanges.data());
+	}
+
+	void CommandExecutorVk::ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
 	void BeginRenderPass(GraphicsDeviceVk			 *device,
 						 const VkRenderPassBeginInfo &beginInfo,
 						 VkSubpassContents			  subpassContents,
@@ -805,7 +891,7 @@ namespace Nexus::Graphics
 		VkRenderingAttachmentInfo colourAttachment = {};
 		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 
-		if (swapchain->GetSpecification().Samples == 1)
+		if (swapchain->GetDescription().Samples == 1)
 		{
 			colourAttachment.imageView	 = swapchain->GetColourImageView();
 			colourAttachment.imageLayout = swapchain->GetColorImageLayout();
@@ -881,7 +967,7 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
 		Ref<SwapchainVk> swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-		const auto		&swapchainDesc = swapchainVk->GetSpecification();
+		const auto		&swapchainDesc = swapchainVk->GetDescription();
 
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 											  swapchainVk->GetColourImage(),
@@ -1012,7 +1098,7 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(textureIndex);
 
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetSpecification().MipLevels; mipLevel++)
+			for (uint32_t mipLevel = 0; mipLevel < texture->GetDescription().MipLevels; mipLevel++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
@@ -1030,7 +1116,7 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
 
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetSpecification().MipLevels; mipLevel++)
+			for (uint32_t mipLevel = 0; mipLevel < texture->GetDescription().MipLevels; mipLevel++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
@@ -1063,7 +1149,8 @@ namespace Nexus::Graphics
 			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 			if (features.DynamicRenderingAvailable)
 			{
-				vkCmdEndRendering(m_CommandBuffer);
+				const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+				functions.vkCmdEndRenderingKHR(m_CommandBuffer);
 			}
 			else
 			{
@@ -1091,7 +1178,7 @@ namespace Nexus::Graphics
 		{
 			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachment);
 
-			for (uint32_t level = 0; level < texture->GetSpecification().MipLevels; level++)
+			for (uint32_t level = 0; level < texture->GetDescription().MipLevels; level++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
@@ -1130,9 +1217,8 @@ namespace Nexus::Graphics
 			if (!features.DynamicRenderingAvailable)
 			{
 				renderPass = swapchainVk->GetRenderPass();
+				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
-
-			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
 		}
 		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
 		{
@@ -1143,9 +1229,8 @@ namespace Nexus::Graphics
 			{
 				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 				renderPass						 = framebufferVk->GetRenderPass();
+				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
-
-			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
 		}
 		else
 		{

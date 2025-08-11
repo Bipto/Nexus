@@ -6,12 +6,14 @@ namespace Nexus::Graphics
 {
 	DeviceBufferVk::DeviceBufferVk(const DeviceBufferDescription &desc, GraphicsDeviceVk *device) : m_BufferDescription(desc), m_Device(device)
 	{
-		VkBufferCreateInfo		bufferCreateInfo = Vk::GetVkBufferCreateInfo(desc);
-		VmaAllocationCreateInfo vmaAllocInfo	 = Vk::GetVmaAllocationCreateInfo(desc);
+		VkBufferCreateInfo		bufferCreateInfo = Vk::GetVkBufferCreateInfo(desc, device);
+		VmaAllocationCreateInfo vmaAllocInfo	 = Vk::GetVmaAllocationCreateInfo(desc, device);
 
 		NX_ASSERT(vmaCreateBuffer(device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) ==
 					  VK_SUCCESS,
 				  "Failed to create buffer");
+
+		device->SetObjectName(VK_OBJECT_TYPE_BUFFER, (uint64_t)m_Buffer.Buffer, desc.DebugName.c_str());
 	}
 
 	DeviceBufferVk::~DeviceBufferVk()
@@ -58,5 +60,21 @@ namespace Nexus::Graphics
 	VkBuffer DeviceBufferVk::GetVkBuffer() const
 	{
 		return m_Buffer.Buffer;
+	}
+
+	VkDeviceAddress DeviceBufferVk::GetDeviceAddress() const
+	{
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (functions.vkGetBufferDeviceAddressKHR)
+		{
+			VkBufferDeviceAddressInfo info = {};
+			info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+			info.pNext					   = nullptr;
+			info.buffer					   = m_Buffer.Buffer;
+
+			return functions.vkGetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info);
+		}
+
+		return {};
 	}
 }	 // namespace Nexus::Graphics

@@ -102,10 +102,10 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->GetOffscreenContext();
 	}
 
-	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ShaderModuleOpenGL>(moduleSpec, resources, this);
+		return CreateRef<ShaderModuleOpenGL>(moduleSpec, this);
 	}
 
 	std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(const GladGLContext &context)
@@ -140,16 +140,24 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
-	bool GraphicsDeviceOpenGL::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	bool GraphicsDeviceOpenGL::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
 		{
-			case IndexBufferFormat::UInt8:
-			case IndexBufferFormat::UInt16:
-			case IndexBufferFormat::UInt32: return true;
+			case IndexFormat::UInt8:
+			case IndexFormat::UInt16:
+			case IndexFormat::UInt32: return true;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
+	}
+
+	AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::GetAccelerationStructureBuildSize(
+		const AccelerationStructureGeometryBuildDescription &description,
+		const std::vector<uint32_t>							&primitiveCount) const
+	{
+		NX_ASSERT(0, "Ray tracing not supported on OpenGL backend");
+		return AccelerationStructureBuildSizeDescription();
 	}
 
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()
@@ -169,16 +177,28 @@ namespace Nexus::Graphics
 		return CreateRef<ComputePipelineOpenGL>(description, this);
 	}
 
-	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListSpecification &spec)
+	Ref<MeshletPipeline> GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	{
+		NX_ASSERT(false, "Meshlet pipelines are not supported by OpenGL");
+		return nullptr;
+	}
+
+	Ref<RayTracingPipeline> GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	{
+		NX_ASSERT(false, "Ray tracing pipelines are not supported by OpenGL");
+		return nullptr;
+	}
+
+	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<CommandListOpenGL>(spec);
 	}
 
-	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
+	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ResourceSetOpenGL>(spec);
+		return CreateRef<ResourceSetOpenGL>(pipeline);
 	}
 
 	Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
@@ -187,7 +207,7 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferOpenGL>(spec, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)
+	Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<SamplerOpenGL>(spec, this);
@@ -203,6 +223,11 @@ namespace Nexus::Graphics
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<DeviceBufferOpenGL>(desc, this);
+	}
+
+	Ref<IAccelerationStructure> GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	{
+		return nullptr;
 	}
 
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
@@ -301,7 +326,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<TextureOpenGL>(spec, this);
