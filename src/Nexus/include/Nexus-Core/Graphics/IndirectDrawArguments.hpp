@@ -30,7 +30,8 @@ namespace Nexus::Graphics
 
 	struct IndirectMeshArguments
 	{
-		uint32_t TaskCount = 0;
-		uint32_t FirstTask = 0;
+		uint32_t GroupCountX = 0;
+		uint32_t GroupCountY = 0;
+		uint32_t GroupCountZ = 0;
 	};
 }	 // namespace Nexus::Graphics

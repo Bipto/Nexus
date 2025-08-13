@@ -4,15 +4,15 @@
 
 namespace Demos
 {
-	class HelloTriangleMeshShadersDemo : public Demo
+	class HelloTriangleMeshShadersIndirect : public Demo
 	{
 	  public:
-		HelloTriangleMeshShadersDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+		HelloTriangleMeshShadersIndirect(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
 			: Demo(name, app, imGuiRenderer)
 		{
 		}
 
-		virtual ~HelloTriangleMeshShadersDemo()
+		virtual ~HelloTriangleMeshShadersIndirect()
 		{
 		}
 
@@ -20,6 +20,19 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			CreatePipeline();
+
+			Nexus::Graphics::IndirectMeshArguments args = {};
+			args.GroupCountX							= 1;
+			args.GroupCountY							= 1;
+			args.GroupCountZ							= 1;
+
+			Nexus::Graphics::DeviceBufferDescription indirectBufferDesc = {};
+			indirectBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
+			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Indirect;
+			indirectBufferDesc.StrideInBytes							= sizeof(Nexus::Graphics::IndirectDrawArguments);
+			indirectBufferDesc.SizeInBytes								= sizeof(Nexus::Graphics::IndirectDrawArguments);
+			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));
+			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -48,11 +61,12 @@ namespace Demos
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			Nexus::Graphics::DrawMeshDescription drawDesc = {};
-			drawDesc.WorkGroupCountX					  = 1;
-			drawDesc.WorkGroupCountY					  = 1;
-			drawDesc.WorkGroupCountZ					  = 1;
-			m_CommandList->DrawMesh(drawDesc);
+			Nexus::Graphics::DrawMeshIndirectDescription drawDesc = {};
+			drawDesc.IndirectBuffer								  = m_IndirectBuffer;
+			drawDesc.Offset										  = 0;
+			drawDesc.DrawCount									  = 1;
+			drawDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
+			m_CommandList->DrawMeshIndirect(drawDesc);
 
 			m_CommandList->End();
 
@@ -70,7 +84,7 @@ namespace Demos
 
 		virtual std::string GetInfo() const override
 		{
-			return "Rendering a triangle using a mesh shader";
+			return "Rendering a triangle using indirect mesh shaders";
 		}
 
 	  private:
@@ -95,8 +109,9 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::MeshletPipeline>  m_Pipeline;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList;
+		Nexus::Ref<Nexus::Graphics::MeshletPipeline> m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	 m_IndirectBuffer;
+		glm::vec3									 m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

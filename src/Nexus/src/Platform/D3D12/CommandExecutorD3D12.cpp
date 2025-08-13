@@ -214,6 +214,17 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+		{
+			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
+			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH, command.Stride);
+
+			m_CommandList->ExecuteIndirect(signature.Get(), 1, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)

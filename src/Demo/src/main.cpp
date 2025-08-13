@@ -17,6 +17,7 @@
 #include "Demos/HelloTriangleIndirect.hpp"
 #include "Demos/HelloTriangleIndirectIndexedDemo.hpp"
 #include "Demos/HelloTriangleMeshShaders.hpp"
+#include "Demos/HelloTriangleMeshShadersIndirect.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
@@ -87,6 +88,7 @@ class DemoApplication : public Nexus::Application
 		if (deviceFeatures.SupportsMeshTaskShaders)
 		{
 			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
+			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersIndirect>("Hello Triangle Mesh Shaders Indirect");
 		}
 
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
