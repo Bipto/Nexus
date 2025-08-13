@@ -5,6 +5,7 @@
 	#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 
 	#include <dxcapi.h>
+	#include <dxc/dxcapi.h>
 	#include <d3d12shader.h>
 
 std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
@@ -17,8 +18,8 @@ std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
 		case Nexus::Graphics::ShaderStage::TessellationEvaluation: return "ds_6_0";
 		case Nexus::Graphics::ShaderStage::Vertex: return "vs_6_0";
 		case Nexus::Graphics::ShaderStage::Compute: return "cs_6_0";
-		case Nexus::Graphics::ShaderStage::Task: return "ts_6_0";
-		case Nexus::Graphics::ShaderStage::Mesh: return "ms_6_0";
+		case Nexus::Graphics::ShaderStage::Task: return "ts_6_5";
+		case Nexus::Graphics::ShaderStage::Mesh: return "ms_6_5";
 
 		default: throw std::runtime_error("Failed to find a valid shader stage");
 	}
@@ -56,8 +57,7 @@ namespace Nexus::Graphics
 		std::string	 shaderVersion = GetShaderVersion(shaderModuleSpec.ShadingStage);
 		std::wstring wsShaderVersion(shaderVersion.begin(), shaderVersion.end());
 
-		std::vector<LPCWSTR> compilationArguments =
-			{L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS, L"-Qstrip_reflect"};
+		std::vector<LPCWSTR> compilationArguments = {L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS};
 
 	#if defined(DEBUG) || defined(_DEBUG)
 		compilationArguments.push_back(DXC_ARG_DEBUG);
@@ -74,6 +74,11 @@ namespace Nexus::Graphics
 												compilationArguments.size(),
 												includeHandler.Get(),
 												IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf()));
+
+		if (FAILED(hr))
+		{
+			throw std::runtime_error("Failed to create shader module");
+		}
 
 		compiledShaderBuffer->GetResult(&m_ShaderBlob);
 

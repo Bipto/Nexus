@@ -157,7 +157,7 @@ namespace Nexus::Graphics
 
 	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
-		return Ref<MeshletPipeline>();
+		return CreateRef<MeshletPipelineD3D12>(this, description);
 	}
 
 	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
@@ -496,6 +496,19 @@ namespace Nexus::Graphics
 		m_Features.SupportShaderStorageImageMultisample = true;
 		m_Features.SupportsCubemapArray					= true;
 		m_Features.SupportsIndependentBlend				= true;
+
+		// check for depth bounds testing support
+		{
+			D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2 = {};
+			HRESULT							  hr	   = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2, sizeof(options2));
+			if (SUCCEEDED(hr))
+			{
+				if (options2.DepthBoundsTestSupported)
+				{
+					m_Features.SupportsDepthBoundsTesting = true;
+				}
+			}
+		}
 
 		if (IsVersionGreaterThan(D3D_FEATURE_LEVEL_12_2))
 		{

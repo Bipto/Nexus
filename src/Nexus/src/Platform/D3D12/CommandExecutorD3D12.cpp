@@ -204,6 +204,8 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		m_CommandList->DispatchMesh(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)

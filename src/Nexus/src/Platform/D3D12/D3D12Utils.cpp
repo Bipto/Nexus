@@ -412,9 +412,11 @@ namespace Nexus::D3D12
 			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
 			NX_ERROR(message);
 		}
-
-		std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
-		pso->SetName(debugName.c_str());
+		else
+		{
+			std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+			pso->SetName(debugName.c_str());
+		}
 
 		return pso;
 	}
@@ -499,8 +501,17 @@ namespace Nexus::D3D12
 		D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
 
-		D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
-		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
+		const auto &deviceFeatures = device->GetPhysicalDeviceFeatures();
+		if (deviceFeatures.SupportsDepthBoundsTesting)
+		{
+			D3D12_DEPTH_STENCIL_DESC1 depthStencilDesc = D3D12::CreateDepthStencilDesc1(description.DepthStencilDesc);
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1, depthStencilDesc);
+		}
+		else
+		{
+			D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
+		}
 
 		std::vector<D3D12_INPUT_ELEMENT_DESC> layout		  = inputLayout;
 		D3D12_INPUT_LAYOUT_DESC				  inputLayoutDesc = {};
@@ -547,9 +558,11 @@ namespace Nexus::D3D12
 			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
 			NX_ERROR(message);
 		}
-
-		std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
-		pso->SetName(debugName.c_str());
+		else
+		{
+			std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+			pso->SetName(debugName.c_str());
+		}
 
 		return pso;
 	}
@@ -568,6 +581,219 @@ namespace Nexus::D3D12
 		{
 			return CreateGraphicsPipelineTraditional(device, description, rootSignature, inputLayout);
 		}
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipelineStream(Graphics::GraphicsDeviceD3D12			   *device,
+																			const Graphics::ComputePipelineDescription &description,
+																			Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
+	{
+		auto d3d12ComputeShader = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.ComputeShader);
+		NX_ASSERT(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
+				  "Shader provided to ComputePipelineDescription is not a compute shader");
+
+		auto blob = d3d12ComputeShader->GetBlob();
+
+		D3D12::StreamStateBuilder builder;
+		ID3D12RootSignature		 *rootSignaturePtr = rootSignature.Get();
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
+
+		D3D12_SHADER_BYTECODE byteCode = {};
+		byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+		byteCode.BytecodeLength		   = blob->GetBufferSize();
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS, byteCode);
+
+		UINT nodeMask = 0;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
+
+		D3D12_PIPELINE_STATE_FLAGS flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+		auto										d3d12Device = device->GetDevice();
+
+		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
+		desc.pPipelineStateSubobjectStream	  = builder.GetStream();
+		desc.SizeInBytes					  = builder.GetSizeInBytes();
+
+		HRESULT hr = d3d12Device->CreatePipelineState(&desc, IID_PPV_ARGS(&pso));
+		if (FAILED(hr))
+		{
+			_com_error	error(hr);
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
+		}
+
+		std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+		pso->SetName(debugName.c_str());
+
+		return pso;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipelineTraditional(Graphics::GraphicsDeviceD3D12				*device,
+																				 const Graphics::ComputePipelineDescription &description,
+																				 Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
+	{
+		auto d3d12ComputeShader = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.ComputeShader);
+		NX_ASSERT(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
+				  "Shader provided to ComputePipelineDescription is not a compute shader");
+
+		auto blob = d3d12ComputeShader->GetBlob();
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		desc.pRootSignature					   = rootSignature.Get();
+		desc.CS.BytecodeLength				   = blob->GetBufferSize();
+		desc.CS.pShaderBytecode				   = blob->GetBufferPointer();
+		desc.NodeMask						   = 0;
+		desc.CachedPSO.CachedBlobSizeInBytes   = 0;
+		desc.CachedPSO.pCachedBlob			   = nullptr;
+		desc.Flags							   = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+
+		auto	d3d12Device = device->GetDevice();
+		HRESULT hr			= d3d12Device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&pso));
+		if (FAILED(hr))
+		{
+			_com_error	error(hr);
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
+		}
+		else
+		{
+			std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+			pso->SetName(debugName.c_str());
+		}
+
+		return pso;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(Graphics::GraphicsDeviceD3D12				 *device,
+																	  const Graphics::ComputePipelineDescription &description,
+																	  Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
+	{
+		const Graphics::D3D12DeviceFeatures &features = device->GetD3D12DeviceFeatures();
+		if (features.SupportsPipelineStreams)
+		{
+			return CreateComputePipelineStream(device, description, rootSignature);
+		}
+		else
+		{
+			return CreateComputePipelineTraditional(device, description, rootSignature);
+		}
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(Graphics::GraphicsDeviceD3D12				 *device,
+																	  const Graphics::MeshletPipelineDescription &description,
+																	  Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
+	{
+		D3D12::StreamStateBuilder builder;
+		ID3D12RootSignature		 *rootSignaturePtr = rootSignature.Get();
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
+
+		if (description.TaskModule)
+		{
+			auto d3d12TaskModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TaskModule);
+			NX_ASSERT(d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task, "Shader module is not a task shader");
+			auto blob = d3d12TaskModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_AS, byteCode);
+		}
+
+		if (description.MeshModule)
+		{
+			auto d3d12MeshModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.MeshModule);
+			NX_ASSERT(d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh, "Shader module is not a mesh shader");
+			auto blob = d3d12MeshModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MS, byteCode);
+		}
+
+		if (description.FragmentModule)
+		{
+			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
+			NX_ASSERT(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
+			auto blob = d3d12FragmentModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS, byteCode);
+		}
+
+		const auto &deviceFeatures = device->GetPhysicalDeviceFeatures();
+		if (deviceFeatures.SupportsDepthBoundsTesting)
+		{
+			D3D12_DEPTH_STENCIL_DESC1 depthStencilDesc = D3D12::CreateDepthStencilDesc1(description.DepthStencilDesc);
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1, depthStencilDesc);
+		}
+		else
+		{
+			D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
+		}
+
+		D3D12_BLEND_DESC blendDesc = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, blendDesc);
+
+		UINT sampleMask = UINT_MAX;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, sampleMask);
+
+		D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
+
+		D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
+
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopology = D3D12::GetPipelineTopology(description.PrimitiveTopology);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY, primitiveTopology);
+
+		D3D12_RT_FORMAT_ARRAY rtFormats = {};
+		rtFormats.NumRenderTargets		= description.ColourTargetCount;
+		for (uint32_t index = 0; index < description.ColourTargetCount; index++)
+		{
+			rtFormats.RTFormats[index] = D3D12::GetD3D12PixelFormat(description.ColourFormats[index]);
+		}
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS, rtFormats);
+
+		DXGI_FORMAT depthFormat = D3D12::GetD3D12PixelFormat(description.DepthFormat);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat);
+
+		DXGI_SAMPLE_DESC sampleDesc = {};
+		sampleDesc.Count			= description.ColourTargetSampleCount;
+		sampleDesc.Quality			= 0;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc);
+
+		UINT nodeMask = 0;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
+
+		D3D12_PIPELINE_STATE_FLAGS flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+		auto										d3d12Device = device->GetDevice();
+
+		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
+		desc.pPipelineStateSubobjectStream	  = builder.GetStream();
+		desc.SizeInBytes					  = builder.GetSizeInBytes();
+
+		HRESULT hr = d3d12Device->CreatePipelineState(&desc, IID_PPV_ARGS(&pso));
+		if (FAILED(hr))
+		{
+			_com_error	error(hr);
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
+		}
+
+		std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+		pso->SetName(debugName.c_str());
+
+		return pso;
 	}
 
 	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc)
@@ -1200,6 +1426,40 @@ namespace Nexus::D3D12
 		desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
 		desc.BackFace.StencilFailOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
 		desc.BackFace.StencilPassOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+
+		return desc;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC1 CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc)
+	{
+		D3D12_DEPTH_STENCIL_DESC1 desc = {};
+		desc.DepthEnable			   = depthStencilDesc.EnableDepthTest;
+		desc.DepthFunc				   = D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
+
+		if (depthStencilDesc.EnableDepthWrite)
+		{
+			desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		}
+		else
+		{
+			desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		}
+
+		desc.StencilEnable	  = depthStencilDesc.EnableStencilTest;
+		desc.StencilReadMask  = depthStencilDesc.StencilCompareMask;
+		desc.StencilWriteMask = depthStencilDesc.StencilWriteMask;
+
+		desc.FrontFace.StencilFunc		  = D3D12::GetComparisonFunction(depthStencilDesc.Front.StencilComparisonFunction);
+		desc.FrontFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthFailOperation);
+		desc.FrontFace.StencilFailOp	  = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
+		desc.FrontFace.StencilPassOp	  = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
+
+		desc.BackFace.StencilFunc		 = D3D12::GetComparisonFunction(depthStencilDesc.Back.StencilComparisonFunction);
+		desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
+		desc.BackFace.StencilFailOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
+		desc.BackFace.StencilPassOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+
+		desc.DepthBoundsTestEnable = depthStencilDesc.EnableDepthsBoundsTest;
 
 		return desc;
 	}

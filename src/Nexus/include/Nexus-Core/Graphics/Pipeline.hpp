@@ -235,7 +235,12 @@ namespace Nexus::Graphics
 					{
 						ShaderResource &requiredResource = requiredResources.at(resource.Name);
 						ShaderResource	newResource		 = ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
-						NX_ASSERT(newResource == requiredResource, "Shader resources that share the same name must match across stages");
+
+						if (newResource == requiredResource)
+						{
+							throw std::runtime_error("Shader resources that share the same name must match across stages");
+						}
+
 						requiredResource.Stage.AddFlag(module->GetShaderStage());
 					}
 					else

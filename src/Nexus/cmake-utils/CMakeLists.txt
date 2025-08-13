@@ -5,7 +5,7 @@ macro(nexus_copy_required_binaries)
   add_custom_command(
       TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_02_20/bin/x64/dxcompiler.dll
+        ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_07_14/bin/x64/dxcompiler.dll
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
   add_custom_command(

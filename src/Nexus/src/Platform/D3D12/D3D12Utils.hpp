@@ -70,6 +70,14 @@ namespace Nexus::D3D12
 																	   Microsoft::WRL::ComPtr<ID3D12RootSignature>	rootSignature,
 																	   const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout);
 
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(Graphics::GraphicsDeviceD3D12				 *device,
+																	  const Graphics::ComputePipelineDescription &description,
+																	  Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(Graphics::GraphicsDeviceD3D12				 *device,
+																	  const Graphics::MeshletPipelineDescription &description,
+																	  Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
 	D3D12_HEAP_TYPE			 GetHeapType(const Graphics::DeviceBufferDescription &desc);
 	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
 	D3D12_RESOURCE_FLAGS	 GetResourceFlags(Graphics::PixelFormat format, uint8_t textureUsage);
@@ -92,6 +100,7 @@ namespace Nexus::D3D12
 	D3D12_STREAM_OUTPUT_DESC			  CreateStreamOutputDesc();
 	D3D12_BLEND_DESC					  CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates);
 	D3D12_DEPTH_STENCIL_DESC			  CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc);
+	D3D12_DEPTH_STENCIL_DESC1			  CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc);
 
 }	 // namespace Nexus::D3D12
 
