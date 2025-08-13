@@ -3,6 +3,10 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "Nexus-Core/nxpch.hpp"
+	#include "PipelineD3D12.hpp"
+	#include "GraphicsDeviceD3D12.hpp"
+	#include "ShaderModuleD3D12.hpp"
+	#include "StreamStateBuilder.hpp"
 
 namespace Nexus::D3D12
 {
@@ -293,6 +297,276 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::Topology::TriangleList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 			case Nexus::Graphics::Topology::TriangleStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 			default: throw std::runtime_error("Could not find a valid topology");
+		}
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipelineTraditional(Graphics::GraphicsDeviceD3D12				  *device,
+																				  const Graphics::GraphicsPipelineDescription &description,
+																				  Microsoft::WRL::ComPtr<ID3D12RootSignature>  rootSignature,
+																				  const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout)
+	{
+		std::vector<DXGI_FORMAT> rtvFormats;
+
+		for (uint32_t index = 0; index < description.ColourTargetCount; index++)
+		{
+			DXGI_FORMAT colourFormat = D3D12::GetD3D12PixelFormat(description.ColourFormats.at(index));
+			rtvFormats.push_back(colourFormat);
+		}
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc {};
+		pipelineDesc.pRootSignature					= rootSignature.Get();
+		pipelineDesc.InputLayout.NumElements		= inputLayout.size();
+		pipelineDesc.InputLayout.pInputElementDescs = inputLayout.data();
+		pipelineDesc.IBStripCutValue				= D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+
+		// setup shaders
+		pipelineDesc.VS.BytecodeLength	= 0;
+		pipelineDesc.VS.pShaderBytecode = nullptr;
+		pipelineDesc.PS.BytecodeLength	= 0;
+		pipelineDesc.PS.pShaderBytecode = nullptr;
+		pipelineDesc.DS.BytecodeLength	= 0;
+		pipelineDesc.DS.pShaderBytecode = nullptr;
+		pipelineDesc.HS.BytecodeLength	= 0;
+		pipelineDesc.HS.pShaderBytecode = nullptr;
+		pipelineDesc.GS.BytecodeLength	= 0;
+		pipelineDesc.GS.pShaderBytecode = nullptr;
+
+		if (description.FragmentModule)
+		{
+			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
+			NX_ASSERT(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
+			auto blob = d3d12FragmentModule->GetBlob();
+
+			pipelineDesc.PS.BytecodeLength	= blob->GetBufferSize();
+			pipelineDesc.PS.pShaderBytecode = blob->GetBufferPointer();
+		}
+
+		if (description.GeometryModule)
+		{
+			auto d3d12GeometryModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.GeometryModule);
+			NX_ASSERT(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
+			auto blob = d3d12GeometryModule->GetBlob();
+
+			pipelineDesc.GS.BytecodeLength	= blob->GetBufferSize();
+			pipelineDesc.GS.pShaderBytecode = blob->GetBufferPointer();
+		}
+
+		if (description.TesselationControlModule)
+		{
+			auto d3d12TesselationControlModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationControlModule);
+			NX_ASSERT(d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
+					  "Shader module is not a tesselation control shader");
+			auto blob = d3d12TesselationControlModule->GetBlob();
+
+			pipelineDesc.HS.BytecodeLength	= blob->GetBufferSize();
+			pipelineDesc.HS.pShaderBytecode = blob->GetBufferPointer();
+		}
+
+		if (description.TesselationEvaluationModule)
+		{
+			auto d3d12TesselationEvaluationModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationEvaluationModule);
+			NX_ASSERT(d3d12TesselationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
+					  "Shader module is not a tesselation evaluation shader");
+			auto blob = d3d12TesselationEvaluationModule->GetBlob();
+
+			pipelineDesc.DS.BytecodeLength	= blob->GetBufferSize();
+			pipelineDesc.DS.pShaderBytecode = blob->GetBufferPointer();
+		}
+
+		if (description.VertexModule)
+		{
+			auto d3d12VertexModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.VertexModule);
+			NX_ASSERT(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
+			auto blob = d3d12VertexModule->GetBlob();
+
+			pipelineDesc.VS.BytecodeLength	= blob->GetBufferSize();
+			pipelineDesc.VS.pShaderBytecode = blob->GetBufferPointer();
+		}
+
+		pipelineDesc.PrimitiveTopologyType = D3D12::GetPipelineTopology(description.PrimitiveTopology);
+		pipelineDesc.RasterizerState	   = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
+		pipelineDesc.StreamOutput		   = D3D12::CreateStreamOutputDesc();
+		pipelineDesc.NumRenderTargets	   = rtvFormats.size();
+
+		for (uint32_t rtvIndex = 0; rtvIndex < rtvFormats.size(); rtvIndex++) { pipelineDesc.RTVFormats[rtvIndex] = rtvFormats.at(rtvIndex); }
+
+		DXGI_FORMAT depthFormat						 = D3D12::GetD3D12PixelFormat(description.DepthFormat);
+		pipelineDesc.DSVFormat						 = depthFormat;
+		pipelineDesc.BlendState						 = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
+		pipelineDesc.DepthStencilState				 = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+		pipelineDesc.SampleMask						 = 0xFFFFFFFF;
+		pipelineDesc.SampleDesc.Count				 = description.ColourTargetSampleCount;
+		pipelineDesc.SampleDesc.Quality				 = 0;
+		pipelineDesc.NodeMask						 = 0;
+		pipelineDesc.CachedPSO.CachedBlobSizeInBytes = 0;
+		pipelineDesc.CachedPSO.pCachedBlob			 = nullptr;
+		pipelineDesc.Flags							 = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+
+		auto	d3d12Device = device->GetDevice();
+		HRESULT hr			= d3d12Device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pso));
+		if (FAILED(hr))
+		{
+			_com_error	error(hr);
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
+		}
+
+		std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+		pso->SetName(debugName.c_str());
+
+		return pso;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipelineStream(Graphics::GraphicsDeviceD3D12				 *device,
+																			 const Graphics::GraphicsPipelineDescription &description,
+																			 Microsoft::WRL::ComPtr<ID3D12RootSignature>  rootSignature,
+																			 const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout)
+	{
+		D3D12::StreamStateBuilder builder;
+		ID3D12RootSignature		 *rootSignaturePtr = rootSignature.Get();
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
+
+		if (description.VertexModule)
+		{
+			auto d3d12VertexModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.VertexModule);
+			NX_ASSERT(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
+			auto blob = d3d12VertexModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS, byteCode);
+		}
+
+		if (description.FragmentModule)
+		{
+			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
+			NX_ASSERT(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
+			auto blob = d3d12FragmentModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS, byteCode);
+		}
+
+		if (description.TesselationEvaluationModule)
+		{
+			auto d3d12TessellationEvaluationModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationEvaluationModule);
+			NX_ASSERT(d3d12TessellationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
+					  "Shader module is not a tessellation evaluation shader");
+			auto blob = d3d12TessellationEvaluationModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS, byteCode);
+		}
+
+		if (description.TesselationControlModule)
+		{
+			auto d3d12TessellationControlModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationControlModule);
+			NX_ASSERT(d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
+					  "Shader module is not a tessellation control shader");
+			auto blob = d3d12TessellationControlModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS, byteCode);
+		}
+
+		if (description.GeometryModule)
+		{
+			auto d3d12GeometryModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.GeometryModule);
+			NX_ASSERT(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
+			auto blob = d3d12GeometryModule->GetBlob();
+
+			D3D12_SHADER_BYTECODE byteCode = {};
+			byteCode.pShaderBytecode	   = blob->GetBufferPointer();
+			byteCode.BytecodeLength		   = blob->GetBufferSize();
+			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_GS, byteCode);
+		}
+
+		D3D12_BLEND_DESC blendDesc = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, blendDesc);
+
+		UINT sampleMask = UINT_MAX;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, sampleMask);
+
+		D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
+
+		D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
+
+		std::vector<D3D12_INPUT_ELEMENT_DESC> layout		  = inputLayout;
+		D3D12_INPUT_LAYOUT_DESC				  inputLayoutDesc = {};
+		inputLayoutDesc.pInputElementDescs					  = layout.data();
+		inputLayoutDesc.NumElements							  = (UINT)layout.size();
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT, inputLayoutDesc);
+
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopology = D3D12::GetPipelineTopology(description.PrimitiveTopology);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY, primitiveTopology);
+
+		D3D12_RT_FORMAT_ARRAY rtFormats = {};
+		rtFormats.NumRenderTargets		= description.ColourTargetCount;
+		for (uint32_t index = 0; index < description.ColourTargetCount; index++)
+		{
+			rtFormats.RTFormats[index] = D3D12::GetD3D12PixelFormat(description.ColourFormats[index]);
+		}
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS, rtFormats);
+
+		DXGI_FORMAT depthFormat = D3D12::GetD3D12PixelFormat(description.DepthFormat);
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat);
+
+		DXGI_SAMPLE_DESC sampleDesc = {};
+		sampleDesc.Count			= description.ColourTargetSampleCount;
+		sampleDesc.Quality			= 0;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc);
+
+		UINT nodeMask = 0;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
+
+		D3D12_PIPELINE_STATE_FLAGS flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+		auto										d3d12Device = device->GetDevice();
+
+		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
+		desc.pPipelineStateSubobjectStream	  = builder.GetStream();
+		desc.SizeInBytes					  = builder.GetSizeInBytes();
+
+		HRESULT hr = d3d12Device->CreatePipelineState(&desc, IID_PPV_ARGS(&pso));
+		if (FAILED(hr))
+		{
+			_com_error	error(hr);
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
+		}
+
+		std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
+		pso->SetName(debugName.c_str());
+
+		return pso;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipeline(Graphics::GraphicsDeviceD3D12			   *device,
+																	   const Graphics::GraphicsPipelineDescription &description,
+																	   Microsoft::WRL::ComPtr<ID3D12RootSignature>	rootSignature,
+																	   const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout)
+	{
+		const Graphics::D3D12DeviceFeatures &features = device->GetD3D12DeviceFeatures();
+		if (features.SupportsPipelineStreams)
+		{
+			return CreateGraphicsPipelineStream(device, description, rootSignature, inputLayout);
+		}
+		else
+		{
+			return CreateGraphicsPipelineTraditional(device, description, rootSignature, inputLayout);
 		}
 	}
 
@@ -624,7 +898,7 @@ namespace Nexus::D3D12
 	}
 
 	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
-							 ID3D12Device9										   *device,
+							 Microsoft::WRL::ComPtr<ID3D12Device9>					device,
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
 							 DescriptorHandleInfo								   &descriptorHandleInfo)

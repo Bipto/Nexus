@@ -34,5 +34,6 @@ namespace Nexus::Graphics
 		bool SupportsCubemapArray				  = false;
 		bool SupportsIndependentBlend			  = false;
 		bool SupportsMeshTaskShaders			  = false;
+		bool SupportsDepthBoundsTesting			  = false;
 	};
 }	 // namespace Nexus::Graphics

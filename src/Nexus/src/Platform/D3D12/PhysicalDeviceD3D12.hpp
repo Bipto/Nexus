@@ -15,6 +15,8 @@ namespace Nexus::Graphics
 		virtual ~PhysicalDeviceD3D12();
 		const std::string &GetDeviceName() const final;
 
+		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
+
 		Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter() const;
 		D3D_FEATURE_LEVEL					  GetMaximumSupportedFeatureLevel() const;
 

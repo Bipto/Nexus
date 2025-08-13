@@ -859,6 +859,10 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	{
+	}
+
 	void BeginRenderPass(GraphicsDeviceVk			 *device,
 						 const VkRenderPassBeginInfo &beginInfo,
 						 VkSubpassContents			  subpassContents,

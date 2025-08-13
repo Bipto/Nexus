@@ -347,10 +347,9 @@ namespace Nexus::Graphics
 
 	struct PushConstantsDesc
 	{
-		std::string Name   = {};
-		const void *Data   = nullptr;
+		std::string			 Name	= {};
 		size_t		Offset = 0;
-		size_t		Size   = 0;
+		std::vector<uint8_t> Data	= {};
 	};
 
 	typedef std::variant<SetVertexBufferCommand,
@@ -385,7 +384,8 @@ namespace Nexus::Graphics
 						 BuildAccelerationStructuresCommand,
 						 AccelerationStructureCopyDescription,
 						 AccelerationStructureDeviceBufferCopyDescription,
-						 DeviceBufferAccelerationStructureCopyDescription>
+						 DeviceBufferAccelerationStructureCopyDescription,
+						 PushConstantsDesc>
 		RenderCommandData;
 
 	struct CommandListDescription
@@ -492,7 +492,7 @@ namespace Nexus::Graphics
 
 		void CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description);
 
-		void WritePushConstants(const PushConstantsDesc &pushConstantDesc);
+		void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();

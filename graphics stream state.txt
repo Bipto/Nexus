@@ -1,0 +1,39 @@
+While Direct3D 12 allows flexibility, the following order is commonly used and ensures clarity and consistency:
+
+    Root Signature (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE)
+
+    Vertex Shader (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS)
+
+    Pixel Shader (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS)
+
+    Domain Shader (if used)
+
+    Hull Shader (if used)
+
+    Geometry Shader (if used)
+
+    Stream Output (if used)
+
+    Blend State (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND)
+
+    Sample Mask (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK)
+
+    Rasterizer State (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER)
+
+    Depth-Stencil State (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL)
+
+    Input Layout (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT)
+
+    Primitive Topology Type (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY)
+
+    Render Target Formats (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS)
+
+    Depth-Stencil Format (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT)
+
+    Sample Description (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC)
+
+    Node Mask (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK)
+
+    Cached PSO (optional)
+
+    Flags (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS)

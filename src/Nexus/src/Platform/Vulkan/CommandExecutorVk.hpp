@@ -54,6 +54,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device) override;
 		virtual void ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device) override;
+		void		 ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device) final;
 
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);

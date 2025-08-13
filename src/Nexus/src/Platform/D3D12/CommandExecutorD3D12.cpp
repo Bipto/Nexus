@@ -712,6 +712,10 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
 	{
 		if (Ref<Swapchain> sc = swapchain.lock())
