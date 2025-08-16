@@ -2,7 +2,7 @@
 #include "Nexus.hpp"
 
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "Nexus-Core/Renderer/Renderer3D.hpp"
+#include "Nexus-Core/Renderer/SceneRenderer.hpp"
 
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
@@ -35,9 +35,7 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice.get());
-		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice.get(), true, 1);
-
+		m_SceneRenderer = std::make_unique<Nexus::Graphics::SceneRenderer>(GetGraphicsDevice());
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
 
@@ -50,26 +48,26 @@ class EditorApplication : public Nexus::Application
 		CreateFramebuffer(ImVec2(1280, 720));
 		ApplyDarkTheme();
 
-		SceneViewPanel *sceneViewPanel = new SceneViewPanel();
-		InspectorPanel *inspectorPanel = new InspectorPanel();
+		std::shared_ptr<SceneViewPanel> sceneViewPanel = std::make_shared<SceneViewPanel>();
+		std::shared_ptr<InspectorPanel> inspectorPanel = std::make_shared<InspectorPanel>();
 
 		sceneViewPanel->OnEntitySelected.Bind(
 			[this](std::optional<Nexus::GUID> id)
 			{
 				m_EntityID = id;
-				for (Panel *panel : m_Panels) { panel->OnEntitySelected(id); }
+				for (std::shared_ptr<Panel> panel : m_Panels) { panel->OnEntitySelected(id); }
 			});
 
-		m_Panels.push_back(new ProjectViewPanel());
+		m_Panels.push_back(std::make_shared<ProjectViewPanel>());
 		m_Panels.push_back(sceneViewPanel);
 		m_Panels.push_back(inspectorPanel);
-		m_Panels.push_back(new ImporterPanel());
-		m_Panels.push_back(new ImportAssetPanel());
+		m_Panels.push_back(std::make_shared<ImporterPanel>());
+		m_Panels.push_back(std::make_shared<ImportAssetPanel>());
 
 		std::string title = "Editor: (" + m_GraphicsDevice->GetAPIName() + std::string(")");
 		Nexus::GetApplication()->GetPrimaryWindow()->SetTitle(title);
 
-		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
+		m_EditorPropertiesPanel = std::make_shared<EditorPropertiesPanel>(m_Panels);
 		m_Panels.push_back(m_EditorPropertiesPanel);
 		LoadLayoutSettings();
 	}
@@ -217,9 +215,13 @@ class EditorApplication : public Nexus::Application
 					Nexus::FileDialogResult result = dialog->Show();
 					if (result.FilePaths.size() > 0)
 					{
-						ImportAssetPanel *panel = (ImportAssetPanel *)GetPanelByName("Import Asset");
-						panel->SetFilepaths(result.FilePaths);
-						panel->Open();
+						std::shared_ptr<Panel> panel = GetPanelByName("Import Asset");
+						if (panel)
+						{
+							std::shared_ptr<ImportAssetPanel> importPanel = std::dynamic_pointer_cast<ImportAssetPanel>(panel);
+							importPanel->SetFilepaths(result.FilePaths);
+							importPanel->Open();
+						}
 					}
 				}
 			}
@@ -301,9 +303,9 @@ class EditorApplication : public Nexus::Application
 		colors[ImGuiCol_SliderGrabActive] = {0.55f, 0.55f, 0.55f, 1.0f};
 	}
 
-	Panel *GetPanelByName(const std::string &name)
+	std::shared_ptr<Panel> GetPanelByName(const std::string &name)
 	{
-		for (Panel *panel : m_Panels)
+		for (std::shared_ptr<Panel> panel : m_Panels)
 		{
 			if (panel->GetName() == name)
 			{
@@ -325,7 +327,7 @@ class EditorApplication : public Nexus::Application
 	{
 		YAML::Node node;
 
-		for (Panel *panel : m_Panels) { node[panel->GetName()] = (int)panel->IsOpen(); }
+		for (std::shared_ptr<Panel> panel : m_Panels) { node[panel->GetName()] = (int)panel->IsOpen(); }
 
 		YAML::Emitter out;
 		out << node;
@@ -341,7 +343,7 @@ class EditorApplication : public Nexus::Application
 			std::string text = Nexus::FileSystem::ReadFileToString("editor.yaml");
 			YAML::Node	root = YAML::Load(text);
 
-			for (Panel *panel : m_Panels)
+			for (std::shared_ptr<Panel> panel : m_Panels)
 			{
 				const std::string &panelName = panel->GetName();
 				if (root[panelName])
@@ -462,7 +464,7 @@ class EditorApplication : public Nexus::Application
 
 				if (transform)
 				{
-					const auto &camera		 = m_Renderer->GetCamera();
+					const auto &camera		 = m_SceneRenderer->GetCamera();
 					const auto &view		 = camera.GetView();
 					const auto &projection	 = camera.GetProjection();
 					glm::mat4	transformMat = transform->CreateTransformation();
@@ -558,48 +560,7 @@ class EditorApplication : public Nexus::Application
 		if (m_Project && m_Project->IsSceneLoaded())
 		{
 			m_Project->OnRender(time);
-
-			Nexus::Scene *scene = m_Project->GetLoadedScene();
-			m_Renderer->Begin(scene, target, time);
-			m_Renderer->End();
-
-			Nexus::Graphics::Viewport vp = {};
-			vp.X						 = 0;
-			vp.Y						 = 0;
-			vp.Width					 = m_Framebuffer->GetFramebufferSpecification().Width;
-			vp.Height					 = m_Framebuffer->GetFramebufferSpecification().Height;
-			vp.MinDepth					 = 0.0f;
-			vp.MaxDepth					 = 1.0f;
-
-			Nexus::Graphics::Scissor scissor = {};
-			scissor.X						 = 0;
-			scissor.Y						 = 0;
-			scissor.Width					 = vp.Width;
-			scissor.Height					 = vp.Height;
-
-			glm::mat4 viewProj = m_Renderer->GetCamera().GetViewProjection();
-			m_BatchRenderer->Begin(target, vp, scissor, viewProj);
-
-			Nexus::ECS::View<Nexus::Transform, Nexus::SpriteRendererComponent> transformsSpriteRenderers =
-				m_Project->GetLoadedScene()->Registry.GetView<Nexus::Transform, Nexus::SpriteRendererComponent>();
-
-			transformsSpriteRenderers.Each(
-				[&](Nexus::Entity *entity, const std::tuple<Nexus::Transform *, Nexus::SpriteRendererComponent *> &components)
-				{
-					Nexus::Transform			   *transform	   = std::get<0>(components);
-					Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
-
-					const Nexus::FirstPersonCamera &camera		= m_Renderer->GetCamera();
-					glm::mat4						worldMatrix = transform->CreateTransformation();
-
-					m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
-												  spriteRenderer->SpriteTexture,
-												  spriteRenderer->Tiling,
-												  worldMatrix,
-												  entity->ID);
-				});
-
-			m_BatchRenderer->End();
+			m_SceneRenderer->Render(m_Project->GetLoadedScene(), target, time);
 		}
 
 		m_ImGuiRenderer->BeforeLayout(time);
@@ -613,10 +574,10 @@ class EditorApplication : public Nexus::Application
 			Nexus::Ref<Nexus::Graphics::Texture> idTexture = m_Framebuffer->GetColorTexture(1);
 
 			std::vector<char> pixels =
-				m_GraphicsDevice->ReadFromTexture(idTexture.get(), 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
+				m_GraphicsDevice->ReadFromTexture(idTexture, 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
 
-			uint32_t							   upperValue = 0;
-			uint32_t							   lowerValue = 0;
+			uint32_t upperValue = 0;
+			uint32_t lowerValue = 0;
 
 			memcpy(&upperValue, pixels.data(), sizeof(upperValue));
 			memcpy(&lowerValue, pixels.data() + sizeof(lowerValue), sizeof(lowerValue));
@@ -651,21 +612,20 @@ class EditorApplication : public Nexus::Application
 
   private:
 	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
+	std::unique_ptr<Nexus::Graphics::SceneRenderer>			  m_SceneRenderer = nullptr;
 	Nexus::Ref<Nexus::Graphics::Framebuffer>				  m_Framebuffer	  = nullptr;
 
 	ImTextureID m_FramebufferTextureID = {};
 
-	std::unique_ptr<Nexus::Graphics::Renderer3D>	m_Renderer		= nullptr;
-	std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-	Nexus::Ref<Nexus::Graphics::Texture>			m_Cubemap		= nullptr;
-	Nexus::Ref<Nexus::Graphics::Model>				m_Model			= nullptr;
+	Nexus::Ref<Nexus::Graphics::Texture> m_Cubemap = nullptr;
+	Nexus::Ref<Nexus::Graphics::Model>	 m_Model   = nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
 	bool   m_NewProjectWindowOpen = false;
 
-	Nexus::Ref<Nexus::Project> m_Project			   = nullptr;
-	std::vector<Panel *>	   m_Panels				   = {};
-	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
+	Nexus::Ref<Nexus::Project>			   m_Project			   = nullptr;
+	std::vector<std::shared_ptr<Panel>>	   m_Panels				   = {};
+	std::shared_ptr<EditorPropertiesPanel> m_EditorPropertiesPanel = nullptr;
 
 	std::optional<glm::vec2>   m_ClickPosition			 = {};
 	std::optional<Nexus::GUID> m_EntityID				 = {};
@@ -676,8 +636,9 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
-	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsCreateInfo.Debug = true;
+	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
 	spec.WindowProperties.Height		   = 720;

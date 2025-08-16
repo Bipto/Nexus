@@ -54,7 +54,7 @@ namespace Nexus::Graphics
 			}
 		}
 
-		RenderTargetType GetType()
+		RenderTargetType GetType() const
 		{
 			return m_RenderTargetType;
 		}

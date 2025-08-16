@@ -385,6 +385,7 @@ namespace Nexus::Graphics
 			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.BufferFormat	  = Graphics::IndexFormat::UInt32;
+			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			DrawIndexedDescription drawDesc = {};
