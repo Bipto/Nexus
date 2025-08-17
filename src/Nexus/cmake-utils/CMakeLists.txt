@@ -2,27 +2,19 @@ cmake_minimum_required(VERSION 3.28)
 
 macro(nexus_copy_required_binaries)
   if (WIN32)
-  add_custom_command(
+    add_custom_command(
+        TARGET ${PROJECT_NAME} PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E copy
+              ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_07_14/bin/x64/dxcompiler.dll
+              $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+    add_custom_command(
       TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_07_14/bin/x64/dxcompiler.dll
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-  add_custom_command(
-    TARGET ${PROJECT_NAME} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/src/Nexus/external/winpixeventruntime.1.0.240308001/bin/x64/WinPixEventRuntime.dll
-      $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
+            ${CMAKE_SOURCE_DIR}/src/Nexus/external/winpixeventruntime.1.0.240308001/bin/x64/WinPixEventRuntime.dll
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
   endif()
-endmacro()
-
-macro(nexus_add_shared_library shared_library)
-  set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
-  add_definitions(-DLIBTYPE=SHARED)
-  add_subdirectory(${shared_library})
-  remove_definitions(-DLIBTYPE)
-  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 endmacro()
 
 macro(nexus_setup_filters source_files)
@@ -60,43 +52,22 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries)
-  if (NX_BUILD_TYPE STREQUAL "SHARED")
-    if (WIN32)
-      # Create a custom target for the copy actions
-      add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
-        COMMAND ${CMAKE_COMMAND} -E copy
-        -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
-        COMMAND_EXPAND_LISTS
-        COMMAND ${CMAKE_COMMAND} -E copy
-        -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_PDB_FILE:Nexus>
-        COMMAND_EXPAND_LISTS
-      )
-
-      # Set up a dependency so the copy target runs when the executable is built
-      add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
-    elseif (LINUX)
-      # Create a custom target for the copy actions
-      add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
+    # Create a custom target for the copy actions
+    add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
       COMMAND ${CMAKE_COMMAND} -E copy
-      -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+            -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+      COMMAND ${CMAKE_COMMAND} -E copy
+              -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<IF:$<BOOL:$<TARGET_PDB_FILE:Nexus>>,$<TARGET_PDB_FILE:Nexus>,NUL>
       COMMAND_EXPAND_LISTS
-      )
+    )
 
-      # Set up a dependency so the copy target runs when the executable is built
-      add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
-    endif()
-  endif()
+    # Set up a dependency so the copy target runs when the executable is built
+    add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
     add_subdirectory(${SUBDIR} EXCLUDE_FROM_ALL)
-  endforeach()
-endmacro()
-
-macro(nexus_add_all_shared_lib_subdirs SUBDIRS)
-  foreach (SUBDIR ${SUBDIRS})
-    nexus_add_shared_library(${SUBDIR})
   endforeach()
 endmacro()
 

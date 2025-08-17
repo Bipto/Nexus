@@ -20,7 +20,6 @@ add_subdirectory(cmake-utils)
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
-set(NEXUS_SHARED_LIBRARY_SUBDIRECTORIES "")
 set(NEXUS_COMPILE_DEFINITIONS "")
 
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
@@ -268,7 +267,6 @@ if (EMSCRIPTEN)
 endif()
 
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
-nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 
 if (DEFINED NX_PLATFORM_VULKAN)
   set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 17)
