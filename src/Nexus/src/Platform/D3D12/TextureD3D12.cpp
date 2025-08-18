@@ -9,12 +9,12 @@ namespace Nexus::Graphics
 {
 	TextureD3D12::TextureD3D12(const TextureDescription &spec, GraphicsDeviceD3D12 *device) : Texture(spec), m_Device(device)
 	{
-		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
-		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one mip level");
+		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one mip level");
 
 		if (spec.Samples > 1)
 		{
-			NX_ASSERT(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
+			NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
 		}
 
 		D3D12_RESOURCE_DIMENSION dimension = D3D12::GetResourceDimensions(spec.Type);
@@ -77,16 +77,16 @@ namespace Nexus::Graphics
 
 	void TextureD3D12::SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state)
 	{
-		/* NX_ASSERT(arrayLayer <= m_Description.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels"); */
+		/* NX_VALIDATE(arrayLayer <= m_Description.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels"); */
 
 		m_ResourceStates[arrayLayer * m_Description.MipLevels + mipLevel] = state;
 	}
 
 	D3D12_RESOURCE_STATES TextureD3D12::GetResourceState(uint32_t arrayLayer, uint32_t mipLevel)
 	{
-		/* NX_ASSERT(arrayLayer <= m_Description.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels"); */
+		/* NX_VALIDATE(arrayLayer <= m_Description.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels"); */
 
 		return m_ResourceStates[arrayLayer * m_Description.MipLevels + mipLevel];
 	}

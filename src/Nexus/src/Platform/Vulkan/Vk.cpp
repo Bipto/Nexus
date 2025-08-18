@@ -1085,7 +1085,7 @@ namespace Nexus::Vk
 		createInfo.pDependencies		  = dependencies.data();
 
 		VkRenderPass renderPass = VK_NULL_HANDLE;
-		NX_ASSERT(vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		NX_VALIDATE(vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
 		return renderPass;
 	}
 
@@ -1224,7 +1224,7 @@ namespace Nexus::Vk
 		createInfo.pCorrelatedViewMasks		  = nullptr;
 
 		VkRenderPass renderPass = VK_NULL_HANDLE;
-		NX_ASSERT(func(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		NX_VALIDATE(func(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
 		return renderPass;
 	}
 
@@ -1265,7 +1265,7 @@ namespace Nexus::Vk
 
 		VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
-		NX_ASSERT(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
+		NX_VALIDATE(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
 
 		return framebuffer;
 	}
@@ -1549,8 +1549,8 @@ namespace Nexus::Vk
 			createInfo.bindingCount					   = layoutBindings.size();
 
 			VkDescriptorSetLayout &layout = descriptorSetLayouts.emplace_back();
-			NX_ASSERT(vkCreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
-					  "Failed to create descriptor set layout");
+			NX_VALIDATE(vkCreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
+						"Failed to create descriptor set layout");
 		}
 
 		// create the actual VkPipelineLayout
@@ -1565,7 +1565,7 @@ namespace Nexus::Vk
 		info.pushConstantRangeCount		= 0;
 		info.pPushConstantRanges		= nullptr;
 
-		NX_ASSERT(vkCreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
+		NX_VALIDATE(vkCreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
 
 		return layout;
 	}

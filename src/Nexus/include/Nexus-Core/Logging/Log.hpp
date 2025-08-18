@@ -81,3 +81,10 @@ namespace Nexus
 #define NX_WARNING(message)			   Nexus::GetCoreLogger()->LogWarning(message)
 #define NX_ERROR(message)			   Nexus::GetCoreLogger()->LogError(message)
 #define NX_ASSERT(expression, message) assert(expression &&message)
+#define NX_VALIDATE(expression, message)                                                                                                             \
+	do {                                                                                                                                             \
+		if (!(expression))                                                                                                                           \
+		{                                                                                                                                            \
+			throw std::runtime_error(std::string("Assertion failed: ") + (message));                                                                 \
+		}                                                                                                                                            \
+	} while (false)

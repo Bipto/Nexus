@@ -66,10 +66,10 @@ namespace Nexus::GL
 		int pbufferAttributes[] = {0};
 
 		HPBUFFERARB pbuffer = wglCreatePbufferARB(hdc, pixelFormat, 1, 1, pbufferAttributes);
-		NX_ASSERT(pbuffer, "Failed to create PBuffer");
+		NX_VALIDATE(pbuffer, "Failed to create PBuffer");
 
 		HDC pbufferDC = wglGetPbufferDCARB(pbuffer);
-		NX_ASSERT(pbufferDC, "Failed to create DC for PBuffer");
+		NX_VALIDATE(pbufferDC, "Failed to create DC for PBuffer");
 
 		std::vector<int> contextAttributes;
 		contextAttributes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
@@ -101,7 +101,7 @@ namespace Nexus::GL
 		contextAttributes.push_back(0);
 
 		HGLRC pbufferContext = wglCreateContextAttribsARB(pbufferDC, NULL, contextAttributes.data());
-		NX_ASSERT(pbufferContext, "Failed to create OpenGL context");
+		NX_VALIDATE(pbufferContext, "Failed to create OpenGL context");
 
 		return {pbuffer, pbufferDC, pbufferContext};
 	}

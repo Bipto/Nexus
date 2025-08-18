@@ -91,7 +91,7 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
+			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
 		}
 	}
 
@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
+			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
 		}
 	}
 

@@ -129,7 +129,7 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::StencilOperation::Increment: return D3D12_STENCIL_OP_INCR;
 			case Nexus::Graphics::StencilOperation::Decrement: return D3D12_STENCIL_OP_DECR;
 			case Nexus::Graphics::StencilOperation::Invert: return D3D12_STENCIL_OP_INVERT;
-			default: NX_ASSERT(0, "Invalid stencil operation entered"); return D3D12_STENCIL_OP();
+			default: throw std::runtime_error("Invalid stencil operation entered");
 		}
 	}
 
@@ -139,7 +139,7 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::FillMode::Solid: return D3D12_FILL_MODE_SOLID;
 			case Nexus::Graphics::FillMode::Wireframe: return D3D12_FILL_MODE_WIREFRAME;
-			default: NX_ASSERT(0, "Invalid fill mode entered"); return D3D12_FILL_MODE();
+			default: throw std::runtime_error("Invalid fill mode entered");
 		}
 	}
 
@@ -334,7 +334,7 @@ namespace Nexus::D3D12
 		if (description.FragmentModule)
 		{
 			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
-			NX_ASSERT(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
+			NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
 			auto blob = d3d12FragmentModule->GetBlob();
 
 			pipelineDesc.PS.BytecodeLength	= blob->GetBufferSize();
@@ -344,7 +344,7 @@ namespace Nexus::D3D12
 		if (description.GeometryModule)
 		{
 			auto d3d12GeometryModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.GeometryModule);
-			NX_ASSERT(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
+			NX_VALIDATE(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
 			auto blob = d3d12GeometryModule->GetBlob();
 
 			pipelineDesc.GS.BytecodeLength	= blob->GetBufferSize();
@@ -354,8 +354,8 @@ namespace Nexus::D3D12
 		if (description.TesselationControlModule)
 		{
 			auto d3d12TesselationControlModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationControlModule);
-			NX_ASSERT(d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
-					  "Shader module is not a tesselation control shader");
+			NX_VALIDATE(d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
+						"Shader module is not a tesselation control shader");
 			auto blob = d3d12TesselationControlModule->GetBlob();
 
 			pipelineDesc.HS.BytecodeLength	= blob->GetBufferSize();
@@ -365,8 +365,8 @@ namespace Nexus::D3D12
 		if (description.TesselationEvaluationModule)
 		{
 			auto d3d12TesselationEvaluationModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationEvaluationModule);
-			NX_ASSERT(d3d12TesselationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
-					  "Shader module is not a tesselation evaluation shader");
+			NX_VALIDATE(d3d12TesselationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
+						"Shader module is not a tesselation evaluation shader");
 			auto blob = d3d12TesselationEvaluationModule->GetBlob();
 
 			pipelineDesc.DS.BytecodeLength	= blob->GetBufferSize();
@@ -376,7 +376,7 @@ namespace Nexus::D3D12
 		if (description.VertexModule)
 		{
 			auto d3d12VertexModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.VertexModule);
-			NX_ASSERT(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
+			NX_VALIDATE(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
 			auto blob = d3d12VertexModule->GetBlob();
 
 			pipelineDesc.VS.BytecodeLength	= blob->GetBufferSize();
@@ -433,7 +433,7 @@ namespace Nexus::D3D12
 		if (description.VertexModule)
 		{
 			auto d3d12VertexModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.VertexModule);
-			NX_ASSERT(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
+			NX_VALIDATE(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
 			auto blob = d3d12VertexModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -445,7 +445,7 @@ namespace Nexus::D3D12
 		if (description.FragmentModule)
 		{
 			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
-			NX_ASSERT(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
+			NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
 			auto blob = d3d12FragmentModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -457,8 +457,8 @@ namespace Nexus::D3D12
 		if (description.TesselationEvaluationModule)
 		{
 			auto d3d12TessellationEvaluationModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationEvaluationModule);
-			NX_ASSERT(d3d12TessellationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
-					  "Shader module is not a tessellation evaluation shader");
+			NX_VALIDATE(d3d12TessellationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
+						"Shader module is not a tessellation evaluation shader");
 			auto blob = d3d12TessellationEvaluationModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -470,8 +470,8 @@ namespace Nexus::D3D12
 		if (description.TesselationControlModule)
 		{
 			auto d3d12TessellationControlModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationControlModule);
-			NX_ASSERT(d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
-					  "Shader module is not a tessellation control shader");
+			NX_VALIDATE(d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
+						"Shader module is not a tessellation control shader");
 			auto blob = d3d12TessellationControlModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -483,7 +483,7 @@ namespace Nexus::D3D12
 		if (description.GeometryModule)
 		{
 			auto d3d12GeometryModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.GeometryModule);
-			NX_ASSERT(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
+			NX_VALIDATE(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
 			auto blob = d3d12GeometryModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -588,8 +588,8 @@ namespace Nexus::D3D12
 																			Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
 	{
 		auto d3d12ComputeShader = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.ComputeShader);
-		NX_ASSERT(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
-				  "Shader provided to ComputePipelineDescription is not a compute shader");
+		NX_VALIDATE(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
+					"Shader provided to ComputePipelineDescription is not a compute shader");
 
 		auto blob = d3d12ComputeShader->GetBlob();
 
@@ -634,8 +634,8 @@ namespace Nexus::D3D12
 																				 Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
 	{
 		auto d3d12ComputeShader = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.ComputeShader);
-		NX_ASSERT(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
-				  "Shader provided to ComputePipelineDescription is not a compute shader");
+		NX_VALIDATE(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
+					"Shader provided to ComputePipelineDescription is not a compute shader");
 
 		auto blob = d3d12ComputeShader->GetBlob();
 
@@ -693,7 +693,7 @@ namespace Nexus::D3D12
 		if (description.TaskModule)
 		{
 			auto d3d12TaskModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TaskModule);
-			NX_ASSERT(d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task, "Shader module is not a task shader");
+			NX_VALIDATE(d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task, "Shader module is not a task shader");
 			auto blob = d3d12TaskModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -705,7 +705,7 @@ namespace Nexus::D3D12
 		if (description.MeshModule)
 		{
 			auto d3d12MeshModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.MeshModule);
-			NX_ASSERT(d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh, "Shader module is not a mesh shader");
+			NX_VALIDATE(d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh, "Shader module is not a mesh shader");
 			auto blob = d3d12MeshModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};
@@ -717,7 +717,7 @@ namespace Nexus::D3D12
 		if (description.FragmentModule)
 		{
 			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
-			NX_ASSERT(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
+			NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
 			auto blob = d3d12FragmentModule->GetBlob();
 
 			D3D12_SHADER_BYTECODE byteCode = {};

@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 			createInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 		}
 
-		NX_ASSERT(vkCreateFence(m_Device->GetVkDevice(), &createInfo, nullptr, &m_Fence) == VK_SUCCESS, "Failed to create fence");
+		NX_VALIDATE(vkCreateFence(m_Device->GetVkDevice(), &createInfo, nullptr, &m_Fence) == VK_SUCCESS, "Failed to create fence");
 	}
 
 	FenceVk::~FenceVk()

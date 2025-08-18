@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 
 			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
 			{
-				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
+				NX_VALIDATE(0, "Pixel format cannot be PixelFormat::None for a color attachment");
 			}
 
 			Graphics::TextureDescription spec	= {};

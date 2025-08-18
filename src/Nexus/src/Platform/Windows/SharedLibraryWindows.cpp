@@ -6,7 +6,7 @@ namespace Nexus::Utils
 	{
 		std::wstring widePath(filepath.begin(), filepath.end());
 		m_Library = LoadLibraryW(widePath.c_str());
-		NX_ASSERT(m_Library, "Could not load library");
+		NX_VALIDATE(m_Library, "Could not load library");
 	}
 
 	SharedLibraryWindows::~SharedLibraryWindows()

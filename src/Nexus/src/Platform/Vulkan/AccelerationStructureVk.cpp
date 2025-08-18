@@ -22,8 +22,8 @@ namespace Nexus::Graphics
 		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		if (functions.vkCreateAccelerationStructureKHR)
 		{
-			NX_ASSERT(functions.vkCreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr, &m_Handle) == VK_SUCCESS,
-					  "Failed to create acceleration structure");
+			NX_VALIDATE(functions.vkCreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr, &m_Handle) == VK_SUCCESS,
+						"Failed to create acceleration structure");
 		}
 
 		m_Device->SetObjectName(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR, (uint64_t)m_Handle, desc.DebugName.c_str());

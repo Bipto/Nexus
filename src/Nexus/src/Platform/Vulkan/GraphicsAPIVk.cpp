@@ -113,7 +113,7 @@ namespace Nexus::Graphics
 	{
 		if (createInfo.Debug)
 		{
-			NX_ASSERT(CheckValidationLayerSupport(), "Validation layers were requested, but are not available");
+			NX_VALIDATE(CheckValidationLayerSupport(), "Validation layers were requested, but are not available");
 		}
 
 		VkApplicationInfo appInfo  = {};
@@ -167,7 +167,7 @@ namespace Nexus::Graphics
 		instanceCreateInfo.enabledExtensionCount   = (uint32_t)extensions.size();
 		instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-		NX_ASSERT(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+		NX_VALIDATE(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance) == VK_SUCCESS, "Failed to create Vulkan instance");
 
 		if (createInfo.Debug)
 		{
@@ -226,7 +226,7 @@ namespace Nexus::Graphics
 		createInfo.pfnUserCallback = debugCallback;
 		createInfo.pUserData	   = nullptr;
 
-		NX_ASSERT(CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) == VK_SUCCESS,
-				  "Failed to create Debug Messenger");
+		NX_VALIDATE(CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) == VK_SUCCESS,
+					"Failed to create Debug Messenger");
 	}
 }	 // namespace Nexus::Graphics

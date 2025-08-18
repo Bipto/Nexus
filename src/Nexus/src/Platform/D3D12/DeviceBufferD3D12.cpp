@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 
 	void DeviceBufferD3D12::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must be created on with Upload access.");
+		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must be created on with Upload access.");
 
 		D3D12_RANGE range = {};
 		range.Begin		  = 0;
@@ -86,7 +86,7 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferD3D12::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must be created on with Readnack access.");
+		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must be created on with Readnack access.");
 		std::vector<char> data(size);
 
 		D3D12_RANGE range = {};

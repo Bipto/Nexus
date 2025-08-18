@@ -348,37 +348,37 @@ namespace Nexus::Graphics
 				if (m_Description.FragmentModule)
 				{
 					auto glFragmentModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.FragmentModule);
-					NX_ASSERT(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
+					NX_VALIDATE(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
 					modules.push_back(glFragmentModule);
 				}
 
 				if (m_Description.GeometryModule)
 				{
 					auto glGeometryModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.GeometryModule);
-					NX_ASSERT(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
+					NX_VALIDATE(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
 					modules.push_back(glGeometryModule);
 				}
 
 				if (m_Description.TesselationControlModule)
 				{
 					auto glTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationControlModule);
-					NX_ASSERT(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
-							  "Shader module is not a tesselation control shader");
+					NX_VALIDATE(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
+								"Shader module is not a tesselation control shader");
 					modules.push_back(glTesselationControlModule);
 				}
 
 				if (m_Description.TesselationEvaluationModule)
 				{
 					auto glEvaluationModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationEvaluationModule);
-					NX_ASSERT(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
-							  "Shader module is not a tesselation evaluation shader");
+					NX_VALIDATE(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
+								"Shader module is not a tesselation evaluation shader");
 					modules.push_back(glEvaluationModule);
 				}
 
 				if (m_Description.VertexModule)
 				{
 					auto glVertexModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.VertexModule);
-					NX_ASSERT(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
+					NX_VALIDATE(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
 					modules.push_back(glVertexModule);
 				}
 
@@ -423,7 +423,7 @@ namespace Nexus::Graphics
 
 	void ComputePipelineOpenGL::CreateShader()
 	{
-		NX_ASSERT(m_Description.ComputeShader->GetShaderStage() == ShaderStage::Compute, "Compute Pipeline shader must be ShaderStage::Compute");
+		NX_VALIDATE(m_Description.ComputeShader->GetShaderStage() == ShaderStage::Compute, "Compute Pipeline shader must be ShaderStage::Compute");
 
 		Nexus::Ref<Nexus::Graphics::ShaderModuleOpenGL> computeShader =
 			std::dynamic_pointer_cast<Nexus::Graphics::ShaderModuleOpenGL>(m_Description.ComputeShader);
