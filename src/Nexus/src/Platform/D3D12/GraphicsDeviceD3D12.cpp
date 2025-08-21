@@ -91,7 +91,7 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
+			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
 		}
 	}
 
@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
+			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
 		}
 	}
 
@@ -147,17 +147,17 @@ namespace Nexus::Graphics
 
 	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<GraphicsPipelineD3D12>(m_Device.Get(), description);
+		return CreateRef<GraphicsPipelineD3D12>(this, description);
 	}
 
 	Ref<ComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return CreateRef<ComputePipelineD3D12>(m_Device.Get(), description);
+		return CreateRef<ComputePipelineD3D12>(this, description);
 	}
 
 	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
-		return Ref<MeshletPipeline>();
+		return CreateRef<MeshletPipelineD3D12>(this, description);
 	}
 
 	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
@@ -416,6 +416,11 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
+	const D3D12DeviceFeatures &GraphicsDeviceD3D12::GetD3D12DeviceFeatures() const
+	{
+		return m_D3D12Features;
+	}
+
 	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexFormat format) const
 	{
 		switch (format)
@@ -432,6 +437,12 @@ namespace Nexus::Graphics
 		const std::vector<uint32_t>							&primitiveCount) const
 	{
 		return AccelerationStructureBuildSizeDescription();
+	}
+
+	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
+	{
+		Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
+		return physicalDeviceD3D12->IsVersionGreaterThan(level);
 	}
 
 	void GraphicsDeviceD3D12::InitUploadCommandList()
@@ -486,7 +497,33 @@ namespace Nexus::Graphics
 		m_Features.SupportsCubemapArray					= true;
 		m_Features.SupportsIndependentBlend				= true;
 
-		m_Features.SupportsMeshTaskShaders = true;
+		// check for depth bounds testing support
+		{
+			D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2 = {};
+			HRESULT							  hr	   = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2, sizeof(options2));
+			if (SUCCEEDED(hr))
+			{
+				if (options2.DepthBoundsTestSupported)
+				{
+					m_Features.SupportsDepthBoundsTesting = true;
+				}
+			}
+		}
+
+		if (IsVersionGreaterThan(D3D_FEATURE_LEVEL_12_2))
+		{
+			m_D3D12Features.SupportsPipelineStreams = true;
+
+			D3D12_FEATURE_DATA_D3D12_OPTIONS7 options7 = {};
+			HRESULT							  hr	   = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7));
+			if (SUCCEEDED(hr))
+			{
+				if (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
+				{
+					m_Features.SupportsMeshTaskShaders = true;
+				}
+			}
+		}
 	}
 
 	inline void GraphicsDeviceD3D12::ReportLiveObjects()

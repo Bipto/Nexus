@@ -13,12 +13,12 @@ namespace Nexus::Graphics
 {
 	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec), m_Device(graphicsDevice)
 	{
-		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
-		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
+		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");
 
 		if (spec.Samples > 1)
 		{
-			NX_ASSERT(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+			NX_VALIDATE(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
 		}
 
 		m_TextureType			  = GL::GetTextureType(spec);

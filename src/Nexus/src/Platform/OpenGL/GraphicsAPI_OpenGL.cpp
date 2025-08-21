@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 
 	GraphicsAPI_OpenGL::GraphicsAPI_OpenGL(const GraphicsAPICreateInfo &createInfo) : m_CreateInfo(createInfo)
 	{
-		NX_ASSERT(GL::LoadOpenGL(), "Failed to load OpenGL");
+		NX_VALIDATE(GL::LoadOpenGL(), "Failed to load OpenGL");
 	}
 
 	GraphicsAPI_OpenGL::~GraphicsAPI_OpenGL()

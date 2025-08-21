@@ -819,12 +819,12 @@ namespace Nexus::Graphics
 		for (const auto &[buildGeometryInfo, buildRangeInfos] : command.BuildDescriptions)
 		{
 			// validate that required members have been filled in correctly
-			NX_ASSERT(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
-			NX_ASSERT(buildGeometryInfo.ScratchBuffer.Buffer, "Acceleration structure build must have a scratch buffer");
+			NX_VALIDATE(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
+			NX_VALIDATE(buildGeometryInfo.ScratchBuffer.Buffer, "Acceleration structure build must have a scratch buffer");
 
 			if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
 			{
-				NX_ASSERT(buildGeometryInfo.Source, "Acceleration structure update must have a source");
+				NX_VALIDATE(buildGeometryInfo.Source, "Acceleration structure update must have a source");
 			}
 
 			// create a new vector to hold the information for the individual build
@@ -856,6 +856,10 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
 	{
 	}
 
@@ -945,9 +949,9 @@ namespace Nexus::Graphics
 		VkRenderPass  renderpass  = swapchain->GetRenderPass();
 		VkExtent2D	  renderSize  = swapchain->GetSwapchainSize();
 
-		NX_ASSERT(framebuffer, "Invalid framebuffer");
-		NX_ASSERT(renderpass, "Invalid renderpass");
-		NX_ASSERT(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
+		NX_VALIDATE(framebuffer, "Invalid framebuffer");
+		NX_VALIDATE(renderpass, "Invalid renderpass");
+		NX_VALIDATE(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
 
 		VkRenderPassBeginInfo beginInfo = {};
 		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

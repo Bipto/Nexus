@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 
 	void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must have been created with Upload access");
+		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must have been created with Upload access");
 
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -58,7 +58,7 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
+		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
 
 		std::vector<char> data(size);
 

@@ -17,6 +17,7 @@
 #include "Demos/HelloTriangleIndirect.hpp"
 #include "Demos/HelloTriangleIndirectIndexedDemo.hpp"
 #include "Demos/HelloTriangleMeshShaders.hpp"
+#include "Demos/HelloTriangleMeshShadersIndirect.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
@@ -87,6 +88,7 @@ class DemoApplication : public Nexus::Application
 		if (deviceFeatures.SupportsMeshTaskShaders)
 		{
 			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
+			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersIndirect>("Hello Triangle Mesh Shaders Indirect");
 		}
 
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
@@ -287,15 +289,6 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
-			float value = 0.0f;
-
-			Nexus::Graphics::PushConstantsDesc pushConstants;
-			pushConstants.Name	 = "PushConstants";
-			pushConstants.Data	 = &value;
-			pushConstants.Size	 = sizeof(value);
-			pushConstants.Offset = 0;
-			m_CommandList->WritePushConstants(pushConstants);
-
 			m_CommandList->End();
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
@@ -331,7 +324,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

@@ -12,6 +12,11 @@ namespace Nexus::Graphics
 {
 	class TextureD3D12;
 
+	struct D3D12DeviceFeatures
+	{
+		bool SupportsPipelineStreams = false;
+	};
+
 	class GraphicsDeviceD3D12 final : public GraphicsDevice
 	{
 	  public:
@@ -99,9 +104,13 @@ namespace Nexus::Graphics
 		PixelFormatProperties					  GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
 		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
+		const D3D12DeviceFeatures				 &GetD3D12DeviceFeatures() const;
+
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
 																					const std::vector<uint32_t> &primitiveCounts) const final;
+
+		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
@@ -137,6 +146,7 @@ namespace Nexus::Graphics
 
 		DeviceFeatures m_Features = {};
 		DeviceLimits   m_Limits	  = {};
+		D3D12DeviceFeatures m_D3D12Features = {};
 	};
 }	 // namespace Nexus::Graphics
 #endif

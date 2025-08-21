@@ -693,6 +693,10 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());

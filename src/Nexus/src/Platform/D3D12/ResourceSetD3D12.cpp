@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 		auto			   d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
 		{
-			NX_ASSERT(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
+			NX_VALIDATE(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
 			StorageResourceAccess access = m_DescriptorHandleInfo.StorageBuffers.at(name);
 			bool				  readonly;
@@ -172,7 +172,7 @@ namespace Nexus::Graphics
 		auto d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle))
 		{
-			NX_ASSERT(d3d12UniformBuffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
+			NX_VALIDATE(d3d12UniformBuffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
 			desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;

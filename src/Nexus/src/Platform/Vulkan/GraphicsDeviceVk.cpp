@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 				vulkanFence			  = apiFence->GetHandle();
 			}
 
-			NX_ASSERT(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+			NX_VALIDATE(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 		}
 		else
 		{
@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 				vulkanFence			  = apiFence->GetHandle();
 			}
 
-			NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+			NX_VALIDATE(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 		}
 	}
 
@@ -170,7 +170,7 @@ namespace Nexus::Graphics
 				vulkanFence			  = apiFence->GetHandle();
 			}
 
-			NX_ASSERT(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+			NX_VALIDATE(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 		}
 		else
 		{
@@ -192,7 +192,7 @@ namespace Nexus::Graphics
 				vkFence				  = apiFence->GetHandle();
 			}
 
-			NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
+			NX_VALIDATE(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
 		}
 	}
 
@@ -341,7 +341,7 @@ namespace Nexus::Graphics
 		}
 
 		VkResult result = vkResetFences(m_Device, fenceHandles.size(), fenceHandles.data());
-		NX_ASSERT(result == VK_SUCCESS, "Failed to reset fences");
+		NX_VALIDATE(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
 	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)

@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 	{
 		if (Ref<DeviceBuffer> buffer = storageBuffer.BufferHandle)
 		{
-			NX_ASSERT(buffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
+			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
 			Ref<DeviceBufferVk> storageBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
@@ -102,7 +102,7 @@ namespace Nexus::Graphics
 	{
 		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle)
 		{
-			NX_ASSERT(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
+			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 
 			Ref<DeviceBufferVk> uniformBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];

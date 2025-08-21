@@ -22,6 +22,18 @@ namespace Nexus::Graphics
 		return m_Name;
 	}
 
+	bool PhysicalDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
+	{
+		if (m_MaxFeatureLevel >= level)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> PhysicalDeviceD3D12::GetAdapter() const
 	{
 		return m_Adapter;

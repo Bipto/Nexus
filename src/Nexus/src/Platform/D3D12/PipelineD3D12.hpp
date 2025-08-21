@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 	class GraphicsPipelineD3D12 : public GraphicsPipeline, public PipelineD3D12
 	{
 	  public:
-		GraphicsPipelineD3D12(ID3D12Device9 *device, const GraphicsPipelineDescription &description);
+		GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description);
 		virtual ~GraphicsPipelineD3D12();
 		virtual const GraphicsPipelineDescription  &GetPipelineDescription() const override;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature();
@@ -33,7 +33,28 @@ namespace Nexus::Graphics
 		const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() final;
 
 	  private:
-		void CreatePipeline(ID3D12Device9 *device);
+		GraphicsPipelineDescription m_Description;
+
+		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
+		D3D12::DescriptorHandleInfo					m_DescriptorHandleInfo = {};
+
+		std::vector<D3D12_INPUT_ELEMENT_DESC>		m_InputLayout;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
+		D3D_PRIMITIVE_TOPOLOGY						m_PrimitiveTopology;
+	};
+
+	class MeshletPipelineD3D12 : public MeshletPipeline, public PipelineD3D12
+	{
+	  public:
+		MeshletPipelineD3D12(GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description);
+		virtual ~MeshletPipelineD3D12();
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature();
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPipelineState();
+		D3D_PRIMITIVE_TOPOLOGY						GetD3DPrimitiveTopology();
+
+		void							   Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
+		const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() final;
 
 	  private:
 		GraphicsPipelineDescription m_Description;
@@ -50,13 +71,10 @@ namespace Nexus::Graphics
 	class ComputePipelineD3D12 : public ComputePipeline, public PipelineD3D12
 	{
 	  public:
-		ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description);
+		ComputePipelineD3D12(GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description);
 		virtual ~ComputePipelineD3D12();
 		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
 		const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() final;
-
-	  private:
-		void CreatePipeline(ID3D12Device9 *device);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;

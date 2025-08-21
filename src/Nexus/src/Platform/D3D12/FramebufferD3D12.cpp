@@ -90,8 +90,8 @@ namespace Nexus::Graphics
 		{
 			const auto &colorAttachmentSpec = m_Description.ColourAttachmentSpecification.Attachments.at(i);
 
-			NX_ASSERT(GetPixelFormatType(colorAttachmentSpec.TextureFormat) == Graphics::PixelFormatType::Colour,
-					  "Depth attachment must have a valid colour format");
+			NX_VALIDATE(GetPixelFormatType(colorAttachmentSpec.TextureFormat) == Graphics::PixelFormatType::Colour,
+						"Depth attachment must have a valid colour format");
 
 			Graphics::TextureDescription spec	= {};
 			spec.Width							= m_Description.Width;
@@ -106,8 +106,8 @@ namespace Nexus::Graphics
 
 		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
-			NX_ASSERT(GetPixelFormatType(m_Description.DepthAttachmentSpecification.DepthFormat) == Graphics::PixelFormatType::DepthStencil,
-					  "Depth attachment must have a depth format");
+			NX_VALIDATE(GetPixelFormatType(m_Description.DepthAttachmentSpecification.DepthFormat) == Graphics::PixelFormatType::DepthStencil,
+						"Depth attachment must have a depth format");
 
 			Graphics::TextureDescription spec = {};
 			spec.Width						  = m_Description.Width;

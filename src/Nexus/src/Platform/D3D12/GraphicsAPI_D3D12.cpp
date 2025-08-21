@@ -24,12 +24,23 @@ namespace Nexus::Graphics
 
 		if (createInfo.Debug)
 		{
-			NX_ASSERT(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))), "Could not create a D3D12 Debug Interface");
-			m_D3D12Debug->EnableDebugLayer();
-			std::atexit(ReportLiveObjects);
+			NX_VALIDATE(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))), "Could not create a D3D12 Debug Interface");
+			if (m_D3D12Debug)
+			{
+				m_D3D12Debug->EnableDebugLayer();
+				std::atexit(ReportLiveObjects);
+			}
 		}
 
-		NX_ASSERT(SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DXGIFactory))), "Failed to create DXGI Factory");
+		typedef HRESULT(WINAPI * PFN_CreateDXGIFactory2)(UINT Flags, REFIID riid, void **ppFactory);
+
+		volatile HMODULE dxgi = LoadLibraryA("dxgi.dll");
+		volatile auto	 fn	  = (PFN_CreateDXGIFactory2)GetProcAddress(dxgi, "CreateDXGIFactory2");
+		printf("Manual load: %p\n", fn);
+
+		NX_VALIDATE(SUCCEEDED(fn(0, IID_PPV_ARGS(&m_DXGIFactory))), "Failed to create DXGI Factory");
+
+		// NX_VALIDATE(SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DXGIFactory))), "Failed to create DXGI Factory");
 	}
 
 	GraphicsAPI_D3D12::~GraphicsAPI_D3D12()

@@ -7,6 +7,8 @@
 	#include <Windows.h>
 #endif
 
+#include <SDL3/SDL_main.h>
+
 /// @brief A typedef to simplify using command line arguments
 typedef std::vector<std::string> CommandLineArguments;
 
@@ -46,8 +48,6 @@ namespace
 		return commandLineArgs;
 	}
 }	 // namespace
-
-#include "SDL3/SDL_main.h"
 
 #if defined(NX_PLATFORM_WINDOWS)
 int SDL_main(int argc, char *args[])

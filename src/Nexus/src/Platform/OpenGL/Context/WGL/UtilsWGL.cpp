@@ -81,7 +81,7 @@ namespace Nexus::GL
 
 		HGLRC hglrc = wglCreateContext(hdc);
 
-		NX_ASSERT(hglrc, "Failed to create HGLRC");
+		NX_VALIDATE(hglrc, "Failed to create HGLRC");
 
 		return {hwnd, hglrc, hdc};
 	}

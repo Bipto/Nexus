@@ -5,16 +5,15 @@
 class EditorPropertiesPanel : public Panel
 {
   public:
-	EditorPropertiesPanel(std::vector<Panel *> *panels) : Panel("Editor Properties")
+	EditorPropertiesPanel(std::vector<std::shared_ptr<Panel>> &panels) : Panel("Editor Properties"), m_Panels(panels)
 	{
-		m_Panels = panels;
 	}
 
 	void Render() final
 	{
 		ImGui::Begin(m_Name.c_str(), &m_Open);
 
-		for (auto panel : *m_Panels)
+		for (auto panel : m_Panels)
 		{
 			bool panelOpen = panel->IsOpen();
 
@@ -40,5 +39,5 @@ class EditorPropertiesPanel : public Panel
 	}
 
   private:
-	std::vector<Panel *> *m_Panels = nullptr;
+	std::vector<std::shared_ptr<Panel>> &m_Panels;
 };

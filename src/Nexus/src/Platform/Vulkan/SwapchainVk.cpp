@@ -396,9 +396,9 @@ namespace Nexus::Graphics
 
 		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
 		{
-			NX_ASSERT(m_SwapchainImageViews[i] != VK_NULL_HANDLE, "Swapchain image view is null");
-			NX_ASSERT(m_ResolveImageView != VK_NULL_HANDLE || m_Description.Samples == 1, "Resolve view is null");
-			NX_ASSERT(m_DepthImageView, "Depth view is null");
+			NX_VALIDATE(m_SwapchainImageViews[i] != VK_NULL_HANDLE, "Swapchain image view is null");
+			NX_VALIDATE(m_ResolveImageView != VK_NULL_HANDLE || m_Description.Samples == 1, "Resolve view is null");
+			NX_VALIDATE(m_DepthImageView, "Depth view is null");
 
 			Vk::VulkanFramebufferDescription framebufferDesc = {};
 

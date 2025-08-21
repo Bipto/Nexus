@@ -180,7 +180,7 @@ namespace Nexus::GL
 
 		HGLRC hglrc = wglCreateContextAttribsARB(hdc, sharedContext, attributes.data());
 
-		NX_ASSERT(hglrc, "Failed to create hglrc");
+		NX_VALIDATE(hglrc, "Failed to create hglrc");
 
 		return hglrc;
 	}

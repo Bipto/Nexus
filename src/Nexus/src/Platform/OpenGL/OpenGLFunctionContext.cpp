@@ -13,7 +13,8 @@ namespace Nexus::GL
 
 	bool OpenGLFunctionContext::Load()
 	{
-		return gladLoaderLoadGLContext(&m_Context);
+		int result = gladLoaderLoadGLContext(&m_Context);
+		return result;
 	}
 
 	void OpenGLFunctionContext::ExecuteCommands(std::function<void(const GladGLContext &context)> function)

@@ -12,6 +12,11 @@
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 
+namespace Nexus::Graphics
+{
+	class GraphicsDeviceD3D12;
+}
+
 namespace Nexus::D3D12
 {
 	enum class DescriptorHandleSource
@@ -37,7 +42,8 @@ namespace Nexus::D3D12
 		std::map<std::string, Graphics::StorageResourceAccess> StorageBuffers		   = {};
 	};
 
-	DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
+	DXGI_FORMAT
+	GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
 
 	DXGI_FORMAT
 	GetD3D12BaseType(const Nexus::Graphics::VertexBufferElement &element);
@@ -59,6 +65,19 @@ namespace Nexus::D3D12
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE
 	GetPipelineTopology(Nexus::Graphics::Topology topology);
 
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipeline(Graphics::GraphicsDeviceD3D12			   *device,
+																	   const Graphics::GraphicsPipelineDescription &description,
+																	   Microsoft::WRL::ComPtr<ID3D12RootSignature>	rootSignature,
+																	   const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout);
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(Graphics::GraphicsDeviceD3D12				 *device,
+																	  const Graphics::ComputePipelineDescription &description,
+																	  Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(Graphics::GraphicsDeviceD3D12				 *device,
+																	  const Graphics::MeshletPipelineDescription &description,
+																	  Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
 	D3D12_HEAP_TYPE			 GetHeapType(const Graphics::DeviceBufferDescription &desc);
 	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
 	D3D12_RESOURCE_FLAGS	 GetResourceFlags(Graphics::PixelFormat format, uint8_t textureUsage);
@@ -70,7 +89,7 @@ namespace Nexus::D3D12
 
 	// pipeline
 	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
-							 ID3D12Device9										   *device,
+							 Microsoft::WRL::ComPtr<ID3D12Device9>					device,
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
 							 DescriptorHandleInfo								   &descriptorHandleInfo);
@@ -81,6 +100,7 @@ namespace Nexus::D3D12
 	D3D12_STREAM_OUTPUT_DESC			  CreateStreamOutputDesc();
 	D3D12_BLEND_DESC					  CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates);
 	D3D12_DEPTH_STENCIL_DESC			  CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc);
+	D3D12_DEPTH_STENCIL_DESC1			  CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc);
 
 }	 // namespace Nexus::D3D12
 

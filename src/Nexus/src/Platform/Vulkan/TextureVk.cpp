@@ -8,12 +8,12 @@ namespace Nexus::Graphics
 {
 	TextureVk::TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device) : Texture(spec), m_GraphicsDevice(device)
 	{
-		NX_ASSERT(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
-		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
+		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");
 
 		if (spec.Samples > 1)
 		{
-			NX_ASSERT(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+			NX_VALIDATE(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
 		}
 
 		uint32_t	 sizeInBytes = GetPixelFormatSizeInBytes(spec.Format);
@@ -67,8 +67,8 @@ namespace Nexus::Graphics
 
 		VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
 
-		NX_ASSERT(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) == VK_SUCCESS,
-				  "Failed to create image");
+		NX_VALIDATE(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) == VK_SUCCESS,
+					"Failed to create image");
 
 		VkImageViewType viewType = Vk::GetVkImageViewType(spec);
 
@@ -95,7 +95,7 @@ namespace Nexus::Graphics
 			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		}
 
-		NX_ASSERT(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS, "Failed to create image view");
+		NX_VALIDATE(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS, "Failed to create image view");
 
 		// create resource states
 		{
@@ -149,16 +149,16 @@ namespace Nexus::Graphics
 
 	VkImageLayout TextureVk::GetImageLayout(uint32_t arrayLayer, uint32_t mipLevel)
 	{
-		NX_ASSERT(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_VALIDATE(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
 		return m_Layouts[arrayLayer * m_Description.MipLevels + mipLevel];
 	}
 
 	void TextureVk::SetImageLayout(uint32_t arrayLayer, uint32_t mipLevel, VkImageLayout layout)
 	{
-		NX_ASSERT(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_VALIDATE(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 		m_Layouts[arrayLayer * m_Description.MipLevels + mipLevel] = layout;
 	}
 }	 // namespace Nexus::Graphics

@@ -131,7 +131,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		NX_ASSERT(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage::Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
+		NX_VALIDATE(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage::Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{
@@ -152,7 +152,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		NX_ASSERT(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage::Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
+		NX_VALIDATE(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage::Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{
@@ -204,6 +204,8 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		m_CommandList->DispatchMesh(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)
@@ -211,6 +213,17 @@ namespace Nexus::Graphics
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
+		}
+
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+		{
+			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
+			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH, command.Stride);
+
+			m_CommandList->ExecuteIndirect(signature.Get(), 1, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 		}
 	}
 
@@ -709,6 +722,10 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
 	{
 	}
 

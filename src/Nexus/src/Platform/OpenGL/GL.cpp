@@ -1086,12 +1086,12 @@ namespace Nexus::GL
 								Graphics::SubresourceDescription  subresource,
 								const GladGLContext				 &context)
 	{
-		NX_ASSERT(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
+		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		if (subresource.Depth > 1)
 		{
-			NX_ASSERT(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
-					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
+			NX_VALIDATE(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
+						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
 		GLenum dataFormat = texture->GetDataFormat();
@@ -1159,12 +1159,12 @@ namespace Nexus::GL
 								   Graphics::SubresourceDescription	 subresource,
 								   const GladGLContext				&context)
 	{
-		NX_ASSERT(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
+		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		if (subresource.Depth > 1)
 		{
-			NX_ASSERT(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
-					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
+			NX_VALIDATE(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
+						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
 		GLenum textureType = texture->GetTextureType();
