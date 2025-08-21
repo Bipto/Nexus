@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+include(FetchContent)
+
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)
 endif()
@@ -53,18 +55,7 @@ set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
 set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SDL)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/libnyquist)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/assimp)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/imgui)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Cross)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Headers)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Tools)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
 
 include (FetchContent)
@@ -121,7 +112,13 @@ endif()
 
 if (DEFINED NX_PLATFORM_D3D12)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_D3D12=1)
-  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/D3D12MemoryAllocator)
+
+  FetchContent_Declare(
+    D3D12MemoryAllocator
+    GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
+    GIT_TAG 330170f
+  )
+  FetchContent_MakeAvailable(D3D12MemoryAllocator)
   list (APPEND NEXUS_LINKED_LIBRARIES D3D12MemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS external/winpixeventruntime.1.0.240308001/include)
 endif()
@@ -130,7 +127,15 @@ if (DEFINED NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
+  FetchContent_Declare(
+    VulkanMemoryAllocator
+    GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+    GIT_TAG 1076b34
+  )
+  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+
+
+  #list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
   list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
@@ -143,7 +148,12 @@ if (DEFINED NX_PLATFORM_OPENAL)
       list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
       list (APPEND NEXUS_LINKED_LIBARIES ${OPENAL_LIBRARY})
     else()
-      add_subdirectory(external/openal-soft)
+      FetchContent_Declare(
+          OpenAL-Soft
+          GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+          GIT_TAG ea84e1d
+      )
+      FetchContent_MakeAvailable(OpenAL-Soft)
       list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
     endif()
     
@@ -229,30 +239,114 @@ endif()
 add_library(Nexus ${NX_BUILD_TYPE} ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
+FetchContent_Declare(
+  SDL3
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG dee2414
+)
+FetchContent_MakeAvailable(SDL3)
+target_link_libraries(Nexus PUBLIC SDL3::SDL3)
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG 2f86d13
+)
+FetchContent_MakeAvailable(yaml-cpp)
+target_link_libraries(Nexus PUBLIC yaml-cpp::yaml-cpp)
+
+FetchContent_Declare(
+  assimp
+  GIT_REPOSITORY https://github.com/assimp/assimp.git
+  GIT_TAG a38ec50
+)
+FetchContent_MakeAvailable(assimp)
+target_link_libraries(Nexus PRIVATE assimp)
+
+FetchContent_Declare(
+  libnyquist
+  GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
+  GIT_TAG 767efd9
+)
+FetchContent_MakeAvailable(libnyquist)
+target_link_libraries(Nexus PRIVATE libnyquist)
+
+FetchContent_Declare(
+  glm
+  GIT_REPOSITORY https://github.com/g-truc/glm.git
+  GIT_TAG 2d4c4b4
+)
+FetchContent_MakeAvailable(glm)
+target_link_libraries(Nexus PUBLIC glm::glm)
+
+FetchContent_Declare(
+  freetype
+  GIT_REPOSITORY https://github.com/freetype/freetype.git
+  GIT_TAG ca0247a
+)
+FetchContent_MakeAvailable(freetype)
+target_link_libraries(Nexus PRIVATE freetype)
+
+FetchContent_Declare(
+  stb
+  GIT_REPOSITORY https://github.com/nothings/stb.git
+  GIT_TAG f58f558
+)
+FetchContent_MakeAvailable(stb)
+target_include_directories(Nexus PUBLIC ${stb_SOURCE_DIR})
+
+FetchContent_Declare(
+  spirv-cross
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+  GIT_TAG 0a88b2d
+)
+FetchContent_MakeAvailable(spirv-cross)
+
+FetchContent_Declare(
+  spirv-headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+  GIT_TAG a863779
+)
+FetchContent_MakeAvailable(spirv-headers)
+
+FetchContent_Declare(
+  spirv-tools
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+  GIT_TAG aa6256a
+)
+FetchContent_MakeAvailable(spirv-tools)
+
+FetchContent_Declare(
+  glslang
+  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+  GIT_TAG fcf4e92
+)
+FetchContent_MakeAvailable(glslang)
+
+FetchContent_Declare(
+  shaderc
+  GIT_REPOSITORY https://github.com/google/shaderc.git
+  GIT_TAG 402a16e
+)
+FetchContent_MakeAvailable(shaderc)
+
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  external/stb
 )
 
-list (APPEND NEXUS_LINKED_LIBRARIES 
-  SDL3::SDL3
-  assimp
-  libnyquist
+list (APPEND NEXUS_LINKED_LIBRARIES  
   spirv-cross-cpp
   spirv-cross-hlsl
   glslang
   shaderc
-  freetype
-  yaml-cpp::yaml-cpp
-  glm::glm
   imgui
   imguizmo
   glad2)
 
 #precompiled header
-#target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
+target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp src/Nexus-Core/nxpch.cpp)
 
 #flags required for emscripten
 if (EMSCRIPTEN)
