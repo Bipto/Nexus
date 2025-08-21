@@ -223,7 +223,7 @@ if (DEFINED NX_PLATFORM_VULKAN)
     elseif(ANDROID)
       list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Android/PlatformVkAndroid.cpp)
       list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_ANDROID_KHR=1)
-      endif()
+    endif()
 endif()
 
 if (WIN32)
@@ -325,8 +325,8 @@ FetchContent_MakeAvailable(glslang)
 
 FetchContent_Declare(
   shaderc
-  GIT_REPOSITORY https://github.com/google/shaderc.git
-  GIT_TAG 402a16e
+  GIT_REPOSITORY https://github.com/Bipto/shaderc.git
+  GIT_TAG de65558
 )
 FetchContent_MakeAvailable(shaderc)
 
@@ -346,7 +346,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   glad2)
 
 #precompiled header
-target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp src/Nexus-Core/nxpch.cpp)
+#target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp src/Nexus-Core/nxpch.cpp)
 
 #flags required for emscripten
 if (EMSCRIPTEN)

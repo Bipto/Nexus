@@ -1,9 +1,0 @@
-[submodule "src/Nexus/external/imgui/imgui"]
-	path = src/Nexus/external/imgui/imgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "src/Nexus/external/imgui/ImGuizmo"]
-	path = src/Nexus/external/imgui/ImGuizmo
-	url = https://github.com/CedricGuillemet/ImGuizmo.git
-[submodule "src/Nexus/external/glslang"]
-	path = src/Nexus/external/glslang
-	url = https://github.com/KhronosGroup/glslang.git
