@@ -86,8 +86,19 @@ namespace Nexus::Graphics
 		shaderc::Compiler		   compiler;
 		auto					   shaderType = GetTypeOfShader(options.Stage);
 		shaderc::CompileOptions	   compileOptions = {};
-		compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-		compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
+
+		// disables the generation of code using demote instead of discard
+		if (options.OutputFormat == Graphics::ShaderLanguage::GLSL || options.OutputFormat == Graphics::ShaderLanguage::GLSLES)
+		{
+			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0);
+			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
+		}
+		else
+		{
+			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
+		}
+
 		compileOptions.SetGenerateDebugInfo();
 
 		shaderc::CompilationResult result = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str(), compileOptions);
@@ -103,6 +114,7 @@ namespace Nexus::Graphics
 
 		spirv_cross::CompilerGLSL::Options glOptions;
 		glOptions.emit_push_constant_as_uniform_buffer = true;
+		glOptions.vulkan_semantics					   = false;
 
 		// compile to shader language
 		switch (options.OutputFormat)

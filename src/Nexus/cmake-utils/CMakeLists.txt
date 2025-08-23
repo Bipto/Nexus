@@ -57,7 +57,7 @@ macro(nexus_copy_required_runtime_libraries)
       COMMAND ${CMAKE_COMMAND} -E copy
             -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
       COMMAND ${CMAKE_COMMAND} -E copy
-              -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<IF:$<BOOL:$<TARGET_PDB_FILE:Nexus>>,$<TARGET_PDB_FILE:Nexus>,NUL>
+              -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<IF:$<AND:$<BOOL:$<TARGET_EXISTS:Nexus>>,$<BOOL:$<TARGET_PDB_FILE:Nexus>>>,$<TARGET_PDB_FILE:Nexus>,NUL>
       COMMAND_EXPAND_LISTS
     )
 
