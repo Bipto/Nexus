@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project("Tests")
+project("TestRunner")
 
 include(FetchContent)
 
@@ -11,14 +11,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_executable(Tests src/main.cpp)
+add_executable(TestRunner src/main.cpp)
 
 add_test(
-    NAME Tests
-    COMMAND Tests
+    NAME AllTests
+    COMMAND $<TARGET_FILE:TestRunner>
 )
     
-target_link_libraries(Tests 
+target_link_libraries(TestRunner 
     PRIVATE 
     Nexus 
     gtest 
