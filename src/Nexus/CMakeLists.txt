@@ -17,7 +17,7 @@ if (NX_BUILD_TYPE STREQUAL "SHARED")
   add_compile_definitions(NX_EXPORT_API=1)
 endif()
 
-add_subdirectory(cmake-utils)
+add_subdirectory(cmake)
 
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
