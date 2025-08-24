@@ -23,7 +23,7 @@ endif()
 if (DEFINED NX_BUILD_TESTS)
     enable_testing()
     add_subdirectory(src/Tests)
-  endif()
+endif()
 
 if (DEFINED NX_BUILD_DEMO)
     add_subdirectory(src/Demo)
