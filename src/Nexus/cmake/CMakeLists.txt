@@ -52,18 +52,45 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries)
-    # Create a custom target for the copy actions
-    add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
-      COMMAND ${CMAKE_COMMAND} -E copy
-            -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
-      COMMAND ${CMAKE_COMMAND} -E copy
-              -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<IF:$<AND:$<BOOL:$<TARGET_EXISTS:Nexus>>,$<BOOL:$<TARGET_PDB_FILE:Nexus>>>,$<TARGET_PDB_FILE:Nexus>,NUL>
-      COMMAND_EXPAND_LISTS
+
+    set(target_name ${PROJECT_NAME})
+
+    # Copy runtime DLLs (Windows-specific)
+    add_custom_command(
+        OUTPUT copy_${target_name}_dependencies_marker
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${target_name}>
+                $<TARGET_FILE_DIR:${target_name}>
+        COMMAND_EXPAND_LISTS
+        COMMENT "Copying runtime DLLs for ${target_name}"
     )
 
-    # Set up a dependency so the copy target runs when the executable is built
-    add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
+    add_custom_target(copy_${target_name}_dependencies ALL
+        DEPENDS copy_${target_name}_dependencies_marker
+    )
+
+    add_dependencies(${target_name} copy_${target_name}_dependencies)
+
+    # Copy PDB file if it exists (Windows/MSVC)
+    get_target_property(pdb_file ${target_name} PDB_OUTPUT_DIRECTORY)
+
+    if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
+        add_custom_command(
+            OUTPUT copy_${target_name}_pdbs_marker
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_PDB_FILE:Nexus>
+                    $<TARGET_FILE_DIR:${target_name}>
+            COMMENT "Copying PDB file for ${target_name}"
+        )
+
+        add_custom_target(copy_${target_name}_pdbs ALL
+            DEPENDS copy_${target_name}_pdbs_marker
+        )
+
+        add_dependencies(${PROJECT_NAME} copy_${target_name}_pdbs)
+    endif()
 endmacro()
+
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
