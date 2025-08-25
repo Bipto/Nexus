@@ -98,10 +98,6 @@ namespace Nexus::Graphics
 	{
 		return m_ViewContext.get();
 	}
-
-	void SwapchainOpenGL::Prepare()
-	{
-	}
 }	 // namespace Nexus::Graphics
 
 #endif

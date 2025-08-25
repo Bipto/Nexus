@@ -143,6 +143,14 @@ namespace Nexus::Vk
 											VkPipelineLayout										pipelineLayout,
 											Graphics::Topology										topology,
 											const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
+
+	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
+							  VkSwapchainKHR			  swapchain,
+							  uint64_t					  timeout,
+							  VkSemaphore				  semaphore,
+							  VkFence					  fence,
+							  uint32_t					 *imageIndex);
+
 }	 // namespace Nexus::Vk
 
 #endif

@@ -805,6 +805,7 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
 			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
 
+		m_ExtensionFunctions.vkAcquireNextImage2KHR = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
 		m_ExtensionFunctions.vkQueueSubmit2KHR = (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
 	}
 
@@ -880,6 +881,12 @@ namespace Nexus::Graphics
 	{
 		std::vector<const char *> extensions;
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEVICE_GROUP_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_DEVICE_GROUP_EXTENSION_NAME);
+		}
+
 		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
 
 		// this is used for vkCmdBindVertexBuffers2	{

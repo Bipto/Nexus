@@ -33,7 +33,6 @@ namespace Nexus::Graphics
 		{
 			return m_Window;
 		}
-		virtual void Prepare() override;
 
 	  private:
 		IWindow	  *m_Window;

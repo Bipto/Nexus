@@ -1690,6 +1690,32 @@ namespace Nexus::Vk
 
 		return pipeline;
 	}
+
+	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
+							  VkSwapchainKHR			  swapchain,
+							  uint64_t					  timeout,
+							  VkSemaphore				  semaphore,
+							  VkFence					  fence,
+							  uint32_t					 *imageIndex)
+	{
+		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		if (functions.vkAcquireNextImage2KHR)
+		{
+			VkAcquireNextImageInfoKHR imageAcquireInfo = {};
+			imageAcquireInfo.sType					   = VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR;
+			imageAcquireInfo.pNext					   = nullptr;
+			imageAcquireInfo.swapchain				   = swapchain;
+			imageAcquireInfo.timeout				   = timeout;
+			imageAcquireInfo.semaphore				   = semaphore;
+			imageAcquireInfo.fence					   = fence;
+			imageAcquireInfo.deviceMask				   = 1;
+			return vkAcquireNextImage2KHR(device->GetVkDevice(), &imageAcquireInfo, imageIndex);
+		}
+		else
+		{
+			return vkAcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
+		}
+	}
 }	 // namespace Nexus::Vk
 
 #endif
