@@ -522,7 +522,7 @@ namespace Nexus::GL
 
 			case Graphics::TextureType::TextureCube:
 			{
-				if (spec.DepthOrArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 16)
 				{
 					return GL_TEXTURE_CUBE_MAP_ARRAY;
 				}

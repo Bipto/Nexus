@@ -32,6 +32,12 @@ namespace Nexus::Graphics
 		uint32_t  Guid2			 = {};
 	};
 
+	struct ModelRenderData
+	{
+		glm::mat4 Transform = {};
+		GUID	  Guid		= {};
+	};
+
 	class NX_API Renderer3D
 	{
 	  public:
@@ -44,8 +50,8 @@ namespace Nexus::Graphics
 		const Nexus::FirstPersonCamera GetCamera() const;
 
 	  private:
-		void RenderCubemap();
 		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid);
+		void RenderCubemap();
 		void ClearGBuffer();
 
 		void CreateCubemapPipeline();
@@ -74,8 +80,9 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::Sampler>	   m_ModelSampler				 = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ModelPipeline				= nullptr;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_ModelCameraUniformBuffer	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_ModelTransformUniformBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_ModelResourceSet			 = nullptr;
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::DeviceBuffer>> m_ModelTransformUniformBuffers = {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::ResourceSet>>	m_ModelResourceSets			   = {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							m_ModelIDs					   = {};
 
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ClearScreenPipeline = nullptr;
 

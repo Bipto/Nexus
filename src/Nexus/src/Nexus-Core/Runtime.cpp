@@ -26,11 +26,7 @@ namespace Nexus
 #ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop(main_loop, 0, 1);
 #else
-		while (appPtr->IsRunning())
-		{
-			int x = 0;
-			appPtr->MainLoop();
-		}
+		while (appPtr->IsRunning()) { appPtr->MainLoop(); }
 #endif
 
 		app->Unload();
@@ -55,11 +51,13 @@ namespace Nexus
 {
 	void Init(int argc, char **argv)
 	{
+		ZoneScopedN("Initialisation");
 		Platform::Initialise();
 	}
 
 	void Shutdown()
 	{
+		ZoneScopedN("Shutdown");
 		Platform::Shutdown();
 	}
 }	 // namespace Nexus

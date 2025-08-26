@@ -202,6 +202,28 @@ namespace Nexus::Graphics
 		ClearGBuffer();
 		RenderCubemap();
 
+		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+		m_CommandList->Begin();
+		m_CommandList->SetRenderTarget(m_RenderTarget);
+
+		Nexus::Graphics::Viewport vp;
+		vp.X		= 0;
+		vp.Y		= 0;
+		vp.Width	= size.X;
+		vp.Height	= size.Y;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		m_CommandList->SetViewport(vp);
+
+		Nexus::Graphics::Scissor scissor;
+		scissor.X	   = 0;
+		scissor.Y	   = 0;
+		scissor.Width  = size.X;
+		scissor.Height = size.Y;
+		m_CommandList->SetScissor(scissor);
+
+		m_CommandList->SetPipeline(m_ModelPipeline);
+
 		ECS::View<Transform, ModelRenderer> transformsModelRenderers = m_Scene->Registry.GetView<Transform, ModelRenderer>();
 		transformsModelRenderers.Each(
 			[&](Entity *entity, const std::tuple<Transform *, ModelRenderer *> &components)
@@ -214,6 +236,10 @@ namespace Nexus::Graphics
 					RenderModel(modelRenderer->Model, transform->CreateTransformation(), entity->ID);
 				}
 			});
+
+		m_CommandList->End();
+		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_Device->WaitForIdle();
 	}
 
 	const Nexus::FirstPersonCamera Renderer3D::GetCamera() const
@@ -306,13 +332,42 @@ namespace Nexus::Graphics
 		{
 			const Nexus::Graphics::Material &mat = mesh->GetMaterial();
 
-			ModelTransformUniforms modelTransformUniforms = {};
-			modelTransformUniforms.Transform			  = transform;
-			modelTransformUniforms.Guid1				  = splitId.first;
-			modelTransformUniforms.Guid2				  = splitId.second;
-			modelTransformUniforms.DiffuseColour		  = mat.DiffuseColour;
-			modelTransformUniforms.SpecularColour		  = mat.SpecularColour;
-			m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
+			// create the uniform buffer if needed
+			{
+				if (m_ModelTransformUniformBuffers.find(model) == m_ModelTransformUniformBuffers.end())
+				{
+					DeviceBufferDescription transformBufferDesc = {};
+					transformBufferDesc.Access					= Graphics::BufferMemoryAccess::Upload;
+					transformBufferDesc.Usage					= Graphics::BufferUsage::Uniform;
+					transformBufferDesc.StrideInBytes			= sizeof(ModelTransformUniforms);
+					transformBufferDesc.SizeInBytes				= sizeof(ModelTransformUniforms);
+					Ref<DeviceBuffer> transformUniformBuffer	= m_Device->CreateDeviceBuffer(transformBufferDesc);
+					m_ModelTransformUniformBuffers[model]		= transformUniformBuffer;
+				}
+			}
+
+			// create the resource set if needed
+			{
+				if (m_ModelResourceSets.find(model) == m_ModelResourceSets.end())
+				{
+					Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
+					m_ModelResourceSets[model]	 = resourceSet;
+				}
+			}
+
+			Ref<DeviceBuffer> transformUniformBuffer = m_ModelTransformUniformBuffers[model];
+			Ref<ResourceSet>  resourceSet			 = m_ModelResourceSets[model];
+
+			// copy data into the uniform buffer
+			{
+				ModelTransformUniforms modelTransformUniforms = {};
+				modelTransformUniforms.Transform			  = transform;
+				modelTransformUniforms.Guid1				  = splitId.first;
+				modelTransformUniforms.Guid2				  = splitId.second;
+				modelTransformUniforms.DiffuseColour		  = mat.DiffuseColour;
+				modelTransformUniforms.SpecularColour		  = mat.SpecularColour;
+				transformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
+			}
 
 			Nexus::Ref<Nexus::Graphics::Texture> diffuseTexture	 = m_DefaultTexture;
 			Nexus::Ref<Nexus::Graphics::Texture> normalTexture	 = m_DefaultTexture;
@@ -333,45 +388,23 @@ namespace Nexus::Graphics
 				specularTexture = mat.SpecularTexture;
 			}
 
-			m_ModelResourceSet->WriteCombinedImageSampler(diffuseTexture, m_ModelSampler, "diffuseMapSampler");
-			m_ModelResourceSet->WriteCombinedImageSampler(normalTexture, m_ModelSampler, "normalMapSampler");
-			m_ModelResourceSet->WriteCombinedImageSampler(specularTexture, m_ModelSampler, "specularMapSampler");
-
-			Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
-			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(m_RenderTarget);
-
-			Nexus::Graphics::Viewport vp;
-			vp.X		= 0;
-			vp.Y		= 0;
-			vp.Width	= size.X;
-			vp.Height	= size.Y;
-			vp.MinDepth = 0.0f;
-			vp.MaxDepth = 1.0f;
-			m_CommandList->SetViewport(vp);
-
-			Nexus::Graphics::Scissor scissor;
-			scissor.X	   = 0;
-			scissor.Y	   = 0;
-			scissor.Width  = size.X;
-			scissor.Height = size.Y;
-			m_CommandList->SetScissor(scissor);
-
-			m_CommandList->SetPipeline(m_ModelPipeline);
+			resourceSet->WriteCombinedImageSampler(diffuseTexture, m_ModelSampler, "diffuseMapSampler");
+			resourceSet->WriteCombinedImageSampler(normalTexture, m_ModelSampler, "normalMapSampler");
+			resourceSet->WriteCombinedImageSampler(specularTexture, m_ModelSampler, "specularMapSampler");
 
 			UniformBufferView modelCameraUniformView = {};
 			modelCameraUniformView.BufferHandle		 = m_ModelCameraUniformBuffer;
 			modelCameraUniformView.Offset			 = 0;
 			modelCameraUniformView.Size				 = m_ModelCameraUniformBuffer->GetDescription().SizeInBytes;
-			m_ModelResourceSet->WriteUniformBuffer(modelCameraUniformView, "Camera");
+			resourceSet->WriteUniformBuffer(modelCameraUniformView, "Camera");
 
 			UniformBufferView modelTransformUniformView = {};
-			modelTransformUniformView.BufferHandle		= m_ModelTransformUniformBuffer;
+			modelTransformUniformView.BufferHandle		= transformUniformBuffer;
 			modelTransformUniformView.Offset			= 0;
-			modelTransformUniformView.Size				= m_ModelTransformUniformBuffer->GetDescription().SizeInBytes;
-			m_ModelResourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
+			modelTransformUniformView.Size				= transformUniformBuffer->GetDescription().SizeInBytes;
+			resourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
 
-			m_CommandList->SetResourceSet(m_ModelResourceSet);
+			m_CommandList->SetResourceSet(resourceSet);
 
 			Ref<DeviceBuffer> vertexBuffer	   = mesh->GetVertexBuffer();
 			VertexBufferView  vertexBufferView = {};
@@ -395,10 +428,6 @@ namespace Nexus::Graphics
 			drawDesc.IndexCount				= mesh->GetIndexBuffer()->GetCount();
 			drawDesc.InstanceCount			= 1;
 			m_CommandList->DrawIndexed(drawDesc);
-
-			m_CommandList->End();
-			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_Device->WaitForIdle();
 		}
 	}
 
@@ -423,6 +452,19 @@ namespace Nexus::Graphics
 		scissor.Width  = size.X;
 		scissor.Height = size.Y;
 		m_CommandList->SetScissor(scissor);
+
+		Nexus::Graphics::VertexBufferView vertexBufferView = {};
+		vertexBufferView.BufferHandle					   = m_FullscreenQuad.GetVertexBuffer();
+		vertexBufferView.Offset							   = 0;
+		vertexBufferView.Size							   = m_FullscreenQuad.GetVertexBuffer()->GetSizeInBytes();
+		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+		Nexus::Graphics::IndexBufferView indexBufferView = {};
+		indexBufferView.BufferHandle					 = m_FullscreenQuad.GetIndexBuffer();
+		indexBufferView.Offset							 = 0;
+		indexBufferView.Size							 = m_FullscreenQuad.GetIndexBuffer()->GetSizeInBytes();
+		indexBufferView.BufferFormat					 = Graphics::IndexFormat::UInt32;
+		m_CommandList->SetIndexBuffer(indexBufferView);
 
 		m_CommandList->SetPipeline(m_ClearScreenPipeline);
 
@@ -504,8 +546,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend	= Nexus::Graphics::BlendFactor::Zero;
 		pipelineDescription.ColourBlendStates[0].AlphaBlendFunction		= Nexus::Graphics::BlendEquation::Add;
 
-		m_ModelPipeline	   = m_Device->CreateGraphicsPipeline(pipelineDescription);
-		m_ModelResourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
+		m_ModelPipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
 
 		// model camera
 		{
@@ -515,16 +556,6 @@ namespace Nexus::Graphics
 			cameraBufferDesc.StrideInBytes			 = sizeof(ModelCameraUniforms);
 			cameraBufferDesc.SizeInBytes			 = sizeof(ModelCameraUniforms);
 			m_ModelCameraUniformBuffer				 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraBufferDesc));
-		}
-
-		// model transform
-		{
-			DeviceBufferDescription transformBufferDesc = {};
-			transformBufferDesc.Access					= Graphics::BufferMemoryAccess::Upload;
-			transformBufferDesc.Usage					= Graphics::BufferUsage::Uniform;
-			transformBufferDesc.StrideInBytes			= sizeof(ModelTransformUniforms);
-			transformBufferDesc.SizeInBytes				= sizeof(ModelTransformUniforms);
-			m_ModelTransformUniformBuffer				= Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(transformBufferDesc));
 		}
 
 		Nexus::Graphics::SamplerDescription samplerSpec	  = {};

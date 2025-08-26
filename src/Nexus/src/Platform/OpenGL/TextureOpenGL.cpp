@@ -21,6 +21,11 @@ namespace Nexus::Graphics
 			NX_VALIDATE(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
 		}
 
+		if (spec.Type == TextureType::TextureCube)
+		{
+			NX_VALIDATE(spec.DepthOrArrayLayers % 6 == 0, "Cubemap textures must have a multiple of 6 faces");
+		}
+
 		m_TextureType			  = GL::GetTextureType(spec);
 		m_InternalFormat		  = GL::GetSizedInternalFormat(spec.Format);
 		m_BaseType				  = GL::GetPixelType(spec.Format);

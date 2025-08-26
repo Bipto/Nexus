@@ -58,6 +58,8 @@
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/Types.hpp"
 
+#include "tracy/Tracy.hpp"
+
 #if defined(NX_BUILD_DLL)
 	#if defined(WIN32)
 		#if defined(NX_EXPORT_API)

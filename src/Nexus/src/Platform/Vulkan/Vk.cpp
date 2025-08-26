@@ -458,7 +458,7 @@ namespace Nexus::Vk
 			}
 			case Graphics::TextureType::TextureCube:
 			{
-				if (spec.DepthOrArrayLayers > 1)
+				if (spec.DepthOrArrayLayers > 6)
 				{
 					return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
 				}

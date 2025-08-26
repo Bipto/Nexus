@@ -6,15 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
-string(REPLACE " " "_" GENERATOR_DIR "${CMAKE_GENERATOR}")
-set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/_deps/${GENERATOR_DIR}" CACHE PATH "Persistent FetchContent directory")
-
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
 
 if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
 endif()
+
+add_definitions(-DTRACY_ENABLE)
 
 #set up engine project
 add_subdirectory(src/Nexus)
