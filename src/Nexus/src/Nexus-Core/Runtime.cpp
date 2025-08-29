@@ -4,6 +4,7 @@
 #include "Nexus-Core/nxpch.hpp"
 
 #include "Nexus-Core/ECS/Components.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 
 Nexus::Application *appPtr = nullptr;
 
@@ -51,13 +52,13 @@ namespace Nexus
 {
 	void Init(int argc, char **argv)
 	{
-		ZoneScopedN("Initialisation");
+		NX_PROFILE_FUNCTION();
 		Platform::Initialise();
 	}
 
 	void Shutdown()
 	{
-		ZoneScopedN("Shutdown");
+		NX_PROFILE_FUNCTION();
 		Platform::Shutdown();
 	}
 }	 // namespace Nexus

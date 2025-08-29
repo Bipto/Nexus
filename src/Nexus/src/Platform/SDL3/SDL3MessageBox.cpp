@@ -11,7 +11,7 @@ namespace Nexus
 		{
 			case DefaultKey::Escape: return SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 			case DefaultKey::Return: return SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-			case DefaultKey::None: return 0;
+			case DefaultKey::NoKey: return 0;
 			default: throw std::runtime_error("Failed to find a valid default key");
 		}
 	}
@@ -22,7 +22,7 @@ namespace Nexus
 
 		switch (desc.Type)
 		{
-			case MessageBoxType::None:
+			case MessageBoxType::Default:
 			{
 				break;
 			}

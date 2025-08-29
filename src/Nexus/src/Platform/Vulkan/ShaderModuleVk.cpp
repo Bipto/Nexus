@@ -438,7 +438,7 @@ namespace Nexus::Graphics
 				}
 				case spv::Dim::DimSubpassData:
 				{
-					reflectedResource.Dimension = ResourceDimension::None;
+					reflectedResource.Dimension = ResourceDimension::NoDimension;
 					break;
 				}
 				default: throw std::runtime_error("Failed to find a valid resource dimension");

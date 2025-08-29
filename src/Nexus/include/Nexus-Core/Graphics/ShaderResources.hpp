@@ -6,7 +6,7 @@ namespace Nexus::Graphics
 {
 	enum class ResourceDimension
 	{
-		None,
+		NoDimension,
 		Texture1D,
 		Texture1DArray,
 		Texture2D,
@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 
 	enum class StorageResourceAccess
 	{
-		None,
+		NoAccess,
 
 		// GLSL
 		Read,
@@ -182,8 +182,8 @@ namespace Nexus::Graphics
 		uint32_t		 RegisterSpace = 0;
 		uint32_t		 ResourceCount = 0;
 		ShaderStageFlags Stage		   = {};
-		StorageResourceAccess Access		= StorageResourceAccess::None;
-		ResourceDimension	  Dimension		= ResourceDimension::None;
+		StorageResourceAccess Access		= StorageResourceAccess::NoAccess;
+		ResourceDimension	  Dimension		= ResourceDimension::NoDimension;
 	};
 
 	inline bool operator==(const ShaderResource &lhs, const ShaderResource &rhs)

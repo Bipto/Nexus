@@ -675,7 +675,7 @@ namespace Nexus
 
 				if (m_RenderFunc)
 				{
-					ZoneScopedN("OnRender");
+					NX_PROFILE_SCOPE("OnRender");
 					Nexus::Input::SetContext(this);
 					m_RenderFunc(time);
 				}
@@ -692,7 +692,7 @@ namespace Nexus
 
 				if (m_UpdateFunc)
 				{
-					ZoneScopedN("OnUpdate");
+					NX_PROFILE_SCOPE("OnUpdate");
 					Nexus::Input::SetContext(this);
 					m_UpdateFunc(time);
 				}
@@ -709,7 +709,7 @@ namespace Nexus
 
 				if (m_TickFunc)
 				{
-					ZoneScopedN("OnTick");
+					NX_PROFILE_SCOPE("OnTick");
 					Nexus::Input::SetContext(this);
 					m_TickFunc(time);
 				}

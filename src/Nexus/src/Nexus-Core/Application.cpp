@@ -39,21 +39,21 @@ namespace Nexus
 
 	void Application::MainLoop()
 	{
-		ZoneScopedN("Application::MainLoop");
+		NX_PROFILE_FUNCTION();
 
 		{
-			ZoneScopedN("Platform::Update");
+			NX_PROFILE_SCOPE("Platform::Update");
 			Platform::Update();
 		}
 
 		if (m_Description.EventDriven)
 		{
-			ZoneScopedN("Platform::WaitEvent");
+			NX_PROFILE_SCOPE("Platform::WaitEvent");
 			Platform::WaitEvent(this);
 		}
 		else
 		{
-			ZoneScopedN("Platform::PollEvents");
+			NX_PROFILE_SCOPE("Platform::PollEvents");
 			Platform::PollEvents(this);
 		}
 
