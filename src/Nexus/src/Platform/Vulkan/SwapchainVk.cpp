@@ -99,6 +99,7 @@ namespace Nexus::Graphics
 		}
 
 		m_FrameNumber++;
+		AcquireNextImage();
 	}
 
 	VSyncState SwapchainVk::GetVsyncState()
@@ -123,16 +124,6 @@ namespace Nexus::Graphics
 	VkFormat SwapchainVk::GetVkDepthFormat()
 	{
 		return m_DepthFormat;
-	}
-
-	void SwapchainVk::Prepare()
-	{
-		if (!m_SwapchainValid)
-		{
-			return;
-		}
-
-		AcquireNextImage();
 	}
 
 	PixelFormat SwapchainVk::GetColourFormat()
@@ -462,6 +453,7 @@ namespace Nexus::Graphics
 			CreateResolveAttachment(m_GraphicsDevice);
 			CreateSemaphores();
 			CreateFramebuffers();
+			AcquireNextImage();
 			m_SwapchainValid = true;
 		}
 		else
@@ -514,12 +506,12 @@ namespace Nexus::Graphics
 
 	bool SwapchainVk::AcquireNextImage()
 	{
-		VkResult result = vkAcquireNextImageKHR(m_GraphicsDevice->GetVkDevice(),
-												m_Swapchain,
-												0,
-												m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()],
-												VK_NULL_HANDLE,
-												&m_CurrentFrameIndex);
+		VkResult result = Vk::AcquireNextImage(m_GraphicsDevice,
+											   m_Swapchain,
+											   UINT64_MAX,
+											   m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()],
+											   VK_NULL_HANDLE,
+											   &m_CurrentFrameIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{

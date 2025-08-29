@@ -16,6 +16,11 @@ namespace Nexus::Graphics
 			NX_VALIDATE(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
 		}
 
+		if (spec.Type == TextureType::TextureCube)
+		{
+			NX_VALIDATE(spec.DepthOrArrayLayers % 6 == 0, "Cubemap textures must have a multiple of 6 faces");
+		}
+
 		uint32_t	 sizeInBytes = GetPixelFormatSizeInBytes(spec.Format);
 		VkDeviceSize imageSize	 = spec.Width * spec.Height * sizeInBytes;
 		m_Format				 = Vk::GetVkPixelDataFormat(m_Description.Format);
@@ -51,10 +56,6 @@ namespace Nexus::Graphics
 		if (spec.Type == TextureType::Texture3D)
 		{
 			imageInfo.arrayLayers = 1;
-		}
-		else if (spec.Type == TextureType::TextureCube)
-		{
-			imageInfo.arrayLayers = spec.DepthOrArrayLayers * 6;
 		}
 		else
 		{

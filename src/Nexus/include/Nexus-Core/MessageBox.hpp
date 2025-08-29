@@ -8,14 +8,14 @@ namespace Nexus
 
 	enum class DefaultKey
 	{
-		None,
+		NoKey,
 		Return,
 		Escape
 	};
 
 	enum class MessageBoxType
 	{
-		None,
+		Default,
 		Information,
 		Warning,
 		Error
@@ -29,7 +29,7 @@ namespace Nexus
 
 	struct MessageBoxButton
 	{
-		DefaultKey	Key	 = DefaultKey::None;
+		DefaultKey	Key	 = DefaultKey::NoKey;
 		int32_t		ID	 = 0;
 		std::string Text = "Button";
 	};

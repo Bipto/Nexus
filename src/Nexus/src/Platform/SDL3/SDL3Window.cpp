@@ -675,6 +675,7 @@ namespace Nexus
 
 				if (m_RenderFunc)
 				{
+					NX_PROFILE_SCOPE("OnRender");
 					Nexus::Input::SetContext(this);
 					m_RenderFunc(time);
 				}
@@ -691,6 +692,7 @@ namespace Nexus
 
 				if (m_UpdateFunc)
 				{
+					NX_PROFILE_SCOPE("OnUpdate");
 					Nexus::Input::SetContext(this);
 					m_UpdateFunc(time);
 				}
@@ -707,6 +709,7 @@ namespace Nexus
 
 				if (m_TickFunc)
 				{
+					NX_PROFILE_SCOPE("OnTick");
 					Nexus::Input::SetContext(this);
 					m_TickFunc(time);
 				}

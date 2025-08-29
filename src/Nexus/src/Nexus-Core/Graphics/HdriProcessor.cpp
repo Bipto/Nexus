@@ -84,7 +84,7 @@ namespace Nexus::Graphics
 		textureSpec.Usage						   = Nexus::Graphics::TextureUsage_Sampled;
 		textureSpec.Type						   = Graphics::TextureType::Texture2D;
 		textureSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		m_HdriImage								   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+		m_HdriImage								   = m_Device->CreateTexture(textureSpec);
 		m_Device->WriteToTexture(m_HdriImage, 0, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
 	}
 
@@ -107,8 +107,8 @@ namespace Nexus::Graphics
 		cubemapSpec.Width						   = size;
 		cubemapSpec.Height						   = size;
 		cubemapSpec.MipLevels					   = 1;
-		cubemapSpec.DepthOrArrayLayers			   = 1;
-		Ref<Texture> cubemap					   = Ref<Texture>(m_Device->CreateTexture(cubemapSpec));
+		cubemapSpec.DepthOrArrayLayers			   = 6;
+		Ref<Texture> cubemap					   = m_Device->CreateTexture(cubemapSpec);
 
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
@@ -142,7 +142,7 @@ namespace Nexus::Graphics
 		cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 		cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
 		cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-		Ref<DeviceBuffer> uniformBuffer									 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraUniformBufferDesc));
+		Ref<DeviceBuffer> uniformBuffer									 = m_Device->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 		for (uint32_t i = 0; i < 6; i++)
 		{

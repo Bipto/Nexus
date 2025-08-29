@@ -56,8 +56,8 @@ namespace Nexus::Graphics
 															StorageResourceAccess &storageResourceAccess,
 															const std::string	  &memoryQualifier)
 	{
-		dimension			  = ResourceDimension::None;
-		storageResourceAccess = StorageResourceAccess::None;
+		dimension			  = ResourceDimension::NoDimension;
+		storageResourceAccess = StorageResourceAccess::NoAccess;
 
 		if (type == "float")
 		{
@@ -181,7 +181,7 @@ namespace Nexus::Graphics
 		}
 		else if (type == "samplerBuffer" || type == "isamplerBuffer" || type == "usamplerBuffer")
 		{
-			dimension = ResourceDimension::None;
+			dimension = ResourceDimension::NoDimension;
 			return ReflectedShaderDataType::CombinedImageSampler;
 		}
 		else if (type == "sampler2DMS" || type == "isampler2DMS" || type == "usampler2DMS")
@@ -236,13 +236,13 @@ namespace Nexus::Graphics
 		}
 		else if (type == "textureBuffer")
 		{
-			dimension = ResourceDimension::None;
+			dimension			  = ResourceDimension::NoDimension;
 			storageResourceAccess = StorageResourceAccess::Read;
 			return ReflectedShaderDataType::UniformTextureBuffer;
 		}
 		else if (type == "samplerBuffer")
 		{
-			dimension			  = ResourceDimension::None;
+			dimension			  = ResourceDimension::NoDimension;
 			storageResourceAccess = StorageResourceAccess::ReadWrite;
 			return ReflectedShaderDataType::StorageTextureBuffer;
 		}
@@ -258,7 +258,7 @@ namespace Nexus::Graphics
 		}
 		else if (type == "sampler")
 		{
-			dimension = ResourceDimension::None;
+			dimension = ResourceDimension::NoDimension;
 			return ReflectedShaderDataType::Sampler;
 		}
 		else if (type == "sampler2DShadow")

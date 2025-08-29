@@ -17,6 +17,11 @@ namespace Nexus::Graphics
 			NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
 		}
 
+		if (spec.Type == TextureType::TextureCube)
+		{
+			NX_VALIDATE(spec.DepthOrArrayLayers % 6 == 0, "Cubemap textures must have a multiple of 6 faces");
+		}
+
 		D3D12_RESOURCE_DIMENSION dimension = D3D12::GetResourceDimensions(spec.Type);
 		D3D12_RESOURCE_FLAGS	 flags	   = D3D12::GetResourceFlags(spec.Format, spec.Usage);
 		m_TextureFormat					   = D3D12::GetD3D12PixelFormat(spec.Format);
@@ -26,16 +31,7 @@ namespace Nexus::Graphics
 		textureDesc.Alignment			 = 0;
 		textureDesc.Width				 = spec.Width;
 		textureDesc.Height				 = spec.Height;
-
-		if (spec.Type == TextureType::TextureCube)
-		{
-			textureDesc.DepthOrArraySize = spec.DepthOrArrayLayers * 6;
-		}
-		else
-		{
-			textureDesc.DepthOrArraySize = spec.DepthOrArrayLayers;
-		}
-
+		textureDesc.DepthOrArraySize	 = spec.DepthOrArrayLayers;
 		textureDesc.MipLevels			 = spec.MipLevels;
 		textureDesc.Format				 = m_TextureFormat;
 		textureDesc.SampleDesc.Count	 = spec.Samples;

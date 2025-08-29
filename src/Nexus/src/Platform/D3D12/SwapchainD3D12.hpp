@@ -26,7 +26,6 @@ namespace Nexus::Graphics
 			return m_Window;
 		}
 		virtual Nexus::Point2D<uint32_t>		GetSize() override;
-		virtual void							Prepare() override;
 		virtual PixelFormat						GetColourFormat() override;
 		virtual PixelFormat						GetDepthFormat() override;
 
@@ -44,6 +43,8 @@ namespace Nexus::Graphics
 		void						SetTextureState(D3D12_RESOURCE_STATES state);
 		void						SetDepthState(D3D12_RESOURCE_STATES state);
 		Ref<Framebuffer>			GetMultisampledFramebuffer();
+
+		void AcquireBackbufferIndex();
 
 	  private:
 		void Flush();

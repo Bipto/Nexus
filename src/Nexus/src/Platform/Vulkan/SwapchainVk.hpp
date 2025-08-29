@@ -31,7 +31,6 @@ namespace Nexus::Graphics
 		{
 			return m_Window;
 		}
-		virtual void Prepare() override;
 
 		virtual PixelFormat GetColourFormat() override;
 		virtual PixelFormat GetDepthFormat() override;

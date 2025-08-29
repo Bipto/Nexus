@@ -39,16 +39,25 @@ namespace Nexus
 
 	void Application::MainLoop()
 	{
-		Platform::Update();
+		NX_PROFILE_FUNCTION();
+
+		{
+			NX_PROFILE_SCOPE("Platform::Update");
+			Platform::Update();
+		}
 
 		if (m_Description.EventDriven)
 		{
+			NX_PROFILE_SCOPE("Platform::WaitEvent");
 			Platform::WaitEvent(this);
 		}
 		else
 		{
+			NX_PROFILE_SCOPE("Platform::PollEvents");
 			Platform::PollEvents(this);
 		}
+
+		FrameMark;
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()

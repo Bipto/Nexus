@@ -551,8 +551,6 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
-
 		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);

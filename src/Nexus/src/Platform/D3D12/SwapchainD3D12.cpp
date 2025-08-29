@@ -15,10 +15,15 @@ namespace Nexus::Graphics
 		// assign the graphics device
 		m_Device = (GraphicsDeviceD3D12 *)device;
 
+		Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
+		m_SwapchainWidth			 = windowSize.X;
+		m_SwapchainHeight			 = windowSize.Y;
+
 		// setup colour attachments for swapchain
 		CreateColourAttachments();
 		CreateDepthAttachment();
 		CreateMultisampledFramebuffer();
+		AcquireBackbufferIndex();
 	}
 
 	Nexus::Graphics::SwapchainD3D12::~SwapchainD3D12()
@@ -57,6 +62,11 @@ namespace Nexus::Graphics
 
 		// swap the swapchain's buffers and present to the display
 		m_Swapchain->Present((uint32_t)m_VsyncState, 0);
+
+		// recreate the swapchain if the window's size has changed
+		RecreateSwapchainIfNecessary();
+
+		AcquireBackbufferIndex();
 	}
 
 	VSyncState SwapchainD3D12::GetVsyncState()
@@ -72,15 +82,6 @@ namespace Nexus::Graphics
 	Nexus::Point2D<uint32_t> SwapchainD3D12::GetSize()
 	{
 		return {m_SwapchainWidth, m_SwapchainHeight};
-	}
-
-	void SwapchainD3D12::Prepare()
-	{
-		// recreate the swapchain if the window's size has changed
-		RecreateSwapchainIfNecessary();
-
-		// retrieve the current buffer index from the swapchain
-		m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
 	}
 
 	PixelFormat SwapchainD3D12::GetColourFormat()
@@ -147,6 +148,12 @@ namespace Nexus::Graphics
 	Ref<Framebuffer> SwapchainD3D12::GetMultisampledFramebuffer()
 	{
 		return m_MultisampledFramebuffer;
+	}
+
+	void SwapchainD3D12::AcquireBackbufferIndex()
+	{
+		// retrieve the current buffer index from the swapchain
+		m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
 	}
 
 	void SwapchainD3D12::Flush()

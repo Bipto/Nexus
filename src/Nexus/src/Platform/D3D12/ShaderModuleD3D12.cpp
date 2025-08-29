@@ -158,18 +158,18 @@ namespace Nexus::Graphics
 	{
 		switch (type)
 		{
-			case D3D_SIT_CBUFFER: return {ReflectedShaderDataType::UniformBuffer, StorageResourceAccess::None};
+			case D3D_SIT_CBUFFER: return {ReflectedShaderDataType::UniformBuffer, StorageResourceAccess::NoAccess};
 			case D3D_SIT_TBUFFER: return {ReflectedShaderDataType::UniformTextureBuffer, StorageResourceAccess::Read};
-			case D3D_SIT_TEXTURE: return {ReflectedShaderDataType::Texture, StorageResourceAccess::None};
+			case D3D_SIT_TEXTURE: return {ReflectedShaderDataType::Texture, StorageResourceAccess::NoAccess};
 			case D3D_SIT_SAMPLER:
 			{
 				if (flags & D3D_SIF_COMPARISON_SAMPLER)
 				{
-					return {ReflectedShaderDataType::ComparisonSampler, StorageResourceAccess::None};
+					return {ReflectedShaderDataType::ComparisonSampler, StorageResourceAccess::NoAccess};
 				}
 				else
 				{
-					return {ReflectedShaderDataType::Sampler, StorageResourceAccess::None};
+					return {ReflectedShaderDataType::Sampler, StorageResourceAccess::NoAccess};
 				}
 			}
 			case D3D_SIT_UAV_RWTYPED: return {ReflectedShaderDataType::StorageTextureBuffer, StorageResourceAccess::ReadWrite};
@@ -181,8 +181,8 @@ namespace Nexus::Graphics
 			case D3D_SIT_UAV_CONSUME_STRUCTURED: return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ConsumeStructured};
 			case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
 				return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWriteStructuredWithCounter};
-			case D3D_SIT_RTACCELERATIONSTRUCTURE: return {ReflectedShaderDataType::AccelerationStructure, StorageResourceAccess::None};
-			case D3D_SIT_UAV_FEEDBACKTEXTURE: return {ReflectedShaderDataType::FeedbackTexture, StorageResourceAccess::None};
+			case D3D_SIT_RTACCELERATIONSTRUCTURE: return {ReflectedShaderDataType::AccelerationStructure, StorageResourceAccess::NoAccess};
+			case D3D_SIT_UAV_FEEDBACKTEXTURE: return {ReflectedShaderDataType::FeedbackTexture, StorageResourceAccess::NoAccess};
 
 			default: throw std::runtime_error("Failed to find a valid resource type");
 		}
@@ -201,7 +201,7 @@ namespace Nexus::Graphics
 			case D3D_SRV_DIMENSION_TEXTURE3D: return ResourceDimension::Texture3D;
 			case D3D_SRV_DIMENSION_TEXTURECUBE: return ResourceDimension::TextureCube;
 			case D3D_SRV_DIMENSION_TEXTURECUBEARRAY: return ResourceDimension::TextureCubeArray;
-			default: return ResourceDimension::None;
+			default: return ResourceDimension::NoDimension;
 		}
 	}
 

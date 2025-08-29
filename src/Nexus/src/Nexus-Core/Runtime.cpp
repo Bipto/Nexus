@@ -4,6 +4,7 @@
 #include "Nexus-Core/nxpch.hpp"
 
 #include "Nexus-Core/ECS/Components.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 
 Nexus::Application *appPtr = nullptr;
 
@@ -26,11 +27,7 @@ namespace Nexus
 #ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop(main_loop, 0, 1);
 #else
-		while (appPtr->IsRunning())
-		{
-			int x = 0;
-			appPtr->MainLoop();
-		}
+		while (appPtr->IsRunning()) { appPtr->MainLoop(); }
 #endif
 
 		app->Unload();
@@ -55,11 +52,13 @@ namespace Nexus
 {
 	void Init(int argc, char **argv)
 	{
+		NX_PROFILE_FUNCTION();
 		Platform::Initialise();
 	}
 
 	void Shutdown()
 	{
+		NX_PROFILE_FUNCTION();
 		Platform::Shutdown();
 	}
 }	 // namespace Nexus

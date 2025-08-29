@@ -11,8 +11,8 @@ namespace Nexus::Graphics
 	{
 		ReflectedShaderDataType Type				  = ReflectedShaderDataType::UniformBuffer;
 		std::string				Name				  = {};
-		ResourceDimension		Dimension			  = ResourceDimension::None;
-		StorageResourceAccess	StorageResourceAccess = StorageResourceAccess::None;
+		ResourceDimension		Dimension			  = ResourceDimension::NoDimension;
+		StorageResourceAccess	StorageResourceAccess = StorageResourceAccess::NoAccess;
 		uint32_t				DescriptorSet		  = 0;
 		uint32_t				BindingPoint		  = 0;
 		uint32_t				BindingCount		  = 0;

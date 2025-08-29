@@ -27,7 +27,6 @@ namespace Nexus::Graphics
 		virtual VSyncState				 GetVsyncState()					  = 0;
 		virtual void					 SetVSyncState(VSyncState vsyncState) = 0;
 		virtual IWindow					*GetWindow()						  = 0;
-		virtual void					 Prepare()							  = 0;
 		virtual Nexus::Point2D<uint32_t> GetSize()							  = 0;
 		virtual PixelFormat				 GetColourFormat()					  = 0;
 		virtual PixelFormat				 GetDepthFormat()					  = 0;

@@ -267,7 +267,6 @@ namespace Nexus::Graphics
 
 	enum class BarrierStage
 	{
-		None,
 		All,
 		Graphics,
 		VertexInput,
@@ -285,7 +284,6 @@ namespace Nexus::Graphics
 
 	enum class BarrierAccess
 	{
-		None,
 		All,
 		VertexBuffer,
 		IndexBuffer,
