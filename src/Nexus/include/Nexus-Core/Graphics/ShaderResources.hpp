@@ -41,10 +41,10 @@ namespace Nexus::Graphics
 
 	enum class ReflectedShaderDataType
 	{
-		Bool,
-		Bool2,
-		Bool3,
-		Bool4,
+		Boolean,
+		Boolean2,
+		Boolean3,
+		Boolean4,
 
 		Int,
 		Int2,
