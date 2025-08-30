@@ -71,30 +71,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceD3D12::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
-	{
-		Ref<CommandListD3D12>								   commandListD3D12 = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
-		const std::vector<Nexus::Graphics::RenderCommandData> &commands			= commandListD3D12->GetCommandData();
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7>	   cmdList			= commandListD3D12->GetCommandList();
-
-		commandListD3D12->Reset();
-		m_CommandExecutor->SetCommandList(cmdList);
-		m_CommandExecutor->ExecuteCommands(commands, this);
-		commandListD3D12->Close();
-		m_CommandExecutor->Reset();
-
-		ID3D12CommandList *lists[] = {cmdList.Get()};
-		m_CommandQueue->ExecuteCommandLists(1, lists);
-
-		if (fence)
-		{
-			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
-			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
-			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
-		}
-	}
-
 	void GraphicsDeviceD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
 		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
@@ -128,11 +104,6 @@ namespace Nexus::Graphics
 	const std::string GraphicsDeviceD3D12::GetAPIName()
 	{
 		return {"D3D12"};
-	}
-
-	const char *GraphicsDeviceD3D12::GetDeviceName()
-	{
-		return m_PhysicalDevice->GetDeviceName().c_str();
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const

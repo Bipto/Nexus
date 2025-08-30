@@ -1716,6 +1716,55 @@ namespace Nexus::Vk
 			return vkAcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
 		}
 	}
+
+	VkResult SubmitQueue(Graphics::GraphicsDeviceVk		   *device,
+						 VkQueue							queue,
+						 const std::vector<VkCommandBuffer> commandBuffers,
+						 VkPipelineStageFlags				waitStageMask,
+						 VkFence							fence)
+	{
+		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		if (functions.vkQueueSubmit2KHR)
+		{
+			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
+
+			for (VkCommandBuffer commandBuffer : commandBuffers)
+			{
+				VkCommandBufferSubmitInfoKHR &commandBufferInfo = commandBufferInfos.emplace_back();
+				commandBufferInfo.sType							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+				commandBufferInfo.pNext							= nullptr;
+				commandBufferInfo.commandBuffer					= commandBuffer;
+				commandBufferInfo.deviceMask					= 0;
+			}
+
+			VkSubmitInfo2KHR submitInfo			= {};
+			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
+			submitInfo.pNext					= nullptr;
+			submitInfo.flags					= 0;
+			submitInfo.waitSemaphoreInfoCount	= 0;
+			submitInfo.pWaitSemaphoreInfos		= nullptr;
+			submitInfo.commandBufferInfoCount	= commandBufferInfos.size();
+			submitInfo.pCommandBufferInfos		= commandBufferInfos.data();
+			submitInfo.signalSemaphoreInfoCount = 0;
+			submitInfo.pSignalSemaphoreInfos	= nullptr;
+
+			return functions.vkQueueSubmit2KHR(queue, 1, &submitInfo, fence);
+		}
+		else
+		{
+			VkSubmitInfo submitInfo			= {};
+			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.waitSemaphoreCount	= 0;
+			submitInfo.pWaitSemaphores		= nullptr;
+			submitInfo.pWaitDstStageMask	= &waitStageMask;
+			submitInfo.commandBufferCount	= commandBuffers.size();
+			submitInfo.pCommandBuffers		= commandBuffers.data();
+			submitInfo.signalSemaphoreCount = 0;
+			submitInfo.pSignalSemaphores	= nullptr;
+
+			return vkQueueSubmit(queue, 1, &submitInfo, fence);
+		}
+	}
 }	 // namespace Nexus::Vk
 
 #endif

@@ -271,6 +271,11 @@ namespace Nexus::Graphics
 		SubmitCommandList(commandList, nullptr);
 	}
 
+	void GraphicsDevice::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
+	{
+		SubmitCommandLists(&commandList, 1, fence);
+	}
+
 	void GraphicsDevice::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists)
 	{
 		SubmitCommandLists(commandLists, numCommandLists, nullptr);

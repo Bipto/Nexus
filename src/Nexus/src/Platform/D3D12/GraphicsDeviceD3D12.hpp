@@ -23,11 +23,9 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
-		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) final;
 		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
 
 		const std::string				 GetAPIName() final;
-		const char						*GetDeviceName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
 		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
