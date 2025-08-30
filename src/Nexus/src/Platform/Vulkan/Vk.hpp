@@ -151,6 +151,12 @@ namespace Nexus::Vk
 							  VkFence					  fence,
 							  uint32_t					 *imageIndex);
 
+	VkResult SubmitQueue(Graphics::GraphicsDeviceVk		   *device,
+						 VkQueue							queue,
+						 const std::vector<VkCommandBuffer> commandBuffers,
+						 VkPipelineStageFlags				waitStageMask,
+						 VkFence							fence);
+
 }	 // namespace Nexus::Vk
 
 #endif

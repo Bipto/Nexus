@@ -47,14 +47,9 @@ namespace Nexus::Graphics
 		/// @return A string containing the API name
 		virtual const std::string GetAPIName() = 0;
 
-		/// @brief A pure virtual method that will return the name of the device
-		/// currently being used to render graphics
-		/// @return A const char* containing the device name
-		virtual const char *GetDeviceName() = 0;
-
 		void SubmitCommandList(Ref<CommandList> commandList);
 
-		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) = 0;
+		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence);
 
 		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists);
 

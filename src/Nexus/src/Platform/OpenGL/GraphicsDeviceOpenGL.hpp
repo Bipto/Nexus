@@ -20,11 +20,9 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) final;
 		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		const std::string				 GetAPIName() override;
-		const char						*GetDeviceName() override;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
 		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;

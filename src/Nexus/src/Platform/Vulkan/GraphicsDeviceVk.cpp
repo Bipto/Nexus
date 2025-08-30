@@ -18,6 +18,8 @@
 	#include "TimingQueryVk.hpp"
 	#include "AccelerationStructureVk.hpp"
 
+	#include "Nexus-Core/Timings/Profiler.hpp"
+
 namespace Nexus::Graphics
 {
 	GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config)
@@ -58,72 +60,10 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
-	{
-		VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-		Ref<CommandListVk>									   commandListVk = std::dynamic_pointer_cast<CommandListVk>(commandList);
-		const std::vector<Nexus::Graphics::RenderCommandData> &commands		 = commandList->GetCommandData();
-		m_CommandExecutor->SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
-		m_CommandExecutor->ExecuteCommands(commands, this);
-		m_CommandExecutor->Reset();
-		VkCommandBuffer vkCmdBuffer = commandListVk->GetCurrentCommandBuffer();
-
-		if (m_ExtensionFunctions.vkQueueSubmit2KHR)
-		{
-			VkCommandBufferSubmitInfoKHR commandBufferInfo = {};
-			commandBufferInfo.sType						   = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
-			commandBufferInfo.pNext						   = nullptr;
-			commandBufferInfo.commandBuffer				   = vkCmdBuffer;
-			commandBufferInfo.deviceMask				   = 0;
-
-			VkSubmitInfo2KHR submitInfo			= {};
-			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
-			submitInfo.pNext					= nullptr;
-			submitInfo.flags					= 0;
-			submitInfo.waitSemaphoreInfoCount	= 0;
-			submitInfo.pWaitSemaphoreInfos		= nullptr;
-			submitInfo.commandBufferInfoCount	= 1;
-			submitInfo.pCommandBufferInfos		= &commandBufferInfo;
-			submitInfo.signalSemaphoreInfoCount = 0;
-			submitInfo.pSignalSemaphoreInfos	= nullptr;
-
-			VkFence vulkanFence = nullptr;
-
-			if (fence)
-			{
-				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-				vulkanFence			  = apiFence->GetHandle();
-			}
-
-			NX_VALIDATE(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
-		}
-		else
-		{
-			VkSubmitInfo submitInfo			= {};
-			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submitInfo.waitSemaphoreCount	= 0;
-			submitInfo.pWaitSemaphores		= nullptr;
-			submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-			submitInfo.commandBufferCount	= 1;
-			submitInfo.pCommandBuffers		= &vkCmdBuffer;
-			submitInfo.signalSemaphoreCount = 0;
-			submitInfo.pSignalSemaphores	= nullptr;
-
-			VkFence vulkanFence = nullptr;
-
-			if (fence)
-			{
-				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-				vulkanFence			  = apiFence->GetHandle();
-			}
-
-			NX_VALIDATE(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
-		}
-	}
-
 	void GraphicsDeviceVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
+		NX_PROFILE_FUNCTION();
+
 		VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 		std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
 
@@ -138,72 +78,20 @@ namespace Nexus::Graphics
 			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
 		}
 
-		if (m_ExtensionFunctions.vkQueueSubmit2KHR)
+		VkFence vulkanFence = VK_NULL_HANDLE;
+
+		if (fence)
 		{
-			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
-
-			for (VkCommandBuffer commandBuffer : commandBuffers)
-			{
-				VkCommandBufferSubmitInfoKHR &commandBufferInfo = commandBufferInfos.emplace_back();
-				commandBufferInfo.sType							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
-				commandBufferInfo.pNext							= nullptr;
-				commandBufferInfo.commandBuffer					= commandBuffer;
-				commandBufferInfo.deviceMask					= 0;
-			}
-
-			VkSubmitInfo2KHR submitInfo			= {};
-			submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
-			submitInfo.pNext					= nullptr;
-			submitInfo.flags					= 0;
-			submitInfo.waitSemaphoreInfoCount	= 0;
-			submitInfo.pWaitSemaphoreInfos		= nullptr;
-			submitInfo.commandBufferInfoCount	= commandBufferInfos.size();
-			submitInfo.pCommandBufferInfos		= commandBufferInfos.data();
-			submitInfo.signalSemaphoreInfoCount = 0;
-			submitInfo.pSignalSemaphoreInfos	= nullptr;
-
-			VkFence vulkanFence = nullptr;
-
-			if (fence)
-			{
-				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-				vulkanFence			  = apiFence->GetHandle();
-			}
-
-			NX_VALIDATE(m_ExtensionFunctions.vkQueueSubmit2KHR(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+			Ref<FenceVk> fenceVk = std::dynamic_pointer_cast<FenceVk>(fence);
+			vulkanFence			 = fenceVk->GetHandle();
 		}
-		else
-		{
-			VkSubmitInfo submitInfo			= {};
-			submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submitInfo.waitSemaphoreCount	= 0;
-			submitInfo.pWaitSemaphores		= nullptr;
-			submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-			submitInfo.commandBufferCount	= commandBuffers.size();
-			submitInfo.pCommandBuffers		= commandBuffers.data();
-			submitInfo.signalSemaphoreCount = 0;
-			submitInfo.pSignalSemaphores	= nullptr;
 
-			VkFence vkFence = nullptr;
-
-			if (fence)
-			{
-				Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
-				vkFence				  = apiFence->GetHandle();
-			}
-
-			NX_VALIDATE(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
-		}
+		NX_VALIDATE(Vk::SubmitQueue(this, m_GraphicsQueue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 	}
 
 	const std::string GraphicsDeviceVk::GetAPIName()
 	{
 		return "Vulkan";
-	}
-
-	const char *GraphicsDeviceVk::GetDeviceName()
-	{
-		return nullptr;
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceVk::GetPhysicalDevice() const

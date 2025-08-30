@@ -53,19 +53,6 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-
-		Ref<CommandListOpenGL>								   commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-		const std::vector<Nexus::Graphics::RenderCommandData> &commands		 = commandListGL->GetCommandData();
-		m_CommandExecutor.ExecuteCommands(commands, this);
-		m_CommandExecutor.Reset();
-
-		GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
-		offscreenContext->MakeCurrent();
-	}
-
 	void GraphicsDeviceOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
@@ -85,11 +72,6 @@ namespace Nexus::Graphics
 	const std::string GraphicsDeviceOpenGL::GetAPIName()
 	{
 		return m_APIName;
-	}
-
-	const char *GraphicsDeviceOpenGL::GetDeviceName()
-	{
-		return m_RendererName.c_str();
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceOpenGL::GetPhysicalDevice() const

@@ -109,19 +109,19 @@ namespace Nexus::Graphics
 		}
 		else if (type == "bool")
 		{
-			return ReflectedShaderDataType::Bool;
+			return ReflectedShaderDataType::Boolean;
 		}
 		else if (type == "bvec2")
 		{
-			return ReflectedShaderDataType::Bool2;
+			return ReflectedShaderDataType::Boolean2;
 		}
 		else if (type == "bvec3")
 		{
-			return ReflectedShaderDataType::Bool3;
+			return ReflectedShaderDataType::Boolean3;
 		}
 		else if (type == "bvec4")
 		{
-			return ReflectedShaderDataType::Bool4;
+			return ReflectedShaderDataType::Boolean4;
 		}
 		else if (type == "double")
 		{

@@ -79,11 +79,9 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
-		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) final;
 		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
 
 		const std::string				 GetAPIName() final;
-		const char						*GetDeviceName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
 		Ref<GraphicsPipeline>		CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;

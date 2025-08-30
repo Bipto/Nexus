@@ -41,22 +41,22 @@ namespace Nexus::Graphics
 				{
 					case 1:
 					{
-						attribute.Type = ReflectedShaderDataType::Bool;
+						attribute.Type = ReflectedShaderDataType::Boolean;
 						break;
 					}
 					case 2:
 					{
-						attribute.Type = ReflectedShaderDataType::Bool2;
+						attribute.Type = ReflectedShaderDataType::Boolean2;
 						break;
 					}
 					case 3:
 					{
-						attribute.Type = ReflectedShaderDataType::Bool3;
+						attribute.Type = ReflectedShaderDataType::Boolean3;
 						break;
 					}
 					case 4:
 					{
-						attribute.Type = ReflectedShaderDataType::Bool4;
+						attribute.Type = ReflectedShaderDataType::Boolean4;
 						break;
 					}
 					default: throw std::runtime_error("Failed to find a valid vector size");

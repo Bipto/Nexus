@@ -5,6 +5,8 @@
 	#include "GraphicsDeviceVk.hpp"
 	#include "PlatformVk.hpp"
 
+	#include "Nexus-Core/Timings/Profiler.hpp"
+
 namespace Nexus::Graphics
 {
 	VkPresentModeKHR GetPresentMode(VSyncState vSyncState)
@@ -50,6 +52,8 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::SwapBuffers()
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_SwapchainValid)
 		{
 			return;
