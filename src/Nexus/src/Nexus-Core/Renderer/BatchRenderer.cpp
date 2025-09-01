@@ -329,21 +329,22 @@ namespace Nexus::Graphics
 		info.IndexBuffer								   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, uint32_t sampleCount)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
+		  m_CommandQueue(commandQueue),
 		  m_CommandList(m_Device->CreateCommandList()),
 		  m_UseDepthTest(useDepthTest)
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
-		Graphics::TextureDescription textureSpec   = {};
-		textureSpec.Width						   = 1;
-		textureSpec.Height						   = 1;
-		textureSpec.DepthOrArrayLayers			   = 1;
-		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
-		textureSpec.Usage						   = Graphics::TextureUsage_Sampled;
-		m_BlankTexture							   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
-		m_Device->WriteToTexture(m_BlankTexture, 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+		Graphics::TextureDescription textureSpec = {};
+		textureSpec.Width						 = 1;
+		textureSpec.Height						 = 1;
+		textureSpec.DepthOrArrayLayers			 = 1;
+		textureSpec.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
+		textureSpec.Usage						 = Graphics::TextureUsage_Sampled;
+		m_BlankTexture							 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+		m_Device->WriteToTexture(m_BlankTexture, m_CommandQueue, 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
 																												"Batch Renderer - Vertex Shader",
@@ -427,7 +428,8 @@ namespace Nexus::Graphics
 			m_CommandList->Begin();
 			m_CommandList->CopyBufferToBuffer(bufferCopy);
 			m_CommandList->End();
-			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_Device->WaitForIdle();
 		}
 	}
@@ -1181,7 +1183,7 @@ namespace Nexus::Graphics
 		m_CommandList->DrawIndexed(drawDesc);
 
 		m_CommandList->End();
-		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
 		FlushTextures(info, m_BlankTexture);
 	}

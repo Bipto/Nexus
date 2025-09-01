@@ -23,8 +23,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
-		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
-
 		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
@@ -60,7 +58,9 @@ namespace Nexus::Graphics
 		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
 		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
-		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
+		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
+		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
 		bool					   IsUVOriginTopLeft() final
 		{
 			return true;

@@ -101,6 +101,9 @@ namespace Nexus
 		/// @brief Properties to configure the initial swapchain
 		Graphics::SwapchainSpecification SwapchainSpecification;
 
+		/// @brief Whether to create a default graphics queue using a queue with all available capabilities
+		bool CreateDefaultGraphicsQueue = true;
+
 		/// @brief Controls how the application will call Render(), Update() and Tick(), if true they will only be called following user input
 		bool EventDriven = false;
 

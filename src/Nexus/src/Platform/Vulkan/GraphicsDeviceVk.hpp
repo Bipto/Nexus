@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 		bool SupportsRayTracing		   = false;
 	};
 
-	struct DeviceExtensionFunctions
+	struct VulkanDeviceExtensionFunctions
 	{
 		PFN_vkCmdBindVertexBuffers2EXT vkCmdBindVertexBuffers2EXT = VK_NULL_HANDLE;
 		PFN_vkCmdBindIndexBuffer2KHR   vkCmdBindIndexBuffer2KHR	  = VK_NULL_HANDLE;
@@ -70,6 +70,7 @@ namespace Nexus::Graphics
 
 		PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR = VK_NULL_HANDLE;
 		PFN_vkQueueSubmit2KHR vkQueueSubmit2KHR = VK_NULL_HANDLE;
+		PFN_vkGetDeviceQueue2	   vkGetDeviceQueue2	  = VK_NULL_HANDLE;
 	};
 
 	class GraphicsDeviceVk final : public GraphicsDevice
@@ -78,8 +79,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
-
-		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
 
 		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
@@ -102,7 +101,9 @@ namespace Nexus::Graphics
 		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
 		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
-		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
+		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
+		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final;
 		bool		   IsBufferUsageSupported(BufferUsage usage) final;
@@ -119,7 +120,7 @@ namespace Nexus::Graphics
 		GraphicsAPI GetGraphicsAPI() final;
 
 		void							SetObjectName(VkObjectType type, uint64_t handle, const char *name);
-		const DeviceExtensionFunctions &GetExtensionFunctions() const;
+		const VulkanDeviceExtensionFunctions &GetExtensionFunctions() const;
 
 		VkInstance	 GetVkInstance();
 		VkDevice	 GetVkDevice();
@@ -157,6 +158,7 @@ namespace Nexus::Graphics
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 
+		void RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
@@ -187,6 +189,8 @@ namespace Nexus::Graphics
 		std::shared_ptr<PhysicalDeviceVk> m_PhysicalDevice = nullptr;
 		VkInstance						  m_Instance	   = nullptr;
 
+		std::vector<QueueFamilyInfo> m_QueueFamilies = {};
+
 		uint32_t m_GraphicsQueueFamilyIndex;
 		uint32_t m_PresentQueueFamilyIndex;
 
@@ -210,7 +214,7 @@ namespace Nexus::Graphics
 		DeviceFeatures m_Features = {};
 		DeviceLimits   m_Limits	  = {};
 
-		DeviceExtensionFunctions m_ExtensionFunctions = {};
+		VulkanDeviceExtensionFunctions m_ExtensionFunctions = {};
 
 		friend class SwapchainVk;
 	};

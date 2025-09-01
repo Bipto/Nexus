@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 		createInfo.type									= accelerationStructureType;
 		createInfo.deviceAddress						= 0;
 
-		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		if (functions.vkCreateAccelerationStructureKHR)
 		{
 			NX_VALIDATE(functions.vkCreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr, &m_Handle) == VK_SUCCESS,
@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 
 	AccelerationStructureVk::~AccelerationStructureVk()
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 		if (functions.vkDestroyAccelerationStructureKHR)
 		{
 			functions.vkDestroyAccelerationStructureKHR(m_Device->GetVkDevice(), m_Handle, nullptr);
@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 
 	VkDeviceAddress AccelerationStructureVk::GetDeviceAddress() const
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		if (functions.vkGetAccelerationStructureDeviceAddressKHR)
 		{

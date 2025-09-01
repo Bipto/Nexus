@@ -64,7 +64,7 @@ namespace Nexus::Graphics
 
 	VkDeviceAddress DeviceBufferVk::GetDeviceAddress() const
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 		if (functions.vkGetBufferDeviceAddressKHR)
 		{
 			VkBufferDeviceAddressInfo info = {};

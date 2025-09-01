@@ -5,6 +5,9 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Platform.hpp"
 
+#include "Nexus-Core/Timings/Profiler.hpp"
+
+
 namespace Nexus
 {
 	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Description(windowProps)

@@ -17,6 +17,7 @@
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 	#include "AccelerationStructureVk.hpp"
+	#include "CommandQueueVk.hpp"
 
 	#include "Nexus-Core/Timings/Profiler.hpp"
 
@@ -58,35 +59,6 @@ namespace Nexus::Graphics
 		{
 			vkDestroyDevice(m_Device, nullptr);
 		}
-	}
-
-	void GraphicsDeviceVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
-	{
-		NX_PROFILE_FUNCTION();
-
-		VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-		std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
-
-		// record the commands into the actual vulkan command list
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			Ref<CommandListVk>									   commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
-			m_CommandExecutor->ExecuteCommands(commands, this);
-			m_CommandExecutor->Reset();
-			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
-		}
-
-		VkFence vulkanFence = VK_NULL_HANDLE;
-
-		if (fence)
-		{
-			Ref<FenceVk> fenceVk = std::dynamic_pointer_cast<FenceVk>(fence);
-			vulkanFence			 = fenceVk->GetHandle();
-		}
-
-		NX_VALIDATE(Vk::SubmitQueue(this, m_GraphicsQueue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 	}
 
 	const std::string GraphicsDeviceVk::GetAPIName()
@@ -219,6 +191,16 @@ namespace Nexus::Graphics
 		}
 	}
 
+	std::vector<QueueFamilyInfo> GraphicsDeviceVk::GetQueueFamilies()
+	{
+		return m_QueueFamilies;
+	}
+
+	Ref<ICommandQueue> GraphicsDeviceVk::CreateCommandQueue(const CommandQueueDescription &description)
+	{
+		return CreateRef<CommandQueueVk>(this, description);
+	}
+
 	void GraphicsDeviceVk::ResetFences(Ref<Fence> *fences, uint32_t count)
 	{
 		std::vector<VkFence> fenceHandles(count);
@@ -272,7 +254,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	const DeviceExtensionFunctions &GraphicsDeviceVk::GetExtensionFunctions() const
+	const VulkanDeviceExtensionFunctions &GraphicsDeviceVk::GetExtensionFunctions() const
 	{
 		return m_ExtensionFunctions;
 	}
@@ -394,6 +376,27 @@ namespace Nexus::Graphics
 							 &barrier);
 	}
 
+	void GraphicsDeviceVk::RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
+	{
+		m_QueueFamilies.clear();
+
+		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+		uint32_t							 queueFamilyCount;
+
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
+		queueFamilyProperties.resize(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
+
+		uint32_t queueFamilyIndex = 0;
+		for (const auto &queueFamily : queueFamilyProperties)
+		{
+			QueueFamilyInfo &info = m_QueueFamilies.emplace_back();
+			info.QueueFamily	  = queueFamilyIndex++;
+			info.QueueCount		  = queueFamily.queueCount;
+			info.Capabilities	  = Vk::GetNxQueueCapabilitiesFromVkQueuePropertyFlags(queueFamily.queueFlags);
+		}
+	}
+
 	void GraphicsDeviceVk::SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
@@ -437,30 +440,29 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
+		RetrieveQueueFamilies(physicalDevice);
 		SelectQueueFamilies(physicalDevice);
 
 		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
-		const float				  queuePriority[]  = {1.0f};
 
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t>					 uniqueQueueFamilies = {m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex};
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = {};
+		std::vector<std::vector<float>>		 queuePriorities  = {};
 
-		float priority = queuePriority[0];
-		for (int queueFamily : uniqueQueueFamilies)
+		for (size_t i = 0; i < m_QueueFamilies.size(); i++)
 		{
-			VkDeviceQueueCreateInfo queueCreateInfo = {};
-			queueCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex		= queueFamily;
-			queueCreateInfo.queueCount				= 1;
-			queueCreateInfo.pQueuePriorities		= &priority;
-			queueCreateInfos.push_back(queueCreateInfo);
-		}
+			const QueueFamilyInfo &queueFamilyInfo = m_QueueFamilies.at(i);
 
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex		= m_GraphicsQueueFamilyIndex;
-		queueCreateInfo.queueCount				= 1;
-		queueCreateInfo.pQueuePriorities		= &priority;
+			uint32_t queueFamilyIndex = (uint32_t)i;
+			uint32_t queueCount		  = queueFamilyInfo.QueueCount;
+
+			queuePriorities.emplace_back(queueCount, 1.0f);
+
+			VkDeviceQueueCreateInfo &queueCreateInfo = queueCreateInfos.emplace_back();
+			queueCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex		 = i;
+			queueCreateInfo.queueCount				 = queueFamilyInfo.QueueCount;
+			queueCreateInfo.pQueuePriorities		 = queuePriorities.back().data();
+		}
 
 		Vk::PNextBuilder builder = {};
 
@@ -563,9 +565,8 @@ namespace Nexus::Graphics
 			createInfo.pEnabledFeatures = &deviceFeatures;
 		}
 
-		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
-		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
 		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
+		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
 		createInfo.enabledExtensionCount   = deviceExtensions.size();
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		createInfo.enabledLayerCount	   = 0;
@@ -694,7 +695,8 @@ namespace Nexus::Graphics
 			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
 
 		m_ExtensionFunctions.vkAcquireNextImage2KHR = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
-		m_ExtensionFunctions.vkQueueSubmit2KHR = (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
+		m_ExtensionFunctions.vkQueueSubmit2KHR		= (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
+		m_ExtensionFunctions.vkGetDeviceQueue2		= (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

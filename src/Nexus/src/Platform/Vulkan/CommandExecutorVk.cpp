@@ -80,7 +80,7 @@ namespace Nexus::Graphics
 		VkDeviceSize		offsets[]		= {command.View.Offset};
 		VkDeviceSize		sizes[]			= {command.View.Size};
 
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		if (functions.vkCmdBindVertexBuffers2EXT)
 		{
@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 		VkDeviceSize		offset			  = command.View.Offset;
 		VkDeviceSize		size			  = command.View.Size;
 
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		if (functions.vkCmdBindIndexBuffer2KHR)
 		{
@@ -233,7 +233,7 @@ namespace Nexus::Graphics
 
 		BindGraphicsPipeline();
 
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 		if (functions.vkCmdDrawMeshTasksEXT)
 		{
 			functions.vkCmdDrawMeshTasksEXT(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
@@ -251,7 +251,7 @@ namespace Nexus::Graphics
 
 		BindGraphicsPipeline();
 
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 		if (functions.vkCmdDrawMeshTasksIndirectEXT)
 		{
 			functions.vkCmdDrawMeshTasksIndirectEXT(m_CommandBuffer,
@@ -707,7 +707,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		if (functions.vkCmdBeginDebugUtilsLabelEXT)
 		{
@@ -732,7 +732,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management occurs
 		// in the correct order
@@ -763,7 +763,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		if (functions.vkCmdInsertDebugUtilsLabelEXT)
 		{
@@ -804,7 +804,7 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
 	{
 		// return early if the function is not available to use
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 		if (!functions.vkCmdBuildAccelerationStructuresKHR)
 		{
 			return;
@@ -868,7 +868,7 @@ namespace Nexus::Graphics
 						 VkSubpassContents			  subpassContents,
 						 VkCommandBuffer			  commandBuffer)
 	{
-		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		if (functions.vkCmdBeginRenderPass2KHR)
 		{
 			VkSubpassBeginInfo subpassInfo = {};
@@ -939,7 +939,7 @@ namespace Nexus::Graphics
 		renderingInfo.pColorAttachments	   = &colourAttachment;
 		renderingInfo.pDepthAttachment	   = &depthAttachment;
 
-		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		functions.vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
 	}
 
@@ -1072,7 +1072,7 @@ namespace Nexus::Graphics
 			renderingInfo.pStencilAttachment = nullptr;
 		}
 
-		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		functions.vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
 	}
 
@@ -1153,7 +1153,7 @@ namespace Nexus::Graphics
 			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 			if (features.DynamicRenderingAvailable)
 			{
-				const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+				const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 				functions.vkCmdEndRenderingKHR(m_CommandBuffer);
 			}
 			else

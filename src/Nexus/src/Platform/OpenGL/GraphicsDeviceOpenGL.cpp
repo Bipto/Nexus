@@ -53,22 +53,6 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void GraphicsDeviceOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			Ref<CommandListOpenGL>								   commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			m_CommandExecutor.ExecuteCommands(commands, this);
-			m_CommandExecutor.Reset();
-		}
-
-		GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
-		offscreenContext->MakeCurrent();
-	}
-
 	const std::string GraphicsDeviceOpenGL::GetAPIName()
 	{
 		return m_APIName;
@@ -296,6 +280,23 @@ namespace Nexus::Graphics
 		}
 
 		return FenceWaitResult::Failed;
+	}
+
+	std::vector<QueueFamilyInfo> GraphicsDeviceOpenGL::GetQueueFamilies()
+	{
+		std::vector<QueueFamilyInfo> queueFamilies = {};
+
+		QueueFamilyInfo &info = queueFamilies.emplace_back();
+		info.QueueFamily	  = 0;
+		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
+		info.Capabilities	  = QueueCapabilities::All;
+
+		return queueFamilies;
+	}
+
+	Ref<ICommandQueue> GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
+	{
+		return Ref<ICommandQueue>();
 	}
 
 	void GraphicsDeviceOpenGL::ResetFences(Ref<Fence> *fences, uint32_t count)

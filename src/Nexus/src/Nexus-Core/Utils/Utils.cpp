@@ -294,10 +294,14 @@ namespace Nexus::Utils
 		return buffer;
 	}
 
-	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
+	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void					 *data,
+														 size_t						  sizeInBytes,
+														 size_t						  strideInBytes,
+														 Graphics::GraphicsDevice	 *device,
+														 Ref<Graphics::ICommandQueue> commandQueue)
 	{
-		Ref<Graphics::DeviceBuffer>				uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
+		Ref<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>	commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
@@ -316,16 +320,20 @@ namespace Nexus::Utils
 		commandList->Begin();
 		commandList->CopyBufferToBuffer(bufferCopy);
 		commandList->End();
-		device->SubmitCommandLists(&commandList, 1, nullptr);
+		commandQueue->SubmitCommandLists(&commandList, 1, nullptr);
 		device->WaitForIdle();
 
 		return vertexBuffer;
 	}
 
-	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
+	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void					*data,
+														size_t						 sizeInBytes,
+														size_t						 strideInBytes,
+														Graphics::GraphicsDevice	*device,
+														Ref<Graphics::ICommandQueue> commandQueue)
 	{
-		Ref<Graphics::DeviceBuffer>				uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
+		Ref<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>	commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
@@ -344,19 +352,20 @@ namespace Nexus::Utils
 		commandList->Begin();
 		commandList->CopyBufferToBuffer(bufferCopy);
 		commandList->End();
-		device->SubmitCommandLists(&commandList, 1, nullptr);
+		commandQueue->SubmitCommandLists(&commandList, 1, nullptr);
 		device->WaitForIdle();
 
 		return indexBuffer;
 	}
 
-	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void			   *data,
-														  size_t					sizeInBytes,
-														  size_t					strideInBytes,
-														  Graphics::GraphicsDevice *device)
+	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void				  *data,
+														  size_t					   sizeInBytes,
+														  size_t					   strideInBytes,
+														  Graphics::GraphicsDevice	  *device,
+														  Ref<Graphics::ICommandQueue> commandQueue)
 	{
-		Ref<Graphics::DeviceBuffer>				uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
+		Ref<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>	commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
@@ -375,7 +384,7 @@ namespace Nexus::Utils
 		commandList->Begin();
 		commandList->CopyBufferToBuffer(bufferCopy);
 		commandList->End();
-		device->SubmitCommandLists(&commandList, 1, nullptr);
+		commandQueue->SubmitCommandLists(&commandList, 1, nullptr);
 		device->WaitForIdle();
 
 		return uniformBuffer;
@@ -383,7 +392,7 @@ namespace Nexus::Utils
 
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime)
 	{
-		std::time_t seconds = nanoseconds / 1'000'000'000;
+		std::time_t seconds	 = nanoseconds / 1'000'000'000;
 		std::tm	   *timeInfo = localtime(&seconds);
 		memcpy(&outTime, timeInfo, sizeof(std::tm));
 	}

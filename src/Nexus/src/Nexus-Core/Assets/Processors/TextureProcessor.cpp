@@ -6,17 +6,20 @@
 
 namespace Nexus::Processors
 {
-	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project)
+	GUID TextureProcessor::Process(const std::string		   &filepath,
+								   Graphics::GraphicsDevice	   *device,
+								   Ref<Graphics::ICommandQueue> commandQueue,
+								   Project					   *project)
 	{
-		std::vector<Graphics::Image> mips = {};
-		Ref<Graphics::Texture>		 texture = device->CreateTexture2D(filepath.c_str(), m_GenerateMips, m_Srgb);
+		std::vector<Graphics::Image> mips	 = {};
+		Ref<Graphics::Texture>		 texture = device->CreateTexture2D(commandQueue, filepath.c_str(), m_GenerateMips, m_Srgb);
 
 		for (uint32_t arrayLayer = 0; arrayLayer < texture->GetDescription().DepthOrArrayLayers; arrayLayer++)
 		{
 			for (uint32_t level = 0; level < texture->GetDescription().MipLevels; level++)
 			{
 				Point2D<uint32_t> size = Utils::GetMipSize(texture->GetDescription().Width, texture->GetDescription().Height, arrayLayer);
-				Graphics::Image	  mip  = Graphics::Image::FromTexture(device, texture, arrayLayer, level, 0, 0, 0, size.X, size.Y);
+				Graphics::Image	  mip  = Graphics::Image::FromTexture(device, commandQueue, texture, arrayLayer, level, 0, 0, 0, size.X, size.Y);
 
 				if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
 				{
@@ -30,7 +33,7 @@ namespace Nexus::Processors
 		std::filesystem::path path			 = filepath;
 		std::string			  assetPath		 = path.stem().string() + std::string(".texture2d");
 		std::filesystem::path outputFilePath = project->GetFullAssetsDirectory() + "/" + assetPath;
-		std::ofstream file(outputFilePath, std::ios::binary);
+		std::ofstream		  file(outputFilePath, std::ios::binary);
 
 		file << "Texture2D ";
 		file << (uint32_t)texture->GetDescription().Format << " ";
@@ -38,9 +41,9 @@ namespace Nexus::Processors
 
 		for (size_t level = 0; level < mips.size(); level++)
 		{
-			const Graphics::Image& image = mips[level];
+			const Graphics::Image &image = mips[level];
 			file << image.Width << " " << image.Height << " ";
-			file.write((const char*)image.Pixels.data(), image.Pixels.size());
+			file.write((const char *)image.Pixels.data(), image.Pixels.size());
 		}
 
 		file.close();

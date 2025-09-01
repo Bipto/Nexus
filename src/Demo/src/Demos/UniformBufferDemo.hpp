@@ -12,8 +12,11 @@ namespace Demos
 	class UniformBufferDemo : public Demo
 	{
 	  public:
-		UniformBufferDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		UniformBufferDemo(const std::string							&name,
+						  Nexus::Application						*app,
+						  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+						  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -26,10 +29,11 @@ namespace Demos
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			CreatePipeline();
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateSprite();
 
-			m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			m_Texture =
+				m_GraphicsDevice->CreateTexture2D(m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -96,7 +100,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -142,17 +146,17 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
-		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 	};
 }	 // namespace Demos

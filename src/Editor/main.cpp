@@ -36,7 +36,9 @@ class EditorApplication : public Nexus::Application
 	virtual void Load() override
 	{
 		m_SceneRenderer = std::make_unique<Nexus::Graphics::SceneRenderer>(GetGraphicsDevice());
-		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
+
+		// TODO: Fix this
+		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this, nullptr));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
@@ -95,7 +97,8 @@ class EditorApplication : public Nexus::Application
 
 	void CreateProject(const std::string &projectName, const std::string &projectDirectory)
 	{
-		m_Project = Nexus::CreateRef<Nexus::Project>(projectName, projectDirectory, true);
+		// TODO: Fix me
+		// m_Project = Nexus::CreateRef<Nexus::Project>(projectName, projectDirectory, true);
 		m_Project->Serialize();
 
 		Nexus::Utils::ScriptProjectGenerator generator = {};
@@ -107,12 +110,13 @@ class EditorApplication : public Nexus::Application
 
 	void OpenProject(const std::string &filepath)
 	{
-		m_Project = Nexus::Project::Deserialize(filepath);
-		if (m_Project->GetNumberOfScenes() > 0)
-		{
-			m_Project->LoadScene(0);
-		}
-		LoadProject(m_Project);
+		// TODO: Fix this
+		// m_Project = Nexus::Project::Deserialize(filepath);
+		// if (m_Project->GetNumberOfScenes() > 0)
+		//{
+		//	m_Project->LoadScene(0);
+		// }
+		// LoadProject(m_Project);
 	}
 
 	void LoadProject(Nexus::Ref<Nexus::Project> project)
@@ -413,7 +417,9 @@ class EditorApplication : public Nexus::Application
 					{
 						scene->Stop();
 						m_Project->UnloadSharedLibrary();
-						m_Project->ReloadCurrentScene();
+
+						// TODO: Fix this
+						// m_Project->ReloadCurrentScene();
 					}
 				}
 				ImGui::SameLine();
@@ -571,8 +577,10 @@ class EditorApplication : public Nexus::Application
 		{
 			Nexus::Ref<Nexus::Graphics::Texture> idTexture = m_Framebuffer->GetColorTexture(1);
 
-			std::vector<char> pixels =
-				m_GraphicsDevice->ReadFromTexture(idTexture, 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
+			// FIX ME
+			std::vector<char> pixels;
+			// std::vector<char> pixels =
+			//	m_GraphicsDevice->ReadFromTexture(idTexture, m_CommandQueue, 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
 
 			uint32_t upperValue = 0;
 			uint32_t lowerValue = 0;

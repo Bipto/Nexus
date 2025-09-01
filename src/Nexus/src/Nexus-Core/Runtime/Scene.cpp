@@ -123,10 +123,10 @@ namespace Nexus
 	{
 		auto graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
 
-		Graphics::SamplerDescription samplerSpec   = {};
-		samplerSpec.AddressModeU				   = Graphics::SamplerAddressMode::Clamp;
-		samplerSpec.AddressModeV				   = Graphics::SamplerAddressMode::Clamp;
-		samplerSpec.AddressModeW				   = Graphics::SamplerAddressMode::Clamp;
+		Graphics::SamplerDescription samplerSpec = {};
+		samplerSpec.AddressModeU				 = Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeV				 = Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeW				 = Graphics::SamplerAddressMode::Clamp;
 
 		SceneEnvironment.CubemapSampler = graphicsDevice->CreateSampler(samplerSpec);
 	}
@@ -278,7 +278,11 @@ namespace Nexus
 		return m_SceneState;
 	}
 
-	Scene *Scene::Deserialize(const SceneInfo &info, const std::string &sceneDirectory, Nexus::Project *project)
+	Scene *Scene::Deserialize(const SceneInfo			  &info,
+							  const std::string			  &sceneDirectory,
+							  Project					  *project,
+							  Graphics::GraphicsDevice	  *device,
+							  Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		std::string filepath = sceneDirectory + info.Name + std::string(".scene");
 
@@ -290,9 +294,9 @@ namespace Nexus
 			return nullptr;
 		}
 
-		Scene *scene   = new Scene();
-		scene->Guid	   = info.Guid;
-		scene->Name	   = node["Scene"].as<std::string>();
+		Scene *scene		 = new Scene();
+		scene->Guid			 = info.Guid;
+		scene->Name			 = node["Scene"].as<std::string>();
 		scene->ParentProject = project;
 
 		auto environment					= node["Environment"];
@@ -301,8 +305,7 @@ namespace Nexus
 
 		if (!scene->SceneEnvironment.CubemapPath.empty() && std::filesystem::exists(scene->SceneEnvironment.CubemapPath))
 		{
-			auto					graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
-			Graphics::HdriProcessor processor(scene->SceneEnvironment.CubemapPath, graphicsDevice);
+			Graphics::HdriProcessor processor(scene->SceneEnvironment.CubemapPath, device, commandQueue);
 			scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
 		}
 

@@ -20,8 +20,11 @@ namespace Demos
 	class Demo3D : public Demo
 	{
 	  public:
-		Demo3D(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		Demo3D(const std::string						 &name,
+			   Nexus::Application						 *app,
+			   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+			   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -32,9 +35,10 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh	  = factory.CreateCube();
 			m_Texture = m_GraphicsDevice->CreateTexture2D(
+				m_CommandQueue,
 				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
 				true);
 
@@ -43,14 +47,14 @@ namespace Demos
 			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
-			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
+			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
-			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
 
@@ -134,7 +138,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
 			m_ElapsedTime += time;
@@ -168,20 +172,20 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
-		VB_UNIFORM_CAMERA_DEMO_3D				   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_3D				  m_CameraUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
-		VB_UNIFORM_TRANSFORM_DEMO_3D			   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_3D			  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
 		Nexus::TimeSpan m_ElapsedTime = {};
 	};

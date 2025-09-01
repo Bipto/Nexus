@@ -20,8 +20,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
-
 		const std::string				 GetAPIName() override;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
@@ -43,6 +41,8 @@ namespace Nexus::Graphics
 		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
 		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
+		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
 		ShaderLanguage			   GetSupportedShaderFormat() final;
 		bool					   IsBufferUsageSupported(BufferUsage usage) final;

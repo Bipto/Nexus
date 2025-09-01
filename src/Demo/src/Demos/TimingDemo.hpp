@@ -9,8 +9,11 @@ namespace Demos
 	class TimingDemo : public Demo
 	{
 	  public:
-		TimingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		TimingDemo(const std::string						 &name,
+				   Nexus::Application						 *app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -36,7 +39,7 @@ namespace Demos
 			m_CommandList->StopTimingQuery(m_TimingQuery);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
 			m_TimerCounter += time.GetSeconds<float>();

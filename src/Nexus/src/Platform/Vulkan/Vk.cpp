@@ -1230,7 +1230,7 @@ namespace Nexus::Vk
 
 	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc)
 	{
-		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		if (functions.vkCreateRenderPass2KHR)
 		{
 			return CreateVkRenderPass2(functions.vkCreateRenderPass2KHR, device->GetVkDevice(), desc);
@@ -1698,7 +1698,7 @@ namespace Nexus::Vk
 							  VkFence					  fence,
 							  uint32_t					 *imageIndex)
 	{
-		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		if (functions.vkAcquireNextImage2KHR)
 		{
 			VkAcquireNextImageInfoKHR imageAcquireInfo = {};
@@ -1723,7 +1723,7 @@ namespace Nexus::Vk
 						 VkPipelineStageFlags				waitStageMask,
 						 VkFence							fence)
 	{
-		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
 		if (functions.vkQueueSubmit2KHR)
 		{
 			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
@@ -1764,6 +1764,52 @@ namespace Nexus::Vk
 
 			return vkQueueSubmit(queue, 1, &submitInfo, fence);
 		}
+	}
+
+	Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags)
+	{
+		Graphics::QueueCapabilities caps = Graphics::QueueCapabilities::Invalid;
+
+		if (flags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Graphics);
+		}
+
+		if (flags & VK_QUEUE_COMPUTE_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Compute);
+		}
+
+		if (flags & VK_QUEUE_TRANSFER_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Transfer);
+		}
+
+		return caps;
+	}
+
+	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description)
+	{
+		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		VkQueue											queue	  = VK_NULL_HANDLE;
+
+		if (functions.vkGetDeviceQueue2)
+		{
+			VkDeviceQueueInfo2 queueInfo = {};
+			queueInfo.sType				 = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
+			queueInfo.pNext				 = nullptr;
+			queueInfo.queueFamilyIndex	 = description.QueueFamilyIndex;
+			queueInfo.queueIndex		 = description.QueueIndex;
+			queueInfo.flags				 = 0;
+
+			functions.vkGetDeviceQueue2(device->GetVkDevice(), &queueInfo, &queue);
+		}
+		else
+		{
+			vkGetDeviceQueue(device->GetVkDevice(), description.QueueFamilyIndex, description.QueueIndex, &queue);
+		}
+
+		return queue;
 	}
 }	 // namespace Nexus::Vk
 

@@ -21,9 +21,11 @@ namespace Demos
 	class ModelDemo : public Demo
 	{
 	  public:
-		ModelDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer),
-			  m_Camera(m_GraphicsDevice)
+		ModelDemo(const std::string							&name,
+				  Nexus::Application						*app,
+				  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+				  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -34,7 +36,7 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae"));
 
 			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
@@ -145,7 +147,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
 			m_Rotation += 0.05f * time.GetMilliseconds<float>();
@@ -192,18 +194,18 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Model>		 m_Model;
-		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Ref<Nexus::Graphics::Model>			  m_Model;
+		glm::vec3									  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		std::vector<Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
-		VB_UNIFORM_CAMERA_DEMO_MODELS			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_MODELS			  m_CameraUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
-		VB_UNIFORM_TRANSFORM_DEMO_MODELS		   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_MODELS		  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
 		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
 

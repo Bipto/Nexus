@@ -8,8 +8,11 @@ namespace Demos
 	class RayTracingDemo : public Demo
 	{
 	  public:
-		RayTracingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		RayTracingDemo(const std::string						 &name,
+					   Nexus::Application						 *app,
+					   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+					   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -113,7 +116,9 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->BuildAccelerationStructures({accelerationStructureBuildDesc});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
+			m_CommandQueue->SubmitCommandList(m_CommandList);
+
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -132,7 +137,7 @@ namespace Demos
 
 			{
 				NX_PROFILE_SCOPE("Command submission");
-				m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+				m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 				m_GraphicsDevice->WaitForIdle();
 			}
 		}

@@ -41,7 +41,10 @@
 struct DemoInfo
 {
 	std::string Name;
-	Demos::Demo *(*CreationFunction)(Nexus::Application *, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer);
+	Demos::Demo *(*CreationFunction)(Nexus::Application *,
+									 const std::string						   &name,
+									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
+									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
 };
 
 class DemoApplication : public Nexus::Application
@@ -57,7 +60,20 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
+		for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
+		{
+			if (queueFamily.Capabilities == Nexus::Graphics::QueueCapabilities::All)
+			{
+				Nexus::Graphics::CommandQueueDescription queueDesc = {};
+				queueDesc.QueueFamilyIndex						   = queueFamily.QueueFamily;
+				queueDesc.QueueIndex							   = 0;
+				queueDesc.DebugName								   = "Demo Graphics Queue";
+				m_CommandQueue									   = m_GraphicsDevice->CreateCommandQueue(queueDesc);
+			}
+		}
+
+		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this, m_CommandQueue);
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
 
@@ -126,9 +142,11 @@ class DemoApplication : public Nexus::Application
 	{
 		DemoInfo info;
 		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
+		info.CreationFunction = [](Nexus::Application						 *app,
+								   const std::string						 &name,
+								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+								   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) -> Demos::Demo *
+		{ return new T(name, app, imGuiRenderer, commandQueue); };
 		m_GraphicsDemos.push_back(info);
 	}
 
@@ -137,9 +155,11 @@ class DemoApplication : public Nexus::Application
 	{
 		DemoInfo info;
 		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
+		info.CreationFunction = [](Nexus::Application						 *app,
+								   const std::string						 &name,
+								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+								   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) -> Demos::Demo *
+		{ return new T(name, app, imGuiRenderer, commandQueue); };
 		m_AudioDemos.push_back(info);
 	}
 
@@ -148,9 +168,11 @@ class DemoApplication : public Nexus::Application
 	{
 		DemoInfo info;
 		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
+		info.CreationFunction = [](Nexus::Application						 *app,
+								   const std::string						 &name,
+								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+								   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) -> Demos::Demo *
+		{ return new T(name, app, imGuiRenderer, commandQueue); };
 		m_UtilsDemos.push_back(info);
 	}
 
@@ -159,9 +181,11 @@ class DemoApplication : public Nexus::Application
 	{
 		DemoInfo info;
 		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
+		info.CreationFunction = [](Nexus::Application						 *app,
+								   const std::string						 &name,
+								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+								   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) -> Demos::Demo *
+		{ return new T(name, app, imGuiRenderer, commandQueue); };
 		m_ScriptingDemos.push_back(info);
 	}
 
@@ -183,7 +207,7 @@ class DemoApplication : public Nexus::Application
 				{
 					if (ImGui::IsItemClicked())
 					{
-						m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
+						m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue));
 						m_CurrentDemo->Load();
 					}
 
@@ -288,7 +312,8 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -308,6 +333,8 @@ class DemoApplication : public Nexus::Application
 	}
 
   private:
+	Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
+
 	Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
 	std::unique_ptr<Demos::Demo>			 m_CurrentDemo	  = nullptr;
 	std::vector<DemoInfo>					 m_GraphicsDemos  = {};

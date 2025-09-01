@@ -8,8 +8,11 @@ namespace Demos
 	class ClearRectDemo : public Demo
 	{
 	  public:
-		ClearRectDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		ClearRectDemo(const std::string							&name,
+					  Nexus::Application						*app,
+					  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+					  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -77,7 +80,7 @@ namespace Demos
 
 			{
 				NX_PROFILE_SCOPE("Command submission");
-				m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+				m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 				m_GraphicsDevice->WaitForIdle();
 			}
 		}

@@ -70,7 +70,9 @@ static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformI
 
 namespace Nexus::ImGuiUtils
 {
-	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Application(app)
+	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		: m_Application(app),
+		  m_CommandQueue(commandQueue)
 	{
 		s_ImGuiRenderer = this;
 		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
@@ -151,10 +153,10 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.DepthFormat = Nexus::GetApplication()->GetPrimarySwapchain()->GetDepthFormat();
 
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
-		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
-		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
-		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
+		pipelineDesc.DepthStencilDesc.EnableDepthTest		  = false;
+		pipelineDesc.DepthStencilDesc.EnableDepthWrite		  = false;
+		pipelineDesc.DepthStencilDesc.EnableStencilTest		  = false;
 
 		pipelineDesc.Layouts = {
 			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
@@ -163,8 +165,8 @@ namespace Nexus::ImGuiUtils
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
-		pipelineDesc.DebugName		 = "ImGui Text Pipeline";
-		m_TextPipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
+		pipelineDesc.DebugName = "ImGui Text Pipeline";
+		m_TextPipeline		   = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
 	void ImGuiGraphicsRenderer::CreateImagePipeline()
@@ -184,10 +186,10 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
 		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
-		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
-		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
-		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
+		pipelineDesc.DepthStencilDesc.EnableDepthTest		  = false;
+		pipelineDesc.DepthStencilDesc.EnableDepthWrite		  = false;
+		pipelineDesc.DepthStencilDesc.EnableStencilTest		  = false;
 
 		pipelineDesc.Layouts = {
 			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
@@ -198,7 +200,7 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.DebugName = "ImGui Image Pipeline";
 
-		m_ImagePipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
+		m_ImagePipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -210,15 +212,15 @@ namespace Nexus::ImGuiUtils
 
 		size_t bufferSize = width * height * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Graphics::TextureDescription spec	= {};
-		spec.Type							= Graphics::TextureType::Texture2D;
-		spec.Width							= width;
-		spec.Height							= height;
-		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		spec.Usage							= Graphics::TextureUsage_Sampled;
-		spec.DebugName						= "ImGui Font Texture";
-		m_FontTexture						= m_GraphicsDevice->CreateTexture(spec);
-		m_GraphicsDevice->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
+		Graphics::TextureDescription spec = {};
+		spec.Type						  = Graphics::TextureType::Texture2D;
+		spec.Width						  = width;
+		spec.Height						  = height;
+		spec.Format						  = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		spec.Usage						  = Graphics::TextureUsage_Sampled;
+		spec.DebugName					  = "ImGui Font Texture";
+		m_FontTexture					  = m_GraphicsDevice->CreateTexture(spec);
+		m_GraphicsDevice->WriteToTexture(m_FontTexture, m_CommandQueue, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
 
@@ -276,8 +278,8 @@ namespace Nexus::ImGuiUtils
 			{
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
-					ImGuiWindowInfo			   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-					Nexus::IWindow			   *window	  = info->Window;
+					ImGuiWindowInfo				   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
+					Nexus::IWindow				   *window	  = info->Window;
 					Ref<Nexus::Graphics::Swapchain> swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())
@@ -418,7 +420,7 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		MouseState state = Platform::GetFocussedMouseState();
+		MouseState state	= Platform::GetFocussedMouseState();
 		auto	   mousePos = activeWindow->GetMousePosition();
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -607,7 +609,7 @@ namespace Nexus::ImGuiUtils
 		m_CommandList->EndDebugGroup();
 		m_CommandList->End();
 
-		m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void ImGuiGraphicsRenderer::UpdateCursor()

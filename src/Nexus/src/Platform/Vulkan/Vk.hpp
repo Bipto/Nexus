@@ -14,6 +14,7 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "Nexus-Core/Graphics/CommandQueue.hpp"
 
 	#include "PNextBuilder.hpp"
 
@@ -156,6 +157,10 @@ namespace Nexus::Vk
 						 const std::vector<VkCommandBuffer> commandBuffers,
 						 VkPipelineStageFlags				waitStageMask,
 						 VkFence							fence);
+
+	Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags);
+
+	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description);
 
 }	 // namespace Nexus::Vk
 

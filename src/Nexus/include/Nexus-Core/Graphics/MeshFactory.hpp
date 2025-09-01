@@ -14,9 +14,9 @@ namespace Nexus::Graphics
 	  public:
 		/// @brief A constructor to create a new MeshFactory
 		/// @param device A graphics device to use to create resources
-		explicit MeshFactory(GraphicsDevice *device)
+		/// @param commandQueue A command queue to use to upload data to the GPU
+		explicit MeshFactory(GraphicsDevice *device, Ref<ICommandQueue> commandQueue) : m_Device(device), m_CommandQueue(commandQueue)
 		{
-			m_Device = device;
 		}
 
 		/// @brief A method that returns a mesh representing a cube with a size of 1
@@ -27,21 +27,24 @@ namespace Nexus::Graphics
 		/// @brief A method that returns a mesh representing a sprite with a width and
 		/// height of 1
 		/// @return A mesh representing a sprite
-		 Ref<Mesh> CreateSprite();
+		Ref<Mesh> CreateSprite();
 
-		 /// @brief A method that returns a mesh representing a triangle with a width
-		 /// and height of 1
-		 /// @return A mesh representing a triangle
-		 Ref<Mesh> CreateTriangle();
+		/// @brief A method that returns a mesh representing a triangle with a width
+		/// and height of 1
+		/// @return A mesh representing a triangle
+		Ref<Mesh> CreateTriangle();
 
-		 /// @brief A method that returns a mesh representing a 3D model stored on disk
-		 /// @param filepath The filepath to load a model from
-		 /// @return A mesh representing the model
-		 Ref<Model> CreateFrom3DModelFile(const std::string &filepath);
+		/// @brief A method that returns a mesh representing a 3D model stored on disk
+		/// @param filepath The filepath to load a model from
+		/// @return A mesh representing the model
+		Ref<Model> CreateFrom3DModelFile(const std::string &filepath);
 
-	   private:
-		 /// @brief A pointer to a graphics device to use to create the vertex buffer
-		 /// and index buffer
-		 GraphicsDevice *m_Device = nullptr;
+	  private:
+		/// @brief A pointer to a graphics device to use to create the vertex buffer
+		/// and index buffer
+		GraphicsDevice *m_Device = nullptr;
+
+		/// @brief A pointer to a command queue to use for resource uploads
+		Ref<ICommandQueue> m_CommandQueue = nullptr;
 	};
 }	 // namespace Nexus::Graphics

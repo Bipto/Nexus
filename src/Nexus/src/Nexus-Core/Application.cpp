@@ -5,6 +5,8 @@
 	#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
 #endif
 
+#include "Nexus-Core/Timings/Profiler.hpp"
+
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 

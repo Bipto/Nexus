@@ -7,8 +7,11 @@ namespace Demos
 	class ComputeIndirectDemo : public Demo
 	{
 	  public:
-		ComputeIndirectDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		ComputeIndirectDemo(const std::string						  &name,
+							Nexus::Application						  *app,
+							Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
+							Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -20,19 +23,19 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-			Nexus::Graphics::TextureDescription textureSpec	  = {};
-			textureSpec.Width								  = 512;
-			textureSpec.Height								  = 512;
-			textureSpec.Format								  = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
-			textureSpec.Samples								  = 1;
-			textureSpec.MipLevels							  = 1;
-			textureSpec.Usage								  = Nexus::Graphics::TextureUsage_Storage | Nexus::Graphics::TextureUsage_Sampled;
-			m_Texture										  = Nexus::Ref<Nexus::Graphics::Texture>(m_GraphicsDevice->CreateTexture(textureSpec));
+			Nexus::Graphics::TextureDescription textureSpec = {};
+			textureSpec.Width								= 512;
+			textureSpec.Height								= 512;
+			textureSpec.Format								= Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
+			textureSpec.Samples								= 1;
+			textureSpec.MipLevels							= 1;
+			textureSpec.Usage								= Nexus::Graphics::TextureUsage_Storage | Nexus::Graphics::TextureUsage_Sampled;
+			m_Texture										= Nexus::Ref<Nexus::Graphics::Texture>(m_GraphicsDevice->CreateTexture(textureSpec));
 
 			Nexus::Graphics::ComputePipelineDescription desc = {};
 			desc.ComputeShader =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute.glsl", Nexus::Graphics::ShaderStage::Compute);
-			m_ComputePipeline				   = m_GraphicsDevice->CreateComputePipeline(desc);
+			m_ComputePipeline = m_GraphicsDevice->CreateComputePipeline(desc);
 
 			m_ResourceSet		  = m_GraphicsDevice->CreateResourceSet(m_ComputePipeline);
 			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_Texture);
@@ -92,7 +95,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 

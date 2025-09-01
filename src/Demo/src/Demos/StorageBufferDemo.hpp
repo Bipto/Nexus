@@ -7,8 +7,11 @@ namespace Demos
 	class StorageBufferDemo : public Demo
 	{
 	  public:
-		StorageBufferDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		StorageBufferDemo(const std::string							&name,
+						  Nexus::Application						*app,
+						  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+						  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -21,10 +24,11 @@ namespace Demos
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			CreatePipeline();
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateSprite();
 
-			m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			m_Texture =
+				m_GraphicsDevice->CreateTexture2D(m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -102,7 +106,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 

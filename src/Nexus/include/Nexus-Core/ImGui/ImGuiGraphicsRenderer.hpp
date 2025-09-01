@@ -22,14 +22,14 @@ namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
 	{
-		Nexus::IWindow			   *Window	  = nullptr;
+		Nexus::IWindow				   *Window	  = nullptr;
 		Ref<Nexus::Graphics::Swapchain> Swapchain = nullptr;
 	};
 
 	class NX_API ImGuiGraphicsRenderer
 	{
 	  public:
-		ImGuiGraphicsRenderer(Nexus::Application *app);
+		ImGuiGraphicsRenderer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
 		virtual ~ImGuiGraphicsRenderer();
 		void RebuildFontAtlas();
 
@@ -47,21 +47,22 @@ namespace Nexus::ImGuiUtils
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
 
 	  private:
-		void CreateTextPipeline();
-		void CreateImagePipeline();
+		void		CreateTextPipeline();
+		void		CreateImagePipeline();
 		static void SetupInput(IWindow *window);
-		void UpdateInput();
-		void RenderDrawData(ImDrawData *drawData);
-		void UpdateBuffers(ImDrawData *drawData);
-		void RenderCommandLists(ImDrawData *drawData);
-		void UpdateCursor();
-		void UpdateMonitors();
-		void SetupHandlers();
+		void		UpdateInput();
+		void		RenderDrawData(ImDrawData *drawData);
+		void		UpdateBuffers(ImDrawData *drawData);
+		void		RenderCommandLists(ImDrawData *drawData);
+		void		UpdateCursor();
+		void		UpdateMonitors();
+		void		SetupHandlers();
 
 	  private:
-		Nexus::Application						*m_Application	  = nullptr;
-		Nexus::Graphics::GraphicsDevice			*m_GraphicsDevice = nullptr;
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
+		Nexus::Application							 *m_Application	   = nullptr;
+		Nexus::Graphics::GraphicsDevice				 *m_GraphicsDevice = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandQueue>	  m_CommandQueue   = nullptr;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_TextPipeline   = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ImagePipeline  = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_FontTexture	   = nullptr;
@@ -82,7 +83,7 @@ namespace Nexus::ImGuiUtils
 		uint32_t								  m_VertexBufferCount = 0;
 
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer		 = nullptr;
-		uint32_t								 m_IndexBufferCount = 0;
+		uint32_t								  m_IndexBufferCount = 0;
 
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
 

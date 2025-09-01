@@ -18,9 +18,11 @@ namespace Demos
 	class CameraDemo : public Demo
 	{
 	  public:
-		CameraDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer),
-			  m_Camera(m_GraphicsDevice)
+		CameraDemo(const std::string						 &name,
+				   Nexus::Application						 *app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -32,10 +34,11 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateCube();
 
 			m_Texture = m_GraphicsDevice->CreateTexture2D(
+				m_CommandQueue,
 				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
 				true);
 
@@ -140,7 +143,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
@@ -178,20 +181,20 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA			  m_CameraUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
-		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

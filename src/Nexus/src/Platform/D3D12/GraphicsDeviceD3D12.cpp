@@ -71,36 +71,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
-	{
-		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
-
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			Ref<CommandListD3D12>								   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7>	   cmdList	   = commandList->GetCommandList();
-
-			commandList->Reset();
-			m_CommandExecutor->SetCommandList(cmdList);
-			m_CommandExecutor->ExecuteCommands(commands, this);
-			commandList->Close();
-			m_CommandExecutor->Reset();
-
-			d3d12CommandLists[i] = cmdList.Get();
-		}
-
-		m_CommandQueue->ExecuteCommandLists(d3d12CommandLists.size(), d3d12CommandLists.data());
-
-		if (fence)
-		{
-			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
-			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
-			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
-		}
-	}
-
 	const std::string GraphicsDeviceD3D12::GetAPIName()
 	{
 		return {"D3D12"};
@@ -250,6 +220,23 @@ namespace Nexus::Graphics
 		{
 			return FenceWaitResult::Failed;
 		}
+	}
+
+	std::vector<QueueFamilyInfo> GraphicsDeviceD3D12::GetQueueFamilies()
+	{
+		std::vector<QueueFamilyInfo> queueFamilies = {};
+
+		QueueFamilyInfo &info = queueFamilies.emplace_back();
+		info.QueueFamily	  = 0;
+		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
+		info.Capabilities	  = QueueCapabilities::All;
+
+		return queueFamilies;
+	}
+
+	Ref<ICommandQueue> GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
+	{
+		return Ref<ICommandQueue>();
 	}
 
 	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)

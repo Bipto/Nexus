@@ -8,8 +8,11 @@ namespace Demos
 	class MipmapDemo : public Demo
 	{
 	  public:
-		MipmapDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		MipmapDemo(const std::string						 &name,
+				   Nexus::Application						 *app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -23,10 +26,11 @@ namespace Demos
 
 			CreatePipeline();
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateSprite();
 
-			m_Texture	= m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), true);
+			m_Texture =
+				m_GraphicsDevice->CreateTexture2D(m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), true);
 			m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
 		}
 
@@ -87,7 +91,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -124,12 +128,12 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID	  = 0;
 		int			m_SelectedMip = 0;
