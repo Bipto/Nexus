@@ -15,8 +15,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.UpdatesPerSecond = {};
 	spec.WindowProperties.Shown			   = true;
 
-	spec.SwapchainSpecification.Samples	   = 1;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+	spec.SwapchainDescription.Samples	   = 1;
+	spec.SwapchainDescription.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 	spec.EventDriven					   = false;
 
 	return new Nexus::UI::UIManager(spec);

@@ -21,6 +21,7 @@ namespace Nexus::Graphics
 		void			Present(Ref<Swapchain> swapchain) final;
 		GraphicsDevice *GetGraphicsDevice() final;
 		bool			WaitForIdle() final;
+		VkQueue			GetVkQueue() const;
 
 	  private:
 		GraphicsDeviceVk				  *m_Device			 = nullptr;

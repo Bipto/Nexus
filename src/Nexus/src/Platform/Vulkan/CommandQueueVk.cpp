@@ -53,7 +53,8 @@ namespace Nexus::Graphics
 
 	void CommandQueueVk::Present(Ref<Swapchain> swapchain)
 	{
-		swapchain->SwapBuffers();
+		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+		swapchainVk->SwapBuffers(this);
 	}
 
 	GraphicsDevice *CommandQueueVk::GetGraphicsDevice()
@@ -72,5 +73,10 @@ namespace Nexus::Graphics
 		{
 			return false;
 		}
+	}
+
+	VkQueue CommandQueueVk::GetVkQueue() const
+	{
+		return m_Queue;
 	}
 }	 // namespace Nexus::Graphics

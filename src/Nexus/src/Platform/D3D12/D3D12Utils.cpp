@@ -1463,5 +1463,25 @@ namespace Nexus::D3D12
 
 		return desc;
 	}
+
+	UINT GetSyncIntervalFromPresentMode(Graphics::PresentMode presentMode)
+	{
+		switch (presentMode)
+		{
+			case Graphics::PresentMode::Immediate:
+			{
+				return 0;
+			}
+			case Graphics::PresentMode::Mailbox:
+			case Graphics::PresentMode::Fifo:
+			case Graphics::PresentMode::FifoRelaxed:
+			{
+				return 1;
+			}
+			default: throw std::runtime_error("Failed to find a valid present mode");
+		}
+
+		return 0;
+	}
 }	 // namespace Nexus::D3D12
 #endif

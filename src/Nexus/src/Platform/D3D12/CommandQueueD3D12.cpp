@@ -59,6 +59,8 @@ namespace Nexus::Graphics
 
 	void CommandQueueD3D12::Present(Ref<Swapchain> swapchain)
 	{
+		Ref<SwapchainD3D12> swapchainD3D12 = std::dynamic_pointer_cast<SwapchainD3D12>(swapchain);
+		swapchainD3D12->SwapBuffers();
 	}
 
 	GraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()

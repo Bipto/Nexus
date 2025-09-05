@@ -114,7 +114,7 @@ namespace Nexus::Graphics
 
 		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
 
-		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
+		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainDescription &spec) = 0;
 
 		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
 

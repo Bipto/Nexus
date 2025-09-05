@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 
 		const GraphicsCapabilities GetGraphicsCapabilities() const final;
 		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
+		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
 		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;

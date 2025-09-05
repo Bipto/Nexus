@@ -7,15 +7,14 @@
 
 #include "Nexus-Core/Timings/Profiler.hpp"
 
-
 namespace Nexus
 {
-	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Description(windowProps)
+	SDL3Window::SDL3Window(const WindowDescription &windowProps) : IWindow(windowProps), m_Description(windowProps)
 	{
 		std::string idSelector = "#" + windowProps.CanvasId;
 		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
 		uint32_t flags = GetFlags(windowProps);
-		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
+		m_Window	   = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
 		if (m_Window == nullptr)
 		{
@@ -614,7 +613,7 @@ namespace Nexus
 		return IsMouseButtonPressed(id.value(), state);
 	}
 
-	uint32_t SDL3Window::GetFlags(const WindowSpecification &windowSpec)
+	uint32_t SDL3Window::GetFlags(const WindowDescription &windowSpec)
 	{
 		// required for emscripten to handle resizing correctly
 		uint32_t flags = 0;
@@ -720,7 +719,7 @@ namespace Nexus
 			secondsPerTick);
 	}
 
-	const WindowSpecification &SDL3Window::GetDescription() const
+	const WindowDescription &SDL3Window::GetDescription() const
 	{
 		return m_Description;
 	}

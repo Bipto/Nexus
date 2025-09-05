@@ -653,8 +653,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = 60;
 	spec.WindowProperties.UpdatesPerSecond = 60;
 
-	spec.SwapchainSpecification.Samples	   = 8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+	spec.SwapchainDescription.Samples	   = 8;
+	spec.SwapchainDescription.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
 	return new EditorApplication(spec);
 }

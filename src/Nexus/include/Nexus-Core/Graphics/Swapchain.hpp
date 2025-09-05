@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 	class Swapchain
 	{
 	  public:
-		Swapchain(const SwapchainSpecification &spec) : m_Description(spec)
+		Swapchain(const SwapchainDescription &spec) : m_Description(spec)
 		{
 		}
 
@@ -23,21 +23,19 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void					 SwapBuffers()						  = 0;
-		virtual VSyncState				 GetVsyncState()					  = 0;
-		virtual void					 SetVSyncState(VSyncState vsyncState) = 0;
-		virtual IWindow					*GetWindow()						  = 0;
-		virtual Nexus::Point2D<uint32_t> GetSize()							  = 0;
-		virtual PixelFormat				 GetColourFormat()					  = 0;
-		virtual PixelFormat				 GetDepthFormat()					  = 0;
+		virtual void					 SetPresentMode(PresentMode presentMode) = 0;
+		virtual IWindow					*GetWindow()							 = 0;
+		virtual Nexus::Point2D<uint32_t> GetSize()								 = 0;
+		virtual PixelFormat				 GetColourFormat()						 = 0;
+		virtual PixelFormat				 GetDepthFormat()						 = 0;
 
-		const SwapchainSpecification &GetDescription()
+		const SwapchainDescription &GetDescription()
 		{
 			return m_Description;
 		}
 
 	  protected:
-		SwapchainSpecification m_Description;
+		SwapchainDescription m_Description;
 
 	  private:
 		friend class GraphicsDevice;

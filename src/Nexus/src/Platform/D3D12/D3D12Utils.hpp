@@ -102,6 +102,8 @@ namespace Nexus::D3D12
 	D3D12_DEPTH_STENCIL_DESC			  CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc);
 	D3D12_DEPTH_STENCIL_DESC1			  CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc);
 
+	UINT GetSyncIntervalFromPresentMode(Graphics::PresentMode presentMode);
+
 }	 // namespace Nexus::D3D12
 
 #endif

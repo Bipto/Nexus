@@ -16,18 +16,18 @@ namespace Nexus::Graphics
 	class SwapchainD3D12 : public Swapchain
 	{
 	  public:
-		SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec);
+		SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
-		virtual void	   SwapBuffers() override;
-		virtual VSyncState GetVsyncState() override;
-		virtual void	   SetVSyncState(VSyncState vsyncState) override;
-		virtual IWindow	  *GetWindow() override
+		void SwapBuffers();
+		void SetPresentMode(PresentMode presentMode) final;
+
+		IWindow *GetWindow() final
 		{
 			return m_Window;
 		}
-		virtual Nexus::Point2D<uint32_t>		GetSize() override;
-		virtual PixelFormat						GetColourFormat() override;
-		virtual PixelFormat						GetDepthFormat() override;
+		Nexus::Point2D<uint32_t> GetSize() final;
+		PixelFormat				 GetColourFormat() final;
+		PixelFormat				 GetDepthFormat() final;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveBufferHandle();
 		uint32_t								GetCurrentBufferIndex();
@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 		const D3D12_CPU_DESCRIPTOR_HANDLE RetrieveRenderTargetViewDescriptorHandle() const;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveDepthBufferHandle();
-		D3D12_CPU_DESCRIPTOR_HANDLE RetrieveDepthBufferDescriptorHandle();
+		D3D12_CPU_DESCRIPTOR_HANDLE				RetrieveDepthBufferDescriptorHandle();
 
 		uint32_t					GetColorAttachmentCount();
 		const D3D12_RESOURCE_STATES GetCurrentTextureState() const;
@@ -62,8 +62,7 @@ namespace Nexus::Graphics
 	  private:
 		IWindow								   *m_Window	= nullptr;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_Swapchain = nullptr;
-		VSyncState								m_VsyncState;
-		GraphicsDeviceD3D12					   *m_Device = nullptr;
+		GraphicsDeviceD3D12					   *m_Device	= nullptr;
 
 		uint32_t m_SwapchainWidth  = 0;
 		uint32_t m_SwapchainHeight = 0;
@@ -80,6 +79,7 @@ namespace Nexus::Graphics
 		D3D12_RESOURCE_STATES			   m_CurrentDepthState;
 
 		Nexus::Ref<Framebuffer> m_MultisampledFramebuffer = nullptr;
+		UINT					m_SyncInterval			  = 0;
 	};
 }	 // namespace Nexus::Graphics
 #endif

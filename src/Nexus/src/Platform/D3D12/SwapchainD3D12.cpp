@@ -7,14 +7,17 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
+	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainDescription &swapchainSpec)
 		: Swapchain(swapchainSpec),
-		  m_Window(window),
-		  m_VsyncState(swapchainSpec.VSyncState)
+		  m_Window(window)
 	{
 		// assign the graphics device
 		m_Device = (GraphicsDeviceD3D12 *)device;
 
+		// get the sync interval for the swapchain
+		m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
+
+		// set up size of swapchain
 		Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
 		m_SwapchainWidth			 = windowSize.X;
 		m_SwapchainHeight			 = windowSize.Y;
@@ -61,7 +64,24 @@ namespace Nexus::Graphics
 		}
 
 		// swap the swapchain's buffers and present to the display
-		m_Swapchain->Present((uint32_t)m_VsyncState, 0);
+		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain1;
+		HRESULT									hr			 = m_Swapchain->QueryInterface(IID_PPV_ARGS(&swapchain1));
+		UINT									presentFlags = 0;
+
+		if (SUCCEEDED(hr))
+		{
+			DXGI_PRESENT_PARAMETERS presentParams = {};
+			presentParams.DirtyRectsCount		  = 0;
+			presentParams.pDirtyRects			  = nullptr;
+			presentParams.pScrollOffset			  = nullptr;
+			presentParams.pScrollRect			  = nullptr;
+
+			m_Swapchain->Present1(m_SyncInterval, presentFlags, &presentParams);
+		}
+		else
+		{
+			m_Swapchain->Present(m_SyncInterval, presentFlags);
+		}
 
 		// recreate the swapchain if the window's size has changed
 		RecreateSwapchainIfNecessary();
@@ -69,14 +89,10 @@ namespace Nexus::Graphics
 		AcquireBackbufferIndex();
 	}
 
-	VSyncState SwapchainD3D12::GetVsyncState()
+	void SwapchainD3D12::SetPresentMode(PresentMode presentMode)
 	{
-		return m_VsyncState;
-	}
-
-	void SwapchainD3D12::SetVSyncState(VSyncState vsyncState)
-	{
-		m_VsyncState = vsyncState;
+		m_Description.ImagePresentMode = presentMode;
+		m_SyncInterval				   = D3D12::GetSyncIntervalFromPresentMode(presentMode);
 	}
 
 	Nexus::Point2D<uint32_t> SwapchainD3D12::GetSize()

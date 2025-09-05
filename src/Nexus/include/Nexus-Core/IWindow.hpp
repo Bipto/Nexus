@@ -27,7 +27,7 @@ namespace Nexus
 		/// @brief A constructor taking in a window properties struct
 		/// @param windowProps A structure containing options controlling how the
 		/// window is created
-		IWindow(const WindowSpecification &windowProps)
+		IWindow(const WindowDescription &windowProps)
 		{
 		}
 

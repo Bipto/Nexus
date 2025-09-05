@@ -25,8 +25,7 @@ namespace Nexus
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
 		m_GraphicsDevice = std::unique_ptr<Graphics::GraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
-		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
-		m_Swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
+		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainDescription);
 
 		m_AudioDevice = std::unique_ptr<Audio::AudioDevice>(Nexus::CreateAudioDevice(spec.AudioAPI));
 

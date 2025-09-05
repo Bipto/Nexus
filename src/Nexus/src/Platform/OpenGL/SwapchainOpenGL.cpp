@@ -11,10 +11,9 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainOpenGL::SwapchainOpenGL(IWindow *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice)
+	SwapchainOpenGL::SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDevice *graphicsDevice)
 		: Swapchain(swapchainSpec),
-		  m_Window(window),
-		  m_VsyncState(swapchainSpec.VSyncState)
+		  m_Window(window)
 	{
 		m_SwapchainWidth  = m_Window->GetWindowSize().X;
 		m_SwapchainHeight = m_Window->GetWindowSize().Y;
@@ -23,7 +22,8 @@ namespace Nexus::Graphics
 
 		m_ViewContext = GL::CreateViewContext(window, graphicsDeviceOpenGL);
 		m_ViewContext->MakeCurrent();
-		SetVSyncState(swapchainSpec.VSyncState);
+
+		SetPresentMode(m_Description.ImagePresentMode);
 	}
 
 	SwapchainOpenGL::~SwapchainOpenGL()
@@ -36,22 +36,25 @@ namespace Nexus::Graphics
 		ResizeIfNecessary();
 	}
 
-	VSyncState SwapchainOpenGL::GetVsyncState()
+	void SwapchainOpenGL::SetPresentMode(PresentMode presentMode)
 	{
-		return m_VsyncState;
-	}
+		m_Description.ImagePresentMode = presentMode;
 
-	void SwapchainOpenGL::SetVSyncState(VSyncState vsyncState)
-	{
-		m_VsyncState = vsyncState;
-
-		if (vsyncState == VSyncState::Enabled)
+		switch (presentMode)
 		{
-			m_ViewContext->SetVSync(true);
-		}
-		else
-		{
-			m_ViewContext->SetVSync(false);
+			case Graphics::PresentMode::Immediate:
+			{
+				m_ViewContext->SetVSync(false);
+				break;
+			}
+			case Graphics::PresentMode::Mailbox:
+			case Graphics::PresentMode::Fifo:
+			case Graphics::PresentMode::FifoRelaxed:
+			{
+				m_ViewContext->SetVSync(true);
+				break;
+			}
+			default: throw std::runtime_error("Failed to find a valid present mode");
 		}
 	}
 

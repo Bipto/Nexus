@@ -899,6 +899,18 @@ namespace Nexus::Vk
 		}
 	}
 
+	VkPresentModeKHR GetVulkanPresentMode(Graphics::PresentMode presentMode)
+	{
+		switch (presentMode)
+		{
+			case Graphics::PresentMode::Immediate: return VK_PRESENT_MODE_IMMEDIATE_KHR;
+			case Graphics::PresentMode::Mailbox: return VK_PRESENT_MODE_MAILBOX_KHR;
+			case Graphics::PresentMode::Fifo: return VK_PRESENT_MODE_FIFO_KHR;
+			case Graphics::PresentMode::FifoRelaxed: return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+			default: throw std::runtime_error("Failed to find a valid present mode");
+		}
+	}
+
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
 		const Graphics::AccelerationStructureGeometryBuildDescription &description)
 	{

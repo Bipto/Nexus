@@ -57,7 +57,7 @@ namespace Nexus::Platform
 	NX_API void				 Update();
 	NX_API void				 PollEvents(Application *app);
 	NX_API void				 WaitEvent(Application *app);
-	NX_API IWindow			*CreatePlatformWindow(const WindowSpecification &windowProps);
+	NX_API IWindow			*CreatePlatformWindow(const WindowDescription &windowProps);
 	NX_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 
 	NX_API OpenFileDialog	*CreateOpenFileDialog(IWindow							  *window,

@@ -4,25 +4,15 @@
 
 	#include "GraphicsDeviceVk.hpp"
 	#include "PlatformVk.hpp"
+	#include "CommandQueueVk.hpp"
 
 	#include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
-	VkPresentModeKHR GetPresentMode(VSyncState vSyncState)
-	{
-		switch (vSyncState)
-		{
-			case VSyncState::Enabled: return VK_PRESENT_MODE_FIFO_KHR;
-			case VSyncState::Disabled: return VK_PRESENT_MODE_IMMEDIATE_KHR;
-			default: throw std::runtime_error("Failed to find a valid present mode");
-		}
-	}
-
-	SwapchainVk::SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec)
+	SwapchainVk::SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainDescription &swapchainSpec)
 		: Swapchain(swapchainSpec),
-		  m_Window(window),
-		  m_VsyncState(swapchainSpec.VSyncState)
+		  m_Window(window)
 	{
 		m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 
@@ -50,9 +40,11 @@ namespace Nexus::Graphics
 		vkDestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
 	}
 
-	void SwapchainVk::SwapBuffers()
+	void SwapchainVk::SwapBuffers(CommandQueueVk *commandQueue)
 	{
 		NX_PROFILE_FUNCTION();
+
+		VkQueue vkQueue = commandQueue->GetVkQueue();
 
 		if (!m_SwapchainValid)
 		{
@@ -87,7 +79,7 @@ namespace Nexus::Graphics
 		presentInfo.pSwapchains		   = &m_Swapchain;
 		presentInfo.pImageIndices	   = &m_CurrentFrameIndex;
 
-		VkResult result = vkQueuePresentKHR(m_GraphicsDevice->m_PresentQueue, &presentInfo);
+		VkResult result = vkQueuePresentKHR(vkQueue, &presentInfo);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
 			RecreateSwapchain();
@@ -97,7 +89,7 @@ namespace Nexus::Graphics
 			throw std::runtime_error("Failed to present swapchain image");
 		}
 
-		if (vkQueueWaitIdle(m_GraphicsDevice->m_PresentQueue) != VK_SUCCESS)
+		if (vkQueueWaitIdle(vkQueue) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to wait for present queue");
 		}
@@ -106,13 +98,10 @@ namespace Nexus::Graphics
 		AcquireNextImage();
 	}
 
-	VSyncState SwapchainVk::GetVsyncState()
+	void SwapchainVk::SetPresentMode(PresentMode presentMode)
 	{
-		return m_VsyncState;
-	}
-
-	void SwapchainVk::SetVSyncState(VSyncState vsyncState)
-	{
+		m_Description.ImagePresentMode = presentMode;
+		RecreateSwapchain();
 	}
 
 	Nexus::Point2D<uint32_t> SwapchainVk::GetSize()
@@ -303,7 +292,7 @@ namespace Nexus::Graphics
 
 		createInfo.preTransform	  = m_SurfaceCapabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode	  = GetPresentMode(m_VsyncState);
+		createInfo.presentMode	  = Vk::GetVulkanPresentMode(m_Description.ImagePresentMode);
 		createInfo.clipped		  = VK_TRUE;
 
 		if (vkCreateSwapchainKHR(m_GraphicsDevice->m_Device, &createInfo, nullptr, &m_Swapchain) != VK_SUCCESS)

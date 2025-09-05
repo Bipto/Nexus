@@ -142,7 +142,7 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Swapchain> GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	Ref<Swapchain> GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
 	{
 		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(window, this, spec);
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);

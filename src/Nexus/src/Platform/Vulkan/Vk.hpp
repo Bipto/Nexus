@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceVk;
 	class ShaderModuleVk;
 	class ResourceSetVk;
-}
+}	 // namespace Nexus::Graphics
 
 namespace Nexus::Vk
 {
@@ -71,6 +71,8 @@ namespace Nexus::Vk
 	VkDeviceOrHostAddressKHR			   GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address);
 	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address);
 	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
+	VkPresentModeKHR					   GetVulkanPresentMode(Graphics::PresentMode presentMode);
+
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
 		const Graphics::AccelerationStructureGeometryBuildDescription &description);
 	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
@@ -131,19 +133,19 @@ namespace Nexus::Vk
 										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t> &descriptorCounts);
 
-	VkPipeline		 CreateGraphicsPipeline(VkRenderPass											renderPass,
-											Graphics::GraphicsDeviceVk							   *device,
-											const Graphics::DepthStencilDescription				   &depthStencilDesc,
-											const Graphics::RasterizerStateDescription			   &rasterizerDesc,
-											uint32_t												samples,
-											const std::vector<VkPipelineShaderStageCreateInfo>	   &shaderStages,
-											uint32_t												colourTargetCount,
-											const std::array<Graphics::PixelFormat, 8>			   &colourFormats,
-											const std::array<Graphics::BlendStateDescription, 8>   &blendStates,
-											Graphics::PixelFormat									depthFormat,
-											VkPipelineLayout										pipelineLayout,
-											Graphics::Topology										topology,
-											const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
+	VkPipeline CreateGraphicsPipeline(VkRenderPass											  renderPass,
+									  Graphics::GraphicsDeviceVk							 *device,
+									  const Graphics::DepthStencilDescription				 &depthStencilDesc,
+									  const Graphics::RasterizerStateDescription			 &rasterizerDesc,
+									  uint32_t												  samples,
+									  const std::vector<VkPipelineShaderStageCreateInfo>	 &shaderStages,
+									  uint32_t												  colourTargetCount,
+									  const std::array<Graphics::PixelFormat, 8>			 &colourFormats,
+									  const std::array<Graphics::BlendStateDescription, 8>	 &blendStates,
+									  Graphics::PixelFormat									  depthFormat,
+									  VkPipelineLayout										  pipelineLayout,
+									  Graphics::Topology									  topology,
+									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
 
 	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
 							  VkSwapchainKHR			  swapchain,

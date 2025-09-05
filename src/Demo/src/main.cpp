@@ -28,7 +28,6 @@
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
-
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
@@ -84,10 +83,10 @@ class DemoApplication : public Nexus::Application
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		int size = 19;
+		int size = 20;
 
 #if defined(__ANDROID__) || defined(ANDROID)
-		size = 38;
+		size = 42;
 #endif
 
 		std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
@@ -321,7 +320,7 @@ class DemoApplication : public Nexus::Application
 
 		m_ImGuiRenderer->AfterLayout();
 
-		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+		m_CommandQueue->Present(Nexus::GetApplication()->GetPrimarySwapchain());
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -363,8 +362,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainSpecification.Samples	   = 8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+	spec.SwapchainDescription.Samples		   = 8;
+	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Fifo;
 
 	spec.Organization = "Nexus";
 	spec.App		  = "Demo";

@@ -26,7 +26,7 @@ namespace Nexus::GL
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices;
 
 #if !defined(NX_PLATFORM_ANDROID)
-		Nexus::WindowSpecification windowSpec {};
+		Nexus::WindowDescription windowSpec {};
 		windowSpec.Width	 = 1;
 		windowSpec.Height	 = 1;
 		windowSpec.Resizable = false;

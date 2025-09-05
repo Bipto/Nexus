@@ -589,7 +589,7 @@ namespace Nexus::Platform
 		}
 	}
 
-	IWindow *CreatePlatformWindow(const WindowSpecification &windowProps)
+	IWindow *CreatePlatformWindow(const WindowDescription &windowProps)
 	{
 		IWindow *window = new SDL3Window(windowProps);
 		m_Windows.push_back(window);

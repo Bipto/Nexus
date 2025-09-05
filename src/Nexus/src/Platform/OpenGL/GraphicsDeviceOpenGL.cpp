@@ -211,7 +211,7 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Swapchain> GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	Ref<Swapchain> GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<SwapchainOpenGL>(window, spec, this);

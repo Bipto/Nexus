@@ -11,7 +11,7 @@ namespace Nexus::UI
 	  public:
 		Form(const std::string &title, uint32_t width, uint32_t height)
 		{
-			Nexus::WindowSpecification spec;
+			Nexus::WindowDescription spec;
 			spec.Title	   = title;
 			spec.Width	   = width;
 			spec.Height	   = height;

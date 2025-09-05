@@ -200,7 +200,7 @@ namespace Nexus::Graphics
 		return CreateRef<TextureD3D12>(spec, this);
 	}
 
-	Ref<Swapchain> GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	Ref<Swapchain> GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
 	{
 		return CreateRef<SwapchainD3D12>(window, this, spec);
 	}

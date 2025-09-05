@@ -32,6 +32,8 @@ namespace Nexus::Graphics
 
 	void CommandQueueOpenGL::Present(Ref<Swapchain> swapchain)
 	{
+		Ref<SwapchainOpenGL> swapchainGL = std::dynamic_pointer_cast<SwapchainOpenGL>(swapchain);
+		swapchainGL->SwapBuffers();
 	}
 
 	GraphicsDevice *CommandQueueOpenGL::GetGraphicsDevice()

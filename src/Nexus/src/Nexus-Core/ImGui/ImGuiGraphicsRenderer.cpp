@@ -287,7 +287,7 @@ namespace Nexus::ImGuiUtils
 						if (swapchain)
 						{
 							RenderDrawData(platform_io.Viewports[i]->DrawData);
-							swapchain->SwapBuffers();
+							m_CommandQueue->Present(swapchain);
 						}
 					}
 				}
@@ -696,12 +696,12 @@ namespace Nexus::ImGuiUtils
 			auto app			= Nexus::GetApplication();
 			auto graphicsDevice = app->GetGraphicsDevice();
 
-			WindowSpecification windowSpec;
+			WindowDescription windowSpec;
 			windowSpec.Width	  = vp->Size.x;
 			windowSpec.Height	  = vp->Size.y;
 			windowSpec.Borderless = true;
 
-			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
+			Nexus::Graphics::SwapchainDescription swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
 
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
