@@ -159,7 +159,7 @@ namespace Nexus::Graphics
 	void SwapchainD3D12::Flush()
 	{
 		// execute a signal and wait for each buffer in the swapchain
-		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->SignalAndWait(); }
+		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->WaitForIdle(); }
 	}
 
 	void SwapchainD3D12::RecreateSwapchainIfNecessary()
@@ -203,7 +203,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::GetBuffers()
 	{
-		const auto d3d12Device = m_Device->GetDevice();
+		const auto d3d12Device = m_Device->GetD3D12Device();
 
 		// loop through and retrieve the buffers from the swapchain
 		for (size_t i = 0; i < BUFFER_COUNT; ++i)
@@ -264,13 +264,13 @@ namespace Nexus::Graphics
 		auto factory = m_Device->GetDXGIFactory();
 
 		// create the swapchain and query for the correct swapchain type
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
+		Microsoft::WRL::ComPtr<IDXGISwapChain1>	   sc1;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = m_Device->GetCommandQueue();
 		factory->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
 		if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain)))) {}
 
 		// retrieve the ID3D12Device
-		const auto d3d12Device = m_Device->GetDevice();
+		const auto d3d12Device = m_Device->GetD3D12Device();
 
 		// create the descriptor heap
 		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
@@ -298,7 +298,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::CreateDepthAttachment()
 	{
-		auto d3d12Device	= m_Device->GetDevice();
+		auto d3d12Device	= m_Device->GetD3D12Device();
 		auto size			= m_Window->GetWindowSize();
 		m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
@@ -353,10 +353,10 @@ namespace Nexus::Graphics
 	void SwapchainD3D12::CreateMultisampledFramebuffer()
 	{
 		Nexus::Graphics::FramebufferSpecification spec;
-		spec.Width						  = m_SwapchainWidth;
-		spec.Height						  = m_SwapchainHeight;
+		spec.Width						   = m_SwapchainWidth;
+		spec.Height						   = m_SwapchainHeight;
 		spec.ColourAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-		spec.DepthAttachmentSpecification = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
+		spec.DepthAttachmentSpecification  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 		spec.Samples					   = m_Description.Samples;
 
 		m_MultisampledFramebuffer = m_Device->CreateFramebuffer(spec);

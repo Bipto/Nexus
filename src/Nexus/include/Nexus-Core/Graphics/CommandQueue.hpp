@@ -11,11 +11,13 @@ namespace Nexus::Graphics
 {
 	enum QueueCapabilities
 	{
-		Invalid	 = 0,
-		Graphics = BIT(0),
-		Compute	 = BIT(2),
-		Transfer = BIT(3),
-		All		 = Graphics | Compute | Transfer
+		Invalid		  = 0,
+		Graphics	  = BIT(0),
+		Compute		  = BIT(2),
+		Transfer	  = BIT(3),
+		SparseBinding = BIT(4),
+		VideoEncode	  = BIT(5),
+		VideoDecode	  = BIT(6)
 	};
 
 	struct QueueFamilyInfo
@@ -23,6 +25,11 @@ namespace Nexus::Graphics
 		QueueCapabilities Capabilities;
 		uint32_t		  QueueFamily = 0;
 		uint32_t		  QueueCount  = 0;
+
+		bool HasCapability(QueueCapabilities caps) const
+		{
+			return Capabilities & caps;
+		}
 	};
 
 	struct CommandQueueDescription
@@ -44,6 +51,7 @@ namespace Nexus::Graphics
 		virtual void			SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
 		virtual void			Present(Ref<Swapchain> swapchain)															   = 0;
 		virtual GraphicsDevice *GetGraphicsDevice()																			   = 0;
+		virtual bool			WaitForIdle()																				   = 0;
 
 		void WriteToTexture(Ref<Texture> texture,
 							uint32_t	 arrayLayer,

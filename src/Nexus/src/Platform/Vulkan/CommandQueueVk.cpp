@@ -60,4 +60,17 @@ namespace Nexus::Graphics
 	{
 		return m_Device;
 	}
+
+	bool CommandQueueVk::WaitForIdle()
+	{
+		VkResult result = vkQueueWaitIdle(m_Queue);
+		if (result == VK_SUCCESS)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }	 // namespace Nexus::Graphics

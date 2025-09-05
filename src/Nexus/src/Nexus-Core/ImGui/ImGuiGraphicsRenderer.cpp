@@ -220,7 +220,7 @@ namespace Nexus::ImGuiUtils
 		spec.Usage						  = Graphics::TextureUsage_Sampled;
 		spec.DebugName					  = "ImGui Font Texture";
 		m_FontTexture					  = m_GraphicsDevice->CreateTexture(spec);
-		m_GraphicsDevice->WriteToTexture(m_FontTexture, m_CommandQueue, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
+		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
 

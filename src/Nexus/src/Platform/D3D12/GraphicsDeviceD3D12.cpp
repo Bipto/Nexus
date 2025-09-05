@@ -15,6 +15,7 @@
 	#include "PhysicalDeviceD3D12.hpp"
 	#include "DeviceBufferD3D12.hpp"
 	#include "FenceD3D12.hpp"
+	#include "CommandQueueD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -28,6 +29,8 @@ namespace Nexus::Graphics
 		// create the D3D12Device
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), IID_PPV_ARGS(&m_Device))))
 		{
+			// NX_VALIDATE(SUCCEEDED(baseDevice->QueryInterface(IID_PPV_ARGS(&m_Device))), "Failed to get interface");
+
 			// Create a command queue to submit work to the GPU
 			D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
 			commandQueueDesc.Type	  = D3D12_COMMAND_LIST_TYPE_DIRECT;
@@ -156,6 +159,11 @@ namespace Nexus::Graphics
 		return m_CommandQueue.Get();
 	}
 
+	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetD3D12Device() const
+	{
+		return m_Device.Get();
+	}
+
 	bool GraphicsDeviceD3D12::IsBufferUsageSupported(BufferUsage usage)
 	{
 		return false;
@@ -163,7 +171,12 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
-		SignalAndWait();
+		SignalAndWait(m_CommandQueue);
+	}
+
+	void GraphicsDeviceD3D12::WaitForQueueIdle(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue)
+	{
+		SignalAndWait(queue);
 	}
 
 	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()
@@ -229,14 +242,14 @@ namespace Nexus::Graphics
 		QueueFamilyInfo &info = queueFamilies.emplace_back();
 		info.QueueFamily	  = 0;
 		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
-		info.Capabilities	  = QueueCapabilities::All;
+		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
 
 		return queueFamilies;
 	}
 
 	Ref<ICommandQueue> GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return Ref<ICommandQueue>();
+		return CreateRef<CommandQueueD3D12>(this, description);
 	}
 
 	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)
@@ -248,30 +261,35 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetDevice() const
-	{
-		return m_Device;
-	}
-
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GraphicsDeviceD3D12::GetUploadCommandList()
 	{
 		return m_UploadCommandList;
 	}
 
-	void GraphicsDeviceD3D12::SignalAndWait()
+	void GraphicsDeviceD3D12::SignalAndWait(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue)
 	{
-		m_CommandQueue->Signal(m_Fence.Get(), ++m_FenceValue);
+		// Step 1: Increment fence value BEFORE signaling
+		++m_FenceValue;
 
-		if (SUCCEEDED(m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent)))
+		// Step 2: Signal the fence from the command queue
+		HRESULT hr = queue->Signal(m_Fence.Get(), m_FenceValue);
+		if (FAILED(hr))
 		{
-			if (WaitForSingleObject(m_FenceEvent, 20000) != WAIT_OBJECT_0)
-			{
-				throw std::runtime_error("Failed to wait for fence event");
-			}
+			throw std::runtime_error("Failed to signal fence. HRESULT: " + std::to_string(hr));
 		}
-		else
+
+		// Step 3: Set an event to be triggered when the GPU reaches the fence value
+		hr = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
+		if (FAILED(hr))
 		{
-			throw std::runtime_error("Failed to set fence event");
+			throw std::runtime_error("Failed to set fence event. HRESULT: " + std::to_string(hr));
+		}
+
+		// Step 4: Wait for the event to be signaled (i.e., GPU has completed work)
+		DWORD waitResult = WaitForSingleObject(m_FenceEvent, INFINITE);
+		if (waitResult != WAIT_OBJECT_0)
+		{
+			throw std::runtime_error("Failed to wait for fence event. Wait result: " + std::to_string(waitResult));
 		}
 	}
 
@@ -415,7 +433,7 @@ namespace Nexus::Graphics
 		{
 			ID3D12CommandList *list[] = {m_UploadCommandList.Get()};
 			m_CommandQueue->ExecuteCommandLists(1, list);
-			SignalAndWait();
+			SignalAndWait(m_CommandQueue);
 		}
 	}
 

@@ -40,7 +40,7 @@
 
 struct DemoInfo
 {
-	std::string Name;
+	std::string	 Name;
 	Demos::Demo *(*CreationFunction)(Nexus::Application *,
 									 const std::string						   &name,
 									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
@@ -63,7 +63,9 @@ class DemoApplication : public Nexus::Application
 		std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
 		for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
 		{
-			if (queueFamily.Capabilities == Nexus::Graphics::QueueCapabilities::All)
+			if (queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Graphics) &&
+				queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Compute) &&
+				queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Transfer))
 			{
 				Nexus::Graphics::CommandQueueDescription queueDesc = {};
 				queueDesc.QueueFamilyIndex						   = queueFamily.QueueFamily;
@@ -141,7 +143,7 @@ class DemoApplication : public Nexus::Application
 	void RegisterGraphicsDemo(const std::string &name)
 	{
 		DemoInfo info;
-		info.Name = name;
+		info.Name			  = name;
 		info.CreationFunction = [](Nexus::Application						 *app,
 								   const std::string						 &name,
 								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
@@ -154,7 +156,7 @@ class DemoApplication : public Nexus::Application
 	void RegisterAudioDemo(const std::string &name)
 	{
 		DemoInfo info;
-		info.Name = name;
+		info.Name			  = name;
 		info.CreationFunction = [](Nexus::Application						 *app,
 								   const std::string						 &name,
 								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
@@ -167,7 +169,7 @@ class DemoApplication : public Nexus::Application
 	void RegisterUtilsDemo(const std::string &name)
 	{
 		DemoInfo info;
-		info.Name = name;
+		info.Name			  = name;
 		info.CreationFunction = [](Nexus::Application						 *app,
 								   const std::string						 &name,
 								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
@@ -180,7 +182,7 @@ class DemoApplication : public Nexus::Application
 	void RegisterScriptingDemo(const std::string &name)
 	{
 		DemoInfo info;
-		info.Name = name;
+		info.Name			  = name;
 		info.CreationFunction = [](Nexus::Application						 *app,
 								   const std::string						 &name,
 								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
@@ -349,7 +351,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

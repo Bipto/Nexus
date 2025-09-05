@@ -69,9 +69,8 @@ namespace Nexus::Graphics
 
 		cmdList->End();
 		SubmitCommandLists(&cmdList, 1, nullptr);
-		device->WaitForIdle();
-
-	}	 // namespace Nexus::Graphics
+		WaitForIdle();
+	}
 
 	std::vector<char> ICommandQueue::ReadFromTexture(Ref<Texture> texture,
 													 uint32_t	  arrayLayer,
@@ -107,7 +106,7 @@ namespace Nexus::Graphics
 
 		cmdList->End();
 		SubmitCommandLists(&cmdList, 1, nullptr);
-		device->WaitForIdle();
+		WaitForIdle();
 
 		return buffer->GetData(0, bufferSize);
 	}

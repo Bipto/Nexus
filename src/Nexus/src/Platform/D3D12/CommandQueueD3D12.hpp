@@ -1,9 +1,8 @@
 #pragma once
 
-#include "CommandExecutorVk.hpp"
+#include "CommandExecutorD3D12.hpp"
+#include "GraphicsDeviceD3D12.hpp"
 #include "Nexus-Core/Graphics/CommandQueue.hpp"
-
-#include "GraphicsDeviceVk.hpp"
 #include <Nexus-Core/Graphics/CommandList.hpp>
 #include <Nexus-Core/Graphics/Fence.hpp>
 #include <Nexus-Core/Graphics/GraphicsDevice.hpp>
@@ -12,20 +11,20 @@
 
 namespace Nexus::Graphics
 {
-	class CommandQueueVk final : public ICommandQueue
+	class CommandQueueD3D12 final : public ICommandQueue
 	{
 	  public:
-		CommandQueueVk(GraphicsDeviceVk *device, const CommandQueueDescription &description);
-		virtual ~CommandQueueVk();
+		CommandQueueD3D12(GraphicsDeviceD3D12 *device, const CommandQueueDescription &description);
+		virtual ~CommandQueueD3D12();
 		void			SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
 		void			Present(Ref<Swapchain> swapchain) final;
 		GraphicsDevice *GetGraphicsDevice() final;
 		bool			WaitForIdle() final;
 
 	  private:
-		GraphicsDeviceVk				  *m_Device			 = nullptr;
-		CommandQueueDescription			   m_Description	 = {};
-		VkQueue							   m_Queue			 = VK_NULL_HANDLE;
-		std::unique_ptr<CommandExecutorVk> m_CommandExecutor = nullptr;
+		GraphicsDeviceD3D12						  *m_Device			 = nullptr;
+		CommandQueueDescription					   m_Description	 = {};
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue	 = nullptr;
+		std::unique_ptr<CommandExecutorD3D12>	   m_CommandExecutor = nullptr;
 	};
 }	 // namespace Nexus::Graphics

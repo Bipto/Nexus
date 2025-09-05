@@ -47,21 +47,22 @@ namespace Nexus::Graphics
 		bool IsBufferUsageSupported(BufferUsage usage) final;
 
 		void		WaitForIdle() final;
+		void		WaitForQueueIdle(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue);
 		GraphicsAPI GetGraphicsAPI() final;
 
 		float GetUVCorrection() final
 		{
 			return -1.0f;
 		}
-		const GraphicsCapabilities GetGraphicsCapabilities() const final;
-		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
-		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
+		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
+		Ref<Swapchain>				 CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
+		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
-		bool					   IsUVOriginTopLeft() final
+		bool						 IsUVOriginTopLeft() final
 		{
 			return true;
 		};
@@ -70,10 +71,10 @@ namespace Nexus::Graphics
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7>			   GetDXGIFactory() const;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>		   GetCommandQueue() const;
-		Microsoft::WRL::ComPtr<ID3D12Device9>			   GetDevice() const;
+		Microsoft::WRL::ComPtr<ID3D12Device9>			   GetD3D12Device() const;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GetUploadCommandList();
 
-		void SignalAndWait();
+		void SignalAndWait(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue);
 		void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
 		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 							 ID3D12Resource				*resource,
@@ -99,10 +100,10 @@ namespace Nexus::Graphics
 
 		bool Validate() final;
 
-		PixelFormatProperties					  GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
-		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
-		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
-		const D3D12DeviceFeatures				 &GetD3D12DeviceFeatures() const;
+		PixelFormatProperties	   GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
+		const DeviceFeatures	  &GetPhysicalDeviceFeatures() const final;
+		const DeviceLimits		  &GetPhysicalDeviceLimits() const final;
+		const D3D12DeviceFeatures &GetD3D12DeviceFeatures() const;
 
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
@@ -142,8 +143,8 @@ namespace Nexus::Graphics
 		std::unique_ptr<CommandExecutorD3D12>	   m_CommandExecutor = nullptr;
 		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator		 = nullptr;
 
-		DeviceFeatures m_Features = {};
-		DeviceLimits   m_Limits	  = {};
+		DeviceFeatures		m_Features		= {};
+		DeviceLimits		m_Limits		= {};
 		D3D12DeviceFeatures m_D3D12Features = {};
 	};
 }	 // namespace Nexus::Graphics

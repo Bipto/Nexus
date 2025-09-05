@@ -1785,6 +1785,21 @@ namespace Nexus::Vk
 			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Transfer);
 		}
 
+		if (flags & VK_QUEUE_SPARSE_BINDING_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::SparseBinding);
+		}
+
+		if (flags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::VideoEncode);
+		}
+
+		if (flags & VK_QUEUE_VIDEO_DECODE_BIT_KHR)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::VideoDecode);
+		}
+
 		return caps;
 	}
 

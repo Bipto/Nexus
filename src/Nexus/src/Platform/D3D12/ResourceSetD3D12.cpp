@@ -12,9 +12,9 @@ namespace Nexus::Graphics
 {
 	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : ResourceSet(pipeline), m_Device(device)
 	{
-		Ref<PipelineD3D12>						  pipelineD3D12		   = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
-		m_DescriptorHandleInfo										   = pipelineD3D12->GetDescriptorHandleInfo();
-		Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice				   = m_Device->GetDevice();
+		Ref<PipelineD3D12> pipelineD3D12				= std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
+		m_DescriptorHandleInfo							= pipelineD3D12->GetDescriptorHandleInfo();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice = m_Device->GetD3D12Device();
 
 		// create sampler heap
 		if (m_DescriptorHandleInfo.SamplerHeapCount > 0)
@@ -93,7 +93,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetD3D12::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
 	{
-		auto			   d3d12Device = m_Device->GetDevice();
+		auto d3d12Device = m_Device->GetD3D12Device();
 		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
 		{
 			NX_VALIDATE(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
@@ -169,7 +169,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetD3D12::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		auto d3d12Device = m_Device->GetDevice();
+		auto d3d12Device = m_Device->GetD3D12Device();
 		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle))
 		{
 			NX_VALIDATE(d3d12UniformBuffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
@@ -189,7 +189,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
 	{
-		const auto d3d12Device = m_Device->GetDevice();
+		const auto d3d12Device = m_Device->GetD3D12Device();
 		// write texture
 		{
 			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
@@ -206,8 +206,8 @@ namespace Nexus::Graphics
 			// find the relevant sampler for the given texture
 			std::string samplerName = m_DescriptorHandleInfo.CombinedImageSamplerMap.at(name);
 
-			auto			   d3d12Device	= m_Device->GetDevice();
-			Ref<SamplerD3D12>  d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
+			auto			  d3d12Device  = m_Device->GetD3D12Device();
+			Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
 
 			const auto &spec = d3d12Sampler->GetSamplerSpecification();
 
@@ -240,7 +240,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetD3D12::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
-		const auto d3d12Device = m_Device->GetDevice();
+		const auto d3d12Device = m_Device->GetD3D12Device();
 
 		// write storage image
 		{

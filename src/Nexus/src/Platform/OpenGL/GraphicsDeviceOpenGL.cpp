@@ -12,6 +12,7 @@
 	#include "SwapchainOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
+	#include "CommandQueueOpenGL.hpp"
 
 	#include "glad/gl.h"
 
@@ -289,14 +290,24 @@ namespace Nexus::Graphics
 		QueueFamilyInfo &info = queueFamilies.emplace_back();
 		info.QueueFamily	  = 0;
 		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
-		info.Capabilities	  = QueueCapabilities::All;
+		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
+
+		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				if (context.ARB_sparse_buffer && context.ARB_sparse_texture)
+				{
+					info.Capabilities = QueueCapabilities(info.Capabilities | QueueCapabilities::SparseBinding);
+				}
+			});
 
 		return queueFamilies;
 	}
 
 	Ref<ICommandQueue> GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return Ref<ICommandQueue>();
+		return CreateRef<CommandQueueOpenGL>(this, description);
 	}
 
 	void GraphicsDeviceOpenGL::ResetFences(Ref<Fence> *fences, uint32_t count)

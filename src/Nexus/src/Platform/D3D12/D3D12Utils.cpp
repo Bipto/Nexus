@@ -404,7 +404,7 @@ namespace Nexus::D3D12
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 
-		auto	d3d12Device = device->GetDevice();
+		auto	d3d12Device = device->GetD3D12Device();
 		HRESULT hr			= d3d12Device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pso));
 		if (FAILED(hr))
 		{
@@ -545,7 +545,7 @@ namespace Nexus::D3D12
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
-		auto										d3d12Device = device->GetDevice();
+		auto										d3d12Device = device->GetD3D12Device();
 
 		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
 		desc.pPipelineStateSubobjectStream	  = builder.GetStream();
@@ -609,7 +609,7 @@ namespace Nexus::D3D12
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
-		auto										d3d12Device = device->GetDevice();
+		auto										d3d12Device = device->GetD3D12Device();
 
 		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
 		desc.pPipelineStateSubobjectStream	  = builder.GetStream();
@@ -650,7 +650,7 @@ namespace Nexus::D3D12
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 
-		auto	d3d12Device = device->GetDevice();
+		auto	d3d12Device = device->GetD3D12Device();
 		HRESULT hr			= d3d12Device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&pso));
 		if (FAILED(hr))
 		{
@@ -776,7 +776,7 @@ namespace Nexus::D3D12
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
-		auto										d3d12Device = device->GetDevice();
+		auto										d3d12Device = device->GetD3D12Device();
 
 		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
 		desc.pPipelineStateSubobjectStream	  = builder.GetStream();
@@ -1140,8 +1140,8 @@ namespace Nexus::D3D12
 		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges;
 		std::vector<D3D12_ROOT_PARAMETER>					   rootParameters;
 
-		uint32_t			  samplerIndex			= 0;
-		uint32_t			  nonSamplerIndex		= 0;
+		uint32_t samplerIndex	 = 0;
+		uint32_t nonSamplerIndex = 0;
 
 		// iterate through resources and create descriptor range
 		for (const auto &[name, resourceInfo] : resources)
@@ -1152,29 +1152,29 @@ namespace Nexus::D3D12
 			// samplers cannot share a descriptor range with other descriptors so we need them to be separate
 			if (descriptorType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER)
 			{
-				D3D12_DESCRIPTOR_RANGE &range							= descriptorRanges[visibility].SamplerRanges.emplace_back();
-				range.RangeType											= GetDescriptorRangeType(resourceInfo);
-				range.BaseShaderRegister								= resourceInfo.Binding;
-				range.NumDescriptors									= resourceInfo.ResourceCount;
-				range.OffsetInDescriptorsFromTableStart					= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				range.RegisterSpace										= resourceInfo.RegisterSpace;
+				D3D12_DESCRIPTOR_RANGE &range			= descriptorRanges[visibility].SamplerRanges.emplace_back();
+				range.RangeType							= GetDescriptorRangeType(resourceInfo);
+				range.BaseShaderRegister				= resourceInfo.Binding;
+				range.NumDescriptors					= resourceInfo.ResourceCount;
+				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				range.RegisterSpace						= resourceInfo.RegisterSpace;
 
 				// retrieve and then increment offset
-				descriptorHandleInfo.SamplerIndexes[resourceInfo.Name]	= samplerIndex;
+				descriptorHandleInfo.SamplerIndexes[resourceInfo.Name] = samplerIndex;
 				samplerIndex += resourceInfo.ResourceCount;
 				descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
 			}
 			else
 			{
-				D3D12_DESCRIPTOR_RANGE &range							   = descriptorRanges[visibility].OtherRanges.emplace_back();
-				range.RangeType											   = GetDescriptorRangeType(resourceInfo);
-				range.BaseShaderRegister								   = resourceInfo.Binding;
-				range.NumDescriptors									   = resourceInfo.ResourceCount;
-				range.OffsetInDescriptorsFromTableStart					   = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				range.RegisterSpace										   = resourceInfo.RegisterSpace;
+				D3D12_DESCRIPTOR_RANGE &range			= descriptorRanges[visibility].OtherRanges.emplace_back();
+				range.RangeType							= GetDescriptorRangeType(resourceInfo);
+				range.BaseShaderRegister				= resourceInfo.Binding;
+				range.NumDescriptors					= resourceInfo.ResourceCount;
+				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				range.RegisterSpace						= resourceInfo.RegisterSpace;
 
 				// retrieve and then increment offset
-				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name]  = nonSamplerIndex;
+				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name] = nonSamplerIndex;
 				nonSamplerIndex += resourceInfo.ResourceCount;
 				descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
 
