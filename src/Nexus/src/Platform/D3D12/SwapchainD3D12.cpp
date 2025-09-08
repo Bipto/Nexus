@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 			presentParams.pScrollOffset			  = nullptr;
 			presentParams.pScrollRect			  = nullptr;
 
-			m_Swapchain->Present1(m_SyncInterval, presentFlags, &presentParams);
+			swapchain1->Present1(m_SyncInterval, presentFlags, &presentParams);
 		}
 		else
 		{

@@ -3,7 +3,6 @@
 #include "Nexus-Core/Timings/Profiler.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/nxpch.hpp"
-
 #include "tracy/Tracy.hpp"
 
 namespace Nexus::Timings

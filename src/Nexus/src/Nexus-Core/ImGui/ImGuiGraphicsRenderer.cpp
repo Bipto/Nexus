@@ -7,6 +7,8 @@
 #include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Nexus-Core/Timings/Profiler.hpp"
+
 std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
@@ -248,6 +250,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
 	{
+		NX_PROFILE_FUNCTION();
+
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds<float>();
 
@@ -264,6 +268,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::AfterLayout()
 	{
+		NX_PROFILE_FUNCTION();
 		ImGui::Render();
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -438,6 +443,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
 	{
+		NX_PROFILE_FUNCTION();
+
 		drawData->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
 		UpdateBuffers(drawData);
 		RenderCommandLists(drawData);
@@ -445,6 +452,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateBuffers(ImDrawData *drawData)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (drawData->TotalVtxCount == 0)
 		{
 			return;
@@ -503,6 +512,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::RenderCommandLists(ImDrawData *drawData)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (drawData->TotalVtxCount == 0)
 			return;
 

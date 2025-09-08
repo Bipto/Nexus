@@ -58,7 +58,7 @@ namespace Nexus
 			Platform::PollEvents(this);
 		}
 
-		FrameMark;
+		NX_MARK_FRAME_END();
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()

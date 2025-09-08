@@ -54,7 +54,7 @@ namespace Demos
 			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			m_Camera.SetPosition(glm::vec3(0.0f, 0.5f, 2.0f));
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -67,7 +67,8 @@ namespace Demos
 			m_CameraUniforms.CamPosition = m_Camera.GetPosition();
 			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
-			m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0. - 1.0f, 5.0f});
+			m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+											glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
 			m_CommandList->Begin();
@@ -201,10 +202,10 @@ namespace Demos
 
 		std::vector<Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
-		VB_UNIFORM_CAMERA_DEMO_MODELS			  m_CameraUniforms;
+		VB_UNIFORM_CAMERA_DEMO_MODELS			  m_CameraUniforms = {};
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
-		VB_UNIFORM_TRANSFORM_DEMO_MODELS		  m_TransformUniforms;
+		VB_UNIFORM_TRANSFORM_DEMO_MODELS		  m_TransformUniforms = {};
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
 		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;

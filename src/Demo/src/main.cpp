@@ -198,6 +198,8 @@ class DemoApplication : public Nexus::Application
 
 	void RenderDemoList(std::span<DemoInfo> demos, const std::string &menuName)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (ImGui::TreeNodeEx(menuName.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 		{
 			for (const auto &pair : demos)
@@ -222,6 +224,8 @@ class DemoApplication : public Nexus::Application
 
 	void RenderDemoInfo()
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (m_CurrentDemo)
 		{
 			if (ImGui::Button("<- Back"))
@@ -270,6 +274,7 @@ class DemoApplication : public Nexus::Application
 
 	void RenderPerformanceInfo()
 	{
+		NX_PROFILE_FUNCTION();
 		if (ImGui::CollapsingHeader("Performance"))
 		{
 			const auto &results = Nexus::Timings::Profiler::Get().GetResults();
@@ -286,6 +291,8 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
+		NX_PROFILE_FUNCTION();
+
 		m_ImGuiRenderer->BeforeLayout(time);
 
 		if (Nexus::Input::IsKeyDown(Nexus::ScanCode::F11))
@@ -295,6 +302,7 @@ class DemoApplication : public Nexus::Application
 		}
 
 		{
+			NX_PROFILE_SCOPE("Render UI");
 			ImGui::Begin("Demos");
 			RenderDemoInfo();
 			RenderPerformanceInfo();
@@ -303,10 +311,12 @@ class DemoApplication : public Nexus::Application
 
 		if (m_CurrentDemo)
 		{
+			NX_PROFILE_SCOPE("Render Demo");
 			m_CurrentDemo->Render(time);
 		}
 		else
 		{
+			NX_PROFILE_SCOPE("Clear Screen");
 			m_CommandList->Begin();
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
@@ -315,16 +325,21 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->End();
 
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_GraphicsDevice->WaitForIdle();
+			// m_GraphicsDevice->WaitForIdle();
 		}
 
 		m_ImGuiRenderer->AfterLayout();
 
-		m_CommandQueue->Present(Nexus::GetApplication()->GetPrimarySwapchain());
+		{
+			NX_PROFILE_SCOPE("CommandQueue::Present");
+			m_CommandQueue->Present(Nexus::GetApplication()->GetPrimarySwapchain());
+		}
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (m_CurrentDemo)
 			m_CurrentDemo->OnResize(size);
 	}
@@ -350,8 +365,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
-	spec.GraphicsCreateInfo.Debug = true;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsCreateInfo.Debug = false;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
@@ -363,7 +378,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.UpdatesPerSecond = {};
 
 	spec.SwapchainDescription.Samples		   = 8;
-	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Fifo;
+	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";
 	spec.App		  = "Demo";

@@ -248,8 +248,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   glm::glm
   imgui
   imguizmo
-  glad2
-  Tracy::TracyClient)
+  glad2)
 
 #precompiled header
 #target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
@@ -281,3 +280,10 @@ target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+
+add_library(tracy SHARED external/tracy/public/TracyClient.cpp)
+target_include_directories(Nexus PUBLIC external/tracy/public)
+set_target_properties(tracy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+target_link_libraries(Nexus PUBLIC tracy)
+target_compile_definitions(Nexus PUBLIC TRACY_IMPORTS)
