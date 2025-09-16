@@ -38,10 +38,9 @@ namespace Nexus::Graphics
 		Readback
 	};
 
-#define BUFFER_USAGE_NONE 0
-
 	enum BufferUsage : uint8_t
 	{
+		None									= 0,
 		Vertex									= BIT(0),
 		Index									= BIT(1),
 		Uniform									= BIT(2),

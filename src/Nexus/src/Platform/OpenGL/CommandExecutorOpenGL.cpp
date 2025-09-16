@@ -383,9 +383,9 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				if (command.Rect.has_value())
+				if (command.Rect.Width != 0 && command.Rect.Height != 0)
 				{
-					Graphics::ClearRect rect = command.Rect.value();
+					Graphics::ClearRect rect = command.Rect;
 
 					GLint scissorBox[4];
 					context.GetIntegerv(GL_SCISSOR_BOX, scissorBox);

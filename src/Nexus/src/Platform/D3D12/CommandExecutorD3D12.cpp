@@ -283,9 +283,9 @@ namespace Nexus::Graphics
 
 		float clearColor[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
 
-		if (command.Rect.has_value())
+		if (command.Rect.Width != 0 && command.Rect.Height != 0)
 		{
-			Graphics::ClearRect rect = command.Rect.value();
+			Graphics::ClearRect rect = command.Rect;
 
 			D3D12_RECT d3d12Rect = {};
 			d3d12Rect.left		 = rect.X;
@@ -314,15 +314,13 @@ namespace Nexus::Graphics
 		{
 			D3D12_CLEAR_FLAGS clearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
 
-			if (command.Rect.has_value())
+			if (command.Rect.Width != 0 && command.Rect.Height != 0)
 			{
-				Graphics::ClearRect rect = command.Rect.value();
-
 				D3D12_RECT d3d12Rect = {};
-				d3d12Rect.left		 = rect.X;
-				d3d12Rect.top		 = rect.Y;
-				d3d12Rect.right		 = rect.X + rect.Width;
-				d3d12Rect.bottom	 = rect.Y + rect.Height;
+				d3d12Rect.left		 = command.Rect.X;
+				d3d12Rect.top		 = command.Rect.Y;
+				d3d12Rect.right		 = command.Rect.X + command.Rect.Width;
+				d3d12Rect.bottom	 = command.Rect.Y + command.Rect.Height;
 				m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 1, &d3d12Rect);
 			}
 			else

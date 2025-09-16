@@ -115,7 +115,7 @@ namespace Nexus::Processors
 
 		Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access							 = Graphics::BufferMemoryAccess::Upload;
-		bufferDesc.Usage							 = BUFFER_USAGE_NONE;
+		bufferDesc.Usage							 = Graphics::BufferUsage::None;
 		bufferDesc.SizeInBytes						 = pixels.size();
 		bufferDesc.StrideInBytes					 = pixels.size();
 		Ref<Graphics::DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);

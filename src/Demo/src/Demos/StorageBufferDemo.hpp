@@ -138,7 +138,7 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription uploadBufferDesc = {};
 			uploadBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
-			uploadBufferDesc.Usage									  = BUFFER_USAGE_NONE;
+			uploadBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::None;
 			uploadBufferDesc.StrideInBytes							  = sizeof(glm::mat4);
 			uploadBufferDesc.SizeInBytes							  = sizeof(glm::mat4);
 			m_UploadBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(uploadBufferDesc);

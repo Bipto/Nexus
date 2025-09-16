@@ -281,9 +281,9 @@ namespace Nexus::Graphics
 		clearRect.baseArrayLayer = 0;
 		clearRect.layerCount	 = 1;
 
-		if (command.Rect.has_value())
+		if (command.Rect.Width != 0 && command.Rect.Height != 0)
 		{
-			Graphics::ClearRect rect = command.Rect.value();
+			Graphics::ClearRect rect = command.Rect;
 			clearRect.rect.offset	 = {rect.X, rect.Y};
 			clearRect.rect.extent	 = {rect.Width, rect.Height};
 		}
@@ -318,11 +318,10 @@ namespace Nexus::Graphics
 		clearRect.baseArrayLayer = 0;
 		clearRect.layerCount	 = 1;
 
-		if (command.Rect.has_value())
+		if (command.Rect.Width != 0 && command.Rect.Height != 0)
 		{
-			Graphics::ClearRect rect = command.Rect.value();
-			clearRect.rect.offset	 = {rect.X, rect.Y};
-			clearRect.rect.extent	 = {rect.Width, rect.Height};
+			clearRect.rect.offset = {command.Rect.X, command.Rect.Y};
+			clearRect.rect.extent = {command.Rect.Width, command.Rect.Height};
 		}
 		else
 		{
@@ -729,7 +728,7 @@ namespace Nexus::Graphics
 		// const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
 		//// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management
-		///occurs / in the correct order
+		/// occurs / in the correct order
 		// if (m_CurrentCommandIndex >= m_Commands.size() - 1)
 		//{
 		//	StopRendering();
