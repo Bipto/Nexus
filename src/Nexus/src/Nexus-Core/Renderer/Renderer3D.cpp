@@ -275,9 +275,9 @@ namespace Nexus::Graphics
 
 		const Environment &environment = m_Scene->SceneEnvironment;
 
-		m_CommandList->ClearColorTarget(0,
+		m_CommandList->ClearColourTarget(0,
 										{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
-		m_CommandList->ClearColorTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
+		m_CommandList->ClearColourTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
 
 		m_CommandList->ClearDepthTarget(Nexus::Graphics::ClearDepthStencilValue {});
 

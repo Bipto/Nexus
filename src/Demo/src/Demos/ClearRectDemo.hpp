@@ -45,7 +45,7 @@ namespace Demos
 					clearRect.Y							 = 0;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}, clearRect);
 				}
 
 				{
@@ -54,7 +54,7 @@ namespace Demos
 					clearRect.Y							 = 0;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {1.0f, 0.0f, 0.0f, 1.0f}, clearRect);
 				}
 
 				{
@@ -63,7 +63,7 @@ namespace Demos
 					clearRect.Y							 = clearHeight;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {0.0f, 1.0f, 0.0f, 1.0f}, clearRect);
 				}
 
 				{
@@ -72,7 +72,7 @@ namespace Demos
 					clearRect.Y							 = clearHeight;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {0.0f, 0.0f, 1.0f, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {0.0f, 0.0f, 1.0f, 1.0f}, clearRect);
 				}
 
 				m_CommandList->End();

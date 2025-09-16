@@ -26,29 +26,31 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-		std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
+		// VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+		// std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
 
-		// record the commands into the actual vulkan command list
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			Ref<CommandListVk>									   commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
-			m_CommandExecutor->ExecuteCommands(commands, m_Device);
-			m_CommandExecutor->Reset();
-			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
-		}
+		//// record the commands into the actual vulkan command list
+		// for (uint32_t i = 0; i < numCommandLists; i++)
+		//{
+		//	Ref<CommandListVk>									   commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
+		//	const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
+		//	m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
+		//	m_CommandExecutor->ExecuteCommands(commands, m_Device);
+		//	m_CommandExecutor->Reset();
+		//	commandBuffers[i] = commandList->GetCurrentCommandBuffer();
+		// }
 
-		VkFence vulkanFence = VK_NULL_HANDLE;
+		// VkFence vulkanFence = VK_NULL_HANDLE;
 
-		if (fence)
-		{
-			Ref<FenceVk> fenceVk = std::dynamic_pointer_cast<FenceVk>(fence);
-			vulkanFence			 = fenceVk->GetHandle();
-		}
+		// if (fence)
+		//{
+		//	Ref<FenceVk> fenceVk = std::dynamic_pointer_cast<FenceVk>(fence);
+		//	vulkanFence			 = fenceVk->GetHandle();
+		// }
 
-		NX_VALIDATE(Vk::SubmitQueue(m_Device, m_Queue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+		// NX_VALIDATE(Vk::SubmitQueue(m_Device, m_Queue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+
+		assert(0);
 	}
 
 	void CommandQueueVk::Present(Ref<Swapchain> swapchain)

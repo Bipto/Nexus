@@ -34,7 +34,7 @@ namespace Demos
 			m_CommandList->StartTimingQuery(m_TimingQuery);
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			m_CommandList->StopTimingQuery(m_TimingQuery);
 			m_CommandList->End();

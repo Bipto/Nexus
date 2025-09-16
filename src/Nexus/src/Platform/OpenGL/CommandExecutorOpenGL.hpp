@@ -10,50 +10,49 @@
 
 namespace Nexus::Graphics
 {
-	class CommandExecutorOpenGL : public CommandExecutor
+	class CommandExecutorOpenGL final : public CommandExecutor
 	{
 	  public:
 		CommandExecutorOpenGL() = default;
 		virtual ~CommandExecutorOpenGL();
-		virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
+		virtual void ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device) override;
 		virtual void Reset() override;
-
-	  private:
-		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DispatchDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const SetPipelineCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DrawDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const ClearColourTargetCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const Scissor &command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device) override;
-		virtual void ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device) override;
+		virtual void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) override;
 		void		 ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device) final;
 
+	  private:
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,
 									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
@@ -63,11 +62,11 @@ namespace Nexus::Graphics
 									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
-		std::optional<Ref<Pipeline>>											m_CurrentlyBoundPipeline	  = {};
-		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
-		std::map<uint32_t, VertexBufferView>									m_CurrentlyBoundVertexBuffers = {};
-		std::optional<IndexBufferView>											m_BoundIndexBuffer			  = {};
-		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL>							m_BoundResourceSet = {};
+		std::optional<Ref<Pipeline>>				   m_CurrentlyBoundPipeline		 = {};
+		std::optional<RenderTarget>					   m_CurrentRenderTarget		 = {};
+		std::map<uint32_t, VertexBufferView>		   m_CurrentlyBoundVertexBuffers = {};
+		std::optional<IndexBufferView>				   m_BoundIndexBuffer			 = {};
+		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL> m_BoundResourceSet			 = {};
 	};
 }	 // namespace Nexus::Graphics
 

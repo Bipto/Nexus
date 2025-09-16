@@ -320,7 +320,7 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->Begin();
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
-			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
+			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
 

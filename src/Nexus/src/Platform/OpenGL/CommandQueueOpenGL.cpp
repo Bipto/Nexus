@@ -20,9 +20,8 @@ namespace Nexus::Graphics
 
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListOpenGL>								   commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			m_CommandExecutor.ExecuteCommands(commands, m_Device);
+			Ref<CommandList> commandList = commandLists[i];
+			m_CommandExecutor.ExecuteCommands(commandList, m_Device);
 			m_CommandExecutor.Reset();
 		}
 
@@ -43,7 +42,6 @@ namespace Nexus::Graphics
 
 	bool CommandQueueOpenGL::WaitForIdle()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.Finish(); });
 		return true;
 	}
 }	 // namespace Nexus::Graphics

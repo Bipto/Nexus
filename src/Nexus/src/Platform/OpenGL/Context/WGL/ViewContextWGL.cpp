@@ -67,7 +67,14 @@ namespace Nexus::GL
 
 	void ViewContextWGL::Swap()
 	{
-		SwapBuffers(m_HDC);
+		if (wglSwapLayerBuffers != nullptr)
+		{
+			wglSwapLayerBuffers(m_HDC, WGL_SWAP_MAIN_PLANE);
+		}
+		else
+		{
+			SwapBuffers(m_HDC);
+		}
 	}
 
 	void ViewContextWGL::SetVSync(bool enabled)
@@ -131,6 +138,7 @@ namespace Nexus::GL
 			iAttributes.push_back(WGL_DOUBLE_BUFFER_ARB);
 			iAttributes.push_back(GL_TRUE);
 		}
+
 		iAttributes.push_back(WGL_SUPPORT_OPENGL_ARB);
 		iAttributes.push_back(GL_TRUE);
 		iAttributes.push_back(WGL_PIXEL_TYPE_ARB);

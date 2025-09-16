@@ -26,6 +26,14 @@ namespace Nexus::ImGuiUtils
 		Ref<Nexus::Graphics::Swapchain> Swapchain = nullptr;
 	};
 
+	struct ImGuiDescriptorInfo
+	{
+		Ref<Graphics::Texture>		m_Texture		= nullptr;
+		Ref<Graphics::ResourceSet>	m_ResourceSet	= nullptr;
+		Ref<Graphics::Sampler>		m_Sampler		= nullptr;
+		Ref<Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
+	};
+
 	class NX_API ImGuiGraphicsRenderer
 	{
 	  public:
@@ -47,8 +55,7 @@ namespace Nexus::ImGuiUtils
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
 
 	  private:
-		void		CreateTextPipeline();
-		void		CreateImagePipeline();
+		void		CreatePipeline();
 		static void SetupInput(IWindow *window);
 		void		UpdateInput();
 		void		RenderDrawData(ImDrawData *drawData);
@@ -63,17 +70,15 @@ namespace Nexus::ImGuiUtils
 		Nexus::Graphics::GraphicsDevice				 *m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandQueue>	  m_CommandQueue   = nullptr;
 		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_TextPipeline   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ImagePipeline  = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_FontTexture	   = nullptr;
 
 		ImGuiContext *m_Context = nullptr;
 
+		std::map<ImTextureID, ImGuiDescriptorInfo> m_Descriptors = {};
+
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_VertexShader   = nullptr;
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_FragmentShader = nullptr;
-
-		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::Texture>>		m_Textures;
-		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
 		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler		 = nullptr;
 		uint64_t							 m_TextureID	 = 0;
@@ -84,8 +89,6 @@ namespace Nexus::ImGuiUtils
 
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer		 = nullptr;
 		uint32_t								  m_IndexBufferCount = 0;
-
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
 
 		std::vector<int> m_Keys;
 	};
