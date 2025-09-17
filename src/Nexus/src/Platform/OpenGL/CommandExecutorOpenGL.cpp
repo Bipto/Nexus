@@ -10,6 +10,24 @@
 
 namespace Nexus::Graphics
 {
+	using OpenGLDispatchFunction = void (*)(const RenderCommandData &data, GraphicsDevice *, CommandExecutorOpenGL *);
+
+	template<typename T>
+	void DispatchTrampoline(const RenderCommandData &data, GraphicsDevice *device, CommandExecutorOpenGL *executor)
+	{
+		const T &cmd = std::get<T>(data);
+		executor->ExecuteCommand(cmd, device);	  // Still uses your overloads
+	}
+
+	template<typename Variant, size_t... Indices>
+	constexpr auto GenerateDispatchTable(std::index_sequence<Indices...>)
+	{
+		return std::array<OpenGLDispatchFunction, sizeof...(Indices)> {&DispatchTrampoline<std::variant_alternative_t<Indices, Variant>>...};
+	}
+
+	constexpr auto OpenGLDispatchTable =
+		GenerateDispatchTable<RenderCommandData>(std::make_index_sequence<std::variant_size_v<RenderCommandData>> {});
+
 	CommandExecutorOpenGL::~CommandExecutorOpenGL()
 	{
 		Reset();
@@ -17,9 +35,15 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device)
 	{
-		for (const auto &element : commands)
+		/*for (const auto &element : commands)
 		{
 			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
+		}*/
+
+		for (const auto &command : commands)
+		{
+			size_t index = command.index();
+			OpenGLDispatchTable[index](command, device, this);
 		}
 	}
 

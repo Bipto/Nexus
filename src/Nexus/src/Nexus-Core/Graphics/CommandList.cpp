@@ -451,9 +451,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		BeginDebugGroupCommand command;
+		/*BeginDebugGroupCommand command;
 		command.GroupName = name;
-		m_Commands.push_back(command);
+		m_Commands.push_back(command);*/
 
 		m_DebugGroups++;
 	}
@@ -469,8 +469,8 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		EndDebugGroupCommand command;
-		m_Commands.push_back(command);
+		/*EndDebugGroupCommand command;
+		m_Commands.push_back(command);*/
 
 		m_DebugGroups--;
 	}
@@ -486,9 +486,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		InsertDebugMarkerCommand command;
+		/*InsertDebugMarkerCommand command;
 		command.MarkerName = name;
-		m_Commands.push_back(command);
+		m_Commands.push_back(command);*/
 	}
 
 	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)

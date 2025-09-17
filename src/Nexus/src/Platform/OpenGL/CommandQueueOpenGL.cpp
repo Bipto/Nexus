@@ -25,9 +25,6 @@ namespace Nexus::Graphics
 			m_CommandExecutor.ExecuteCommands(commands, m_Device);
 			m_CommandExecutor.Reset();
 		}
-
-		GL::IOffscreenContext *offscreenContext = physicalDevice->GetOffscreenContext();
-		offscreenContext->MakeCurrent();
 	}
 
 	void CommandQueueOpenGL::Present(Ref<Swapchain> swapchain)
