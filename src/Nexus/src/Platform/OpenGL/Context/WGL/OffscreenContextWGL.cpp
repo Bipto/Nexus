@@ -32,6 +32,15 @@ namespace Nexus::GL
 
 	bool OffscreenContextWGL::MakeCurrent()
 	{
+		HGLRC currentContext = wglGetCurrentContext();
+		HDC	  currentHDC	 = wglGetCurrentDC();
+
+		// the context is already current, so we can skip this step
+		if (currentContext == m_HGLRC && currentHDC == m_HDC)
+		{
+			return true;
+		}
+
 		return wglMakeCurrent(m_HDC, m_HGLRC);
 	}
 

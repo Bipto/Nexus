@@ -39,12 +39,102 @@ namespace Nexus::Graphics
 
 	static void ExecutePipelineCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
 	{
-		std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_PipelineCommands[index]);
+		// std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_PipelineCommands[index]);
+
+		PipelineCommandGroup variant = buffers.m_PipelineCommands[index];
+
+		if (auto setVbCommand = std::get_if<SetVertexBufferCommand>(&variant))
+		{
+			executor->ExecuteCommand(*setVbCommand, device);
+		}
+		else if (auto setIbCommand = std::get_if<SetIndexBufferCommand>(&variant))
+		{
+			executor->ExecuteCommand(*setIbCommand, device);
+		}
+		else if (auto setPipelineCommand = std::get_if<WeakRef<Pipeline>>(&variant))
+		{
+			executor->ExecuteCommand(*setPipelineCommand, device);
+		}
+		else if (auto setResourceSetCommand = std::get_if<Ref<ResourceSet>>(&variant))
+		{
+			executor->ExecuteCommand(*setResourceSetCommand, device);
+		}
+		else if (auto clearColourTargetCommand = std::get_if<ClearColorTargetCommand>(&variant))
+		{
+			executor->ExecuteCommand(*clearColourTargetCommand, device);
+		}
+		else if (auto clearDepthStencilTargetCommand = std::get_if<ClearDepthStencilTargetCommand>(&variant))
+		{
+			executor->ExecuteCommand(*clearDepthStencilTargetCommand, device);
+		}
+		else if (auto setRenderTargetCommand = std::get_if<RenderTarget>(&variant))
+		{
+			executor->ExecuteCommand(*setRenderTargetCommand, device);
+		}
+		else if (auto setViewportCommand = std::get_if<Viewport>(&variant))
+		{
+			executor->ExecuteCommand(*setViewportCommand, device);
+		}
+		else if (auto setScissorCommand = std::get_if<Scissor>(&variant))
+		{
+			executor->ExecuteCommand(*setScissorCommand, device);
+		}
+		else if (auto setBlendFactorCommand = std::get_if<SetBlendFactorCommand>(&variant))
+		{
+			executor->ExecuteCommand(*setBlendFactorCommand, device);
+		}
+		else if (auto setStencilReferenceCommand = std::get_if<SetStencilReferenceCommand>(&variant))
+		{
+			executor->ExecuteCommand(*setStencilReferenceCommand, device);
+		}
+		else
+		{
+			throw std::runtime_error("Unknown command");
+		}
 	}
 
 	static void ExecuteGraphicsCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
 	{
-		std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_GraphicsCommands[index]);
+		// std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_GraphicsCommands[index]);
+
+		GraphicsCommandGroup variant = buffers.m_GraphicsCommands[index];
+
+		if (auto drawCmd = std::get_if<DrawDescription>(&variant))
+		{
+			executor->ExecuteCommand(*drawCmd, device);
+		}
+		else if (auto drawIndexedCmd = std::get_if<DrawIndexedDescription>(&variant))
+		{
+			executor->ExecuteCommand(*drawIndexedCmd, device);
+		}
+		else if (auto drawIndirectCmd = std::get_if<DrawIndirectDescription>(&variant))
+		{
+			executor->ExecuteCommand(*drawIndirectCmd, device);
+		}
+		else if (auto drawIndirectIndexedCmd = std::get_if<DrawIndirectIndexedDescription>(&variant))
+		{
+			executor->ExecuteCommand(*drawIndirectIndexedCmd, device);
+		}
+		else if (auto dispatchCmd = std::get_if<DispatchDescription>(&variant))
+		{
+			executor->ExecuteCommand(*dispatchCmd, device);
+		}
+		else if (auto dispatchIndirectCmd = std::get_if<DispatchIndirectDescription>(&variant))
+		{
+			executor->ExecuteCommand(*dispatchIndirectCmd, device);
+		}
+		else if (auto drawMeshCmd = std::get_if<DrawMeshDescription>(&variant))
+		{
+			executor->ExecuteCommand(*drawMeshCmd, device);
+		}
+		else if (auto drawMeshIndirectCmd = std::get_if<DrawMeshIndirectDescription>(&variant))
+		{
+			executor->ExecuteCommand(*drawMeshIndirectCmd, device);
+		}
+		else
+		{
+			throw std::runtime_error("Unknown command");
+		}
 	}
 
 	static void ExecuteTransferCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
@@ -609,11 +699,9 @@ namespace Nexus::Graphics
 			[&](const GladGLContext &context)
 			{
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-				context.Finish();
 				uint64_t now   = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				query->m_Start = now;
 	#else
-				context.Finish();
 				GLint64 timer;
 				glCall(context.GetInteger64v(GL_TIMESTAMP, &timer));
 				query->m_Start = (uint64_t)timer;

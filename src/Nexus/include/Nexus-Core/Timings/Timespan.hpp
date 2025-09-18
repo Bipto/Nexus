@@ -18,6 +18,20 @@ namespace Nexus
 			return timeSpan;
 		}
 
+		static TimeSpan FromMilliseconds(uint64_t milliseconds)
+		{
+			TimeSpan timeSpan	   = {};
+			timeSpan.m_Nanoseconds = milliseconds * 1'000'000;
+			return timeSpan;
+		}
+
+		static TimeSpan FromSeconds(uint64_t seconds)
+		{
+			TimeSpan timeSpan	   = {};
+			timeSpan.m_Nanoseconds = seconds * 1'000'000'000;
+			return timeSpan;
+		}
+
 		template<typename T>
 		T GetNanoseconds() const
 		{
@@ -27,7 +41,7 @@ namespace Nexus
 		template<typename T>
 		T GetMilliseconds() const
 		{
-			return (T)(GetNanoseconds<T>() / 1000000);
+			return (T)(GetNanoseconds<T>() / 1'000'000);
 		}
 
 		template<typename T>

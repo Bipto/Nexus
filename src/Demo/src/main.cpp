@@ -37,6 +37,8 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
+#include "Nexus-Core/Utils/FramerateMonitor.hpp"
+
 struct DemoInfo
 {
 	std::string	 Name;
@@ -334,6 +336,8 @@ class DemoApplication : public Nexus::Application
 			NX_PROFILE_SCOPE("CommandQueue::Present");
 			m_CommandQueue->Present(Nexus::GetApplication()->GetPrimarySwapchain());
 		}
+
+		m_Monitor.Update();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -358,7 +362,9 @@ class DemoApplication : public Nexus::Application
 	std::vector<DemoInfo>					 m_ScriptingDemos = {};
 	std::vector<DemoInfo>					 m_UtilsDemos	  = {};
 
-	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
+	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer  = nullptr;
+	Nexus::Timings::ExecutionTimer							  m_ExecutionTimer = {};
+	Nexus::Utils::FrameRateMonitor							  m_Monitor;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
