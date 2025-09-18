@@ -1337,9 +1337,6 @@ namespace Nexus::GL
 									  baseType,
 									  (void *)(uint64_t)bufferOffset));
 
-			glCall(context.Flush());
-			glCall(context.Finish());
-
 			glCall(context.DeleteFramebuffers(1, &framebufferHandle));
 			bufferOffset += layerSize;
 		}

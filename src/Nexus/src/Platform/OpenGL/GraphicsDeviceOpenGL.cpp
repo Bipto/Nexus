@@ -342,7 +342,6 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceOpenGL::WaitForIdle()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.Finish(); });
 	}
 
 	GraphicsAPI GraphicsDeviceOpenGL::GetGraphicsAPI()

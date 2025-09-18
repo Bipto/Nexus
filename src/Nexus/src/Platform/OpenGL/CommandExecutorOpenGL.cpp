@@ -723,11 +723,9 @@ namespace Nexus::Graphics
 			[&](const GladGLContext &context)
 			{
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-				context.Finish();
 				uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				query->m_End = now;
 	#else
-				context.Finish();
 				GLint64 timer;
 				glCall(context.GetInteger64v(GL_TIMESTAMP, &timer));
 				query->m_End = (uint64_t)timer;
