@@ -208,7 +208,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundVertexBuffers[command.Slot] = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{

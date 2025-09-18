@@ -434,7 +434,7 @@ namespace Nexus::ImGuiUtils
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
 			vertexBufferDesc.DebugName								  = "ImGui Vertex Buffer";
-			m_VertexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
 		}
 
 		if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -447,7 +447,7 @@ namespace Nexus::ImGuiUtils
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
 			indexBufferDesc.DebugName								 = "ImGui Index Buffer";
-			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
+			m_IndexBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
 		}
 
 		// update vertex buffer
@@ -578,7 +578,7 @@ namespace Nexus::ImGuiUtils
 		m_CommandList->EndDebugGroup();
 		m_CommandList->End();
 
-		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandList(m_CommandList);
 	}
 
 	void ImGuiGraphicsRenderer::UpdateCursor()

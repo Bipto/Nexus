@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 
 			commandList->Reset();
 			m_CommandExecutor->SetCommandList(cmdList);
-			m_CommandExecutor->ExecuteCommands(commands, m_Device);
+			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
 			commandList->Close();
 			m_CommandExecutor->Reset();
 

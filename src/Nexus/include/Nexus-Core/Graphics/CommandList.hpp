@@ -617,6 +617,12 @@ namespace Nexus::Graphics
 
 		void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
 
+		void SubmitMemoryBarrier(const MemoryBarrierDesc &desc);
+
+		void SubmitTextureBarrier(const TextureBarrierDesc &desc);
+
+		void SubmitBufferBarrier(const BufferBarrierDesc &desc);
+
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();
 

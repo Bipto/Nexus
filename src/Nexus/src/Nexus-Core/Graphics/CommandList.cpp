@@ -625,6 +625,18 @@ namespace Nexus::Graphics
 		m_CommandBuffers.PushCommand(pushConstantDesc);
 	}
 
+	void CommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
+	{
+	}
+
+	void CommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
+	{
+	}
+
+	void CommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
+	{
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		NX_PROFILE_FUNCTION();

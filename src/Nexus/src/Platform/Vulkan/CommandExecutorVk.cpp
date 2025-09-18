@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
 	{
 		// begin
 		{
@@ -43,7 +43,8 @@ namespace Nexus::Graphics
 
 		// execute commands
 		{
-			m_Commands = commands;
+			const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
+			m_Commands									   = commands;
 			for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
 			{
 				const auto &element = commands.at(m_CurrentCommandIndex);
@@ -68,7 +69,7 @@ namespace Nexus::Graphics
 		m_CommandBuffer = commandBuffer;
 	}
 
-	void CommandExecutorVk::ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -92,7 +93,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -148,7 +149,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -160,7 +161,7 @@ namespace Nexus::Graphics
 		vkCmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -172,7 +173,7 @@ namespace Nexus::Graphics
 		vkCmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -186,7 +187,7 @@ namespace Nexus::Graphics
 		vkCmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -200,7 +201,7 @@ namespace Nexus::Graphics
 		vkCmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DispatchDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -210,7 +211,7 @@ namespace Nexus::Graphics
 		vkCmdDispatch(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -224,7 +225,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -240,7 +241,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -273,7 +274,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index) || !ValidateIsRendering())
 		{
@@ -309,7 +310,7 @@ namespace Nexus::Graphics
 		vkCmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForClearDepth(m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -408,7 +409,7 @@ namespace Nexus::Graphics
 		vkCmdSetScissor(m_CommandBuffer, 0, 1, &rect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForResolveToSwapchain(command))
 		{
@@ -450,14 +451,14 @@ namespace Nexus::Graphics
 		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
 	{
 		Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
 		vkCmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
 		vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device)
 	{
 		Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
 		vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
@@ -705,7 +706,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device)
 	{
 		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
@@ -730,7 +731,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device)
 	{
 		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
@@ -761,7 +762,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device)
 	{
 		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
@@ -786,7 +787,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device)
 	{
 		float blendConstants[4] = {command.BlendFactorDesc.Red,
 								   command.BlendFactorDesc.Green,
@@ -796,12 +797,12 @@ namespace Nexus::Graphics
 		vkCmdSetBlendConstants(m_CommandBuffer, blendConstants);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device)
 	{
 		vkCmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.StencilReference);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device)
 	{
 		// return early if the function is not available to use
 		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
@@ -847,15 +848,15 @@ namespace Nexus::Graphics
 													  (const VkAccelerationStructureBuildRangeInfoKHR *const *)buildRanges.data());
 	}
 
-	void CommandExecutorVk::ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device)
+	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device)
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device)
 	{
 	}
 

@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 			Ref<CommandListVk>									   commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
 			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
 			m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
-			m_CommandExecutor->ExecuteCommands(commands, m_Device);
+			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
 			m_CommandExecutor->Reset();
 			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
 		}
