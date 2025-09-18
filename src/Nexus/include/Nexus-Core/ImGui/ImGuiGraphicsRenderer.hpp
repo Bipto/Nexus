@@ -47,8 +47,7 @@ namespace Nexus::ImGuiUtils
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
 
 	  private:
-		void		CreateTextPipeline();
-		void		CreateImagePipeline();
+		void		CreatePipeline();
 		static void SetupInput(IWindow *window);
 		void		UpdateInput();
 		void		RenderDrawData(ImDrawData *drawData);
@@ -63,8 +62,7 @@ namespace Nexus::ImGuiUtils
 		Nexus::Graphics::GraphicsDevice				 *m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandQueue>	  m_CommandQueue   = nullptr;
 		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_TextPipeline   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ImagePipeline  = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_FontTexture	   = nullptr;
 
 		ImGuiContext *m_Context = nullptr;
@@ -88,5 +86,6 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
 
 		std::vector<int> m_Keys;
+		ImGuiMouseCursor m_PreviousCursor = ImGuiMouseCursor_Arrow;
 	};
 }	 // namespace Nexus::ImGuiUtils

@@ -1,5 +1,6 @@
 #include "CommandQueueOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -15,20 +16,23 @@ namespace Nexus::Graphics
 
 	void CommandQueueOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
-		Ref<PhysicalDeviceOpenGL> physicalDevice = m_Device->GetPhysicalDeviceOpenGL();
-		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
+		NX_PROFILE_FUNCTION();
+
+		// Ref<PhysicalDeviceOpenGL> physicalDevice = m_Device->GetPhysicalDeviceOpenGL();
+		// GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
 
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListOpenGL>								   commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			m_CommandExecutor.ExecuteCommands(commands, m_Device);
+			Ref<CommandListOpenGL> commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
+			m_CommandExecutor.ExecuteCommands(commandList, m_Device);
 			m_CommandExecutor.Reset();
 		}
 	}
 
 	void CommandQueueOpenGL::Present(Ref<Swapchain> swapchain)
 	{
+		NX_PROFILE_FUNCTION();
+
 		Ref<SwapchainOpenGL> swapchainGL = std::dynamic_pointer_cast<SwapchainOpenGL>(swapchain);
 		swapchainGL->SwapBuffers();
 	}
@@ -40,7 +44,7 @@ namespace Nexus::Graphics
 
 	bool CommandQueueOpenGL::WaitForIdle()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.Finish(); });
+		NX_PROFILE_FUNCTION();
 		return true;
 	}
 }	 // namespace Nexus::Graphics

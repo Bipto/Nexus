@@ -9,7 +9,7 @@
 
 #include "Nexus-Core/Timings/Profiler.hpp"
 
-std::string GetImGuiShaderVertexSource()
+static std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
 
@@ -34,7 +34,7 @@ std::string GetImGuiShaderVertexSource()
 	return shader;
 }
 
-std::string GetImGuiShaderFragmentSource()
+static std::string GetImGuiShaderFragmentSource()
 {
 	std::string shader = "#version 450 core\n"
 
@@ -95,8 +95,7 @@ namespace Nexus::ImGuiUtils
 		m_FragmentShader =
 			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		CreateTextPipeline();
-		CreateImagePipeline();
+		CreatePipeline();
 
 		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
 		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
@@ -130,7 +129,7 @@ namespace Nexus::ImGuiUtils
 		ImGui::Shutdown();
 	}
 
-	void ImGuiGraphicsRenderer::CreateTextPipeline()
+	void ImGuiGraphicsRenderer::CreatePipeline()
 	{
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDesc;
 
@@ -167,42 +166,8 @@ namespace Nexus::ImGuiUtils
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
-		pipelineDesc.DebugName = "ImGui Text Pipeline";
-		m_TextPipeline		   = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
-	}
-
-	void ImGuiGraphicsRenderer::CreateImagePipeline()
-	{
-		Nexus::Graphics::GraphicsPipelineDescription pipelineDesc;
-
-		pipelineDesc.VertexModule	= m_VertexShader;
-		pipelineDesc.FragmentModule = m_FragmentShader;
-
-		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
-
-		pipelineDesc.ColourBlendStates[0].EnableBlending = false;
-
-		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
-		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
-		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
-		pipelineDesc.DepthStencilDesc.EnableDepthTest		  = false;
-		pipelineDesc.DepthStencilDesc.EnableDepthWrite		  = false;
-		pipelineDesc.DepthStencilDesc.EnableStencilTest		  = false;
-
-		pipelineDesc.Layouts = {
-			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
-												sizeof(ImDrawVert),
-												Nexus::Graphics::StepRate::Vertex)};
-
-		pipelineDesc.DebugName = "ImGui Image Pipeline";
-
-		m_ImagePipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
+		pipelineDesc.DebugName = "ImGui Pipeline";
+		m_Pipeline			   = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -235,7 +200,7 @@ namespace Nexus::ImGuiUtils
 	{
 		auto id = (ImTextureID)m_TextureID++;
 
-		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_TextPipeline);
+		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
 		m_Textures.insert({id, texture});
 		m_ResourceSets.insert({id, resourceSet});
@@ -563,14 +528,7 @@ namespace Nexus::ImGuiUtils
 
 				if (drawCmd.ElemCount > 0)
 				{
-					if (drawCmd.TextureId == m_FontTextureID)
-					{
-						m_CommandList->SetPipeline(m_TextPipeline);
-					}
-					else
-					{
-						m_CommandList->SetPipeline(m_ImagePipeline);
-					}
+					m_CommandList->SetPipeline(m_Pipeline);
 					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
 
 					Graphics::VertexBufferView vertexBufferView = {};
@@ -625,9 +583,16 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateCursor()
 	{
+		ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+
+		if (cursor == m_PreviousCursor)
+		{
+			return;
+		}
+
 		auto window = Nexus::GetApplication()->GetPrimaryWindow();
 
-		switch (ImGui::GetMouseCursor())
+		switch (cursor)
 		{
 			case ImGuiMouseCursor_Arrow:
 			{
@@ -675,6 +640,8 @@ namespace Nexus::ImGuiUtils
 				break;
 			}
 		}
+
+		m_PreviousCursor = cursor;
 	}
 
 	void ImGuiGraphicsRenderer::UpdateMonitors()
