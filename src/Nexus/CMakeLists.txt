@@ -287,3 +287,6 @@ set_target_properties(tracy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 target_link_libraries(Nexus PUBLIC tracy)
 target_compile_definitions(Nexus PUBLIC TRACY_IMPORTS)
+
+set_target_properties(SPIRV-Tools-opt PROPERTIES CXX_STANDARD 17)
+set_target_properties(SPIRV-Tools-static PROPERTIES CXX_STANDARD 17)

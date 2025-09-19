@@ -20,7 +20,6 @@ namespace Nexus::Graphics
 		m_Commands.clear();
 		m_Started	  = true;
 		m_DebugGroups = 0;
-		m_CommandBuffers.Reset();
 	}
 
 	void CommandList::End()
@@ -57,8 +56,6 @@ namespace Nexus::Graphics
 		command.View = vertexBuffer;
 		command.Slot = slot;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::SetIndexBuffer(IndexBufferView indexBuffer)
@@ -75,8 +72,6 @@ namespace Nexus::Graphics
 		SetIndexBufferCommand command;
 		command.View = indexBuffer;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
@@ -91,9 +86,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(pipeline);
-
-		WeakRef<Pipeline> pipelineRef = pipeline;
-		m_CommandBuffers.PushCommand(pipelineRef);
 	}
 
 	void CommandList::Draw(const DrawDescription &desc)
@@ -108,8 +100,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::DrawIndexed(const DrawIndexedDescription &desc)
@@ -124,8 +114,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::DrawIndirect(const DrawIndirectDescription &desc)
@@ -140,8 +128,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
@@ -156,8 +142,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::Dispatch(const DispatchDescription &desc)
@@ -172,8 +156,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
@@ -188,8 +170,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::DrawMesh(const DrawMeshDescription &desc)
@@ -204,8 +184,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
@@ -220,8 +198,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(desc);
-
-		m_CommandBuffers.PushCommand(desc);
 	}
 
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
@@ -236,8 +212,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(resources);
-
-		m_CommandBuffers.PushCommand(resources);
 	}
 
 	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
@@ -256,8 +230,6 @@ namespace Nexus::Graphics
 		command.Color = color;
 		command.Rect  = clearRect;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
@@ -276,8 +248,6 @@ namespace Nexus::Graphics
 		command.Color = color;
 		command.Rect  = std::nullopt;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
@@ -295,8 +265,6 @@ namespace Nexus::Graphics
 		command.Value = value;
 		command.Rect  = clearRect;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
@@ -314,8 +282,6 @@ namespace Nexus::Graphics
 		command.Value = value;
 		command.Rect  = std::nullopt;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::SetRenderTarget(RenderTarget target)
@@ -330,8 +296,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(target);
-
-		m_CommandBuffers.PushCommand(target);
 	}
 
 	void CommandList::SetViewport(const Viewport &viewport)
@@ -346,8 +310,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(viewport);
-
-		m_CommandBuffers.PushCommand(viewport);
 	}
 
 	void CommandList::SetScissor(const Scissor &scissor)
@@ -362,8 +324,6 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.push_back(scissor);
-
-		m_CommandBuffers.PushCommand(scissor);
 	}
 
 	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target)
@@ -382,8 +342,6 @@ namespace Nexus::Graphics
 		command.SourceIndex = sourceIndex;
 		command.Target		= target;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void Nexus::Graphics::CommandList::StartTimingQuery(Ref<TimingQuery> query)
@@ -400,8 +358,6 @@ namespace Nexus::Graphics
 		StartTimingQueryCommand command;
 		command.Query = query;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void Nexus::Graphics::CommandList::StopTimingQuery(Ref<TimingQuery> query)
@@ -418,8 +374,6 @@ namespace Nexus::Graphics
 		StopTimingQueryCommand command;
 		command.Query = query;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
@@ -436,8 +390,6 @@ namespace Nexus::Graphics
 		Graphics::CopyBufferToBufferCommand command;
 		command.BufferCopy = bufferCopy;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
@@ -454,8 +406,6 @@ namespace Nexus::Graphics
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
@@ -472,8 +422,6 @@ namespace Nexus::Graphics
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
@@ -490,8 +438,6 @@ namespace Nexus::Graphics
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::BeginDebugGroup(const std::string &name)
@@ -508,8 +454,6 @@ namespace Nexus::Graphics
 		BeginDebugGroupCommand command;
 		command.GroupName = name;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 
 		m_DebugGroups++;
 	}
@@ -528,8 +472,6 @@ namespace Nexus::Graphics
 		EndDebugGroupCommand command;
 		m_Commands.push_back(command);
 
-		m_CommandBuffers.PushCommand(command);
-
 		m_DebugGroups--;
 	}
 
@@ -547,8 +489,6 @@ namespace Nexus::Graphics
 		InsertDebugMarkerCommand command;
 		command.MarkerName = name;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
@@ -558,8 +498,6 @@ namespace Nexus::Graphics
 		SetBlendFactorCommand command;
 		command.BlendFactorDesc = blendFactor;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::SetStencilReference(uint32_t stencilReference)
@@ -569,8 +507,6 @@ namespace Nexus::Graphics
 		SetStencilReferenceCommand command;
 		command.StencilReference = stencilReference;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
@@ -580,8 +516,6 @@ namespace Nexus::Graphics
 		BuildAccelerationStructuresCommand command;
 		command.BuildDescriptions = description;
 		m_Commands.push_back(command);
-
-		m_CommandBuffers.PushCommand(command);
 	}
 
 	void CommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
@@ -589,8 +523,6 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		m_Commands.push_back(description);
-
-		m_CommandBuffers.PushCommand(description);
 	}
 
 	void CommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
@@ -598,8 +530,6 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		m_Commands.push_back(description);
-
-		m_CommandBuffers.PushCommand(description);
 	}
 
 	void CommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
@@ -607,8 +537,6 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		m_Commands.push_back(description);
-
-		m_CommandBuffers.PushCommand(description);
 	}
 
 	void CommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
@@ -621,12 +549,13 @@ namespace Nexus::Graphics
 		pushConstantDesc.Data.resize(size);
 		memcpy(pushConstantDesc.Data.data(), data, size);
 		m_Commands.push_back(pushConstantDesc);
-
-		m_CommandBuffers.PushCommand(pushConstantDesc);
 	}
 
 	void CommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)

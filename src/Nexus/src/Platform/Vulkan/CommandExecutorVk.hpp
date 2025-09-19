@@ -55,6 +55,9 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device) final;
+		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
 
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);

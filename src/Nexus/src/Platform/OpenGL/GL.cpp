@@ -34,10 +34,8 @@ namespace Nexus::GL
 			case GL_INVALID_ENUM: return "An invalid enum was entered";
 			case GL_INVALID_VALUE: return "An invalid value was entered";
 			case GL_INVALID_OPERATION: return "An invalid operation was attempted";
-			/* case GL_STACK_OVERFLOW:
-				return "A stack overflow has occured";
-			case GL_STACK_UNDERFLOW:
-				return "A stack underflow has occured"; */
+			case GL_STACK_OVERFLOW: return "A stack overflow has occured";
+			case GL_STACK_UNDERFLOW: return "A stack underflow has occured";
 			case GL_OUT_OF_MEMORY: return "Out of memory";
 			case GL_INVALID_FRAMEBUFFER_OPERATION: return "An invalid framebuffer operation was attempted";
 			default: return "An unknown error occurred";
@@ -533,6 +531,54 @@ namespace Nexus::GL
 				break;
 			}
 			default: throw std::runtime_error("Failed to find a valid texture type");
+		}
+	}
+
+	GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion)
+	{
+		supportsByRegion = false;
+
+		switch (access)
+		{
+			case Graphics::BarrierAccess::IndirectCommand: return GL_COMMAND_BARRIER_BIT;
+			case Graphics::BarrierAccess::IndexBuffer: return GL_ELEMENT_ARRAY_BARRIER_BIT;
+			case Graphics::BarrierAccess::VertexAttributeRead: return GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+			case Graphics::BarrierAccess::UniformRead: supportsByRegion = true; return GL_UNIFORM_BARRIER_BIT;
+			case Graphics::BarrierAccess::ShaderRead:
+			case Graphics::BarrierAccess::ShaderWrite:
+			{
+				supportsByRegion = true;
+				GLbitfield flags = GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT;
+
+				if (supportsStorageBuffers)
+				{
+					flags |= GL_SHADER_STORAGE_BARRIER_BIT;
+				}
+
+				return flags;
+			}
+			case Graphics::BarrierAccess::InputAttachmentRead:
+			case Graphics::BarrierAccess::ColourAttachmentRead:
+			case Graphics::BarrierAccess::ColourAttachmentWrite:
+			case Graphics::BarrierAccess::DepthStencilAttachmentRead:
+			case Graphics::BarrierAccess::DepthStencilAttachmentWrite:
+			{
+				supportsByRegion = true;
+				return GL_FRAMEBUFFER_BARRIER_BIT;
+			}
+			case Graphics::BarrierAccess::TransferRead:
+			case Graphics::BarrierAccess::TransferWrite:
+			case Graphics::BarrierAccess::HostRead:
+			case Graphics::BarrierAccess::HostWrite:
+			case Graphics::BarrierAccess::MemoryRead:
+			case Graphics::BarrierAccess::MemoryWrite:
+			{
+				return GL_TEXTURE_UPDATE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT;
+			}
+			case Graphics::BarrierAccess::TransformFeedback: return GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
+			case Graphics::BarrierAccess::AccelerationStructureRead:
+			case Graphics::BarrierAccess::AccelerationStructureWrite: return GL_ALL_BARRIER_BITS;
+			default: throw std::runtime_error("Failed to find a valid barrier access");
 		}
 	}
 

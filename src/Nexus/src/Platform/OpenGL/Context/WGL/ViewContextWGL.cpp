@@ -77,7 +77,15 @@ namespace Nexus::GL
 
 	void ViewContextWGL::Swap()
 	{
-		SwapBuffers(m_HDC);
+		if (wglSwapLayerBuffers != nullptr)
+		{
+			wglSwapLayerBuffers(m_HDC, WGL_SWAP_MAIN_PLANE);
+		}
+		else
+		{
+			SwapBuffers(m_HDC);
+		}
+
 	}
 
 	void ViewContextWGL::SetVSync(bool enabled)

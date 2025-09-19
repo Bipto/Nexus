@@ -52,6 +52,9 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device) final;
+		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,

@@ -34,11 +34,14 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
+				//retrieve available extensions
 				m_Extensions = GetSupportedExtensions(context);
 
+				//retrieve API and graphics adapter name
 				m_APIName	   = std::string("OpenGL - ") + std::string((const char *)context.GetString(GL_VERSION));
 				m_RendererName = (const char *)context.GetString(GL_RENDERER);
 
+				//enable debugging if available
 	#if !defined(__EMSCRIPTEN__)
 				if (enableDebug)
 				{

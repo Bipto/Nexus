@@ -579,6 +579,7 @@ namespace Nexus::ImGuiUtils
 		m_CommandList->End();
 
 		m_CommandQueue->SubmitCommandList(m_CommandList);
+		m_CommandQueue->WaitForIdle();
 	}
 
 	void ImGuiGraphicsRenderer::UpdateCursor()

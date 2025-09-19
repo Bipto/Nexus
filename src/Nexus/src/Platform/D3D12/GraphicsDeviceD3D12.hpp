@@ -8,9 +8,12 @@
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
+	#include "CommandQueueD3D12.hpp"
+
 namespace Nexus::Graphics
 {
 	class TextureD3D12;
+	class CommandQueueD3D12;
 
 	struct D3D12DeviceFeatures
 	{
@@ -146,6 +149,8 @@ namespace Nexus::Graphics
 		DeviceFeatures		m_Features		= {};
 		DeviceLimits		m_Limits		= {};
 		D3D12DeviceFeatures m_D3D12Features = {};
+
+		std::vector<WeakRef<CommandQueueD3D12>> m_CreatedCommandQueues = {};
 	};
 }	 // namespace Nexus::Graphics
 #endif

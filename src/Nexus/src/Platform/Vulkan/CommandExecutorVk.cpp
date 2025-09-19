@@ -864,6 +864,18 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
+	{
+	}
+
 	void BeginRenderPass(GraphicsDeviceVk			 *device,
 						 const VkRenderPassBeginInfo &beginInfo,
 						 VkSubpassContents			  subpassContents,

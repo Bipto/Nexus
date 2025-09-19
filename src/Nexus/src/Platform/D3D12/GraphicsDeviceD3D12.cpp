@@ -249,7 +249,13 @@ namespace Nexus::Graphics
 
 	Ref<ICommandQueue> GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return CreateRef<CommandQueueD3D12>(this, description);
+		Ref<ICommandQueue>	   commandQueue		 = CreateRef<CommandQueueD3D12>(this, description);
+		Ref<CommandQueueD3D12> commandQueueD3D12 = std::dynamic_pointer_cast<CommandQueueD3D12>(commandQueue);
+
+		WeakRef<CommandQueueD3D12> commandQueueWeakRef = commandQueueD3D12;
+		m_CreatedCommandQueues.push_back(commandQueueWeakRef);
+
+		return commandQueue;
 	}
 
 	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)

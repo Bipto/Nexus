@@ -12,182 +12,19 @@
 
 namespace Nexus::Graphics
 {
-	using OpenGLDispatchFunction = void (*)(const RenderCommandData &data, GraphicsDevice *, CommandExecutorOpenGL *);
-
-	template<typename T>
-	void DispatchTrampoline(const RenderCommandData &data, GraphicsDevice *device, CommandExecutorOpenGL *executor)
-	{
-		const T &cmd = std::get<T>(data);
-		executor->ExecuteCommand(cmd, device);	  // Still uses your overloads
-	}
-
-	template<typename Variant, size_t... Indices>
-	constexpr auto GenerateDispatchTable(std::index_sequence<Indices...>)
-	{
-		return std::array<OpenGLDispatchFunction, sizeof...(Indices)> {&DispatchTrampoline<std::variant_alternative_t<Indices, Variant>>...};
-	}
-
-	constexpr auto OpenGLDispatchTable =
-		GenerateDispatchTable<RenderCommandData>(std::make_index_sequence<std::variant_size_v<RenderCommandData>> {});
-
 	CommandExecutorOpenGL::~CommandExecutorOpenGL()
 	{
 		Reset();
 	}
 
-	using CommandExecutorFn = void (*)(const CommandBuffers &, size_t, GraphicsDevice *, CommandExecutorOpenGL *);
-
-	static void ExecutePipelineCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
-	{
-		// std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_PipelineCommands[index]);
-
-		PipelineCommandGroup variant = buffers.m_PipelineCommands[index];
-
-		if (auto setVbCommand = std::get_if<SetVertexBufferCommand>(&variant))
-		{
-			executor->ExecuteCommand(*setVbCommand, device);
-		}
-		else if (auto setIbCommand = std::get_if<SetIndexBufferCommand>(&variant))
-		{
-			executor->ExecuteCommand(*setIbCommand, device);
-		}
-		else if (auto setPipelineCommand = std::get_if<WeakRef<Pipeline>>(&variant))
-		{
-			executor->ExecuteCommand(*setPipelineCommand, device);
-		}
-		else if (auto setResourceSetCommand = std::get_if<Ref<ResourceSet>>(&variant))
-		{
-			executor->ExecuteCommand(*setResourceSetCommand, device);
-		}
-		else if (auto clearColourTargetCommand = std::get_if<ClearColorTargetCommand>(&variant))
-		{
-			executor->ExecuteCommand(*clearColourTargetCommand, device);
-		}
-		else if (auto clearDepthStencilTargetCommand = std::get_if<ClearDepthStencilTargetCommand>(&variant))
-		{
-			executor->ExecuteCommand(*clearDepthStencilTargetCommand, device);
-		}
-		else if (auto setRenderTargetCommand = std::get_if<RenderTarget>(&variant))
-		{
-			executor->ExecuteCommand(*setRenderTargetCommand, device);
-		}
-		else if (auto setViewportCommand = std::get_if<Viewport>(&variant))
-		{
-			executor->ExecuteCommand(*setViewportCommand, device);
-		}
-		else if (auto setScissorCommand = std::get_if<Scissor>(&variant))
-		{
-			executor->ExecuteCommand(*setScissorCommand, device);
-		}
-		else if (auto setBlendFactorCommand = std::get_if<SetBlendFactorCommand>(&variant))
-		{
-			executor->ExecuteCommand(*setBlendFactorCommand, device);
-		}
-		else if (auto setStencilReferenceCommand = std::get_if<SetStencilReferenceCommand>(&variant))
-		{
-			executor->ExecuteCommand(*setStencilReferenceCommand, device);
-		}
-		else
-		{
-			throw std::runtime_error("Unknown command");
-		}
-	}
-
-	static void ExecuteGraphicsCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
-	{
-		// std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_GraphicsCommands[index]);
-
-		GraphicsCommandGroup variant = buffers.m_GraphicsCommands[index];
-
-		if (auto drawCmd = std::get_if<DrawDescription>(&variant))
-		{
-			executor->ExecuteCommand(*drawCmd, device);
-		}
-		else if (auto drawIndexedCmd = std::get_if<DrawIndexedDescription>(&variant))
-		{
-			executor->ExecuteCommand(*drawIndexedCmd, device);
-		}
-		else if (auto drawIndirectCmd = std::get_if<DrawIndirectDescription>(&variant))
-		{
-			executor->ExecuteCommand(*drawIndirectCmd, device);
-		}
-		else if (auto drawIndirectIndexedCmd = std::get_if<DrawIndirectIndexedDescription>(&variant))
-		{
-			executor->ExecuteCommand(*drawIndirectIndexedCmd, device);
-		}
-		else if (auto dispatchCmd = std::get_if<DispatchDescription>(&variant))
-		{
-			executor->ExecuteCommand(*dispatchCmd, device);
-		}
-		else if (auto dispatchIndirectCmd = std::get_if<DispatchIndirectDescription>(&variant))
-		{
-			executor->ExecuteCommand(*dispatchIndirectCmd, device);
-		}
-		else if (auto drawMeshCmd = std::get_if<DrawMeshDescription>(&variant))
-		{
-			executor->ExecuteCommand(*drawMeshCmd, device);
-		}
-		else if (auto drawMeshIndirectCmd = std::get_if<DrawMeshIndirectDescription>(&variant))
-		{
-			executor->ExecuteCommand(*drawMeshIndirectCmd, device);
-		}
-		else
-		{
-			throw std::runtime_error("Unknown command");
-		}
-	}
-
-	static void ExecuteTransferCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
-	{
-		std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_TransferCommands[index]);
-	}
-
-	static void ExecuteDebugCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
-	{
-		std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_DebugCommands[index]);
-	}
-
-	static void ExecuteAccelerationStructureCommand(const CommandBuffers  &buffers,
-													size_t				   index,
-													GraphicsDevice		  *device,
-													CommandExecutorOpenGL *executor)
-	{
-		std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_AccelerationStructureCommands[index]);
-	}
-
-	static void ExecuteResourceCommand(const CommandBuffers &buffers, size_t index, GraphicsDevice *device, CommandExecutorOpenGL *executor)
-	{
-		std::visit([&](auto &&arg) { executor->ExecuteCommand(arg, device); }, buffers.m_ResourceCommands[index]);
-	}
-
-	static constexpr CommandExecutorFn DispatchTable[] = {&ExecutePipelineCommand,
-														  &ExecuteGraphicsCommand,
-														  nullptr,	  // PushConstants — currently not dispatched
-														  &ExecuteTransferCommand,
-														  &ExecuteDebugCommand,
-														  &ExecuteAccelerationStructureCommand,
-														  &ExecuteResourceCommand};
-
 	void CommandExecutorOpenGL::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 
-		const CommandBuffers &commandBuffer = commandList->GetCommandBuffer();
-
-		for (const CommandHeader &header : commandBuffer.m_CommandStream)
+		const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
+		for (const auto &command : commands)
 		{
-			const size_t typeIndex = static_cast<size_t>(header.Type);
-			assert(typeIndex < static_cast<size_t>(CommandType::COUNT));
-
-			CommandExecutorFn executorFn = DispatchTable[typeIndex];
-			if (executorFn)
-			{
-				executorFn(commandBuffer, header.Index, device, this);
-			}
-			else
-			{
-				assert(false && "CommandExecutor function is nullptr (unsupported command?)");
-			}
+			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, command);
 		}
 	}
 
@@ -858,6 +695,48 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	{
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				// check that we have a version of OpenGL that supports memory barriers
+				bool barrierSupported = context.ES_VERSION_3_1 || context.VERSION_4_2 || context.MemoryBarrierEXT;
+
+				if (barrierSupported)
+				{
+					// convert into OpenGL barrier flags and whether the flags can be used with a region barrier
+					bool	   supportsByRegion = false;
+
+					//check if the OpenGL context version supports storage buffers
+					bool	   supportsStorageBuffers = context.ES_VERSION_3_1 || context.VERSION_4_3;
+					GLbitfield barrierFlags		= GL::GetBarrierFlags(command.AfterStage, supportsStorageBuffers, supportsByRegion);
+
+					// we check if the OpenGL context supports memory barriers by region and this feature is supported with the requested barrier
+					// access. This will make some barriers e.g. framebuffer reads after writes much more efficient.
+					if (supportsByRegion && context.MemoryBarrierByRegion != nullptr)
+					{
+						context.MemoryBarrierByRegion(barrierFlags);
+					}
+					// otherwise, we have to use a global memory barrier if they are supported
+					else if (context.MemoryBarrierEXT != nullptr)
+					{
+						context.MemoryBarrierEXT(barrierFlags);
+					}
+				}
+				
+			});
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	{
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.TextureBarrier(); });
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
 	{
 	}
 

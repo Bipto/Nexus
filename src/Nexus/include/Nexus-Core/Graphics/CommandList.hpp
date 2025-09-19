@@ -265,40 +265,31 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
-	enum class BarrierStage
-	{
-		All,
-		Graphics,
-		VertexInput,
-		VertexShader,
-		FragmentShader,
-		TesselationControlShader,
-		TesselationEvaluationShader,
-		GeometryShader,
-		ComputeShader,
-		RenderTarget,
-		TransferSource,
-		TransferDestination,
-		Resolve
-	};
-
 	enum class BarrierAccess
 	{
-		All,
-		VertexBuffer,
+		IndirectCommand,
 		IndexBuffer,
-		RenderTarget,
-		StorageImage,
-		DepthStencilRead,
-		DepthStencilWrite,
-		ResolveSource,
-		ResolveDestination,
-		CopySource,
-		CopyDestination,
-		DrawIndirect,
+		VertexAttributeRead,
+		UniformRead,
+		InputAttachmentRead,
+		ShaderRead,
+		ShaderWrite,
+		ColourAttachmentRead,
+		ColourAttachmentWrite,
+		DepthStencilAttachmentRead,
+		DepthStencilAttachmentWrite,
+		TransferRead,
+		TransferWrite,
+		HostRead,
+		HostWrite,
+		MemoryRead,
+		MemoryWrite,
+		TransformFeedback,
+		AccelerationStructureRead,
+		AccelerationStructureWrite
 	};
 
-	enum class BarrierLayout
+	enum class ImageLayout
 	{
 		Undefined,
 		General,
@@ -309,38 +300,34 @@ namespace Nexus::Graphics
 		CopySource,
 		CopyDestination,
 		ResolveSource,
-		ResolveDestimation,
+		ResolveDestination,
 		ShaderReadOnly,
 		ShaderReadWrite
 	};
 
 	struct MemoryBarrierDesc
 	{
-		BarrierStage  BeforeStage  = BarrierStage::All;
-		BarrierStage  AfterStage   = BarrierStage::All;
-		BarrierAccess BeforeAccess = BarrierAccess::All;
-		BarrierAccess AfterAccess  = BarrierAccess::All;
+		BarrierAccess BeforeStage = {};
+		BarrierAccess AfterStage  = {};
 	};
 
 	struct TextureBarrierDesc
 	{
 		Ref<Graphics::Texture> Texture			= nullptr;
-		BarrierStage		   BeforeStage		= BarrierStage::All;
-		BarrierStage		   AfterStage		= BarrierStage::All;
-		BarrierLayout		   BeforeLayout		= BarrierLayout::General;
-		BarrierLayout		   AfterLayout		= BarrierLayout::General;
-		BarrierAccess		   BeforeAccess		= BarrierAccess::All;
-		BarrierAccess		   AfterAccess		= BarrierAccess::All;
+		ImageLayout			   BeforeLayout		= {};
+		ImageLayout			   AfterLayout		= {};
+		BarrierAccess		   BeforeAccess		= {};
+		BarrierAccess		   AfterAccess		= {};
 		SubresourceDescription SubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc
 	{
 		Ref<Graphics::DeviceBuffer> Buffer		 = nullptr;
-		BarrierStage				BeforeStage	 = BarrierStage::All;
-		BarrierStage				AfterStage	 = BarrierStage::All;
-		BarrierAccess				BeforeAccess = BarrierAccess::All;
-		BarrierAccess				AfterAccess	 = BarrierAccess::All;
+		BarrierAccess				BeforeAccess = {};
+		BarrierAccess				AfterAccess	 = {};
+		size_t						Offset		 = 0;
+		size_t						Size		 = 0;
 	};
 
 	struct PushConstantsDesc
@@ -383,133 +370,11 @@ namespace Nexus::Graphics
 						 AccelerationStructureCopyDescription,
 						 AccelerationStructureDeviceBufferCopyDescription,
 						 DeviceBufferAccelerationStructureCopyDescription,
-						 PushConstantsDesc>
+						 PushConstantsDesc,
+						 MemoryBarrierDesc,
+						 TextureBarrierDesc,
+						 BufferBarrierDesc>
 		RenderCommandData;
-
-	enum class CommandType : uint8_t
-	{
-		Pipeline = 0,
-		Graphics,
-		PushConstants,
-		Transfer,
-		Debug,
-		AccelerationStructure,
-		Resource,
-		COUNT
-	};
-
-	struct CommandHeader
-	{
-		CommandType Type  = {};
-		size_t		Index = 0;
-	};
-
-	typedef std::variant<SetVertexBufferCommand,
-						 SetIndexBufferCommand,
-						 WeakRef<Pipeline>,
-						 Ref<ResourceSet>,
-						 ClearColorTargetCommand,
-						 ClearDepthStencilTargetCommand,
-						 RenderTarget,
-						 Viewport,
-						 Scissor,
-						 SetBlendFactorCommand,
-						 SetStencilReferenceCommand>
-		PipelineCommandGroup;
-
-	typedef std::variant<DrawDescription,
-						 DrawIndexedDescription,
-						 DrawIndirectDescription,
-						 DrawIndirectIndexedDescription,
-						 DispatchDescription,
-						 DispatchIndirectDescription,
-						 DrawMeshDescription,
-						 DrawMeshIndirectDescription>
-		GraphicsCommandGroup;
-
-	typedef std::variant<ResolveSamplesToSwapchainCommand> ResourceCommandGroup;
-
-	typedef std::variant<StartTimingQueryCommand, StopTimingQueryCommand, BeginDebugGroupCommand, EndDebugGroupCommand, InsertDebugMarkerCommand>
-		DebugCommandGroup;
-
-	typedef std::variant<CopyBufferToBufferCommand, CopyBufferToTextureCommand, CopyTextureToBufferCommand, CopyTextureToTextureCommand>
-		TransferCommandGroup;
-
-	typedef std::variant<BuildAccelerationStructuresCommand,
-						 AccelerationStructureCopyDescription,
-						 AccelerationStructureDeviceBufferCopyDescription,
-						 DeviceBufferAccelerationStructureCopyDescription>
-		AccelerationStructureCommandGroup;
-
-	template<typename Variant, typename T>
-	struct variant_contains;
-
-	template<typename T, typename... Ts>
-	struct variant_contains<std::variant<Ts...>, T>
-	{
-		static constexpr bool value = (std::is_same_v<T, Ts> || ...);
-	};
-
-	template<typename Variant, typename T>
-	constexpr bool variant_contains_v = variant_contains<Variant, T>::value;
-
-	template<typename>
-	inline constexpr bool always_false = false;
-
-	struct CommandBuffers
-	{
-		void Reset()
-		{
-			m_PipelineCommands.clear();
-			m_GraphicsCommands.clear();
-			m_TransferCommands.clear();
-			m_DebugCommands.clear();
-			m_AccelerationStructureCommands.clear();
-			m_ResourceCommands.clear();
-			m_CommandStream.clear();
-		}
-
-		template<typename CmdT>
-		void PushCommand(CmdT &&command)
-		{
-			using RawT = std::decay_t<CmdT>;
-
-			if constexpr (variant_contains_v<PipelineCommandGroup, RawT>)
-			{
-				size_t index = m_PipelineCommands.size();
-				m_PipelineCommands.emplace_back(RawT {std::forward<CmdT>(command)});
-				m_CommandStream.push_back({CommandType::Pipeline, index});
-			}
-			else if constexpr (variant_contains_v<GraphicsCommandGroup, RawT>)
-			{
-				size_t index = m_GraphicsCommands.size();
-				m_GraphicsCommands.emplace_back(RawT {std::forward<CmdT>(command)});
-				m_CommandStream.push_back({CommandType::Graphics, index});
-			}
-			else if constexpr (variant_contains_v<TransferCommandGroup, RawT>)
-			{
-				size_t index = m_TransferCommands.size();
-				m_TransferCommands.emplace_back(RawT {std::forward<CmdT>(command)});
-				m_CommandStream.push_back({CommandType::Transfer, index});
-			}
-			else if constexpr (variant_contains_v<DebugCommandGroup, RawT>) {}
-			else if constexpr (variant_contains_v<AccelerationStructureCommandGroup, RawT>) {}
-			else if constexpr (variant_contains_v<ResourceCommandGroup, RawT>) {}
-			else if constexpr (std::is_same_v<RawT, PushConstantsDesc>) {}
-			else
-			{
-				static_assert(always_false<RawT>, "Unknown command type");
-			}
-		}
-
-		std::vector<PipelineCommandGroup>			   m_PipelineCommands;
-		std::vector<GraphicsCommandGroup>			   m_GraphicsCommands;
-		std::vector<TransferCommandGroup>			   m_TransferCommands;
-		std::vector<DebugCommandGroup>				   m_DebugCommands;
-		std::vector<AccelerationStructureCommandGroup> m_AccelerationStructureCommands;
-		std::vector<ResourceCommandGroup>			   m_ResourceCommands;
-		std::vector<CommandHeader>					   m_CommandStream;
-	};
 
 	struct CommandListDescription
 	{
@@ -628,23 +493,11 @@ namespace Nexus::Graphics
 
 		bool IsRecording() const;
 
-		CommandBuffers &GetCommandBuffer()
-		{
-			return m_CommandBuffers;
-		}
-
-		const CommandBuffers &GetCommandBuffer() const
-		{
-			return m_CommandBuffers;
-		}
-
 	  private:
 		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
 		bool						   m_Started	 = false;
 		uint32_t					   m_DebugGroups = 0;
-
-		CommandBuffers m_CommandBuffers = {};
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

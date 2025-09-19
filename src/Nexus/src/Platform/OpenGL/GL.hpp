@@ -86,6 +86,8 @@ namespace Nexus::GL
 	GLenum GetAccessMask(Graphics::ShaderAccess access);
 	GLenum GetTextureType(const Graphics::TextureDescription &spec);
 
+	GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion);
+
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec);
 	void					ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context);
 	void					AttachTexture(GLuint					   framebuffer,

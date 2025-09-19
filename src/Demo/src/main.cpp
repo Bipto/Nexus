@@ -322,6 +322,11 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
+			Nexus::Graphics::MemoryBarrierDesc barrierDesc = {};
+			barrierDesc.AfterStage						   = Nexus::Graphics::BarrierAccess::ColourAttachmentWrite;
+			barrierDesc.BeforeStage						   = Nexus::Graphics::BarrierAccess::ColourAttachmentRead;
+			m_CommandList->SubmitMemoryBarrier(barrierDesc);
+
 			m_CommandList->End();
 
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -365,7 +370,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.GraphicsCreateInfo.Debug = false;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
