@@ -80,11 +80,6 @@ namespace Nexus::Graphics
 		IndexBufferView View = {};
 	};
 
-	struct SetPipelineCommand
-	{
-		Ref<Pipeline> PipelineToBind = {};
-	};
-
 	struct BeginDebugGroupCommand
 	{
 		std::string GroupName = {};
@@ -205,7 +200,7 @@ namespace Nexus::Graphics
 		size_t			  DrawCount		 = 0;
 	};
 
-	struct ClearColourTargetCommand
+	struct ClearColorTargetCommand
 	{
 		uint32_t				 Index = {};
 		ClearColorValue			 Color = {};
@@ -270,40 +265,31 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
-	enum class BarrierStage
-	{
-		All,
-		Graphics,
-		VertexInput,
-		VertexShader,
-		FragmentShader,
-		TesselationControlShader,
-		TesselationEvaluationShader,
-		GeometryShader,
-		ComputeShader,
-		RenderTarget,
-		TransferSource,
-		TransferDestination,
-		Resolve
-	};
-
 	enum class BarrierAccess
 	{
-		All,
-		VertexBuffer,
+		IndirectCommand,
 		IndexBuffer,
-		RenderTarget,
-		StorageImage,
-		DepthStencilRead,
-		DepthStencilWrite,
-		ResolveSource,
-		ResolveDestination,
-		CopySource,
-		CopyDestination,
-		DrawIndirect,
+		VertexAttributeRead,
+		UniformRead,
+		InputAttachmentRead,
+		ShaderRead,
+		ShaderWrite,
+		ColourAttachmentRead,
+		ColourAttachmentWrite,
+		DepthStencilAttachmentRead,
+		DepthStencilAttachmentWrite,
+		TransferRead,
+		TransferWrite,
+		HostRead,
+		HostWrite,
+		MemoryRead,
+		MemoryWrite,
+		TransformFeedback,
+		AccelerationStructureRead,
+		AccelerationStructureWrite
 	};
 
-	enum class BarrierLayout
+	enum class ImageLayout
 	{
 		Undefined,
 		General,
@@ -321,31 +307,27 @@ namespace Nexus::Graphics
 
 	struct MemoryBarrierDesc
 	{
-		BarrierStage  BeforeStage  = BarrierStage::All;
-		BarrierStage  AfterStage   = BarrierStage::All;
-		BarrierAccess BeforeAccess = BarrierAccess::All;
-		BarrierAccess AfterAccess  = BarrierAccess::All;
+		BarrierAccess BeforeStage = {};
+		BarrierAccess AfterStage  = {};
 	};
 
 	struct TextureBarrierDesc
 	{
 		Ref<Graphics::Texture> Texture			= nullptr;
-		BarrierStage		   BeforeStage		= BarrierStage::All;
-		BarrierStage		   AfterStage		= BarrierStage::All;
-		BarrierLayout		   BeforeLayout		= BarrierLayout::General;
-		BarrierLayout		   AfterLayout		= BarrierLayout::General;
-		BarrierAccess		   BeforeAccess		= BarrierAccess::All;
-		BarrierAccess		   AfterAccess		= BarrierAccess::All;
+		ImageLayout			   BeforeLayout		= {};
+		ImageLayout			   AfterLayout		= {};
+		BarrierAccess		   BeforeAccess		= {};
+		BarrierAccess		   AfterAccess		= {};
 		SubresourceDescription SubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc
 	{
 		Ref<Graphics::DeviceBuffer> Buffer		 = nullptr;
-		BarrierStage				BeforeStage	 = BarrierStage::All;
-		BarrierStage				AfterStage	 = BarrierStage::All;
-		BarrierAccess				BeforeAccess = BarrierAccess::All;
-		BarrierAccess				AfterAccess	 = BarrierAccess::All;
+		BarrierAccess				BeforeAccess = {};
+		BarrierAccess				AfterAccess	 = {};
+		size_t						Offset		 = 0;
+		size_t						Size		 = 0;
 	};
 
 	struct PushConstantsDesc
@@ -355,326 +337,44 @@ namespace Nexus::Graphics
 		std::vector<uint8_t> Data	= {};
 	};
 
-	class CommandExecutor;
-
-	class NX_API IGraphicsCommand
-	{
-	  public:
-		virtual void Execute(CommandExecutor *executor, GraphicsDevice *device) = 0;
-	};
-
-	class NX_API SetVertexBufferCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		SetVertexBufferCommand Command = {};
-	};
-
-	class NX_API SetIndexBufferCommandImpl : IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		SetIndexBufferCommand Command = {};
-	};
-
-	class NX_API SetPipelineCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		SetPipelineCommand Command = {};
-	};
-
-	class NX_API DrawCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DrawDescription Command = {};
-	};
-
-	class NX_API DrawIndexedCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DrawIndexedDescription Command = {};
-	};
-
-	class NX_API DrawIndirectCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DrawIndirectDescription Command = {};
-	};
-
-	class NX_API DrawIndirectIndexedCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DrawIndirectIndexedDescription Command = {};
-	};
-
-	class NX_API DispatchCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DispatchDescription Command = {};
-	};
-
-	class NX_API DispatchIndirectCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DispatchIndirectDescription Command = {};
-	};
-
-	class NX_API DrawMeshCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DrawMeshDescription Command = {};
-	};
-
-	class NX_API DrawMeshIndirectCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DrawMeshIndirectDescription Command = {};
-	};
-
-	class NX_API SetResourceSetCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		Ref<ResourceSet> Command = {};
-	};
-
-	class NX_API ClearColourTargetCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		ClearColourTargetCommand Command = {};
-	};
-
-	class NX_API ClearDepthStencilTargetCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		ClearDepthStencilTargetCommand Command = {};
-	};
-
-	class NX_API SetRenderTargetCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		RenderTarget Command = {};
-	};
-
-	class NX_API SetViewportCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		Viewport Command = {};
-	};
-
-	class NX_API SetScissorCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		Scissor Command = {};
-	};
-
-	class NX_API ResolveCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		ResolveSamplesToSwapchainCommand Command = {};
-	};
-
-	class NX_API StartTimingQueryCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		StartTimingQueryCommand Command = {};
-	};
-
-	class NX_API StopTimingQueryCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		StopTimingQueryCommand Command = {};
-	};
-
-	class NX_API CopyBufferToBufferCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		CopyBufferToBufferCommand Command = {};
-	};
-
-	class NX_API CopyBufferToTextureCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		CopyBufferToTextureCommand Command = {};
-	};
-
-	class NX_API CopyTextureToBufferCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		CopyTextureToBufferCommand Command = {};
-	};
-
-	class NX_API CopyTextureToTextureCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		CopyTextureToTextureCommand Command = {};
-	};
-
-	class NX_API BeginDebugGroupCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		BeginDebugGroupCommand Command = {};
-	};
-
-	class NX_API EndDebugGroupCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		EndDebugGroupCommand Command = {};
-	};
-
-	class NX_API InsertDebugMarkerCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		InsertDebugMarkerCommand Command = {};
-	};
-
-	class NX_API SetBlendFactorCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		SetBlendFactorCommand Command = {};
-	};
-
-	class NX_API SetStencilRefCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		SetStencilReferenceCommand Command = {};
-	};
-
-	class NX_API BuildAccelerationStructuresCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		BeginDebugGroupCommand Command = {};
-	};
-
-	class NX_API AccelerationStructureCopyCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		AccelerationStructureCopyDescription Command = {};
-	};
-
-	class NX_API AccelerationStructureDeviceBufferCopyCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		AccelerationStructureDeviceBufferCopyDescription Command = {};
-	};
-
-	class NX_API DeviceBufferAccelerationStructureCopyCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		DeviceBufferAccelerationStructureCopyDescription Command = {};
-	};
-
-	class NX_API PushConstantsCommandImpl : public IGraphicsCommand
-	{
-	  public:
-		void Execute(CommandExecutor *executor, GraphicsDevice *device) final;
-
-		PushConstantsDesc Command = {};
-	};
-
-	class GraphicsDevice;
-	class CommandExecutor;
-
-	class NX_API CommandBuffer
-	{
-	  public:
-		struct CommandBufferHeader
-		{
-			size_t Offset = 0;
-			size_t Size	  = 0;
-		};
-
-	  public:
-		template<typename T>
-		void AddCommand(const T &command)
-		{
-			static_assert(std::is_base_of<IGraphicsCommand, T>::value, "T must derive from IGraphicsCommand");
-
-			CommandBufferHeader &header = m_Headers.emplace_back();
-			header.Offset				= m_CommandData.size();
-			header.Size					= sizeof(T);
-
-			m_CommandData.resize(m_CommandData.size() + sizeof(T));
-			std::memcpy(m_CommandData.data() + header.Offset, &command, sizeof(T));
-		}
-
-		void Reset()
-		{
-			m_Headers.clear();
-			m_CommandData.clear();
-			m_DebugStrings.clear();
-		}
-
-		void Execute(CommandExecutor *executor, GraphicsDevice *device);
-
-	  private:
-		std::vector<CommandBufferHeader> m_Headers		= {};
-		std::vector<uint8_t>			 m_CommandData	= {};
-		std::vector<std::string>		 m_DebugStrings = {};
-	};
+	typedef std::variant<SetVertexBufferCommand,
+						 SetIndexBufferCommand,
+						 WeakRef<Pipeline>,
+						 DrawDescription,
+						 DrawIndexedDescription,
+						 DrawIndirectDescription,
+						 DrawIndirectIndexedDescription,
+						 DispatchDescription,
+						 DispatchIndirectDescription,
+						 DrawMeshDescription,
+						 DrawMeshIndirectDescription,
+						 Ref<ResourceSet>,
+						 ClearColorTargetCommand,
+						 ClearDepthStencilTargetCommand,
+						 RenderTarget,
+						 Viewport,
+						 Scissor,
+						 ResolveSamplesToSwapchainCommand,
+						 StartTimingQueryCommand,
+						 StopTimingQueryCommand,
+						 CopyBufferToBufferCommand,
+						 CopyBufferToTextureCommand,
+						 CopyTextureToBufferCommand,
+						 CopyTextureToTextureCommand,
+						 BeginDebugGroupCommand,
+						 EndDebugGroupCommand,
+						 InsertDebugMarkerCommand,
+						 SetBlendFactorCommand,
+						 SetStencilReferenceCommand,
+						 BuildAccelerationStructuresCommand,
+						 AccelerationStructureCopyDescription,
+						 AccelerationStructureDeviceBufferCopyDescription,
+						 DeviceBufferAccelerationStructureCopyDescription,
+						 PushConstantsDesc,
+						 MemoryBarrierDesc,
+						 TextureBarrierDesc,
+						 BufferBarrierDesc>
+		RenderCommandData;
 
 	struct CommandListDescription
 	{
@@ -689,7 +389,10 @@ namespace Nexus::Graphics
 		CommandList(const CommandListDescription &spec);
 
 		/// @brief A virtual destructor allowing resources to be cleaned up
-		virtual ~CommandList() = default;
+		virtual ~CommandList()
+		{
+			m_Commands.clear();
+		}
 
 		/// @brief A method that begins a command list
 		/// @param beginInfo A parameter containing information about how to begin the
@@ -731,9 +434,9 @@ namespace Nexus::Graphics
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
 
-		void ClearColourTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect);
+		void ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect);
 
-		void ClearColourTarget(uint32_t index, const ClearColorValue &color);
+		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
 
@@ -779,19 +482,22 @@ namespace Nexus::Graphics
 
 		void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
 
-		const CommandListDescription &GetDescription();
+		void SubmitMemoryBarrier(const MemoryBarrierDesc &desc);
 
-		CommandBuffer		&GetCommandBuffer();
-		const CommandBuffer &GetCommandBuffer() const;
+		void SubmitTextureBarrier(const TextureBarrierDesc &desc);
+
+		void SubmitBufferBarrier(const BufferBarrierDesc &desc);
+
+		const std::vector<RenderCommandData> &GetCommandData() const;
+		const CommandListDescription		 &GetDescription();
 
 		bool IsRecording() const;
 
 	  private:
-		CommandListDescription m_Description = {};
-		bool				   m_Started	 = false;
-		uint32_t			   m_DebugGroups = 0;
-
-		CommandBuffer m_CommandBuffer = {};
+		CommandListDescription		   m_Description = {};
+		std::vector<RenderCommandData> m_Commands;
+		bool						   m_Started	 = false;
+		uint32_t					   m_DebugGroups = 0;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

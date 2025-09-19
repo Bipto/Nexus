@@ -37,10 +37,12 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
 	{
-		/*for (const auto &element : commands)
+		const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
+
+		for (const auto &element : commands)
 		{
 			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
-		}*/
+		}
 	}
 
 	void CommandExecutorD3D12::Reset()
@@ -91,11 +93,13 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const SetPipelineCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
 	{
-		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(command.PipelineToBind);
+		Ref<Pipeline> pipeline = std::dynamic_pointer_cast<Pipeline>(command.lock());
+
+		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
 		d3d12Pipeline->Bind(m_CommandList);
-		m_CurrentlyBoundPipeline = command.PipelineToBind;
+		m_CurrentlyBoundPipeline = pipeline;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
@@ -274,7 +278,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const ClearColourTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index))
 		{
@@ -724,6 +728,18 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
 	{
 	}
 

@@ -1,18 +1,8 @@
 #include "Nexus-Core/Graphics/CommandList.hpp"
-#include "Nexus-Core/Graphics/CommandExecutor.hpp"
 #include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
-	void CommandBuffer::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		for (const auto &header : m_Headers)
-		{
-			IGraphicsCommand *command = reinterpret_cast<IGraphicsCommand *>(m_CommandData.data() + header.Offset);
-			command->Execute(executor, device);
-		}
-	}
-
 	CommandList::CommandList(const CommandListDescription &spec) : m_Description(spec)
 	{
 	}
@@ -27,9 +17,9 @@ namespace Nexus::Graphics
 					 "been closed");
 		}
 
+		m_Commands.clear();
 		m_Started	  = true;
 		m_DebugGroups = 0;
-		m_CommandBuffer.Reset();
 	}
 
 	void CommandList::End()
@@ -65,10 +55,7 @@ namespace Nexus::Graphics
 		SetVertexBufferCommand command;
 		command.View = vertexBuffer;
 		command.Slot = slot;
-
-		SetVertexBufferCommandImpl commandImpl = {};
-		commandImpl.Command					   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetIndexBuffer(IndexBufferView indexBuffer)
@@ -84,10 +71,7 @@ namespace Nexus::Graphics
 
 		SetIndexBufferCommand command;
 		command.View = indexBuffer;
-
-		SetIndexBufferCommandImpl commandImpl = {};
-		commandImpl.Command					  = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
@@ -101,12 +85,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		SetPipelineCommand command = {};
-		command.PipelineToBind	   = pipeline;
-
-		SetPipelineCommandImpl commandImpl = {};
-		commandImpl.Command				   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(pipeline);
 	}
 
 	void CommandList::Draw(const DrawDescription &desc)
@@ -120,9 +99,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawCommandImpl commandImpl = {};
-		commandImpl.Command			= desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::DrawIndexed(const DrawIndexedDescription &desc)
@@ -136,9 +113,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndexedCommandImpl commandImpl = {};
-		commandImpl.Command				   = desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::DrawIndirect(const DrawIndirectDescription &desc)
@@ -152,9 +127,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndirectCommandImpl commandImpl = {};
-		commandImpl.Command					= desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
@@ -168,9 +141,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndirectIndexedCommandImpl commandImpl = {};
-		commandImpl.Command						   = desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::Dispatch(const DispatchDescription &desc)
@@ -184,9 +155,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DispatchCommandImpl commandImpl = {};
-		commandImpl.Command				= desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
@@ -200,9 +169,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DispatchIndirectCommandImpl commandImpl = {};
-		commandImpl.Command						= desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::DrawMesh(const DrawMeshDescription &desc)
@@ -216,9 +183,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawMeshCommandImpl commandImpl = {};
-		commandImpl.Command				= desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
@@ -232,9 +197,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawMeshIndirectCommandImpl commandImpl = {};
-		commandImpl.Command						= desc;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
@@ -248,12 +211,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		SetResourceSetCommandImpl commandImpl = {};
-		commandImpl.Command					  = resources;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(resources);
 	}
 
-	void CommandList::ClearColourTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
+	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -264,17 +225,14 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		ClearColourTargetCommand command;
+		ClearColorTargetCommand command;
 		command.Index = index;
 		command.Color = color;
 		command.Rect  = clearRect;
-
-		ClearColourTargetCommandImpl commandImpl = {};
-		commandImpl.Command						 = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearColourTarget(uint32_t index, const ClearColorValue &color)
+	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -285,14 +243,11 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		ClearColourTargetCommand command;
+		ClearColorTargetCommand command;
 		command.Index = index;
 		command.Color = color;
 		command.Rect  = std::nullopt;
-
-		ClearColourTargetCommandImpl commandImpl = {};
-		commandImpl.Command						 = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
@@ -309,10 +264,7 @@ namespace Nexus::Graphics
 		ClearDepthStencilTargetCommand command;
 		command.Value = value;
 		command.Rect  = clearRect;
-
-		ClearDepthStencilTargetCommandImpl commandImpl = {};
-		commandImpl.Command							   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
@@ -329,10 +281,7 @@ namespace Nexus::Graphics
 		ClearDepthStencilTargetCommand command;
 		command.Value = value;
 		command.Rect  = std::nullopt;
-
-		ClearDepthStencilTargetCommandImpl commandImpl = {};
-		commandImpl.Command							   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetRenderTarget(RenderTarget target)
@@ -346,9 +295,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		SetRenderTargetCommandImpl commandImpl = {};
-		commandImpl.Command					   = target;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(target);
 	}
 
 	void CommandList::SetViewport(const Viewport &viewport)
@@ -362,9 +309,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		SetViewportCommandImpl commandImpl = {};
-		commandImpl.Command				   = viewport;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(viewport);
 	}
 
 	void CommandList::SetScissor(const Scissor &scissor)
@@ -378,9 +323,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		SetScissorCommandImpl commandImpl = {};
-		commandImpl.Command				  = scissor;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(scissor);
 	}
 
 	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target)
@@ -398,10 +341,7 @@ namespace Nexus::Graphics
 		command.Source		= source;
 		command.SourceIndex = sourceIndex;
 		command.Target		= target;
-
-		ResolveCommandImpl commandImpl = {};
-		commandImpl.Command			   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void Nexus::Graphics::CommandList::StartTimingQuery(Ref<TimingQuery> query)
@@ -417,10 +357,7 @@ namespace Nexus::Graphics
 
 		StartTimingQueryCommand command;
 		command.Query = query;
-
-		StartTimingQueryCommandImpl commandImpl = {};
-		commandImpl.Command						= command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void Nexus::Graphics::CommandList::StopTimingQuery(Ref<TimingQuery> query)
@@ -436,10 +373,7 @@ namespace Nexus::Graphics
 
 		StopTimingQueryCommand command;
 		command.Query = query;
-
-		StopTimingQueryCommandImpl commandImpl = {};
-		commandImpl.Command					   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
@@ -455,10 +389,7 @@ namespace Nexus::Graphics
 
 		Graphics::CopyBufferToBufferCommand command;
 		command.BufferCopy = bufferCopy;
-
-		CopyBufferToBufferCommandImpl commandImpl = {};
-		commandImpl.Command						  = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
@@ -474,10 +405,7 @@ namespace Nexus::Graphics
 
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
-
-		CopyBufferToTextureCommandImpl commandImpl = {};
-		commandImpl.Command						   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
@@ -493,10 +421,7 @@ namespace Nexus::Graphics
 
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
-
-		CopyTextureToBufferCommandImpl commandImpl = {};
-		commandImpl.Command						   = command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
@@ -512,10 +437,7 @@ namespace Nexus::Graphics
 
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
-
-		CopyTextureToTextureCommandImpl commandImpl = {};
-		commandImpl.Command							= command;
-		m_CommandBuffer.AddCommand(commandImpl);
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::BeginDebugGroup(const std::string &name)
@@ -531,6 +453,7 @@ namespace Nexus::Graphics
 
 		BeginDebugGroupCommand command;
 		command.GroupName = name;
+		m_Commands.push_back(command);
 
 		m_DebugGroups++;
 	}
@@ -547,6 +470,7 @@ namespace Nexus::Graphics
 		}
 
 		EndDebugGroupCommand command;
+		m_Commands.push_back(command);
 
 		m_DebugGroups--;
 	}
@@ -564,6 +488,7 @@ namespace Nexus::Graphics
 
 		InsertDebugMarkerCommand command;
 		command.MarkerName = name;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
@@ -572,6 +497,7 @@ namespace Nexus::Graphics
 
 		SetBlendFactorCommand command;
 		command.BlendFactorDesc = blendFactor;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetStencilReference(uint32_t stencilReference)
@@ -580,6 +506,7 @@ namespace Nexus::Graphics
 
 		SetStencilReferenceCommand command;
 		command.StencilReference = stencilReference;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
@@ -588,21 +515,28 @@ namespace Nexus::Graphics
 
 		BuildAccelerationStructuresCommand command;
 		command.BuildDescriptions = description;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
 	{
 		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(description);
 	}
 
 	void CommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
 	{
 		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(description);
 	}
 
 	void CommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
 	{
 		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(description);
 	}
 
 	void CommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
@@ -614,6 +548,29 @@ namespace Nexus::Graphics
 		pushConstantDesc.Offset			   = offset;
 		pushConstantDesc.Data.resize(size);
 		memcpy(pushConstantDesc.Data.data(), data, size);
+		m_Commands.push_back(pushConstantDesc);
+	}
+
+	void CommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
+	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
+	}
+
+	void CommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
+	{
+	}
+
+	void CommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
+	{
+	}
+
+	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
+	{
+		NX_PROFILE_FUNCTION();
+
+		return m_Commands;
 	}
 
 	const CommandListDescription &CommandList::GetDescription()
@@ -623,189 +580,10 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	CommandBuffer &CommandList::GetCommandBuffer()
-	{
-		return m_CommandBuffer;
-	}
-
-	const CommandBuffer &CommandList::GetCommandBuffer() const
-	{
-		return m_CommandBuffer;
-	}
-
 	bool CommandList::IsRecording() const
 	{
 		NX_PROFILE_FUNCTION();
 
 		return m_Started;
-	}
-
-	void SetVertexBufferCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetIndexBufferCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetPipelineCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-	void DrawCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DrawIndexedCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DrawIndirectCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DrawIndirectIndexedCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DispatchCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DispatchIndirectCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DrawMeshCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DrawMeshIndirectCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetResourceSetCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void ClearColourTargetCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void ClearDepthStencilTargetCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetRenderTargetCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetViewportCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetScissorCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void ResolveCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void StartTimingQueryCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void StopTimingQueryCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void CopyBufferToBufferCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void CopyBufferToTextureCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void CopyTextureToBufferCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void CopyTextureToTextureCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void BeginDebugGroupCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void EndDebugGroupCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void InsertDebugMarkerCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetBlendFactorCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void SetStencilRefCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void BuildAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void AccelerationStructureCopyCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void AccelerationStructureDeviceBufferCopyCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void DeviceBufferAccelerationStructureCopyCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
-	}
-
-	void PushConstantsCommandImpl::Execute(CommandExecutor *executor, GraphicsDevice *device)
-	{
-		executor->ExecuteCommand(Command, device);
 	}
 }	 // namespace Nexus::Graphics

@@ -322,6 +322,11 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
+			Nexus::Graphics::MemoryBarrierDesc barrierDesc = {};
+			barrierDesc.AfterStage						   = Nexus::Graphics::BarrierAccess::ColourAttachmentWrite;
+			barrierDesc.BeforeStage						   = Nexus::Graphics::BarrierAccess::ColourAttachmentRead;
+			m_CommandList->SubmitMemoryBarrier(barrierDesc);
+
 			m_CommandList->End();
 
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -377,7 +382,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 8;
+	spec.SwapchainDescription.Samples		   = 1;
 	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";

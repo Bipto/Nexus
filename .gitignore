@@ -17,3 +17,4 @@ docs/html
 docs/latex
 out
 _deps
+.idea

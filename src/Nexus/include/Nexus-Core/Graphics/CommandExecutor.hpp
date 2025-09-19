@@ -5,44 +5,6 @@
 
 namespace Nexus::Graphics
 {
-	/*struct DispatchTable
-	{
-		void (*SetVertexBufferCmd)(const SetVertexBufferCommand &, GraphicsDevice *);
-		void (*SetIndexBufferCmd)(const SetIndexBufferCommand &, GraphicsDevice *);
-		void (*SetPipelineCmd)(WeakRef<Pipeline>, GraphicsDevice *);
-		void (*DrawCmd)(const DrawDescription &, GraphicsDevice *);
-		void (*DrawIndexedCmd)(const DrawIndexedDescription &, GraphicsDevice *);
-		void (*DrawIndirectCmd)(const DrawIndirectDescription &, GraphicsDevice *);
-		void (*DrawIndirectIndexedCmd)(const DrawIndirectIndexedDescription &, GraphicsDevice *);
-		void (*DispatchCmd)(const DispatchDescription *, GraphicsDevice *);
-		void (*DispatchIndirectCmd)(const DispatchIndirectDescription &, GraphicsDevice *);
-		void (*DrawMeshCmd)(const DrawMeshDescription &, GraphicsDevice *);
-		void (*DrawMeshIndirectCmd)(const DrawMeshIndirectDescription &, GraphicsDevice *);
-		void (*SetResourceSetCmd)(Ref<ResourceSet>, GraphicsDevice *);
-		void (*ClearColourTargetCmd)(const ClearColorTargetCommand &, GraphicsDevice *);
-		void (*ClearDepthStencilTargetCmd)(const ClearDepthStencilTargetCommand &, GraphicsDevice *);
-		void (*SetRenderTargetCmd)(RenderTarget, GraphicsDevice *);
-		void (*SetViewportCmd)(const Viewport &, GraphicsDevice *);
-		void (*SetScissorCmd)(const Scissor &, GraphicsDevice *);
-		void (*ResolveCmd)(const ResolveSamplesToSwapchainCommand &, GraphicsDevice *);
-		void (*StartTimingQueryCmd)(const StartTimingQueryCommand &, GraphicsDevice *);
-		void (*StopTimingQueryCmd)(const StopTimingQueryCommand &, GraphicsDevice *);
-		void (*CopyBufferToBufferCmd)(const CopyBufferToBufferCommand &, GraphicsDevice *);
-		void (*CopyBufferToTextureCmd)(const CopyBufferToTextureCommand &, GraphicsDevice *);
-		void (*CopyTextureToBufferCmd)(const CopyTextureToBufferCommand &, GraphicsDevice *);
-		void (*CopyTextureToTextureCmd)(const CopyTextureToTextureCommand &, GraphicsDevice *);
-		void (*BeginDebugGroupCmd)(const BeginDebugGroupCommand &, GraphicsDevice *);
-		void (*EndDebugGroupCmd)(const EndDebugGroupCommand &, GraphicsDevice *);
-		void (*InsertDebugMarkerCmd)(const InsertDebugMarkerCommand &, GraphicsDevice *);
-		void (*SetBlendFactorCmd)(const SetBlendFactorCommand &, GraphicsDevice *);
-		void (*SetStencilReferenceCmd)(const SetStencilReferenceCommand &, GraphicsDevice *);
-		void (*BuildAccelerationStructuresCmd)(const BuildAccelerationStructuresCommand &, GraphicsDevice *);
-		void (*AccelerationStructureCopyCmd)(const AccelerationStructureCopyDescription &, GraphicsDevice *);
-		void (*AccelerationStructureDeviceBufferCopyCmd)(const AccelerationStructureDeviceBufferCopyDescription &, GraphicsDevice *);
-		void (*DeviceBufferAccelerationStructureCopyCmd)(const DeviceBufferAccelerationStructureCopyDescription &, GraphicsDevice *);
-		void (*PushConstantsCmd)(const PushConstantsDesc &, GraphicsDevice *);
-	};*/
-
 	class NX_API CommandExecutor
 	{
 	  public:
@@ -61,7 +23,7 @@ namespace Nexus::Graphics
 
 		virtual void ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)							 = 0;
-		virtual void ExecuteCommand(const SetPipelineCommand &command, GraphicsDevice *device)								 = 0;
+		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)										 = 0;
 		virtual void ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)									 = 0;
 		virtual void ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)							 = 0;
@@ -71,7 +33,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)								 = 0;
 		virtual void ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)						 = 0;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)										 = 0;
-		virtual void ExecuteCommand(const ClearColourTargetCommand &command, GraphicsDevice *device)						 = 0;
+		virtual void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)					 = 0;
 		virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device)											 = 0;
 		virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device)										 = 0;
@@ -93,5 +55,8 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device) = 0;
 		virtual void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) = 0;
 		virtual void ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)								 = 0;
+		virtual void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)								 = 0;
+		virtual void ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)								 = 0;
+		virtual void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)								 = 0;
 	};
 };	  // namespace Nexus::Graphics

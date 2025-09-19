@@ -91,5 +91,6 @@ namespace Nexus::ImGuiUtils
 		uint32_t								  m_IndexBufferCount = 0;
 
 		std::vector<int> m_Keys;
+		ImGuiMouseCursor m_PreviousCursor = ImGuiMouseCursor_Arrow;
 	};
 }	 // namespace Nexus::ImGuiUtils

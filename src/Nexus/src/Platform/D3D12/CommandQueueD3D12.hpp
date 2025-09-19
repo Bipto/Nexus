@@ -26,5 +26,7 @@ namespace Nexus::Graphics
 		CommandQueueDescription					   m_Description	 = {};
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue	 = nullptr;
 		std::unique_ptr<CommandExecutorD3D12>	   m_CommandExecutor = nullptr;
+
+		Ref<Fence> m_Fence = nullptr;
 	};
 }	 // namespace Nexus::Graphics

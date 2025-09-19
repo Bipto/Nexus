@@ -20,43 +20,44 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
 	{
-		//// begin
-		//{
-		//	// reset command buffer
-		//	{
-		//		vkResetCommandBuffer(m_CommandBuffer, 0);
-		//	}
+		// begin
+		{
+			// reset command buffer
+			{
+				vkResetCommandBuffer(m_CommandBuffer, 0);
+			}
 
-		//	// begin command buffer
-		//	{
-		//		VkCommandBufferBeginInfo beginInfo = {};
-		//		beginInfo.sType					   = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		//		beginInfo.flags					   = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-		//		if (vkBeginCommandBuffer(m_CommandBuffer, &beginInfo) != VK_SUCCESS)
-		//		{
-		//			throw std::runtime_error("Failed to begin command buffer");
-		//		}
-		//	}
+			// begin command buffer
+			{
+				VkCommandBufferBeginInfo beginInfo = {};
+				beginInfo.sType					   = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+				beginInfo.flags					   = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+				if (vkBeginCommandBuffer(m_CommandBuffer, &beginInfo) != VK_SUCCESS)
+				{
+					throw std::runtime_error("Failed to begin command buffer");
+				}
+			}
 
-		//	m_CurrentRenderTarget = {};
-		//}
+			m_CurrentRenderTarget = {};
+		}
 
-		//// execute commands
-		//{
-		//	m_Commands = commands;
-		//	for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
-		//	{
-		//		const auto &element = commands.at(m_CurrentCommandIndex);
-		//		std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
-		//	}
-		//	m_Commands.clear();
-		//}
+		// execute commands
+		{
+			const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
+			m_Commands									   = commands;
+			for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
+			{
+				const auto &element = commands.at(m_CurrentCommandIndex);
+				std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
+			}
+			m_Commands.clear();
+		}
 
-		//// end
-		//{
-		//	StopRendering();
-		//	vkEndCommandBuffer(m_CommandBuffer);
-		//}
+		// end
+		{
+			StopRendering();
+			vkEndCommandBuffer(m_CommandBuffer);
+		}
 	}
 
 	void CommandExecutorVk::Reset()
@@ -117,25 +118,33 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const SetPipelineCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
 	{
-		Ref<Pipeline> pipeline	   = command.PipelineToBind;
-		m_CurrentlyBoundPipeline   = pipeline;
-		Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
-
-		if (pipeline->GetType() != PipelineType::Graphics && pipeline->GetType() != PipelineType::Meshlet)
+		if (command.expired())
 		{
-			pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+			NX_ERROR("Attempting to bind an invalid pipeline");
+			return;
 		}
-		else
+
+		if (Ref<Pipeline> pipeline = command.lock())
 		{
-			// we immediately bind the graphics/meshlet pipeline if dynamic rendering is available, otherwise we need to know which VkRenderPass
-			// to use with it
-			GraphicsDeviceVk		   *deviceVk	   = (GraphicsDeviceVk *)device;
-			const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
-			if (deviceFeatures.DynamicRenderingAvailable)
+			m_CurrentlyBoundPipeline   = pipeline;
+			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+
+			if (pipeline->GetType() != PipelineType::Graphics && pipeline->GetType() != PipelineType::Meshlet)
 			{
 				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+			}
+			else
+			{
+				// we immediately bind the graphics/meshlet pipeline if dynamic rendering is available, otherwise we need to know which VkRenderPass
+				// to use with it
+				GraphicsDeviceVk		   *deviceVk	   = (GraphicsDeviceVk *)device;
+				const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
+				if (deviceFeatures.DynamicRenderingAvailable)
+				{
+					pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+				}
 			}
 		}
 	}
@@ -265,7 +274,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const ClearColourTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
 	{
 		if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index) || !ValidateIsRendering())
 		{
@@ -724,37 +733,33 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device)
 	{
-		assert(0);
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		// const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management occurs
+		// in the correct order
+		if (m_CurrentCommandIndex >= m_Commands.size() - 1)
+		{
+			StopRendering();
+		}
+		// otherwise, if the next command is to set a new render target, we need to stop rendering to ensure that they show in the correct order in
+		// debuggers
+		else
+		{
+			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
+			if (std::holds_alternative<RenderTarget>(data))
+			{
+				StopRendering();
+			}
+		}
 
-		//// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management
-		///occurs / in the correct order
-		// if (m_CurrentCommandIndex >= m_Commands.size() - 1)
-		//{
-		//	StopRendering();
-		// }
-		//// otherwise, if the next command is to set a new render target, we need to stop rendering to ensure that they show in the correct order in
-		//// debuggers
-		// else
-		//{
-		//	assert(0);
-
-		//	RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
-		//	if (std::holds_alternative<RenderTarget>(data))
-		//	{
-		//		StopRendering();
-		//	}
-		//}
-
-		// if (functions.vkCmdEndDebugUtilsLabelEXT)
-		//{
-		//	functions.vkCmdEndDebugUtilsLabelEXT(m_CommandBuffer);
-		// }
-		// else if (functions.vkCmdDebugMarkerEndEXT)
-		//{
-		//	functions.vkCmdDebugMarkerEndEXT(m_CommandBuffer);
-		// }
+		if (functions.vkCmdEndDebugUtilsLabelEXT)
+		{
+			functions.vkCmdEndDebugUtilsLabelEXT(m_CommandBuffer);
+		}
+		else if (functions.vkCmdDebugMarkerEndEXT)
+		{
+			functions.vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device)
@@ -856,6 +861,18 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
 	{
 	}
 

@@ -21,6 +21,10 @@ namespace Nexus::Graphics
 		m_CommandQueue->SetName(name.c_str());
 
 		m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device->GetD3D12Device());
+
+		Graphics::FenceDescription fenceDesc = {};
+		fenceDesc.Signalled					 = false;
+		m_Fence								 = device->CreateFence(fenceDesc);
 	}
 
 	CommandQueueD3D12::~CommandQueueD3D12()
@@ -39,7 +43,7 @@ namespace Nexus::Graphics
 
 			commandList->Reset();
 			m_CommandExecutor->SetCommandList(cmdList);
-			m_CommandExecutor->ExecuteCommands(commands, m_Device);
+			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
 			commandList->Close();
 			m_CommandExecutor->Reset();
 
