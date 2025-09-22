@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 
 	/// @brief A struct representing a set of values to use  to clear the colour
 	/// buffer
-	struct ClearColorValue
+	struct ClearColourValue
 	{
 		/// @brief The red channel as a value between 0.0f and 1.0f
 		float Red = 1.0f;
@@ -203,7 +203,7 @@ namespace Nexus::Graphics
 	struct ClearColorTargetCommand
 	{
 		uint32_t				 Index = {};
-		ClearColorValue			 Color = {};
+		ClearColourValue		 Color = {};
 		std::optional<ClearRect> Rect  = {};
 	};
 
@@ -265,10 +265,44 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
+	enum class BarrierPipelineStage
+	{
+		None,
+		TopOfPipe,
+		DrawIndirect,
+		VertexInput,
+		VertexShader,
+		TessellationControlShader,
+		TessellationEvaluationShader,
+		GeometryShader,
+		FragmentShader,
+		EarlyFragmentTests,
+		LateFragmentTests,
+		ColourAttachmentOutput,
+		ComputeShader,
+		AllTransfers,
+		Transfer,
+		BottomOfPipe,
+		Host,
+		AllGraphics,
+		AllCommands,
+		Copy,
+		Resolve,
+		IndexInput,
+		VertexAttributeInput,
+		PreRasterizationShaders,
+		TransformFeedback,
+		AccelerationStructureBuild,
+		RayTracingShader,
+		TaskShader,
+		MeshShader
+	};
+
 	enum class BarrierAccess
 	{
-		IndirectCommand,
-		IndexBuffer,
+		None,
+		IndirectCommandRead,
+		IndexRead,
 		VertexAttributeRead,
 		UniformRead,
 		InputAttachmentRead,
@@ -284,7 +318,7 @@ namespace Nexus::Graphics
 		HostWrite,
 		MemoryRead,
 		MemoryWrite,
-		TransformFeedback,
+		TransformFeedbackWrite,
 		AccelerationStructureRead,
 		AccelerationStructureWrite
 	};
@@ -307,8 +341,10 @@ namespace Nexus::Graphics
 
 	struct MemoryBarrierDesc
 	{
-		BarrierAccess BeforeStage = {};
-		BarrierAccess AfterStage  = {};
+		BarrierAccess		 BeforeAccess = {};
+		BarrierAccess		 AfterAccess  = {};
+		BarrierPipelineStage BeforeStage  = {};
+		BarrierPipelineStage AfterStage	  = {};
 	};
 
 	struct TextureBarrierDesc
@@ -318,6 +354,8 @@ namespace Nexus::Graphics
 		ImageLayout			   AfterLayout		= {};
 		BarrierAccess		   BeforeAccess		= {};
 		BarrierAccess		   AfterAccess		= {};
+		BarrierPipelineStage   BeforeStage		= {};
+		BarrierPipelineStage   AfterStage		= {};
 		SubresourceDescription SubresourceRange = {};
 	};
 
@@ -326,6 +364,8 @@ namespace Nexus::Graphics
 		Ref<Graphics::DeviceBuffer> Buffer		 = nullptr;
 		BarrierAccess				BeforeAccess = {};
 		BarrierAccess				AfterAccess	 = {};
+		BarrierPipelineStage		BeforeStage	 = {};
+		BarrierPipelineStage		AfterStage	 = {};
 		size_t						Offset		 = 0;
 		size_t						Size		 = 0;
 	};
@@ -434,9 +474,9 @@ namespace Nexus::Graphics
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
 
-		void ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect);
+		void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
 
-		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
+		void ClearColourTarget(uint32_t index, const ClearColourValue &color);
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
 

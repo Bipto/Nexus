@@ -71,6 +71,8 @@ namespace Nexus::Graphics
 		PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR = VK_NULL_HANDLE;
 		PFN_vkQueueSubmit2KHR vkQueueSubmit2KHR = VK_NULL_HANDLE;
 		PFN_vkGetDeviceQueue2	   vkGetDeviceQueue2	  = VK_NULL_HANDLE;
+
+		PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2KHR = VK_NULL_HANDLE;
 	};
 
 	class GraphicsDeviceVk final : public GraphicsDevice

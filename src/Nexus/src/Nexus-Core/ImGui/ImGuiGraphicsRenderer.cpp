@@ -9,7 +9,7 @@
 
 #include "Nexus-Core/Timings/Profiler.hpp"
 
-static std::string GetImGuiShaderVertexSource()
+std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
 
@@ -34,7 +34,7 @@ static std::string GetImGuiShaderVertexSource()
 	return shader;
 }
 
-static std::string GetImGuiShaderFragmentSource()
+std::string GetImGuiShaderFragmentSource()
 {
 	std::string shader = "#version 450 core\n"
 
@@ -96,14 +96,6 @@ namespace Nexus::ImGuiUtils
 			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
 		CreatePipeline();
-
-		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
-		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
-		uniformBufferDesc.Usage									   = Graphics::BufferUsage::Uniform;
-		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
-		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
-		uniformBufferDesc.DebugName								   = "ImGui Uniform Buffer";
-		m_UniformBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc));
 
 		Nexus::Graphics::SamplerDescription samplerDesc;
 		samplerDesc.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
@@ -198,19 +190,37 @@ namespace Nexus::ImGuiUtils
 
 	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
 	{
-		auto id = (ImTextureID)m_TextureID++;
+		ImTextureID id = (ImTextureID)m_TextureID++;
 
-		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+		Ref<Graphics::ResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
-		m_Textures.insert({id, texture});
-		m_ResourceSets.insert({id, resourceSet});
+		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
+		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
+		uniformBufferDesc.Usage									   = Graphics::BufferUsage::Uniform;
+		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.DebugName								   = "ImGui Uniform Buffer";
+		Ref<Graphics::DeviceBuffer> uniformBuffer				   = m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc);
+
+		ImGuiDescriptorInfo &info = m_Descriptors[id];
+		info.m_Texture			  = texture;
+		info.m_Sampler			  = m_Sampler;
+		info.m_UniformBuffer	  = uniformBuffer;
+		info.m_ResourceSet		  = resourceSet;
+
+		Graphics::UniformBufferView uniformBufferView = {};
+		uniformBufferView.BufferHandle				  = uniformBuffer;
+		uniformBufferView.Offset					  = 0;
+		uniformBufferView.Size						  = uniformBuffer->GetDescription().SizeInBytes;
+		resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
+		resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 
 		return id;
 	}
 
 	void ImGuiGraphicsRenderer::UnbindTexture(ImTextureID id)
 	{
-		m_ResourceSets.erase(id);
+		m_Descriptors.erase(id);
 	}
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
@@ -434,7 +444,7 @@ namespace Nexus::ImGuiUtils
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
 			vertexBufferDesc.DebugName								  = "ImGui Vertex Buffer";
-			m_VertexBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
+			m_VertexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 		}
 
 		if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -447,7 +457,7 @@ namespace Nexus::ImGuiUtils
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
 			indexBufferDesc.DebugName								 = "ImGui Index Buffer";
-			m_IndexBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
+			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 		}
 
 		// update vertex buffer
@@ -495,24 +505,6 @@ namespace Nexus::ImGuiUtils
 
 		ImVec2 pos = drawData->DisplayPos;
 
-		auto	 &io  = ImGui::GetIO();
-		glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
-		m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
-
-		for (auto &[textureId, resourceSet] : m_ResourceSets)
-		{
-			WeakRef<Graphics::Texture> textureRef = m_Textures.at(textureId);
-			if (Ref<Graphics::Texture> texture = textureRef.lock())
-			{
-				Graphics::UniformBufferView uniformBufferView = {};
-				uniformBufferView.BufferHandle				  = m_UniformBuffer;
-				uniformBufferView.Offset					  = 0;
-				uniformBufferView.Size						  = m_UniformBuffer->GetDescription().SizeInBytes;
-				resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
-				resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
-			}
-		}
-
 		ImGuiViewport *vp = drawData->OwnerViewport;
 
 		int vtxOffset = 0;
@@ -558,8 +550,13 @@ namespace Nexus::ImGuiUtils
 					scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
 					m_CommandList->SetScissor(scissor);
 
-					const auto &resourceSet = m_ResourceSets.at(drawCmd.TextureId);
-					m_CommandList->SetResourceSet(resourceSet);
+					auto	 &io  = ImGui::GetIO();
+					glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
+
+					// TODO: Probably could optimise this with push constants
+					auto &descriptorInfo = m_Descriptors.at(drawCmd.TextureId);
+					descriptorInfo.m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
+					m_CommandList->SetResourceSet(descriptorInfo.m_ResourceSet);
 
 					Graphics::DrawIndexedDescription drawDesc = {};
 					drawDesc.VertexStart					  = drawCmd.VtxOffset + vtxOffset;
@@ -579,7 +576,6 @@ namespace Nexus::ImGuiUtils
 		m_CommandList->End();
 
 		m_CommandQueue->SubmitCommandList(m_CommandList);
-		m_CommandQueue->WaitForIdle();
 	}
 
 	void ImGuiGraphicsRenderer::UpdateCursor()
@@ -641,8 +637,6 @@ namespace Nexus::ImGuiUtils
 				break;
 			}
 		}
-
-		m_PreviousCursor = cursor;
 	}
 
 	void ImGuiGraphicsRenderer::UpdateMonitors()

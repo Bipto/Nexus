@@ -576,7 +576,8 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 
 		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context) {
+			[&](const GladGLContext &context)
+			{
 				GL::CopyBufferToTexture(textureOpenGL,
 										buffer,
 										command.BufferTextureCopy.BufferOffset,
@@ -591,7 +592,8 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
 
 		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context) {
+			[&](const GladGLContext &context)
+			{
 				GL::CopyTextureToBuffer(textureOpenGL,
 										buffer,
 										command.TextureBufferCopy.BufferOffset,
@@ -657,7 +659,8 @@ namespace Nexus::Graphics
 	void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context) {
+			[&](const GladGLContext &context)
+			{
 				context.BlendColor(command.BlendFactorDesc.Red,
 								   command.BlendFactorDesc.Green,
 								   command.BlendFactorDesc.Blue,
@@ -709,11 +712,11 @@ namespace Nexus::Graphics
 				if (barrierSupported)
 				{
 					// convert into OpenGL barrier flags and whether the flags can be used with a region barrier
-					bool	   supportsByRegion = false;
+					bool supportsByRegion = false;
 
-					//check if the OpenGL context version supports storage buffers
+					// check if the OpenGL context version supports storage buffers
 					bool	   supportsStorageBuffers = context.ES_VERSION_3_1 || context.VERSION_4_3;
-					GLbitfield barrierFlags		= GL::GetBarrierFlags(command.AfterStage, supportsStorageBuffers, supportsByRegion);
+					GLbitfield barrierFlags			  = GL::GetBarrierFlags(command.AfterAccess, supportsStorageBuffers, supportsByRegion);
 
 					// we check if the OpenGL context supports memory barriers by region and this feature is supported with the requested barrier
 					// access. This will make some barriers e.g. framebuffer reads after writes much more efficient.
@@ -727,7 +730,6 @@ namespace Nexus::Graphics
 						context.MemoryBarrierEXT(barrierFlags);
 					}
 				}
-				
 			});
 	}
 

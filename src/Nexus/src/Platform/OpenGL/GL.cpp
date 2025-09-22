@@ -540,8 +540,13 @@ namespace Nexus::GL
 
 		switch (access)
 		{
-			case Graphics::BarrierAccess::IndirectCommand: return GL_COMMAND_BARRIER_BIT;
-			case Graphics::BarrierAccess::IndexBuffer: return GL_ELEMENT_ARRAY_BARRIER_BIT;
+			case Graphics::BarrierAccess::None:
+			{
+				// we are not synchronizing anything
+				return 0;
+			}
+			case Graphics::BarrierAccess::IndirectCommandRead: return GL_COMMAND_BARRIER_BIT;
+			case Graphics::BarrierAccess::IndexRead: return GL_ELEMENT_ARRAY_BARRIER_BIT;
 			case Graphics::BarrierAccess::VertexAttributeRead: return GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
 			case Graphics::BarrierAccess::UniformRead: supportsByRegion = true; return GL_UNIFORM_BARRIER_BIT;
 			case Graphics::BarrierAccess::ShaderRead:
@@ -575,7 +580,7 @@ namespace Nexus::GL
 			{
 				return GL_TEXTURE_UPDATE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT;
 			}
-			case Graphics::BarrierAccess::TransformFeedback: return GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
+			case Graphics::BarrierAccess::TransformFeedbackWrite: return GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
 			case Graphics::BarrierAccess::AccelerationStructureRead:
 			case Graphics::BarrierAccess::AccelerationStructureWrite: return GL_ALL_BARRIER_BITS;
 			default: throw std::runtime_error("Failed to find a valid barrier access");

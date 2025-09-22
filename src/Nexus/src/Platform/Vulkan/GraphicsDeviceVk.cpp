@@ -697,6 +697,7 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkAcquireNextImage2KHR = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
 		m_ExtensionFunctions.vkQueueSubmit2KHR		= (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
 		m_ExtensionFunctions.vkGetDeviceQueue2		= (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
+		m_ExtensionFunctions.vkCmdPipelineBarrier2KHR	= (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(m_Device, "vkCmdPipelineBarrier2KHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

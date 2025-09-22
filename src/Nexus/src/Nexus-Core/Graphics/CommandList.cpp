@@ -214,7 +214,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(resources);
 	}
 
-	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
+	void CommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -232,7 +232,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+	void CommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
 	{
 		NX_PROFILE_FUNCTION();
 

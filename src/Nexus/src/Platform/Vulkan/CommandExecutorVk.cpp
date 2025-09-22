@@ -866,6 +866,57 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
 	{
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
+		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		if (functions.vkCmdPipelineBarrier2KHR)
+		{
+			VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(m_Device, command.BeforeAccess);
+			VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(m_Device, command.AfterAccess);
+
+			VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(m_Device, command.BeforeStage);
+			VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(m_Device, command.AfterStage);
+
+			VkMemoryBarrier2KHR memoryBarrier = {};
+			memoryBarrier.sType				  = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
+			memoryBarrier.pNext				  = nullptr;
+			memoryBarrier.srcStageMask		  = srcStage;
+			memoryBarrier.dstStageMask		  = dstStage;
+			memoryBarrier.srcAccessMask		  = srcAccess;
+			memoryBarrier.dstAccessMask		  = dstAccess;
+
+			VkDependencyInfoKHR dependencyInfo		= {};
+			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+			dependencyInfo.pNext					= nullptr;
+			dependencyInfo.dependencyFlags			= dependencyFlags;
+			dependencyInfo.memoryBarrierCount		= 1;
+			dependencyInfo.pMemoryBarriers			= &memoryBarrier;
+			dependencyInfo.bufferMemoryBarrierCount = 0;
+			dependencyInfo.pBufferMemoryBarriers	= nullptr;
+			dependencyInfo.imageMemoryBarrierCount	= 0;
+			dependencyInfo.pImageMemoryBarriers		= nullptr;
+
+			functions.vkCmdPipelineBarrier2KHR(m_CommandBuffer, &dependencyInfo);
+		}
+		else
+		{
+			VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
+			VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
+
+			VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
+			VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
+
+			VkMemoryBarrier barrier = {};
+			barrier.sType			= VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+			barrier.pNext			= nullptr;
+			barrier.srcAccessMask	= srcAccess;
+			barrier.dstAccessMask	= dstAccess;
+
+			// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
+			vkCmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 1, &barrier, 0, nullptr, 0, nullptr);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
