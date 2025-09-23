@@ -457,11 +457,11 @@ namespace Nexus::Graphics
 	{
 		Ref<DeviceBufferD3D12> source = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Source);
 		Ref<DeviceBufferD3D12> dest	  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Destination);
-		m_CommandList->CopyBufferRegion(dest->GetHandle().Get(),
-										command.BufferCopy.WriteOffset,
-										source->GetHandle().Get(),
-										command.BufferCopy.ReadOffset,
-										command.BufferCopy.Size);
+
+		for (const auto &copy : command.BufferCopy.Copies)
+		{
+			m_CommandList->CopyBufferRegion(dest->GetHandle().Get(), copy.WriteOffset, source->GetHandle().Get(), copy.ReadOffset, copy.Size);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
@@ -470,27 +470,27 @@ namespace Nexus::Graphics
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
 
 		size_t	 sizeInBytes	  = GetPixelFormatSizeInBytes(texture->GetDescription().Format);
-		size_t	 rowPitch		  = sizeInBytes * command.BufferTextureCopy.TextureSubresource.Width;
+		size_t	 rowPitch		  = sizeInBytes * command.BufferTextureCopy.TextureExtent.Width;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.TextureSubresource.MipLevel,
-																command.BufferTextureCopy.TextureSubresource.ArrayLayer,
+																command.BufferTextureCopy.TextureSubresource.BaseArrayLayer,
 																command.BufferTextureCopy.TextureHandle->GetDescription().MipLevels);
 
 		D3D12_BOX textureBounds = {};
-		textureBounds.left		= command.BufferTextureCopy.TextureSubresource.X;
-		textureBounds.right		= command.BufferTextureCopy.TextureSubresource.X + command.BufferTextureCopy.TextureSubresource.Width;
-		textureBounds.top		= command.BufferTextureCopy.TextureSubresource.Y;
-		textureBounds.bottom	= command.BufferTextureCopy.TextureSubresource.Y + command.BufferTextureCopy.TextureSubresource.Height;
-		textureBounds.front		= command.BufferTextureCopy.TextureSubresource.Z;
-		textureBounds.back		= command.BufferTextureCopy.TextureSubresource.Z + command.BufferTextureCopy.TextureSubresource.Depth;
+		textureBounds.left		= command.BufferTextureCopy.TextureOffset.X;
+		textureBounds.right		= command.BufferTextureCopy.TextureOffset.X + command.BufferTextureCopy.TextureExtent.Width;
+		textureBounds.top		= command.BufferTextureCopy.TextureOffset.Y;
+		textureBounds.bottom	= command.BufferTextureCopy.TextureOffset.Y + command.BufferTextureCopy.TextureExtent.Height;
+		textureBounds.front		= command.BufferTextureCopy.TextureOffset.Z;
+		textureBounds.back		= command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> bufferHandle = buffer->GetHandle();
 		D3D12_TEXTURE_COPY_LOCATION				srcLocation	 = {};
 		srcLocation.pResource								 = bufferHandle.Get();
 		srcLocation.Type									 = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		srcLocation.PlacedFootprint.Offset					 = command.BufferTextureCopy.BufferOffset;
-		srcLocation.PlacedFootprint.Footprint.Width			 = command.BufferTextureCopy.TextureSubresource.Width;
-		srcLocation.PlacedFootprint.Footprint.Height		 = command.BufferTextureCopy.TextureSubresource.Height;
-		srcLocation.PlacedFootprint.Footprint.Depth			 = command.BufferTextureCopy.TextureSubresource.Depth;
+		srcLocation.PlacedFootprint.Footprint.Width			 = command.BufferTextureCopy.TextureExtent.Width;
+		srcLocation.PlacedFootprint.Footprint.Height		 = command.BufferTextureCopy.TextureExtent.Height;
+		srcLocation.PlacedFootprint.Footprint.Depth			 = command.BufferTextureCopy.TextureExtent.Depth;
 		srcLocation.PlacedFootprint.Footprint.RowPitch		 = rowPitch;
 		srcLocation.PlacedFootprint.Footprint.Format		 = texture->GetFormat();
 
@@ -501,7 +501,7 @@ namespace Nexus::Graphics
 		dstLocation.SubresourceIndex						  = subresourceIndex;
 
 		D3D12_RESOURCE_STATES resourceState =
-			texture->GetResourceState(command.BufferTextureCopy.TextureSubresource.Z, command.BufferTextureCopy.TextureSubresource.MipLevel);
+			texture->GetResourceState(command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.TextureSubresource.MipLevel);
 
 		D3D12_RESOURCE_BARRIER toReadBarrier = {};
 		toReadBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -521,9 +521,9 @@ namespace Nexus::Graphics
 
 		m_CommandList->ResourceBarrier(1, &toReadBarrier);
 		m_CommandList->CopyTextureRegion(&dstLocation,
-										 command.BufferTextureCopy.TextureSubresource.X,
-										 command.BufferTextureCopy.TextureSubresource.Y,
-										 command.BufferTextureCopy.TextureSubresource.Z,
+										 command.BufferTextureCopy.TextureOffset.X,
+										 command.BufferTextureCopy.TextureOffset.Y,
+										 command.BufferTextureCopy.TextureOffset.Z,
 										 &srcLocation,
 										 &textureBounds);
 		m_CommandList->ResourceBarrier(1, &toDefaultBarrier);
@@ -538,12 +538,12 @@ namespace Nexus::Graphics
 		size_t rowPitch	   = sizeInBytes * texture->GetDescription().Width;
 
 		D3D12_BOX textureBounds = {};
-		textureBounds.left		= command.TextureBufferCopy.TextureSubresource.X;
-		textureBounds.right		= command.TextureBufferCopy.TextureSubresource.X + command.TextureBufferCopy.TextureSubresource.Width;
-		textureBounds.top		= command.TextureBufferCopy.TextureSubresource.Y;
-		textureBounds.bottom	= command.TextureBufferCopy.TextureSubresource.Y + command.TextureBufferCopy.TextureSubresource.Height;
-		textureBounds.front		= command.TextureBufferCopy.TextureSubresource.Z;
-		textureBounds.back		= command.TextureBufferCopy.TextureSubresource.Z + command.TextureBufferCopy.TextureSubresource.Depth;
+		textureBounds.left		= command.TextureBufferCopy.TextureOffset.X;
+		textureBounds.right		= command.TextureBufferCopy.TextureOffset.X + command.TextureBufferCopy.TextureExtent.Width;
+		textureBounds.top		= command.TextureBufferCopy.TextureOffset.Y;
+		textureBounds.bottom	= command.TextureBufferCopy.TextureOffset.Y + command.TextureBufferCopy.TextureExtent.Height;
+		textureBounds.front		= command.TextureBufferCopy.TextureOffset.Z;
+		textureBounds.back		= command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> textureHandle = texture->GetHandle();
 		D3D12_TEXTURE_COPY_LOCATION				srcLocation	  = {};
@@ -557,13 +557,13 @@ namespace Nexus::Graphics
 		dstLocation.Type									 = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		dstLocation.PlacedFootprint.Offset					 = command.TextureBufferCopy.BufferOffset;
 		dstLocation.PlacedFootprint.Footprint.Format		 = texture->GetFormat();
-		dstLocation.PlacedFootprint.Footprint.Width			 = command.TextureBufferCopy.TextureSubresource.Width;
-		dstLocation.PlacedFootprint.Footprint.Height		 = command.TextureBufferCopy.TextureSubresource.Height;
-		dstLocation.PlacedFootprint.Footprint.Depth			 = command.TextureBufferCopy.TextureSubresource.Depth;
+		dstLocation.PlacedFootprint.Footprint.Width			 = command.TextureBufferCopy.TextureExtent.Width;
+		dstLocation.PlacedFootprint.Footprint.Height		 = command.TextureBufferCopy.TextureExtent.Height;
+		dstLocation.PlacedFootprint.Footprint.Depth			 = command.TextureBufferCopy.TextureExtent.Depth;
 		dstLocation.PlacedFootprint.Footprint.RowPitch		 = rowPitch;
 
 		D3D12_RESOURCE_STATES resourceState =
-			texture->GetResourceState(command.TextureBufferCopy.TextureSubresource.Z, command.TextureBufferCopy.TextureSubresource.MipLevel);
+			texture->GetResourceState(command.TextureBufferCopy.TextureOffset.Z, command.TextureBufferCopy.TextureSubresource.MipLevel);
 
 		D3D12_RESOURCE_BARRIER toDestBarrier = {};
 		toDestBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -599,18 +599,18 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Resource2> dstHandle = dstTexture->GetHandle();
 
 		D3D12_RESOURCE_STATES srcResourceState =
-			srcTexture->GetResourceState(command.TextureCopy.SourceSubresource.Z, command.TextureCopy.SourceSubresource.MipLevel);
+			srcTexture->GetResourceState(command.TextureCopy.SourceOffset.Z, command.TextureCopy.SourceSubresource.MipLevel);
 
 		D3D12_RESOURCE_STATES dstResourceState =
-			dstTexture->GetResourceState(command.TextureCopy.DestinationSubresource.Z, command.TextureCopy.DestinationSubresource.MipLevel);
+			dstTexture->GetResourceState(command.TextureCopy.DestinationOffset.Z, command.TextureCopy.DestinationSubresource.MipLevel);
 
 		D3D12_BOX textureBounds = {};
-		textureBounds.left		= command.TextureCopy.SourceSubresource.X;
-		textureBounds.right		= command.TextureCopy.SourceSubresource.X + command.TextureCopy.SourceSubresource.Width;
-		textureBounds.top		= command.TextureCopy.SourceSubresource.Y;
-		textureBounds.bottom	= command.TextureCopy.SourceSubresource.Y + command.TextureCopy.SourceSubresource.Height;
-		textureBounds.front		= command.TextureCopy.SourceSubresource.Z;
-		textureBounds.back		= command.TextureCopy.SourceSubresource.Z + command.TextureCopy.SourceSubresource.Depth;
+		textureBounds.left		= command.TextureCopy.SourceOffset.X;
+		textureBounds.right		= command.TextureCopy.SourceOffset.X + command.TextureCopy.Extent.Width;
+		textureBounds.top		= command.TextureCopy.SourceOffset.Y;
+		textureBounds.bottom	= command.TextureCopy.SourceOffset.Y + command.TextureCopy.Extent.Height;
+		textureBounds.front		= command.TextureCopy.SourceOffset.Z;
+		textureBounds.back		= command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
 
 		// set up source
 		{
@@ -645,9 +645,9 @@ namespace Nexus::Graphics
 		}
 
 		m_CommandList->CopyTextureRegion(&dstLocation,
-										 command.TextureCopy.DestinationSubresource.X,
-										 command.TextureCopy.DestinationSubresource.Y,
-										 command.TextureCopy.DestinationSubresource.Z,
+										 command.TextureCopy.DestinationOffset.X,
+										 command.TextureCopy.DestinationOffset.Y,
+										 command.TextureCopy.DestinationOffset.Z,
 										 &srcLocation,
 										 &textureBounds);
 
@@ -735,7 +735,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
 	{
 	}
 

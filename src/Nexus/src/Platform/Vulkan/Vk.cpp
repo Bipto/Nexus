@@ -707,16 +707,12 @@ namespace Nexus::Vk
 		return vkSampleCountFlag;
 	}
 
-	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect)
+	VkImageAspectFlagBits GetAspectFlags(bool isDepth)
 	{
-		switch (aspect)
-		{
-			case Graphics::ImageAspect::Colour: return VK_IMAGE_ASPECT_COLOR_BIT;
-			case Graphics::ImageAspect::Depth: return VK_IMAGE_ASPECT_DEPTH_BIT;
-			case Graphics::ImageAspect::Stencil: return VK_IMAGE_ASPECT_STENCIL_BIT;
-			case Graphics::ImageAspect::DepthStencil: return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
-			default: throw std::runtime_error("Failed to find valid aspect flags");
-		}
+		if (isDepth)
+			return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+		else
+			return VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
 	VkAccelerationStructureTypeKHR GetAccelerationStructureType(Graphics::AccelerationStructureType type)
@@ -2156,6 +2152,39 @@ namespace Nexus::Vk
 			}
 
 			default: throw std::runtime_error("Failed to find a valid pipeline stage flag");
+		}
+	}
+
+	VkImageLayout GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout)
+	{
+		switch (layout)
+		{
+			case Graphics::TextureLayout::Undefined: return VK_IMAGE_LAYOUT_UNDEFINED;
+			case Graphics::TextureLayout::General: return VK_IMAGE_LAYOUT_GENERAL;
+			case Graphics::TextureLayout::ColourAttachmentOptimal: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::DepthStencilAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::DepthStencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::TransferSrcOptimal: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case Graphics::TextureLayout::TransferDstOptimal: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Graphics::TextureLayout::DepthReadOnlyStencilAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::DepthAttachmentStencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::DepthAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::DepthReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::StencilAttachmentOptimal: return VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::StencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::ReadonlyOptimal: return VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::PresentSrc:
+			{
+				if (device->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
 		}
 	}
 }	 // namespace Nexus::Vk

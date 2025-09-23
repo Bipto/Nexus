@@ -54,17 +54,12 @@ namespace Nexus::Graphics
 		BufferTextureCopyDescription copyDesc = {};
 		copyDesc.BufferHandle				  = buffer;
 		copyDesc.BufferOffset				  = 0;
+		copyDesc.BufferRowLength			  = 0;
+		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureSubresource			  = {.X			 = x,
-												 .Y			 = y,
-												 .Z			 = z,
-												 .Width		 = width,
-												 .Height	 = height,
-												 .Depth		 = 1,
-												 .MipLevel	 = mipLevel,
-												 .ArrayLayer = arrayLayer,
-												 .Aspect	 = Graphics::ImageAspect::Colour};
-
+		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
+		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
+		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
 		cmdList->CopyBufferToTexture(copyDesc);
 
 		cmdList->End();
@@ -98,9 +93,12 @@ namespace Nexus::Graphics
 		BufferTextureCopyDescription copyDesc = {};
 		copyDesc.BufferHandle				  = buffer;
 		copyDesc.BufferOffset				  = 0;
+		copyDesc.BufferRowLength			  = 0;
+		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureSubresource =
-			{.X = x, .Y = y, .Z = arrayLayer, .Width = width, .Height = height, .Depth = 1, .Aspect = Graphics::ImageAspect::Colour};
+		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
+		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
 
 		cmdList->CopyTextureToBuffer(copyDesc);
 

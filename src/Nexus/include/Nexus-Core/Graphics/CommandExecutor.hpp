@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) = 0;
 		virtual void ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)								 = 0;
 		virtual void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)								 = 0;
-		virtual void ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)								 = 0;
+		virtual void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)								 = 0;
 		virtual void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)								 = 0;
 	};
 };	  // namespace Nexus::Graphics

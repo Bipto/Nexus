@@ -39,7 +39,7 @@
 
 struct DemoInfo
 {
-	std::string	 Name;
+	std::string Name;
 	Demos::Demo *(*CreationFunction)(Nexus::Application *,
 									 const std::string						   &name,
 									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
@@ -323,10 +323,10 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			Nexus::Graphics::MemoryBarrierDesc barrierDesc = {};
-			barrierDesc.BeforeAccess						   = Nexus::Graphics::BarrierAccess::ColourAttachmentRead;
+			barrierDesc.BeforeAccess					   = Nexus::Graphics::BarrierAccess::ColourAttachmentRead;
 			barrierDesc.AfterAccess						   = Nexus::Graphics::BarrierAccess::ColourAttachmentWrite;
-			barrierDesc.BeforeStage							   = Nexus::Graphics::BarrierPipelineStage::AllCommands;
-			barrierDesc.AfterStage							   = Nexus::Graphics::BarrierPipelineStage::ColourAttachmentOutput;
+			barrierDesc.BeforeStage						   = Nexus::Graphics::BarrierPipelineStage::AllCommands;
+			barrierDesc.AfterStage						   = Nexus::Graphics::BarrierPipelineStage::ColourAttachmentOutput;
 			m_CommandList->SubmitMemoryBarrier(barrierDesc);
 
 			m_CommandList->End();
@@ -372,8 +372,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
-	spec.GraphicsCreateInfo.Debug = false;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
@@ -384,7 +384,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 8;
+	spec.SwapchainDescription.Samples		   = 1;
 	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";

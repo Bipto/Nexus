@@ -587,7 +587,8 @@ namespace Nexus::ImGuiUtils
 			return;
 		}
 
-		auto window = Nexus::GetApplication()->GetPrimaryWindow();
+		auto window		 = Nexus::GetApplication()->GetPrimaryWindow();
+		m_PreviousCursor = cursor;
 
 		switch (cursor)
 		{

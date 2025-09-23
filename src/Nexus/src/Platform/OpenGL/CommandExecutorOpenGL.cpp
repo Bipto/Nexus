@@ -575,15 +575,7 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 
-		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context)
-			{
-				GL::CopyBufferToTexture(textureOpenGL,
-										buffer,
-										command.BufferTextureCopy.BufferOffset,
-										command.BufferTextureCopy.TextureSubresource,
-										context);
-			});
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
@@ -591,15 +583,7 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
 
-		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context)
-			{
-				GL::CopyTextureToBuffer(textureOpenGL,
-										buffer,
-										command.TextureBufferCopy.BufferOffset,
-										command.TextureBufferCopy.TextureSubresource,
-										context);
-			});
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
@@ -608,7 +592,32 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>			  destTexture	= std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
 		const TextureCopyDescription &copyDesc		= command.TextureCopy;
 
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToTexture(sourceTexture, destTexture, copyDesc, context); });
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				if (context.ARB_copy_image || context.VERSION_4_3)
+				{
+					context.CopyImageSubData(sourceTexture->GetHandle(),
+											 sourceTexture->GetTextureType(),
+											 copyDesc.SourceSubresource.MipLevel,
+											 copyDesc.SourceOffset.X,
+											 copyDesc.SourceOffset.Y,
+											 copyDesc.SourceOffset.Z,
+											 destTexture->GetHandle(),
+											 destTexture->GetTextureType(),
+											 copyDesc.DestinationSubresource.MipLevel,
+											 copyDesc.DestinationOffset.X,
+											 copyDesc.DestinationOffset.Y,
+											 copyDesc.DestinationOffset.Z,
+											 copyDesc.Extent.Width,
+											 copyDesc.Extent.Height,
+											 copyDesc.Extent.Depth);
+				}
+				else
+				{
+					GL::CopyTextureToTexture(sourceTexture, destTexture, copyDesc, context);
+				}
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device)
@@ -733,9 +742,21 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.TextureBarrier(); });
+
+		const SubresourceRange &range = command.SubresourceRange;
+
+		Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(command.Texture);
+
+		for (uint32_t arrayLayer = range.BaseArrayLayer; arrayLayer < range.BaseArrayLayer + range.LayerCount; arrayLayer++)
+		{
+			for (uint32_t mipLevel = range.BaseMipLevel; mipLevel < range.BaseMipLevel + range.LevelCount; mipLevel++)
+			{
+				textureGL->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
+			}
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)

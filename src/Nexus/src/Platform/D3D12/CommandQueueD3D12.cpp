@@ -33,7 +33,7 @@ namespace Nexus::Graphics
 
 	void CommandQueueD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
-		/*std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
+		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
 
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
@@ -58,9 +58,7 @@ namespace Nexus::Graphics
 			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
 			NX_VALIDATE(SUCCEEDED(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent())), "Failed to set event on completion");
-		}*/
-
-		assert(0);
+		}
 	}
 
 	void CommandQueueD3D12::Present(Ref<Swapchain> swapchain)

@@ -2,7 +2,9 @@
 
 	#include "GraphicsDeviceVk.hpp"
 
+	#include "AccelerationStructureVk.hpp"
 	#include "CommandListVk.hpp"
+	#include "CommandQueueVk.hpp"
 	#include "DeviceBufferVk.hpp"
 	#include "FenceVk.hpp"
 	#include "FramebufferVk.hpp"
@@ -16,8 +18,6 @@
 	#include "SwapchainVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
-	#include "AccelerationStructureVk.hpp"
-	#include "CommandQueueVk.hpp"
 
 	#include "Nexus-Core/Timings/Profiler.hpp"
 
@@ -458,7 +458,7 @@ namespace Nexus::Graphics
 			queuePriorities.emplace_back(queueCount, 1.0f);
 
 			VkDeviceQueueCreateInfo &queueCreateInfo = queueCreateInfos.emplace_back();
-			queueCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.sType					 = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queueCreateInfo.queueFamilyIndex		 = i;
 			queueCreateInfo.queueCount				 = queueFamilyInfo.QueueCount;
 			queueCreateInfo.pQueuePriorities		 = queuePriorities.back().data();
@@ -694,10 +694,10 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
 			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
 
-		m_ExtensionFunctions.vkAcquireNextImage2KHR = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
-		m_ExtensionFunctions.vkQueueSubmit2KHR		= (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
-		m_ExtensionFunctions.vkGetDeviceQueue2		= (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
-		m_ExtensionFunctions.vkCmdPipelineBarrier2KHR	= (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(m_Device, "vkCmdPipelineBarrier2KHR");
+		m_ExtensionFunctions.vkAcquireNextImage2KHR	  = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
+		m_ExtensionFunctions.vkQueueSubmit2KHR		  = (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
+		m_ExtensionFunctions.vkGetDeviceQueue2		  = (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
+		m_ExtensionFunctions.vkCmdPipelineBarrier2KHR = (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(m_Device, "vkCmdPipelineBarrier2KHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

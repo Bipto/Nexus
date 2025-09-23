@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
-	#include "DeviceBufferOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -15,6 +15,8 @@ namespace Nexus::Graphics
 	  public:
 		TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~TextureOpenGL();
+		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
+		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
 
 		void	 Bind(uint32_t slot);
 		uint32_t GetHandle();
@@ -39,6 +41,7 @@ namespace Nexus::Graphics
 
 		uint32_t					m_Framebuffer			  = 0;
 		GL::GLInternalTextureFormat m_GLInternalTextureFormat = GL::GLInternalTextureFormat::Texture2D;
+		std::vector<TextureLayout>	m_TextureLayout			  = {};
 	};
 }	 // namespace Nexus::Graphics
 

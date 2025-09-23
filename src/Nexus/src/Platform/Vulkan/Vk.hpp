@@ -60,7 +60,7 @@ namespace Nexus::Vk
 	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
-	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
+	VkImageAspectFlagBits GetAspectFlags(bool isDepth);
 
 	VkAccelerationStructureTypeKHR		   GetAccelerationStructureType(Graphics::AccelerationStructureType type);
 	VkBuildAccelerationStructureFlagsKHR   GetAccelerationStructureFlags(uint8_t flags);
@@ -168,6 +168,7 @@ namespace Nexus::Vk
 	VkPipelineStageFlagBits	 GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
 	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
 	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
 
 }	 // namespace Nexus::Vk
 

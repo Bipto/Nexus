@@ -107,17 +107,17 @@ namespace Nexus::Graphics
 						"Depth attachment must have a valid colour format");
 
 			Graphics::TextureDescription textureSpec = {};
-			textureSpec.Width						   = m_Description.Width;
-			textureSpec.Height						   = m_Description.Height;
-			textureSpec.Format						   = colorAttachmentSpec.TextureFormat;
-			textureSpec.Samples						   = m_Description.Samples;
-			textureSpec.Usage						   = Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
+			textureSpec.Width						 = m_Description.Width;
+			textureSpec.Height						 = m_Description.Height;
+			textureSpec.Format						 = colorAttachmentSpec.TextureFormat;
+			textureSpec.Samples						 = m_Description.Samples;
+			textureSpec.Usage						 = Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
 
-			Ref<Texture>	   texture	 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+			Ref<Texture>	   texture	 = m_Device->CreateTexture(textureSpec);
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(texture);
 			m_ColorAttachments.push_back(textureGL);
 
-			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::Colour, i, context);
+			GL::AttachTexture(m_FBO, textureGL, 0, 0, texture->IsDepth(), i, context);
 		}
 
 		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
@@ -126,15 +126,15 @@ namespace Nexus::Graphics
 						"Depth attachment must have a valid depth format");
 
 			Graphics::TextureDescription textureSpec = {};
-			textureSpec.Width						   = m_Description.Width;
-			textureSpec.Height						   = m_Description.Height;
-			textureSpec.Format						   = m_Description.DepthAttachmentSpecification.DepthFormat;
-			textureSpec.Samples						   = m_Description.Samples;
-			textureSpec.Usage						   = 0;
-			m_DepthAttachment						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+			textureSpec.Width						 = m_Description.Width;
+			textureSpec.Height						 = m_Description.Height;
+			textureSpec.Format						 = m_Description.DepthAttachmentSpecification.DepthFormat;
+			textureSpec.Samples						 = m_Description.Samples;
+			textureSpec.Usage						 = 0;
+			m_DepthAttachment						 = m_Device->CreateTexture(textureSpec);
 
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);
-			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::DepthStencil, 0, context);
+			GL::AttachTexture(m_FBO, textureGL, 0, 0, m_DepthAttachment->IsDepth(), 0, context);
 		}
 	}
 }	 // namespace Nexus::Graphics

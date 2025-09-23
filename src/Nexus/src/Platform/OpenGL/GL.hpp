@@ -94,7 +94,7 @@ namespace Nexus::GL
 										  Ref<Graphics::TextureOpenGL> texture,
 										  uint32_t					   mipLevel,
 										  uint32_t					   arrayLayer,
-										  Graphics::ImageAspect		   aspect,
+										  bool						   isDepth,
 										  uint32_t					   colourIndex,
 										  const GladGLContext		  &context);
 
@@ -104,25 +104,16 @@ namespace Nexus::GL
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
 
-	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
-	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
-	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
+	GLenum GetGLImageAspect(bool isDepth);
+	GLenum GetAttachmentType(bool isDepth, uint32_t index);
 
 	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
 
 	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
 
-	void CopyBufferToTexture(Ref<Graphics::TextureOpenGL>	   texture,
-							 Ref<Graphics::DeviceBufferOpenGL> buffer,
-							 uint32_t						   bufferOffset,
-							 Graphics::SubresourceDescription  subresource,
-							 const GladGLContext			  &context);
+	void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context);
 
-	void CopyTextureToBuffer(Ref<Graphics::TextureOpenGL>	   texture,
-							 Ref<Graphics::DeviceBufferOpenGL> buffer,
-							 uint32_t						   bufferOffset,
-							 Graphics::SubresourceDescription  subresource,
-							 const GladGLContext			  &context);
+	void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context);
 
 	void CopyTextureToTexture(Ref<Graphics::TextureOpenGL>			  source,
 							  Ref<Graphics::TextureOpenGL>			  destination,

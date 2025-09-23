@@ -7,8 +7,6 @@
 
 	#include "GraphicsDeviceOpenGL.hpp"
 
-	#include <stb_image_write.h>
-
 namespace Nexus::Graphics
 {
 	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec), m_Device(graphicsDevice)
@@ -49,11 +47,31 @@ namespace Nexus::Graphics
 					context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
 				}
 			});
+
+		m_TextureLayout.resize(spec.DepthOrArrayLayers * spec.MipLevels, TextureLayout::Undefined);
 	}
 
 	TextureOpenGL::~TextureOpenGL()
 	{
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
+	}
+
+	TextureLayout TextureOpenGL::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
+	{
+		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer out of bounds");
+		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
+
+		size_t index = (size_t)(arrayLayer * m_Description.DepthOrArrayLayers + mipLevel);
+		return m_TextureLayout[index];
+	}
+
+	void TextureOpenGL::SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout)
+	{
+		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer out of bounds");
+		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
+
+		size_t index		   = (size_t)(arrayLayer * m_Description.DepthOrArrayLayers + mipLevel);
+		m_TextureLayout[index] = layout;
 	}
 
 	void TextureOpenGL::Bind(uint32_t slot)

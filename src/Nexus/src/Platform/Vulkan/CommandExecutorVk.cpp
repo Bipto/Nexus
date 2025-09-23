@@ -469,12 +469,17 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);
 		Ref<DeviceBufferVk> dst = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Destination);
 
-		VkBufferCopy bufferCopy = {};
-		bufferCopy.srcOffset	= command.BufferCopy.ReadOffset;
-		bufferCopy.dstOffset	= command.BufferCopy.WriteOffset;
-		bufferCopy.size			= command.BufferCopy.Size;
+		std::vector<VkBufferCopy> bufferCopies;
 
-		vkCmdCopyBuffer(m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), 1, &bufferCopy);
+		for (const auto &copy : command.BufferCopy.Copies)
+		{
+			VkBufferCopy &bufferCopy = bufferCopies.emplace_back();
+			bufferCopy.srcOffset	 = copy.ReadOffset;
+			bufferCopy.dstOffset	 = copy.WriteOffset;
+			bufferCopy.size			 = copy.Size;
+		}
+
+		vkCmdCopyBuffer(m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(), bufferCopies.data());
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
@@ -482,11 +487,12 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
 		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.BufferTextureCopy.TextureHandle);
-		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(command.BufferTextureCopy.TextureSubresource.Aspect);
+		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
-		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.ArrayLayer; layer < command.BufferTextureCopy.TextureSubresource.Depth;
+		for (uint32_t layer = command.BufferTextureCopy.TextureOffset.Z;
+			 layer < command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
 			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
@@ -509,19 +515,20 @@ namespace Nexus::Graphics
 			copyRegion.bufferImageHeight			   = 0;
 			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
 			copyRegion.imageSubresource.mipLevel	   = command.BufferTextureCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.layerCount	   = command.BufferTextureCopy.TextureSubresource.Depth;
-			copyRegion.imageOffset.x				   = command.BufferTextureCopy.TextureSubresource.X;
-			copyRegion.imageOffset.y				   = command.BufferTextureCopy.TextureSubresource.Y;
+			copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.BaseArrayLayer;
+			copyRegion.imageSubresource.layerCount	   = command.BufferTextureCopy.TextureSubresource.LayerCount;
+			copyRegion.imageOffset.x				   = command.BufferTextureCopy.TextureOffset.X;
+			copyRegion.imageOffset.y				   = command.BufferTextureCopy.TextureOffset.Y;
 			copyRegion.imageOffset.z				   = 0;
-			copyRegion.imageExtent.width			   = command.BufferTextureCopy.TextureSubresource.Width;
-			copyRegion.imageExtent.height			   = command.BufferTextureCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth			   = command.BufferTextureCopy.TextureSubresource.Depth;
-			copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.ArrayLayer;
+			copyRegion.imageExtent.width			   = command.BufferTextureCopy.TextureExtent.Width;
+			copyRegion.imageExtent.height			   = command.BufferTextureCopy.TextureExtent.Height;
+			copyRegion.imageExtent.depth			   = command.BufferTextureCopy.TextureExtent.Depth;
 
 			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 		}
 
-		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.ArrayLayer; layer < command.BufferTextureCopy.TextureSubresource.Depth;
+		for (uint32_t layer = command.BufferTextureCopy.TextureOffset.Z;
+			 layer < command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
 			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
@@ -542,11 +549,12 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
 		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.TextureBufferCopy.TextureHandle);
-		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(command.TextureBufferCopy.TextureSubresource.Aspect);
+		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
-		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.ArrayLayer; layer < command.TextureBufferCopy.TextureSubresource.Depth;
+		for (uint32_t layer = command.TextureBufferCopy.TextureOffset.Z;
+			 layer < command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
 			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
@@ -565,23 +573,24 @@ namespace Nexus::Graphics
 		{
 			VkBufferImageCopy copyRegion			   = {};
 			copyRegion.bufferOffset					   = command.TextureBufferCopy.BufferOffset;
-			copyRegion.bufferRowLength				   = 0;
-			copyRegion.bufferImageHeight			   = 0;
+			copyRegion.bufferRowLength				   = command.TextureBufferCopy.BufferRowLength;
+			copyRegion.bufferImageHeight			   = command.TextureBufferCopy.BufferImageHeight;
 			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
 			copyRegion.imageSubresource.mipLevel	   = command.TextureBufferCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.layerCount	   = command.TextureBufferCopy.TextureSubresource.Depth;
-			copyRegion.imageOffset.x				   = command.TextureBufferCopy.TextureSubresource.X;
-			copyRegion.imageOffset.y				   = command.TextureBufferCopy.TextureSubresource.Y;
-			copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureSubresource.Z;
-			copyRegion.imageExtent.width			   = command.TextureBufferCopy.TextureSubresource.Width;
-			copyRegion.imageExtent.height			   = command.TextureBufferCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth			   = command.TextureBufferCopy.TextureSubresource.Depth;
-			copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.ArrayLayer;
+			copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.BaseArrayLayer;
+			copyRegion.imageSubresource.layerCount	   = command.TextureBufferCopy.TextureSubresource.LayerCount;
+			copyRegion.imageOffset.x				   = command.TextureBufferCopy.TextureOffset.X;
+			copyRegion.imageOffset.y				   = command.TextureBufferCopy.TextureOffset.Y;
+			copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureOffset.Z;
+			copyRegion.imageExtent.width			   = command.TextureBufferCopy.TextureExtent.Width;
+			copyRegion.imageExtent.height			   = command.TextureBufferCopy.TextureExtent.Height;
+			copyRegion.imageExtent.depth			   = command.TextureBufferCopy.TextureExtent.Depth;
 
 			vkCmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1, &copyRegion);
 		}
 
-		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.ArrayLayer; layer < command.TextureBufferCopy.TextureSubresource.Depth;
+		for (uint32_t layer = command.TextureBufferCopy.TextureOffset.Z;
+			 layer < command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
 			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
@@ -603,14 +612,15 @@ namespace Nexus::Graphics
 		Ref<TextureVk>	  srcTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Source);
 		Ref<TextureVk>	  dstTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Destination);
 
-		VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(command.TextureCopy.SourceSubresource.Aspect);
-		VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(command.TextureCopy.DestinationSubresource.Aspect);
+		VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(srcTexture->IsDepth());
+		VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(dstTexture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> srcLayouts;
 		std::map<uint32_t, VkImageLayout> dstLayouts;
 
 		// transfer source texture
-		for (uint32_t layer = command.TextureCopy.SourceSubresource.ArrayLayer; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.SourceOffset.Z; layer < command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
+			 layer++)
 		{
 			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
 			srcLayouts[layer]	 = layout;
@@ -625,7 +635,8 @@ namespace Nexus::Graphics
 		}
 
 		// transfer destination texture
-		for (uint32_t layer = command.TextureCopy.DestinationSubresource.ArrayLayer; layer < command.TextureCopy.DestinationSubresource.Depth;
+		for (uint32_t layer = command.TextureCopy.DestinationOffset.Z;
+			 layer < command.TextureCopy.DestinationOffset.Z + command.TextureCopy.Extent.Depth;
 			 layer++)
 		{
 			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
@@ -647,23 +658,25 @@ namespace Nexus::Graphics
 			// src
 			copyRegion.srcSubresource.aspectMask	 = srcAspect;
 			copyRegion.srcSubresource.mipLevel		 = command.TextureCopy.SourceSubresource.MipLevel;
-			copyRegion.srcSubresource.layerCount	 = command.TextureCopy.SourceSubresource.Depth;
-			copyRegion.srcOffset.x					 = command.TextureCopy.SourceSubresource.X;
-			copyRegion.srcOffset.y					 = command.TextureCopy.SourceSubresource.Y;
-			copyRegion.srcOffset.z					 = command.TextureCopy.SourceSubresource.Z;
-			copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.ArrayLayer;
-			copyRegion.extent.width					 = command.TextureCopy.SourceSubresource.Width;
-			copyRegion.extent.height				 = command.TextureCopy.SourceSubresource.Height;
-			copyRegion.extent.depth					 = command.TextureCopy.SourceSubresource.Depth;
+			copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.BaseArrayLayer;
+			copyRegion.srcSubresource.layerCount	 = command.TextureCopy.SourceSubresource.LayerCount;
+			copyRegion.srcOffset.x					 = command.TextureCopy.SourceOffset.X;
+			copyRegion.srcOffset.y					 = command.TextureCopy.SourceOffset.Y;
+			copyRegion.srcOffset.z					 = command.TextureCopy.SourceOffset.Z;
 
 			// dst
 			copyRegion.dstSubresource.aspectMask	 = dstAspect;
 			copyRegion.dstSubresource.mipLevel		 = command.TextureCopy.DestinationSubresource.MipLevel;
-			copyRegion.dstSubresource.layerCount	 = command.TextureCopy.DestinationSubresource.Depth;
-			copyRegion.dstOffset.x					 = command.TextureCopy.DestinationSubresource.X;
-			copyRegion.dstOffset.y					 = command.TextureCopy.DestinationSubresource.Y;
-			copyRegion.dstOffset.z					 = command.TextureCopy.DestinationSubresource.Z;
-			copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.ArrayLayer;
+			copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.BaseArrayLayer;
+			copyRegion.dstSubresource.layerCount	 = command.TextureCopy.DestinationSubresource.LayerCount;
+			copyRegion.dstOffset.x					 = command.TextureCopy.DestinationOffset.X;
+			copyRegion.dstOffset.y					 = command.TextureCopy.DestinationOffset.Y;
+			copyRegion.dstOffset.z					 = command.TextureCopy.DestinationOffset.Z;
+
+			// copy extents
+			copyRegion.extent.width	 = command.TextureCopy.Extent.Width;
+			copyRegion.extent.height = command.TextureCopy.Extent.Height;
+			copyRegion.extent.depth	 = command.TextureCopy.Extent.Depth;
 
 			vkCmdCopyImage(m_CommandBuffer,
 						   srcTexture->GetImage(),
@@ -675,7 +688,8 @@ namespace Nexus::Graphics
 		}
 
 		// restore source texture layout
-		for (uint32_t layer = command.TextureCopy.SourceSubresource.ArrayLayer; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.SourceOffset.Z; layer < command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
+			 layer++)
 		{
 			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
 			srcLayouts[layer]	 = layout;
@@ -690,7 +704,8 @@ namespace Nexus::Graphics
 		}
 
 		// restore destination texture layout
-		for (uint32_t layer = command.TextureCopy.DestinationSubresource.ArrayLayer; layer < command.TextureCopy.DestinationSubresource.Depth;
+		for (uint32_t layer = command.TextureCopy.DestinationOffset.Z;
+			 layer < command.TextureCopy.DestinationOffset.Z + command.TextureCopy.Extent.Depth;
 			 layer++)
 		{
 			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
@@ -735,14 +750,14 @@ namespace Nexus::Graphics
 	{
 		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management occurs
-		// in the correct order
+		// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management
+		// occurs in the correct order
 		if (m_CurrentCommandIndex >= m_Commands.size() - 1)
 		{
 			StopRendering();
 		}
-		// otherwise, if the next command is to set a new render target, we need to stop rendering to ensure that they show in the correct order in
-		// debuggers
+		// otherwise, if the next command is to set a new render target, we need to stop rendering to ensure that they show in the correct
+		// order in debuggers
 		else
 		{
 			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
@@ -914,17 +929,181 @@ namespace Nexus::Graphics
 			barrier.srcAccessMask	= srcAccess;
 			barrier.dstAccessMask	= dstAccess;
 
-			// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
 			vkCmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 1, &barrier, 0, nullptr, 0, nullptr);
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &comamnd, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
 	{
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		Ref<TextureVk>						  texture	= std::dynamic_pointer_cast<TextureVk>(command.Texture);
+		VkImageLayout						  newLayout = Vk::GetImageLayout(m_Device, command.Layout);
+
+		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
+		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
+		VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
+
+		VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
+		VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
+
+		struct SubresourceRangeLayout
+		{
+			VkImageSubresourceRange range;
+			VkImageLayout			layout;
+		};
+
+		std::vector<SubresourceRangeLayout> ranges;
+
+		VkImageLayout currentLayout	  = texture->GetImageLayout(command.SubresourceRange.BaseArrayLayer, command.SubresourceRange.BaseMipLevel);
+		uint32_t	  arrayLayerStart = command.SubresourceRange.BaseArrayLayer;
+		uint32_t	  mipLevelStart	  = command.SubresourceRange.BaseMipLevel;
+		uint32_t	  arrayLayerCount = 0;
+		uint32_t	  mipLevelCount	  = 0;
+
+		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+			 arrayLayer++)
+		{
+			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+				 mipLevel++)
+			{
+				VkImageLayout layout = texture->GetImageLayout(arrayLayer, mipLevel);
+
+				// start new subresource range
+				if (arrayLayerCount == 0)
+				{
+					arrayLayerStart = arrayLayer;
+					mipLevelStart	= mipLevel;
+					arrayLayerCount = 1;
+					mipLevelCount	= 1;
+					currentLayout	= layout;
+				}
+				// if the layout is the same and we are still in the same array layer, then extend the range
+				else if (layout == currentLayout && arrayLayer == arrayLayerStart && mipLevel == mipLevelStart + mipLevelCount)
+				{
+					++mipLevelCount;
+				}
+				// otherwise, we need to record this range and begin a new one
+				else
+				{
+					SubresourceRangeLayout &range = ranges.emplace_back();
+					range.range.aspectMask		  = Vk::GetAspectFlags(texture->IsDepth());
+					range.range.baseArrayLayer	  = arrayLayerStart;
+					range.range.layerCount		  = arrayLayerCount;
+					range.range.baseMipLevel	  = mipLevelStart;
+					range.range.levelCount		  = mipLevelCount;
+					range.layout				  = currentLayout;
+					currentLayout				  = layout;
+				}
+			}
+		}
+
+		// flush the final range
+		if (arrayLayerCount > 0)
+		{
+			SubresourceRangeLayout &range = ranges.emplace_back();
+			range.range.aspectMask		  = Vk::GetAspectFlags(texture->IsDepth());
+			range.range.baseArrayLayer	  = arrayLayerStart;
+			range.range.layerCount		  = arrayLayerCount;
+			range.range.baseMipLevel	  = mipLevelStart;
+			range.range.levelCount		  = mipLevelCount;
+			range.layout				  = currentLayout;
+		}
+
+		std::vector<VkImageMemoryBarrier> imageBarriers = {};
+		for (const auto &[subresourceRange, imageLayout] : ranges)
+		{
+			VkImageMemoryBarrier &imageBarrier = imageBarriers.emplace_back();
+			imageBarrier.sType				   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			imageBarrier.pNext				   = nullptr;
+			imageBarrier.srcAccessMask		   = srcAccess;
+			imageBarrier.dstAccessMask		   = dstAccess;
+			imageBarrier.oldLayout			   = imageLayout;
+			imageBarrier.newLayout			   = newLayout;
+			imageBarrier.srcQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
+			imageBarrier.dstQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
+			imageBarrier.image				   = texture->GetImage();
+			imageBarrier.subresourceRange	   = subresourceRange;
+		}
+
+		vkCmdPipelineBarrier(m_CommandBuffer,
+							 srcStage,
+							 dstStage,
+							 dependencyFlags,
+							 0,
+							 nullptr,
+							 0,
+							 nullptr,
+							 imageBarriers.size(),
+							 imageBarriers.data());
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
 	{
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		Ref<DeviceBufferVk>					  bufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.Buffer);
+
+		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
+		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		if (functions.vkCmdPipelineBarrier2KHR)
+		{
+			VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(m_Device, command.BeforeAccess);
+			VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(m_Device, command.AfterAccess);
+
+			VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(m_Device, command.BeforeStage);
+			VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(m_Device, command.AfterStage);
+
+			VkBufferMemoryBarrier2KHR bufferBarrier = {};
+			bufferBarrier.sType						= VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2_KHR;
+			bufferBarrier.pNext						= nullptr;
+			bufferBarrier.srcStageMask				= srcStage;
+			bufferBarrier.dstStageMask				= dstStage;
+			bufferBarrier.srcAccessMask				= srcAccess;
+			bufferBarrier.dstAccessMask				= dstAccess;
+			bufferBarrier.srcQueueFamilyIndex		= VK_QUEUE_FAMILY_IGNORED;
+			bufferBarrier.dstQueueFamilyIndex		= VK_QUEUE_FAMILY_IGNORED;
+			bufferBarrier.buffer					= bufferVk->GetVkBuffer();
+			bufferBarrier.offset					= command.Offset;
+			bufferBarrier.size						= command.Size;
+
+			VkDependencyInfoKHR dependencyInfo		= {};
+			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+			dependencyInfo.pNext					= nullptr;
+			dependencyInfo.dependencyFlags			= dependencyFlags;
+			dependencyInfo.memoryBarrierCount		= 0;
+			dependencyInfo.pMemoryBarriers			= nullptr;
+			dependencyInfo.bufferMemoryBarrierCount = 1;
+			dependencyInfo.pBufferMemoryBarriers	= &bufferBarrier;
+			dependencyInfo.imageMemoryBarrierCount	= 0;
+			dependencyInfo.pImageMemoryBarriers		= nullptr;
+
+			functions.vkCmdPipelineBarrier2KHR(m_CommandBuffer, &dependencyInfo);
+		}
+		else
+		{
+			VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
+			VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
+
+			VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
+			VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
+
+			VkBufferMemoryBarrier barrier = {};
+			barrier.sType				  = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+			barrier.pNext				  = nullptr;
+			barrier.srcAccessMask		  = srcAccess;
+			barrier.dstAccessMask		  = dstAccess;
+			barrier.srcQueueFamilyIndex	  = VK_QUEUE_FAMILY_IGNORED;
+			barrier.dstQueueFamilyIndex	  = VK_QUEUE_FAMILY_IGNORED;
+			barrier.buffer				  = bufferVk->GetVkBuffer();
+			barrier.offset				  = command.Offset;
+			barrier.size				  = command.Size;
+
+			vkCmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 0, nullptr, 1, &barrier, 0, nullptr);
+		}
 	}
 
 	void BeginRenderPass(GraphicsDeviceVk			 *device,

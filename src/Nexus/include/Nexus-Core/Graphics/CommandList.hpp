@@ -23,50 +23,70 @@ namespace Nexus::Graphics
 		uint32_t Height = 0;
 	};
 
+	struct BufferCopy
+	{
+		uint64_t ReadOffset	 = 0;
+		uint64_t WriteOffset = 0;
+		uint64_t Size		 = 0;
+	};
+
 	struct BufferCopyDescription
 	{
-		Ref<DeviceBuffer> Source	  = nullptr;
-		Ref<DeviceBuffer> Destination = nullptr;
-		uint64_t		  ReadOffset  = 0;
-		uint64_t		  WriteOffset = 0;
-		uint64_t		  Size		  = 0;
+		Ref<DeviceBuffer>		Source		= nullptr;
+		Ref<DeviceBuffer>		Destination = nullptr;
+		std::vector<BufferCopy> Copies		= {};
 	};
 
-	enum class ImageAspect : uint16_t
+	struct Offset3D
 	{
-		Colour,
-		Depth,
-		Stencil,
-		DepthStencil
+		int32_t X = 0;
+		int32_t Y = 0;
+		int32_t Z = 0;
 	};
 
-	struct SubresourceDescription
+	struct Extent3D
 	{
-		uint32_t	X		   = 0;
-		uint32_t	Y		   = 0;
-		uint32_t	Z		   = 0;
-		uint32_t	Width	   = 0;
-		uint32_t	Height	   = 0;
-		uint32_t	Depth	   = 0;
-		uint32_t	MipLevel   = 0;
-		uint32_t	ArrayLayer = 0;
-		ImageAspect Aspect	   = ImageAspect::Colour;
+		uint32_t Width	= 0;
+		uint32_t Height = 0;
+		uint32_t Depth	= 0;
+	};
+
+	struct SubresourceRange
+	{
+		uint32_t BaseMipLevel	= 0;
+		uint32_t LevelCount		= 1;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 1;
+	};
+
+	struct SubresourceLayers
+	{
+		uint32_t MipLevel		= 0;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 0;
 	};
 
 	struct BufferTextureCopyDescription
 	{
-		Ref<DeviceBuffer>	   BufferHandle		  = nullptr;
-		Ref<Texture>		   TextureHandle	  = nullptr;
-		uint64_t			   BufferOffset		  = 0;
-		SubresourceDescription TextureSubresource = {};
+		Ref<DeviceBuffer> BufferHandle		 = nullptr;
+		uint64_t		  BufferOffset		 = 0;
+		uint64_t		  BufferRowLength	 = 0;
+		uint64_t		  BufferImageHeight	 = 0;
+		Ref<Texture>	  TextureHandle		 = nullptr;
+		SubresourceLayers TextureSubresource = {};
+		Offset3D		  TextureOffset		 = {};
+		Extent3D		  TextureExtent		 = {};
 	};
 
 	struct TextureCopyDescription
 	{
-		Ref<Texture>		   Source				  = nullptr;
-		Ref<Texture>		   Destination			  = nullptr;
-		SubresourceDescription SourceSubresource	  = {};
-		SubresourceDescription DestinationSubresource = {};
+		Ref<Texture>	  Source				 = nullptr;
+		Ref<Texture>	  Destination			 = nullptr;
+		SubresourceLayers SourceSubresource		 = {};
+		SubresourceLayers DestinationSubresource = {};
+		Offset3D		  SourceOffset			 = {};
+		Offset3D		  DestinationOffset		 = {};
+		Extent3D		  Extent				 = {};
 	};
 
 	struct SetVertexBufferCommand
@@ -323,22 +343,6 @@ namespace Nexus::Graphics
 		AccelerationStructureWrite
 	};
 
-	enum class ImageLayout
-	{
-		Undefined,
-		General,
-		Present,
-		RenderTarget,
-		DepthStencilRead,
-		DepthStencilWrite,
-		CopySource,
-		CopyDestination,
-		ResolveSource,
-		ResolveDestination,
-		ShaderReadOnly,
-		ShaderReadWrite
-	};
-
 	struct MemoryBarrierDesc
 	{
 		BarrierAccess		 BeforeAccess = {};
@@ -350,13 +354,12 @@ namespace Nexus::Graphics
 	struct TextureBarrierDesc
 	{
 		Ref<Graphics::Texture> Texture			= nullptr;
-		ImageLayout			   BeforeLayout		= {};
-		ImageLayout			   AfterLayout		= {};
+		TextureLayout		   Layout			= {};
 		BarrierAccess		   BeforeAccess		= {};
 		BarrierAccess		   AfterAccess		= {};
 		BarrierPipelineStage   BeforeStage		= {};
 		BarrierPipelineStage   AfterStage		= {};
-		SubresourceDescription SubresourceRange = {};
+		SubresourceRange	   SubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc

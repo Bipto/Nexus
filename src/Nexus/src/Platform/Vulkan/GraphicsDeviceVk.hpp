@@ -3,10 +3,10 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "CommandExecutorVk.hpp"
-	#include "PhysicalDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-	#include "SwapchainVk.hpp"
 	#include "DeviceBufferVk.hpp"
+	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+	#include "PhysicalDeviceVk.hpp"
+	#include "SwapchainVk.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR = VK_NULL_HANDLE;
 
 		PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR = VK_NULL_HANDLE;
-		PFN_vkQueueSubmit2KHR vkQueueSubmit2KHR = VK_NULL_HANDLE;
+		PFN_vkQueueSubmit2KHR	   vkQueueSubmit2KHR	  = VK_NULL_HANDLE;
 		PFN_vkGetDeviceQueue2	   vkGetDeviceQueue2	  = VK_NULL_HANDLE;
 
 		PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2KHR = VK_NULL_HANDLE;
@@ -85,10 +85,10 @@ namespace Nexus::Graphics
 		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<GraphicsPipeline>		CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<ComputePipeline>		CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<MeshletPipeline>		CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
-		Ref<RayTracingPipeline>		CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
 		Ref<CommandList>			CreateCommandList(const CommandListDescription &spec = {}) final;
 		Ref<ResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
@@ -98,11 +98,11 @@ namespace Nexus::Graphics
 		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
-		const GraphicsCapabilities GetGraphicsCapabilities() const final;
-		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
-		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
+		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
+		Ref<Swapchain>				 CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
+		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 
 		GraphicsAPI GetGraphicsAPI() final;
 
-		void							SetObjectName(VkObjectType type, uint64_t handle, const char *name);
+		void								  SetObjectName(VkObjectType type, uint64_t handle, const char *name);
 		const VulkanDeviceExtensionFunctions &GetExtensionFunctions() const;
 
 		VkInstance	 GetVkInstance();

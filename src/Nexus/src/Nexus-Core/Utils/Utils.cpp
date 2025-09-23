@@ -313,9 +313,7 @@ namespace Nexus::Utils
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer;
 		bufferCopy.Destination							  = vertexBuffer;
-		bufferCopy.ReadOffset							  = 0;
-		bufferCopy.WriteOffset							  = 0;
-		bufferCopy.Size									  = sizeInBytes;
+		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
 		commandList->CopyBufferToBuffer(bufferCopy);
@@ -324,7 +322,7 @@ namespace Nexus::Utils
 		device->WaitForIdle();
 
 		return vertexBuffer;
-	}
+	}	 // namespace Nexus::Utils
 
 	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void					*data,
 														size_t						 sizeInBytes,
@@ -345,9 +343,7 @@ namespace Nexus::Utils
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer;
 		bufferCopy.Destination							  = indexBuffer;
-		bufferCopy.ReadOffset							  = 0;
-		bufferCopy.WriteOffset							  = 0;
-		bufferCopy.Size									  = sizeInBytes;
+		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
 		commandList->CopyBufferToBuffer(bufferCopy);
@@ -377,9 +373,7 @@ namespace Nexus::Utils
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer;
 		bufferCopy.Destination							  = uniformBuffer;
-		bufferCopy.ReadOffset							  = 0;
-		bufferCopy.WriteOffset							  = 0;
-		bufferCopy.Size									  = sizeInBytes;
+		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
 		commandList->CopyBufferToBuffer(bufferCopy);

@@ -44,9 +44,7 @@ namespace Demos
 			Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 			bufferCopy.Source								  = m_UploadBuffer;
 			bufferCopy.Destination							  = m_StorageBuffer;
-			bufferCopy.ReadOffset							  = 0;
-			bufferCopy.WriteOffset							  = 0;
-			bufferCopy.Size									  = sizeof(glm::mat4);
+			bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeof(glm::mat4)}};
 			m_CommandList->CopyBufferToBuffer(bufferCopy);
 
 			m_CommandList->SetPipeline(m_Pipeline);

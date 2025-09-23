@@ -12,8 +12,8 @@ namespace Nexus::Graphics
 {
 	enum class TextureType
 	{
-		Texture1D = 0,
-		Texture2D = 1,
+		Texture1D	= 0,
+		Texture2D	= 1,
 		Texture3D	= 2,
 		TextureCube = 3
 	};
@@ -23,6 +23,26 @@ namespace Nexus::Graphics
 		TextureUsage_RenderTarget = BIT(0),
 		TextureUsage_Sampled	  = BIT(1),
 		TextureUsage_Storage	  = BIT(2)
+	};
+
+	enum class TextureLayout
+	{
+		Undefined,
+		General,
+		ColourAttachmentOptimal,
+		DepthStencilAttachmentOptimal,
+		DepthStencilReadOnlyOptimal,
+		ShaderReadOnlyOptimal,
+		TransferSrcOptimal,
+		TransferDstOptimal,
+		DepthReadOnlyStencilAttachmentOptimal,
+		DepthAttachmentStencilReadOnlyOptimal,
+		DepthAttachmentOptimal,
+		DepthReadOnlyOptimal,
+		StencilAttachmentOptimal,
+		StencilReadOnlyOptimal,
+		ReadonlyOptimal,
+		PresentSrc
 	};
 
 	struct TextureDescription
@@ -63,6 +83,8 @@ namespace Nexus::Graphics
 		{
 			return GetPixelFormatType(m_Description.Format) == PixelFormatType::DepthStencil;
 		}
+
+		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
 
 	  protected:
 		TextureDescription m_Description = {};
