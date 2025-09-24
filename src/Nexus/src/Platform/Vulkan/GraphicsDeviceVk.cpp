@@ -694,10 +694,16 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
 			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
 
-		m_ExtensionFunctions.vkAcquireNextImage2KHR	  = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
-		m_ExtensionFunctions.vkQueueSubmit2KHR		  = (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
-		m_ExtensionFunctions.vkGetDeviceQueue2		  = (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
+		m_ExtensionFunctions.vkAcquireNextImage2KHR = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
+		m_ExtensionFunctions.vkQueueSubmit2KHR		= (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
+		m_ExtensionFunctions.vkGetDeviceQueue2		= (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
+
 		m_ExtensionFunctions.vkCmdPipelineBarrier2KHR = (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(m_Device, "vkCmdPipelineBarrier2KHR");
+
+		m_ExtensionFunctions.vkCmdCopyImage2KHR			= (PFN_vkCmdCopyImage2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyImage2KHR");
+		m_ExtensionFunctions.vkCmdCopyBuffer2KHR		= (PFN_vkCmdCopyBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyBuffer2KHR");
+		m_ExtensionFunctions.vkCmdCopyBufferToImage2KHR = (PFN_vkCmdCopyBufferToImage2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyBufferToImage2KHR");
+		m_ExtensionFunctions.vkCmdCopyImageToBuffer2KHR = (PFN_vkCmdCopyImageToBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyImageToBuffer2KHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -877,6 +883,13 @@ namespace Nexus::Graphics
 						m_DeviceFeatures.SupportsRayTracing = true;
 					}
 				}
+			}
+		}
+
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
 			}
 		}
 

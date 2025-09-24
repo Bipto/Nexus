@@ -942,12 +942,6 @@ namespace Nexus::Graphics
 		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
 		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
-		VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
-
-		VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
-		VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
-
 		struct SubresourceRangeLayout
 		{
 			VkImageSubresourceRange range;
@@ -1013,32 +1007,81 @@ namespace Nexus::Graphics
 			range.layout				  = currentLayout;
 		}
 
-		std::vector<VkImageMemoryBarrier> imageBarriers = {};
-		for (const auto &[subresourceRange, imageLayout] : ranges)
+		if (functions.vkCmdPipelineBarrier2KHR)
 		{
-			VkImageMemoryBarrier &imageBarrier = imageBarriers.emplace_back();
-			imageBarrier.sType				   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			imageBarrier.pNext				   = nullptr;
-			imageBarrier.srcAccessMask		   = srcAccess;
-			imageBarrier.dstAccessMask		   = dstAccess;
-			imageBarrier.oldLayout			   = imageLayout;
-			imageBarrier.newLayout			   = newLayout;
-			imageBarrier.srcQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-			imageBarrier.dstQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-			imageBarrier.image				   = texture->GetImage();
-			imageBarrier.subresourceRange	   = subresourceRange;
-		}
+			VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(m_Device, command.BeforeAccess);
+			VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(m_Device, command.AfterAccess);
 
-		vkCmdPipelineBarrier(m_CommandBuffer,
-							 srcStage,
-							 dstStage,
-							 dependencyFlags,
-							 0,
-							 nullptr,
-							 0,
-							 nullptr,
-							 imageBarriers.size(),
-							 imageBarriers.data());
+			VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(m_Device, command.BeforeStage);
+			VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(m_Device, command.AfterStage);
+
+			std::vector<VkImageMemoryBarrier2KHR> imageBarriers = {};
+
+			for (const auto &[subresourceRange, imageLayout] : ranges)
+			{
+				VkImageMemoryBarrier2KHR &imageBarrier = imageBarriers.emplace_back();
+				imageBarrier.sType					   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
+				imageBarrier.pNext					   = nullptr;
+				imageBarrier.srcStageMask			   = srcStage;
+				imageBarrier.dstStageMask			   = dstStage;
+				imageBarrier.srcAccessMask			   = srcAccess;
+				imageBarrier.dstAccessMask			   = dstAccess;
+				imageBarrier.oldLayout				   = imageLayout;
+				imageBarrier.newLayout				   = newLayout;
+				imageBarrier.srcQueueFamilyIndex	   = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrier.dstQueueFamilyIndex	   = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrier.image					   = texture->GetImage();
+				imageBarrier.subresourceRange		   = subresourceRange;
+			}
+
+			VkDependencyInfoKHR dependencyInfo		= {};
+			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+			dependencyInfo.pNext					= nullptr;
+			dependencyInfo.dependencyFlags			= dependencyFlags;
+			dependencyInfo.memoryBarrierCount		= 0;
+			dependencyInfo.pMemoryBarriers			= nullptr;
+			dependencyInfo.bufferMemoryBarrierCount = 0;
+			dependencyInfo.pBufferMemoryBarriers	= nullptr;
+			dependencyInfo.imageMemoryBarrierCount	= imageBarriers.size();
+			dependencyInfo.pImageMemoryBarriers		= imageBarriers.data();
+
+			functions.vkCmdPipelineBarrier2KHR(m_CommandBuffer, &dependencyInfo);
+		}
+		else
+		{
+			VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
+			VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
+
+			VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
+			VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
+
+			std::vector<VkImageMemoryBarrier> imageBarriers = {};
+			for (const auto &[subresourceRange, imageLayout] : ranges)
+			{
+				VkImageMemoryBarrier &imageBarrier = imageBarriers.emplace_back();
+				imageBarrier.sType				   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+				imageBarrier.pNext				   = nullptr;
+				imageBarrier.srcAccessMask		   = srcAccess;
+				imageBarrier.dstAccessMask		   = dstAccess;
+				imageBarrier.oldLayout			   = imageLayout;
+				imageBarrier.newLayout			   = newLayout;
+				imageBarrier.srcQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrier.dstQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrier.image				   = texture->GetImage();
+				imageBarrier.subresourceRange	   = subresourceRange;
+			}
+
+			vkCmdPipelineBarrier(m_CommandBuffer,
+								 srcStage,
+								 dstStage,
+								 dependencyFlags,
+								 0,
+								 nullptr,
+								 0,
+								 nullptr,
+								 imageBarriers.size(),
+								 imageBarriers.data());
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
