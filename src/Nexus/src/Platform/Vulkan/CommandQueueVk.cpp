@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 		  m_Description(description)
 	{
 		m_Queue = Vk::GetDeviceQueue(device, description);
-		Vk::SetObjectName(device->GetVkDevice(), VK_OBJECT_TYPE_QUEUE, (uint64_t)m_Queue, description.DebugName.c_str());
+		device->SetObjectName(VK_OBJECT_TYPE_QUEUE, (uint64_t)m_Queue, description.DebugName.c_str());
 
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(device);
 	}
@@ -64,7 +64,9 @@ namespace Nexus::Graphics
 
 	bool CommandQueueVk::WaitForIdle()
 	{
-		VkResult result = vkQueueWaitIdle(m_Queue);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+		VkResult result = context.QueueWaitIdle(m_Queue);
 		if (result == VK_SUCCESS)
 		{
 			return true;

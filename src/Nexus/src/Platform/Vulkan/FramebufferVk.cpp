@@ -13,8 +13,9 @@ namespace Nexus::Graphics
 
 	FramebufferVk::~FramebufferVk()
 	{
-		vkDestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
-		vkDestroyRenderPass(m_Device->GetVkDevice(), m_RenderPass, nullptr);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		context.DestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
+		context.DestroyRenderPass(m_Device->GetVkDevice(), m_RenderPass, nullptr);
 	}
 
 	const FramebufferSpecification FramebufferVk::GetFramebufferSpecification()
@@ -60,7 +61,8 @@ namespace Nexus::Graphics
 
 	void FramebufferVk::Recreate()
 	{
-		vkDestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		context.DestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
 		m_Framebuffer = VK_NULL_HANDLE;
 
 		CreateColorTargets();
@@ -81,12 +83,12 @@ namespace Nexus::Graphics
 				NX_VALIDATE(0, "Pixel format cannot be PixelFormat::None for a color attachment");
 			}
 
-			Graphics::TextureDescription spec	= {};
-			spec.Width							= m_Description.Width;
-			spec.Height							= m_Description.Height;
-			spec.Format							= colorAttachmentSpec.TextureFormat;
-			spec.Samples						= m_Description.Samples;
-			spec.Usage							= Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
+			Graphics::TextureDescription spec = {};
+			spec.Width						  = m_Description.Width;
+			spec.Height						  = m_Description.Height;
+			spec.Format						  = colorAttachmentSpec.TextureFormat;
+			spec.Samples					  = m_Description.Samples;
+			spec.Usage						  = Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
 
 			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
 			m_ColorAttachments.push_back(std::dynamic_pointer_cast<TextureVk>(texture));
@@ -99,14 +101,14 @@ namespace Nexus::Graphics
 		// one
 		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
-			Graphics::TextureDescription spec	= {};
-			spec.Width							= m_Description.Width;
-			spec.Height							= m_Description.Height;
-			spec.Format							= m_Description.DepthAttachmentSpecification.DepthFormat;
-			spec.Samples						= m_Description.Samples;
-			spec.Usage							= 0;
-			Ref<Texture> texture				= Ref<Texture>(m_Device->CreateTexture(spec));
-			m_DepthAttachment					= std::dynamic_pointer_cast<TextureVk>(texture);
+			Graphics::TextureDescription spec = {};
+			spec.Width						  = m_Description.Width;
+			spec.Height						  = m_Description.Height;
+			spec.Format						  = m_Description.DepthAttachmentSpecification.DepthFormat;
+			spec.Samples					  = m_Description.Samples;
+			spec.Usage						  = 0;
+			Ref<Texture> texture			  = Ref<Texture>(m_Device->CreateTexture(spec));
+			m_DepthAttachment				  = std::dynamic_pointer_cast<TextureVk>(texture);
 		}
 	}
 
@@ -145,7 +147,7 @@ namespace Nexus::Graphics
 		framebufferDesc.Height			 = m_Description.Height;
 		framebufferDesc.VulkanRenderPass = m_RenderPass;
 
-		m_Framebuffer = Vk::CreateFramebuffer(m_Device->GetVkDevice(), framebufferDesc);
+		m_Framebuffer = Vk::CreateFramebuffer(m_Device->GetVulkanContext(), m_Device->GetVkDevice(), framebufferDesc);
 	}
 }	 // namespace Nexus::Graphics
 

@@ -8,6 +8,8 @@ namespace Nexus::Graphics
 {
 	TextureVk::TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device) : Texture(spec), m_GraphicsDevice(device)
 	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");
 
@@ -96,7 +98,7 @@ namespace Nexus::Graphics
 			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		}
 
-		NX_VALIDATE(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS, "Failed to create image view");
+		NX_VALIDATE(context.CreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS, "Failed to create image view");
 
 		// create resource states
 		{
@@ -136,7 +138,8 @@ namespace Nexus::Graphics
 
 	TextureVk::~TextureVk()
 	{
-		vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_ImageView, nullptr);
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		context.DestroyImageView(m_GraphicsDevice->GetVkDevice(), m_ImageView, nullptr);
 		vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
 	}
 

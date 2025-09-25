@@ -18,7 +18,8 @@ namespace Nexus::Graphics
 
 	ShaderModuleVk::~ShaderModuleVk()
 	{
-		vkDestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_ShaderModule, nullptr);
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		context.DestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_ShaderModule, nullptr);
 	}
 
 	VkShaderModule ShaderModuleVk::GetShaderModule()
@@ -575,13 +576,15 @@ namespace Nexus::Graphics
 
 	void ShaderModuleVk::CreateShaderModule()
 	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType					= VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.pNext					= nullptr;
 		createInfo.codeSize					= m_ModuleSpecification.SpirvBinary.size() * sizeof(uint32_t);
 		createInfo.pCode					= m_ModuleSpecification.SpirvBinary.data();
 
-		if (vkCreateShaderModule(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &m_ShaderModule) != VK_SUCCESS)
+		if (context.CreateShaderModule(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &m_ShaderModule) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create shader module");
 		}

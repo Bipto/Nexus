@@ -670,25 +670,6 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name)
-	{
-		VkDebugUtilsObjectNameInfoEXT nameInfo = {};
-		nameInfo.sType						   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-		nameInfo.pNext						   = nullptr;
-		nameInfo.objectType					   = type;
-		nameInfo.objectHandle				   = objectHandle;
-		nameInfo.pObjectName				   = name;
-
-		auto func = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(device, "vkSetDebugUtilsObjectNameEXT");
-		if (func != nullptr)
-		{
-			if (func(device, &nameInfo) != VK_SUCCESS)
-				return false;
-		}
-
-		return true;
-	}
-
 	uint32_t GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount)
 	{
 		uint32_t count = 0;
@@ -971,7 +952,7 @@ namespace Nexus::Vk
 		return rangeInfo;
 	}
 
-	VkRenderPass CreateVkRenderPass(VkDevice device, const VulkanRenderPassDescription &desc)
+	VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference>	 colourAttachmentReferences;
@@ -1093,11 +1074,11 @@ namespace Nexus::Vk
 		createInfo.pDependencies		  = dependencies.data();
 
 		VkRenderPass renderPass = VK_NULL_HANDLE;
-		NX_VALIDATE(vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		NX_VALIDATE(context.CreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
 		return renderPass;
 	}
 
-	VkRenderPass CreateVkRenderPass2(PFN_vkCreateRenderPass2KHR func, VkDevice device, const VulkanRenderPassDescription &desc)
+	VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
 		std::vector<VkAttachmentDescription2KHR> attachments				= {};
 		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences = {};
@@ -1232,21 +1213,25 @@ namespace Nexus::Vk
 		createInfo.pCorrelatedViewMasks		  = nullptr;
 
 		VkRenderPass renderPass = VK_NULL_HANDLE;
-		NX_VALIDATE(func(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		NX_VALIDATE(context.CreateRenderPass2KHR(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
 		return renderPass;
 	}
 
 	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc)
 	{
-		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkCreateRenderPass2KHR)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.CreateRenderPass2KHR)
 		{
-			return CreateVkRenderPass2(functions.vkCreateRenderPass2KHR, device->GetVkDevice(), desc);
+			return CreateVkRenderPass2(context, device->GetVkDevice(), desc);
 		}
-		return CreateVkRenderPass(device->GetVkDevice(), desc);
+		else
+		{
+			return CreateVkRenderPass(context, device->GetVkDevice(), desc);
+		}
 	}
 
-	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc)
+	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc)
 	{
 		std::vector<VkImageView> attachments = {};
 
@@ -1273,7 +1258,7 @@ namespace Nexus::Vk
 
 		VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
-		NX_VALIDATE(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
+		NX_VALIDATE(context.CreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
 
 		return framebuffer;
 	}
@@ -1525,6 +1510,8 @@ namespace Nexus::Vk
 										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t> &descriptorCounts)
 	{
+		const GladVulkanContext &context = device->GetVulkanContext();
+
 		// retrieve the resources that are referenced by the shaders
 		const auto &shaderResources = pipeline->GetRequiredShaderResources();
 
@@ -1557,7 +1544,7 @@ namespace Nexus::Vk
 			createInfo.bindingCount					   = layoutBindings.size();
 
 			VkDescriptorSetLayout &layout = descriptorSetLayouts.emplace_back();
-			NX_VALIDATE(vkCreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
+			NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
 						"Failed to create descriptor set layout");
 		}
 
@@ -1573,7 +1560,7 @@ namespace Nexus::Vk
 		info.pushConstantRangeCount		= 0;
 		info.pPushConstantRanges		= nullptr;
 
-		NX_VALIDATE(vkCreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
+		NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
 
 		return layout;
 	}
@@ -1592,6 +1579,7 @@ namespace Nexus::Vk
 									  Graphics::Topology									  topology,
 									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts)
 	{
+		const GladVulkanContext				 &context		 = device->GetVulkanContext();
 		const Graphics::VulkanDeviceFeatures &deviceFeatures = device->GetDeviceFeatures();
 
 		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo(depthStencilDesc);
@@ -1691,7 +1679,7 @@ namespace Nexus::Vk
 
 		VkPipeline pipeline = VK_NULL_HANDLE;
 
-		if (vkCreateGraphicsPipelines(device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		if (context.CreateGraphicsPipelines(device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}
@@ -1706,8 +1694,9 @@ namespace Nexus::Vk
 							  VkFence					  fence,
 							  uint32_t					 *imageIndex)
 	{
-		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkAcquireNextImage2KHR)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.AcquireNextImage2KHR)
 		{
 			VkAcquireNextImageInfoKHR imageAcquireInfo = {};
 			imageAcquireInfo.sType					   = VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR;
@@ -1717,11 +1706,11 @@ namespace Nexus::Vk
 			imageAcquireInfo.semaphore				   = semaphore;
 			imageAcquireInfo.fence					   = fence;
 			imageAcquireInfo.deviceMask				   = 1;
-			return vkAcquireNextImage2KHR(device->GetVkDevice(), &imageAcquireInfo, imageIndex);
+			return context.AcquireNextImage2KHR(device->GetVkDevice(), &imageAcquireInfo, imageIndex);
 		}
 		else
 		{
-			return vkAcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
+			return context.AcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
 		}
 	}
 
@@ -1731,8 +1720,9 @@ namespace Nexus::Vk
 						 VkPipelineStageFlags				waitStageMask,
 						 VkFence							fence)
 	{
-		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkQueueSubmit2KHR)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.QueueSubmit2KHR)
 		{
 			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
 
@@ -1756,7 +1746,7 @@ namespace Nexus::Vk
 			submitInfo.signalSemaphoreInfoCount = 0;
 			submitInfo.pSignalSemaphoreInfos	= nullptr;
 
-			return functions.vkQueueSubmit2KHR(queue, 1, &submitInfo, fence);
+			return context.QueueSubmit2KHR(queue, 1, &submitInfo, fence);
 		}
 		else
 		{
@@ -1770,7 +1760,7 @@ namespace Nexus::Vk
 			submitInfo.signalSemaphoreCount = 0;
 			submitInfo.pSignalSemaphores	= nullptr;
 
-			return vkQueueSubmit(queue, 1, &submitInfo, fence);
+			return context.QueueSubmit(queue, 1, &submitInfo, fence);
 		}
 	}
 
@@ -1813,10 +1803,11 @@ namespace Nexus::Vk
 
 	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description)
 	{
-		const Graphics::VulkanDeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		VkQueue											queue	  = VK_NULL_HANDLE;
+		const GladVulkanContext &context = device->GetVulkanContext();
 
-		if (functions.vkGetDeviceQueue2)
+		VkQueue queue = VK_NULL_HANDLE;
+
+		if (context.GetDeviceQueue2)
 		{
 			VkDeviceQueueInfo2 queueInfo = {};
 			queueInfo.sType				 = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
@@ -1825,11 +1816,11 @@ namespace Nexus::Vk
 			queueInfo.queueIndex		 = description.QueueIndex;
 			queueInfo.flags				 = 0;
 
-			functions.vkGetDeviceQueue2(device->GetVkDevice(), &queueInfo, &queue);
+			context.GetDeviceQueue2(device->GetVkDevice(), &queueInfo, &queue);
 		}
 		else
 		{
-			vkGetDeviceQueue(device->GetVkDevice(), description.QueueFamilyIndex, description.QueueIndex, &queue);
+			context.GetDeviceQueue(device->GetVkDevice(), description.QueueFamilyIndex, description.QueueIndex, &queue);
 		}
 
 		return queue;
@@ -2186,6 +2177,31 @@ namespace Nexus::Vk
 				}
 			}
 		}
+	}
+
+	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName)
+	{
+		void *result = nullptr;
+
+		if (data->device != VK_NULL_HANDLE)
+		{
+			PFN_vkGetDeviceProcAddr getDeviceProcAddr = (PFN_vkGetDeviceProcAddr)Vk::GetNxDeviceProcAddr();
+			result									  = getDeviceProcAddr(data->device, pName);
+		}
+
+		if (!result && data->instance != VK_NULL_HANDLE)
+		{
+			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
+			result										  = getInstanceProcAddr(data->instance, pName);
+		}
+
+		if (!result)
+		{
+			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
+			result										  = getInstanceProcAddr(VK_NULL_HANDLE, pName);
+		}
+
+		return result;
 	}
 }	 // namespace Nexus::Vk
 

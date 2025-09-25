@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
+	#include "glad/vulkan.h"
 	#include "vk_mem_alloc.h"
-	#include "vulkan/vulkan.h"
 
 	#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
@@ -17,6 +17,8 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 
 	#include "PNextBuilder.hpp"
+
+	#include "VulkanLoader.hpp"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 
@@ -56,7 +58,6 @@ namespace Nexus::Vk
 	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
 	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
 
-	bool				  SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
 	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
@@ -100,7 +101,7 @@ namespace Nexus::Vk
 		uint32_t				 Height			  = 0;
 	};
 
-	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc);
+	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc);
 
 	struct AllocatedBuffer
 	{
@@ -169,6 +170,14 @@ namespace Nexus::Vk
 	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
 	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
 	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
+
+	struct GladLoaderData
+	{
+		VkInstance instance = VK_NULL_HANDLE;
+		VkDevice   device	= VK_NULL_HANDLE;
+	};
+
+	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName);
 
 }	 // namespace Nexus::Vk
 

@@ -29,14 +29,14 @@ namespace Nexus::Graphics
 		  m_DeviceConfig(config)
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
+
 		CreateDevice(physicalDeviceVk);
+
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
 
 		CreateCommandStructures();
 		CreateSynchronisationStructures();
-
-		LoadExtensionFunctions();
 
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
 	}
@@ -45,9 +45,9 @@ namespace Nexus::Graphics
 	{
 		// cleanup synchronisation structures
 		{
-			vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
-			vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
-			vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
+			m_Context.DestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
+			m_Context.FreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
+			m_Context.DestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
 		}
 
 		// cleanup allocators
@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 
 		// cleanup device
 		{
-			vkDestroyDevice(m_Device, nullptr);
+			m_Context.DestroyDevice(m_Device, nullptr);
 		}
 	}
 
@@ -148,10 +148,10 @@ namespace Nexus::Graphics
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
 
 		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(physicalDeviceVk->GetVkPhysicalDevice(),
-											 m_PresentQueueFamilyIndex,
-											 swapchain->m_Surface,
-											 &presentSupport);
+		m_Context.GetPhysicalDeviceSurfaceSupportKHR(physicalDeviceVk->GetVkPhysicalDevice(),
+													 m_PresentQueueFamilyIndex,
+													 swapchain->m_Surface,
+													 &presentSupport);
 
 		if (!presentSupport)
 		{
@@ -175,7 +175,7 @@ namespace Nexus::Graphics
 			fenceHandles[i]	   = fence->GetHandle();
 		}
 
-		VkResult result = vkWaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeout.GetNanoseconds<uint64_t>());
+		VkResult result = m_Context.WaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeout.GetNanoseconds<uint64_t>());
 
 		if (result == VK_SUCCESS)
 		{
@@ -210,7 +210,7 @@ namespace Nexus::Graphics
 			fenceHandles[i]	   = fence->GetHandle();
 		}
 
-		VkResult result = vkResetFences(m_Device, fenceHandles.size(), fenceHandles.data());
+		VkResult result = m_Context.ResetFences(m_Device, fenceHandles.size(), fenceHandles.data());
 		NX_VALIDATE(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceVk::WaitForIdle()
 	{
-		vkDeviceWaitIdle(m_Device);
+		m_Context.DeviceWaitIdle(m_Device);
 	}
 
 	GraphicsAPI GraphicsDeviceVk::GetGraphicsAPI()
@@ -248,15 +248,10 @@ namespace Nexus::Graphics
 		nameInfo.objectHandle				   = handle;
 		nameInfo.pObjectName				   = name;
 
-		if (m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT)
+		if (m_Context.SetDebugUtilsObjectNameEXT)
 		{
-			m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT(m_Device, &nameInfo);
+			m_Context.SetDebugUtilsObjectNameEXT(m_Device, &nameInfo);
 		}
-	}
-
-	const VulkanDeviceExtensionFunctions &GraphicsDeviceVk::GetExtensionFunctions() const
-	{
-		return m_ExtensionFunctions;
 	}
 
 	VkInstance GraphicsDeviceVk::GetVkInstance()
@@ -291,8 +286,8 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)
 	{
-		vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
-		vkResetCommandPool(m_Device, m_UploadContext.CommandPool, 0);
+		m_Context.ResetFences(m_Device, 1, &m_UploadContext.UploadFence);
+		m_Context.ResetCommandPool(m_Device, m_UploadContext.CommandPool, 0);
 
 		VkCommandBuffer			 cmd		  = m_UploadContext.CommandBuffer;
 		VkCommandBufferBeginInfo cmdBeginInfo = {};
@@ -301,14 +296,14 @@ namespace Nexus::Graphics
 		cmdBeginInfo.pInheritanceInfo		  = nullptr;
 		cmdBeginInfo.flags					  = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		if (vkBeginCommandBuffer(cmd, &cmdBeginInfo) != VK_SUCCESS)
+		if (m_Context.BeginCommandBuffer(cmd, &cmdBeginInfo) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to begin command buffer");
 		}
 
 		function(cmd);
 
-		if (vkEndCommandBuffer(cmd) != VK_SUCCESS)
+		if (m_Context.EndCommandBuffer(cmd) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to end command buffer");
 		}
@@ -324,13 +319,13 @@ namespace Nexus::Graphics
 		submitInfo.signalSemaphoreCount = 0;
 		submitInfo.pSignalSemaphores	= nullptr;
 
-		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_UploadContext.UploadFence) != VK_SUCCESS)
+		if (m_Context.QueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_UploadContext.UploadFence) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to submit queue");
 		}
 
-		vkDeviceWaitIdle(m_Device);
-		vkQueueWaitIdle(m_GraphicsQueue);
+		m_Context.DeviceWaitIdle(m_Device);
+		m_Context.QueueWaitIdle(m_GraphicsQueue);
 	}
 
 	void GraphicsDeviceVk::TransitionVulkanImageLayout(VkCommandBuffer		 cmdBuffer,
@@ -364,16 +359,16 @@ namespace Nexus::Graphics
 		barrier.srcAccessMask = 0;
 		barrier.dstAccessMask = 0;
 
-		vkCmdPipelineBarrier(cmdBuffer,
-							 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-							 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-							 VK_DEPENDENCY_BY_REGION_BIT,
-							 0,
-							 nullptr,
-							 0,
-							 nullptr,
-							 1,
-							 &barrier);
+		m_Context.CmdPipelineBarrier(cmdBuffer,
+									 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+									 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+									 VK_DEPENDENCY_BY_REGION_BIT,
+									 0,
+									 nullptr,
+									 0,
+									 nullptr,
+									 1,
+									 &barrier);
 	}
 
 	void GraphicsDeviceVk::RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
@@ -383,9 +378,9 @@ namespace Nexus::Graphics
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 		uint32_t							 queueFamilyCount;
 
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
+		m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
 		queueFamilyProperties.resize(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
+		m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
 
 		uint32_t queueFamilyIndex = 0;
 		for (const auto &queueFamily : queueFamilyProperties)
@@ -402,9 +397,9 @@ namespace Nexus::Graphics
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 		uint32_t							 queueFamilyCount;
 
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
+		m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
 		queueFamilyProperties.resize(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
+		m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
 
 		int graphicsIndex = -1;
 		int presentIndex  = -1;
@@ -571,13 +566,17 @@ namespace Nexus::Graphics
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		createInfo.enabledLayerCount	   = 0;
 
-		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
+		if (m_Context.CreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create device");
 		}
 
-		vkGetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_GraphicsQueue);
-		vkGetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
+		// load device function pointers
+		Vk::GladLoaderData loaderData = {.instance = m_Instance, .device = m_Device};
+		gladLoadVulkanContextUserPtr(&m_Context, VK_NULL_HANDLE, (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loaderData);
+
+		m_Context.GetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_GraphicsQueue);
+		m_Context.GetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
 	}
 
 	void GraphicsDeviceVk::CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance)
@@ -606,7 +605,7 @@ namespace Nexus::Graphics
 			createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
 			createInfo.queueFamilyIndex		   = m_GraphicsQueueFamilyIndex;
-			if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_UploadContext.CommandPool) != VK_SUCCESS)
+			if (m_Context.CreateCommandPool(m_Device, &createInfo, nullptr, &m_UploadContext.CommandPool) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create command pool");
 			}
@@ -620,7 +619,7 @@ namespace Nexus::Graphics
 			allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			allocateInfo.commandBufferCount			 = 1;
 
-			if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
+			if (m_Context.AllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to allocate command buffers");
 			}
@@ -637,73 +636,10 @@ namespace Nexus::Graphics
 		semaphoreCreateInfo.sType				  = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 		semaphoreCreateInfo.flags				  = 0;
 
-		if (vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_UploadContext.UploadFence) != VK_SUCCESS)
+		if (m_Context.CreateFence(m_Device, &fenceCreateInfo, nullptr, &m_UploadContext.UploadFence) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create fence");
 		}
-	}
-
-	void GraphicsDeviceVk::LoadExtensionFunctions()
-	{
-		m_ExtensionFunctions.vkCmdBindVertexBuffers2EXT = (PFN_vkCmdBindVertexBuffers2EXT)vkGetDeviceProcAddr(m_Device, "vkCmdBindVertexBuffers2EXT");
-
-		m_ExtensionFunctions.vkCmdBindIndexBuffer2KHR  = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBindIndexBuffer2KHR");
-		m_ExtensionFunctions.vkCmdDebugMarkerBeginEXT  = (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerBeginEXT");
-		m_ExtensionFunctions.vkCmdDebugMarkerEndEXT	   = (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerEndEXT");
-		m_ExtensionFunctions.vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerInsertEXT");
-
-		m_ExtensionFunctions.vkCmdBeginDebugUtilsLabelEXT =
-			(PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdBeginDebugUtilsLabelEXT");
-		m_ExtensionFunctions.vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdEndDebugUtilsLabelEXT");
-		m_ExtensionFunctions.vkCmdInsertDebugUtilsLabelEXT =
-			(PFN_vkCmdInsertDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdInsertDebugUtilsLabelEXT");
-		m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT =
-			(PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(m_Device, "vkSetDebugUtilsObjectNameEXT");
-
-		m_ExtensionFunctions.vkCmdBeginRenderPass2KHR = (PFN_vkCmdBeginRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderPass2KHR");
-		m_ExtensionFunctions.vkCmdEndRenderPass2KHR	  = (PFN_vkCmdEndRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderPass2KHR");
-		m_ExtensionFunctions.vkCreateRenderPass2KHR	  = (PFN_vkCreateRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCreateRenderPass2KHR");
-		m_ExtensionFunctions.vkDebugMarkerSetObjectNameEXT =
-			(PFN_vkDebugMarkerSetObjectNameEXT)vkGetDeviceProcAddr(m_Device, "vkDebugMarkerSetObjectNameEXT");
-
-		m_ExtensionFunctions.vkCmdBeginRenderingKHR = (PFN_vkCmdBeginRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderingKHR");
-		m_ExtensionFunctions.vkCmdEndRenderingKHR	= (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderingKHR");
-
-		m_ExtensionFunctions.vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksEXT");
-		m_ExtensionFunctions.vkCmdDrawMeshTasksIndirectEXT =
-			(PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksIndirectEXT");
-
-		m_ExtensionFunctions.vkGetBufferDeviceAddressKHR =
-			(PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetBufferDeviceAddressKHR");
-
-		m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR =
-			(PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureBuildSizesKHR");
-
-		m_ExtensionFunctions.vkCreateAccelerationStructureKHR =
-			(PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCreateAccelerationStructureKHR");
-		m_ExtensionFunctions.vkDestroyAccelerationStructureKHR =
-			(PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkDestroyAccelerationStructureKHR");
-		m_ExtensionFunctions.vkCmdBuildAccelerationStructuresKHR =
-			(PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBuildAccelerationStructuresKHR");
-		m_ExtensionFunctions.vkCmdCopyAccelerationStructureKHR =
-			(PFN_vkCmdCopyAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyAccelerationStructureKHR");
-		m_ExtensionFunctions.vkCmdCopyAccelerationStructureToMemoryKHR =
-			(PFN_vkCmdCopyAccelerationStructureToMemoryKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyAccelerationStructureToMemoryKHR");
-		m_ExtensionFunctions.vkCmdCopyMemoryToAccelerationStructureKHR =
-			(PFN_vkCmdCopyMemoryToAccelerationStructureKHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyMemoryToAccelerationStructureKHR");
-		m_ExtensionFunctions.vkGetAccelerationStructureDeviceAddressKHR =
-			(PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(m_Device, "vkGetAccelerationStructureDeviceAddressKHR");
-
-		m_ExtensionFunctions.vkAcquireNextImage2KHR = (PFN_vkAcquireNextImage2KHR)vkGetDeviceProcAddr(m_Device, "vkAcquireNextImage2KHR");
-		m_ExtensionFunctions.vkQueueSubmit2KHR		= (PFN_vkQueueSubmit2KHR)vkGetDeviceProcAddr(m_Device, "vkQueueSubmit2KHR");
-		m_ExtensionFunctions.vkGetDeviceQueue2		= (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(m_Device, "vkGetDeviceQueue2");
-
-		m_ExtensionFunctions.vkCmdPipelineBarrier2KHR = (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(m_Device, "vkCmdPipelineBarrier2KHR");
-
-		m_ExtensionFunctions.vkCmdCopyImage2KHR			= (PFN_vkCmdCopyImage2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyImage2KHR");
-		m_ExtensionFunctions.vkCmdCopyBuffer2KHR		= (PFN_vkCmdCopyBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyBuffer2KHR");
-		m_ExtensionFunctions.vkCmdCopyBufferToImage2KHR = (PFN_vkCmdCopyBufferToImage2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyBufferToImage2KHR");
-		m_ExtensionFunctions.vkCmdCopyImageToBuffer2KHR = (PFN_vkCmdCopyImageToBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdCopyImageToBuffer2KHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -720,7 +656,7 @@ namespace Nexus::Graphics
 		viewInfo.subresourceRange.layerCount	 = 1;
 
 		VkImageView imageView;
-		if (vkCreateImageView(m_Device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+		if (m_Context.CreateImageView(m_Device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create texture image view");
 		}
@@ -751,13 +687,13 @@ namespace Nexus::Graphics
 		imageInfo.samples			= VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.sharingMode		= VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateImage(m_Device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+		if (m_Context.CreateImage(m_Device, &imageInfo, nullptr, &image) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create image");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(m_Device, image, &memRequirements);
+		m_Context.GetImageMemoryRequirements(m_Device, image, &memRequirements);
 
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
 
@@ -766,12 +702,12 @@ namespace Nexus::Graphics
 		allocInfo.allocationSize	   = memRequirements.size;
 		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDeviceVk);
 
-		if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+		if (m_Context.AllocateMemory(m_Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate image memory");
 		}
 
-		vkBindImageMemory(m_Device, image, imageMemory, 0);
+		m_Context.BindImageMemory(m_Device, image, imageMemory, 0);
 	}
 
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
@@ -899,10 +835,10 @@ namespace Nexus::Graphics
 	std::vector<std::string> GraphicsDeviceVk::GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		uint32_t count	= 0;
-		VkResult result = vkEnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count, nullptr);
+		VkResult result = m_Context.EnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count, nullptr);
 
 		std::vector<VkExtensionProperties> properties(count);
-		result = vkEnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count, properties.data());
+		result = m_Context.EnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count, properties.data());
 
 		if (result != VK_SUCCESS)
 		{
@@ -921,7 +857,7 @@ namespace Nexus::Graphics
 		info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
 		info.pNext					   = nullptr;
 		info.buffer					   = buffer->GetVkBuffer();
-		return m_ExtensionFunctions.vkGetBufferDeviceAddressKHR(m_Device, &info);
+		return m_Context.GetBufferDeviceAddressKHR(m_Device, &info);
 	}
 
 	Vk::AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
@@ -995,13 +931,13 @@ namespace Nexus::Graphics
 		buildSizes.sType									= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 		buildSizes.pNext									= nullptr;
 
-		if (m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR)
+		if (m_Context.GetAccelerationStructureBuildSizesKHR)
 		{
-			m_ExtensionFunctions.vkGetAccelerationStructureBuildSizesKHR(m_Device,
-																		 VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
-																		 &buildInfo,
-																		 primitiveCount.data(),
-																		 &buildSizes);
+			m_Context.GetAccelerationStructureBuildSizesKHR(m_Device,
+															VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
+															&buildInfo,
+															primitiveCount.data(),
+															&buildSizes);
 		}
 
 		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = buildSizes.accelerationStructureSize,
@@ -1019,10 +955,15 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->IsVersionGreaterThan(version);
 	}
 
+	const GladVulkanContext &GraphicsDeviceVk::GetVulkanContext() const
+	{
+		return m_Context;
+	}
+
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice->GetVkPhysicalDevice(), &memProperties);
+		m_Context.GetPhysicalDeviceMemoryProperties(physicalDevice->GetVkPhysicalDevice(), &memProperties);
 
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 		{

@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 	class PhysicalDeviceVk final : public IPhysicalDevice
 	{
 	  public:
-		PhysicalDeviceVk(VkPhysicalDevice device);
+		PhysicalDeviceVk(const GladVulkanContext &context, VkPhysicalDevice device);
 		virtual ~PhysicalDeviceVk();
 		const std::string &GetDeviceName() const final;
 
@@ -21,10 +21,10 @@ namespace Nexus::Graphics
 		bool IsVersionGreaterThan(uint32_t version) const;
 
 	  private:
-		std::string			   m_Name	  = {};
-		VkPhysicalDevice	   m_Device	  = nullptr;
+		std::string		 m_Name	  = {};
+		VkPhysicalDevice m_Device = nullptr;
 
-		VkPhysicalDeviceProperties m_VkPhysicalDeviceProperties = {};
+		VkPhysicalDeviceProperties		   m_VkPhysicalDeviceProperties = {};
 		std::vector<VkExtensionProperties> m_DeviceExtensions			= {};
 	};
 }	 // namespace Nexus::Graphics

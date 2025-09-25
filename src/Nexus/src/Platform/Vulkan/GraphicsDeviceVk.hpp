@@ -31,55 +31,6 @@ namespace Nexus::Graphics
 		bool SupportsRayTracing		   = false;
 	};
 
-	struct VulkanDeviceExtensionFunctions
-	{
-		PFN_vkCmdBindVertexBuffers2EXT vkCmdBindVertexBuffers2EXT = VK_NULL_HANDLE;
-		PFN_vkCmdBindIndexBuffer2KHR   vkCmdBindIndexBuffer2KHR	  = VK_NULL_HANDLE;
-
-		// these are the more modern debug functions, so use these if available
-		PFN_vkCmdBeginDebugUtilsLabelEXT  vkCmdBeginDebugUtilsLabelEXT	= VK_NULL_HANDLE;
-		PFN_vkCmdEndDebugUtilsLabelEXT	  vkCmdEndDebugUtilsLabelEXT	= VK_NULL_HANDLE;
-		PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = VK_NULL_HANDLE;
-		PFN_vkSetDebugUtilsObjectNameEXT  vkSetDebugUtilsObjectNameEXT	= VK_NULL_HANDLE;
-
-		// otherwise, fall back to these
-		PFN_vkCmdDebugMarkerBeginEXT	  vkCmdDebugMarkerBeginEXT		= VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerEndEXT		  vkCmdDebugMarkerEndEXT		= VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerInsertEXT	  vkCmdDebugMarkerInsertEXT		= VK_NULL_HANDLE;
-		PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT = VK_NULL_HANDLE;
-
-		PFN_vkCmdBeginRenderPass2KHR vkCmdBeginRenderPass2KHR = VK_NULL_HANDLE;
-		PFN_vkCmdEndRenderPass2KHR	 vkCmdEndRenderPass2KHR	  = VK_NULL_HANDLE;
-		PFN_vkCreateRenderPass2KHR	 vkCreateRenderPass2KHR	  = VK_NULL_HANDLE;
-
-		PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR = VK_NULL_HANDLE;
-		PFN_vkCmdEndRenderingKHR   vkCmdEndRenderingKHR	  = VK_NULL_HANDLE;
-
-		PFN_vkCmdDrawMeshTasksEXT		  vkCmdDrawMeshTasksEXT			= VK_NULL_HANDLE;
-		PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = VK_NULL_HANDLE;
-
-		PFN_vkGetBufferDeviceAddressKHR				   vkGetBufferDeviceAddressKHR				  = VK_NULL_HANDLE;
-		PFN_vkGetAccelerationStructureBuildSizesKHR	   vkGetAccelerationStructureBuildSizesKHR	  = VK_NULL_HANDLE;
-		PFN_vkCreateAccelerationStructureKHR		   vkCreateAccelerationStructureKHR			  = VK_NULL_HANDLE;
-		PFN_vkDestroyAccelerationStructureKHR		   vkDestroyAccelerationStructureKHR		  = VK_NULL_HANDLE;
-		PFN_vkCmdBuildAccelerationStructuresKHR		   vkCmdBuildAccelerationStructuresKHR		  = VK_NULL_HANDLE;
-		PFN_vkCmdCopyAccelerationStructureKHR		   vkCmdCopyAccelerationStructureKHR		  = VK_NULL_HANDLE;
-		PFN_vkCmdCopyAccelerationStructureToMemoryKHR  vkCmdCopyAccelerationStructureToMemoryKHR  = VK_NULL_HANDLE;
-		PFN_vkCmdCopyMemoryToAccelerationStructureKHR  vkCmdCopyMemoryToAccelerationStructureKHR  = VK_NULL_HANDLE;
-		PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR = VK_NULL_HANDLE;
-
-		PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR = VK_NULL_HANDLE;
-		PFN_vkQueueSubmit2KHR	   vkQueueSubmit2KHR	  = VK_NULL_HANDLE;
-		PFN_vkGetDeviceQueue2	   vkGetDeviceQueue2	  = VK_NULL_HANDLE;
-
-		PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2KHR = VK_NULL_HANDLE;
-
-		PFN_vkCmdCopyImage2KHR		   vkCmdCopyImage2KHR		  = VK_NULL_HANDLE;
-		PFN_vkCmdCopyBuffer2KHR		   vkCmdCopyBuffer2KHR		  = VK_NULL_HANDLE;
-		PFN_vkCmdCopyBufferToImage2KHR vkCmdCopyBufferToImage2KHR = VK_NULL_HANDLE;
-		PFN_vkCmdCopyImageToBuffer2KHR vkCmdCopyImageToBuffer2KHR = VK_NULL_HANDLE;
-	};
-
 	class GraphicsDeviceVk final : public GraphicsDevice
 	{
 	  public:
@@ -126,8 +77,7 @@ namespace Nexus::Graphics
 
 		GraphicsAPI GetGraphicsAPI() final;
 
-		void								  SetObjectName(VkObjectType type, uint64_t handle, const char *name);
-		const VulkanDeviceExtensionFunctions &GetExtensionFunctions() const;
+		void SetObjectName(VkObjectType type, uint64_t handle, const char *name);
 
 		VkInstance	 GetVkInstance();
 		VkDevice	 GetVkDevice();
@@ -161,6 +111,8 @@ namespace Nexus::Graphics
 		bool IsExtensionSupported(const char *extension) const;
 		bool IsVersionGreaterThan(uint32_t version) const;
 
+		const GladVulkanContext &GetVulkanContext() const;
+
 		// vulkan functions
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
@@ -172,8 +124,6 @@ namespace Nexus::Graphics
 
 		void CreateCommandStructures();
 		void CreateSynchronisationStructures();
-
-		void LoadExtensionFunctions();
 
 	  private:
 		// utility functions
@@ -221,7 +171,7 @@ namespace Nexus::Graphics
 		DeviceFeatures m_Features = {};
 		DeviceLimits   m_Limits	  = {};
 
-		VulkanDeviceExtensionFunctions m_ExtensionFunctions = {};
+		GladVulkanContext m_Context = {};
 
 		friend class SwapchainVk;
 	};

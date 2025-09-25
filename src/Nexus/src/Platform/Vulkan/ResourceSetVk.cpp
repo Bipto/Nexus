@@ -2,9 +2,9 @@
 
 	#include "ResourceSetVk.hpp"
 
-	#include "PipelineVk.hpp"
 	#include "DeviceBufferVk.hpp"
 	#include "Nexus-Core/nxpch.hpp"
+	#include "PipelineVk.hpp"
 	#include "SamplerVk.hpp"
 	#include "TextureVk.hpp"
 
@@ -12,7 +12,8 @@ namespace Nexus::Graphics
 {
 	ResourceSetVk::ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device) : ResourceSet(pipeline), m_Device(device)
 	{
-		Ref<PipelineVk> vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+		const GladVulkanContext &context		= m_Device->GetVulkanContext();
+		Ref<PipelineVk>			 vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 
 		// calculate required descriptor pool size
 		std::vector<VkDescriptorPoolSize> sizes;
@@ -34,7 +35,7 @@ namespace Nexus::Graphics
 		poolInfo.poolSizeCount				= (uint32_t)sizes.size();
 		poolInfo.pPoolSizes					= sizes.data();
 
-		if (vkCreateDescriptorPool(device->GetVkDevice(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
+		if (context.CreateDescriptorPool(device->GetVkDevice(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create descriptor pool");
 		}
@@ -54,7 +55,7 @@ namespace Nexus::Graphics
 				allocInfo.descriptorSetCount		  = 1;
 				allocInfo.pSetLayouts				  = &descriptorSetLayouts[setIndex];
 
-				if (vkAllocateDescriptorSets(m_Device->GetVkDevice(), &allocInfo, &descriptorSets[setIndex]) != VK_SUCCESS)
+				if (context.AllocateDescriptorSets(m_Device->GetVkDevice(), &allocInfo, &descriptorSets[setIndex]) != VK_SUCCESS)
 				{
 					throw std::runtime_error("Failed to create descriptor set");
 				}
@@ -64,11 +65,14 @@ namespace Nexus::Graphics
 
 	ResourceSetVk::~ResourceSetVk()
 	{
-		vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		context.DestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
 	}
 
 	void ResourceSetVk::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
 	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
 		if (Ref<DeviceBuffer> buffer = storageBuffer.BufferHandle)
 		{
 			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
@@ -92,7 +96,7 @@ namespace Nexus::Graphics
 			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
 			uniformBufferToWrite.dstSet				  = descriptorSets.at(resourceInfo.Set);
 
-			vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+			context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
 
 			m_BoundStorageBuffers[name] = storageBuffer;
 		}
@@ -100,6 +104,8 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
 		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle)
 		{
 			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
@@ -123,7 +129,7 @@ namespace Nexus::Graphics
 			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
 			uniformBufferToWrite.dstSet				  = descriptorSets.at(resourceInfo.Set);
 
-			vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+			context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
 
 			m_BoundUniformBuffers[name] = uniformBuffer;
 		}
@@ -131,9 +137,11 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
 	{
-		Ref<TextureVk>	  textureVk		 = std::dynamic_pointer_cast<TextureVk>(texture);
-		Ref<SamplerVk>	  samplerVk		 = std::dynamic_pointer_cast<SamplerVk>(sampler);
-		const auto		 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(texture);
+		Ref<SamplerVk> samplerVk	  = std::dynamic_pointer_cast<SamplerVk>(sampler);
+		const auto	  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
 		ShaderResource &resourceInfo = m_ShaderResources.at(name);
 
@@ -167,7 +175,7 @@ namespace Nexus::Graphics
 		textureToWrite.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		textureToWrite.pImageInfo			= &imageBufferInfo;
 
-		vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
+		context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
 
 		CombinedImageSampler ciSampler {};
 		ciSampler.ImageTexture			   = texture;
@@ -178,7 +186,9 @@ namespace Nexus::Graphics
 	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
 		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(view.TextureHandle);
-		const auto	 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		const auto	  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
 		ShaderResource &resourceInfo = m_ShaderResources.at(name);
 
@@ -210,7 +220,7 @@ namespace Nexus::Graphics
 		writeDescriptorSet.descriptorType		= VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		writeDescriptorSet.pImageInfo			= &imageInfo;
 
-		vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &writeDescriptorSet, 0, nullptr);
+		context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &writeDescriptorSet, 0, nullptr);
 
 		m_BoundStorageImages[name] = view;
 	}

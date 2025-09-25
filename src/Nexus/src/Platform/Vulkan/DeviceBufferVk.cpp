@@ -64,15 +64,15 @@ namespace Nexus::Graphics
 
 	VkDeviceAddress DeviceBufferVk::GetDeviceAddress() const
 	{
-		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
-		if (functions.vkGetBufferDeviceAddressKHR)
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		if (context.GetBufferDeviceAddressKHR)
 		{
 			VkBufferDeviceAddressInfo info = {};
 			info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
 			info.pNext					   = nullptr;
 			info.buffer					   = m_Buffer.Buffer;
 
-			return functions.vkGetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info);
+			return context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info);
 		}
 
 		return {};

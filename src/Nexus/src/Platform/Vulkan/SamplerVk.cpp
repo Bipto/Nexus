@@ -39,7 +39,9 @@ namespace Nexus::Graphics
 		samplerInfo.minLod					= spec.MinimumLOD;
 		samplerInfo.maxLod					= spec.MaximumLOD;
 
-		if (vkCreateSampler(device->GetVkDevice(), &samplerInfo, nullptr, &m_Sampler) != VK_SUCCESS)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.CreateSampler(device->GetVkDevice(), &samplerInfo, nullptr, &m_Sampler) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create sampler");
 		}
@@ -49,7 +51,8 @@ namespace Nexus::Graphics
 
 	SamplerVk::~SamplerVk()
 	{
-		vkDestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		context.DestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
 	}
 
 	const SamplerDescription &SamplerVk::GetSamplerSpecification()
