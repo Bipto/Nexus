@@ -384,7 +384,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 8;
+	spec.SwapchainDescription.Samples		   = 1;
 	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";

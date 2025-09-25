@@ -469,17 +469,46 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);
 		Ref<DeviceBufferVk> dst = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Destination);
 
-		std::vector<VkBufferCopy> bufferCopies;
+		const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		for (const auto &copy : command.BufferCopy.Copies)
+		if (functions.vkCmdCopyBuffer2KHR)
 		{
-			VkBufferCopy &bufferCopy = bufferCopies.emplace_back();
-			bufferCopy.srcOffset	 = copy.ReadOffset;
-			bufferCopy.dstOffset	 = copy.WriteOffset;
-			bufferCopy.size			 = copy.Size;
-		}
+			std::vector<VkBufferCopy2KHR> bufferCopies;
 
-		vkCmdCopyBuffer(m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(), bufferCopies.data());
+			for (const auto &copy : command.BufferCopy.Copies)
+			{
+				VkBufferCopy2KHR &bufferCopy = bufferCopies.emplace_back();
+				bufferCopy.sType			 = VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR;
+				bufferCopy.pNext			 = nullptr;
+				bufferCopy.srcOffset		 = copy.ReadOffset;
+				bufferCopy.dstOffset		 = copy.WriteOffset;
+				bufferCopy.size				 = copy.Size;
+			}
+
+			VkCopyBufferInfo2KHR copyInfo = {};
+			copyInfo.sType				  = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2_KHR;
+			copyInfo.pNext				  = nullptr;
+			copyInfo.srcBuffer			  = src->GetVkBuffer();
+			copyInfo.dstBuffer			  = dst->GetVkBuffer();
+			copyInfo.regionCount		  = bufferCopies.size();
+			copyInfo.pRegions			  = bufferCopies.data();
+
+			functions.vkCmdCopyBuffer2KHR(m_CommandBuffer, &copyInfo);
+		}
+		else
+		{
+			std::vector<VkBufferCopy> bufferCopies;
+
+			for (const auto &copy : command.BufferCopy.Copies)
+			{
+				VkBufferCopy &bufferCopy = bufferCopies.emplace_back();
+				bufferCopy.srcOffset	 = copy.ReadOffset;
+				bufferCopy.dstOffset	 = copy.WriteOffset;
+				bufferCopy.size			 = copy.Size;
+			}
+
+			vkCmdCopyBuffer(m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(), bufferCopies.data());
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
@@ -509,22 +538,64 @@ namespace Nexus::Graphics
 
 		// perform copy
 		{
-			VkBufferImageCopy copyRegion			   = {};
-			copyRegion.bufferOffset					   = command.BufferTextureCopy.BufferOffset;
-			copyRegion.bufferRowLength				   = 0;
-			copyRegion.bufferImageHeight			   = 0;
-			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
-			copyRegion.imageSubresource.mipLevel	   = command.BufferTextureCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.BaseArrayLayer;
-			copyRegion.imageSubresource.layerCount	   = command.BufferTextureCopy.TextureSubresource.LayerCount;
-			copyRegion.imageOffset.x				   = command.BufferTextureCopy.TextureOffset.X;
-			copyRegion.imageOffset.y				   = command.BufferTextureCopy.TextureOffset.Y;
-			copyRegion.imageOffset.z				   = 0;
-			copyRegion.imageExtent.width			   = command.BufferTextureCopy.TextureExtent.Width;
-			copyRegion.imageExtent.height			   = command.BufferTextureCopy.TextureExtent.Height;
-			copyRegion.imageExtent.depth			   = command.BufferTextureCopy.TextureExtent.Depth;
+			const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+			VkImageSubresourceLayers imageSubresource = {};
+			imageSubresource.aspectMask				  = aspectFlags;
+			imageSubresource.mipLevel				  = command.BufferTextureCopy.TextureSubresource.MipLevel;
+			imageSubresource.baseArrayLayer			  = command.BufferTextureCopy.TextureSubresource.BaseArrayLayer;
+			imageSubresource.layerCount				  = command.BufferTextureCopy.TextureSubresource.LayerCount;
+
+			VkOffset3D imageOffset = {};
+			imageOffset.x		   = command.BufferTextureCopy.TextureOffset.X;
+			imageOffset.y		   = command.BufferTextureCopy.TextureOffset.Y;
+			imageOffset.z		   = 0;
+
+			VkExtent3D imageExtent = {};
+			imageExtent.width	   = command.BufferTextureCopy.TextureExtent.Width;
+			imageExtent.height	   = command.BufferTextureCopy.TextureExtent.Height;
+			imageExtent.depth	   = command.BufferTextureCopy.TextureExtent.Depth;
+
+			if (functions.vkCmdCopyBufferToImage2KHR)
+			{
+				VkBufferImageCopy2KHR copyRegion = {};
+				copyRegion.sType				 = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR;
+				copyRegion.pNext				 = nullptr;
+				copyRegion.bufferOffset			 = command.BufferTextureCopy.BufferOffset;
+				copyRegion.bufferRowLength		 = command.BufferTextureCopy.BufferRowLength;
+				copyRegion.bufferImageHeight	 = command.BufferTextureCopy.BufferImageHeight;
+				copyRegion.imageSubresource		 = imageSubresource;
+				copyRegion.imageOffset			 = imageOffset;
+				copyRegion.imageExtent			 = imageExtent;
+
+				VkCopyBufferToImageInfo2KHR copyInfo = {};
+				copyInfo.sType						 = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2_KHR;
+				copyInfo.pNext						 = nullptr;
+				copyInfo.srcBuffer					 = buffer->GetVkBuffer();
+				copyInfo.dstImage					 = texture->GetImage();
+				copyInfo.dstImageLayout				 = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				copyInfo.pRegions					 = &copyRegion;
+				copyInfo.regionCount				 = 1;
+
+				functions.vkCmdCopyBufferToImage2KHR(m_CommandBuffer, &copyInfo);
+			}
+			else
+			{
+				VkBufferImageCopy copyRegion = {};
+				copyRegion.bufferOffset		 = command.BufferTextureCopy.BufferOffset;
+				copyRegion.bufferRowLength	 = command.BufferTextureCopy.BufferRowLength;
+				copyRegion.bufferImageHeight = command.BufferTextureCopy.BufferImageHeight;
+				copyRegion.imageSubresource	 = imageSubresource;
+				copyRegion.imageOffset		 = imageOffset;
+				copyRegion.imageExtent		 = imageExtent;
+
+				vkCmdCopyBufferToImage(m_CommandBuffer,
+									   buffer->GetVkBuffer(),
+									   texture->GetImage(),
+									   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+									   1,
+									   &copyRegion);
+			}
 		}
 
 		for (uint32_t layer = command.BufferTextureCopy.TextureOffset.Z;
@@ -571,22 +642,62 @@ namespace Nexus::Graphics
 
 		// perform copy
 		{
-			VkBufferImageCopy copyRegion			   = {};
-			copyRegion.bufferOffset					   = command.TextureBufferCopy.BufferOffset;
-			copyRegion.bufferRowLength				   = command.TextureBufferCopy.BufferRowLength;
-			copyRegion.bufferImageHeight			   = command.TextureBufferCopy.BufferImageHeight;
-			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
-			copyRegion.imageSubresource.mipLevel	   = command.TextureBufferCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.BaseArrayLayer;
-			copyRegion.imageSubresource.layerCount	   = command.TextureBufferCopy.TextureSubresource.LayerCount;
-			copyRegion.imageOffset.x				   = command.TextureBufferCopy.TextureOffset.X;
-			copyRegion.imageOffset.y				   = command.TextureBufferCopy.TextureOffset.Y;
-			copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureOffset.Z;
-			copyRegion.imageExtent.width			   = command.TextureBufferCopy.TextureExtent.Width;
-			copyRegion.imageExtent.height			   = command.TextureBufferCopy.TextureExtent.Height;
-			copyRegion.imageExtent.depth			   = command.TextureBufferCopy.TextureExtent.Depth;
+			const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-			vkCmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1, &copyRegion);
+			VkImageSubresourceLayers imageSubresource = {};
+			imageSubresource.aspectMask				  = aspectFlags;
+			imageSubresource.mipLevel				  = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			imageSubresource.baseArrayLayer			  = command.TextureBufferCopy.TextureSubresource.BaseArrayLayer;
+			imageSubresource.layerCount				  = command.TextureBufferCopy.TextureSubresource.LayerCount;
+
+			VkOffset3D imageOffset = {};
+			imageOffset.x		   = command.TextureBufferCopy.TextureOffset.X;
+			imageOffset.y		   = command.TextureBufferCopy.TextureOffset.Y;
+			imageOffset.z		   = command.TextureBufferCopy.TextureOffset.Z;
+
+			VkExtent3D imageExtent = {};
+			imageExtent.width	   = command.TextureBufferCopy.TextureExtent.Width;
+			imageExtent.height	   = command.TextureBufferCopy.TextureExtent.Height;
+			imageExtent.depth	   = command.TextureBufferCopy.TextureExtent.Depth;
+
+			if (functions.vkCmdCopyImageToBuffer2KHR)
+			{
+				VkBufferImageCopy2KHR copyRegion = {};
+				copyRegion.sType				 = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR;
+				copyRegion.pNext				 = nullptr;
+				copyRegion.bufferOffset			 = command.TextureBufferCopy.BufferOffset;
+				copyRegion.bufferRowLength		 = command.TextureBufferCopy.BufferRowLength;
+				copyRegion.bufferImageHeight	 = command.TextureBufferCopy.BufferImageHeight;
+				copyRegion.imageSubresource		 = imageSubresource;
+				copyRegion.imageOffset			 = imageOffset;
+				copyRegion.imageExtent			 = imageExtent;
+
+				VkCopyImageToBufferInfo2KHR copyInfo = {};
+				copyInfo.sType						 = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2_KHR;
+				copyInfo.pNext						 = nullptr;
+				copyInfo.srcImage					 = texture->GetImage();
+				copyInfo.srcImageLayout				 = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+				copyInfo.dstBuffer					 = buffer->GetVkBuffer();
+
+				functions.vkCmdCopyImageToBuffer2KHR(m_CommandBuffer, &copyInfo);
+			}
+			else
+			{
+				VkBufferImageCopy copyRegion = {};
+				copyRegion.bufferOffset		 = command.TextureBufferCopy.BufferOffset;
+				copyRegion.bufferRowLength	 = command.TextureBufferCopy.BufferRowLength;
+				copyRegion.bufferImageHeight = command.TextureBufferCopy.BufferImageHeight;
+				copyRegion.imageSubresource	 = imageSubresource;
+				copyRegion.imageOffset		 = imageOffset;
+				copyRegion.imageExtent		 = imageExtent;
+
+				vkCmdCopyImageToBuffer(m_CommandBuffer,
+									   texture->GetImage(),
+									   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+									   buffer->GetVkBuffer(),
+									   1,
+									   &copyRegion);
+			}
 		}
 
 		for (uint32_t layer = command.TextureBufferCopy.TextureOffset.Z;
@@ -653,38 +764,81 @@ namespace Nexus::Graphics
 
 		// copy image
 		{
-			VkImageCopy copyRegion = {};
+			VkImageSubresourceLayers srcSubresource;
+			srcSubresource.aspectMask	  = srcAspect;
+			srcSubresource.mipLevel		  = command.TextureCopy.SourceSubresource.MipLevel;
+			srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.BaseArrayLayer;
+			srcSubresource.layerCount	  = command.TextureCopy.SourceSubresource.LayerCount;
 
-			// src
-			copyRegion.srcSubresource.aspectMask	 = srcAspect;
-			copyRegion.srcSubresource.mipLevel		 = command.TextureCopy.SourceSubresource.MipLevel;
-			copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.BaseArrayLayer;
-			copyRegion.srcSubresource.layerCount	 = command.TextureCopy.SourceSubresource.LayerCount;
-			copyRegion.srcOffset.x					 = command.TextureCopy.SourceOffset.X;
-			copyRegion.srcOffset.y					 = command.TextureCopy.SourceOffset.Y;
-			copyRegion.srcOffset.z					 = command.TextureCopy.SourceOffset.Z;
+			VkOffset3D srcOffset;
+			srcOffset.x = command.TextureCopy.SourceOffset.X;
+			srcOffset.y = command.TextureCopy.SourceOffset.Y;
+			srcOffset.z = command.TextureCopy.SourceOffset.Z;
 
-			// dst
-			copyRegion.dstSubresource.aspectMask	 = dstAspect;
-			copyRegion.dstSubresource.mipLevel		 = command.TextureCopy.DestinationSubresource.MipLevel;
-			copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.BaseArrayLayer;
-			copyRegion.dstSubresource.layerCount	 = command.TextureCopy.DestinationSubresource.LayerCount;
-			copyRegion.dstOffset.x					 = command.TextureCopy.DestinationOffset.X;
-			copyRegion.dstOffset.y					 = command.TextureCopy.DestinationOffset.Y;
-			copyRegion.dstOffset.z					 = command.TextureCopy.DestinationOffset.Z;
+			VkImageSubresourceLayers dstSubresource;
+			dstSubresource.aspectMask	  = dstAspect;
+			dstSubresource.mipLevel		  = command.TextureCopy.DestinationSubresource.MipLevel;
+			dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.BaseArrayLayer;
+			dstSubresource.layerCount	  = command.TextureCopy.DestinationSubresource.LayerCount;
 
-			// copy extents
-			copyRegion.extent.width	 = command.TextureCopy.Extent.Width;
-			copyRegion.extent.height = command.TextureCopy.Extent.Height;
-			copyRegion.extent.depth	 = command.TextureCopy.Extent.Depth;
+			VkOffset3D dstOffset;
+			dstOffset.x = command.TextureCopy.DestinationOffset.X;
+			dstOffset.y = command.TextureCopy.DestinationOffset.Y;
+			dstOffset.z = command.TextureCopy.DestinationOffset.Z;
 
-			vkCmdCopyImage(m_CommandBuffer,
-						   srcTexture->GetImage(),
-						   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-						   dstTexture->GetImage(),
-						   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-						   1,
-						   &copyRegion);
+			VkExtent3D copyExtent;
+			copyExtent.width  = command.TextureCopy.Extent.Width;
+			copyExtent.height = command.TextureCopy.Extent.Height;
+			copyExtent.depth  = command.TextureCopy.Extent.Depth;
+
+			const VulkanDeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+			if (functions.vkCmdCopyImage2KHR)
+			{
+				VkImageCopy2KHR copyRegion = {};
+				copyRegion.sType		   = VK_STRUCTURE_TYPE_IMAGE_COPY_2_KHR;
+				copyRegion.pNext		   = nullptr;
+				copyRegion.srcSubresource  = srcSubresource;
+				copyRegion.srcOffset	   = srcOffset;
+				copyRegion.dstSubresource  = dstSubresource;
+				copyRegion.dstOffset	   = dstOffset;
+				copyRegion.extent		   = copyExtent;
+
+				VkCopyImageInfo2KHR copyInfo = {};
+				copyInfo.sType				 = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2_KHR;
+				copyInfo.pNext				 = nullptr;
+				copyInfo.srcImage			 = srcTexture->GetImage();
+				copyInfo.srcImageLayout		 = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+				copyInfo.dstImage			 = dstTexture->GetImage();
+				copyInfo.dstImageLayout		 = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				copyInfo.regionCount		 = 1;
+				copyInfo.pRegions			 = &copyRegion;
+
+				functions.vkCmdCopyImage2KHR(m_CommandBuffer, &copyInfo);
+			}
+			else
+			{
+				VkImageCopy copyRegion = {};
+
+				// src
+				copyRegion.srcSubresource = srcSubresource;
+				copyRegion.srcOffset	  = srcOffset;
+
+				// dst
+				copyRegion.dstSubresource = dstSubresource;
+				copyRegion.dstOffset	  = dstOffset;
+
+				// copy extents
+				copyRegion.extent = copyExtent;
+
+				vkCmdCopyImage(m_CommandBuffer,
+							   srcTexture->GetImage(),
+							   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+							   dstTexture->GetImage(),
+							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+							   1,
+							   &copyRegion);
+			}
 		}
 
 		// restore source texture layout
