@@ -78,6 +78,10 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
 
 	  private:
+		void InsertResourceBarrier(const TextureBarrierDesc &command);
+		void InsertTextureBarrier(const TextureBarrierDesc &command);
+
+	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 

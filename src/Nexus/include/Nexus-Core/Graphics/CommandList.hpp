@@ -288,7 +288,6 @@ namespace Nexus::Graphics
 	enum class BarrierPipelineStage
 	{
 		None,
-		TopOfPipe,
 		DrawIndirect,
 		VertexInput,
 		VertexShader,
@@ -302,7 +301,6 @@ namespace Nexus::Graphics
 		ComputeShader,
 		AllTransfers,
 		Transfer,
-		BottomOfPipe,
 		Host,
 		AllGraphics,
 		AllCommands,
@@ -312,7 +310,7 @@ namespace Nexus::Graphics
 		VertexAttributeInput,
 		PreRasterizationShaders,
 		TransformFeedback,
-		AccelerationStructureBuild,
+		AccelerationStructure,
 		RayTracingShader,
 		TaskShader,
 		MeshShader
@@ -340,7 +338,9 @@ namespace Nexus::Graphics
 		MemoryWrite,
 		TransformFeedbackWrite,
 		AccelerationStructureRead,
-		AccelerationStructureWrite
+		AccelerationStructureWrite,
+		VideoDecode,
+		VideoEncode
 	};
 
 	struct MemoryBarrierDesc

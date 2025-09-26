@@ -104,6 +104,9 @@ namespace Nexus::D3D12
 
 	UINT				  GetSyncIntervalFromPresentMode(Graphics::PresentMode presentMode);
 	D3D12_RESOURCE_STATES GetTextureResourceState(Graphics::TextureLayout layout);
+	D3D12_BARRIER_SYNC	  GetBarrierSync(Graphics::BarrierPipelineStage stage);
+	D3D12_BARRIER_ACCESS  GetBarrierAccess(Graphics::BarrierAccess access);
+	D3D12_BARRIER_LAYOUT  GetBarrierLayout(Graphics::TextureLayout layout);
 
 }	 // namespace Nexus::D3D12
 

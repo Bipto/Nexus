@@ -1888,6 +1888,32 @@ namespace Nexus::Vk
 					return VkAccessFlagBits(0);
 				}
 			}
+			case Graphics::BarrierAccess::VideoDecode:
+			{
+				// this flag is only supported if the video decode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_MEMORY_READ_BIT;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::VideoEncode:
+			{
+				// this flag is only supported if the video decode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_MEMORY_WRITE_BIT;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
 
 			default: throw std::runtime_error("Failed to find a valid access flag");
 		}
@@ -1899,7 +1925,6 @@ namespace Nexus::Vk
 		{
 			// equivalent of VK_PIPELINE_STAGE_NONE in VK_VERSION_1_3
 			case Graphics::BarrierPipelineStage::None: return VkPipelineStageFlagBits(0);
-			case Graphics::BarrierPipelineStage::TopOfPipe: return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
 			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
 			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
@@ -1913,7 +1938,6 @@ namespace Nexus::Vk
 			case Graphics::BarrierPipelineStage::ComputeShader: return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
 			case Graphics::BarrierPipelineStage::AllTransfers:
 			case Graphics::BarrierPipelineStage::Transfer: return VK_PIPELINE_STAGE_TRANSFER_BIT;
-			case Graphics::BarrierPipelineStage::BottomOfPipe: return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 			case Graphics::BarrierPipelineStage::Host: return VK_PIPELINE_STAGE_HOST_BIT;
 			case Graphics::BarrierPipelineStage::AllGraphics: return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 			case Graphics::BarrierPipelineStage::AllCommands: return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
@@ -1934,7 +1958,7 @@ namespace Nexus::Vk
 					return VkPipelineStageFlagBits(0);
 				}
 			}
-			case Graphics::BarrierPipelineStage::AccelerationStructureBuild:
+			case Graphics::BarrierPipelineStage::AccelerationStructure:
 			{
 				// this flag is only supported if acceleration structure extension is available, so we need to query this
 				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2049,6 +2073,33 @@ namespace Nexus::Vk
 				}
 			}
 
+			case Graphics::BarrierAccess::VideoDecode:
+			{
+				// this flag is only supported if the video decode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR | VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::VideoEncode:
+			{
+				// this flag is only supported if the video encode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR | VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+
 			default: throw std::runtime_error("Failed to find a valid access flag");
 		}
 	}
@@ -2058,7 +2109,6 @@ namespace Nexus::Vk
 		switch (stage)
 		{
 			case Graphics::BarrierPipelineStage::None: return VK_PIPELINE_STAGE_2_NONE;
-			case Graphics::BarrierPipelineStage::TopOfPipe: return VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
 			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
 			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
 			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
@@ -2072,7 +2122,6 @@ namespace Nexus::Vk
 			case Graphics::BarrierPipelineStage::ComputeShader: return VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
 			case Graphics::BarrierPipelineStage::AllTransfers: return VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
 			case Graphics::BarrierPipelineStage::Transfer: return VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			case Graphics::BarrierPipelineStage::BottomOfPipe: return VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT;
 			case Graphics::BarrierPipelineStage::Host: return VK_PIPELINE_STAGE_2_HOST_BIT;
 			case Graphics::BarrierPipelineStage::AllGraphics: return VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
 			case Graphics::BarrierPipelineStage::AllCommands: return VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
@@ -2093,12 +2142,12 @@ namespace Nexus::Vk
 					return VK_PIPELINE_STAGE_2_NONE;
 				}
 			}
-			case Graphics::BarrierPipelineStage::AccelerationStructureBuild:
+			case Graphics::BarrierPipelineStage::AccelerationStructure:
 			{
 				// this flag is only supported if acceleration structure extension is available, so we need to query this
 				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
 				{
-					return VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+					return VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
 				}
 				else
 				{
@@ -2158,18 +2207,55 @@ namespace Nexus::Vk
 			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			case Graphics::TextureLayout::TransferSrcOptimal: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 			case Graphics::TextureLayout::TransferDstOptimal: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-			case Graphics::TextureLayout::DepthReadOnlyStencilAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
-			case Graphics::TextureLayout::DepthAttachmentStencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
-			case Graphics::TextureLayout::DepthAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-			case Graphics::TextureLayout::DepthReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
-			case Graphics::TextureLayout::StencilAttachmentOptimal: return VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL;
-			case Graphics::TextureLayout::StencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL;
-			case Graphics::TextureLayout::ReadonlyOptimal: return VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
 			case Graphics::TextureLayout::PresentSrc:
 			{
 				if (device->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
 				{
 					return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoEncodeDestination:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_ENCODE_DST_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoEncodeSource:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_ENCODE_SRC_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoDecodeDestination:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoDecodeSource:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
 				}
 				else
 				{

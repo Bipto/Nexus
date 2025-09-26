@@ -1496,15 +1496,98 @@ namespace Nexus::D3D12
 			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 			case Graphics::TextureLayout::TransferSrcOptimal: return D3D12_RESOURCE_STATE_COPY_SOURCE;
 			case Graphics::TextureLayout::TransferDstOptimal: return D3D12_RESOURCE_STATE_COPY_DEST;
-			case Graphics::TextureLayout::DepthReadOnlyStencilAttachmentOptimal:
-			case Graphics::TextureLayout::DepthAttachmentStencilReadOnlyOptimal:
-			case Graphics::TextureLayout::DepthAttachmentOptimal: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-			case Graphics::TextureLayout::DepthReadOnlyOptimal: return D3D12_RESOURCE_STATE_DEPTH_READ;
-			case Graphics::TextureLayout::StencilAttachmentOptimal: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-			case Graphics::TextureLayout::StencilReadOnlyOptimal: return D3D12_RESOURCE_STATE_DEPTH_READ;
-			case Graphics::TextureLayout::ReadonlyOptimal: return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 			case Graphics::TextureLayout::PresentSrc: return D3D12_RESOURCE_STATE_PRESENT;
+			case Graphics::TextureLayout::VideoEncodeDestination: return D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE;
+			case Graphics::TextureLayout::VideoEncodeSource: return D3D12_RESOURCE_STATE_VIDEO_ENCODE_READ;
+			case Graphics::TextureLayout::VideoDecodeDestination: return D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE;
+			case Graphics::TextureLayout::VideoDecodeSource: return D3D12_RESOURCE_STATE_VIDEO_DECODE_READ;
 			default: throw std::runtime_error("Failed to find a valid resource state");
+		}
+	}
+
+	D3D12_BARRIER_SYNC GetBarrierSync(Graphics::BarrierPipelineStage stage)
+	{
+		switch (stage)
+		{
+			case Graphics::BarrierPipelineStage::None: return D3D12_BARRIER_SYNC_NONE;
+			case Graphics::BarrierPipelineStage::DrawIndirect: return D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
+			case Graphics::BarrierPipelineStage::VertexInput: return D3D12_BARRIER_SYNC_INDEX_INPUT;
+			case Graphics::BarrierPipelineStage::VertexShader: return D3D12_BARRIER_SYNC_VERTEX_SHADING;
+			case Graphics::BarrierPipelineStage::TessellationControlShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
+			case Graphics::BarrierPipelineStage::TessellationEvaluationShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
+			case Graphics::BarrierPipelineStage::GeometryShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
+			case Graphics::BarrierPipelineStage::FragmentShader:
+			case Graphics::BarrierPipelineStage::EarlyFragmentTests:
+			case Graphics::BarrierPipelineStage::LateFragmentTests: return D3D12_BARRIER_SYNC_PIXEL_SHADING;
+			case Graphics::BarrierPipelineStage::ColourAttachmentOutput: return D3D12_BARRIER_SYNC_RENDER_TARGET;
+			case Graphics::BarrierPipelineStage::ComputeShader: return D3D12_BARRIER_SYNC_COMPUTE_SHADING;
+			case Graphics::BarrierPipelineStage::AllTransfers:
+			case Graphics::BarrierPipelineStage::Transfer:
+			case Graphics::BarrierPipelineStage::Host: return D3D12_BARRIER_SYNC_COPY;
+			case Graphics::BarrierPipelineStage::AllGraphics: return D3D12_BARRIER_SYNC_ALL_SHADING;
+			case Graphics::BarrierPipelineStage::AllCommands: return D3D12_BARRIER_SYNC_ALL;
+			case Graphics::BarrierPipelineStage::Copy: return D3D12_BARRIER_SYNC_COPY;
+			case Graphics::BarrierPipelineStage::Resolve: return D3D12_BARRIER_SYNC_RESOLVE;
+			case Graphics::BarrierPipelineStage::IndexInput: return D3D12_BARRIER_SYNC_INDEX_INPUT;
+			case Graphics::BarrierPipelineStage::VertexAttributeInput: return D3D12_BARRIER_SYNC_VERTEX_SHADING;
+			case Graphics::BarrierPipelineStage::PreRasterizationShaders: return D3D12_BARRIER_SYNC_ALL_SHADING;
+			case Graphics::BarrierPipelineStage::TransformFeedback: return D3D12_BARRIER_SYNC_ALL_SHADING;
+			case Graphics::BarrierPipelineStage::AccelerationStructure:
+			case Graphics::BarrierPipelineStage::RayTracingShader: return D3D12_BARRIER_SYNC_RAYTRACING;
+			case Graphics::BarrierPipelineStage::TaskShader:
+			case Graphics::BarrierPipelineStage::MeshShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
+
+			default: throw std::runtime_error("Failed to find a valid pipeline stage");
+		}
+	}
+
+	D3D12_BARRIER_ACCESS GetBarrierAccess(Graphics::BarrierAccess access)
+	{
+		switch (access)
+		{
+			case Graphics::BarrierAccess::None: return D3D12_BARRIER_ACCESS_NO_ACCESS;
+			case Graphics::BarrierAccess::IndirectCommandRead: return D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
+			case Graphics::BarrierAccess::IndexRead: return D3D12_BARRIER_ACCESS_INDEX_BUFFER;
+			case Graphics::BarrierAccess::VertexAttributeRead: return D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
+			case Graphics::BarrierAccess::UniformRead: return D3D12_BARRIER_ACCESS_CONSTANT_BUFFER;
+			case Graphics::BarrierAccess::InputAttachmentRead: return D3D12_BARRIER_ACCESS_RENDER_TARGET;
+			case Graphics::BarrierAccess::ShaderRead: return D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
+			case Graphics::BarrierAccess::ShaderWrite: return D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
+			case Graphics::BarrierAccess::ColourAttachmentRead:
+			case Graphics::BarrierAccess::ColourAttachmentWrite: return D3D12_BARRIER_ACCESS_RENDER_TARGET;
+			case Graphics::BarrierAccess::DepthStencilAttachmentRead: return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
+			case Graphics::BarrierAccess::DepthStencilAttachmentWrite: return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
+			case Graphics::BarrierAccess::TransferRead: return D3D12_BARRIER_ACCESS_COPY_SOURCE;
+			case Graphics::BarrierAccess::TransferWrite: return D3D12_BARRIER_ACCESS_COPY_DEST;
+			case Graphics::BarrierAccess::HostRead: return D3D12_BARRIER_ACCESS_COPY_SOURCE;
+			case Graphics::BarrierAccess::HostWrite: return D3D12_BARRIER_ACCESS_COPY_DEST;
+			case Graphics::BarrierAccess::MemoryRead: return D3D12_BARRIER_ACCESS_COPY_SOURCE;
+			case Graphics::BarrierAccess::MemoryWrite: return D3D12_BARRIER_ACCESS_COPY_DEST;
+			case Graphics::BarrierAccess::TransformFeedbackWrite: return D3D12_BARRIER_ACCESS_STREAM_OUTPUT;
+			case Graphics::BarrierAccess::AccelerationStructureRead: return D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
+			case Graphics::BarrierAccess::AccelerationStructureWrite: return D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
+			case Graphics::BarrierAccess::VideoDecode: return D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ | D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
+			case Graphics::BarrierAccess::VideoEncode: return D3D12_BARRIER_ACCESS_VIDEO_ENCODE_READ | D3D12_BARRIER_ACCESS_VIDEO_ENCODE_WRITE;
+			default: throw std::runtime_error("Failed to find a valid access type");
+		}
+	}
+
+	D3D12_BARRIER_LAYOUT GetBarrierLayout(Graphics::TextureLayout layout)
+	{
+		switch (layout)
+		{
+			case Graphics::TextureLayout::Undefined: return D3D12_BARRIER_LAYOUT_UNDEFINED;
+			case Graphics::TextureLayout::General: return D3D12_BARRIER_LAYOUT_COMMON;
+			case Graphics::TextureLayout::ColourAttachmentOptimal: return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
+			case Graphics::TextureLayout::DepthStencilAttachmentOptimal: return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
+			case Graphics::TextureLayout::DepthStencilReadOnlyOptimal: return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
+			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
+			case Graphics::TextureLayout::TransferSrcOptimal: return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
+			case Graphics::TextureLayout::TransferDstOptimal: return D3D12_BARRIER_LAYOUT_COPY_DEST;
+			case Graphics::TextureLayout::PresentSrc: return D3D12_BARRIER_LAYOUT_PRESENT;
+			case Graphics::TextureLayout::VideoEncodeDestination: return D3D12_BARRIER_LAYOUT_VIDEO_ENCODE_WRITE;
+			case Graphics::TextureLayout::VideoEncodeSource: return D3D12_BARRIER_LAYOUT_VIDEO_ENCODE_READ;
+			default: throw std::runtime_error("Failed to find a valid barrier layout");
 		}
 	}
 }	 // namespace Nexus::D3D12

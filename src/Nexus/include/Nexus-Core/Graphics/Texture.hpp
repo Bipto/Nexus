@@ -35,14 +35,11 @@ namespace Nexus::Graphics
 		ShaderReadOnlyOptimal,
 		TransferSrcOptimal,
 		TransferDstOptimal,
-		DepthReadOnlyStencilAttachmentOptimal,
-		DepthAttachmentStencilReadOnlyOptimal,
-		DepthAttachmentOptimal,
-		DepthReadOnlyOptimal,
-		StencilAttachmentOptimal,
-		StencilReadOnlyOptimal,
-		ReadonlyOptimal,
-		PresentSrc
+		PresentSrc,
+		VideoEncodeDestination,
+		VideoEncodeSource,
+		VideoDecodeDestination,
+		VideoDecodeSource
 	};
 
 	struct TextureDescription
