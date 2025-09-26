@@ -3,8 +3,8 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "CommandExecutorD3D12.hpp"
-	#include "DeviceBufferD3D12.hpp"
 	#include "D3D12Include.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
@@ -17,7 +17,8 @@ namespace Nexus::Graphics
 
 	struct D3D12DeviceFeatures
 	{
-		bool SupportsPipelineStreams = false;
+		bool SupportsPipelineStreams  = false;
+		bool SupportsEnhancedBarriers = false;
 	};
 
 	class GraphicsDeviceD3D12 final : public GraphicsDevice

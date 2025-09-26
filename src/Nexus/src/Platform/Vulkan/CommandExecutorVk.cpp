@@ -85,7 +85,11 @@ namespace Nexus::Graphics
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		if (context.CmdBindVertexBuffers2EXT)
+		if (context.CmdBindVertexBuffers2)
+		{
+			context.CmdBindVertexBuffers2(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
+		}
+		else if (context.CmdBindVertexBuffers2EXT)
 		{
 			context.CmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
 		}
@@ -110,7 +114,11 @@ namespace Nexus::Graphics
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		if (context.CmdBindIndexBuffer2KHR)
+		if (context.CmdBindIndexBuffer2)
+		{
+			context.CmdBindIndexBuffer2(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+		}
+		else if (context.CmdBindIndexBuffer2KHR)
 		{
 			context.CmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
 		}

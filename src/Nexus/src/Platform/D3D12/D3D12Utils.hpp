@@ -3,13 +3,13 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "D3D12Include.hpp"
-	#include "Nexus-Core/Graphics/ShaderResources.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/PixelFormat.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
+	#include "Nexus-Core/Graphics/ShaderResources.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 
 namespace Nexus::Graphics
@@ -102,7 +102,8 @@ namespace Nexus::D3D12
 	D3D12_DEPTH_STENCIL_DESC			  CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc);
 	D3D12_DEPTH_STENCIL_DESC1			  CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc);
 
-	UINT GetSyncIntervalFromPresentMode(Graphics::PresentMode presentMode);
+	UINT				  GetSyncIntervalFromPresentMode(Graphics::PresentMode presentMode);
+	D3D12_RESOURCE_STATES GetTextureResourceState(Graphics::TextureLayout layout);
 
 }	 // namespace Nexus::D3D12
 

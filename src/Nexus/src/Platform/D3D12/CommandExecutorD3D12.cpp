@@ -67,10 +67,10 @@ namespace Nexus::Graphics
 			Ref<DeviceBufferD3D12>	   d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
 			const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
-			D3D12_VERTEX_BUFFER_VIEW bufferView;
-			bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
-			bufferView.SizeInBytes	  = command.View.Size;
-			bufferView.StrideInBytes  = pipeline->GetPipelineDescription().Layouts.at(command.Slot).GetStride();
+			D3D12_VERTEX_BUFFER_VIEW bufferView = {};
+			bufferView.BufferLocation			= d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
+			bufferView.SizeInBytes				= command.View.Size;
+			bufferView.StrideInBytes			= pipeline->GetPipelineDescription().Layouts.at(command.Slot).GetStride();
 
 			m_CommandList->IASetVertexBuffers(command.Slot, 1, &bufferView);
 		}
@@ -85,10 +85,10 @@ namespace Nexus::Graphics
 
 		Ref<DeviceBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
 
-		D3D12_INDEX_BUFFER_VIEW indexBufferView;
-		indexBufferView.BufferLocation = d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
-		indexBufferView.SizeInBytes	   = command.View.Size;
-		indexBufferView.Format		   = D3D12::GetD3D12IndexBufferFormat(command.View.BufferFormat);
+		D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
+		indexBufferView.BufferLocation			= d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
+		indexBufferView.SizeInBytes				= command.View.Size;
+		indexBufferView.Format					= D3D12::GetD3D12IndexBufferFormat(command.View.BufferFormat);
 
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
@@ -297,12 +297,12 @@ namespace Nexus::Graphics
 			d3d12Rect.right		 = rect.X + rect.Width;
 			d3d12Rect.bottom	 = rect.Y + rect.Height;
 
-			auto handle = m_DescriptorHandles[command.Index];
+			const auto &handle = m_DescriptorHandles[command.Index];
 			m_CommandList->ClearRenderTargetView(handle, clearColor, 1, &d3d12Rect);
 		}
 		else
 		{
-			auto handle = m_DescriptorHandles[command.Index];
+			const auto &handle = m_DescriptorHandles[command.Index];
 			m_CommandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
 		}
 	}
@@ -368,13 +368,13 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		D3D12_VIEWPORT vp;
-		vp.TopLeftX = command.X;
-		vp.TopLeftY = command.Y;
-		vp.Width	= command.Width;
-		vp.Height	= command.Height;
-		vp.MinDepth = command.MinDepth;
-		vp.MaxDepth = command.MaxDepth;
+		D3D12_VIEWPORT vp = {};
+		vp.TopLeftX		  = command.X;
+		vp.TopLeftY		  = command.Y;
+		vp.Width		  = command.Width;
+		vp.Height		  = command.Height;
+		vp.MinDepth		  = command.MinDepth;
+		vp.MaxDepth		  = command.MaxDepth;
 		m_CommandList->RSSetViewports(1, &vp);
 	}
 
@@ -385,7 +385,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		RECT rect;
+		RECT rect	= {};
 		rect.left	= command.X;
 		rect.top	= command.Y;
 		rect.right	= command.Width + command.X;
@@ -653,7 +653,7 @@ namespace Nexus::Graphics
 
 		// restore resource states
 		{
-			D3D12_RESOURCE_BARRIER barriers[2];
+			D3D12_RESOURCE_BARRIER barriers[2] = {};
 			barriers[0].Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barriers[0].Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			barriers[0].Transition.pResource   = srcHandle.Get();
@@ -737,10 +737,95 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
 	{
+		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
+		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
+
+		bool		  transitionEachSubresourceSeparately = false;
+		TextureLayout testLayout						  = texture->GetTextureLayout(0, 0);
+
+		if (command.SubresourceRange.LayerCount == texture->GetDescription().DepthOrArrayLayers &&
+			command.SubresourceRange.LevelCount == texture->GetDescription().MipLevels)
+		{
+			for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+				 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+				 arrayLayer++)
+			{
+				for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+					 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+					 mipLevel++)
+				{
+					TextureLayout subresourceLayout = texture->GetTextureLayout(arrayLayer, mipLevel);
+					if (subresourceLayout != testLayout)
+					{
+						transitionEachSubresourceSeparately = true;
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			transitionEachSubresourceSeparately = true;
+		}
+
+		std::vector<D3D12_RESOURCE_BARRIER> barriers = {};
+
+		if (!transitionEachSubresourceSeparately)
+		{
+			D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(testLayout);
+			D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
+
+			D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
+			barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.pResource	= handle.Get();
+			barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			barrier.Transition.StateBefore	= beforeState;
+			barrier.Transition.StateAfter	= afterState;
+		}
+		else
+		{
+			for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+				 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+				 arrayLayer++)
+			{
+				for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+					 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+					 mipLevel++)
+				{
+					D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(texture->GetTextureLayout(arrayLayer, mipLevel));
+					D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
+
+					uint32_t subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, texture->GetDescription().MipLevels);
+
+					D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
+					barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+					barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+					barrier.Transition.pResource	= handle.Get();
+					barrier.Transition.Subresource	= subresourceIndex;
+					barrier.Transition.StateBefore	= beforeState;
+					barrier.Transition.StateAfter	= afterState;
+				}
+			}
+
+			m_CommandList->ResourceBarrier(barriers.size(), barriers.data());
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
 	{
+		if (command.BeforeAccess == BarrierAccess::ShaderWrite)
+		{
+			Ref<DeviceBufferD3D12>					buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.Buffer);
+			Microsoft::WRL::ComPtr<ID3D12Resource2> handle = buffer->GetHandle();
+
+			D3D12_RESOURCE_BARRIER barrier = {};
+			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+			barrier.UAV.pResource		   = handle.Get();
+			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+
+			m_CommandList->ResourceBarrier(1, &barrier);
+		}
 	}
 
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
@@ -817,7 +902,7 @@ namespace Nexus::Graphics
 			auto swapchainColourState = swapchainD3D12->GetCurrentTextureState();
 			if (swapchainColourState != D3D12_RESOURCE_STATE_PRESENT)
 			{
-				D3D12_RESOURCE_BARRIER presentBarrier;
+				D3D12_RESOURCE_BARRIER presentBarrier = {};
 				presentBarrier.Type					  = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 				presentBarrier.Flags				  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 				presentBarrier.Transition.pResource	  = swapchainD3D12->RetrieveBufferHandle().Get();

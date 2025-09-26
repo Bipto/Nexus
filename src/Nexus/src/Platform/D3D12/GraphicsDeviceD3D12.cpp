@@ -3,7 +3,11 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "CommandListD3D12.hpp"
+	#include "CommandQueueD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
+	#include "FenceD3D12.hpp"
 	#include "FramebufferD3D12.hpp"
+	#include "PhysicalDeviceD3D12.hpp"
 	#include "PipelineD3D12.hpp"
 	#include "ResourceSetD3D12.hpp"
 	#include "SamplerD3D12.hpp"
@@ -11,11 +15,6 @@
 	#include "SwapchainD3D12.hpp"
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
-	#include "SwapchainD3D12.hpp"
-	#include "PhysicalDeviceD3D12.hpp"
-	#include "DeviceBufferD3D12.hpp"
-	#include "FenceD3D12.hpp"
-	#include "CommandQueueD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -503,6 +502,16 @@ namespace Nexus::Graphics
 				if (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
 				{
 					m_Features.SupportsMeshTaskShaders = true;
+				}
+			}
+
+			D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
+			hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12));
+			if (SUCCEEDED(hr))
+			{
+				if (options12.EnhancedBarriersSupported)
+				{
+					m_D3D12Features.SupportsEnhancedBarriers = true;
 				}
 			}
 		}

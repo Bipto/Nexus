@@ -327,7 +327,7 @@ class DemoApplication : public Nexus::Application
 			barrierDesc.AfterAccess						   = Nexus::Graphics::BarrierAccess::ColourAttachmentWrite;
 			barrierDesc.BeforeStage						   = Nexus::Graphics::BarrierPipelineStage::AllCommands;
 			barrierDesc.AfterStage						   = Nexus::Graphics::BarrierPipelineStage::ColourAttachmentOutput;
-			m_CommandList->SubmitMemoryBarrier(barrierDesc);
+			// m_CommandList->SubmitMemoryBarrier(barrierDesc);
 
 			m_CommandList->End();
 
@@ -372,7 +372,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
@@ -384,7 +384,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 1;
+	spec.SwapchainDescription.Samples		   = 8;
 	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";

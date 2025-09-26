@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
+	#include "GraphicsDeviceD3D12.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PipelineD3D12.hpp"
-	#include "GraphicsDeviceD3D12.hpp"
 	#include "ShaderModuleD3D12.hpp"
 	#include "StreamStateBuilder.hpp"
 
@@ -1482,6 +1482,30 @@ namespace Nexus::D3D12
 		}
 
 		return 0;
+	}
+
+	D3D12_RESOURCE_STATES GetTextureResourceState(Graphics::TextureLayout layout)
+	{
+		switch (layout)
+		{
+			case Graphics::TextureLayout::Undefined: return D3D12_RESOURCE_STATE_COMMON;
+			case Graphics::TextureLayout::General: return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+			case Graphics::TextureLayout::ColourAttachmentOptimal: return D3D12_RESOURCE_STATE_RENDER_TARGET;
+			case Graphics::TextureLayout::DepthStencilAttachmentOptimal: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			case Graphics::TextureLayout::DepthStencilReadOnlyOptimal: return D3D12_RESOURCE_STATE_DEPTH_READ;
+			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+			case Graphics::TextureLayout::TransferSrcOptimal: return D3D12_RESOURCE_STATE_COPY_SOURCE;
+			case Graphics::TextureLayout::TransferDstOptimal: return D3D12_RESOURCE_STATE_COPY_DEST;
+			case Graphics::TextureLayout::DepthReadOnlyStencilAttachmentOptimal:
+			case Graphics::TextureLayout::DepthAttachmentStencilReadOnlyOptimal:
+			case Graphics::TextureLayout::DepthAttachmentOptimal: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			case Graphics::TextureLayout::DepthReadOnlyOptimal: return D3D12_RESOURCE_STATE_DEPTH_READ;
+			case Graphics::TextureLayout::StencilAttachmentOptimal: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			case Graphics::TextureLayout::StencilReadOnlyOptimal: return D3D12_RESOURCE_STATE_DEPTH_READ;
+			case Graphics::TextureLayout::ReadonlyOptimal: return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+			case Graphics::TextureLayout::PresentSrc: return D3D12_RESOURCE_STATE_PRESENT;
+			default: throw std::runtime_error("Failed to find a valid resource state");
+		}
 	}
 }	 // namespace Nexus::D3D12
 #endif
