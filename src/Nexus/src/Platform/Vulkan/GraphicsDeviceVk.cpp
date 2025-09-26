@@ -30,6 +30,12 @@ namespace Nexus::Graphics
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
 
+		Vk::GladLoaderData loaderData = {.instance = m_Instance, .device = m_Device};
+		gladLoadVulkanContextUserPtr(&m_Context,
+									 physicalDeviceVk->GetVkPhysicalDevice(),
+									 (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance,
+									 &loaderData);
+
 		CreateDevice(physicalDeviceVk);
 
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
@@ -573,7 +579,10 @@ namespace Nexus::Graphics
 
 		// load device function pointers
 		Vk::GladLoaderData loaderData = {.instance = m_Instance, .device = m_Device};
-		gladLoadVulkanContextUserPtr(&m_Context, VK_NULL_HANDLE, (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loaderData);
+		gladLoadVulkanContextUserPtr(&m_Context,
+									 m_PhysicalDevice->GetVkPhysicalDevice(),
+									 (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance,
+									 &loaderData);
 
 		m_Context.GetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_GraphicsQueue);
 		m_Context.GetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);

@@ -151,9 +151,9 @@ namespace Nexus::Graphics
 		uint32_t m_GraphicsQueueFamilyIndex;
 		uint32_t m_PresentQueueFamilyIndex;
 
-		VkDevice m_Device;
-		VkQueue	 m_GraphicsQueue;
-		VkQueue	 m_PresentQueue;
+		VkDevice m_Device		 = VK_NULL_HANDLE;
+		VkQueue	 m_GraphicsQueue = VK_NULL_HANDLE;
+		VkQueue	 m_PresentQueue	 = VK_NULL_HANDLE;
 
 		// VMA types
 		VmaAllocator m_Allocator;

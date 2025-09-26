@@ -700,6 +700,8 @@ namespace Nexus::Graphics
 				copyInfo.srcImage					 = texture->GetImage();
 				copyInfo.srcImageLayout				 = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 				copyInfo.dstBuffer					 = buffer->GetVkBuffer();
+				copyInfo.regionCount				 = 1;
+				copyInfo.pRegions					 = &copyRegion;
 
 				context.CmdCopyImageToBuffer2KHR(m_CommandBuffer, &copyInfo);
 			}
