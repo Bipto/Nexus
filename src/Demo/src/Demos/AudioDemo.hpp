@@ -23,7 +23,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			m_AudioBuffer = Nexus::Audio::AudioLoader::LoadWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")},
 																   m_AudioDevice);
 			m_AudioSource = m_AudioDevice->CreateAudioSource();

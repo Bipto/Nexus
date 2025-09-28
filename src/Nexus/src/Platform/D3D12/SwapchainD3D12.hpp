@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 	class SwapchainD3D12 : public Swapchain
 	{
 	  public:
-		SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainDescription &swapchainSpec);
+		SwapchainD3D12(IWindow *window, GraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
 		void SwapBuffers();
 		void SetPresentMode(PresentMode presentMode) final;
@@ -60,9 +60,10 @@ namespace Nexus::Graphics
 		void Resolve();
 
 	  private:
-		IWindow								   *m_Window	= nullptr;
-		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_Swapchain = nullptr;
-		GraphicsDeviceD3D12					   *m_Device	= nullptr;
+		IWindow								   *m_Window	   = nullptr;
+		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_Swapchain	   = nullptr;
+		GraphicsDeviceD3D12					   *m_Device	   = nullptr;
+		ICommandQueue						   *m_CommandQueue = nullptr;
 
 		uint32_t m_SwapchainWidth  = 0;
 		uint32_t m_SwapchainHeight = 0;

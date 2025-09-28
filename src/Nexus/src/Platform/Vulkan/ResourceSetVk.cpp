@@ -144,27 +144,12 @@ namespace Nexus::Graphics
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
 		ShaderResource &resourceInfo = m_ShaderResources.at(name);
-
-		m_Device->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				for (uint32_t i = 0; i < textureVk->GetDescription().MipLevels; i++)
-				{
-					m_Device->TransitionVulkanImageLayout(cmd,
-														  textureVk->GetImage(),
-														  i,
-														  0,
-														  textureVk->GetImageLayout(0, i),
-														  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-														  VK_IMAGE_ASPECT_COLOR_BIT);
-					textureVk->SetImageLayout(0, i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-				}
-			});
+		VkImageLayout	layout		 = Vk::GetImageLayout(m_Device, TextureLayout::ShaderReadOnlyOptimal);
 
 		VkDescriptorImageInfo imageBufferInfo = {};
 		imageBufferInfo.imageView			  = textureVk->GetImageView();
 		imageBufferInfo.sampler				  = samplerVk->GetSampler();
-		imageBufferInfo.imageLayout			  = textureVk->GetImageLayout(0, 0);
+		imageBufferInfo.imageLayout			  = layout;
 
 		VkWriteDescriptorSet textureToWrite = {};
 		textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -192,21 +177,7 @@ namespace Nexus::Graphics
 
 		ShaderResource &resourceInfo = m_ShaderResources.at(name);
 
-		m_Device->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				for (uint32_t i = 0; i < textureVk->GetDescription().MipLevels; i++)
-				{
-					m_Device->TransitionVulkanImageLayout(cmd,
-														  textureVk->GetImage(),
-														  i,
-														  0,
-														  textureVk->GetImageLayout(0, i),
-														  VK_IMAGE_LAYOUT_GENERAL,
-														  VK_IMAGE_ASPECT_COLOR_BIT);
-					textureVk->SetImageLayout(0, i, VK_IMAGE_LAYOUT_GENERAL);
-				}
-			});
+		VkImageLayout layout = Vk::GetImageLayout(m_Device, view.Layout);
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageView				= textureVk->GetImageView();

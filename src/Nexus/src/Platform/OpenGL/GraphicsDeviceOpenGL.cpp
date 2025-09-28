@@ -3,6 +3,7 @@
 	#include "GraphicsDeviceOpenGL.hpp"
 
 	#include "CommandListOpenGL.hpp"
+	#include "CommandQueueOpenGL.hpp"
 	#include "DeviceBufferOpenGL.hpp"
 	#include "FenceOpenGL.hpp"
 	#include "PipelineOpenGL.hpp"
@@ -12,13 +13,12 @@
 	#include "SwapchainOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
-	#include "CommandQueueOpenGL.hpp"
 
 	#include "glad/gl.h"
 
 namespace Nexus::Graphics
 {
-	void glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+	static void glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 	{
 		if (type == GL_DEBUG_TYPE_ERROR)
 		{
@@ -34,14 +34,14 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				//retrieve available extensions
+				// retrieve available extensions
 				m_Extensions = GetSupportedExtensions(context);
 
-				//retrieve API and graphics adapter name
+				// retrieve API and graphics adapter name
 				m_APIName	   = std::string("OpenGL - ") + std::string((const char *)context.GetString(GL_VERSION));
 				m_RendererName = (const char *)context.GetString(GL_RENDERER);
 
-				//enable debugging if available
+			// enable debugging if available
 	#if !defined(__EMSCRIPTEN__)
 				if (enableDebug)
 				{
@@ -159,12 +159,6 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
-	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListDescription &spec)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<CommandListOpenGL>(spec);
-	}
-
 	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
@@ -212,12 +206,6 @@ namespace Nexus::Graphics
 	#endif
 
 		return capabilities;
-	}
-
-	Ref<Swapchain> GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<SwapchainOpenGL>(window, spec, this);
 	}
 
 	Ref<Fence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)

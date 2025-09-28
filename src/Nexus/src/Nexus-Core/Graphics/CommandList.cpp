@@ -211,6 +211,60 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		if (m_Description.AutomaticBarrierTransitions)
+		{
+			const auto &combinedImageSamplers = resources->GetBoundCombinedImageSamplers();
+			const auto &storageImages		  = resources->GetBoundStorageImages();
+			const auto &storageBuffers		  = resources->GetBoundStorageBuffers();
+
+			for (const auto &[name, ciSampler] : combinedImageSamplers)
+			{
+				Ref<Texture> texture = ciSampler.ImageTexture;
+
+				TextureBarrierDesc barrier				= {};
+				barrier.BeforeAccess					= BarrierAccess::None;
+				barrier.AfterAccess						= BarrierAccess::ShaderRead;
+				barrier.BeforeStage						= BarrierPipelineStage::None;
+				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+				barrier.Texture							= ciSampler.ImageTexture;
+				barrier.Layout							= ciSampler.Layout;
+				barrier.SubresourceRange.BaseArrayLayer = 0;
+				barrier.SubresourceRange.LayerCount		= texture->GetDescription().DepthOrArrayLayers;
+				barrier.SubresourceRange.BaseMipLevel	= 0;
+				barrier.SubresourceRange.LevelCount		= texture->GetDescription().MipLevels;
+				SubmitTextureBarrier(barrier);
+			}
+
+			for (const auto &[name, storageImage] : storageImages)
+			{
+				TextureBarrierDesc barrier				= {};
+				barrier.BeforeAccess					= BarrierAccess::None;
+				barrier.AfterAccess						= BarrierAccess::ShaderRead;
+				barrier.BeforeStage						= BarrierPipelineStage::None;
+				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+				barrier.Texture							= storageImage.TextureHandle;
+				barrier.Layout							= storageImage.Layout;
+				barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
+				barrier.SubresourceRange.LayerCount		= 1;
+				barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
+				barrier.SubresourceRange.LevelCount		= 1;
+				SubmitTextureBarrier(barrier);
+			}
+
+			for (const auto &[name, storageBuffer] : storageBuffers)
+			{
+				BufferBarrierDesc barrier = {};
+				barrier.AfterAccess		  = BarrierAccess::ShaderWrite;
+				barrier.BeforeAccess	  = BarrierAccess::None;
+				barrier.AfterStage		  = BarrierPipelineStage::AllGraphics;
+				barrier.BeforeStage		  = BarrierPipelineStage::None;
+				barrier.Buffer			  = storageBuffer.BufferHandle;
+				barrier.Offset			  = storageBuffer.Offset;
+				barrier.Size			  = storageBuffer.SizeInBytes;
+				SubmitBufferBarrier(barrier);
+			}
+		}
+
 		m_Commands.push_back(resources);
 	}
 
@@ -560,10 +614,16 @@ namespace Nexus::Graphics
 
 	void CommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
 	}
 
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const

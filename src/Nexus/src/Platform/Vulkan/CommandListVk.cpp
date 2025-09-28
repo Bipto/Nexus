@@ -10,7 +10,10 @@
 
 namespace Nexus::Graphics
 {
-	CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, const CommandListDescription &spec) : CommandList(spec), m_Device(graphicsDevice)
+	CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec)
+		: CommandList(spec),
+		  m_Queue(commandQueue),
+		  m_Device(graphicsDevice)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -19,7 +22,7 @@ namespace Nexus::Graphics
 			VkCommandPoolCreateInfo createInfo = {};
 			createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-			createInfo.queueFamilyIndex		   = m_Device->GetGraphicsFamily();
+			createInfo.queueFamilyIndex		   = commandQueue->GetDescription().QueueFamilyIndex;
 			if (context.CreateCommandPool(m_Device->GetVkDevice(), &createInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create command pool");

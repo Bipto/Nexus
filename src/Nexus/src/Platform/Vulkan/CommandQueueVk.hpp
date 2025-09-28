@@ -17,11 +17,13 @@ namespace Nexus::Graphics
 	  public:
 		CommandQueueVk(GraphicsDeviceVk *device, const CommandQueueDescription &description);
 		virtual ~CommandQueueVk();
-		void			SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
-		void			Present(Ref<Swapchain> swapchain) final;
-		GraphicsDevice *GetGraphicsDevice() final;
-		bool			WaitForIdle() final;
-		VkQueue			GetVkQueue() const;
+		const CommandQueueDescription &GetDescription() const final;
+		Ref<Swapchain>				   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
+		void						   SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
+		GraphicsDevice				  *GetGraphicsDevice() final;
+		bool						   WaitForIdle() final;
+		VkQueue						   GetVkQueue() const;
+		Ref<CommandList>			   CreateCommandList(const CommandListDescription &spec = {}) final;
 
 	  private:
 		GraphicsDeviceVk				  *m_Device			 = nullptr;

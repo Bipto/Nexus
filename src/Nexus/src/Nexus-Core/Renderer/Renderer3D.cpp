@@ -156,7 +156,7 @@ namespace Nexus::Graphics
 		  m_Camera(m_Device),
 		  m_FullscreenQuad(m_Device, commandQueue, false)
 	{
-		m_CommandList = m_Device->CreateCommandList();
+		m_CommandList = m_CommandQueue->CreateCommandList();
 
 		CreateClearGBufferPipeline();
 		CreateCubemapPipeline();
@@ -275,8 +275,9 @@ namespace Nexus::Graphics
 
 		const Environment &environment = m_Scene->SceneEnvironment;
 
-		m_CommandList->ClearColourTarget(0,
-										{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
+		m_CommandList->ClearColourTarget(
+			0,
+			{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
 		m_CommandList->ClearColourTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
 
 		m_CommandList->ClearDepthTarget(Nexus::Graphics::ClearDepthStencilValue {});

@@ -44,14 +44,19 @@ namespace Nexus::Graphics
 	class NX_API ICommandQueue
 	{
 	  public:
-		virtual ~ICommandQueue() = default;
-		void					SubmitCommandList(Ref<CommandList> commandList);
-		void					SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence);
-		void					SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists);
-		virtual void			SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
-		virtual void			Present(Ref<Swapchain> swapchain)															   = 0;
-		virtual GraphicsDevice *GetGraphicsDevice()																			   = 0;
-		virtual bool			WaitForIdle()																				   = 0;
+		virtual ~ICommandQueue()																				  = default;
+		virtual const CommandQueueDescription &GetDescription() const											  = 0;
+		virtual Ref<Swapchain>				   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) = 0;
+		void								   SubmitCommandList(Ref<CommandList> commandList);
+		void								   SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence);
+		void								   SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists);
+		virtual void						   SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
+		virtual GraphicsDevice				  *GetGraphicsDevice()																			  = 0;
+		virtual bool						   WaitForIdle()																				  = 0;
+
+		/// @brief A pure virtual method that creates a new command list
+		/// @return A pointer to a command list
+		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
 
 		void WriteToTexture(Ref<Texture> texture,
 							uint32_t	 arrayLayer,

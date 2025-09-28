@@ -28,27 +28,12 @@ namespace Nexus::Graphics
 		// create the D3D12Device
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), IID_PPV_ARGS(&m_Device))))
 		{
-			// NX_VALIDATE(SUCCEEDED(baseDevice->QueryInterface(IID_PPV_ARGS(&m_Device))), "Failed to get interface");
-
 			// Create a command queue to submit work to the GPU
 			D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
 			commandQueueDesc.Type	  = D3D12_COMMAND_LIST_TYPE_DIRECT;
 			commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
 			commandQueueDesc.NodeMask = 0;
 			commandQueueDesc.Flags	  = D3D12_COMMAND_QUEUE_FLAG_NONE;
-
-			// create the command queue
-			if (SUCCEEDED(m_Device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_CommandQueue))))
-			{
-				// create the fence
-				if (SUCCEEDED(m_Device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence))))
-				{
-					m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
-				}
-
-				m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_UploadCommandAllocator));
-				m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_UploadCommandList));
-			}
 
 			D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
 			allocatorDesc.pDevice				  = m_Device.Get();
@@ -67,10 +52,6 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
 	{
-		if (m_FenceEvent)
-		{
-			CloseHandle(m_FenceEvent);
-		}
 	}
 
 	const std::string GraphicsDeviceD3D12::GetAPIName()
@@ -101,11 +82,6 @@ namespace Nexus::Graphics
 	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		return CreateRef<MeshletPipelineD3D12>(this, description);
-	}
-
-	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
-	{
-		return CreateRef<CommandListD3D12>(this, spec);
 	}
 
 	Ref<RayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
@@ -153,11 +129,6 @@ namespace Nexus::Graphics
 		return m_DxgiFactory.Get();
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> GraphicsDeviceD3D12::GetCommandQueue() const
-	{
-		return m_CommandQueue.Get();
-	}
-
 	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetD3D12Device() const
 	{
 		return m_Device.Get();
@@ -170,12 +141,6 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
-		SignalAndWait(m_CommandQueue);
-	}
-
-	void GraphicsDeviceD3D12::WaitForQueueIdle(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue)
-	{
-		SignalAndWait(queue);
 	}
 
 	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()
@@ -197,11 +162,6 @@ namespace Nexus::Graphics
 	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureD3D12>(spec, this);
-	}
-
-	Ref<Swapchain> GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
-	{
-		return CreateRef<SwapchainD3D12>(window, this, spec);
 	}
 
 	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
@@ -264,45 +224,6 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
 			fence->Reset();
 		}
-	}
-
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GraphicsDeviceD3D12::GetUploadCommandList()
-	{
-		return m_UploadCommandList;
-	}
-
-	void GraphicsDeviceD3D12::SignalAndWait(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue)
-	{
-		// Step 1: Increment fence value BEFORE signaling
-		++m_FenceValue;
-
-		// Step 2: Signal the fence from the command queue
-		HRESULT hr = queue->Signal(m_Fence.Get(), m_FenceValue);
-		if (FAILED(hr))
-		{
-			throw std::runtime_error("Failed to signal fence. HRESULT: " + std::to_string(hr));
-		}
-
-		// Step 3: Set an event to be triggered when the GPU reaches the fence value
-		hr = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
-		if (FAILED(hr))
-		{
-			throw std::runtime_error("Failed to set fence event. HRESULT: " + std::to_string(hr));
-		}
-
-		// Step 4: Wait for the event to be signaled (i.e., GPU has completed work)
-		DWORD waitResult = WaitForSingleObject(m_FenceEvent, INFINITE);
-		if (waitResult != WAIT_OBJECT_0)
-		{
-			throw std::runtime_error("Failed to wait for fence event. Wait result: " + std::to_string(waitResult));
-		}
-	}
-
-	void GraphicsDeviceD3D12::ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function)
-	{
-		InitUploadCommandList();
-		function(m_UploadCommandList.Get());
-		DispatchUploadCommandList();
 	}
 
 	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
@@ -378,7 +299,7 @@ namespace Nexus::Graphics
 
 	bool GraphicsDeviceD3D12::Validate()
 	{
-		return m_Device && m_CommandQueue && m_Fence && m_UploadCommandAllocator && m_UploadCommandList && m_DxgiFactory;
+		return m_Device && m_DxgiFactory;
 	}
 
 	PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
@@ -424,22 +345,6 @@ namespace Nexus::Graphics
 	{
 		Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
 		return physicalDeviceD3D12->IsVersionGreaterThan(level);
-	}
-
-	void GraphicsDeviceD3D12::InitUploadCommandList()
-	{
-		m_UploadCommandAllocator->Reset();
-		m_UploadCommandList->Reset(m_UploadCommandAllocator.Get(), nullptr);
-	}
-
-	void GraphicsDeviceD3D12::DispatchUploadCommandList()
-	{
-		if (SUCCEEDED(m_UploadCommandList->Close()))
-		{
-			ID3D12CommandList *list[] = {m_UploadCommandList.Get()};
-			m_CommandQueue->ExecuteCommandLists(1, list);
-			SignalAndWait(m_CommandQueue);
-		}
 	}
 
 	void GraphicsDeviceD3D12::GetLimitsAndFeatures()

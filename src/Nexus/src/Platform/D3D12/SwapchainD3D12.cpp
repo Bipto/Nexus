@@ -7,8 +7,9 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainDescription &swapchainSpec)
+	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
 		: Swapchain(swapchainSpec),
+		  m_CommandQueue(queue),
 		  m_Window(window)
 	{
 		// assign the graphics device
@@ -46,21 +47,6 @@ namespace Nexus::Graphics
 		if (m_Description.Samples > 1)
 		{
 			Resolve();
-		}
-
-		if (this->GetCurrentTextureState() != D3D12_RESOURCE_STATE_PRESENT)
-		{
-			D3D12_RESOURCE_BARRIER barrier;
-			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.pResource   = m_Buffers[m_CurrentBufferIndex].Get();
-			barrier.Transition.Subresource = 0;
-			barrier.Transition.StateBefore = this->GetCurrentTextureState();
-			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
-
-			m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) { cmd->ResourceBarrier(1, &barrier); });
-
-			SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
 		}
 
 		// swap the swapchain's buffers and present to the display
@@ -279,9 +265,11 @@ namespace Nexus::Graphics
 		// retrieve the graphics device's DXGI factory
 		auto factory = m_Device->GetDXGIFactory();
 
+		CommandQueueD3D12 *commandQueueD3D12 = (CommandQueueD3D12 *)m_CommandQueue;
+
 		// create the swapchain and query for the correct swapchain type
 		Microsoft::WRL::ComPtr<IDXGISwapChain1>	   sc1;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = m_Device->GetCommandQueue();
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = commandQueueD3D12->GetHandle();
 		factory->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
 		if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain)))) {}
 
@@ -400,7 +388,7 @@ namespace Nexus::Graphics
 
 		auto swapchainTexture = RetrieveBufferHandle();
 
-		m_Device->ImmediateSubmit(
+		/*m_Device->ImmediateSubmit(
 			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
@@ -410,7 +398,7 @@ namespace Nexus::Graphics
 
 				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, framebufferState);
 				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
-			});
+			});*/
 	}
 }	 // namespace Nexus::Graphics
 #endif

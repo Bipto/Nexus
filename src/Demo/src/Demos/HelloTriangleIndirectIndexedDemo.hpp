@@ -21,7 +21,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			CreatePipeline();
 
 			std::vector<Nexus::Graphics::VertexPosition> vertices = {

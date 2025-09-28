@@ -301,7 +301,7 @@ namespace Nexus::Utils
 														 Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		Ref<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::CommandList>	commandList	 = device->CreateCommandList();
+		Ref<Graphics::CommandList>	commandList	 = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
@@ -331,14 +331,14 @@ namespace Nexus::Utils
 														Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		Ref<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::CommandList>	commandList	 = device->CreateCommandList();
+		Ref<Graphics::CommandList>	commandList	 = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
 		bufferDesc.Usage									= Graphics::BufferUsage::Index;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
-		Ref<Graphics::DeviceBuffer> indexBuffer				= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+		Ref<Graphics::DeviceBuffer> indexBuffer				= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer;
@@ -361,14 +361,14 @@ namespace Nexus::Utils
 														  Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		Ref<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::CommandList>	commandList	 = device->CreateCommandList();
+		Ref<Graphics::CommandList>	commandList	 = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
 		bufferDesc.Usage									= Graphics::BufferUsage::Uniform;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
-		Ref<Graphics::DeviceBuffer> uniformBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+		Ref<Graphics::DeviceBuffer> uniformBuffer			= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer;

@@ -18,7 +18,9 @@ namespace Nexus::Graphics
 
 	void TimingQueryD3D12::Resolve()
 	{
-		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+		// This needs fixing
+
+		/*m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
 								  { cmd->ResolveQueryData(m_QueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, m_ReadbackBuffer.Get(), 0); });
 
 		uint64_t *timestamps;
@@ -30,7 +32,7 @@ namespace Nexus::Graphics
 		uint64_t								   frequency;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue = m_Device->GetCommandQueue();
 		queue->GetTimestampFrequency(&frequency);
-		m_ElapsedTime = (end - start) / 1000000.0f;
+		m_ElapsedTime = (end - start) / 1000000.0f;*/
 	}
 
 	float TimingQueryD3D12::GetElapsedMilliseconds()

@@ -22,13 +22,30 @@ namespace Nexus::Graphics
 
 		m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device->GetD3D12Device());
 
-		Graphics::FenceDescription fenceDesc = {};
-		fenceDesc.Signalled					 = false;
-		m_Fence								 = device->CreateFence(fenceDesc);
+		// create the fence
+		if (SUCCEEDED(d3d12Device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence))))
+		{
+			m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
+		}
 	}
 
 	CommandQueueD3D12::~CommandQueueD3D12()
 	{
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueueD3D12::GetHandle()
+	{
+		return m_CommandQueue;
+	}
+
+	const CommandQueueDescription &CommandQueueD3D12::GetDescription() const
+	{
+		return m_Description;
+	}
+
+	Ref<Swapchain> CommandQueueD3D12::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	{
+		return CreateRef<SwapchainD3D12>(window, m_Device, this, spec);
 	}
 
 	void CommandQueueD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
@@ -61,12 +78,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandQueueD3D12::Present(Ref<Swapchain> swapchain)
-	{
-		Ref<SwapchainD3D12> swapchainD3D12 = std::dynamic_pointer_cast<SwapchainD3D12>(swapchain);
-		swapchainD3D12->SwapBuffers();
-	}
-
 	GraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()
 	{
 		return m_Device;
@@ -74,7 +85,39 @@ namespace Nexus::Graphics
 
 	bool CommandQueueD3D12::WaitForIdle()
 	{
-		m_Device->WaitForQueueIdle(m_CommandQueue);
+		SignalAndWait();
 		return true;
+	}
+
+	Ref<CommandList> CommandQueueD3D12::CreateCommandList(const CommandListDescription &spec)
+	{
+		return CreateRef<CommandListD3D12>(m_Device, spec);
+	}
+
+	void CommandQueueD3D12::SignalAndWait()
+	{
+		// Step 1: Increment fence value BEFORE signaling
+		++m_FenceValue;
+
+		// Step 2: Signal the fence from the command queue
+		HRESULT hr = m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
+		if (FAILED(hr))
+		{
+			throw std::runtime_error("Failed to signal fence. HRESULT: " + std::to_string(hr));
+		}
+
+		// Step 3: Set an event to be triggered when the GPU reaches the fence value
+		hr = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
+		if (FAILED(hr))
+		{
+			throw std::runtime_error("Failed to set fence event. HRESULT: " + std::to_string(hr));
+		}
+
+		// Step 4: Wait for the event to be signaled (i.e., GPU has completed work)
+		DWORD waitResult = WaitForSingleObject(m_FenceEvent, INFINITE);
+		if (waitResult != WAIT_OBJECT_0)
+		{
+			throw std::runtime_error("Failed to wait for fence event. Wait result: " + std::to_string(waitResult));
+		}
 	}
 }	 // namespace Nexus::Graphics

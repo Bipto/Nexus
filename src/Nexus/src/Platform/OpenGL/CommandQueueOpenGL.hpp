@@ -17,10 +17,12 @@ namespace Nexus::Graphics
 	  public:
 		CommandQueueOpenGL(GraphicsDeviceOpenGL *device, const CommandQueueDescription &description);
 		virtual ~CommandQueueOpenGL();
-		void			SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
-		void			Present(Ref<Swapchain> swapchain) final;
-		GraphicsDevice *GetGraphicsDevice() final;
-		bool			WaitForIdle() final;
+		const CommandQueueDescription &GetDescription() const final;
+		Ref<Swapchain>				   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
+		void						   SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) final;
+		GraphicsDevice				  *GetGraphicsDevice() final;
+		bool						   WaitForIdle() final;
+		Ref<CommandList>			   CreateCommandList(const CommandListDescription &spec = {}) final;
 
 	  private:
 		GraphicsDeviceOpenGL   *m_Device		  = nullptr;

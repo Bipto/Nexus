@@ -21,7 +21,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 
 			Nexus::Graphics::TextureDescription textureSpec = {};
 			textureSpec.Width								= 512;

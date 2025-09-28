@@ -332,7 +332,7 @@ namespace Nexus::Graphics
 	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
-		  m_CommandList(m_Device->CreateCommandList()),
+		  m_CommandList(commandQueue->CreateCommandList()),
 		  m_UseDepthTest(useDepthTest)
 	{
 		uint32_t textureData = 0xFFFFFFFF;

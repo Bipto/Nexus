@@ -468,8 +468,9 @@ namespace Nexus::Graphics
 		resolve.srcOffset	   = {0, 0, 0};
 		resolve.srcSubresource = src;
 
-		auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImageLayout(0, 0);
-		auto swapchainLayout   = swapchainVk->GetColorImageLayout();
+		VkImageLayout framebufferLayout =
+			Vk::GetImageLayout(m_Device, framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetTextureLayout(0, 0));
+		VkImageLayout swapchainLayout = swapchainVk->GetColorImageLayout();
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 		context.CmdResolveImage(m_CommandBuffer, framebufferImage, framebufferLayout, swapchainImage, swapchainLayout, 1, &resolve);
@@ -550,22 +551,6 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
-		for (uint32_t layer = command.BufferTextureCopy.TextureOffset.Z;
-			 layer < command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
-			 layer++)
-		{
-			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
-			previousLayouts[layer]	   = layoutBefore;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  texture->GetImage(),
-												  command.BufferTextureCopy.TextureSubresource.MipLevel,
-												  layer,
-												  layoutBefore,
-												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-												  VK_IMAGE_ASPECT_COLOR_BIT);
-		}
-
 		// perform copy
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -627,22 +612,6 @@ namespace Nexus::Graphics
 											 &copyRegion);
 			}
 		}
-
-		for (uint32_t layer = command.BufferTextureCopy.TextureOffset.Z;
-			 layer < command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
-			 layer++)
-		{
-			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
-			previousLayouts[layer]	   = layoutBefore;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  texture->GetImage(),
-												  command.BufferTextureCopy.TextureSubresource.MipLevel,
-												  layer,
-												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-												  layoutBefore,
-												  VK_IMAGE_ASPECT_COLOR_BIT);
-		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
@@ -653,22 +622,6 @@ namespace Nexus::Graphics
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
-
-		for (uint32_t layer = command.TextureBufferCopy.TextureOffset.Z;
-			 layer < command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
-			 layer++)
-		{
-			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
-			previousLayouts[layer]	   = layoutBefore;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  texture->GetImage(),
-												  command.TextureBufferCopy.TextureSubresource.MipLevel,
-												  layer,
-												  layoutBefore,
-												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-												  VK_IMAGE_ASPECT_COLOR_BIT);
-		}
 
 		// perform copy
 		{
@@ -731,22 +684,6 @@ namespace Nexus::Graphics
 											 &copyRegion);
 			}
 		}
-
-		for (uint32_t layer = command.TextureBufferCopy.TextureOffset.Z;
-			 layer < command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
-			 layer++)
-		{
-			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
-			previousLayouts[layer]	   = layoutBefore;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  texture->GetImage(),
-												  command.TextureBufferCopy.TextureSubresource.MipLevel,
-												  layer,
-												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-												  layoutBefore,
-												  VK_IMAGE_ASPECT_COLOR_BIT);
-		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
@@ -760,39 +697,6 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, VkImageLayout> srcLayouts;
 		std::map<uint32_t, VkImageLayout> dstLayouts;
-
-		// transfer source texture
-		for (uint32_t layer = command.TextureCopy.SourceOffset.Z; layer < command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
-			 layer++)
-		{
-			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
-			srcLayouts[layer]	 = layout;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  srcTexture->GetImage(),
-												  command.TextureCopy.SourceSubresource.MipLevel,
-												  layer,
-												  layout,
-												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-												  srcAspect);
-		}
-
-		// transfer destination texture
-		for (uint32_t layer = command.TextureCopy.DestinationOffset.Z;
-			 layer < command.TextureCopy.DestinationOffset.Z + command.TextureCopy.Extent.Depth;
-			 layer++)
-		{
-			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
-			dstLayouts[layer]	 = layout;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  dstTexture->GetImage(),
-												  command.TextureCopy.DestinationSubresource.MipLevel,
-												  layer,
-												  layout,
-												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-												  dstAspect);
-		}
 
 		// copy image
 		{
@@ -871,39 +775,6 @@ namespace Nexus::Graphics
 									 1,
 									 &copyRegion);
 			}
-		}
-
-		// restore source texture layout
-		for (uint32_t layer = command.TextureCopy.SourceOffset.Z; layer < command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
-			 layer++)
-		{
-			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
-			srcLayouts[layer]	 = layout;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  srcTexture->GetImage(),
-												  command.TextureCopy.SourceSubresource.MipLevel,
-												  layer,
-												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-												  layout,
-												  srcAspect);
-		}
-
-		// restore destination texture layout
-		for (uint32_t layer = command.TextureCopy.DestinationOffset.Z;
-			 layer < command.TextureCopy.DestinationOffset.Z + command.TextureCopy.Extent.Depth;
-			 layer++)
-		{
-			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
-			dstLayouts[layer]	 = layout;
-
-			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
-												  dstTexture->GetImage(),
-												  command.TextureCopy.DestinationSubresource.MipLevel,
-												  layer,
-												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-												  layout,
-												  dstAspect);
 		}
 	}
 
@@ -1069,6 +940,11 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
 	{
+		if (m_Rendering)
+		{
+			StopRendering();
+		}
+
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
 		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
@@ -1119,10 +995,17 @@ namespace Nexus::Graphics
 
 			context.CmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 1, &barrier, 0, nullptr, 0, nullptr);
 		}
+
+		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
 	{
+		if (m_Rendering)
+		{
+			StopRendering();
+		}
+
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
 		Ref<TextureVk> texture	 = std::dynamic_pointer_cast<TextureVk>(command.Texture);
@@ -1139,11 +1022,12 @@ namespace Nexus::Graphics
 
 		std::vector<SubresourceRangeLayout> ranges;
 
-		VkImageLayout currentLayout	  = texture->GetImageLayout(command.SubresourceRange.BaseArrayLayer, command.SubresourceRange.BaseMipLevel);
-		uint32_t	  arrayLayerStart = command.SubresourceRange.BaseArrayLayer;
-		uint32_t	  mipLevelStart	  = command.SubresourceRange.BaseMipLevel;
-		uint32_t	  arrayLayerCount = 0;
-		uint32_t	  mipLevelCount	  = 0;
+		VkImageLayout currentLayout =
+			Vk::GetImageLayout(m_Device, texture->GetTextureLayout(command.SubresourceRange.BaseArrayLayer, command.SubresourceRange.BaseMipLevel));
+		uint32_t arrayLayerStart = command.SubresourceRange.BaseArrayLayer;
+		uint32_t mipLevelStart	 = command.SubresourceRange.BaseMipLevel;
+		uint32_t arrayLayerCount = 0;
+		uint32_t mipLevelCount	 = 0;
 
 		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
 			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
@@ -1153,7 +1037,7 @@ namespace Nexus::Graphics
 				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
 				 mipLevel++)
 			{
-				VkImageLayout layout = texture->GetImageLayout(arrayLayer, mipLevel);
+				VkImageLayout layout = Vk::GetImageLayout(m_Device, texture->GetTextureLayout(arrayLayer, mipLevel));
 
 				// start new subresource range
 				if (arrayLayerCount == 0)
@@ -1271,10 +1155,17 @@ namespace Nexus::Graphics
 									   imageBarriers.size(),
 									   imageBarriers.data());
 		}
+
+		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
 	{
+		if (m_Rendering)
+		{
+			StopRendering();
+		}
+
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
 		Ref<DeviceBufferVk> bufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(command.Buffer);
@@ -1337,6 +1228,8 @@ namespace Nexus::Graphics
 
 			context.CmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 0, nullptr, 1, &barrier, 0, nullptr);
 		}
+
+		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
 	void BeginRenderPass(GraphicsDeviceVk			 *device,
@@ -1379,13 +1272,6 @@ namespace Nexus::Graphics
 		}
 		else
 		{
-			device->TransitionVulkanImageLayout(commandBuffer,
-												swapchain->GetResolveImage(),
-												0,
-												0,
-												swapchain->GetResolveImageLayout(),
-												VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-												VK_IMAGE_ASPECT_COLOR_BIT);
 			swapchain->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 			colourAttachment.imageView	 = swapchain->GetResolveImageView();
@@ -1450,35 +1336,19 @@ namespace Nexus::Graphics
 		Ref<SwapchainVk> swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
 		const auto		&swapchainDesc = swapchainVk->GetDescription();
 
-		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-											  swapchainVk->GetColourImage(),
-											  0,
-											  0,
-											  swapchainVk->GetColorImageLayout(),
-											  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-											  VK_IMAGE_ASPECT_COLOR_BIT);
-
-		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-											  swapchainVk->GetDepthImage(),
-											  0,
-											  0,
-											  swapchainVk->GetDepthImageLayout(),
-											  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-											  VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-
 		swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		if (swapchainDesc.Samples != 1)
 		{
-			m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
+			/*m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 												  swapchainVk->GetResolveImage(),
 												  0,
 												  0,
 												  swapchainVk->GetResolveImageLayout(),
 												  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 												  VK_IMAGE_ASPECT_COLOR_BIT);
-			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);*/
 		}
 
 		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
@@ -1508,11 +1378,12 @@ namespace Nexus::Graphics
 		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount(); colourAttachmentIndex++)
 		{
 			Ref<TextureVk> texture = framebuffer->GetVulkanColorTexture(colourAttachmentIndex);
+			TextureLayout  layout  = texture->GetTextureLayout(0, 0);
 
 			VkRenderingAttachmentInfo colourAttachment = {};
 			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			colourAttachment.imageView				   = texture->GetImageView();
-			colourAttachment.imageLayout			   = texture->GetImageLayout(0, 0);
+			colourAttachment.imageLayout			   = Vk::GetImageLayout(device, layout);
 			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
 			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
 			colourAttachment.clearValue				   = {};
@@ -1524,10 +1395,11 @@ namespace Nexus::Graphics
 		if (framebuffer->HasDepthTexture())
 		{
 			Ref<TextureVk> texture = framebuffer->GetVulkanDepthTexture();
+			TextureLayout  layout  = texture->GetTextureLayout(0, 0);
 
 			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			depthAttachment.imageView	= texture->GetImageView();
-			depthAttachment.imageLayout = texture->GetImageLayout(0, 0);
+			depthAttachment.imageLayout = Vk::GetImageLayout(device, layout);
 			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
 			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
 			depthAttachment.clearValue	= {};
@@ -1575,42 +1447,6 @@ namespace Nexus::Graphics
 	{
 		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 
-		// transition colour layouts
-		for (size_t textureIndex = 0; textureIndex < vulkanFramebuffer->GetColorTextureCount(); textureIndex++)
-		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(textureIndex);
-
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetDescription().MipLevels; mipLevel++)
-			{
-				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-													  texture->GetImage(),
-													  mipLevel,
-													  0,
-													  texture->GetImageLayout(0, mipLevel),
-													  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-													  VK_IMAGE_ASPECT_COLOR_BIT);
-				texture->SetImageLayout(0, mipLevel, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			}
-		}
-
-		// transition depth layout if needed
-		if (vulkanFramebuffer->HasDepthTexture())
-		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
-
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetDescription().MipLevels; mipLevel++)
-			{
-				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-													  texture->GetImage(),
-													  mipLevel,
-													  0,
-													  texture->GetImageLayout(0, mipLevel),
-													  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-													  VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-				texture->SetImageLayout(0, mipLevel, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-			}
-		}
-
 		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 		if (features.DynamicRenderingAvailable)
 		{
@@ -1640,40 +1476,9 @@ namespace Nexus::Graphics
 			{
 				context.CmdEndRenderPass(m_CommandBuffer);
 			}
-
-			if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
-			{
-				WeakRef<Framebuffer> fb = m_CurrentRenderTarget.GetFramebuffer();
-				if (auto framebuffer = fb.lock())
-				{
-					TransitionFramebufferToShaderReadonly(framebuffer);
-				}
-			}
 		}
 
 		m_Rendering = false;
-	}
-
-	void CommandExecutorVk::TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer)
-	{
-		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
-
-		for (uint32_t colourAttachment = 0; colourAttachment < vulkanFramebuffer->GetColorTextureCount(); colourAttachment++)
-		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachment);
-
-			for (uint32_t level = 0; level < texture->GetDescription().MipLevels; level++)
-			{
-				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-													  texture->GetImage(),
-													  level,
-													  0,
-													  texture->GetImageLayout(0, level),
-													  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-													  VK_IMAGE_ASPECT_COLOR_BIT);
-				texture->SetImageLayout(0, level, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-			}
-		}
 	}
 
 	bool CommandExecutorVk::ValidateIsRendering()

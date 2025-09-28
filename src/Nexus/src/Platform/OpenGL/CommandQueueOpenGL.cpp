@@ -1,6 +1,7 @@
 #include "CommandQueueOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
 #include "Nexus-Core/Timings/Profiler.hpp"
+#include "SwapchainOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -12,6 +13,18 @@ namespace Nexus::Graphics
 
 	CommandQueueOpenGL::~CommandQueueOpenGL()
 	{
+	}
+
+	const CommandQueueDescription &CommandQueueOpenGL::GetDescription() const
+	{
+		return m_Description;
+	}
+
+	Ref<Swapchain> CommandQueueOpenGL::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	{
+		Ref<PhysicalDeviceOpenGL> physicalDevice = m_Device->GetPhysicalDeviceOpenGL();
+		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
+		return CreateRef<SwapchainOpenGL>(window, spec, m_Device);
 	}
 
 	void CommandQueueOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
@@ -29,14 +42,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandQueueOpenGL::Present(Ref<Swapchain> swapchain)
-	{
-		NX_PROFILE_FUNCTION();
-
-		Ref<SwapchainOpenGL> swapchainGL = std::dynamic_pointer_cast<SwapchainOpenGL>(swapchain);
-		swapchainGL->SwapBuffers();
-	}
-
 	GraphicsDevice *CommandQueueOpenGL::GetGraphicsDevice()
 	{
 		return m_Device;
@@ -46,5 +51,10 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 		return true;
+	}
+
+	Ref<CommandList> CommandQueueOpenGL::CreateCommandList(const CommandListDescription &spec)
+	{
+		return CreateRef<CommandListOpenGL>(spec);
 	}
 }	 // namespace Nexus::Graphics

@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		  m_CommandQueue(commandQueue),
 		  m_Quad(device, commandQueue, true)
 	{
-		m_CommandList = m_Device->CreateCommandList();
+		m_CommandList = m_CommandQueue->CreateCommandList();
 
 		Ref<ShaderModule> m_VertexModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);

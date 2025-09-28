@@ -45,7 +45,7 @@ namespace Nexus::Graphics
 		bufferDesc.SizeInBytes			   = size;
 		bufferDesc.StrideInBytes		   = size;
 		Ref<DeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList		   = device->CreateCommandList();
+		Ref<CommandList>  cmdList		   = CreateCommandList();
 
 		buffer->SetData(data, 0, size);
 
@@ -86,7 +86,7 @@ namespace Nexus::Graphics
 		bufferDesc.StrideInBytes		   = bufferSize;
 
 		Ref<DeviceBuffer> buffer  = device->CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList = device->CreateCommandList();
+		Ref<CommandList>  cmdList = CreateCommandList();
 
 		cmdList->Begin();
 

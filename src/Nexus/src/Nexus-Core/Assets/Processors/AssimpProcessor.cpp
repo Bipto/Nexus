@@ -120,7 +120,7 @@ namespace Nexus::Processors
 		bufferDesc.StrideInBytes					 = pixels.size();
 		Ref<Graphics::DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
 
-		Ref<Graphics::CommandList> cmdList = device->CreateCommandList();
+		Ref<Graphics::CommandList> cmdList = commandQueue->CreateCommandList();
 
 		return createdTexture;
 	}

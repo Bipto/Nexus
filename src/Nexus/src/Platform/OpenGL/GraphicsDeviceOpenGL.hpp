@@ -28,7 +28,6 @@ namespace Nexus::Graphics
 		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		Ref<CommandList>			CreateCommandList(const CommandListDescription &spec = {}) final;
 		Ref<ResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
 		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
 		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
@@ -38,7 +37,6 @@ namespace Nexus::Graphics
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>				 CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
 		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;

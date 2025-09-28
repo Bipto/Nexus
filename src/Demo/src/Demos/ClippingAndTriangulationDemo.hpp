@@ -25,7 +25,7 @@ namespace Demos
 		{
 			Nexus::Ref<Nexus::Graphics::Swapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
 			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList									   = m_GraphicsDevice->CreateCommandList();
+			m_CommandList									   = m_CommandQueue->CreateCommandList();
 			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount);
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);

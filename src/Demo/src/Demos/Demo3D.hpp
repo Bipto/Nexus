@@ -34,7 +34,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh	  = factory.CreateCube();
 			m_Texture = m_GraphicsDevice->CreateTexture2D(

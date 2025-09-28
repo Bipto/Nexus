@@ -23,7 +23,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
 		}
 

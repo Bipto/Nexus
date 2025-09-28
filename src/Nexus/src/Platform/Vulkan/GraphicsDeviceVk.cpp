@@ -7,7 +7,7 @@
 	#include "CommandQueueVk.hpp"
 	#include "DeviceBufferVk.hpp"
 	#include "FenceVk.hpp"
-	#include "FramebufferVk.hpp"
+	#include "FramebufferVk.hpp" 1
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PhysicalDeviceVk.hpp"
 	#include "PipelineVk.hpp"
@@ -40,22 +40,11 @@ namespace Nexus::Graphics
 
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
-
-		CreateCommandStructures();
-		CreateSynchronisationStructures();
-
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
 	}
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
 	{
-		// cleanup synchronisation structures
-		{
-			m_Context.DestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
-			m_Context.FreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
-			m_Context.DestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
-		}
-
 		// cleanup allocators
 		{
 			vmaDestroyAllocator(m_Allocator);
@@ -102,11 +91,6 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
-	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListDescription &spec)
-	{
-		return CreateRef<CommandListVk>(this, spec);
-	}
-
 	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		return CreateRef<ResourceSetVk>(pipeline, this);
@@ -146,25 +130,6 @@ namespace Nexus::Graphics
 		capabilities.SupportsMultipleSwapchains			 = true;
 		capabilities.SupportsSeparateColourAndBlendMasks = true;
 		return capabilities;
-	}
-
-	Ref<Swapchain> GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
-	{
-		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(window, this, spec);
-		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
-
-		VkBool32 presentSupport = false;
-		m_Context.GetPhysicalDeviceSurfaceSupportKHR(physicalDeviceVk->GetVkPhysicalDevice(),
-													 m_PresentQueueFamilyIndex,
-													 swapchain->m_Surface,
-													 &presentSupport);
-
-		if (!presentSupport)
-		{
-			throw std::runtime_error("Device is unable to present to this swapchain");
-		}
-
-		return swapchain;
 	}
 
 	Ref<Fence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
@@ -270,16 +235,6 @@ namespace Nexus::Graphics
 		return m_Device;
 	}
 
-	uint32_t GraphicsDeviceVk::GetGraphicsFamily()
-	{
-		return m_GraphicsQueueFamilyIndex;
-	}
-
-	uint32_t GraphicsDeviceVk::GetPresentFamily()
-	{
-		return m_PresentQueueFamilyIndex;
-	}
-
 	uint32_t GraphicsDeviceVk::GetCurrentFrameIndex()
 	{
 		return m_FrameNumber % FRAMES_IN_FLIGHT;
@@ -288,93 +243,6 @@ namespace Nexus::Graphics
 	VmaAllocator GraphicsDeviceVk::GetAllocator()
 	{
 		return m_Allocator;
-	}
-
-	void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)
-	{
-		m_Context.ResetFences(m_Device, 1, &m_UploadContext.UploadFence);
-		m_Context.ResetCommandPool(m_Device, m_UploadContext.CommandPool, 0);
-
-		VkCommandBuffer			 cmd		  = m_UploadContext.CommandBuffer;
-		VkCommandBufferBeginInfo cmdBeginInfo = {};
-		cmdBeginInfo.sType					  = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		cmdBeginInfo.pNext					  = nullptr;
-		cmdBeginInfo.pInheritanceInfo		  = nullptr;
-		cmdBeginInfo.flags					  = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		if (m_Context.BeginCommandBuffer(cmd, &cmdBeginInfo) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to begin command buffer");
-		}
-
-		function(cmd);
-
-		if (m_Context.EndCommandBuffer(cmd) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to end command buffer");
-		}
-
-		VkSubmitInfo submitInfo			= {};
-		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.pNext				= nullptr;
-		submitInfo.waitSemaphoreCount	= 0;
-		submitInfo.pWaitSemaphores		= nullptr;
-		submitInfo.pWaitDstStageMask	= nullptr;
-		submitInfo.commandBufferCount	= 1;
-		submitInfo.pCommandBuffers		= &cmd;
-		submitInfo.signalSemaphoreCount = 0;
-		submitInfo.pSignalSemaphores	= nullptr;
-
-		if (m_Context.QueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_UploadContext.UploadFence) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to submit queue");
-		}
-
-		m_Context.DeviceWaitIdle(m_Device);
-		m_Context.QueueWaitIdle(m_GraphicsQueue);
-	}
-
-	void GraphicsDeviceVk::TransitionVulkanImageLayout(VkCommandBuffer		 cmdBuffer,
-													   VkImage				 image,
-													   uint32_t				 mipLevel,
-													   uint32_t				 arrayLayer,
-													   VkImageLayout		 oldLayout,
-													   VkImageLayout		 newLayout,
-													   VkImageAspectFlagBits aspectMask)
-	{
-		if (oldLayout == newLayout)
-		{
-			return;
-		}
-
-		VkImageMemoryBarrier barrier {};
-		barrier.sType	  = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
-
-		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-		barrier.image							= image;
-		barrier.subresourceRange.aspectMask		= aspectMask;
-		barrier.subresourceRange.baseMipLevel	= mipLevel;
-		barrier.subresourceRange.levelCount		= 1;
-		barrier.subresourceRange.baseArrayLayer = arrayLayer;
-		barrier.subresourceRange.layerCount		= 1;
-
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = 0;
-
-		m_Context.CmdPipelineBarrier(cmdBuffer,
-									 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-									 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-									 VK_DEPENDENCY_BY_REGION_BIT,
-									 0,
-									 nullptr,
-									 0,
-									 nullptr,
-									 1,
-									 &barrier);
 	}
 
 	void GraphicsDeviceVk::RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
@@ -398,51 +266,9 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceVk::SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
-	{
-		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
-		uint32_t							 queueFamilyCount;
-
-		m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
-		queueFamilyProperties.resize(queueFamilyCount);
-		m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
-
-		int graphicsIndex = -1;
-		int presentIndex  = -1;
-
-		int i = 0;
-		for (const auto &queueFamily : queueFamilyProperties)
-		{
-			if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			{
-				graphicsIndex = i;
-			}
-
-			if (queueFamily.queueCount > 0)
-			{
-				presentIndex = i;
-			}
-
-			if (graphicsIndex != -1 && presentIndex != -1)
-			{
-				break;
-			}
-			i++;
-		}
-
-		if (graphicsIndex == -1 || presentIndex == -1)
-		{
-			throw std::runtime_error("Failed to find a graphics or present queue");
-		}
-
-		m_GraphicsQueueFamilyIndex = graphicsIndex;
-		m_PresentQueueFamilyIndex  = presentIndex;
-	}
-
 	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		RetrieveQueueFamilies(physicalDevice);
-		SelectQueueFamilies(physicalDevice);
 
 		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
 
@@ -583,9 +409,6 @@ namespace Nexus::Graphics
 									 m_PhysicalDevice->GetVkPhysicalDevice(),
 									 (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance,
 									 &loaderData);
-
-		m_Context.GetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_GraphicsQueue);
-		m_Context.GetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
 	}
 
 	void GraphicsDeviceVk::CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance)
@@ -603,51 +426,6 @@ namespace Nexus::Graphics
 		if (vmaCreateAllocator(&allocatorInfo, &m_Allocator) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create VMA allocator");
-		}
-	}
-
-	void GraphicsDeviceVk::CreateCommandStructures()
-	{
-		// upload command pool
-		{
-			VkCommandPoolCreateInfo createInfo = {};
-			createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-			createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-			createInfo.queueFamilyIndex		   = m_GraphicsQueueFamilyIndex;
-			if (m_Context.CreateCommandPool(m_Device, &createInfo, nullptr, &m_UploadContext.CommandPool) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to create command pool");
-			}
-		}
-
-		// upload command buffer
-		{
-			VkCommandBufferAllocateInfo allocateInfo = {};
-			allocateInfo.sType						 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocateInfo.commandPool				 = m_UploadContext.CommandPool;
-			allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocateInfo.commandBufferCount			 = 1;
-
-			if (m_Context.AllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to allocate command buffers");
-			}
-		}
-	}
-
-	void GraphicsDeviceVk::CreateSynchronisationStructures()
-	{
-		VkFenceCreateInfo fenceCreateInfo = {};
-		fenceCreateInfo.sType			  = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceCreateInfo.flags			  = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-		semaphoreCreateInfo.sType				  = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-		semaphoreCreateInfo.flags				  = 0;
-
-		if (m_Context.CreateFence(m_Device, &fenceCreateInfo, nullptr, &m_UploadContext.UploadFence) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create fence");
 		}
 	}
 

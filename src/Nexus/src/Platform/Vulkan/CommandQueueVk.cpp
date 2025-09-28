@@ -4,6 +4,7 @@
 
 #include "CommandListVk.hpp"
 #include "FenceVk.hpp"
+#include "SwapchainVk.hpp"
 #include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -20,6 +21,32 @@ namespace Nexus::Graphics
 
 	CommandQueueVk::~CommandQueueVk()
 	{
+	}
+
+	const CommandQueueDescription &CommandQueueVk::GetDescription() const
+	{
+		return m_Description;
+	}
+
+	Ref<Swapchain> CommandQueueVk::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	{
+		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(window, m_Device, this, spec);
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
+
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+		VkBool32 presentSupport = false;
+		context.GetPhysicalDeviceSurfaceSupportKHR(physicalDeviceVk->GetVkPhysicalDevice(),
+												   m_Description.QueueFamilyIndex,
+												   swapchain->GetSurface(),
+												   &presentSupport);
+
+		if (!presentSupport)
+		{
+			throw std::runtime_error("Device is unable to present to this swapchain");
+		}
+
+		return swapchain;
 	}
 
 	void CommandQueueVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
@@ -51,12 +78,6 @@ namespace Nexus::Graphics
 		NX_VALIDATE(Vk::SubmitQueue(m_Device, m_Queue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 	}
 
-	void CommandQueueVk::Present(Ref<Swapchain> swapchain)
-	{
-		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-		swapchainVk->SwapBuffers(this);
-	}
-
 	GraphicsDevice *CommandQueueVk::GetGraphicsDevice()
 	{
 		return m_Device;
@@ -80,5 +101,10 @@ namespace Nexus::Graphics
 	VkQueue CommandQueueVk::GetVkQueue() const
 	{
 		return m_Queue;
+	}
+
+	Ref<CommandList> CommandQueueVk::CreateCommandList(const CommandListDescription &spec)
+	{
+		return CreateRef<CommandListVk>(m_Device, this, spec);
 	}
 }	 // namespace Nexus::Graphics

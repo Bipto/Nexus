@@ -100,39 +100,7 @@ namespace Nexus::Graphics
 
 		NX_VALIDATE(context.CreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS, "Failed to create image view");
 
-		// create resource states
-		{
-			for (uint32_t arrayLayer = 0; arrayLayer < spec.DepthOrArrayLayers; arrayLayer++)
-			{
-				for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_Layouts.push_back(VK_IMAGE_LAYOUT_GENERAL); }
-			}	 // namespace Nexus::Graphics
-		}
-
-		m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				for (uint32_t layer = 0; layer < m_Description.DepthOrArrayLayers; layer++)
-				{
-					for (uint32_t mip = 0; mip < m_Description.MipLevels; mip++)
-					{
-						VkImageAspectFlagBits aspectFlags = VK_IMAGE_ASPECT_NONE;
-						if (isDepth)
-						{
-							aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
-						}
-						else
-						{
-							aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
-						}
-
-						m_GraphicsDevice
-							->TransitionVulkanImageLayout(cmd, m_Image, mip, layer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL, aspectFlags);
-					}
-				}
-			});
-
 		m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Description.DebugName.c_str());
-
 		m_TextureLayouts.resize(m_Description.DepthOrArrayLayers * m_Description.MipLevels, TextureLayout::Undefined);
 	}
 
@@ -151,21 +119,6 @@ namespace Nexus::Graphics
 	VkImageView TextureVk::GetImageView()
 	{
 		return m_ImageView;
-	}
-
-	VkImageLayout TextureVk::GetImageLayout(uint32_t arrayLayer, uint32_t mipLevel)
-	{
-		NX_VALIDATE(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
-
-		return m_Layouts[arrayLayer * m_Description.MipLevels + mipLevel];
-	}
-
-	void TextureVk::SetImageLayout(uint32_t arrayLayer, uint32_t mipLevel, VkImageLayout layout)
-	{
-		NX_VALIDATE(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
-		m_Layouts[arrayLayer * m_Description.MipLevels + mipLevel] = layout;
 	}
 
 	TextureLayout TextureVk::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const

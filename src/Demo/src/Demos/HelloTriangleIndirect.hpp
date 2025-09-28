@@ -21,7 +21,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 
 			std::vector<Nexus::Graphics::VertexPosition> vertices = {
 				{{-0.5f, -0.5f, 0.0f}},	   // bottom left

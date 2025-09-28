@@ -58,10 +58,6 @@ namespace Nexus::Graphics
 
 		virtual Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
-		/// @brief A pure virtual method that creates a new command list
-		/// @return A pointer to a command list
-		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
-
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
@@ -113,8 +109,6 @@ namespace Nexus::Graphics
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
 		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
-
-		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainDescription &spec) = 0;
 
 		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
 

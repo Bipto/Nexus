@@ -10,11 +10,12 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainVk::SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainDescription &swapchainSpec)
+	SwapchainVk::SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec)
 		: Swapchain(swapchainSpec),
 		  m_Window(window)
 	{
 		m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
+		m_CommandQueue	 = (CommandQueueVk *)commandQueue;
 
 		std::shared_ptr<IPhysicalDevice>  physicalDevice   = graphicsDevice->GetPhysicalDevice();
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
@@ -41,13 +42,13 @@ namespace Nexus::Graphics
 		context.DestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
 	}
 
-	void SwapchainVk::SwapBuffers(CommandQueueVk *commandQueue)
+	void SwapchainVk::SwapBuffers()
 	{
 		NX_PROFILE_FUNCTION();
 
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		VkQueue vkQueue = commandQueue->GetVkQueue();
+		VkQueue vkQueue = m_CommandQueue->GetVkQueue();
 
 		if (!m_SwapchainValid)
 		{
@@ -60,19 +61,6 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
-
-		m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
-															  GetColourImage(),
-															  0,
-															  0,
-															  GetColorImageLayout(),
-															  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
-				SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-			});
 
 		VkPresentInfoKHR presentInfo   = {};
 		presentInfo.sType			   = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -110,6 +98,11 @@ namespace Nexus::Graphics
 	Nexus::Point2D<uint32_t> SwapchainVk::GetSize()
 	{
 		return m_Window->GetWindowSize();
+	}
+
+	VkSurfaceKHR SwapchainVk::GetSurface()
+	{
+		return m_Surface;
 	}
 
 	VkSurfaceFormatKHR SwapchainVk::GetSurfaceFormat()
@@ -291,7 +284,6 @@ namespace Nexus::Graphics
 		createInfo.imageArrayLayers			= 1;
 		createInfo.imageUsage				= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-		uint32_t queueFamilyIndices[] = {m_GraphicsDevice->m_GraphicsQueueFamilyIndex, m_GraphicsDevice->m_PresentQueueFamilyIndex};
 		if (m_SurfaceCapabilities.maxImageCount > 0 && imageCount > m_SurfaceCapabilities.maxImageCount)
 		{
 			imageCount = m_SurfaceCapabilities.maxImageCount;

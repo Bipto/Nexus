@@ -25,7 +25,7 @@ namespace Demos
 		{
 			Nexus::Ref<Nexus::Graphics::Swapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
 			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList									   = m_GraphicsDevice->CreateCommandList();
+			m_CommandList									   = m_CommandQueue->CreateCommandList();
 			m_BatchRenderer									   = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
 				   new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
 			GenerateShapes();

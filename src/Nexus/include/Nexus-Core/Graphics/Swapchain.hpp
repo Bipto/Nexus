@@ -28,6 +28,7 @@ namespace Nexus::Graphics
 		virtual Nexus::Point2D<uint32_t> GetSize()								 = 0;
 		virtual PixelFormat				 GetColourFormat()						 = 0;
 		virtual PixelFormat				 GetDepthFormat()						 = 0;
+		virtual void					 SwapBuffers()							 = 0;
 
 		const SwapchainDescription &GetDescription()
 		{

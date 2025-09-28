@@ -4,9 +4,9 @@
 
 	#include "Nexus-Core/nxpch.hpp"
 
-	#include "PhysicalDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/IWindow.hpp"
+	#include "PhysicalDeviceVk.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -18,12 +18,13 @@ namespace Nexus::Graphics
 	class SwapchainVk : public Swapchain
 	{
 	  public:
-		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainDescription &swapchainSpec);
+		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainVk();
 
-		void					 SwapBuffers(CommandQueueVk *commandQueue);
+		void					 SwapBuffers() final;
 		void					 SetPresentMode(PresentMode presentMode) final;
 		Nexus::Point2D<uint32_t> GetSize() final;
+		VkSurfaceKHR			 GetSurface();
 		VkSurfaceFormatKHR		 GetSurfaceFormat();
 		VkFormat				 GetVkDepthFormat();
 
@@ -97,7 +98,8 @@ namespace Nexus::Graphics
 		uint32_t	GetCurrentFrameIndex();
 
 	  private:
-		IWindow *m_Window;
+		IWindow		   *m_Window	   = nullptr;
+		CommandQueueVk *m_CommandQueue = nullptr;
 
 		// vulkan types
 		VkSurfaceKHR m_Surface;

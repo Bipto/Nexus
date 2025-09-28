@@ -34,7 +34,6 @@ namespace Nexus::Graphics
 		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
 		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
-		Ref<CommandList>		CreateCommandList(const CommandListDescription &spec = {}) final;
 		Ref<ResourceSet>		CreateResourceSet(Ref<Pipeline> pipeline) final;
 
 		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
@@ -51,7 +50,6 @@ namespace Nexus::Graphics
 		bool IsBufferUsageSupported(BufferUsage usage) final;
 
 		void		WaitForIdle() final;
-		void		WaitForQueueIdle(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue);
 		GraphicsAPI GetGraphicsAPI() final;
 
 		float GetUVCorrection() final
@@ -60,7 +58,6 @@ namespace Nexus::Graphics
 		}
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>				 CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
 		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
@@ -73,13 +70,9 @@ namespace Nexus::Graphics
 
 		Microsoft::WRL::ComPtr<D3D12MA::Allocator> GetAllocator();
 
-		Microsoft::WRL::ComPtr<IDXGIFactory7>			   GetDXGIFactory() const;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue>		   GetCommandQueue() const;
-		Microsoft::WRL::ComPtr<ID3D12Device9>			   GetD3D12Device() const;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GetUploadCommandList();
+		Microsoft::WRL::ComPtr<IDXGIFactory7> GetDXGIFactory() const;
+		Microsoft::WRL::ComPtr<ID3D12Device9> GetD3D12Device() const;
 
-		void SignalAndWait(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue);
-		void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
 		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 							 ID3D12Resource				*resource,
 							 uint32_t					 layer,
@@ -117,12 +110,8 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
-		void					  InitUploadCommandList();
-		void					  DispatchUploadCommandList();
-
-		void GetLimitsAndFeatures();
-
-		inline static void ReportLiveObjects();
+		void					  GetLimitsAndFeatures();
+		inline static void		  ReportLiveObjects();
 
 	  private:
 	#if defined(_DEBUG)
@@ -130,15 +119,7 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<IDXGIDebug1>	 m_DXGIDebug  = nullptr;
 	#endif
 
-		Microsoft::WRL::ComPtr<ID3D12Device9>	   m_Device		  = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue = nullptr;
-
-		Microsoft::WRL::ComPtr<ID3D12Fence1> m_Fence	  = nullptr;
-		uint64_t							 m_FenceValue = 0;
-		HANDLE								 m_FenceEvent = nullptr;
-
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	   m_UploadCommandAllocator = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_UploadCommandList		= nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Device9> m_Device = nullptr;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
 

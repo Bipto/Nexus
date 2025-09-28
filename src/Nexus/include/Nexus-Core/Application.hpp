@@ -24,6 +24,11 @@ namespace Nexus
 	/// @return A pointer to an audio device
 	static Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api);
 
+	struct CommandQueueGroup
+	{
+		Ref<Graphics::ICommandQueue> GraphicsQueue = nullptr;
+	};
+
 	/// @brief A class representing an application
 	class NX_API Application
 	{
@@ -116,6 +121,8 @@ namespace Nexus
 		/// @return A pointer to a graphics device
 		Graphics::GraphicsDevice *GetGraphicsDevice();
 
+		Ref<Graphics::ICommandQueue> GetGraphicsCommandQueue();
+
 		/// @brief A method that returns a pointer to the application's audio device
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
@@ -131,6 +138,8 @@ namespace Nexus
 
 		/// @brief A pointer to a graphics device
 		std::unique_ptr<Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
+
+		CommandQueueGroup m_CommandQueueGroup = {};
 
 		/// @brief A pointer to an audio device
 		std::unique_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;

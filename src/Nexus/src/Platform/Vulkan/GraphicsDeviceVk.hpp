@@ -11,13 +11,6 @@
 
 namespace Nexus::Graphics
 {
-	struct UploadContext
-	{
-		VkFence			UploadFence;
-		VkCommandPool	CommandPool;
-		VkCommandBuffer CommandBuffer;
-	};
-
 	struct VulkanDeviceConfig
 	{
 		bool Debug							= false;
@@ -46,7 +39,6 @@ namespace Nexus::Graphics
 		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		Ref<CommandList>			CreateCommandList(const CommandListDescription &spec = {}) final;
 		Ref<ResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
 		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
 		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
@@ -56,10 +48,9 @@ namespace Nexus::Graphics
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>				 CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
 		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
+		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
 
@@ -81,19 +72,9 @@ namespace Nexus::Graphics
 
 		VkInstance	 GetVkInstance();
 		VkDevice	 GetVkDevice();
-		uint32_t	 GetGraphicsFamily();
-		uint32_t	 GetPresentFamily();
 		uint32_t	 GetCurrentFrameIndex();
 		VmaAllocator GetAllocator();
 
-		void				ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
-		void				TransitionVulkanImageLayout(VkCommandBuffer		  cmdBuffer,
-														VkImage				  image,
-														uint32_t			  mipLevel,
-														uint32_t			  arrayLayer,
-														VkImageLayout		  oldLayout,
-														VkImageLayout		  newLayout,
-														VkImageAspectFlagBits aspectMask);
 		uint32_t			FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
@@ -118,12 +99,8 @@ namespace Nexus::Graphics
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 
 		void RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
-		void SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
-
-		void CreateCommandStructures();
-		void CreateSynchronisationStructures();
 
 	  private:
 		// utility functions
@@ -145,21 +122,11 @@ namespace Nexus::Graphics
 	  private:
 		std::shared_ptr<PhysicalDeviceVk> m_PhysicalDevice = nullptr;
 		VkInstance						  m_Instance	   = nullptr;
-
-		std::vector<QueueFamilyInfo> m_QueueFamilies = {};
-
-		uint32_t m_GraphicsQueueFamilyIndex;
-		uint32_t m_PresentQueueFamilyIndex;
-
-		VkDevice m_Device		 = VK_NULL_HANDLE;
-		VkQueue	 m_GraphicsQueue = VK_NULL_HANDLE;
-		VkQueue	 m_PresentQueue	 = VK_NULL_HANDLE;
+		VkDevice						  m_Device		   = VK_NULL_HANDLE;
+		std::vector<QueueFamilyInfo>	  m_QueueFamilies  = {};
 
 		// VMA types
 		VmaAllocator m_Allocator;
-
-		// vulkan upload context
-		UploadContext m_UploadContext;
 
 		uint32_t						   m_FrameNumber	   = 0;
 		uint32_t						   m_CurrentFrameIndex = 0;

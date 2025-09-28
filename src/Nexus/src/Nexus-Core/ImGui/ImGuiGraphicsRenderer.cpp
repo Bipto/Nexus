@@ -85,7 +85,7 @@ namespace Nexus::ImGuiUtils
 
 		Nexus::Graphics::CommandListDescription commandListDesc = {};
 		commandListDesc.DebugName								= "ImGui CommandList";
-		m_CommandList											= m_GraphicsDevice->CreateCommandList(commandListDesc);
+		m_CommandList											= m_CommandQueue->CreateCommandList(commandListDesc);
 
 		auto vertexSource	= GetImGuiShaderVertexSource();
 		auto fragmentSource = GetImGuiShaderFragmentSource();
@@ -267,7 +267,7 @@ namespace Nexus::ImGuiUtils
 						if (swapchain)
 						{
 							RenderDrawData(platform_io.Viewports[i]->DrawData);
-							m_CommandQueue->Present(swapchain);
+							swapchain->SwapBuffers();
 						}
 					}
 				}
@@ -680,7 +680,7 @@ namespace Nexus::ImGuiUtils
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
-			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
+			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(window, swapchainSpec);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;

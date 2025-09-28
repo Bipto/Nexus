@@ -422,6 +422,7 @@ namespace Nexus::Graphics
 	struct CommandListDescription
 	{
 		std::string DebugName = "CommandList";
+		bool AutomaticBarrierTransitions = true;
 	};
 
 	/// @brief A class representing a command list

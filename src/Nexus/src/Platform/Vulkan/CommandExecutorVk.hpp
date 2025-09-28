@@ -62,7 +62,6 @@ namespace Nexus::Graphics
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
 		void StopRendering();
-		void TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer);
 		bool ValidateIsRendering();
 
 		void BindGraphicsPipeline();
