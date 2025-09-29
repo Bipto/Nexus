@@ -53,21 +53,21 @@ namespace Demos
 			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
-			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
+			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription instanceBufferDesc = {};
 			instanceBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
 			instanceBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Vertex;
 			instanceBufferDesc.StrideInBytes							= sizeof(glm::mat4);
 			instanceBufferDesc.SizeInBytes								= m_InstanceCount * sizeof(glm::mat4);
-			m_InstanceBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(instanceBufferDesc));
+			m_InstanceBuffer											= m_GraphicsDevice->CreateDeviceBuffer(instanceBufferDesc);
 
 			std::vector<glm::mat4> mvps(m_InstanceCount);
-			for (uint32_t i = 0; i < m_InstanceCount; i++) { mvps[i] = glm::translate(glm::mat4(1.0f), glm::vec3(i * 2.0f, 0.0f, 2.5f)); }
+			for (uint32_t i = 0; i < m_InstanceCount; i++) { mvps[i] = glm::translate(glm::mat4(1.0f), glm::vec3(i * 2.0f, 0.0f, -2.5f)); }
 			m_InstanceBuffer->SetData(mvps.data(), 0, mvps.size() * sizeof(glm::mat4));
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -183,14 +183,6 @@ namespace Demos
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/instancing.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 
-			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
-																 {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
-																sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING),
-																Nexus::Graphics::StepRate::Vertex};
-
 			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
 																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
 																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
@@ -198,7 +190,7 @@ namespace Demos
 																  sizeof(glm::mat4),
 																  Nexus::Graphics::StepRate::Instance};
 
-			pipelineDescription.Layouts = {vertexLayout, instanceLayout};
+			pipelineDescription.Layouts = {{Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()}, instanceLayout};
 
 			pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
 			pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = true;

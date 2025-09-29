@@ -60,7 +60,7 @@ namespace Demos
 			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override

@@ -35,10 +35,11 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_SceneRenderer = std::make_unique<Nexus::Graphics::SceneRenderer>(GetGraphicsDevice());
+		m_SceneRenderer = std::make_unique<Nexus::Graphics::SceneRenderer>(GetGraphicsDevice(), GetGraphicsCommandQueue());
 
 		// TODO: Fix this
-		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this, nullptr));
+		m_ImGuiRenderer =
+			std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this, GetGraphicsCommandQueue()));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
@@ -642,7 +643,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.GraphicsCreateInfo.Debug = true;
 	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
@@ -653,8 +654,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = 60;
 	spec.WindowProperties.UpdatesPerSecond = 60;
 
-	spec.SwapchainDescription.Samples	   = 8;
-	spec.SwapchainDescription.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+	spec.SwapchainDescription.Samples		   = 8;
+	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Fifo;
 
 	return new EditorApplication(spec);
 }
