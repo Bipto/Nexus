@@ -8,14 +8,21 @@
 #include "Nexus-Core/Scripting/NativeScript.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
+#include "Nexus-Core/Graphics/CommandQueue.hpp"
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+
 const std::string DefaultSceneName = "UntitledScene";
 
 namespace Nexus
 {
-	Project::Project(const std::string &name, const std::string &directory, bool createDefaultScene)
+	Project::Project(Graphics::GraphicsDevice	 *device,
+					 Ref<Graphics::ICommandQueue> commandQueue,
+					 const std::string			 &name,
+					 const std::string			 &directory,
+					 bool						  createDefaultScene)
 		: m_Name(name),
 		  m_RootDirectory(directory + std::string("\\") + name),
-		  m_AssetManager(std::make_unique<AssetManager>(Nexus::GetApplication()->GetGraphicsDevice(), this))
+		  m_AssetManager(std::make_unique<AssetManager>(device, commandQueue, this))
 	{
 		m_SceneDirectory   = "\\Scenes\\";
 		m_AssetsDirectory  = "\\Assets\\";
@@ -45,7 +52,7 @@ namespace Nexus
 		Nexus::FileSystem::CreateFileDirectory(assetsDirectory);
 	}
 
-	Ref<Project> Project::Deserialize(const std::string &filepath)
+	Ref<Project> Project::Deserialize(const std::string &filepath, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		std::string directory = std::filesystem::path(filepath).parent_path().string();
 
@@ -79,8 +86,8 @@ namespace Nexus
 		{
 			for (auto asset : assets)
 			{
-				GUID		assetId	 = GUID(asset["ID"].as<uint64_t>());
-				std::string filepath = asset["Filepath"].as<std::string>();
+				GUID		assetId	  = GUID(asset["ID"].as<uint64_t>());
+				std::string filepath  = asset["Filepath"].as<std::string>();
 				std::string processor = asset["Processor"].as<std::string>();
 				project->m_AssetRegistry.RegisterAsset(processor, filepath, assetId);
 			}
@@ -88,7 +95,7 @@ namespace Nexus
 
 		project->LoadSharedLibrary();
 		project->LoadDataFromSharedLibrary();
-		project->LoadScene(project->m_StartupScene);
+		project->LoadScene(project->m_StartupScene, device, commandQueue);
 
 		return project;
 	}
@@ -108,24 +115,24 @@ namespace Nexus
 		return m_LoadedScene != nullptr;
 	}
 
-	void Project::LoadScene(uint32_t index)
+	void Project::LoadScene(uint32_t index, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		if (m_Scenes.size() > index)
 		{
 			const SceneInfo &info  = m_Scenes.at(index);
-			Scene			*scene = Scene::Deserialize(info, GetFullSceneDirectory(), this);
+			Scene			*scene = Scene::Deserialize(info, GetFullSceneDirectory(), this, device, commandQueue);
 			m_LoadedScene		   = std::unique_ptr<Scene>(scene);
 		}
 	}
 
-	void Project::LoadScene(const std::string &name)
+	void Project::LoadScene(const std::string &name, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		for (size_t i = 0; i < m_Scenes.size(); i++)
 		{
 			const auto &sceneInfo = m_Scenes.at(i);
 			if (sceneInfo.Name == name)
 			{
-				LoadScene(i);
+				LoadScene(i, device, commandQueue);
 				return;
 			}
 		}
@@ -141,15 +148,15 @@ namespace Nexus
 		info.Path = path;
 		m_Scenes.push_back(info);
 
-		m_LoadedScene		   = std::make_unique<Scene>();
-		m_LoadedScene->Guid	   = info.Guid;
-		m_LoadedScene->Name	   = info.Name;
+		m_LoadedScene				 = std::make_unique<Scene>();
+		m_LoadedScene->Guid			 = info.Guid;
+		m_LoadedScene->Name			 = info.Name;
 		m_LoadedScene->ParentProject = this;
 	}
 
-	void Project::ReloadCurrentScene()
+	void Project::ReloadCurrentScene(Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
-		LoadScene(m_LoadedScene->Name);
+		LoadScene(m_LoadedScene->Name, device, commandQueue);
 	}
 
 	void Project::OnUpdate(TimeSpan time)
@@ -217,7 +224,7 @@ namespace Nexus
 
 		if (m_Library)
 		{
-			typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc);
+			typedef void		  (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc);
 			SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
 			if (func)
 			{
@@ -329,7 +336,7 @@ namespace Nexus
 	void Project::LoadAvailableAssetProcessors()
 	{
 		typedef std::map<std::string, Processors::ProcessorInfo> &(*GetAssetProcessorRegistryFunc)();
-		std::map<std::string, Processors::ProcessorInfo> processors = Nexus::Processors::GetAssetProcessorRegistry();
+		std::map<std::string, Processors::ProcessorInfo>		  processors = Nexus::Processors::GetAssetProcessorRegistry();
 
 		if (m_Library)
 		{

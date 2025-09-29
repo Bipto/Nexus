@@ -47,11 +47,11 @@ namespace Nexus::Graphics
 	struct BatchInfo
 	{
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> Pipeline	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  ResourceSet = nullptr;
 
-		std::vector<Nexus::Graphics::BatchVertex>			Vertices;
-		std::vector<uint32_t>								Indices;
-		std::vector<Nexus::Ref<Nexus::Graphics::Texture>>	Textures;
+		std::vector<Nexus::Graphics::BatchVertex>		  Vertices;
+		std::vector<uint32_t>							  Indices;
+		std::vector<Nexus::Ref<Nexus::Graphics::Texture>> Textures;
 
 		uint32_t ShapeCount	 = 0;
 		uint32_t VertexCount = 0;
@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 	class NX_API BatchRenderer
 	{
 	  public:
-		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, uint32_t sampleCount);
+		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount);
 
 		void Resize();
 
@@ -154,14 +154,15 @@ namespace Nexus::Graphics
 		void PerformDraw(BatchInfo &info);
 
 	  private:
-		Nexus::Graphics::GraphicsDevice			*m_Device	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler	   = nullptr;
-		bool									 m_IsStarted   = false;
+		Nexus::Graphics::GraphicsDevice			*m_Device		= nullptr;
+		Ref<Graphics::ICommandQueue>			 m_CommandQueue = nullptr;
+		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler		= nullptr;
+		bool									 m_IsStarted	= false;
 
-		Nexus::Ref<Nexus::Graphics::Texture>	   m_BlankTexture		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_UniformUploadBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_UniformBuffer		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>	  m_BlankTexture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformUploadBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer		= nullptr;
 
 		uint32_t					  m_Width  = 0;
 		uint32_t					  m_Height = 0;

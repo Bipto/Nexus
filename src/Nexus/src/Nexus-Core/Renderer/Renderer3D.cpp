@@ -39,14 +39,14 @@ layout(location = 0) out vec3 OutTexCoord;
 
 layout(binding = 0, set = 0) uniform Camera
 {
-    mat4 u_View;
-    mat4 u_Projection;
+	mat4 u_View;
+	mat4 u_Projection;
 };
 
 void main()
 {
-    OutTexCoord = Position;
-    gl_Position = u_Projection * u_View * vec4(Position, 1.0);
+	OutTexCoord = Position;
+	gl_Position = u_Projection * u_View * vec4(Position, 1.0);
 }
 )";
 
@@ -62,7 +62,7 @@ layout(binding = 0, set = 1) uniform samplerCube skybox;
 
 void main()
 {
-    FragColor = texture(skybox, OutTexCoord);
+	FragColor = texture(skybox, OutTexCoord);
 	EntityID = uvec2(0, 0);
 }
 )";
@@ -88,14 +88,14 @@ layout (location = 7) out mat3 TBN;
 
 layout (std140, binding = 0, set = 0) uniform Camera
 {
-    mat4 u_View;
-    mat4 u_Projection;
-    vec3 u_ViewPos;
+	mat4 u_View;
+	mat4 u_Projection;
+	vec3 u_ViewPos;
 };
 
 layout (std140,binding = 1, set = 0) uniform Transform
 {
-    mat4 u_Transform;
+	mat4 u_Transform;
 	vec4 u_DiffuseColour;
 	vec4 u_SpecularColour;
 	uint u_Guid1;
@@ -104,19 +104,19 @@ layout (std140,binding = 1, set = 0) uniform Transform
 
 void main()
 {
-    gl_Position = u_Projection * u_View * u_Transform * vec4(Position, 1.0);
-    OutTexCoord = TexCoord;
-    OutNormal = mat3(transpose(inverse(u_Transform))) * Normal;
-    FragPos = vec3(u_Transform * vec4(Position, 1.0));
-    ViewPos = u_ViewPos;
+	gl_Position = u_Projection * u_View * u_Transform * vec4(Position, 1.0);
+	OutTexCoord = TexCoord;
+	OutNormal = mat3(transpose(inverse(u_Transform))) * Normal;
+	FragPos = vec3(u_Transform * vec4(Position, 1.0));
+	ViewPos = u_ViewPos;
 
 	VertexDiffuseColour = VertexColour;
 	MaterialDiffuseColour = u_DiffuseColour;
 
-    vec3 T = normalize(vec3(u_Transform * vec4(Tangent, 0.0)));
-    vec3 B = normalize(vec3(u_Transform * vec4(Bitangent, 0.0)));
-    vec3 N = normalize(vec3(u_Transform * vec4(Normal, 0.0)));
-    TBN = mat3(T, B, N);
+	vec3 T = normalize(vec3(u_Transform * vec4(Tangent, 0.0)));
+	vec3 B = normalize(vec3(u_Transform * vec4(Bitangent, 0.0)));
+	vec3 N = normalize(vec3(u_Transform * vec4(Normal, 0.0)));
+	TBN = mat3(T, B, N);
 
 	EntityID = uvec2(u_Guid1, u_Guid2);
 }
@@ -144,31 +144,35 @@ layout (binding = 2, set = 1) uniform sampler2D specularMapSampler;
 void main()
 {
 	vec4 objectColor = texture(diffuseMapSampler, OutTexCoord) * VertexDiffuseColour * MaterialDiffuseColour;
-    FragColor = vec4(objectColor.rgb, objectColor.a);
+	FragColor = vec4(objectColor.rgb, objectColor.a);
 	o_EntityID = EntityID;
 })";
 
 namespace Nexus::Graphics
 {
-	Renderer3D::Renderer3D(GraphicsDevice *device) : m_Device(device), m_Camera(m_Device), m_FullscreenQuad(m_Device, false)
+	Renderer3D::Renderer3D(GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+		: m_Device(device),
+		  m_CommandQueue(commandQueue),
+		  m_Camera(m_Device),
+		  m_FullscreenQuad(m_Device, commandQueue, false)
 	{
-		m_CommandList = m_Device->CreateCommandList();
+		m_CommandList = m_CommandQueue->CreateCommandList();
 
 		CreateClearGBufferPipeline();
 		CreateCubemapPipeline();
 		CreateModelPipeline();
 
-		Nexus::Graphics::MeshFactory factory(m_Device);
+		Nexus::Graphics::MeshFactory factory(m_Device, m_CommandQueue);
 		m_Cube = factory.CreateCube();
 
-		Graphics::TextureDescription textureSpec   = {};
-		textureSpec.Width						   = 1;
-		textureSpec.Height						   = 1;
-		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
-		m_DefaultTexture						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+		Graphics::TextureDescription textureSpec = {};
+		textureSpec.Width						 = 1;
+		textureSpec.Height						 = 1;
+		textureSpec.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
+		m_DefaultTexture						 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 		uint32_t colour = 0xFFFFFFFF;
-		m_Device->WriteToTexture(m_DefaultTexture, 0, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
+		m_Device->WriteToTexture(m_DefaultTexture, m_CommandQueue, 0, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
 	}
 
 	Renderer3D::~Renderer3D()
@@ -238,7 +242,7 @@ namespace Nexus::Graphics
 			});
 
 		m_CommandList->End();
-		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 		m_Device->WaitForIdle();
 	}
 
@@ -271,9 +275,10 @@ namespace Nexus::Graphics
 
 		const Environment &environment = m_Scene->SceneEnvironment;
 
-		m_CommandList->ClearColorTarget(0,
-										{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
-		m_CommandList->ClearColorTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
+		m_CommandList->ClearColourTarget(
+			0,
+			{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
+		m_CommandList->ClearColourTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
 
 		m_CommandList->ClearDepthTarget(Nexus::Graphics::ClearDepthStencilValue {});
 
@@ -316,7 +321,7 @@ namespace Nexus::Graphics
 
 		m_CommandList->End();
 
-		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid)
@@ -476,14 +481,15 @@ namespace Nexus::Graphics
 		m_CommandList->Draw(drawDesc);
 
 		m_CommandList->End();
-		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void Renderer3D::CreateCubemapPipeline()
 	{
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
-		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
-		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+		pipelineDescription.RasterizerStateDesc.TriangleCullMode		 = Nexus::Graphics::CullMode::Back;
+		pipelineDescription.RasterizerStateDesc.TriangleFrontFace		 = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.VertexModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_CubemapVertexShader, "cubemap.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		pipelineDescription.FragmentModule =
@@ -510,21 +516,21 @@ namespace Nexus::Graphics
 		cubemapBufferDesc.SizeInBytes			  = sizeof(CubemapCameraUniforms);
 		m_CubemapUniformBuffer					  = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cubemapBufferDesc));
 
-		Nexus::Graphics::SamplerDescription samplerSpec	  = {};
-		samplerSpec.AddressModeU						  = Nexus::Graphics::SamplerAddressMode::Clamp;
-		samplerSpec.AddressModeV						  = Nexus::Graphics::SamplerAddressMode::Clamp;
-		samplerSpec.AddressModeW						  = Nexus::Graphics::SamplerAddressMode::Clamp;
-		m_CubemapSampler								  = m_Device->CreateSampler(samplerSpec);
+		Nexus::Graphics::SamplerDescription samplerSpec = {};
+		samplerSpec.AddressModeU						= Nexus::Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeV						= Nexus::Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeW						= Nexus::Graphics::SamplerAddressMode::Clamp;
+		m_CubemapSampler								= m_Device->CreateSampler(samplerSpec);
 	}
 
 	void Renderer3D::CreateModelPipeline()
 	{
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
-		pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::Back;
-		pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::CounterClockwise;
-		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
-		pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = true;
-		pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+		pipelineDescription.RasterizerStateDesc.TriangleCullMode		 = Nexus::Graphics::CullMode::Back;
+		pipelineDescription.RasterizerStateDesc.TriangleFrontFace		 = Nexus::Graphics::FrontFace::CounterClockwise;
+		pipelineDescription.DepthStencilDesc.EnableDepthTest			 = true;
+		pipelineDescription.DepthStencilDesc.EnableDepthWrite			 = true;
+		pipelineDescription.DepthStencilDesc.DepthComparisonFunction	 = Nexus::Graphics::ComparisonFunction::Less;
 
 		pipelineDescription.VertexModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ModelVertexShader, "model.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
@@ -558,21 +564,21 @@ namespace Nexus::Graphics
 			m_ModelCameraUniformBuffer				 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraBufferDesc));
 		}
 
-		Nexus::Graphics::SamplerDescription samplerSpec	  = {};
-		samplerSpec.AddressModeU						  = Nexus::Graphics::SamplerAddressMode::Clamp;
-		samplerSpec.AddressModeV						  = Nexus::Graphics::SamplerAddressMode::Clamp;
-		samplerSpec.AddressModeW						  = Nexus::Graphics::SamplerAddressMode::Clamp;
-		m_ModelSampler									  = m_Device->CreateSampler(samplerSpec);
+		Nexus::Graphics::SamplerDescription samplerSpec = {};
+		samplerSpec.AddressModeU						= Nexus::Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeV						= Nexus::Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeW						= Nexus::Graphics::SamplerAddressMode::Clamp;
+		m_ModelSampler									= m_Device->CreateSampler(samplerSpec);
 	}
 
 	void Renderer3D::CreateClearGBufferPipeline()
 	{
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
-		pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::Back;
-		pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::Clockwise;
-		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
-		pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = true;
-		pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+		pipelineDescription.RasterizerStateDesc.TriangleCullMode		 = Nexus::Graphics::CullMode::Back;
+		pipelineDescription.RasterizerStateDesc.TriangleFrontFace		 = Nexus::Graphics::FrontFace::Clockwise;
+		pipelineDescription.DepthStencilDesc.EnableDepthTest			 = true;
+		pipelineDescription.DepthStencilDesc.EnableDepthWrite			 = true;
+		pipelineDescription.DepthStencilDesc.DepthComparisonFunction	 = Nexus::Graphics::ComparisonFunction::Less;
 
 		pipelineDescription.VertexModule   = m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ClearGBufferVertexShader,
 																							  "clearscreen.vert.glsl",

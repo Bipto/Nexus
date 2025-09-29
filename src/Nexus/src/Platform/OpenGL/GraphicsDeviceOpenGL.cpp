@@ -3,6 +3,7 @@
 	#include "GraphicsDeviceOpenGL.hpp"
 
 	#include "CommandListOpenGL.hpp"
+	#include "CommandQueueOpenGL.hpp"
 	#include "DeviceBufferOpenGL.hpp"
 	#include "FenceOpenGL.hpp"
 	#include "PipelineOpenGL.hpp"
@@ -17,7 +18,7 @@
 
 namespace Nexus::Graphics
 {
-	void glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+	static void glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 	{
 		if (type == GL_DEBUG_TYPE_ERROR)
 		{
@@ -33,11 +34,14 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
+				// retrieve available extensions
 				m_Extensions = GetSupportedExtensions(context);
 
+				// retrieve API and graphics adapter name
 				m_APIName	   = std::string("OpenGL - ") + std::string((const char *)context.GetString(GL_VERSION));
 				m_RendererName = (const char *)context.GetString(GL_RENDERER);
 
+			// enable debugging if available
 	#if !defined(__EMSCRIPTEN__)
 				if (enableDebug)
 				{
@@ -51,22 +55,6 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
 	{
-	}
-
-	void GraphicsDeviceOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			Ref<CommandListOpenGL>								   commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			m_CommandExecutor.ExecuteCommands(commands, this);
-			m_CommandExecutor.Reset();
-		}
-
-		GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
-		offscreenContext->MakeCurrent();
 	}
 
 	const std::string GraphicsDeviceOpenGL::GetAPIName()
@@ -171,12 +159,6 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
-	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListDescription &spec)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<CommandListOpenGL>(spec);
-	}
-
 	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
@@ -224,12 +206,6 @@ namespace Nexus::Graphics
 	#endif
 
 		return capabilities;
-	}
-
-	Ref<Swapchain> GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
-	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<SwapchainOpenGL>(window, spec, this);
 	}
 
 	Ref<Fence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
@@ -298,6 +274,33 @@ namespace Nexus::Graphics
 		return FenceWaitResult::Failed;
 	}
 
+	std::vector<QueueFamilyInfo> GraphicsDeviceOpenGL::GetQueueFamilies()
+	{
+		std::vector<QueueFamilyInfo> queueFamilies = {};
+
+		QueueFamilyInfo &info = queueFamilies.emplace_back();
+		info.QueueFamily	  = 0;
+		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
+		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
+
+		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				if (context.ARB_sparse_buffer && context.ARB_sparse_texture)
+				{
+					info.Capabilities = QueueCapabilities(info.Capabilities | QueueCapabilities::SparseBinding);
+				}
+			});
+
+		return queueFamilies;
+	}
+
+	Ref<ICommandQueue> GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
+	{
+		return CreateRef<CommandQueueOpenGL>(this, description);
+	}
+
 	void GraphicsDeviceOpenGL::ResetFences(Ref<Fence> *fences, uint32_t count)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
@@ -330,7 +333,6 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceOpenGL::WaitForIdle()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.Finish(); });
 	}
 
 	GraphicsAPI GraphicsDeviceOpenGL::GetGraphicsAPI()

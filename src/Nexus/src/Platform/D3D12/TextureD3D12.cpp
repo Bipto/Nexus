@@ -66,6 +66,11 @@ namespace Nexus::Graphics
 	{
 	}
 
+	TextureLayout TextureD3D12::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
+	{
+		return TextureLayout();
+	}
+
 	DXGI_FORMAT TextureD3D12::GetFormat()
 	{
 		return m_TextureFormat;

@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 		std::string Name;
 
 		/// @brief The type of the element
-		ShaderDataType Type;
+		ShaderDataType Type = ShaderDataType::Invalid;
 
 		/// @brief The total size of the element
 		uint32_t Size = 0;

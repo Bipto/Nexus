@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/nxpch.hpp"
 	#include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
+	#include "Nexus-Core/nxpch.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -24,6 +24,7 @@ namespace Nexus::Graphics
 		GraphicsAPICreateInfo	 m_CreateInfo	  = {};
 		VkInstance				 m_Instance		  = {};
 		VkDebugUtilsMessengerEXT m_DebugMessenger = {};
+		GladVulkanContext		 m_Context		  = {};
 	};
 }	 // namespace Nexus::Graphics
 

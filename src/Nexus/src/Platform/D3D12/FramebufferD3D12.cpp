@@ -68,7 +68,7 @@ namespace Nexus::Graphics
 
 	void FramebufferD3D12::Recreate()
 	{
-		auto d3d12Device = m_Device->GetDevice();
+		auto d3d12Device = m_Device->GetD3D12Device();
 
 		CreateAttachments();
 		CreateRTVs();
@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 
 	void FramebufferD3D12::Flush()
 	{
-		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->SignalAndWait(); }
+		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->WaitForIdle(); }
 	}
 
 	const FramebufferSpecification FramebufferD3D12::GetFramebufferSpecification()
@@ -93,12 +93,12 @@ namespace Nexus::Graphics
 			NX_VALIDATE(GetPixelFormatType(colorAttachmentSpec.TextureFormat) == Graphics::PixelFormatType::Colour,
 						"Depth attachment must have a valid colour format");
 
-			Graphics::TextureDescription spec	= {};
-			spec.Width							= m_Description.Width;
-			spec.Height							= m_Description.Height;
-			spec.Format							= colorAttachmentSpec.TextureFormat;
-			spec.Samples						= m_Description.Samples;
-			spec.Usage							= Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
+			Graphics::TextureDescription spec = {};
+			spec.Width						  = m_Description.Width;
+			spec.Height						  = m_Description.Height;
+			spec.Format						  = colorAttachmentSpec.TextureFormat;
+			spec.Samples					  = m_Description.Samples;
+			spec.Usage						  = Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
 
 			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
 			m_ColorAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(texture));
@@ -123,7 +123,7 @@ namespace Nexus::Graphics
 
 	void FramebufferD3D12::CreateRTVs()
 	{
-		auto d3d12Device = m_Device->GetDevice();
+		auto d3d12Device = m_Device->GetD3D12Device();
 
 		// create descriptor heaps
 		D3D12_DESCRIPTOR_HEAP_DESC colorDescriptorHeapDesc;

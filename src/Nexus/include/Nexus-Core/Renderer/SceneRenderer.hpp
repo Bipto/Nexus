@@ -12,13 +12,14 @@ namespace Nexus::Graphics
 	class NX_API SceneRenderer
 	{
 	  public:
-		SceneRenderer(GraphicsDevice *device);
+		SceneRenderer(GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		~SceneRenderer() = default;
 		void						   Render(Scene *scene, RenderTarget &target, TimeSpan time);
 		const Nexus::FirstPersonCamera GetCamera() const;
 
 	  private:
 		Graphics::GraphicsDevice					   *m_Device		= nullptr;
+		Ref<Graphics::ICommandQueue>					m_CommandQueue	= nullptr;
 		std::unique_ptr<Nexus::Graphics::Renderer3D>	m_Renderer3D	= nullptr;
 		std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 	};

@@ -16,9 +16,11 @@ namespace Demos
 	class CubemapDemo : public Demo
 	{
 	  public:
-		CubemapDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer),
-			  m_Camera(m_GraphicsDevice)
+		CubemapDemo(const std::string						  &name,
+					Nexus::Application						  *app,
+					Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
+					Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -28,7 +30,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 
 			CreatePipeline();
 
@@ -48,11 +50,12 @@ namespace Demos
 			samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint;
 			m_Sampler				 = m_GraphicsDevice->CreateSampler(samplerSpec);
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Cube = factory.CreateCube();
 
 			Nexus::Graphics::HdriProcessor processor(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/hdri/hangar_interior_4k.hdr"),
-													 m_GraphicsDevice);
+													 m_GraphicsDevice,
+													 m_CommandQueue);
 			m_Cubemap = processor.Generate(2048);
 		}
 
@@ -82,7 +85,7 @@ namespace Demos
 			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 			m_CommandList->SetScissor(scissor);
 
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			Nexus::Graphics::ClearDepthStencilValue clearDepth {};
 			m_CommandList->ClearDepthTarget(clearDepth);
@@ -121,7 +124,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -167,12 +170,12 @@ namespace Demos
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet;
 
 		Nexus::Ref<Nexus::Graphics::Mesh> m_Cube;
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA			  m_CameraUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

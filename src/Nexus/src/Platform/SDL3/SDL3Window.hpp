@@ -9,7 +9,7 @@ namespace Nexus
 	class SDL3Window : public IWindow
 	{
 	  public:
-		SDL3Window(const WindowSpecification &windowProps);
+		SDL3Window(const WindowDescription &windowProps);
 		SDL3Window(const SDL3Window &) = delete;
 		virtual ~SDL3Window();
 
@@ -191,14 +191,14 @@ namespace Nexus
 		/// window
 		/// @param api The graphics API to create the swapchain
 		/// @return An unsigned int representing the flags
-		uint32_t GetFlags(const WindowSpecification &windowSpec);
+		uint32_t GetFlags(const WindowDescription &windowSpec);
 
 		void SetupTimer();
 
-		const WindowSpecification &GetDescription() const;
+		const WindowDescription &GetDescription() const;
 
 	  private:
-		WindowSpecification m_Description = {};
+		WindowDescription m_Description = {};
 
 		/// @brief A pointer to the underlying SDL window
 		SDL_Window *m_Window;

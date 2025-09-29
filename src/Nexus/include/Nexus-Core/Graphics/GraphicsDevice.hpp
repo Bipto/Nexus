@@ -4,6 +4,7 @@
 
 #include "AccelerationStructure.hpp"
 #include "CommandList.hpp"
+#include "CommandQueue.hpp"
 #include "DeviceBuffer.hpp"
 #include "Fence.hpp"
 #include "Framebuffer.hpp"
@@ -34,9 +35,7 @@ namespace Nexus::Graphics
 		GraphicsDevice() = default;
 
 		/// @brief A virtual destructor allowing resources to be deleted
-		virtual ~GraphicsDevice()
-		{
-		}
+		virtual ~GraphicsDevice() = default;
 
 		/// @brief Copying a GraphicsDevice is not supported
 		/// @param Another GraphicsDevice taken by const reference
@@ -46,14 +45,6 @@ namespace Nexus::Graphics
 		/// a string
 		/// @return A string containing the API name
 		virtual const std::string GetAPIName() = 0;
-
-		void SubmitCommandList(Ref<CommandList> commandList);
-
-		void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence);
-
-		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists);
-
-		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
 
 		/// @brief A pure virtual method that creates a pipeline from a given pipeline
 		/// description
@@ -67,19 +58,15 @@ namespace Nexus::Graphics
 
 		virtual Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
-		/// @brief A pure virtual method that creates a new command list
-		/// @return A pointer to a command list
-		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
-
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture> CreateTexture2D(const char *filepath, bool generateMips, bool srgb = false);
+		Ref<Texture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb = false);
 
 		/// @brief A method that loads a new texture from an image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture> CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb = false);
+		Ref<Texture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb = false);
 
 		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
@@ -123,13 +110,15 @@ namespace Nexus::Graphics
 
 		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
 
-		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
-
 		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
 
 		virtual FenceWaitResult WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
 
 		virtual void ResetFences(Ref<Fence> *fences, uint32_t count) = 0;
+
+		virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
+
+		virtual Ref<ICommandQueue> CreateCommandQueue(const CommandQueueDescription &description) = 0;
 
 		Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
@@ -139,27 +128,27 @@ namespace Nexus::Graphics
 
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
-		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
+		void WriteToTexture(Ref<Texture>	   texture,
+							Ref<ICommandQueue> commandQueue,
+							uint32_t		   arrayLayer,
+							uint32_t		   mipLevel,
+							uint32_t		   x,
+							uint32_t		   y,
+							uint32_t		   z,
+							uint32_t		   width,
+							uint32_t		   height,
+							const void		  *data,
+							size_t			   size);
 
-		void WriteToTexture(Ref<Texture> texture,
-							uint32_t	 arrayLayer,
-							uint32_t	 mipLevel,
-							uint32_t	 x,
-							uint32_t	 y,
-							uint32_t	 z,
-							uint32_t	 width,
-							uint32_t	 height,
-							const void	*data,
-							size_t		 size);
-
-		std::vector<char> ReadFromTexture(Ref<Texture> texture,
-										  uint32_t	   arrayLayer,
-										  uint32_t	   mipLevel,
-										  uint32_t	   x,
-										  uint32_t	   y,
-										  uint32_t	   z,
-										  uint32_t	   width,
-										  uint32_t	   height);
+		std::vector<char> ReadFromTexture(Ref<Texture>		 texture,
+										  Ref<ICommandQueue> commandQueue,
+										  uint32_t			 arrayLayer,
+										  uint32_t			 mipLevel,
+										  uint32_t			 x,
+										  uint32_t			 y,
+										  uint32_t			 z,
+										  uint32_t			 width,
+										  uint32_t			 height);
 
 		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;

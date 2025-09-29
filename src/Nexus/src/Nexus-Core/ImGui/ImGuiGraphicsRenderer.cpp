@@ -7,6 +7,8 @@
 #include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Nexus-Core/Timings/Profiler.hpp"
+
 std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
@@ -70,7 +72,9 @@ static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformI
 
 namespace Nexus::ImGuiUtils
 {
-	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Application(app)
+	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		: m_Application(app),
+		  m_CommandQueue(commandQueue)
 	{
 		s_ImGuiRenderer = this;
 		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
@@ -81,7 +85,7 @@ namespace Nexus::ImGuiUtils
 
 		Nexus::Graphics::CommandListDescription commandListDesc = {};
 		commandListDesc.DebugName								= "ImGui CommandList";
-		m_CommandList											= m_GraphicsDevice->CreateCommandList(commandListDesc);
+		m_CommandList											= m_CommandQueue->CreateCommandList(commandListDesc);
 
 		auto vertexSource	= GetImGuiShaderVertexSource();
 		auto fragmentSource = GetImGuiShaderFragmentSource();
@@ -91,16 +95,7 @@ namespace Nexus::ImGuiUtils
 		m_FragmentShader =
 			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		CreateTextPipeline();
-		CreateImagePipeline();
-
-		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
-		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
-		uniformBufferDesc.Usage									   = Graphics::BufferUsage::Uniform;
-		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
-		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
-		uniformBufferDesc.DebugName								   = "ImGui Uniform Buffer";
-		m_UniformBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc));
+		CreatePipeline();
 
 		Nexus::Graphics::SamplerDescription samplerDesc;
 		samplerDesc.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
@@ -126,7 +121,7 @@ namespace Nexus::ImGuiUtils
 		ImGui::Shutdown();
 	}
 
-	void ImGuiGraphicsRenderer::CreateTextPipeline()
+	void ImGuiGraphicsRenderer::CreatePipeline()
 	{
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDesc;
 
@@ -151,10 +146,10 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.DepthFormat = Nexus::GetApplication()->GetPrimarySwapchain()->GetDepthFormat();
 
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
-		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
-		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
-		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
+		pipelineDesc.DepthStencilDesc.EnableDepthTest		  = false;
+		pipelineDesc.DepthStencilDesc.EnableDepthWrite		  = false;
+		pipelineDesc.DepthStencilDesc.EnableStencilTest		  = false;
 
 		pipelineDesc.Layouts = {
 			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
@@ -163,42 +158,8 @@ namespace Nexus::ImGuiUtils
 												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
-		pipelineDesc.DebugName		 = "ImGui Text Pipeline";
-		m_TextPipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
-	}
-
-	void ImGuiGraphicsRenderer::CreateImagePipeline()
-	{
-		Nexus::Graphics::GraphicsPipelineDescription pipelineDesc;
-
-		pipelineDesc.VertexModule	= m_VertexShader;
-		pipelineDesc.FragmentModule = m_FragmentShader;
-
-		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
-
-		pipelineDesc.ColourBlendStates[0].EnableBlending = false;
-
-		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
-		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
-		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
-		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
-		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
-		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
-
-		pipelineDesc.Layouts = {
-			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
-												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
-												sizeof(ImDrawVert),
-												Nexus::Graphics::StepRate::Vertex)};
-
-		pipelineDesc.DebugName = "ImGui Image Pipeline";
-
-		m_ImagePipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
+		pipelineDesc.DebugName = "ImGui Pipeline";
+		m_Pipeline			   = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -210,15 +171,15 @@ namespace Nexus::ImGuiUtils
 
 		size_t bufferSize = width * height * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Graphics::TextureDescription spec	= {};
-		spec.Type							= Graphics::TextureType::Texture2D;
-		spec.Width							= width;
-		spec.Height							= height;
-		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		spec.Usage							= Graphics::TextureUsage_Sampled;
-		spec.DebugName						= "ImGui Font Texture";
-		m_FontTexture						= m_GraphicsDevice->CreateTexture(spec);
-		m_GraphicsDevice->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
+		Graphics::TextureDescription spec = {};
+		spec.Type						  = Graphics::TextureType::Texture2D;
+		spec.Width						  = width;
+		spec.Height						  = height;
+		spec.Format						  = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		spec.Usage						  = Graphics::TextureUsage_Sampled;
+		spec.DebugName					  = "ImGui Font Texture";
+		m_FontTexture					  = m_GraphicsDevice->CreateTexture(spec);
+		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
 
@@ -229,23 +190,43 @@ namespace Nexus::ImGuiUtils
 
 	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
 	{
-		auto id = (ImTextureID)m_TextureID++;
+		ImTextureID id = (ImTextureID)m_TextureID++;
 
-		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_TextPipeline);
+		Ref<Graphics::ResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
-		m_Textures.insert({id, texture});
-		m_ResourceSets.insert({id, resourceSet});
+		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
+		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
+		uniformBufferDesc.Usage									   = Graphics::BufferUsage::Uniform;
+		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.DebugName								   = "ImGui Uniform Buffer";
+		Ref<Graphics::DeviceBuffer> uniformBuffer				   = m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc);
+
+		ImGuiDescriptorInfo &info = m_Descriptors[id];
+		info.m_Texture			  = texture;
+		info.m_Sampler			  = m_Sampler;
+		info.m_UniformBuffer	  = uniformBuffer;
+		info.m_ResourceSet		  = resourceSet;
+
+		Graphics::UniformBufferView uniformBufferView = {};
+		uniformBufferView.BufferHandle				  = uniformBuffer;
+		uniformBufferView.Offset					  = 0;
+		uniformBufferView.Size						  = uniformBuffer->GetDescription().SizeInBytes;
+		resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
+		resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 
 		return id;
 	}
 
 	void ImGuiGraphicsRenderer::UnbindTexture(ImTextureID id)
 	{
-		m_ResourceSets.erase(id);
+		m_Descriptors.erase(id);
 	}
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
 	{
+		NX_PROFILE_FUNCTION();
+
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds<float>();
 
@@ -262,6 +243,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::AfterLayout()
 	{
+		NX_PROFILE_FUNCTION();
 		ImGui::Render();
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -276,8 +258,8 @@ namespace Nexus::ImGuiUtils
 			{
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
-					ImGuiWindowInfo			   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-					Nexus::IWindow			   *window	  = info->Window;
+					ImGuiWindowInfo				   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
+					Nexus::IWindow				   *window	  = info->Window;
 					Ref<Nexus::Graphics::Swapchain> swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())
@@ -418,7 +400,7 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		MouseState state = Platform::GetFocussedMouseState();
+		MouseState state	= Platform::GetFocussedMouseState();
 		auto	   mousePos = activeWindow->GetMousePosition();
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -436,6 +418,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
 	{
+		NX_PROFILE_FUNCTION();
+
 		drawData->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
 		UpdateBuffers(drawData);
 		RenderCommandLists(drawData);
@@ -443,6 +427,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateBuffers(ImDrawData *drawData)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (drawData->TotalVtxCount == 0)
 		{
 			return;
@@ -501,6 +487,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::RenderCommandLists(ImDrawData *drawData)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (drawData->TotalVtxCount == 0)
 			return;
 
@@ -517,24 +505,6 @@ namespace Nexus::ImGuiUtils
 
 		ImVec2 pos = drawData->DisplayPos;
 
-		auto	 &io  = ImGui::GetIO();
-		glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
-		m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
-
-		for (auto &[textureId, resourceSet] : m_ResourceSets)
-		{
-			WeakRef<Graphics::Texture> textureRef = m_Textures.at(textureId);
-			if (Ref<Graphics::Texture> texture = textureRef.lock())
-			{
-				Graphics::UniformBufferView uniformBufferView = {};
-				uniformBufferView.BufferHandle				  = m_UniformBuffer;
-				uniformBufferView.Offset					  = 0;
-				uniformBufferView.Size						  = m_UniformBuffer->GetDescription().SizeInBytes;
-				resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
-				resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
-			}
-		}
-
 		ImGuiViewport *vp = drawData->OwnerViewport;
 
 		int vtxOffset = 0;
@@ -550,14 +520,7 @@ namespace Nexus::ImGuiUtils
 
 				if (drawCmd.ElemCount > 0)
 				{
-					if (drawCmd.TextureId == m_FontTextureID)
-					{
-						m_CommandList->SetPipeline(m_TextPipeline);
-					}
-					else
-					{
-						m_CommandList->SetPipeline(m_ImagePipeline);
-					}
+					m_CommandList->SetPipeline(m_Pipeline);
 					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
 
 					Graphics::VertexBufferView vertexBufferView = {};
@@ -587,8 +550,13 @@ namespace Nexus::ImGuiUtils
 					scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
 					m_CommandList->SetScissor(scissor);
 
-					const auto &resourceSet = m_ResourceSets.at(drawCmd.TextureId);
-					m_CommandList->SetResourceSet(resourceSet);
+					auto	 &io  = ImGui::GetIO();
+					glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
+
+					// TODO: Probably could optimise this with push constants
+					auto &descriptorInfo = m_Descriptors.at(drawCmd.TextureId);
+					descriptorInfo.m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
+					m_CommandList->SetResourceSet(descriptorInfo.m_ResourceSet);
 
 					Graphics::DrawIndexedDescription drawDesc = {};
 					drawDesc.VertexStart					  = drawCmd.VtxOffset + vtxOffset;
@@ -607,14 +575,22 @@ namespace Nexus::ImGuiUtils
 		m_CommandList->EndDebugGroup();
 		m_CommandList->End();
 
-		m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandList(m_CommandList);
 	}
 
 	void ImGuiGraphicsRenderer::UpdateCursor()
 	{
-		auto window = Nexus::GetApplication()->GetPrimaryWindow();
+		ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
 
-		switch (ImGui::GetMouseCursor())
+		if (cursor == m_PreviousCursor)
+		{
+			return;
+		}
+
+		auto window		 = Nexus::GetApplication()->GetPrimaryWindow();
+		m_PreviousCursor = cursor;
+
+		switch (cursor)
 		{
 			case ImGuiMouseCursor_Arrow:
 			{
@@ -694,17 +670,17 @@ namespace Nexus::ImGuiUtils
 			auto app			= Nexus::GetApplication();
 			auto graphicsDevice = app->GetGraphicsDevice();
 
-			WindowSpecification windowSpec;
+			WindowDescription windowSpec;
 			windowSpec.Width	  = vp->Size.x;
 			windowSpec.Height	  = vp->Size.y;
 			windowSpec.Borderless = true;
 
-			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
+			Nexus::Graphics::SwapchainDescription swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
 
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
-			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
+			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(window, swapchainSpec);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;

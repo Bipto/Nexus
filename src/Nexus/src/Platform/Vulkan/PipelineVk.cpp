@@ -20,13 +20,15 @@ namespace Nexus::Graphics
 
 	GraphicsPipelineVk::~GraphicsPipelineVk()
 	{
-		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+		for (const auto &[renderPass, pipeline] : m_Pipelines) { context.DestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+
+		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
 		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
 		{
-			vkDestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
 	}
 
@@ -62,17 +64,21 @@ namespace Nexus::Graphics
 			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
 		}
 
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		VkPipeline pipeline = m_Pipelines.at(renderPass);
 		NX_VALIDATE(pipeline, "Failed to find a valid pipeline");
-		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
 	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
 	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
 		for (const auto &set : descriptorSets)
 		{
-			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
 		}
 	}
 
@@ -132,13 +138,15 @@ namespace Nexus::Graphics
 
 	MeshletPipelineVk::~MeshletPipelineVk()
 	{
-		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+		for (const auto &[renderPass, pipeline] : m_Pipelines) { context.DestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+
+		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
 		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
 		{
-			vkDestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
 	}
 
@@ -149,6 +157,8 @@ namespace Nexus::Graphics
 
 	void MeshletPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
 	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		if (m_Pipelines.find(renderPass) == m_Pipelines.end())
 		{
 			std::vector<VkPipelineShaderStageCreateInfo> shaderStages = GetShaderStages();
@@ -171,15 +181,17 @@ namespace Nexus::Graphics
 
 		VkPipeline pipeline = m_Pipelines.at(renderPass);
 		NX_VALIDATE(pipeline, "Failed to find a valid pipeline");
-		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
 	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
 	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
 		for (const auto &set : descriptorSets)
 		{
-			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
 		}
 	}
 
@@ -238,7 +250,9 @@ namespace Nexus::Graphics
 		pipelineInfo.stage						 = shaderStageInfo;
 		pipelineInfo.layout						 = m_PipelineLayout;
 
-		if (vkCreateComputePipelines(m_GraphicsDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline) != VK_SUCCESS)
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
+		if (context.CreateComputePipelines(m_GraphicsDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create compute pipeline");
 		}
@@ -248,25 +262,30 @@ namespace Nexus::Graphics
 
 	ComputePipelineVk::~ComputePipelineVk()
 	{
-		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
+		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
 		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
 		{
-			vkDestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
 	}
 
 	void ComputePipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
 	{
-		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
 	}
 
 	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
 	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
 		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
 		for (const auto &set : descriptorSets)
 		{
-			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
 		}
 	}
 }	 // namespace Nexus::Graphics

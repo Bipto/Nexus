@@ -5,6 +5,8 @@
 	#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
 #endif
 
+#include "Nexus-Core/Timings/Profiler.hpp"
+
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
@@ -23,8 +25,30 @@ namespace Nexus
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
 		m_GraphicsDevice = std::unique_ptr<Graphics::GraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
-		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
-		m_Swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
+		// iterate through all available command queues
+		std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
+		for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
+		{
+			if (queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Graphics) &&
+				queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Compute) &&
+				queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Transfer))
+			{
+				// create graphics queue
+				{
+					Nexus::Graphics::CommandQueueDescription queueDesc = {};
+					queueDesc.QueueFamilyIndex						   = queueFamily.QueueFamily;
+					queueDesc.QueueIndex							   = 0;
+					queueDesc.DebugName								   = "Application Graphics Queue";
+					m_CommandQueueGroup.GraphicsQueue				   = m_GraphicsDevice->CreateCommandQueue(queueDesc);
+				}
+
+				// create present queue
+				{
+				}
+			}
+		}
+
+		m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Window, spec.SwapchainDescription);
 
 		m_AudioDevice = std::unique_ptr<Audio::AudioDevice>(Nexus::CreateAudioDevice(spec.AudioAPI));
 
@@ -57,7 +81,7 @@ namespace Nexus
 			Platform::PollEvents(this);
 		}
 
-		FrameMark;
+		NX_MARK_FRAME_END();
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()
@@ -103,6 +127,11 @@ namespace Nexus
 	Graphics::GraphicsDevice *Application::GetGraphicsDevice()
 	{
 		return m_GraphicsDevice.get();
+	}
+
+	Ref<Graphics::ICommandQueue> Application::GetGraphicsCommandQueue()
+	{
+		return m_CommandQueueGroup.GraphicsQueue;
 	}
 
 	Audio::AudioDevice *Application::GetAudioDevice()

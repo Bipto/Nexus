@@ -7,8 +7,11 @@ namespace Demos
 	class TexturingDemo : public Demo
 	{
 	  public:
-		TexturingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		TexturingDemo(const std::string							&name,
+					  Nexus::Application						*app,
+					  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+					  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -18,15 +21,16 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 
 			CreatePipeline();
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateSprite();
 
 			// m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
-			m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			m_Texture =
+				m_GraphicsDevice->CreateTexture2D(m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -56,7 +60,7 @@ namespace Demos
 			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 			m_CommandList->SetScissor(scissor);
 
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 
@@ -87,7 +91,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -118,13 +122,13 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler	   = nullptr;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler		= nullptr;
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID = 0;
 	};

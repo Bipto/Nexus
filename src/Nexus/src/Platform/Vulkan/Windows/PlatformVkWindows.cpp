@@ -1,3 +1,4 @@
+
 #include "Platform/Vulkan/PlatformVk.hpp"
 
 namespace PlatformVk
@@ -7,7 +8,7 @@ namespace PlatformVk
 		return {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME};
 	}
 
-	VkSurfaceKHR CreateSurface(VkInstance instance, Nexus::IWindow *window)
+	VkSurfaceKHR CreateSurface(const GladVulkanContext &context, VkInstance instance, Nexus::IWindow *window)
 	{
 		const auto &nativeWindowInfo = window->GetNativeWindowInfo();
 
@@ -18,7 +19,7 @@ namespace PlatformVk
 
 		VkSurfaceKHR surface;
 
-		if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		if (context.CreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create Vulkan surface");
 		}

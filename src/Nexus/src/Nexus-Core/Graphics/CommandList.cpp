@@ -1,4 +1,5 @@
 #include "Nexus-Core/Graphics/CommandList.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -8,6 +9,8 @@ namespace Nexus::Graphics
 
 	void CommandList::Begin()
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (m_Started)
 		{
 			NX_ERROR("Attempting to begin a command into a CommandList that has not "
@@ -21,6 +24,8 @@ namespace Nexus::Graphics
 
 	void CommandList::End()
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to end a CommandList but the CommandList was not begun");
@@ -38,6 +43,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -53,6 +60,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetIndexBuffer(IndexBufferView indexBuffer)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -67,6 +76,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -79,6 +90,8 @@ namespace Nexus::Graphics
 
 	void CommandList::Draw(const DrawDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -91,6 +104,8 @@ namespace Nexus::Graphics
 
 	void CommandList::DrawIndexed(const DrawIndexedDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -103,6 +118,8 @@ namespace Nexus::Graphics
 
 	void CommandList::DrawIndirect(const DrawIndirectDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -115,6 +132,8 @@ namespace Nexus::Graphics
 
 	void CommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -127,6 +146,8 @@ namespace Nexus::Graphics
 
 	void CommandList::Dispatch(const DispatchDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -139,6 +160,8 @@ namespace Nexus::Graphics
 
 	void CommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -151,6 +174,8 @@ namespace Nexus::Graphics
 
 	void CommandList::DrawMesh(const DrawMeshDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -163,6 +188,8 @@ namespace Nexus::Graphics
 
 	void CommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -175,6 +202,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -182,11 +211,67 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		if (m_Description.AutomaticBarrierTransitions)
+		{
+			const auto &combinedImageSamplers = resources->GetBoundCombinedImageSamplers();
+			const auto &storageImages		  = resources->GetBoundStorageImages();
+			const auto &storageBuffers		  = resources->GetBoundStorageBuffers();
+
+			for (const auto &[name, ciSampler] : combinedImageSamplers)
+			{
+				Ref<Texture> texture = ciSampler.ImageTexture;
+
+				TextureBarrierDesc barrier				= {};
+				barrier.BeforeAccess					= BarrierAccess::None;
+				barrier.AfterAccess						= BarrierAccess::ShaderRead;
+				barrier.BeforeStage						= BarrierPipelineStage::None;
+				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+				barrier.Texture							= ciSampler.ImageTexture;
+				barrier.Layout							= ciSampler.Layout;
+				barrier.SubresourceRange.BaseArrayLayer = 0;
+				barrier.SubresourceRange.LayerCount		= texture->GetDescription().DepthOrArrayLayers;
+				barrier.SubresourceRange.BaseMipLevel	= 0;
+				barrier.SubresourceRange.LevelCount		= texture->GetDescription().MipLevels;
+				SubmitTextureBarrier(barrier);
+			}
+
+			for (const auto &[name, storageImage] : storageImages)
+			{
+				TextureBarrierDesc barrier				= {};
+				barrier.BeforeAccess					= BarrierAccess::None;
+				barrier.AfterAccess						= BarrierAccess::ShaderRead;
+				barrier.BeforeStage						= BarrierPipelineStage::None;
+				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+				barrier.Texture							= storageImage.TextureHandle;
+				barrier.Layout							= storageImage.Layout;
+				barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
+				barrier.SubresourceRange.LayerCount		= 1;
+				barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
+				barrier.SubresourceRange.LevelCount		= 1;
+				SubmitTextureBarrier(barrier);
+			}
+
+			for (const auto &[name, storageBuffer] : storageBuffers)
+			{
+				BufferBarrierDesc barrier = {};
+				barrier.AfterAccess		  = BarrierAccess::ShaderWrite;
+				barrier.BeforeAccess	  = BarrierAccess::None;
+				barrier.AfterStage		  = BarrierPipelineStage::AllGraphics;
+				barrier.BeforeStage		  = BarrierPipelineStage::None;
+				barrier.Buffer			  = storageBuffer.BufferHandle;
+				barrier.Offset			  = storageBuffer.Offset;
+				barrier.Size			  = storageBuffer.SizeInBytes;
+				SubmitBufferBarrier(barrier);
+			}
+		}
+
 		m_Commands.push_back(resources);
 	}
 
-	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
+	void CommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -201,8 +286,10 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+	void CommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -219,6 +306,8 @@ namespace Nexus::Graphics
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -234,6 +323,8 @@ namespace Nexus::Graphics
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -249,6 +340,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetRenderTarget(RenderTarget target)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -261,6 +354,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetViewport(const Viewport &viewport)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -273,6 +368,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetScissor(const Scissor &scissor)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -285,6 +382,8 @@ namespace Nexus::Graphics
 
 	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -301,6 +400,8 @@ namespace Nexus::Graphics
 
 	void Nexus::Graphics::CommandList::StartTimingQuery(Ref<TimingQuery> query)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -315,6 +416,8 @@ namespace Nexus::Graphics
 
 	void Nexus::Graphics::CommandList::StopTimingQuery(Ref<TimingQuery> query)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -329,6 +432,8 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -343,6 +448,8 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -357,6 +464,8 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -371,6 +480,8 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -385,6 +496,8 @@ namespace Nexus::Graphics
 
 	void CommandList::BeginDebugGroup(const std::string &name)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -401,6 +514,8 @@ namespace Nexus::Graphics
 
 	void CommandList::EndDebugGroup()
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -416,6 +531,8 @@ namespace Nexus::Graphics
 
 	void CommandList::InsertDebugMarker(const std::string &name)
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (!m_Started)
 		{
 			NX_ERROR("Attempting to record a command into a CommandList without "
@@ -430,6 +547,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
 	{
+		NX_PROFILE_FUNCTION();
+
 		SetBlendFactorCommand command;
 		command.BlendFactorDesc = blendFactor;
 		m_Commands.push_back(command);
@@ -437,6 +556,8 @@ namespace Nexus::Graphics
 
 	void CommandList::SetStencilReference(uint32_t stencilReference)
 	{
+		NX_PROFILE_FUNCTION();
+
 		SetStencilReferenceCommand command;
 		command.StencilReference = stencilReference;
 		m_Commands.push_back(command);
@@ -444,6 +565,8 @@ namespace Nexus::Graphics
 
 	void CommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
 	{
+		NX_PROFILE_FUNCTION();
+
 		BuildAccelerationStructuresCommand command;
 		command.BuildDescriptions = description;
 		m_Commands.push_back(command);
@@ -451,21 +574,29 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
 	{
+		NX_PROFILE_FUNCTION();
+
 		m_Commands.push_back(description);
 	}
 
 	void CommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
 	{
+		NX_PROFILE_FUNCTION();
+
 		m_Commands.push_back(description);
 	}
 
 	void CommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
 	{
+		NX_PROFILE_FUNCTION();
+
 		m_Commands.push_back(description);
 	}
 
 	void CommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
 	{
+		NX_PROFILE_FUNCTION();
+
 		PushConstantsDesc pushConstantDesc = {};
 		pushConstantDesc.Name			   = name;
 		pushConstantDesc.Offset			   = offset;
@@ -474,18 +605,45 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pushConstantDesc);
 	}
 
+	void CommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
+	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
+	}
+
+	void CommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
+	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
+	}
+
+	void CommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
+	{
+		NX_PROFILE_FUNCTION();
+
+		m_Commands.push_back(desc);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
+		NX_PROFILE_FUNCTION();
+
 		return m_Commands;
 	}
 
 	const CommandListDescription &CommandList::GetDescription()
 	{
+		NX_PROFILE_FUNCTION();
+
 		return m_Description;
 	}
 
 	bool CommandList::IsRecording() const
 	{
+		NX_PROFILE_FUNCTION();
+
 		return m_Started;
 	}
 }	 // namespace Nexus::Graphics

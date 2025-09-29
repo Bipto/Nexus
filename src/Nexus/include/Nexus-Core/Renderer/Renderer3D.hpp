@@ -41,7 +41,7 @@ namespace Nexus::Graphics
 	class NX_API Renderer3D
 	{
 	  public:
-		Renderer3D(GraphicsDevice *device);
+		Renderer3D(GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		~Renderer3D();
 
 		void Begin(Scene *scene, RenderTarget target, Nexus::TimeSpan time);
@@ -59,9 +59,10 @@ namespace Nexus::Graphics
 		void CreateClearGBufferPipeline();
 
 	  private:
-		GraphicsDevice *m_Device		 = nullptr;
-		RenderTarget	m_RenderTarget	 = {};
-		FullscreenQuad	m_FullscreenQuad = {};
+		GraphicsDevice				*m_Device		  = nullptr;
+		Ref<Graphics::ICommandQueue> m_CommandQueue	  = nullptr;
+		RenderTarget				 m_RenderTarget	  = {};
+		FullscreenQuad				 m_FullscreenQuad = {};
 
 		Scene		*m_Scene   = nullptr;
 		Ref<Texture> m_Cubemap = nullptr;
@@ -72,14 +73,14 @@ namespace Nexus::Graphics
 
 		Nexus::FirstPersonCamera m_Camera;
 
-		Nexus::Ref<Nexus::Graphics::Sampler>	   m_CubemapSampler		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_CubemapSampler		 = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_CubemapPipeline		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CubemapUniformBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_CubemapResourceSet	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_CubemapUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_CubemapResourceSet	 = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Sampler>	   m_ModelSampler				 = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ModelPipeline				= nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_ModelCameraUniformBuffer	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::Sampler>													m_ModelSampler				   = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline>											m_ModelPipeline				   = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>												m_ModelCameraUniformBuffer	   = nullptr;
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::DeviceBuffer>> m_ModelTransformUniformBuffers = {};
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::ResourceSet>>	m_ModelResourceSets			   = {};
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							m_ModelIDs					   = {};

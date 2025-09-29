@@ -12,6 +12,7 @@ namespace Nexus::Graphics
 {
 	class DeviceBuffer;
 	class GraphicsDevice;
+	class ICommandQueue;
 }	 // namespace Nexus::Graphics
 
 namespace Nexus::Utils
@@ -131,15 +132,24 @@ namespace Nexus::Utils
 	}
 
 	Ref<Graphics::DeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
-	Ref<Graphics::DeviceBuffer>				CreateFilledVertexBuffer(const void				  *data,
-																	 size_t					   sizeInBytes,
-																	 size_t					   strideInBytes,
-																	 Graphics::GraphicsDevice *device);
-	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
-	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void			   *data,
-														  size_t					sizeInBytes,
-														  size_t					strideInBytes,
-														  Graphics::GraphicsDevice *device);
+
+	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void					 *data,
+														 size_t						  sizeInBytes,
+														 size_t						  strideInBytes,
+														 Graphics::GraphicsDevice	 *device,
+														 Ref<Graphics::ICommandQueue> commandQueue);
+
+	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void					*data,
+														size_t						 sizeInBytes,
+														size_t						 strideInBytes,
+														Graphics::GraphicsDevice	*devic,
+														Ref<Graphics::ICommandQueue> commandQueuee);
+
+	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void				  *data,
+														  size_t					   sizeInBytes,
+														  size_t					   strideInBytes,
+														  Graphics::GraphicsDevice	  *device,
+														  Ref<Graphics::ICommandQueue> commandQueue);
 
 	template<typename T>
 	T AlignTo(T value, T alignment)

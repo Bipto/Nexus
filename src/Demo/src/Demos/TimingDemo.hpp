@@ -9,8 +9,11 @@ namespace Demos
 	class TimingDemo : public Demo
 	{
 	  public:
-		TimingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		TimingDemo(const std::string						 &name,
+				   Nexus::Application						 *app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -20,7 +23,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
 		}
 
@@ -31,12 +34,12 @@ namespace Demos
 			m_CommandList->StartTimingQuery(m_TimingQuery);
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			m_CommandList->StopTimingQuery(m_TimingQuery);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
 			m_TimerCounter += time.GetSeconds<float>();

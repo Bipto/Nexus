@@ -58,7 +58,9 @@ namespace Nexus::Graphics
 		glm::mat4 Projection = {};
 	};
 
-	HdriProcessor::HdriProcessor(const std::string &filepath, GraphicsDevice *device) : m_Device(device)
+	HdriProcessor::HdriProcessor(const std::string &filepath, GraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		: m_Device(device),
+		  m_CommandQueue(commandQueue)
 	{
 		stbi_set_flip_vertically_on_load(true);
 		int	   channels			 = 0;
@@ -76,16 +78,16 @@ namespace Nexus::Graphics
 			Utils::FlipPixelsHorizontally(pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
 		}
 
-		Graphics::TextureDescription textureSpec   = {};
-		textureSpec.Width						   = m_Width;
-		textureSpec.Height						   = m_Height;
-		textureSpec.DepthOrArrayLayers			   = 1;
-		textureSpec.MipLevels					   = 1;
-		textureSpec.Usage						   = Nexus::Graphics::TextureUsage_Sampled;
-		textureSpec.Type						   = Graphics::TextureType::Texture2D;
-		textureSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		m_HdriImage								   = m_Device->CreateTexture(textureSpec);
-		m_Device->WriteToTexture(m_HdriImage, 0, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
+		Graphics::TextureDescription textureSpec = {};
+		textureSpec.Width						 = m_Width;
+		textureSpec.Height						 = m_Height;
+		textureSpec.DepthOrArrayLayers			 = 1;
+		textureSpec.MipLevels					 = 1;
+		textureSpec.Usage						 = Nexus::Graphics::TextureUsage_Sampled;
+		textureSpec.Type						 = Graphics::TextureType::Texture2D;
+		textureSpec.Format						 = Graphics::PixelFormat::R32_G32_B32_A32_Float;
+		m_HdriImage								 = m_Device->CreateTexture(textureSpec);
+		m_Device->WriteToTexture(m_HdriImage, m_CommandQueue, 0, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
 	}
 
 	Ref<Texture> HdriProcessor::Generate(uint32_t size)
@@ -98,17 +100,17 @@ namespace Nexus::Graphics
 		framebufferSpec.DepthAttachmentSpecification			  = PixelFormat::D24_UNorm_S8_UInt;
 
 		Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
-		Ref<CommandList> commandList = m_Device->CreateCommandList();
+		Ref<CommandList> commandList = m_CommandQueue->CreateCommandList();
 
-		Graphics::TextureDescription cubemapSpec   = {};
-		cubemapSpec.Type						   = Graphics::TextureType::TextureCube;
-		cubemapSpec.Usage						   = Graphics::TextureUsage_Sampled;
-		cubemapSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		cubemapSpec.Width						   = size;
-		cubemapSpec.Height						   = size;
-		cubemapSpec.MipLevels					   = 1;
-		cubemapSpec.DepthOrArrayLayers			   = 6;
-		Ref<Texture> cubemap					   = m_Device->CreateTexture(cubemapSpec);
+		Graphics::TextureDescription cubemapSpec = {};
+		cubemapSpec.Type						 = Graphics::TextureType::TextureCube;
+		cubemapSpec.Usage						 = Graphics::TextureUsage_Sampled;
+		cubemapSpec.Format						 = Graphics::PixelFormat::R32_G32_B32_A32_Float;
+		cubemapSpec.Width						 = size;
+		cubemapSpec.Height						 = size;
+		cubemapSpec.MipLevels					 = 1;
+		cubemapSpec.DepthOrArrayLayers			 = 6;
+		Ref<Texture> cubemap					 = m_Device->CreateTexture(cubemapSpec);
 
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
@@ -132,7 +134,7 @@ namespace Nexus::Graphics
 		samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
 		Ref<Sampler> sampler	 = m_Device->CreateSampler(samplerSpec);
 
-		Nexus::Graphics::MeshFactory	  factory(m_Device);
+		Nexus::Graphics::MeshFactory	  factory(m_Device, m_CommandQueue);
 		Nexus::Ref<Nexus::Graphics::Mesh> cube = factory.CreateCube();
 
 		VB_UNIFORM_HDRI_PROCESSOR_CAMERA cameraUniforms;
@@ -226,13 +228,14 @@ namespace Nexus::Graphics
 			commandList->DrawIndexed(drawDesc);
 
 			commandList->End();
-			m_Device->SubmitCommandLists(&commandList, 1, nullptr);
+
+			m_CommandQueue->SubmitCommandLists(&commandList, 1, nullptr);
 			m_Device->WaitForIdle();
 
 			Ref<Texture>	  colourTexture = framebuffer->GetColorTexture(0);
-			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture, 0, 0, 0, 0, 0, size, size);
+			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture, m_CommandQueue, 0, 0, 0, 0, 0, size, size);
 
-			m_Device->WriteToTexture(cubemap, i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());
+			m_Device->WriteToTexture(cubemap, m_CommandQueue, i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());
 		}
 
 		return cubemap;

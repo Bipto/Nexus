@@ -6,13 +6,13 @@
 
 namespace Nexus::Graphics
 {
-	std::vector<std::string> GetSupportedInstanceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
+	std::vector<std::string> GetSupportedInstanceExtensions(const GladVulkanContext &context, std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		uint32_t count	= 0;
-		VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+		VkResult result = context.EnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
 
 		std::vector<VkExtensionProperties> properties(count);
-		result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
+		result = context.EnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
 
 		if (result != VK_SUCCESS)
 		{
@@ -25,12 +25,13 @@ namespace Nexus::Graphics
 		return extensions;
 	}
 
-	VkResult CreateDebugUtilsMessengerEXT(VkInstance								instance,
+	VkResult CreateDebugUtilsMessengerEXT(const GladVulkanContext				   &context,
+										  VkInstance								instance,
 										  const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
 										  const VkAllocationCallbacks			   *pAllocator,
 										  VkDebugUtilsMessengerEXT				   *pDebugMessenger)
 	{
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)context.GetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
 			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -41,9 +42,12 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks *pAllocator)
+	void DestroyDebugUtilsMessengerEXT(const GladVulkanContext	   &context,
+									   VkInstance					instance,
+									   VkDebugUtilsMessengerEXT		messenger,
+									   const VkAllocationCallbacks *pAllocator)
 	{
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)context.GetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
 			func(instance, messenger, pAllocator);
@@ -54,13 +58,13 @@ namespace Nexus::Graphics
 		"VK_LAYER_KHRONOS_validation",
 	};
 
-	bool CheckValidationLayerSupport()
+	bool CheckValidationLayerSupport(const GladVulkanContext &context)
 	{
 		uint32_t layerCount;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		context.EnumerateInstanceLayerProperties(&layerCount, nullptr);
 
 		std::vector<VkLayerProperties> availableLayers(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+		context.EnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
 		for (const char *layerName : validationLayers)
 		{
@@ -111,9 +115,12 @@ namespace Nexus::Graphics
 
 	GraphicsAPI_Vk::GraphicsAPI_Vk(const GraphicsAPICreateInfo &createInfo) : m_CreateInfo(createInfo)
 	{
+		Vk::GladLoaderData emptyLoadData = {};
+		gladLoadVulkanContextUserPtr(&m_Context, VK_NULL_HANDLE, (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &emptyLoadData);
+
 		if (createInfo.Debug)
 		{
-			NX_VALIDATE(CheckValidationLayerSupport(), "Validation layers were requested, but are not available");
+			NX_VALIDATE(CheckValidationLayerSupport(m_Context), "Validation layers were requested, but are not available");
 		}
 
 		VkApplicationInfo appInfo  = {};
@@ -125,9 +132,9 @@ namespace Nexus::Graphics
 		appInfo.apiVersion		   = VK_API_VERSION_1_0;
 
 		uint32_t apiVersion = 0;
-		if (vkEnumerateInstanceVersion != nullptr)
+		if (m_Context.EnumerateInstanceVersion != nullptr)
 		{
-			VkResult result = vkEnumerateInstanceVersion(&apiVersion);
+			VkResult result = m_Context.EnumerateInstanceVersion(&apiVersion);
 			if (result == VK_SUCCESS)
 			{
 				appInfo.apiVersion = apiVersion;
@@ -167,7 +174,10 @@ namespace Nexus::Graphics
 		instanceCreateInfo.enabledExtensionCount   = (uint32_t)extensions.size();
 		instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-		NX_VALIDATE(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+		NX_VALIDATE(m_Context.CreateInstance(&instanceCreateInfo, nullptr, &m_Instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+
+		Vk::GladLoaderData loadData = {.instance = m_Instance, .device = VK_NULL_HANDLE};
+		gladLoadVulkanContextUserPtr(&m_Context, VK_NULL_HANDLE, (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loadData);
 
 		if (createInfo.Debug)
 		{
@@ -179,10 +189,10 @@ namespace Nexus::Graphics
 	{
 		if (m_CreateInfo.Debug)
 		{
-			DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+			DestroyDebugUtilsMessengerEXT(m_Context, m_Instance, m_DebugMessenger, nullptr);
 		}
 
-		vkDestroyInstance(m_Instance, nullptr);
+		m_Context.DestroyInstance(m_Instance, nullptr);
 	}
 
 	std::vector<std::shared_ptr<IPhysicalDevice>> GraphicsAPI_Vk::GetPhysicalDevices()
@@ -190,13 +200,13 @@ namespace Nexus::Graphics
 		std::vector<std::shared_ptr<IPhysicalDevice>> physicalDevices;
 
 		uint32_t physicalDeviceCount = 0;
-		vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
+		m_Context.EnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
 		std::vector<VkPhysicalDevice> vulkanPhysicalDevices(physicalDeviceCount);
-		vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, vulkanPhysicalDevices.data());
+		m_Context.EnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, vulkanPhysicalDevices.data());
 
 		for (VkPhysicalDevice vulkanPhysicalDevice : vulkanPhysicalDevices)
 		{
-			physicalDevices.push_back(std::make_shared<Graphics::PhysicalDeviceVk>(vulkanPhysicalDevice));
+			physicalDevices.push_back(std::make_shared<Graphics::PhysicalDeviceVk>(m_Context, vulkanPhysicalDevice));
 		}
 
 		return physicalDevices;
@@ -226,7 +236,7 @@ namespace Nexus::Graphics
 		createInfo.pfnUserCallback = debugCallback;
 		createInfo.pUserData	   = nullptr;
 
-		NX_VALIDATE(CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) == VK_SUCCESS,
+		NX_VALIDATE(CreateDebugUtilsMessengerEXT(m_Context, m_Instance, &createInfo, nullptr, &m_DebugMessenger) == VK_SUCCESS,
 					"Failed to create Debug Messenger");
 	}
 }	 // namespace Nexus::Graphics

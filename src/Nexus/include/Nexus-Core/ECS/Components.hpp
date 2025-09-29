@@ -85,7 +85,7 @@ namespace Nexus
 			{
 				if (std::filesystem::exists(FilePath))
 				{
-					Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
+					Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice(), nullptr);
 					Model = factory.CreateFrom3DModelFile(FilePath);
 				}
 			}
@@ -217,11 +217,11 @@ namespace Nexus
 
 	struct SpriteRendererComponent
 	{
-		std::string				 TexturePath   = {};
-		GUID					 TextureID	   = GUID(0);
-		Ref<Graphics::Texture>	 SpriteTexture = nullptr;
-		glm::vec4				 SpriteColour  = {1.0f, 1.0f, 1.0f, 1.0f};
-		float					 Tiling		   = 1.0f;
+		std::string			   TexturePath	 = {};
+		GUID				   TextureID	 = GUID(0);
+		Ref<Graphics::Texture> SpriteTexture = nullptr;
+		glm::vec4			   SpriteColour	 = {1.0f, 1.0f, 1.0f, 1.0f};
+		float				   Tiling		 = 1.0f;
 
 		friend std::ostream &operator<<(std::ostream &os, const SpriteRendererComponent &component)
 		{
@@ -244,7 +244,7 @@ namespace Nexus
 			if (!TexturePath.empty())
 			{
 				Nexus::Graphics::GraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
-				SpriteTexture							= device->CreateTexture2D(TexturePath, true, false);
+				SpriteTexture							= device->CreateTexture2D(nullptr, TexturePath, true, false);
 			}
 		}
 	};

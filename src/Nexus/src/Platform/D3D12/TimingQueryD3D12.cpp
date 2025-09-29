@@ -6,7 +6,7 @@ namespace Nexus::Graphics
 {
 	TimingQueryD3D12::TimingQueryD3D12(GraphicsDeviceD3D12 *device) : m_Device(device)
 	{
-		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetDevice();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetD3D12Device();
 
 		CreateQueryHeap();
 		CreateReadbackBuffer();
@@ -18,7 +18,9 @@ namespace Nexus::Graphics
 
 	void TimingQueryD3D12::Resolve()
 	{
-		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+		// This needs fixing
+
+		/*m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
 								  { cmd->ResolveQueryData(m_QueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, m_ReadbackBuffer.Get(), 0); });
 
 		uint64_t *timestamps;
@@ -27,10 +29,10 @@ namespace Nexus::Graphics
 		uint64_t end   = timestamps[1];
 		m_ReadbackBuffer->Unmap(0, nullptr);
 
-		uint64_t			frequency;
+		uint64_t								   frequency;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue = m_Device->GetCommandQueue();
 		queue->GetTimestampFrequency(&frequency);
-		m_ElapsedTime = (end - start) / 1000000.0f;
+		m_ElapsedTime = (end - start) / 1000000.0f;*/
 	}
 
 	float TimingQueryD3D12::GetElapsedMilliseconds()
@@ -45,7 +47,7 @@ namespace Nexus::Graphics
 
 	void TimingQueryD3D12::CreateQueryHeap()
 	{
-		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetDevice();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetD3D12Device();
 
 		// create query heap
 		D3D12_QUERY_HEAP_DESC queryHeapDesc = {};
@@ -57,7 +59,7 @@ namespace Nexus::Graphics
 
 	void TimingQueryD3D12::CreateReadbackBuffer()
 	{
-		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetDevice();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetD3D12Device();
 
 		// create the heap
 		D3D12_HEAP_PROPERTIES readbackHeapProperties = {};

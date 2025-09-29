@@ -20,8 +20,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
-
 		const std::string				 GetAPIName() override;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
@@ -30,24 +28,24 @@ namespace Nexus::Graphics
 		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		Ref<CommandList>			  CreateCommandList(const CommandListDescription &spec = {}) final;
-		Ref<ResourceSet>			  CreateResourceSet(Ref<Pipeline> pipeline) final;
-		Ref<Framebuffer>			  CreateFramebuffer(const FramebufferSpecification &spec) final;
-		Ref<Sampler>				  CreateSampler(const SamplerDescription &spec) final;
-		Ref<TimingQuery>			  CreateTimingQuery() final;
-		Ref<DeviceBuffer>			  CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
-		Ref<IAccelerationStructure>	  CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
+		Ref<ResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
+		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<TimingQuery>			CreateTimingQuery() final;
+		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
-		const GraphicsCapabilities GetGraphicsCapabilities() const final;
-		Ref<Texture>			   CreateTexture(const TextureDescription &spec) final;
-		Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) final;
-		Ref<Fence>				   CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
-		void					   ResetFences(Ref<Fence> *fences, uint32_t count) final;
-		ShaderLanguage			   GetSupportedShaderFormat() final;
-		bool					   IsBufferUsageSupported(BufferUsage usage) final;
-		void					   WaitForIdle() final;
-		float					   GetUVCorrection() final
+		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
+		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
+		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
+		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
+		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		ShaderLanguage				 GetSupportedShaderFormat() final;
+		bool						 IsBufferUsageSupported(BufferUsage usage) final;
+		void						 WaitForIdle() final;
+		float						 GetUVCorrection() final
 		{
 			return 1.0f;
 		}
@@ -71,15 +69,13 @@ namespace Nexus::Graphics
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
 
 	  private:
-		Ref<ShaderModule>		  CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
-		std::vector<std::string>  GetSupportedExtensions(const GladGLContext &context);
+		Ref<ShaderModule>		 CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
+		std::vector<std::string> GetSupportedExtensions(const GladGLContext &context);
 
 		PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 
 	  private:
-		const char				  *m_GlslVersion;
 		WeakRef<FramebufferOpenGL> m_BoundFramebuffer = {};
-		VSyncState				   m_VsyncState		  = VSyncState::Enabled;
 
 		std::vector<std::string> m_Extensions {};
 

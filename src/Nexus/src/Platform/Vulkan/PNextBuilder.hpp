@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include <vulkan/vulkan.h>
+#include "glad/vulkan.h"
 
 namespace Nexus::Vk
 {

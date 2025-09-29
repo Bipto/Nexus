@@ -7,14 +7,18 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
+	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
 		: Swapchain(swapchainSpec),
-		  m_Window(window),
-		  m_VsyncState(swapchainSpec.VSyncState)
+		  m_CommandQueue(queue),
+		  m_Window(window)
 	{
 		// assign the graphics device
 		m_Device = (GraphicsDeviceD3D12 *)device;
 
+		// get the sync interval for the swapchain
+		m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
+
+		// set up size of swapchain
 		Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
 		m_SwapchainWidth			 = windowSize.X;
 		m_SwapchainHeight			 = windowSize.Y;
@@ -45,23 +49,25 @@ namespace Nexus::Graphics
 			Resolve();
 		}
 
-		if (this->GetCurrentTextureState() != D3D12_RESOURCE_STATE_PRESENT)
-		{
-			D3D12_RESOURCE_BARRIER barrier;
-			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.pResource   = m_Buffers[m_CurrentBufferIndex].Get();
-			barrier.Transition.Subresource = 0;
-			barrier.Transition.StateBefore = this->GetCurrentTextureState();
-			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
-
-			m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) { cmd->ResourceBarrier(1, &barrier); });
-
-			SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
-		}
-
 		// swap the swapchain's buffers and present to the display
-		m_Swapchain->Present((uint32_t)m_VsyncState, 0);
+		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain1;
+		HRESULT									hr			 = m_Swapchain->QueryInterface(IID_PPV_ARGS(&swapchain1));
+		UINT									presentFlags = 0;
+
+		if (SUCCEEDED(hr))
+		{
+			DXGI_PRESENT_PARAMETERS presentParams = {};
+			presentParams.DirtyRectsCount		  = 0;
+			presentParams.pDirtyRects			  = nullptr;
+			presentParams.pScrollOffset			  = nullptr;
+			presentParams.pScrollRect			  = nullptr;
+
+			swapchain1->Present1(m_SyncInterval, presentFlags, &presentParams);
+		}
+		else
+		{
+			m_Swapchain->Present(m_SyncInterval, presentFlags);
+		}
 
 		// recreate the swapchain if the window's size has changed
 		RecreateSwapchainIfNecessary();
@@ -69,14 +75,10 @@ namespace Nexus::Graphics
 		AcquireBackbufferIndex();
 	}
 
-	VSyncState SwapchainD3D12::GetVsyncState()
+	void SwapchainD3D12::SetPresentMode(PresentMode presentMode)
 	{
-		return m_VsyncState;
-	}
-
-	void SwapchainD3D12::SetVSyncState(VSyncState vsyncState)
-	{
-		m_VsyncState = vsyncState;
+		m_Description.ImagePresentMode = presentMode;
+		m_SyncInterval				   = D3D12::GetSyncIntervalFromPresentMode(presentMode);
 	}
 
 	Nexus::Point2D<uint32_t> SwapchainD3D12::GetSize()
@@ -159,7 +161,7 @@ namespace Nexus::Graphics
 	void SwapchainD3D12::Flush()
 	{
 		// execute a signal and wait for each buffer in the swapchain
-		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->SignalAndWait(); }
+		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->WaitForIdle(); }
 	}
 
 	void SwapchainD3D12::RecreateSwapchainIfNecessary()
@@ -203,7 +205,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::GetBuffers()
 	{
-		const auto d3d12Device = m_Device->GetDevice();
+		const auto d3d12Device = m_Device->GetD3D12Device();
 
 		// loop through and retrieve the buffers from the swapchain
 		for (size_t i = 0; i < BUFFER_COUNT; ++i)
@@ -263,14 +265,16 @@ namespace Nexus::Graphics
 		// retrieve the graphics device's DXGI factory
 		auto factory = m_Device->GetDXGIFactory();
 
+		CommandQueueD3D12 *commandQueueD3D12 = (CommandQueueD3D12 *)m_CommandQueue;
+
 		// create the swapchain and query for the correct swapchain type
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = m_Device->GetCommandQueue();
+		Microsoft::WRL::ComPtr<IDXGISwapChain1>	   sc1;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = commandQueueD3D12->GetHandle();
 		factory->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
 		if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain)))) {}
 
 		// retrieve the ID3D12Device
-		const auto d3d12Device = m_Device->GetDevice();
+		const auto d3d12Device = m_Device->GetD3D12Device();
 
 		// create the descriptor heap
 		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
@@ -298,7 +302,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::CreateDepthAttachment()
 	{
-		auto d3d12Device	= m_Device->GetDevice();
+		auto d3d12Device	= m_Device->GetD3D12Device();
 		auto size			= m_Window->GetWindowSize();
 		m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
@@ -353,10 +357,10 @@ namespace Nexus::Graphics
 	void SwapchainD3D12::CreateMultisampledFramebuffer()
 	{
 		Nexus::Graphics::FramebufferSpecification spec;
-		spec.Width						  = m_SwapchainWidth;
-		spec.Height						  = m_SwapchainHeight;
+		spec.Width						   = m_SwapchainWidth;
+		spec.Height						   = m_SwapchainHeight;
 		spec.ColourAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-		spec.DepthAttachmentSpecification = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
+		spec.DepthAttachmentSpecification  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 		spec.Samples					   = m_Description.Samples;
 
 		m_MultisampledFramebuffer = m_Device->CreateFramebuffer(spec);
@@ -384,7 +388,7 @@ namespace Nexus::Graphics
 
 		auto swapchainTexture = RetrieveBufferHandle();
 
-		m_Device->ImmediateSubmit(
+		/*m_Device->ImmediateSubmit(
 			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
@@ -394,7 +398,7 @@ namespace Nexus::Graphics
 
 				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, framebufferState);
 				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
-			});
+			});*/
 	}
 }	 // namespace Nexus::Graphics
 #endif

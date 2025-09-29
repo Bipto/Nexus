@@ -15,28 +15,26 @@ namespace Nexus::Graphics
 	class SwapchainOpenGL : public Swapchain
 	{
 	  public:
-		SwapchainOpenGL(IWindow *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
+		SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDevice *graphicsDevice);
 		virtual ~SwapchainOpenGL();
-		virtual void					 SwapBuffers() override;
-		virtual VSyncState				 GetVsyncState() override;
-		virtual void					 SetVSyncState(VSyncState vsyncState) override;
-		virtual Nexus::Point2D<uint32_t> GetSize() override;
-		virtual PixelFormat				 GetColourFormat() override;
-		virtual PixelFormat				 GetDepthFormat() override;
+		void					 SwapBuffers() final;
+		void					 SetPresentMode(PresentMode presentMode) final;
+		Nexus::Point2D<uint32_t> GetSize() final;
+		PixelFormat				 GetColourFormat() final;
+		PixelFormat				 GetDepthFormat() final;
 
-		void							 ResizeIfNecessary();
-		void							 BindAsDrawTarget();
+		void ResizeIfNecessary();
+		void BindAsDrawTarget();
 
 		GL::IViewContext *GetViewContext();
 
-		virtual IWindow *GetWindow() override
+		IWindow *GetWindow() final
 		{
 			return m_Window;
 		}
 
 	  private:
-		IWindow	  *m_Window;
-		VSyncState m_VsyncState;
+		IWindow *m_Window;
 
 		uint32_t						  m_SwapchainWidth	= 0;
 		uint32_t						  m_SwapchainHeight = 0;

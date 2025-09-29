@@ -23,9 +23,12 @@ const std::string c_MipmapFragmentSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	MipmapGenerator::MipmapGenerator(GraphicsDevice *device) : m_Device(device), m_Quad(device, true)
+	MipmapGenerator::MipmapGenerator(GraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		: m_Device(device),
+		  m_CommandQueue(commandQueue),
+		  m_Quad(device, commandQueue, true)
 	{
-		m_CommandList = m_Device->CreateCommandList();
+		m_CommandList = m_CommandQueue->CreateCommandList();
 
 		Ref<ShaderModule> m_VertexModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
@@ -62,8 +65,8 @@ namespace Nexus::Graphics
 		{
 			Nexus::Graphics::FramebufferSpecification framebufferSpec;
 			framebufferSpec.ColourAttachmentSpecification = {texture->GetDescription().Format};
-			framebufferSpec.Width						 = mipWidth;
-			framebufferSpec.Height						 = mipHeight;
+			framebufferSpec.Width						  = mipWidth;
+			framebufferSpec.Height						  = mipHeight;
 			framebufferSpec.Samples						  = texture->GetDescription().Samples;
 
 			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
@@ -123,9 +126,10 @@ namespace Nexus::Graphics
 			m_CommandList->DrawIndexed(drawDesc);
 
 			m_CommandList->End();
-			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
-			pixels = m_Device->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, 0, mipWidth, mipHeight);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			pixels = m_Device->ReadFromTexture(framebufferTexture, m_CommandQueue, 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

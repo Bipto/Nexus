@@ -12,12 +12,16 @@ namespace Demos
 	class Demo
 	{
 	  public:
-		explicit Demo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+		explicit Demo(const std::string							&name,
+					  Nexus::Application						*app,
+					  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+					  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 			: m_Name(name),
 			  m_GraphicsDevice(app->GetGraphicsDevice()),
 			  m_AudioDevice(app->GetAudioDevice()),
 			  m_Window(app->GetPrimaryWindow()),
-			  m_ImGuiRenderer(imGuiRenderer)
+			  m_ImGuiRenderer(imGuiRenderer),
+			  m_CommandQueue(commandQueue)
 		{
 		}
 
@@ -55,10 +59,11 @@ namespace Demos
 		}
 
 	  protected:
-		std::string								  m_Name;
-		Nexus::Graphics::GraphicsDevice			 *m_GraphicsDevice = nullptr;
-		Nexus::Audio::AudioDevice				 *m_AudioDevice	   = nullptr;
-		Nexus::IWindow							 *m_Window		   = nullptr;
-		Nexus::ImGuiUtils::ImGuiGraphicsRenderer *m_ImGuiRenderer  = nullptr;
+		std::string								   m_Name;
+		Nexus::Graphics::GraphicsDevice			  *m_GraphicsDevice = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue	= nullptr;
+		Nexus::Audio::AudioDevice				  *m_AudioDevice	= nullptr;
+		Nexus::IWindow							  *m_Window			= nullptr;
+		Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *m_ImGuiRenderer	= nullptr;
 	};
 }	 // namespace Demos

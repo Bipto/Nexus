@@ -18,9 +18,11 @@ namespace Demos
 	class CameraDemo : public Demo
 	{
 	  public:
-		CameraDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer),
-			  m_Camera(m_GraphicsDevice)
+		CameraDemo(const std::string						 &name,
+				   Nexus::Application						 *app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -30,12 +32,13 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 
-			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateCube();
 
 			m_Texture = m_GraphicsDevice->CreateTexture2D(
+				m_CommandQueue,
 				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
 				true);
 
@@ -57,7 +60,7 @@ namespace Demos
 			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -95,7 +98,7 @@ namespace Demos
 			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 			m_CommandList->SetScissor(scissor);
 
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			Nexus::Graphics::ClearDepthStencilValue clearValue;
 			m_CommandList->ClearDepthTarget(clearValue);
@@ -140,7 +143,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
@@ -178,20 +181,20 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA			  m_CameraUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
-		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

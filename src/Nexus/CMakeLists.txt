@@ -129,6 +129,8 @@ if (DEFINED NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
+  list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
+
   list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
   list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
@@ -248,8 +250,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   glm::glm
   imgui
   imguizmo
-  glad2
-  Tracy::TracyClient)
+  glad2)
 
 #precompiled header
 #target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
@@ -281,3 +282,13 @@ target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+
+add_library(tracy SHARED external/tracy/public/TracyClient.cpp)
+target_include_directories(Nexus PUBLIC external/tracy/public)
+set_target_properties(tracy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+target_link_libraries(Nexus PUBLIC tracy)
+target_compile_definitions(Nexus PUBLIC TRACY_IMPORTS)
+
+set_target_properties(SPIRV-Tools-opt PROPERTIES CXX_STANDARD 17)
+set_target_properties(SPIRV-Tools-static PROPERTIES CXX_STANDARD 17)

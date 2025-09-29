@@ -14,17 +14,20 @@ namespace Nexus::Graphics
 			createInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 		}
 
-		NX_VALIDATE(vkCreateFence(m_Device->GetVkDevice(), &createInfo, nullptr, &m_Fence) == VK_SUCCESS, "Failed to create fence");
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		NX_VALIDATE(context.CreateFence(m_Device->GetVkDevice(), &createInfo, nullptr, &m_Fence) == VK_SUCCESS, "Failed to create fence");
 	}
 
 	FenceVk::~FenceVk()
 	{
-		vkDestroyFence(m_Device->GetVkDevice(), m_Fence, nullptr);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		context.DestroyFence(m_Device->GetVkDevice(), m_Fence, nullptr);
 	}
 
 	bool FenceVk::IsSignalled() const
 	{
-		VkResult result = vkGetFenceStatus(m_Device->GetVkDevice(), m_Fence);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		VkResult				 result	 = context.GetFenceStatus(m_Device->GetVkDevice(), m_Fence);
 		return result == VK_SUCCESS;
 	}
 

@@ -6,10 +6,12 @@
 
 namespace Nexus::Graphics
 {
-	SceneRenderer::SceneRenderer(Graphics::GraphicsDevice *device) : m_Device(device)
+	SceneRenderer::SceneRenderer(Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+		: m_Device(device),
+		  m_CommandQueue(commandQueue)
 	{
-		m_Renderer3D	= std::make_unique<Nexus::Graphics::Renderer3D>(device);
-		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, true, 1);
+		m_Renderer3D	= std::make_unique<Nexus::Graphics::Renderer3D>(device, commandQueue);
+		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, commandQueue, true, 1);
 	}
 
 	void SceneRenderer::Render(Scene *scene, RenderTarget &target, TimeSpan time)

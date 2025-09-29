@@ -10,15 +10,20 @@
 
 namespace Nexus::Graphics
 {
-	CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, const CommandListDescription &spec) : CommandList(spec), m_Device(graphicsDevice)
+	CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec)
+		: CommandList(spec),
+		  m_Queue(commandQueue),
+		  m_Device(graphicsDevice)
 	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
 		// create command pool
 		{
 			VkCommandPoolCreateInfo createInfo = {};
 			createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-			createInfo.queueFamilyIndex		   = m_Device->GetGraphicsFamily();
-			if (vkCreateCommandPool(m_Device->GetVkDevice(), &createInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
+			createInfo.queueFamilyIndex		   = commandQueue->GetDescription().QueueFamilyIndex;
+			if (context.CreateCommandPool(m_Device->GetVkDevice(), &createInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create command pool");
 			}
@@ -37,7 +42,7 @@ namespace Nexus::Graphics
 				allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 				allocateInfo.commandBufferCount			 = FRAMES_IN_FLIGHT;
 
-				if (vkAllocateCommandBuffers(m_Device->GetVkDevice(), &allocateInfo, &m_CommandBuffers[i]) != VK_SUCCESS)
+				if (context.AllocateCommandBuffers(m_Device->GetVkDevice(), &allocateInfo, &m_CommandBuffers[i]) != VK_SUCCESS)
 				{
 					throw std::runtime_error("Failed to allocate command buffer");
 				}
@@ -50,8 +55,10 @@ namespace Nexus::Graphics
 
 	CommandListVk::~CommandListVk()
 	{
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++) { vkFreeCommandBuffers(m_Device->GetVkDevice(), m_CommandPool, 1, &m_CommandBuffers[i]); }
-		vkDestroyCommandPool(m_Device->GetVkDevice(), m_CommandPool, nullptr);
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++) { context.FreeCommandBuffers(m_Device->GetVkDevice(), m_CommandPool, 1, &m_CommandBuffers[i]); }
+		context.DestroyCommandPool(m_Device->GetVkDevice(), m_CommandPool, nullptr);
 	}
 
 	VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()

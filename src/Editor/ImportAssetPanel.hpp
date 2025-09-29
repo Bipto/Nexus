@@ -53,7 +53,7 @@ class ImportAssetPanel : public Panel
 
 			for (size_t i = 0; i < processorNames.size(); i++)
 			{
-				std::string filepath  = m_Filepaths[i];
+				std::string filepath	  = m_Filepaths[i];
 				std::string processorName = processorNames[i];
 
 				if (ImGui::CollapsingHeader(filepath.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
@@ -73,7 +73,10 @@ class ImportAssetPanel : public Panel
 							{
 								std::unique_ptr<Nexus::Processors::IProcessor> processor =
 									std::unique_ptr<Nexus::Processors::IProcessor>(info.value().CreationFunction());
-								processor->Process(filepath, Nexus::GetApplication()->GetGraphicsDevice(), m_Project.get());
+								processor->Process(filepath,
+												   Nexus::GetApplication()->GetGraphicsDevice(),
+												   Nexus::GetApplication()->GetGraphicsCommandQueue(),
+												   m_Project.get());
 								pathToRemove = i;
 							}
 						}

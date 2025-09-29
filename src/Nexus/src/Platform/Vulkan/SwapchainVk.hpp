@@ -4,38 +4,39 @@
 
 	#include "Nexus-Core/nxpch.hpp"
 
-	#include "PhysicalDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/IWindow.hpp"
+	#include "PhysicalDeviceVk.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
 {
 	// forward declaration
 	class GraphicsDeviceVk;
+	class CommandQueueVk;
 
 	class SwapchainVk : public Swapchain
 	{
 	  public:
-		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec);
+		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainVk();
 
-		virtual void					 SwapBuffers() override;
-		virtual VSyncState				 GetVsyncState() override;
-		virtual void					 SetVSyncState(VSyncState vsyncState) override;
-		virtual Nexus::Point2D<uint32_t> GetSize() override;
-		VkSurfaceFormatKHR				 GetSurfaceFormat();
-		VkFormat						 GetVkDepthFormat();
+		void					 SwapBuffers() final;
+		void					 SetPresentMode(PresentMode presentMode) final;
+		Nexus::Point2D<uint32_t> GetSize() final;
+		VkSurfaceKHR			 GetSurface();
+		VkSurfaceFormatKHR		 GetSurfaceFormat();
+		VkFormat				 GetVkDepthFormat();
 
-		virtual IWindow *GetWindow() override
+		IWindow *GetWindow() final
 		{
 			return m_Window;
 		}
 
-		virtual PixelFormat GetColourFormat() override;
-		virtual PixelFormat GetDepthFormat() override;
+		PixelFormat GetColourFormat() final;
+		PixelFormat GetDepthFormat() final;
 
-		void		 RecreateSwapchain();
+		void RecreateSwapchain();
 
 		uint32_t   GetImageCount();
 		VkExtent2D GetSwapchainSize() const;
@@ -97,8 +98,8 @@ namespace Nexus::Graphics
 		uint32_t	GetCurrentFrameIndex();
 
 	  private:
-		IWindow	  *m_Window;
-		VSyncState m_VsyncState;
+		IWindow		   *m_Window	   = nullptr;
+		CommandQueueVk *m_CommandQueue = nullptr;
 
 		// vulkan types
 		VkSurfaceKHR m_Surface;
@@ -125,7 +126,7 @@ namespace Nexus::Graphics
 		VkImageLayout  m_DepthLayout;
 
 		std::vector<VkFramebuffer> m_Framebuffers;
-		VkRenderPass m_RenderPass;
+		VkRenderPass			   m_RenderPass;
 
 		GraphicsDeviceVk *m_GraphicsDevice;
 

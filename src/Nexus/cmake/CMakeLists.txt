@@ -57,7 +57,7 @@ macro(nexus_copy_required_runtime_libraries)
 
     # Copy runtime DLLs (Windows-specific)
     add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        COMMAND ${CMAKE_COMMAND} -E copy
                 $<TARGET_RUNTIME_DLLS:${target_name}>
                 $<TARGET_FILE_DIR:${target_name}>
         COMMAND_EXPAND_LISTS
@@ -69,7 +69,7 @@ macro(nexus_copy_required_runtime_libraries)
 
     if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
         add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            COMMAND ${CMAKE_COMMAND} -E copy
                     $<TARGET_PDB_FILE:Nexus>
                     $<TARGET_FILE_DIR:${target_name}>
             COMMENT "Post-build: Copying PDB file for ${target_name}"

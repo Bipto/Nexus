@@ -7,8 +7,11 @@ namespace Demos
 	class HelloTriangleMeshShadersDemo : public Demo
 	{
 	  public:
-		HelloTriangleMeshShadersDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		HelloTriangleMeshShadersDemo(const std::string						   &name,
+									 Nexus::Application						   *app,
+									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
+									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -18,7 +21,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			CreatePipeline();
 		}
 
@@ -46,7 +49,7 @@ namespace Demos
 			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 			m_CommandList->SetScissor(scissor);
 
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			Nexus::Graphics::DrawMeshDescription drawDesc = {};
 			drawDesc.WorkGroupCountX					  = 1;
@@ -56,7 +59,7 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
@@ -95,8 +98,8 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::MeshletPipeline>  m_Pipeline;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList;
+		Nexus::Ref<Nexus::Graphics::MeshletPipeline> m_Pipeline;
+		glm::vec3									 m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

@@ -23,50 +23,70 @@ namespace Nexus::Graphics
 		uint32_t Height = 0;
 	};
 
+	struct BufferCopy
+	{
+		uint64_t ReadOffset	 = 0;
+		uint64_t WriteOffset = 0;
+		uint64_t Size		 = 0;
+	};
+
 	struct BufferCopyDescription
 	{
-		Ref<DeviceBuffer> Source	  = nullptr;
-		Ref<DeviceBuffer> Destination = nullptr;
-		uint64_t		  ReadOffset  = 0;
-		uint64_t		  WriteOffset = 0;
-		uint64_t		  Size		  = 0;
+		Ref<DeviceBuffer>		Source		= nullptr;
+		Ref<DeviceBuffer>		Destination = nullptr;
+		std::vector<BufferCopy> Copies		= {};
 	};
 
-	enum class ImageAspect : uint16_t
+	struct Offset3D
 	{
-		Colour,
-		Depth,
-		Stencil,
-		DepthStencil
+		int32_t X = 0;
+		int32_t Y = 0;
+		int32_t Z = 0;
 	};
 
-	struct SubresourceDescription
+	struct Extent3D
 	{
-		uint32_t	X		   = 0;
-		uint32_t	Y		   = 0;
-		uint32_t	Z		   = 0;
-		uint32_t	Width	   = 0;
-		uint32_t	Height	   = 0;
-		uint32_t	Depth	   = 0;
-		uint32_t	MipLevel   = 0;
-		uint32_t	ArrayLayer = 0;
-		ImageAspect Aspect	   = ImageAspect::Colour;
+		uint32_t Width	= 0;
+		uint32_t Height = 0;
+		uint32_t Depth	= 0;
+	};
+
+	struct SubresourceRange
+	{
+		uint32_t BaseMipLevel	= 0;
+		uint32_t LevelCount		= 1;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 1;
+	};
+
+	struct SubresourceLayers
+	{
+		uint32_t MipLevel		= 0;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 0;
 	};
 
 	struct BufferTextureCopyDescription
 	{
-		Ref<DeviceBuffer>	   BufferHandle		  = nullptr;
-		Ref<Texture>		   TextureHandle	  = nullptr;
-		uint64_t			   BufferOffset		  = 0;
-		SubresourceDescription TextureSubresource = {};
+		Ref<DeviceBuffer> BufferHandle		 = nullptr;
+		uint64_t		  BufferOffset		 = 0;
+		uint64_t		  BufferRowLength	 = 0;
+		uint64_t		  BufferImageHeight	 = 0;
+		Ref<Texture>	  TextureHandle		 = nullptr;
+		SubresourceLayers TextureSubresource = {};
+		Offset3D		  TextureOffset		 = {};
+		Extent3D		  TextureExtent		 = {};
 	};
 
 	struct TextureCopyDescription
 	{
-		Ref<Texture>		   Source				  = nullptr;
-		Ref<Texture>		   Destination			  = nullptr;
-		SubresourceDescription SourceSubresource	  = {};
-		SubresourceDescription DestinationSubresource = {};
+		Ref<Texture>	  Source				 = nullptr;
+		Ref<Texture>	  Destination			 = nullptr;
+		SubresourceLayers SourceSubresource		 = {};
+		SubresourceLayers DestinationSubresource = {};
+		Offset3D		  SourceOffset			 = {};
+		Offset3D		  DestinationOffset		 = {};
+		Extent3D		  Extent				 = {};
 	};
 
 	struct SetVertexBufferCommand
@@ -96,7 +116,7 @@ namespace Nexus::Graphics
 
 	/// @brief A struct representing a set of values to use  to clear the colour
 	/// buffer
-	struct ClearColorValue
+	struct ClearColourValue
 	{
 		/// @brief The red channel as a value between 0.0f and 1.0f
 		float Red = 1.0f;
@@ -203,7 +223,7 @@ namespace Nexus::Graphics
 	struct ClearColorTargetCommand
 	{
 		uint32_t				 Index = {};
-		ClearColorValue			 Color = {};
+		ClearColourValue		 Color = {};
 		std::optional<ClearRect> Rect  = {};
 	};
 
@@ -265,88 +285,98 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
-	enum class BarrierStage
+	enum class BarrierPipelineStage
 	{
-		All,
-		Graphics,
+		None,
+		DrawIndirect,
 		VertexInput,
 		VertexShader,
-		FragmentShader,
-		TesselationControlShader,
-		TesselationEvaluationShader,
+		TessellationControlShader,
+		TessellationEvaluationShader,
 		GeometryShader,
+		FragmentShader,
+		EarlyFragmentTests,
+		LateFragmentTests,
+		ColourAttachmentOutput,
 		ComputeShader,
-		RenderTarget,
-		TransferSource,
-		TransferDestination,
-		Resolve
+		AllTransfers,
+		Transfer,
+		Host,
+		AllGraphics,
+		AllCommands,
+		Copy,
+		Resolve,
+		IndexInput,
+		VertexAttributeInput,
+		PreRasterizationShaders,
+		TransformFeedback,
+		AccelerationStructure,
+		RayTracingShader,
+		TaskShader,
+		MeshShader
 	};
 
 	enum class BarrierAccess
 	{
-		All,
-		VertexBuffer,
-		IndexBuffer,
-		RenderTarget,
-		StorageImage,
-		DepthStencilRead,
-		DepthStencilWrite,
-		ResolveSource,
-		ResolveDestination,
-		CopySource,
-		CopyDestination,
-		DrawIndirect,
-	};
-
-	enum class BarrierLayout
-	{
-		Undefined,
-		General,
-		Present,
-		RenderTarget,
-		DepthStencilRead,
-		DepthStencilWrite,
-		CopySource,
-		CopyDestination,
-		ResolveSource,
-		ResolveDestimation,
-		ShaderReadOnly,
-		ShaderReadWrite
+		None,
+		IndirectCommandRead,
+		IndexRead,
+		VertexAttributeRead,
+		UniformRead,
+		InputAttachmentRead,
+		ShaderRead,
+		ShaderWrite,
+		ColourAttachmentRead,
+		ColourAttachmentWrite,
+		DepthStencilAttachmentRead,
+		DepthStencilAttachmentWrite,
+		TransferRead,
+		TransferWrite,
+		HostRead,
+		HostWrite,
+		MemoryRead,
+		MemoryWrite,
+		TransformFeedbackWrite,
+		AccelerationStructureRead,
+		AccelerationStructureWrite,
+		VideoDecode,
+		VideoEncode
 	};
 
 	struct MemoryBarrierDesc
 	{
-		BarrierStage  BeforeStage  = BarrierStage::All;
-		BarrierStage  AfterStage   = BarrierStage::All;
-		BarrierAccess BeforeAccess = BarrierAccess::All;
-		BarrierAccess AfterAccess  = BarrierAccess::All;
+		BarrierAccess		 BeforeAccess = {};
+		BarrierAccess		 AfterAccess  = {};
+		BarrierPipelineStage BeforeStage  = {};
+		BarrierPipelineStage AfterStage	  = {};
 	};
 
 	struct TextureBarrierDesc
 	{
 		Ref<Graphics::Texture> Texture			= nullptr;
-		BarrierStage		   BeforeStage		= BarrierStage::All;
-		BarrierStage		   AfterStage		= BarrierStage::All;
-		BarrierLayout		   BeforeLayout		= BarrierLayout::General;
-		BarrierLayout		   AfterLayout		= BarrierLayout::General;
-		BarrierAccess		   BeforeAccess		= BarrierAccess::All;
-		BarrierAccess		   AfterAccess		= BarrierAccess::All;
-		SubresourceDescription SubresourceRange = {};
+		TextureLayout		   Layout			= {};
+		BarrierAccess		   BeforeAccess		= {};
+		BarrierAccess		   AfterAccess		= {};
+		BarrierPipelineStage   BeforeStage		= {};
+		BarrierPipelineStage   AfterStage		= {};
+		SubresourceRange	   SubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc
 	{
 		Ref<Graphics::DeviceBuffer> Buffer		 = nullptr;
-		BarrierStage				BeforeStage	 = BarrierStage::All;
-		BarrierStage				AfterStage	 = BarrierStage::All;
-		BarrierAccess				BeforeAccess = BarrierAccess::All;
-		BarrierAccess				AfterAccess	 = BarrierAccess::All;
+		BarrierAccess				BeforeAccess = {};
+		BarrierAccess				AfterAccess	 = {};
+		BarrierPipelineStage		BeforeStage	 = {};
+		BarrierPipelineStage		AfterStage	 = {};
+		size_t						Offset		 = 0;
+		size_t						Size		 = 0;
 	};
 
 	struct PushConstantsDesc
 	{
 		std::string			 Name	= {};
-		size_t		Offset = 0;
+		size_t				 Offset = 0;
 		std::vector<uint8_t> Data	= {};
 	};
 
@@ -383,12 +413,16 @@ namespace Nexus::Graphics
 						 AccelerationStructureCopyDescription,
 						 AccelerationStructureDeviceBufferCopyDescription,
 						 DeviceBufferAccelerationStructureCopyDescription,
-						 PushConstantsDesc>
+						 PushConstantsDesc,
+						 MemoryBarrierDesc,
+						 TextureBarrierDesc,
+						 BufferBarrierDesc>
 		RenderCommandData;
 
 	struct CommandListDescription
 	{
 		std::string DebugName = "CommandList";
+		bool AutomaticBarrierTransitions = true;
 	};
 
 	/// @brief A class representing a command list
@@ -444,9 +478,9 @@ namespace Nexus::Graphics
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
 
-		void ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect);
+		void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
 
-		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
+		void ClearColourTarget(uint32_t index, const ClearColourValue &color);
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
 
@@ -492,6 +526,12 @@ namespace Nexus::Graphics
 
 		void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
 
+		void SubmitMemoryBarrier(const MemoryBarrierDesc &desc);
+
+		void SubmitTextureBarrier(const TextureBarrierDesc &desc);
+
+		void SubmitBufferBarrier(const BufferBarrierDesc &desc);
+
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();
 
@@ -500,7 +540,7 @@ namespace Nexus::Graphics
 	  private:
 		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
-		bool						   m_Started = false;
+		bool						   m_Started	 = false;
 		uint32_t					   m_DebugGroups = 0;
 	};
 

@@ -2,20 +2,23 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "vulkan/vulkan.h"
+	#include "glad/vulkan.h"
 	#include "vk_mem_alloc.h"
 
-	#include "Nexus-Core/Graphics/Pipeline.hpp"
 	#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "Nexus-Core/Graphics/CommandQueue.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
+	#include "Nexus-Core/Graphics/Pipeline.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
 
 	#include "PNextBuilder.hpp"
+
+	#include "VulkanLoader.hpp"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 
@@ -24,7 +27,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceVk;
 	class ShaderModuleVk;
 	class ResourceSetVk;
-}
+}	 // namespace Nexus::Graphics
 
 namespace Nexus::Vk
 {
@@ -55,11 +58,10 @@ namespace Nexus::Vk
 	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
 	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
 
-	bool				  SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
 	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
-	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
+	VkImageAspectFlagBits GetAspectFlags(bool isDepth);
 
 	VkAccelerationStructureTypeKHR		   GetAccelerationStructureType(Graphics::AccelerationStructureType type);
 	VkBuildAccelerationStructureFlagsKHR   GetAccelerationStructureFlags(uint8_t flags);
@@ -70,6 +72,8 @@ namespace Nexus::Vk
 	VkDeviceOrHostAddressKHR			   GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address);
 	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address);
 	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
+	VkPresentModeKHR					   GetVulkanPresentMode(Graphics::PresentMode presentMode);
+
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
 		const Graphics::AccelerationStructureGeometryBuildDescription &description);
 	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
@@ -97,7 +101,7 @@ namespace Nexus::Vk
 		uint32_t				 Height			  = 0;
 	};
 
-	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc);
+	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc);
 
 	struct AllocatedBuffer
 	{
@@ -130,19 +134,19 @@ namespace Nexus::Vk
 										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t> &descriptorCounts);
 
-	VkPipeline		 CreateGraphicsPipeline(VkRenderPass											renderPass,
-											Graphics::GraphicsDeviceVk							   *device,
-											const Graphics::DepthStencilDescription				   &depthStencilDesc,
-											const Graphics::RasterizerStateDescription			   &rasterizerDesc,
-											uint32_t												samples,
-											const std::vector<VkPipelineShaderStageCreateInfo>	   &shaderStages,
-											uint32_t												colourTargetCount,
-											const std::array<Graphics::PixelFormat, 8>			   &colourFormats,
-											const std::array<Graphics::BlendStateDescription, 8>   &blendStates,
-											Graphics::PixelFormat									depthFormat,
-											VkPipelineLayout										pipelineLayout,
-											Graphics::Topology										topology,
-											const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
+	VkPipeline CreateGraphicsPipeline(VkRenderPass											  renderPass,
+									  Graphics::GraphicsDeviceVk							 *device,
+									  const Graphics::DepthStencilDescription				 &depthStencilDesc,
+									  const Graphics::RasterizerStateDescription			 &rasterizerDesc,
+									  uint32_t												  samples,
+									  const std::vector<VkPipelineShaderStageCreateInfo>	 &shaderStages,
+									  uint32_t												  colourTargetCount,
+									  const std::array<Graphics::PixelFormat, 8>			 &colourFormats,
+									  const std::array<Graphics::BlendStateDescription, 8>	 &blendStates,
+									  Graphics::PixelFormat									  depthFormat,
+									  VkPipelineLayout										  pipelineLayout,
+									  Graphics::Topology									  topology,
+									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
 
 	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
 							  VkSwapchainKHR			  swapchain,
@@ -156,6 +160,24 @@ namespace Nexus::Vk
 						 const std::vector<VkCommandBuffer> commandBuffers,
 						 VkPipelineStageFlags				waitStageMask,
 						 VkFence							fence);
+
+	Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags);
+
+	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description);
+
+	VkAccessFlagBits		 GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
+	VkPipelineStageFlagBits	 GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
+	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
+
+	struct GladLoaderData
+	{
+		VkInstance instance = VK_NULL_HANDLE;
+		VkDevice   device	= VK_NULL_HANDLE;
+	};
+
+	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName);
 
 }	 // namespace Nexus::Vk
 

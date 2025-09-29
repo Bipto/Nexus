@@ -14,29 +14,27 @@ namespace Nexus::Audio
 
 namespace Nexus::Graphics
 {
+	/// @brief An enum class that describes how a swapchain will present the image onto the window
 	enum class PresentMode
 	{
+		/// @brief The image will be presented immediately without waiting for the vertical blank, may result in tearing
 		Immediate,
+
+		/// @brief Presenting waits until the next vertical blank, tearing will not be observed. A single-entry queue is used to store the next image.
 		Mailbox,
+
+		/// @brief Presenting waits until the next vertical blank, tearing will not be observed. A multi-entry queue is used to store the next image.
 		Fifo,
+
+		/// @brief Presenting will wait until the next vertical blank, unless the vsync period has already elapsed, in which case the image will be
+		/// presented immediately. May result in tearing
 		FifoRelaxed
 	};
 
-	/// @brief An enum class representing whether VSync is enabled
-	enum class VSyncState
-	{
-		/// @brief The graphics card will render as many frames as possible or will be
-		/// limited by the frame rate cap specified
-		Disabled = 0,
-
-		/// @brief The refresh rate will be synchronised to the monitor
-		Enabled = 1
-	};
-
-	struct SwapchainSpecification
+	struct SwapchainDescription
 	{
 		/// @brief Whether the application should use VSync
-		Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
+		PresentMode ImagePresentMode = PresentMode::Fifo;
 
 		/// @brief How many samples should be used by the swapchain
 		uint32_t Samples = 0;
@@ -59,7 +57,7 @@ namespace Nexus
 	};
 
 	/// @brief A struct that represents a set of options for a window
-	struct WindowSpecification
+	struct WindowDescription
 	{
 		/// @brief A string containing the title of the window
 		std::string Title = "My Window";
@@ -96,10 +94,13 @@ namespace Nexus
 		Audio::AudioAPI AudioAPI;
 
 		/// @brief Properties to configure the initial window
-		WindowSpecification WindowProperties;
+		WindowDescription WindowProperties;
 
 		/// @brief Properties to configure the initial swapchain
-		Graphics::SwapchainSpecification SwapchainSpecification;
+		Graphics::SwapchainDescription SwapchainDescription;
+
+		/// @brief Whether to create a default graphics queue using a queue with all available capabilities
+		bool CreateDefaultGraphicsQueue = true;
 
 		/// @brief Controls how the application will call Render(), Update() and Tick(), if true they will only be called following user input
 		bool EventDriven = false;

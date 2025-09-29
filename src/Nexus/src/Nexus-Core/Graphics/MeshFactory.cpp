@@ -68,9 +68,11 @@ namespace Nexus::Graphics
 		auto vertexBuffer = Utils::CreateFilledVertexBuffer(fullVertices.data(),
 															fullVertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
 															sizeof(VertexPositionTexCoordNormalTangentBitangent),
-															m_Device);
+															m_Device,
+															m_CommandQueue);
 
-		auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device);
+		auto indexBuffer =
+			Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue);
 
 		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
@@ -88,9 +90,11 @@ namespace Nexus::Graphics
 		auto vertexBuffer = Utils::CreateFilledVertexBuffer(vertices.data(),
 															vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
 															sizeof(VertexPositionTexCoordNormalTangentBitangent),
-															m_Device);
+															m_Device,
+															m_CommandQueue);
 
-		auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device);
+		auto indexBuffer =
+			Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue);
 
 		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
@@ -107,9 +111,11 @@ namespace Nexus::Graphics
 		auto vertexBuffer = Utils::CreateFilledVertexBuffer(vertices.data(),
 															vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
 															sizeof(VertexPositionTexCoordNormalTangentBitangent),
-															m_Device);
+															m_Device,
+															m_CommandQueue);
 
-		auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device);
+		auto indexBuffer =
+			Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue);
 
 		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
@@ -117,7 +123,7 @@ namespace Nexus::Graphics
 	Ref<Model> MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
 	{
 		Nexus::Processors::AssimpProcessor importer {};
-		Ref<Model>						   model = importer.Import(filepath, m_Device);
+		Ref<Model>						   model = importer.Import(filepath, m_Device, m_CommandQueue);
 		return model;
 	}
 }	 // namespace Nexus::Graphics

@@ -28,7 +28,6 @@
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
-
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
@@ -41,7 +40,10 @@
 struct DemoInfo
 {
 	std::string Name;
-	Demos::Demo *(*CreationFunction)(Nexus::Application *, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer);
+	Demos::Demo *(*CreationFunction)(Nexus::Application *,
+									 const std::string						   &name,
+									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
+									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
 };
 
 class DemoApplication : public Nexus::Application
@@ -57,7 +59,9 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		m_CommandQueue = m_CommandQueueGroup.GraphicsQueue;
+
+		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this, m_CommandQueue);
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
 
@@ -66,103 +70,71 @@ class DemoApplication : public Nexus::Application
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		int size = 19;
+		int size = 20;
 
 #if defined(__ANDROID__) || defined(ANDROID)
-		size = 38;
+		size = 42;
 #endif
 
 		std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
 		io.FontDefault		 = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
 		m_ImGuiRenderer->RebuildFontAtlas();
 
-		RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
-		RegisterGraphicsDemo<Demos::ClearRectDemo>("Clear Rects");
-		RegisterGraphicsDemo<Demos::TimingDemo>("Timings");
-		RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
-		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
-		RegisterGraphicsDemo<Demos::HelloTriangleIndirectDemo>("Hello Triangle Indirect");
-		RegisterGraphicsDemo<Demos::HelloTriangleIndirectIndexedDemo>("Hello Triangle Indexed Indirect");
+		RegisterDemo<Demos::ClearScreenDemo>("Graphics", "Clear Colour");
+		RegisterDemo<Demos::ClearRectDemo>("Graphics", "Clear Rects");
+		RegisterDemo<Demos::TimingDemo>("Graphics", "Timings");
+		RegisterDemo<Demos::HelloTriangleDemo>("Graphics", "Hello Triangle");
+		RegisterDemo<Demos::HelloTriangleIndexedDemo>("Graphics", "Hello Triangle Indexed");
+		RegisterDemo<Demos::HelloTriangleIndirectDemo>("Graphics", "Hello Triangle Indirect");
+		RegisterDemo<Demos::HelloTriangleIndirectIndexedDemo>("Graphics", "Hello Triangle Indexed Indirect");
 
 		const Nexus::Graphics::DeviceFeatures deviceFeatures = m_GraphicsDevice->GetPhysicalDeviceFeatures();
 		if (deviceFeatures.SupportsMeshTaskShaders)
 		{
-			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
-			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersIndirect>("Hello Triangle Mesh Shaders Indirect");
+			RegisterDemo<Demos::HelloTriangleMeshShadersDemo>("Graphics", "Hello Triangle Mesh Shaders");
+			RegisterDemo<Demos::HelloTriangleMeshShadersIndirect>("Graphics", "Hello Triangle Mesh Shaders Indirect");
 		}
 
-		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
-		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
-		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");
-		RegisterGraphicsDemo<Demos::UniformBufferDemo>("Uniform Buffers");
-		RegisterGraphicsDemo<Demos::StorageBufferDemo>("Storage Buffers");
-		RegisterGraphicsDemo<Demos::Demo3D>("3D");
-		RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
-		RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
-		RegisterGraphicsDemo<Demos::ModelDemo>("Models");
-		RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
-		RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
-		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
-		RegisterGraphicsDemo<Demos::ComputeDemo>("Compute");
-		RegisterGraphicsDemo<Demos::ComputeIndirectDemo>("Compute Indirect");
+		RegisterDemo<Demos::TexturingDemo>("Graphics", "Texturing");
+		RegisterDemo<Demos::BatchingDemo>("Graphics", "Batching");
+		RegisterDemo<Demos::FramebufferDemo>("Graphics", "Framebuffers");
+		RegisterDemo<Demos::UniformBufferDemo>("Graphics", "Uniform Buffers");
+		RegisterDemo<Demos::StorageBufferDemo>("Graphics", "Storage Buffers");
+		RegisterDemo<Demos::Demo3D>("Graphics", "3D");
+		RegisterDemo<Demos::CameraDemo>("Graphics", "Camera");
+		RegisterDemo<Demos::LightingDemo>("Graphics", "Lighting");
+		RegisterDemo<Demos::ModelDemo>("Graphics", "Models");
+		RegisterDemo<Demos::InstancingDemo>("Graphics", "Instancing");
+		RegisterDemo<Demos::MipmapDemo>("Graphics", "Mipmaps");
+		RegisterDemo<Demos::CubemapDemo>("Graphics", "Cubemaps");
+		RegisterDemo<Demos::ComputeDemo>("Graphics", "Compute");
+		RegisterDemo<Demos::ComputeIndirectDemo>("Graphics", "Compute Indirect");
 
 		// geometry shaders have some issues with SPIRV-Cross HLSL backend
 		if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::D3D12)
 		{
-			RegisterGraphicsDemo<Demos::GeometryShaderDemo>("Geometry Shader");
+			RegisterDemo<Demos::GeometryShaderDemo>("Graphics", "Geometry Shader");
 		}
 
-		RegisterGraphicsDemo<Demos::RayTracingDemo>("Ray Tracing");
+		RegisterDemo<Demos::RayTracingDemo>("Graphics", "Ray Tracing");
 
-		RegisterAudioDemo<Demos::AudioDemo>("Audio");
-		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
-		RegisterUtilsDemo<Demos::Splines>("Splines");
+		RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
+		RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
+		RegisterDemo<Demos::Splines>("Utils", "Splines");
 
-		m_CommandList = m_GraphicsDevice->CreateCommandList();
+		m_CommandList = m_CommandQueue->CreateCommandList();
 	}
 
 	template<typename T>
-	void RegisterGraphicsDemo(const std::string &name)
+	void RegisterDemo(const std::string &menuName, const std::string &name)
 	{
-		DemoInfo info;
-		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
-		m_GraphicsDemos.push_back(info);
-	}
-
-	template<typename T>
-	void RegisterAudioDemo(const std::string &name)
-	{
-		DemoInfo info;
-		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
-		m_AudioDemos.push_back(info);
-	}
-
-	template<typename T>
-	void RegisterUtilsDemo(const std::string &name)
-	{
-		DemoInfo info;
-		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
-		m_UtilsDemos.push_back(info);
-	}
-
-	template<typename T>
-	void RegisterScriptingDemo(const std::string &name)
-	{
-		DemoInfo info;
-		info.Name = name;
-		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-		{ return new T(name, app, imGuiRenderer); };
-		m_ScriptingDemos.push_back(info);
+		DemoInfo &info		  = m_Demos[menuName].emplace_back();
+		info.Name			  = name;
+		info.CreationFunction = [](Nexus::Application						 *app,
+								   const std::string						 &name,
+								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
+								   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) -> Demos::Demo *
+		{ return new T(name, app, imGuiRenderer, commandQueue); };
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -171,32 +143,40 @@ class DemoApplication : public Nexus::Application
 			m_CurrentDemo->Update(time);
 	}
 
-	void RenderDemoList(std::span<DemoInfo> demos, const std::string &menuName)
+	void RenderDemoList(const std::map<std::string, std::vector<DemoInfo>> &demos)
 	{
-		if (ImGui::TreeNodeEx(menuName.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
+		NX_PROFILE_FUNCTION();
+
+		for (const auto &[menuName, demoList] : demos)
 		{
-			for (const auto &pair : demos)
+			if (ImGui::TreeNodeEx(menuName.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 			{
-				auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-
-				if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
+				for (const auto &pair : demoList)
 				{
-					if (ImGui::IsItemClicked())
+					auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+					if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
 					{
-						m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
-						m_CurrentDemo->Load();
+						if (ImGui::IsItemClicked())
+						{
+							m_CurrentDemo =
+								std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue));
+							m_CurrentDemo->Load();
+						}
+
+						ImGui::TreePop();
 					}
-
-					ImGui::TreePop();
 				}
-			}
 
-			ImGui::TreePop();
+				ImGui::TreePop();
+			}
 		}
 	}
 
 	void RenderDemoInfo()
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (m_CurrentDemo)
 		{
 			if (ImGui::Button("<- Back"))
@@ -236,15 +216,13 @@ class DemoApplication : public Nexus::Application
 		}
 		else
 		{
-			RenderDemoList(m_GraphicsDemos, "Graphics");
-			RenderDemoList(m_AudioDemos, "Audio");
-			RenderDemoList(m_ScriptingDemos, "Scripting");
-			RenderDemoList(m_UtilsDemos, "Utils");
+			RenderDemoList(m_Demos);
 		}
 	}
 
 	void RenderPerformanceInfo()
 	{
+		NX_PROFILE_FUNCTION();
 		if (ImGui::CollapsingHeader("Performance"))
 		{
 			const auto &results = Nexus::Timings::Profiler::Get().GetResults();
@@ -261,6 +239,8 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
+		NX_PROFILE_FUNCTION();
+
 		m_ImGuiRenderer->BeforeLayout(time);
 
 		if (Nexus::Input::IsKeyDown(Nexus::ScanCode::F11))
@@ -270,6 +250,7 @@ class DemoApplication : public Nexus::Application
 		}
 
 		{
+			NX_PROFILE_SCOPE("Render UI");
 			ImGui::Begin("Demos");
 			RenderDemoInfo();
 			RenderPerformanceInfo();
@@ -278,27 +259,35 @@ class DemoApplication : public Nexus::Application
 
 		if (m_CurrentDemo)
 		{
+			NX_PROFILE_SCOPE("Render Demo");
 			m_CurrentDemo->Render(time);
 		}
 		else
 		{
+			NX_PROFILE_SCOPE("Clear Screen");
 			m_CommandList->Begin();
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
-			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
+			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 
 		m_ImGuiRenderer->AfterLayout();
 
-		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+		{
+			NX_PROFILE_SCOPE("CommandQueue::Present");
+			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+		}
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
 	{
+		NX_PROFILE_FUNCTION();
+
 		if (m_CurrentDemo)
 			m_CurrentDemo->OnResize(size);
 	}
@@ -308,12 +297,11 @@ class DemoApplication : public Nexus::Application
 	}
 
   private:
-	Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
-	std::unique_ptr<Demos::Demo>			 m_CurrentDemo	  = nullptr;
-	std::vector<DemoInfo>					 m_GraphicsDemos  = {};
-	std::vector<DemoInfo>					 m_AudioDemos	  = {};
-	std::vector<DemoInfo>					 m_ScriptingDemos = {};
-	std::vector<DemoInfo>					 m_UtilsDemos	  = {};
+	Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
+
+	Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList = nullptr;
+	std::unique_ptr<Demos::Demo>				 m_CurrentDemo = nullptr;
+	std::map<std::string, std::vector<DemoInfo>> m_Demos	   = {};
 
 	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
 };
@@ -322,8 +310,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
-	spec.GraphicsCreateInfo.Debug = true;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsCreateInfo.Debug = false;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
@@ -334,8 +322,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainSpecification.Samples	   = 8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+	spec.SwapchainDescription.Samples		   = 1;
+	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";
 	spec.App		  = "Demo";

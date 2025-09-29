@@ -18,22 +18,20 @@ namespace Nexus::Graphics
 			{
 				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
 				{
-					context.CopyNamedBufferSubData(src->GetHandle(),
-												   dst->GetHandle(),
-												   command.BufferCopy.ReadOffset,
-												   command.BufferCopy.WriteOffset,
-												   command.BufferCopy.Size);
+					for (const auto &copy : command.BufferCopy.Copies)
+					{
+						context.CopyNamedBufferSubData(src->GetHandle(), dst->GetHandle(), copy.ReadOffset, copy.WriteOffset, copy.Size);
+					}
 				}
 				else
 				{
 					context.BindBuffer(GL_COPY_READ_BUFFER, src->GetHandle());
 					context.BindBuffer(GL_COPY_WRITE_BUFFER, dst->GetHandle());
 
-					context.CopyBufferSubData(GL_COPY_READ_BUFFER,
-											  GL_COPY_WRITE_BUFFER,
-											  command.BufferCopy.ReadOffset,
-											  command.BufferCopy.WriteOffset,
-											  command.BufferCopy.Size);
+					for (const auto &copy : command.BufferCopy.Copies)
+					{
+						context.CopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, copy.ReadOffset, copy.WriteOffset, copy.Size);
+					}
 
 					context.BindBuffer(GL_COPY_READ_BUFFER, 0);
 					context.BindBuffer(GL_COPY_WRITE_BUFFER, 0);

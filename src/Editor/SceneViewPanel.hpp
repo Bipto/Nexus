@@ -42,10 +42,11 @@ class SceneViewPanel : public Panel
 					scene->SceneEnvironment.CubemapPath = file;
 
 					auto		graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
+					auto		commandQueue   = Nexus::GetApplication()->GetGraphicsCommandQueue();
 					std::string path		   = file;
 					if (!path.empty() && std::filesystem::exists(path))
 					{
-						Nexus::Graphics::HdriProcessor processor(path, graphicsDevice);
+						Nexus::Graphics::HdriProcessor processor(path, graphicsDevice, commandQueue);
 						scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
 					}
 				}

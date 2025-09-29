@@ -15,6 +15,7 @@ namespace Nexus::GL
 		  m_PBuffer(context)
 	{
 		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
+		wglMakeCurrent(m_HDC, m_HGLRC);
 		m_FunctionContext.Load();
 	}
 
@@ -52,6 +53,15 @@ namespace Nexus::GL
 
 	bool ViewContextWGL::MakeCurrent()
 	{
+		HGLRC currentContext = wglGetCurrentContext();
+		HDC	  currentHDC	 = wglGetCurrentDC();
+
+		// the context is already current, so we can skip this step
+		if (currentContext == m_HGLRC && currentHDC == m_HDC)
+		{
+			return true;
+		}
+
 		bool success = wglMakeCurrent(m_HDC, m_HGLRC);
 
 		if (!success)
@@ -67,7 +77,15 @@ namespace Nexus::GL
 
 	void ViewContextWGL::Swap()
 	{
-		SwapBuffers(m_HDC);
+		if (wglSwapLayerBuffers != nullptr)
+		{
+			wglSwapLayerBuffers(m_HDC, WGL_SWAP_MAIN_PLANE);
+		}
+		else
+		{
+			SwapBuffers(m_HDC);
+		}
+
 	}
 
 	void ViewContextWGL::SetVSync(bool enabled)

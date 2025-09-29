@@ -19,10 +19,10 @@ namespace Nexus::Graphics
 		createInfo.type									= accelerationStructureType;
 		createInfo.deviceAddress						= 0;
 
-		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkCreateAccelerationStructureKHR)
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		if (context.CreateAccelerationStructureKHR)
 		{
-			NX_VALIDATE(functions.vkCreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr, &m_Handle) == VK_SUCCESS,
+			NX_VALIDATE(context.CreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr, &m_Handle) == VK_SUCCESS,
 						"Failed to create acceleration structure");
 		}
 
@@ -31,10 +31,10 @@ namespace Nexus::Graphics
 
 	AccelerationStructureVk::~AccelerationStructureVk()
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
-		if (functions.vkDestroyAccelerationStructureKHR)
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		if (context.DestroyAccelerationStructureKHR)
 		{
-			functions.vkDestroyAccelerationStructureKHR(m_Device->GetVkDevice(), m_Handle, nullptr);
+			context.DestroyAccelerationStructureKHR(m_Device->GetVkDevice(), m_Handle, nullptr);
 		}
 	}
 
@@ -50,16 +50,16 @@ namespace Nexus::Graphics
 
 	VkDeviceAddress AccelerationStructureVk::GetDeviceAddress() const
 	{
-		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		if (functions.vkGetAccelerationStructureDeviceAddressKHR)
+		if (context.GetAccelerationStructureDeviceAddressKHR)
 		{
 			VkAccelerationStructureDeviceAddressInfoKHR info = {};
 			info.sType										 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
 			info.pNext										 = nullptr;
 			info.accelerationStructure						 = m_Handle;
 
-			return functions.vkGetAccelerationStructureDeviceAddressKHR(m_Device->GetVkDevice(), &info);
+			return context.GetAccelerationStructureDeviceAddressKHR(m_Device->GetVkDevice(), &info);
 		}
 
 		return 0;

@@ -670,25 +670,6 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name)
-	{
-		VkDebugUtilsObjectNameInfoEXT nameInfo = {};
-		nameInfo.sType						   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-		nameInfo.pNext						   = nullptr;
-		nameInfo.objectType					   = type;
-		nameInfo.objectHandle				   = objectHandle;
-		nameInfo.pObjectName				   = name;
-
-		auto func = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(device, "vkSetDebugUtilsObjectNameEXT");
-		if (func != nullptr)
-		{
-			if (func(device, &nameInfo) != VK_SUCCESS)
-				return false;
-		}
-
-		return true;
-	}
-
 	uint32_t GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount)
 	{
 		uint32_t count = 0;
@@ -707,16 +688,12 @@ namespace Nexus::Vk
 		return vkSampleCountFlag;
 	}
 
-	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect)
+	VkImageAspectFlagBits GetAspectFlags(bool isDepth)
 	{
-		switch (aspect)
-		{
-			case Graphics::ImageAspect::Colour: return VK_IMAGE_ASPECT_COLOR_BIT;
-			case Graphics::ImageAspect::Depth: return VK_IMAGE_ASPECT_DEPTH_BIT;
-			case Graphics::ImageAspect::Stencil: return VK_IMAGE_ASPECT_STENCIL_BIT;
-			case Graphics::ImageAspect::DepthStencil: return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
-			default: throw std::runtime_error("Failed to find valid aspect flags");
-		}
+		if (isDepth)
+			return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+		else
+			return VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
 	VkAccelerationStructureTypeKHR GetAccelerationStructureType(Graphics::AccelerationStructureType type)
@@ -899,6 +876,18 @@ namespace Nexus::Vk
 		}
 	}
 
+	VkPresentModeKHR GetVulkanPresentMode(Graphics::PresentMode presentMode)
+	{
+		switch (presentMode)
+		{
+			case Graphics::PresentMode::Immediate: return VK_PRESENT_MODE_IMMEDIATE_KHR;
+			case Graphics::PresentMode::Mailbox: return VK_PRESENT_MODE_MAILBOX_KHR;
+			case Graphics::PresentMode::Fifo: return VK_PRESENT_MODE_FIFO_KHR;
+			case Graphics::PresentMode::FifoRelaxed: return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+			default: throw std::runtime_error("Failed to find a valid present mode");
+		}
+	}
+
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
 		const Graphics::AccelerationStructureGeometryBuildDescription &description)
 	{
@@ -963,7 +952,7 @@ namespace Nexus::Vk
 		return rangeInfo;
 	}
 
-	VkRenderPass CreateVkRenderPass(VkDevice device, const VulkanRenderPassDescription &desc)
+	VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference>	 colourAttachmentReferences;
@@ -1085,11 +1074,11 @@ namespace Nexus::Vk
 		createInfo.pDependencies		  = dependencies.data();
 
 		VkRenderPass renderPass = VK_NULL_HANDLE;
-		NX_VALIDATE(vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		NX_VALIDATE(context.CreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
 		return renderPass;
 	}
 
-	VkRenderPass CreateVkRenderPass2(PFN_vkCreateRenderPass2KHR func, VkDevice device, const VulkanRenderPassDescription &desc)
+	VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
 		std::vector<VkAttachmentDescription2KHR> attachments				= {};
 		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences = {};
@@ -1224,21 +1213,25 @@ namespace Nexus::Vk
 		createInfo.pCorrelatedViewMasks		  = nullptr;
 
 		VkRenderPass renderPass = VK_NULL_HANDLE;
-		NX_VALIDATE(func(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		NX_VALIDATE(context.CreateRenderPass2KHR(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
 		return renderPass;
 	}
 
 	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc)
 	{
-		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkCreateRenderPass2KHR)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.CreateRenderPass2KHR)
 		{
-			return CreateVkRenderPass2(functions.vkCreateRenderPass2KHR, device->GetVkDevice(), desc);
+			return CreateVkRenderPass2(context, device->GetVkDevice(), desc);
 		}
-		return CreateVkRenderPass(device->GetVkDevice(), desc);
+		else
+		{
+			return CreateVkRenderPass(context, device->GetVkDevice(), desc);
+		}
 	}
 
-	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc)
+	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc)
 	{
 		std::vector<VkImageView> attachments = {};
 
@@ -1265,7 +1258,7 @@ namespace Nexus::Vk
 
 		VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
-		NX_VALIDATE(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
+		NX_VALIDATE(context.CreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
 
 		return framebuffer;
 	}
@@ -1517,6 +1510,8 @@ namespace Nexus::Vk
 										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t> &descriptorCounts)
 	{
+		const GladVulkanContext &context = device->GetVulkanContext();
+
 		// retrieve the resources that are referenced by the shaders
 		const auto &shaderResources = pipeline->GetRequiredShaderResources();
 
@@ -1549,7 +1544,7 @@ namespace Nexus::Vk
 			createInfo.bindingCount					   = layoutBindings.size();
 
 			VkDescriptorSetLayout &layout = descriptorSetLayouts.emplace_back();
-			NX_VALIDATE(vkCreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
+			NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
 						"Failed to create descriptor set layout");
 		}
 
@@ -1565,7 +1560,7 @@ namespace Nexus::Vk
 		info.pushConstantRangeCount		= 0;
 		info.pPushConstantRanges		= nullptr;
 
-		NX_VALIDATE(vkCreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
+		NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
 
 		return layout;
 	}
@@ -1584,6 +1579,7 @@ namespace Nexus::Vk
 									  Graphics::Topology									  topology,
 									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts)
 	{
+		const GladVulkanContext				 &context		 = device->GetVulkanContext();
 		const Graphics::VulkanDeviceFeatures &deviceFeatures = device->GetDeviceFeatures();
 
 		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo(depthStencilDesc);
@@ -1683,7 +1679,7 @@ namespace Nexus::Vk
 
 		VkPipeline pipeline = VK_NULL_HANDLE;
 
-		if (vkCreateGraphicsPipelines(device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		if (context.CreateGraphicsPipelines(device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}
@@ -1698,8 +1694,9 @@ namespace Nexus::Vk
 							  VkFence					  fence,
 							  uint32_t					 *imageIndex)
 	{
-		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkAcquireNextImage2KHR)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.AcquireNextImage2KHR)
 		{
 			VkAcquireNextImageInfoKHR imageAcquireInfo = {};
 			imageAcquireInfo.sType					   = VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR;
@@ -1709,11 +1706,11 @@ namespace Nexus::Vk
 			imageAcquireInfo.semaphore				   = semaphore;
 			imageAcquireInfo.fence					   = fence;
 			imageAcquireInfo.deviceMask				   = 1;
-			return vkAcquireNextImage2KHR(device->GetVkDevice(), &imageAcquireInfo, imageIndex);
+			return context.AcquireNextImage2KHR(device->GetVkDevice(), &imageAcquireInfo, imageIndex);
 		}
 		else
 		{
-			return vkAcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
+			return context.AcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
 		}
 	}
 
@@ -1723,8 +1720,9 @@ namespace Nexus::Vk
 						 VkPipelineStageFlags				waitStageMask,
 						 VkFence							fence)
 	{
-		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
-		if (functions.vkQueueSubmit2KHR)
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		if (context.QueueSubmit2KHR)
 		{
 			std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
 
@@ -1748,7 +1746,7 @@ namespace Nexus::Vk
 			submitInfo.signalSemaphoreInfoCount = 0;
 			submitInfo.pSignalSemaphoreInfos	= nullptr;
 
-			return functions.vkQueueSubmit2KHR(queue, 1, &submitInfo, fence);
+			return context.QueueSubmit2KHR(queue, 1, &submitInfo, fence);
 		}
 		else
 		{
@@ -1762,8 +1760,534 @@ namespace Nexus::Vk
 			submitInfo.signalSemaphoreCount = 0;
 			submitInfo.pSignalSemaphores	= nullptr;
 
-			return vkQueueSubmit(queue, 1, &submitInfo, fence);
+			return context.QueueSubmit(queue, 1, &submitInfo, fence);
 		}
+	}
+
+	Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags)
+	{
+		Graphics::QueueCapabilities caps = Graphics::QueueCapabilities::Invalid;
+
+		if (flags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Graphics);
+		}
+
+		if (flags & VK_QUEUE_COMPUTE_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Compute);
+		}
+
+		if (flags & VK_QUEUE_TRANSFER_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Transfer);
+		}
+
+		if (flags & VK_QUEUE_SPARSE_BINDING_BIT)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::SparseBinding);
+		}
+
+		if (flags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::VideoEncode);
+		}
+
+		if (flags & VK_QUEUE_VIDEO_DECODE_BIT_KHR)
+		{
+			caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::VideoDecode);
+		}
+
+		return caps;
+	}
+
+	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description)
+	{
+		const GladVulkanContext &context = device->GetVulkanContext();
+
+		VkQueue queue = VK_NULL_HANDLE;
+
+		if (context.GetDeviceQueue2)
+		{
+			VkDeviceQueueInfo2 queueInfo = {};
+			queueInfo.sType				 = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
+			queueInfo.pNext				 = nullptr;
+			queueInfo.queueFamilyIndex	 = description.QueueFamilyIndex;
+			queueInfo.queueIndex		 = description.QueueIndex;
+			queueInfo.flags				 = 0;
+
+			context.GetDeviceQueue2(device->GetVkDevice(), &queueInfo, &queue);
+		}
+		else
+		{
+			context.GetDeviceQueue(device->GetVkDevice(), description.QueueFamilyIndex, description.QueueIndex, &queue);
+		}
+
+		return queue;
+	}
+
+	VkAccessFlagBits GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access)
+	{
+		switch (access)
+		{
+			// equivalent of VK_ACCESS_NONE in VK_VERSION_1_3
+			case Graphics::BarrierAccess::None: return VkAccessFlagBits(0);
+			case Graphics::BarrierAccess::IndirectCommandRead: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+			case Graphics::BarrierAccess::IndexRead: return VK_ACCESS_INDEX_READ_BIT;
+			case Graphics::BarrierAccess::VertexAttributeRead: return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+			case Graphics::BarrierAccess::UniformRead: return VK_ACCESS_UNIFORM_READ_BIT;
+			case Graphics::BarrierAccess::InputAttachmentRead: return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+			case Graphics::BarrierAccess::ShaderRead: return VK_ACCESS_SHADER_READ_BIT;
+			case Graphics::BarrierAccess::ShaderWrite: return VK_ACCESS_SHADER_WRITE_BIT;
+			case Graphics::BarrierAccess::ColourAttachmentRead: return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			case Graphics::BarrierAccess::ColourAttachmentWrite: return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			case Graphics::BarrierAccess::DepthStencilAttachmentRead: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			case Graphics::BarrierAccess::DepthStencilAttachmentWrite: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			case Graphics::BarrierAccess::TransferRead: return VK_ACCESS_TRANSFER_READ_BIT;
+			case Graphics::BarrierAccess::TransferWrite: return VK_ACCESS_TRANSFER_WRITE_BIT;
+			case Graphics::BarrierAccess::HostRead: return VK_ACCESS_HOST_READ_BIT;
+			case Graphics::BarrierAccess::HostWrite: return VK_ACCESS_HOST_WRITE_BIT;
+			case Graphics::BarrierAccess::MemoryRead: return VK_ACCESS_MEMORY_READ_BIT;
+			case Graphics::BarrierAccess::MemoryWrite: return VK_ACCESS_MEMORY_WRITE_BIT;
+
+			case Graphics::BarrierAccess::TransformFeedbackWrite:
+			{
+				// this flag is only supported if transform feedback extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+				{
+					return VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::AccelerationStructureRead:
+			{
+				// this flag is only supported if the acceleration structure extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::AccelerationStructureWrite:
+			{
+				// this flag is only supported if the acceleration structure extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::VideoDecode:
+			{
+				// this flag is only supported if the video decode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_MEMORY_READ_BIT;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::VideoEncode:
+			{
+				// this flag is only supported if the video decode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_MEMORY_WRITE_BIT;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+
+			default: throw std::runtime_error("Failed to find a valid access flag");
+		}
+	}
+
+	VkPipelineStageFlagBits GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage)
+	{
+		switch (stage)
+		{
+			// equivalent of VK_PIPELINE_STAGE_NONE in VK_VERSION_1_3
+			case Graphics::BarrierPipelineStage::None: return VkPipelineStageFlagBits(0);
+			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::TessellationControlShader: return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::TessellationEvaluationShader: return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::GeometryShader: return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::FragmentShader: return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::EarlyFragmentTests: return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			case Graphics::BarrierPipelineStage::LateFragmentTests: return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+			case Graphics::BarrierPipelineStage::ColourAttachmentOutput: return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case Graphics::BarrierPipelineStage::ComputeShader: return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::AllTransfers:
+			case Graphics::BarrierPipelineStage::Transfer: return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case Graphics::BarrierPipelineStage::Host: return VK_PIPELINE_STAGE_HOST_BIT;
+			case Graphics::BarrierPipelineStage::AllGraphics: return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+			case Graphics::BarrierPipelineStage::AllCommands: return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+			case Graphics::BarrierPipelineStage::Copy:
+			case Graphics::BarrierPipelineStage::Resolve: return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case Graphics::BarrierPipelineStage::IndexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case Graphics::BarrierPipelineStage::VertexAttributeInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case Graphics::BarrierPipelineStage::PreRasterizationShaders: return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case Graphics::BarrierPipelineStage::TransformFeedback:
+			{
+				// this flag is only supported if transform feedback extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT;
+				}
+				else
+				{
+					return VkPipelineStageFlagBits(0);
+				}
+			}
+			case Graphics::BarrierPipelineStage::AccelerationStructure:
+			{
+				// this flag is only supported if acceleration structure extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+				}
+				else
+				{
+					return VkPipelineStageFlagBits(0);
+				}
+			}
+			case Graphics::BarrierPipelineStage::RayTracingShader:
+			{
+				// this flag is only supported if the ray tracing pipeline extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR;
+				}
+				else
+				{
+					return VkPipelineStageFlagBits(0);
+				}
+			}
+			case Graphics::BarrierPipelineStage::TaskShader:
+			{
+				// this flag is only supported if the mesh shader extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_TASK_SHADER_BIT_EXT;
+				}
+				else
+				{
+					return VkPipelineStageFlagBits(0);
+				}
+			}
+			case Graphics::BarrierPipelineStage::MeshShader:
+			{
+				// this flag is only supported if the mesh shader extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT;
+				}
+				else
+				{
+					return VkPipelineStageFlagBits(0);
+				}
+			}
+
+			default: throw std::runtime_error("Failed to find a valid pipeline stage flag");
+		}
+	}
+
+	VkAccessFlagBits2 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access)
+	{
+		switch (access)
+		{
+			case Graphics::BarrierAccess::None: return VK_ACCESS_2_NONE;
+			case Graphics::BarrierAccess::IndirectCommandRead: return VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+			case Graphics::BarrierAccess::IndexRead: return VK_ACCESS_2_INDEX_READ_BIT;
+			case Graphics::BarrierAccess::VertexAttributeRead: return VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+			case Graphics::BarrierAccess::UniformRead: return VK_ACCESS_2_UNIFORM_READ_BIT;
+			case Graphics::BarrierAccess::InputAttachmentRead: return VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT;
+			case Graphics::BarrierAccess::ShaderRead: return VK_ACCESS_2_SHADER_READ_BIT;
+			case Graphics::BarrierAccess::ShaderWrite: return VK_ACCESS_2_SHADER_WRITE_BIT;
+			case Graphics::BarrierAccess::ColourAttachmentRead: return VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT;
+			case Graphics::BarrierAccess::ColourAttachmentWrite: return VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+			case Graphics::BarrierAccess::DepthStencilAttachmentRead: return VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			case Graphics::BarrierAccess::DepthStencilAttachmentWrite: return VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			case Graphics::BarrierAccess::TransferRead: return VK_ACCESS_2_TRANSFER_READ_BIT;
+			case Graphics::BarrierAccess::TransferWrite: return VK_ACCESS_2_TRANSFER_WRITE_BIT;
+			case Graphics::BarrierAccess::HostRead: return VK_ACCESS_2_HOST_READ_BIT;
+			case Graphics::BarrierAccess::HostWrite: return VK_ACCESS_2_HOST_WRITE_BIT;
+			case Graphics::BarrierAccess::MemoryRead: return VK_ACCESS_2_MEMORY_READ_BIT;
+			case Graphics::BarrierAccess::MemoryWrite: return VK_ACCESS_2_MEMORY_WRITE_BIT;
+
+			case Graphics::BarrierAccess::TransformFeedbackWrite:
+			{
+				// this flag is only supported if transform feedback extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
+				}
+				else
+				{
+					return VK_ACCESS_2_NONE;
+				}
+			}
+			case Graphics::BarrierAccess::AccelerationStructureRead:
+			{
+				// this flag is only supported if the acceleration structure extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+				}
+				else
+				{
+					return VK_ACCESS_2_NONE;
+				}
+			}
+			case Graphics::BarrierAccess::AccelerationStructureWrite:
+			{
+				// this flag is only supported if the acceleration structure extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+				}
+				else
+				{
+					return VK_ACCESS_2_NONE;
+				}
+			}
+
+			case Graphics::BarrierAccess::VideoDecode:
+			{
+				// this flag is only supported if the video decode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR | VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+			case Graphics::BarrierAccess::VideoEncode:
+			{
+				// this flag is only supported if the video encode queue extension is
+				// available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR | VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR;
+				}
+				else
+				{
+					return VkAccessFlagBits(0);
+				}
+			}
+
+			default: throw std::runtime_error("Failed to find a valid access flag");
+		}
+	}
+
+	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage)
+	{
+		switch (stage)
+		{
+			case Graphics::BarrierPipelineStage::None: return VK_PIPELINE_STAGE_2_NONE;
+			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
+			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
+			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::TessellationControlShader: return VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::TessellationEvaluationShader: return VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::GeometryShader: return VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::FragmentShader: return VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::EarlyFragmentTests: return VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
+			case Graphics::BarrierPipelineStage::LateFragmentTests: return VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+			case Graphics::BarrierPipelineStage::ColourAttachmentOutput: return VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case Graphics::BarrierPipelineStage::ComputeShader: return VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+			case Graphics::BarrierPipelineStage::AllTransfers: return VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
+			case Graphics::BarrierPipelineStage::Transfer: return VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			case Graphics::BarrierPipelineStage::Host: return VK_PIPELINE_STAGE_2_HOST_BIT;
+			case Graphics::BarrierPipelineStage::AllGraphics: return VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+			case Graphics::BarrierPipelineStage::AllCommands: return VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			case Graphics::BarrierPipelineStage::Copy: return VK_PIPELINE_STAGE_2_COPY_BIT;
+			case Graphics::BarrierPipelineStage::Resolve: return VK_PIPELINE_STAGE_2_RESOLVE_BIT;
+			case Graphics::BarrierPipelineStage::IndexInput: return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
+			case Graphics::BarrierPipelineStage::VertexAttributeInput: return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
+			case Graphics::BarrierPipelineStage::PreRasterizationShaders: return VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT;
+			case Graphics::BarrierPipelineStage::TransformFeedback:
+			{
+				// this flag is only supported if transform feedback extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT;
+				}
+				else
+				{
+					return VK_PIPELINE_STAGE_2_NONE;
+				}
+			}
+			case Graphics::BarrierPipelineStage::AccelerationStructure:
+			{
+				// this flag is only supported if acceleration structure extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
+				}
+				else
+				{
+					return VK_PIPELINE_STAGE_2_NONE;
+				}
+			}
+			case Graphics::BarrierPipelineStage::RayTracingShader:
+			{
+				// this flag is only supported if the ray tracing pipeline extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR;
+				}
+				else
+				{
+					return VK_PIPELINE_STAGE_2_NONE;
+				}
+			}
+			case Graphics::BarrierPipelineStage::TaskShader:
+			{
+				// this flag is only supported if the mesh shader extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT;
+				}
+				else
+				{
+					return VK_PIPELINE_STAGE_2_NONE;
+				}
+			}
+			case Graphics::BarrierPipelineStage::MeshShader:
+			{
+				// this flag is only supported if the mesh shader extension is available, so we need to query this
+				if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
+				{
+					return VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT;
+				}
+				else
+				{
+					return VK_PIPELINE_STAGE_2_NONE;
+				}
+			}
+
+			default: throw std::runtime_error("Failed to find a valid pipeline stage flag");
+		}
+	}
+
+	VkImageLayout GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout)
+	{
+		switch (layout)
+		{
+			case Graphics::TextureLayout::Undefined: return VK_IMAGE_LAYOUT_UNDEFINED;
+			case Graphics::TextureLayout::General: return VK_IMAGE_LAYOUT_GENERAL;
+			case Graphics::TextureLayout::ColourAttachmentOptimal: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::DepthStencilAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			case Graphics::TextureLayout::DepthStencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case Graphics::TextureLayout::TransferSrcOptimal: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case Graphics::TextureLayout::TransferDstOptimal: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Graphics::TextureLayout::PresentSrc:
+			{
+				if (device->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoEncodeDestination:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_ENCODE_DST_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoEncodeSource:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_ENCODE_SRC_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoDecodeDestination:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+			case Graphics::TextureLayout::VideoDecodeSource:
+			{
+				if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
+				{
+					return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
+				}
+				else
+				{
+					return VK_IMAGE_LAYOUT_GENERAL;
+				}
+			}
+		}
+	}
+
+	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName)
+	{
+		void *result = nullptr;
+
+		if (data->device != VK_NULL_HANDLE)
+		{
+			PFN_vkGetDeviceProcAddr getDeviceProcAddr = (PFN_vkGetDeviceProcAddr)Vk::GetNxDeviceProcAddr();
+			result									  = getDeviceProcAddr(data->device, pName);
+		}
+
+		if (!result && data->instance != VK_NULL_HANDLE)
+		{
+			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
+			result										  = getInstanceProcAddr(data->instance, pName);
+		}
+
+		if (!result)
+		{
+			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
+			result										  = getInstanceProcAddr(VK_NULL_HANDLE, pName);
+		}
+
+		return result;
 	}
 }	 // namespace Nexus::Vk
 

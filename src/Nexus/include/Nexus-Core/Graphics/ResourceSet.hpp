@@ -11,8 +11,9 @@ namespace Nexus::Graphics
 {
 	struct CombinedImageSampler
 	{
-		Ref<Texture> ImageTexture = {};
-		Ref<Sampler> ImageSampler = {};
+		Ref<Texture>  ImageTexture = {};
+		Ref<Sampler>  ImageSampler = {};
+		TextureLayout Layout	   = TextureLayout::ShaderReadOnlyOptimal;
 	};
 
 	enum class ShaderAccess
@@ -23,18 +24,19 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Ref<Texture> TextureHandle = nullptr;
-		uint32_t	 ArrayLayer	   = 0;
-		uint32_t	 MipLevel	   = 0;
-		ShaderAccess Access		   = ShaderAccess::Read;
+		Ref<Texture>  TextureHandle = nullptr;
+		uint32_t	  ArrayLayer	= 0;
+		uint32_t	  MipLevel		= 0;
+		ShaderAccess  Access		= ShaderAccess::Read;
+		TextureLayout Layout		= TextureLayout::General;
 	};
 
 	struct StorageBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle	   = nullptr;
-		size_t			  Offset		   = 0;
-		size_t			  SizeInBytes	   = 0;
-		ShaderAccess	  Access		   = ShaderAccess::Read;
+		Ref<DeviceBuffer> BufferHandle = nullptr;
+		size_t			  Offset	   = 0;
+		size_t			  SizeInBytes  = 0;
+		ShaderAccess	  Access	   = ShaderAccess::Read;
 	};
 
 	struct BindingInfo
@@ -58,8 +60,8 @@ namespace Nexus::Graphics
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
 		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								= 0;
 
-		static constexpr uint32_t		DescriptorSetCount = 64;
-		static uint32_t					GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
+		static constexpr uint32_t DescriptorSetCount = 64;
+		static uint32_t			  GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
 
 		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
 		const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;

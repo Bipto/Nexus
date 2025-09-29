@@ -3,7 +3,11 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "CommandListD3D12.hpp"
+	#include "CommandQueueD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
+	#include "FenceD3D12.hpp"
 	#include "FramebufferD3D12.hpp"
+	#include "PhysicalDeviceD3D12.hpp"
 	#include "PipelineD3D12.hpp"
 	#include "ResourceSetD3D12.hpp"
 	#include "SamplerD3D12.hpp"
@@ -11,10 +15,6 @@
 	#include "SwapchainD3D12.hpp"
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
-	#include "SwapchainD3D12.hpp"
-	#include "PhysicalDeviceD3D12.hpp"
-	#include "DeviceBufferD3D12.hpp"
-	#include "FenceD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -35,19 +35,6 @@ namespace Nexus::Graphics
 			commandQueueDesc.NodeMask = 0;
 			commandQueueDesc.Flags	  = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-			// create the command queue
-			if (SUCCEEDED(m_Device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_CommandQueue))))
-			{
-				// create the fence
-				if (SUCCEEDED(m_Device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence))))
-				{
-					m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
-				}
-
-				m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_UploadCommandAllocator));
-				m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_UploadCommandList));
-			}
-
 			D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
 			allocatorDesc.pDevice				  = m_Device.Get();
 			allocatorDesc.pAdapter				  = adapter.Get();
@@ -65,40 +52,6 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
 	{
-		if (m_FenceEvent)
-		{
-			CloseHandle(m_FenceEvent);
-		}
-	}
-
-	void GraphicsDeviceD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
-	{
-		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
-
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			Ref<CommandListD3D12>								   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7>	   cmdList	   = commandList->GetCommandList();
-
-			commandList->Reset();
-			m_CommandExecutor->SetCommandList(cmdList);
-			m_CommandExecutor->ExecuteCommands(commands, this);
-			commandList->Close();
-			m_CommandExecutor->Reset();
-
-			d3d12CommandLists[i] = cmdList.Get();
-		}
-
-		m_CommandQueue->ExecuteCommandLists(d3d12CommandLists.size(), d3d12CommandLists.data());
-
-		if (fence)
-		{
-			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
-			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
-			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_VALIDATE(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
-		}
 	}
 
 	const std::string GraphicsDeviceD3D12::GetAPIName()
@@ -129,11 +82,6 @@ namespace Nexus::Graphics
 	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		return CreateRef<MeshletPipelineD3D12>(this, description);
-	}
-
-	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListDescription &spec)
-	{
-		return CreateRef<CommandListD3D12>(this, spec);
 	}
 
 	Ref<RayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
@@ -181,9 +129,9 @@ namespace Nexus::Graphics
 		return m_DxgiFactory.Get();
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> GraphicsDeviceD3D12::GetCommandQueue() const
+	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetD3D12Device() const
 	{
-		return m_CommandQueue.Get();
+		return m_Device.Get();
 	}
 
 	bool GraphicsDeviceD3D12::IsBufferUsageSupported(BufferUsage usage)
@@ -193,7 +141,6 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
-		SignalAndWait();
 	}
 
 	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()
@@ -215,11 +162,6 @@ namespace Nexus::Graphics
 	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureD3D12>(spec, this);
-	}
-
-	Ref<Swapchain> GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
-	{
-		return CreateRef<SwapchainD3D12>(window, this, spec);
 	}
 
 	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
@@ -252,6 +194,29 @@ namespace Nexus::Graphics
 		}
 	}
 
+	std::vector<QueueFamilyInfo> GraphicsDeviceD3D12::GetQueueFamilies()
+	{
+		std::vector<QueueFamilyInfo> queueFamilies = {};
+
+		QueueFamilyInfo &info = queueFamilies.emplace_back();
+		info.QueueFamily	  = 0;
+		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
+		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
+
+		return queueFamilies;
+	}
+
+	Ref<ICommandQueue> GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
+	{
+		Ref<ICommandQueue>	   commandQueue		 = CreateRef<CommandQueueD3D12>(this, description);
+		Ref<CommandQueueD3D12> commandQueueD3D12 = std::dynamic_pointer_cast<CommandQueueD3D12>(commandQueue);
+
+		WeakRef<CommandQueueD3D12> commandQueueWeakRef = commandQueueD3D12;
+		m_CreatedCommandQueues.push_back(commandQueueWeakRef);
+
+		return commandQueue;
+	}
+
 	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
@@ -259,40 +224,6 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
 			fence->Reset();
 		}
-	}
-
-	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetDevice() const
-	{
-		return m_Device;
-	}
-
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GraphicsDeviceD3D12::GetUploadCommandList()
-	{
-		return m_UploadCommandList;
-	}
-
-	void GraphicsDeviceD3D12::SignalAndWait()
-	{
-		m_CommandQueue->Signal(m_Fence.Get(), ++m_FenceValue);
-
-		if (SUCCEEDED(m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent)))
-		{
-			if (WaitForSingleObject(m_FenceEvent, 20000) != WAIT_OBJECT_0)
-			{
-				throw std::runtime_error("Failed to wait for fence event");
-			}
-		}
-		else
-		{
-			throw std::runtime_error("Failed to set fence event");
-		}
-	}
-
-	void GraphicsDeviceD3D12::ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function)
-	{
-		InitUploadCommandList();
-		function(m_UploadCommandList.Get());
-		DispatchUploadCommandList();
 	}
 
 	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
@@ -368,7 +299,7 @@ namespace Nexus::Graphics
 
 	bool GraphicsDeviceD3D12::Validate()
 	{
-		return m_Device && m_CommandQueue && m_Fence && m_UploadCommandAllocator && m_UploadCommandList && m_DxgiFactory;
+		return m_Device && m_DxgiFactory;
 	}
 
 	PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
@@ -414,22 +345,6 @@ namespace Nexus::Graphics
 	{
 		Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
 		return physicalDeviceD3D12->IsVersionGreaterThan(level);
-	}
-
-	void GraphicsDeviceD3D12::InitUploadCommandList()
-	{
-		m_UploadCommandAllocator->Reset();
-		m_UploadCommandList->Reset(m_UploadCommandAllocator.Get(), nullptr);
-	}
-
-	void GraphicsDeviceD3D12::DispatchUploadCommandList()
-	{
-		if (SUCCEEDED(m_UploadCommandList->Close()))
-		{
-			ID3D12CommandList *list[] = {m_UploadCommandList.Get()};
-			m_CommandQueue->ExecuteCommandLists(1, list);
-			SignalAndWait();
-		}
 	}
 
 	void GraphicsDeviceD3D12::GetLimitsAndFeatures()
@@ -492,6 +407,16 @@ namespace Nexus::Graphics
 				if (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
 				{
 					m_Features.SupportsMeshTaskShaders = true;
+				}
+			}
+
+			D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
+			hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12));
+			if (SUCCEEDED(hr))
+			{
+				if (options12.EnhancedBarriersSupported)
+				{
+					m_D3D12Features.SupportsEnhancedBarriers = true;
 				}
 			}
 		}

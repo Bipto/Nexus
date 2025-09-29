@@ -17,16 +17,17 @@ namespace Nexus::Graphics
 		VkImage		GetImage();
 		VkImageView GetImageView();
 
-		VkImageLayout GetImageLayout(uint32_t arrayLayer, uint32_t mipLevel);
-		void		  SetImageLayout(uint32_t arrayLayer, uint32_t mipLevel, VkImageLayout layout);
+		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
+		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
 
 	  private:
-		GraphicsDeviceVk		  *m_GraphicsDevice;
-		VkImage					   m_Image = VK_NULL_HANDLE;
-		VmaAllocation			   m_Allocation;
-		VkImageView				   m_ImageView = VK_NULL_HANDLE;
-		VkFormat				   m_Format;
-		std::vector<VkImageLayout> m_Layouts;
+		GraphicsDeviceVk *m_GraphicsDevice;
+		VkImage			  m_Image = VK_NULL_HANDLE;
+		VmaAllocation	  m_Allocation;
+		VkImageView		  m_ImageView = VK_NULL_HANDLE;
+		VkFormat		  m_Format;
+
+		std::vector<TextureLayout> m_TextureLayouts;
 	};
 }	 // namespace Nexus::Graphics
 

@@ -23,46 +23,49 @@ namespace Nexus::Graphics
 	  public:
 		CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device);
 		virtual ~CommandExecutorD3D12();
-		virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
-		virtual void Reset() override;
+		void ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device) final;
+		void Reset() final;
 
 		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);
 
 	  private:
-		void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) final;
+		void ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) final;
-		void ExecuteCommand(DrawDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DispatchDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DrawDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) final;
-		void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) final;
+		void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(RenderTarget command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, GraphicsDevice *device) final;
-		void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) final;
+		void ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(SetStencilReferenceCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(BuildAccelerationStructuresCommand command, GraphicsDevice *device) final;
-		void ExecuteCommand(AccelerationStructureCopyDescription command, GraphicsDevice *Device) final;
-		void ExecuteCommand(AccelerationStructureDeviceBufferCopyDescription command, GraphicsDevice *device) final;
-		void ExecuteCommand(DeviceBufferAccelerationStructureCopyDescription command, GraphicsDevice *device) final;
+		void ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device) final;
+		void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
 
 		void SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device);
 		void SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device);
@@ -73,6 +76,10 @@ namespace Nexus::Graphics
 		void CreateDispatchIndirectSignatureCommand();
 
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
+
+	  private:
+		void InsertResourceBarrier(const TextureBarrierDesc &command);
+		void InsertTextureBarrier(const TextureBarrierDesc &command);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;

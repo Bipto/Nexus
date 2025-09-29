@@ -10,8 +10,11 @@ namespace Demos
 	class Splines : public Demo
 	{
 	  public:
-		Splines(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		Splines(const std::string						  &name,
+				Nexus::Application						  *app,
+				Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
+				Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -23,8 +26,9 @@ namespace Demos
 		{
 			Nexus::Ref<Nexus::Graphics::Swapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
 			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList	= m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false, sampleCount));
+			m_CommandList									   = m_CommandQueue->CreateCommandList();
+			m_BatchRenderer									   = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+				   new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
 
 			m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
 			m_Spline.SetLooped(true);
@@ -81,9 +85,10 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
 			const auto &windowSize = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();

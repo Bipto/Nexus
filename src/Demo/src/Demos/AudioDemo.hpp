@@ -9,8 +9,11 @@ namespace Demos
 	class AudioDemo : public Demo
 	{
 	  public:
-		AudioDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		AudioDemo(const std::string							&name,
+				  Nexus::Application						*app,
+				  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+				  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -20,7 +23,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 			m_AudioBuffer = Nexus::Audio::AudioLoader::LoadWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")},
 																   m_AudioDevice);
 			m_AudioSource = m_AudioDevice->CreateAudioSource();
@@ -31,9 +34,10 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 		}
 

@@ -8,8 +8,11 @@ namespace Demos
 	class ClearRectDemo : public Demo
 	{
 	  public:
-		ClearRectDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+		ClearRectDemo(const std::string							&name,
+					  Nexus::Application						*app,
+					  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
+					  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
 
@@ -19,7 +22,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
+			m_CommandList = m_CommandQueue->CreateCommandList();
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -42,7 +45,7 @@ namespace Demos
 					clearRect.Y							 = 0;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}, clearRect);
 				}
 
 				{
@@ -51,7 +54,7 @@ namespace Demos
 					clearRect.Y							 = 0;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {1.0f, 0.0f, 0.0f, 1.0f}, clearRect);
 				}
 
 				{
@@ -60,7 +63,7 @@ namespace Demos
 					clearRect.Y							 = clearHeight;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {0.0f, 1.0f, 0.0f, 1.0f}, clearRect);
 				}
 
 				{
@@ -69,7 +72,7 @@ namespace Demos
 					clearRect.Y							 = clearHeight;
 					clearRect.Width						 = clearWidth;
 					clearRect.Height					 = clearHeight;
-					m_CommandList->ClearColorTarget(0, {0.0f, 0.0f, 1.0f, 1.0f}, clearRect);
+					m_CommandList->ClearColourTarget(0, {0.0f, 0.0f, 1.0f, 1.0f}, clearRect);
 				}
 
 				m_CommandList->End();
@@ -77,7 +80,7 @@ namespace Demos
 
 			{
 				NX_PROFILE_SCOPE("Command submission");
-				m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+				m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 				m_GraphicsDevice->WaitForIdle();
 			}
 		}

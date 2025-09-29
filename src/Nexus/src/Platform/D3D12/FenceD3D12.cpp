@@ -10,8 +10,8 @@ namespace Nexus::Graphics
 			initialValue = 1;
 		}
 
-		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = device->GetDevice();
-		HRESULT		   hr		   = d3d12Device->CreateFence(initialValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = device->GetD3D12Device();
+		HRESULT								  hr		  = d3d12Device->CreateFence(initialValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
 		NX_VALIDATE(SUCCEEDED(hr) == true, "Failed to create fence");
 
 		m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
