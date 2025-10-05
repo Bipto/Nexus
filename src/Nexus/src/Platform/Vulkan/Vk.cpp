@@ -402,13 +402,19 @@ namespace Nexus::Vk
 		return flags;
 	}
 
-	VkImageCreateFlagBits GetVkImageCreateFlagBits(Graphics::TextureType textureType, uint8_t usage)
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(const Graphics::TextureDescription &description)
 	{
-		VkImageCreateFlagBits flags = VkImageCreateFlagBits();
+		VkImageCreateFlagBits flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
 
-		if (textureType == Graphics::TextureType::TextureCube)
+		if (description.Type == Graphics::TextureType::TextureCube)
 		{
 			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
+		}
+
+		if (description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT |
+										  VK_IMAGE_CREATE_SPARSE_ALIASED_BIT);
 		}
 
 		return flags;

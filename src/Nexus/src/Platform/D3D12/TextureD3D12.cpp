@@ -23,28 +23,41 @@ namespace Nexus::Graphics
 		}
 
 		D3D12_RESOURCE_DIMENSION dimension = D3D12::GetResourceDimensions(spec.Type);
-		D3D12_RESOURCE_FLAGS	 flags	   = D3D12::GetResourceFlags(spec.Format, spec.Usage);
+		D3D12_RESOURCE_FLAGS	 flags	   = D3D12::GetResourceFlags(spec);
 		m_TextureFormat					   = D3D12::GetD3D12PixelFormat(spec.Format);
 
-		D3D12_RESOURCE_DESC1 textureDesc = {};
-		textureDesc.Dimension			 = dimension;
-		textureDesc.Alignment			 = 0;
-		textureDesc.Width				 = spec.Width;
-		textureDesc.Height				 = spec.Height;
-		textureDesc.DepthOrArraySize	 = spec.DepthOrArrayLayers;
-		textureDesc.MipLevels			 = spec.MipLevels;
-		textureDesc.Format				 = m_TextureFormat;
-		textureDesc.SampleDesc.Count	 = spec.Samples;
-		textureDesc.SampleDesc.Quality	 = 0;
-		textureDesc.Layout				 = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		textureDesc.Flags				 = flags;
+		D3D12_RESOURCE_DESC textureDesc = {};
+		textureDesc.Dimension			= dimension;
+		textureDesc.Alignment			= 0;
+		textureDesc.Width				= spec.Width;
+		textureDesc.Height				= spec.Height;
+		textureDesc.DepthOrArraySize	= spec.DepthOrArrayLayers;
+		textureDesc.MipLevels			= spec.MipLevels;
+		textureDesc.Format				= m_TextureFormat;
+		textureDesc.SampleDesc.Count	= spec.Samples;
+		textureDesc.SampleDesc.Quality	= 0;
+		textureDesc.Flags				= flags;
 
-		D3D12MA::ALLOCATION_DESC allocationDesc = {};
-		allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
+		HRESULT hr = {};
 
-		Microsoft::WRL::ComPtr<D3D12MA::Allocator> allocator = device->GetAllocator();
-		HRESULT									   hr =
-			allocator->CreateResource2(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &m_Allocation, IID_PPV_ARGS(&m_Texture));
+		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			textureDesc.Layout = D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE;
+
+			Microsoft::WRL::ComPtr<ID3D12Device9> device = m_Device->GetD3D12Device();
+			hr = device->CreateReservedResource(&textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture));
+		}
+		else
+		{
+			textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+			D3D12MA::ALLOCATION_DESC allocationDesc = {};
+			allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
+
+			Microsoft::WRL::ComPtr<D3D12MA::Allocator> allocator = device->GetAllocator();
+			hr													 = allocator
+					 ->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &m_Allocation, IID_PPV_ARGS(&m_Texture));
+		}
 
 		if (FAILED(hr))
 		{
@@ -56,6 +69,29 @@ namespace Nexus::Graphics
 		for (uint32_t arrayLayer = 0; arrayLayer < spec.DepthOrArrayLayers; arrayLayer++)
 		{
 			for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_ResourceStates.push_back(D3D12_RESOURCE_STATE_COMMON); }
+		}
+
+		std::wstring name = std::wstring(m_Description.DebugName.begin(), m_Description.DebugName.end());
+		m_Texture->SetName(name.c_str());
+	}
+
+	TextureD3D12::TextureD3D12(Microsoft::WRL::ComPtr<ID3D12Resource2> handle, const TextureDescription &spec, GraphicsDeviceD3D12 *device)
+		: m_Texture(handle),
+		  m_Description(spec),
+		  m_Device(device),
+		  Texture(spec)
+	{
+		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one mip level");
+
+		if (spec.Samples > 1)
+		{
+			NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
+		}
+
+		if (spec.Type == TextureType::TextureCube)
+		{
+			NX_VALIDATE(spec.DepthOrArrayLayers % 6 == 0, "Cubemap textures must have a multiple of 6 faces");
 		}
 
 		std::wstring name = std::wstring(m_Description.DebugName.begin(), m_Description.DebugName.end());

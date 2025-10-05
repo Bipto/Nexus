@@ -119,6 +119,12 @@ namespace Nexus::Graphics
 		context.PixelStorei(GL_PACK_ALIGNMENT, 1);
 		context.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			NX_VALIDATE(context.ARB_sparse_texture == 1, "Context must support the ARB_sparse_texture extension to use sparse textures");
+			context.TextureParameteri(m_Handle, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+		}
+
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
@@ -179,6 +185,12 @@ namespace Nexus::Graphics
 		glCall(context.PixelStorei(GL_UNPACK_ALIGNMENT, 1));
 		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			NX_VALIDATE(context.ARB_sparse_texture == 1, "Context must support the ARB_sparse_texture extension to use sparse textures");
+			context.TexParameteri(m_TextureType, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+		}
 
 		switch (m_GLInternalTextureFormat)
 		{

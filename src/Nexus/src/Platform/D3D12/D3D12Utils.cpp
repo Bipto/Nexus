@@ -819,22 +819,22 @@ namespace Nexus::D3D12
 		}
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags(Graphics::PixelFormat format, uint8_t textureUsage)
+	D3D12_RESOURCE_FLAGS GetResourceFlags(const Graphics::TextureDescription &description)
 	{
 		D3D12_RESOURCE_FLAGS flags = {};
 
-		if (textureUsage & Graphics::TextureUsage_RenderTarget)
+		if (description.Usage & Graphics::TextureUsage_RenderTarget)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
 
-		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(format);
+		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(description.Format);
 		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
 
-		if (textureUsage & Graphics::TextureUsage_Storage)
+		if (description.Usage & Graphics::TextureUsage_Storage)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}

@@ -212,6 +212,14 @@ namespace Nexus::Graphics
 		{
 			m_Swapchain->GetBuffer(i, IID_PPV_ARGS(&m_Buffers[i]));
 
+			Nexus::Graphics::TextureDescription desc = {};
+			desc.Width								 = m_SwapchainWidth;
+			desc.Height								 = m_SwapchainHeight;
+			desc.DepthOrArrayLayers					 = 1;
+			desc.MipLevels							 = 1;
+			desc.Format								 = PixelFormat::B8_G8_R8_A8_UNorm;
+			Ref<TextureD3D12> texture				 = CreateRef<TextureD3D12>(m_Buffers[i], desc, m_Device);
+
 			D3D12_RENDER_TARGET_VIEW_DESC rtv;
 			rtv.Format				 = DXGI_FORMAT_R8G8B8A8_UNORM;
 			rtv.ViewDimension		 = D3D12_RTV_DIMENSION_TEXTURE2D;

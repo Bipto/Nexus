@@ -18,11 +18,24 @@ namespace Nexus::Graphics
 		TextureCube = 3
 	};
 
-	enum TextureUsageFlags : uint8_t
+	enum TextureUsageFlags : uint16_t
 	{
-		TextureUsage_RenderTarget = BIT(0),
-		TextureUsage_Sampled	  = BIT(1),
-		TextureUsage_Storage	  = BIT(2)
+		TextureUsage_None			  = 0,
+		TextureUsage_TransferSrc	  = BIT(0),
+		TextureUsage_TransferDst	  = BIT(1),
+		TextureUsage_RenderTarget	  = BIT(2),
+		TextureUsage_Sampled		  = BIT(3),
+		TextureUsage_Storage		  = BIT(4),
+		TextureUsage_ColourAttachment = BIT(5),
+		TextureUsage_DepthAttachment  = BIT(6),
+		TextureUsage_VideoDecodeDst	  = BIT(7),
+		TextureUsage_VideoEncodeSrc	  = BIT(8),
+	};
+
+	enum TextureCreateFlags : uint8_t
+	{
+		TextureCreateFlags_None			 = 0,
+		TextureCreateFlags_SparseBinding = BIT(0)
 	};
 
 	enum class TextureLayout
@@ -45,13 +58,14 @@ namespace Nexus::Graphics
 	struct TextureDescription
 	{
 		TextureType Type			   = TextureType::Texture2D;
+		uint8_t		CreateFlags		   = TextureCreateFlags_None;
 		PixelFormat Format			   = PixelFormat::R8_G8_B8_A8_UNorm;
 		uint32_t	Width			   = 0;
 		uint32_t	Height			   = 0;
 		uint32_t	DepthOrArrayLayers = 1;
 		uint32_t	MipLevels		   = 1;
 		uint32_t	Samples			   = 1;
-		uint8_t		Usage			   = 0;
+		uint16_t	Usage			   = TextureUsage_None;
 		std::string DebugName		   = "Texture";
 	};
 

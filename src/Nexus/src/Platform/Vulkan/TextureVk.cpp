@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		m_Format				 = Vk::GetVkPixelDataFormat(m_Description.Format);
 		VkImageType imageType	 = Vk::GetVkImageType(m_Description.Type);
 
-		VkImageCreateFlagBits imageCreateFlags = Vk::GetVkImageCreateFlagBits(spec.Type, spec.Usage);
+		VkImageCreateFlagBits imageCreateFlags = Vk::GetVkImageCreateFlagBits(spec);
 
 		VkExtent3D imageExtent = {};
 
@@ -68,10 +68,15 @@ namespace Nexus::Graphics
 		imageInfo.tiling  = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.usage	  = usage;
 
-		VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
+		// we only need to commit memory for this texture if it was not requested to bound sparsely
+		bool sparseTexture = m_Description.CreateFlags & TextureCreateFlags_SparseBinding;
+		if (!sparseTexture)
+		{
+			VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
 
-		NX_VALIDATE(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) == VK_SUCCESS,
-					"Failed to create image");
+			NX_VALIDATE(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) == VK_SUCCESS,
+						"Failed to create image");
+		}
 
 		VkImageViewType viewType = Vk::GetVkImageViewType(spec);
 

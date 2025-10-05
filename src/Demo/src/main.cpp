@@ -191,7 +191,7 @@ class DemoApplication : public Nexus::Application
 				std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
 				ImGui::Text("%s", label.c_str());
 
-				std::string info = m_CurrentDemo->GetInfo();
+				const std::string &info = m_CurrentDemo->GetInfo();
 				if (!info.empty())
 				{
 					std::string description = std::string("Description: ") + info;
@@ -310,7 +310,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.GraphicsCreateInfo.Debug = false;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
