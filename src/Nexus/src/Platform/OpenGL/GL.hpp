@@ -10,17 +10,6 @@
 		#include <webgl/webgl2.h>
 	#endif
 
-/* #if defined(__EMSCRIPTEN__) || defined(ANDROID)
-	#include <GLES3/gl32.h>
-	#include <GLES2/gl2ext.h>
-#elif defined(__ANDROID__)
-	#include <GLES3/gl32.h>
-	#include <glad/glad_egl.h>
-#else
-	#include "Platform/Windows/WindowsInclude.hpp"
-	#include "glad/glad.h"
-#endif */
-
 	#include "OpenGLFunctionContext.hpp"
 
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
@@ -90,13 +79,11 @@ namespace Nexus::GL
 
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec);
 	void					ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context);
-	void					AttachTexture(GLuint					   framebuffer,
-										  Ref<Graphics::TextureOpenGL> texture,
-										  uint32_t					   mipLevel,
-										  uint32_t					   arrayLayer,
-										  bool						   isDepth,
-										  uint32_t					   colourIndex,
-										  const GladGLContext		  &context);
+	void					AttachTexture(GLuint										 framebuffer,
+										  const Graphics::FramebufferTextureDescription &desc,
+										  bool											 isDepth,
+										  uint32_t										 colourIndex,
+										  const GladGLContext							&context);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,

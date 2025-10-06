@@ -122,7 +122,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::SamplerAddressMode::Clamp: return GL_CLAMP_TO_EDGE;
 			default: throw std::runtime_error("Failed to find a valid address mode");
 		}
-		return GLenum();
 	}
 
 	void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool hasMipmaps)
@@ -676,16 +675,16 @@ namespace Nexus::GL
 		}
 	}
 
-	void AttachTextureNonDSA(GLuint						  framebuffer,
-							 Ref<Graphics::TextureOpenGL> texture,
-							 uint32_t					  mipLevel,
-							 uint32_t					  arrayLayer,
-							 bool						  isDepth,
-							 uint32_t					  colourIndex,
-							 const GladGLContext		 &context)
+	void AttachTextureNonDSA(GLuint											framebuffer,
+							 const Graphics::FramebufferTextureDescription &desc,
+							 bool											isDepth,
+							 uint32_t										colourIndex,
+							 const GladGLContext						   &context)
 	{
 		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
 		GLenum attachmentType = GL::GetAttachmentType(isDepth, colourIndex);
+
+		Ref<Graphics::TextureOpenGL> texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(desc.TargetTexture);
 
 		uint32_t				textureHandle  = texture->GetHandle();
 		GLenum					textureTarget  = texture->GetTextureType();
@@ -694,45 +693,51 @@ namespace Nexus::GL
 		switch (internalFormat)
 		{
 			case GLInternalTextureFormat::Texture1D:
-	#if !defined(__EMSCRIPTEN__)
-				glCall(context.FramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
-				break;
-	#else
-				throw std::runtime_error("1D textures are not supported by WebGL");
-	#endif
-			case GLInternalTextureFormat::Texture1DArray:
-				glCall(context.FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
+				glCall(context.FramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, desc.MipLevel));
 				break;
 			case GLInternalTextureFormat::Texture2D:
 			case GLInternalTextureFormat::Texture2DMultisample:
-				glCall(context.FramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
+				glCall(context.FramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, desc.MipLevel));
 				break;
+			case GLInternalTextureFormat::Texture1DArray:
 			case GLInternalTextureFormat::Texture2DArray:
 			case GLInternalTextureFormat::Texture2DArrayMultisample:
 			case GLInternalTextureFormat::CubemapArray:
 			case GLInternalTextureFormat::Texture3D:
-				glCall(context.FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
+			{
+				if (desc.LayerCount == 1)
+				{
+					glCall(context.FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel, desc.BaseArrayLayer));
+				}
+				else
+				{
+					glCall(context.FramebufferTextureMultiviewOVR(GL_FRAMEBUFFER,
+																  attachmentType,
+																  textureHandle,
+																  desc.MipLevel,
+																  desc.BaseArrayLayer,
+																  desc.LayerCount));
+				}
 				break;
+			}
 			case GLInternalTextureFormat::Cubemap:
 				glCall(context.FramebufferTexture2D(GL_FRAMEBUFFER,
-													GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer,
+													GL_TEXTURE_CUBE_MAP_POSITIVE_X + desc.BaseArrayLayer,
 													textureTarget,
 													textureHandle,
-													mipLevel));
+													desc.MipLevel));
 				break;
 			default: throw std::runtime_error("Could not find a valid texture format type");
 		}
 	}
 
-	void AttachTexture(GLuint						framebuffer,
-					   Ref<Graphics::TextureOpenGL> texture,
-					   uint32_t						mipLevel,
-					   uint32_t						arrayLayer,
-					   bool							isDepth,
-					   uint32_t						colourIndex,
-					   const GladGLContext		   &context)
+	void AttachTexture(GLuint										  framebuffer,
+					   const Graphics::FramebufferTextureDescription &desc,
+					   bool											  isDepth,
+					   uint32_t										  colourIndex,
+					   const GladGLContext							 &context)
 	{
-		AttachTextureNonDSA(framebuffer, texture, mipLevel, arrayLayer, isDepth, colourIndex, context);
+		AttachTextureNonDSA(framebuffer, desc, isDepth, colourIndex, context);
 	}
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
@@ -1319,15 +1324,15 @@ namespace Nexus::GL
 			 layer < command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
 			 layer++)
 		{
+			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+			framebufferTextureDesc.TargetTexture						   = texture;
+			framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			framebufferTextureDesc.BaseArrayLayer						   = layer;
+			framebufferTextureDesc.LayerCount							   = 1;
+
 			GLuint framebufferHandle = 0;
 			glCall(context.CreateFramebuffers(1, &framebufferHandle));
-			GL::AttachTexture(framebufferHandle,
-							  texture,
-							  command.TextureBufferCopy.TextureSubresource.MipLevel,
-							  layer,
-							  texture->IsDepth(),
-							  0,
-							  context);
+			GL::AttachTexture(framebufferHandle, framebufferTextureDesc, texture->IsDepth(), 0, context);
 
 			if (context.CheckNamedFramebufferStatus(framebufferHandle, GL_READ_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			{
@@ -1379,13 +1384,14 @@ namespace Nexus::GL
 			GLuint framebufferHandle = 0;
 			glCall(context.GenFramebuffers(1, &framebufferHandle));
 			glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
-			GL::AttachTexture(framebufferHandle,
-							  texture,
-							  command.TextureBufferCopy.TextureSubresource.MipLevel,
-							  layer,
-							  texture->IsDepth(),
-							  0,
-							  context);
+
+			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+			framebufferTextureDesc.TargetTexture						   = texture;
+			framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			framebufferTextureDesc.BaseArrayLayer						   = layer;
+			framebufferTextureDesc.LayerCount							   = 1;
+
+			GL::AttachTexture(framebufferHandle, framebufferTextureDesc, texture->IsDepth(), 0, context);
 
 			GL::ValidateFramebuffer(framebufferHandle, context);
 
@@ -1423,11 +1429,6 @@ namespace Nexus::GL
 								 const Graphics::TextureCopyDescription &copyDesc,
 								 const GladGLContext					&context)
 	{
-		GLenum srcGlAspect		 = GL::GetGLImageAspect(source->IsDepth());
-		GLenum srcAttachmentType = GL::GetAttachmentType(source->IsDepth(), 0);
-		GLenum dstGlAspect		 = GL::GetGLImageAspect(destination->IsDepth());
-		GLenum dstAttachmentType = GL::GetAttachmentType(destination->IsDepth(), 0);
-
 		for (uint32_t layer = copyDesc.SourceOffset.Z;
 			 layer < copyDesc.SourceOffset.Z + copyDesc.SourceSubresource.BaseArrayLayer + copyDesc.SourceSubresource.LayerCount;
 			 layer++)
@@ -1437,15 +1438,27 @@ namespace Nexus::GL
 
 			// set up source framebuffer
 			{
+				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+				framebufferTextureDesc.TargetTexture						   = source;
+				framebufferTextureDesc.MipLevel								   = copyDesc.SourceSubresource.MipLevel;
+				framebufferTextureDesc.BaseArrayLayer						   = layer;
+				framebufferTextureDesc.LayerCount							   = 1;
+
 				context.CreateFramebuffers(1, &sourceFramebufferHandle);
-				GL::AttachTexture(sourceFramebufferHandle, source, copyDesc.SourceSubresource.MipLevel, layer, srcGlAspect, 0, context);
+				GL::AttachTexture(sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(), 0, context);
 				GL::ValidateFramebuffer(sourceFramebufferHandle, context);
 			}
 
 			// set up dest framebuffer
 			{
+				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+				framebufferTextureDesc.TargetTexture						   = destination;
+				framebufferTextureDesc.MipLevel								   = copyDesc.DestinationSubresource.MipLevel;
+				framebufferTextureDesc.BaseArrayLayer						   = layer;
+				framebufferTextureDesc.LayerCount							   = 1;
+
 				context.CreateFramebuffers(1, &destFramebufferHandle);
-				GL::AttachTexture(destFramebufferHandle, destination, copyDesc.DestinationSubresource.MipLevel, layer, dstGlAspect, 0, context);
+				GL::AttachTexture(destFramebufferHandle, framebufferTextureDesc, destination->IsDepth(), 0, context);
 				GL::ValidateFramebuffer(destFramebufferHandle, context);
 			}
 
@@ -1472,11 +1485,6 @@ namespace Nexus::GL
 									const Graphics::TextureCopyDescription &copyDesc,
 									const GladGLContext					   &context)
 	{
-		GLenum srcGlAspect		 = GL::GetGLImageAspect(source->IsDepth());
-		GLenum srcAttachmentType = GL::GetAttachmentType(source->IsDepth(), 0);
-		GLenum dstGlAspect		 = GL::GetGLImageAspect(destination->IsDepth());
-		GLenum dstAttachmentType = GL::GetAttachmentType(destination->IsDepth(), 0);
-
 		for (uint32_t layer = copyDesc.SourceOffset.Z;
 			 layer < copyDesc.SourceOffset.Z + copyDesc.SourceSubresource.BaseArrayLayer + copyDesc.SourceSubresource.LayerCount;
 			 layer++)
@@ -1486,17 +1494,29 @@ namespace Nexus::GL
 
 			// set up source framebuffer
 			{
+				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+				framebufferTextureDesc.TargetTexture						   = source;
+				framebufferTextureDesc.MipLevel								   = copyDesc.SourceSubresource.MipLevel;
+				framebufferTextureDesc.BaseArrayLayer						   = layer;
+				framebufferTextureDesc.LayerCount							   = 1;
+
 				glCall(context.GenFramebuffers(1, &sourceFramebufferHandle));
 				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
-				GL::AttachTexture(sourceFramebufferHandle, source, copyDesc.SourceSubresource.MipLevel, layer, srcGlAspect, 0, context);
+				GL::AttachTexture(sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(), 0, context);
 				GL::ValidateFramebuffer(sourceFramebufferHandle, context);
 			}
 
 			// set up dest framebuffer
 			{
+				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+				framebufferTextureDesc.TargetTexture						   = destination;
+				framebufferTextureDesc.MipLevel								   = copyDesc.DestinationSubresource.MipLevel;
+				framebufferTextureDesc.BaseArrayLayer						   = layer;
+				framebufferTextureDesc.LayerCount							   = 1;
+
 				glCall(context.GenFramebuffers(1, &destFramebufferHandle));
 				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
-				GL::AttachTexture(destFramebufferHandle, destination, copyDesc.DestinationSubresource.MipLevel, layer, dstGlAspect, 0, context);
+				GL::AttachTexture(destFramebufferHandle, framebufferTextureDesc, destination->IsDepth(), 0, context);
 				GL::ValidateFramebuffer(destFramebufferHandle, context);
 			}
 

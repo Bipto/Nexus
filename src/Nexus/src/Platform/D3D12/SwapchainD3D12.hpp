@@ -44,6 +44,8 @@ namespace Nexus::Graphics
 		void						SetDepthState(D3D12_RESOURCE_STATES state);
 		Ref<Framebuffer>			GetMultisampledFramebuffer();
 
+		bool HasMultisampledFramebuffer() const;
+
 		void AcquireBackbufferIndex();
 
 	  private:

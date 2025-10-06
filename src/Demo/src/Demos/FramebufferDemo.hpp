@@ -22,15 +22,15 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
-			Nexus::Graphics::FramebufferSpecification spec;
-			spec.Width						   = 1280;
-			spec.Height						   = 720;
-			spec.ColourAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-			spec.Samples					   = 1;
+			Nexus::Graphics::FramebufferTextureCreateDescription spec;
+			spec.Width					 = 1280;
+			spec.Height					 = 720;
+			spec.ColourAttachmentFormats = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+			spec.Samples				 = 1;
 
 			m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
 
-			auto texture = m_Framebuffer->GetColorTexture(0);
+			auto texture = m_Framebuffer->GetColorTextureHandle(0);
 			m_TextureID	 = m_ImGuiRenderer->BindTexture(texture);
 		}
 

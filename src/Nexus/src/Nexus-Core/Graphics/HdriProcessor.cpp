@@ -92,12 +92,12 @@ namespace Nexus::Graphics
 
 	Ref<Texture> HdriProcessor::Generate(uint32_t size)
 	{
-		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
-		framebufferSpec.Width									  = size;
-		framebufferSpec.Height									  = size;
-		framebufferSpec.Samples									  = 1;
-		framebufferSpec.ColourAttachmentSpecification			  = {PixelFormat::R32_G32_B32_A32_Float};
-		framebufferSpec.DepthAttachmentSpecification			  = PixelFormat::D24_UNorm_S8_UInt;
+		Nexus::Graphics::FramebufferTextureCreateDescription framebufferSpec = {};
+		framebufferSpec.Width												 = size;
+		framebufferSpec.Height												 = size;
+		framebufferSpec.Samples												 = 1;
+		framebufferSpec.ColourAttachmentFormats								 = {PixelFormat::R32_G32_B32_A32_Float};
+		framebufferSpec.DepthAttachmentFormat								 = PixelFormat::D24_UNorm_S8_UInt;
 
 		Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 		Ref<CommandList> commandList = m_CommandQueue->CreateCommandList();
@@ -120,9 +120,9 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.ColourFormats[0]  = framebufferSpec.ColourAttachmentSpecification.Attachments[0].TextureFormat;
+		pipelineDescription.ColourFormats[0]  = framebufferSpec.ColourAttachmentFormats[0];
 		pipelineDescription.ColourTargetCount = 1;
-		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
+		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentFormat.value();
 
 		pipelineDescription.Layouts		  = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 		Ref<GraphicsPipeline> pipeline	  = m_Device->CreateGraphicsPipeline(pipelineDescription);
@@ -232,7 +232,7 @@ namespace Nexus::Graphics
 			m_CommandQueue->SubmitCommandLists(&commandList, 1, nullptr);
 			m_Device->WaitForIdle();
 
-			Ref<Texture>	  colourTexture = framebuffer->GetColorTexture(0);
+			Ref<Texture>	  colourTexture = framebuffer->GetColorTextureHandle(0);
 			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture, m_CommandQueue, 0, 0, 0, 0, 0, size, size);
 
 			m_Device->WriteToTexture(cubemap, m_CommandQueue, i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());

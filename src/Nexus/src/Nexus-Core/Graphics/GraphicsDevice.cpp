@@ -240,7 +240,7 @@ namespace Nexus::Graphics
 			for (uint32_t i = 1; i < spec.MipLevels; i++)
 			{
 				auto [width, height]	 = Utils::GetMipSize(spec.Width, spec.Height, i);
-				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1);
+				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1, 0);
 				WriteToTexture(texture, commandQueue, 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
 			}
 		}
@@ -251,5 +251,54 @@ namespace Nexus::Graphics
 	Ref<Texture> GraphicsDevice::CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
 	{
 		return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
+	}
+
+	Ref<Framebuffer> GraphicsDevice::CreateFramebuffer(const FramebufferTextureCreateDescription &desc)
+	{
+		FramebufferTextureSetDescription framebufferDesc = {};
+
+		for (size_t i = 0; i < desc.ColourAttachmentFormats.size(); i++)
+		{
+			PixelFormat format = desc.ColourAttachmentFormats.at(i);
+
+			TextureDescription textureDesc = {};
+			textureDesc.Width			   = desc.Width;
+			textureDesc.Height			   = desc.Height;
+			textureDesc.Type			   = TextureType::Texture2D;
+			textureDesc.Usage			   = Graphics::TextureUsage_ColourAttachment;
+			textureDesc.Samples			   = desc.Samples;
+			textureDesc.Format			   = format;
+
+			Ref<Texture> texture = CreateTexture(textureDesc);
+
+			FramebufferTextureDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
+			framebufferTextureDesc.TargetTexture				  = texture;
+			framebufferTextureDesc.BaseArrayLayer				  = 0;
+			framebufferTextureDesc.LayerCount					  = 1;
+			framebufferTextureDesc.MipLevel						  = 0;
+		}
+
+		if (desc.DepthAttachmentFormat.has_value())
+		{
+			TextureDescription textureDesc = {};
+			textureDesc.Width			   = desc.Width;
+			textureDesc.Height			   = desc.Height;
+			textureDesc.Type			   = TextureType::Texture2D;
+			textureDesc.Usage			   = Graphics::TextureUsage_DepthStencilAttachment;
+			textureDesc.Samples			   = desc.Samples;
+			textureDesc.Format			   = desc.DepthAttachmentFormat.value();
+
+			Ref<Texture> texture = CreateTexture(textureDesc);
+
+			FramebufferTextureDescription framebufferTextureDesc = {};
+			framebufferTextureDesc.TargetTexture				 = texture;
+			framebufferTextureDesc.BaseArrayLayer				 = 0;
+			framebufferTextureDesc.LayerCount					 = 1;
+			framebufferTextureDesc.MipLevel						 = 0;
+
+			framebufferDesc.DepthAttachment = framebufferTextureDesc;
+		}
+
+		return CreateFramebuffer(framebufferDesc);
 	}
 }	 // namespace Nexus::Graphics

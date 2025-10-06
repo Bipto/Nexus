@@ -446,7 +446,7 @@ namespace Nexus::Graphics
 		auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(command.Source);
 		auto swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(command.Target);
 
-		VkImage framebufferImage = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImage();
+		VkImage framebufferImage = framebufferVk->GetVulkanColourTexture(command.SourceIndex)->GetImage();
 		VkImage swapchainImage	 = swapchainVk->GetColourImage();
 
 		VkImageSubresourceLayers src;
@@ -464,12 +464,12 @@ namespace Nexus::Graphics
 		VkImageResolve resolve;
 		resolve.dstOffset	   = {0, 0, 0};
 		resolve.dstSubresource = dst;
-		resolve.extent		   = {framebufferVk->GetFramebufferSpecification().Width, framebufferVk->GetFramebufferSpecification().Height, 1};
+		resolve.extent		   = {framebufferVk->GetWidth(), framebufferVk->GetHeight(), 1};
 		resolve.srcOffset	   = {0, 0, 0};
 		resolve.srcSubresource = src;
 
 		VkImageLayout framebufferLayout =
-			Vk::GetImageLayout(m_Device, framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetTextureLayout(0, 0));
+			Vk::GetImageLayout(m_Device, framebufferVk->GetVulkanColourTexture(command.SourceIndex)->GetTextureLayout(0, 0));
 		VkImageLayout swapchainLayout = swapchainVk->GetColorImageLayout();
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -1370,14 +1370,14 @@ namespace Nexus::Graphics
 
 		VkRect2D renderArea {};
 		renderArea.offset = {0, 0};
-		renderArea.extent = {framebuffer->GetFramebufferSpecification().Width, framebuffer->GetFramebufferSpecification().Height};
+		renderArea.extent = {framebuffer->GetWidth(), framebuffer->GetHeight()};
 
 		std::vector<VkRenderingAttachmentInfo> colourAttachments;
 
 		// attach colour textures
 		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount(); colourAttachmentIndex++)
 		{
-			Ref<TextureVk> texture = framebuffer->GetVulkanColorTexture(colourAttachmentIndex);
+			Ref<TextureVk> texture = framebuffer->GetVulkanColourTexture(colourAttachmentIndex);
 			TextureLayout  layout  = texture->GetTextureLayout(0, 0);
 
 			VkRenderingAttachmentInfo colourAttachment = {};
@@ -1434,7 +1434,7 @@ namespace Nexus::Graphics
 		beginInfo.renderPass			= framebuffer->GetRenderPass();
 		beginInfo.framebuffer			= framebuffer->GetFramebuffer();
 		beginInfo.renderArea.offset		= {0, 0};
-		beginInfo.renderArea.extent		= {framebuffer->GetFramebufferSpecification().Width, framebuffer->GetFramebufferSpecification().Height};
+		beginInfo.renderArea.extent		= {framebuffer->GetWidth(), framebuffer->GetHeight()};
 		beginInfo.clearValueCount		= 0;
 		beginInfo.pClearValues			= nullptr;
 

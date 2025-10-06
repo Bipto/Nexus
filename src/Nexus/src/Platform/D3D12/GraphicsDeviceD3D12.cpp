@@ -94,9 +94,9 @@ namespace Nexus::Graphics
 		return CreateRef<ResourceSetD3D12>(pipeline, this);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
+	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferD3D12>(spec, this);
+		return CreateRef<FramebufferD3D12>(desc, this);
 	}
 
 	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
@@ -141,6 +141,23 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
+		for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
+		{
+			WeakRef<CommandQueueD3D12> commandQueue = m_CreatedCommandQueues.at(i);
+
+			// check if the command queue pointer has expired, if it has remove it and continue iterating
+			if (commandQueue.expired())
+			{
+				m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
+				i--;
+				continue;
+			}
+
+			if (Ref<CommandQueueD3D12> lockedQueue = commandQueue.lock())
+			{
+				lockedQueue->WaitForIdle();
+			}
+		}
 	}
 
 	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()

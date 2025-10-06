@@ -152,6 +152,11 @@ namespace Nexus::Graphics
 		return m_MultisampledFramebuffer;
 	}
 
+	bool SwapchainD3D12::HasMultisampledFramebuffer() const
+	{
+		return m_Description.Samples > 1;
+	}
+
 	void SwapchainD3D12::AcquireBackbufferIndex()
 	{
 		// retrieve the current buffer index from the swapchain
@@ -217,7 +222,7 @@ namespace Nexus::Graphics
 			desc.Height								 = m_SwapchainHeight;
 			desc.DepthOrArrayLayers					 = 1;
 			desc.MipLevels							 = 1;
-			desc.Format								 = PixelFormat::B8_G8_R8_A8_UNorm;
+			desc.Format								 = PixelFormat::R8_G8_B8_A8_UNorm;
 			Ref<TextureD3D12> texture				 = CreateRef<TextureD3D12>(m_Buffers[i], desc, m_Device);
 
 			D3D12_RENDER_TARGET_VIEW_DESC rtv;
@@ -364,29 +369,30 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::CreateMultisampledFramebuffer()
 	{
-		Nexus::Graphics::FramebufferSpecification spec;
-		spec.Width						   = m_SwapchainWidth;
-		spec.Height						   = m_SwapchainHeight;
-		spec.ColourAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-		spec.DepthAttachmentSpecification  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
-		spec.Samples					   = m_Description.Samples;
+		Nexus::Graphics::FramebufferTextureCreateDescription desc;
+		desc.Width					 = m_SwapchainWidth;
+		desc.Height					 = m_SwapchainHeight;
+		desc.ColourAttachmentFormats = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+		desc.DepthAttachmentFormat	 = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
+		desc.Samples				 = m_Description.Samples;
 
-		m_MultisampledFramebuffer = m_Device->CreateFramebuffer(spec);
+		GraphicsDevice *device	  = (GraphicsDevice *)m_Device;
+		m_MultisampledFramebuffer = device->CreateFramebuffer(desc);
 	}
 
 	void SwapchainD3D12::Resolve()
 	{
-		if (m_MultisampledFramebuffer->GetFramebufferSpecification().Width > GetWindow()->GetWindowSize().X)
+		if (m_MultisampledFramebuffer->GetWidth() > GetWindow()->GetWindowSize().X)
 		{
 			return;
 		}
 
-		if (m_MultisampledFramebuffer->GetFramebufferSpecification().Height > GetWindow()->GetWindowSize().Y)
+		if (m_MultisampledFramebuffer->GetHeight() > GetWindow()->GetWindowSize().Y)
 		{
 			return;
 		}
 
-		Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
+		Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTextureHandle());
 
 		DXGI_FORMAT			  format		   = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0, 0);

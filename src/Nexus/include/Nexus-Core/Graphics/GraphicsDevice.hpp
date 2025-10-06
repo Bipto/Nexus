@@ -68,7 +68,9 @@ namespace Nexus::Graphics
 		/// @return A pointer to a texture
 		Ref<Texture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb = false);
 
-		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
+		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
+
+		Ref<Framebuffer> CreateFramebuffer(const FramebufferTextureCreateDescription &desc);
 
 		/// @brief A pure virtual method that creates a new resource set from a given
 		/// specification

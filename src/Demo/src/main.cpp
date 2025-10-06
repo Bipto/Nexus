@@ -273,10 +273,10 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->End();
 
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_GraphicsDevice->WaitForIdle();
 		}
 
 		m_ImGuiRenderer->AfterLayout();
+		m_GraphicsDevice->WaitForIdle();
 
 		{
 			NX_PROFILE_SCOPE("CommandQueue::Present");
@@ -311,7 +311,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	Nexus::ApplicationSpecification spec;
 
 	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
-	spec.GraphicsCreateInfo.Debug = false;
+	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 

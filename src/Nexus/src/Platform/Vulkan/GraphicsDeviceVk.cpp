@@ -96,9 +96,9 @@ namespace Nexus::Graphics
 		return CreateRef<ResourceSetVk>(pipeline, this);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
+	Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferVk>(spec, this);
+		return CreateRef<FramebufferVk>(desc, this);
 	}
 
 	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)

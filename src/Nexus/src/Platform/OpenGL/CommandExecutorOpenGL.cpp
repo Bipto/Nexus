@@ -500,10 +500,10 @@ namespace Nexus::Graphics
 			{
 				framebuffer->BindAsReadBuffer(command.SourceIndex, context);
 
-				uint32_t framebufferWidth  = framebuffer->GetFramebufferSpecification().Width;
-				uint32_t framebufferHeight = framebuffer->GetFramebufferSpecification().Height;
+				uint32_t framebufferWidth  = framebuffer->GetWidth();
+				uint32_t framebufferHeight = framebuffer->GetHeight();
 
-				Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
+				Ref<Texture> framebufferTexture = framebuffer->GetColorTextureHandle(command.SourceIndex);
 
 				Nexus::IWindow *window			= swapchain->GetWindow();
 				uint32_t		swapchainWidth	= window->GetWindowSize().X;

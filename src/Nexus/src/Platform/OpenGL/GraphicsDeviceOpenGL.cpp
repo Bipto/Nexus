@@ -165,10 +165,10 @@ namespace Nexus::Graphics
 		return CreateRef<ResourceSetOpenGL>(pipeline);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
+	Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<FramebufferOpenGL>(spec, this);
+		return CreateRef<FramebufferOpenGL>(desc, this);
 	}
 
 	Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)

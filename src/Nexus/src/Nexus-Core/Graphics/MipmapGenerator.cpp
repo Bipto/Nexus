@@ -52,7 +52,7 @@ namespace Nexus::Graphics
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<char> MipmapGenerator::GenerateMip(Ref<Texture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
+	std::vector<char> MipmapGenerator::GenerateMip(Ref<Texture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
 	{
 		std::vector<char> pixels = {};
 
@@ -63,20 +63,21 @@ namespace Nexus::Graphics
 
 		// generate mip
 		{
-			Nexus::Graphics::FramebufferSpecification framebufferSpec;
-			framebufferSpec.ColourAttachmentSpecification = {texture->GetDescription().Format};
-			framebufferSpec.Width						  = mipWidth;
-			framebufferSpec.Height						  = mipHeight;
-			framebufferSpec.Samples						  = texture->GetDescription().Samples;
+			Nexus::Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+			framebufferTextureDesc.TargetTexture								  = texture;
+			framebufferTextureDesc.BaseArrayLayer								  = arrayLayer;
+			framebufferTextureDesc.LayerCount									  = 1;
+			framebufferTextureDesc.MipLevel										  = levelToGenerate;
 
-			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
+			Nexus::Graphics::FramebufferTextureSetDescription framebufferDesc = {};
+			framebufferDesc.ColourAttachments								  = {framebufferTextureDesc};
+
+			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferDesc);
 
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
 			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
-
-			Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
 
 			m_ResourceSet->WriteCombinedImageSampler(texture, sampler, "texSampler");
 
@@ -127,9 +128,10 @@ namespace Nexus::Graphics
 
 			m_CommandList->End();
 
-			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_CommandQueue->SubmitCommandList(m_CommandList);
+			m_Device->WaitForIdle();
 
-			pixels = m_Device->ReadFromTexture(framebufferTexture, m_CommandQueue, 0, 0, 0, 0, 0, mipWidth, mipHeight);
+			pixels = m_Device->ReadFromTexture(texture, m_CommandQueue, 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

@@ -20,16 +20,15 @@ namespace Nexus::Graphics
 
 	enum TextureUsageFlags : uint16_t
 	{
-		TextureUsage_None			  = 0,
-		TextureUsage_TransferSrc	  = BIT(0),
-		TextureUsage_TransferDst	  = BIT(1),
-		TextureUsage_RenderTarget	  = BIT(2),
-		TextureUsage_Sampled		  = BIT(3),
-		TextureUsage_Storage		  = BIT(4),
-		TextureUsage_ColourAttachment = BIT(5),
-		TextureUsage_DepthAttachment  = BIT(6),
-		TextureUsage_VideoDecodeDst	  = BIT(7),
-		TextureUsage_VideoEncodeSrc	  = BIT(8),
+		TextureUsage_None					= 0,
+		TextureUsage_TransferSrc			= BIT(0),
+		TextureUsage_TransferDst			= BIT(1),
+		TextureUsage_Sampled				= BIT(2),
+		TextureUsage_Storage				= BIT(3),
+		TextureUsage_ColourAttachment		= BIT(4),
+		TextureUsage_DepthStencilAttachment = BIT(5),
+		TextureUsage_VideoDecodeDst			= BIT(6),
+		TextureUsage_VideoEncodeSrc			= BIT(7),
 	};
 
 	enum TextureCreateFlags : uint8_t
@@ -93,6 +92,31 @@ namespace Nexus::Graphics
 		bool IsDepth() const
 		{
 			return GetPixelFormatType(m_Description.Format) == PixelFormatType::DepthStencil;
+		}
+
+		PixelFormat GetPixelFormat() const
+		{
+			return m_Description.Format;
+		}
+
+		uint32_t GetSampleCount() const
+		{
+			return m_Description.Samples;
+		}
+
+		uint32_t GetWidth() const
+		{
+			return m_Description.Width;
+		}
+
+		uint32_t GetHeight() const
+		{
+			return m_Description.Height;
+		}
+
+		uint16_t GetUsage() const
+		{
+			return m_Description.Usage;
 		}
 
 		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;

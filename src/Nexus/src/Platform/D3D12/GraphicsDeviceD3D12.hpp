@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 		Ref<ResourceSet>		CreateResourceSet(Ref<Pipeline> pipeline) final;
 
-		Ref<Framebuffer>			CreateFramebuffer(const FramebufferSpecification &spec) final;
+		Ref<Framebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
 		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
 		Ref<TimingQuery>			CreateTimingQuery() final;
 		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;

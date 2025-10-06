@@ -115,7 +115,7 @@ namespace Nexus::Graphics
 
 		if (target.has_value())
 		{
-			RenderTarget t = target.value();
+			RenderTarget	  t				   = target.value();
 			Point2D<uint32_t> renderTargetSize = t.GetSize();
 
 			if (viewport.X + viewport.Width > renderTargetSize.X)
@@ -210,22 +210,22 @@ namespace Nexus::Graphics
 				valid = false;
 			}
 
-			if (source->GetFramebufferSpecification().Width != target->GetSize().X)
+			if (source->GetWidth() != target->GetSize().X)
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from a framebuffer to a swapchain of "
 					  "mismatching widths. The width of the framebuffer is "
-				   << source->GetFramebufferSpecification().Width << " and the width of the swapchain is " << target->GetSize().X;
+				   << source->GetWidth() << " and the width of the swapchain is " << target->GetSize().X;
 				NX_ERROR(ss.str());
 				valid = false;
 			}
 
-			if (source->GetFramebufferSpecification().Height != target->GetSize().Y)
+			if (source->GetHeight() != target->GetSize().Y)
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from a framebuffer to a swapchain of "
 					  "mismatching heights. The height of the framebuffer is "
-				   << source->GetFramebufferSpecification().Height << " and the height of the swapchain is " << target->GetSize().Y;
+				   << source->GetHeight() << " and the height of the swapchain is " << target->GetSize().Y;
 				NX_ERROR(ss.str());
 				valid = false;
 			}

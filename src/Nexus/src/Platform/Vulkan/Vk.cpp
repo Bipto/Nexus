@@ -377,15 +377,13 @@ namespace Nexus::Vk
 	{
 		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(format);
-		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
-		{
-			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-		}
-
-		if (usage & Nexus::Graphics::TextureUsage_RenderTarget)
+		if (usage & Nexus::Graphics::TextureUsage_ColourAttachment)
 		{
 			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		}
+		if (usage & Nexus::Graphics::TextureUsage_DepthStencilAttachment)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 		}
 
 		// this is required to be set to use an VkImageView

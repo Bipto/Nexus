@@ -823,13 +823,12 @@ namespace Nexus::D3D12
 	{
 		D3D12_RESOURCE_FLAGS flags = {};
 
-		if (description.Usage & Graphics::TextureUsage_RenderTarget)
+		if (description.Usage & Graphics::TextureUsage_ColourAttachment)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
 
-		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(description.Format);
-		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
+		if (description.Usage & Graphics::TextureUsage_DepthStencilAttachment)
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
