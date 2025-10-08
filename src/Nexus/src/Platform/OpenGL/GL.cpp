@@ -1172,6 +1172,24 @@ namespace Nexus::GL
 												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
+			{
+				size_t offset = command.BufferTextureCopy.BufferOffset;
+
+				glCall(
+					context.TextureSubImage3D(texture->GetHandle(),
+											  command.BufferTextureCopy.TextureSubresource.MipLevel,
+											  command.BufferTextureCopy.TextureOffset.X,
+											  command.BufferTextureCopy.TextureOffset.Y,
+											  command.BufferTextureCopy.TextureSubresource.BaseArrayLayer + command.BufferTextureCopy.TextureOffset.Z,
+											  command.BufferTextureCopy.TextureExtent.Width,
+											  command.BufferTextureCopy.TextureExtent.Height,
+											  command.BufferTextureCopy.TextureExtent.Depth,
+											  dataFormat,
+											  baseType,
+											  (const void *)offset));
+
+				break;
+			}
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:

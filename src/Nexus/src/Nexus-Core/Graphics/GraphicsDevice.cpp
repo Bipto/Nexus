@@ -25,6 +25,8 @@
 	#include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 #endif
 
+#include <stb_image_write.h>
+
 namespace Nexus::Graphics
 {
 	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
@@ -91,33 +93,7 @@ namespace Nexus::Graphics
 										const void		  *data,
 										size_t			   size)
 	{
-		DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Access				   = BufferMemoryAccess::Upload;
-		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
-		bufferDesc.SizeInBytes			   = size;
-		bufferDesc.StrideInBytes		   = size;
-		Ref<DeviceBuffer> buffer		   = CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList		   = commandQueue->CreateCommandList();
-
-		buffer->SetData(data, 0, size);
-
-		cmdList->Begin();
-
-		BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle				  = buffer;
-		copyDesc.BufferOffset				  = 0;
-		copyDesc.BufferRowLength			  = 0;
-		copyDesc.BufferImageHeight			  = 0;
-		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
-		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
-		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
-
-		cmdList->CopyBufferToTexture(copyDesc);
-
-		cmdList->End();
-		commandQueue->SubmitCommandList(cmdList);
-		WaitForIdle();
+		commandQueue->WriteToTexture(texture, arrayLayer, mipLevel, x, y, z, width, height, data, size);
 
 	}	 // namespace Nexus::Graphics
 
@@ -131,36 +107,7 @@ namespace Nexus::Graphics
 													  uint32_t			 width,
 													  uint32_t			 height)
 	{
-		size_t bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
-
-		DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Access				   = BufferMemoryAccess::Readback;
-		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
-		bufferDesc.SizeInBytes			   = bufferSize;
-		bufferDesc.StrideInBytes		   = bufferSize;
-
-		Ref<DeviceBuffer> buffer  = CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList = commandQueue->CreateCommandList();
-
-		cmdList->Begin();
-
-		BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle				  = buffer;
-		copyDesc.BufferOffset				  = 0;
-		copyDesc.BufferRowLength			  = 0;
-		copyDesc.BufferImageHeight			  = 0;
-		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
-		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
-		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
-
-		cmdList->CopyTextureToBuffer(copyDesc);
-
-		cmdList->End();
-		commandQueue->SubmitCommandList(cmdList);
-		WaitForIdle();
-
-		return buffer->GetData(0, bufferSize);
+		return commandQueue->ReadFromTexture(texture, arrayLayer, mipLevel, x, y, z, width, height);
 	}
 
 	bool GraphicsDevice::Validate()
@@ -231,6 +178,9 @@ namespace Nexus::Graphics
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 		auto   texture	  = Ref<Texture>(CreateTexture(spec));
 		WriteToTexture(texture, commandQueue, 0, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
+
+		stbi_write_png("0.png", spec.Width, spec.Height, 4, data, spec.Width * 4);
+
 		stbi_image_free(data);
 
 		if (generateMips)
@@ -242,6 +192,10 @@ namespace Nexus::Graphics
 				auto [width, height]	 = Utils::GetMipSize(spec.Width, spec.Height, i);
 				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1, 0);
 				WriteToTexture(texture, commandQueue, 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
+
+				std::stringstream ss;
+				ss << std::to_string(i) << ".png";
+				stbi_write_png(ss.str().c_str(), width, height, 4, pixels.data(), width * 4);
 			}
 		}
 

@@ -63,16 +63,12 @@ namespace Nexus::Graphics
 
 		// generate mip
 		{
-			Nexus::Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture								  = texture;
-			framebufferTextureDesc.BaseArrayLayer								  = arrayLayer;
-			framebufferTextureDesc.LayerCount									  = 1;
-			framebufferTextureDesc.MipLevel										  = levelToGenerate;
+			Nexus::Graphics::FramebufferTextureCreateDescription framebufferTextureDesc = {};
+			framebufferTextureDesc.ColourAttachmentFormats								= {texture->GetPixelFormat()};
+			framebufferTextureDesc.Width												= mipWidth;
+			framebufferTextureDesc.Height												= mipHeight;
 
-			Nexus::Graphics::FramebufferTextureSetDescription framebufferDesc = {};
-			framebufferDesc.ColourAttachments								  = {framebufferTextureDesc};
-
-			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferDesc);
+			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferTextureDesc);
 
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
@@ -131,7 +127,8 @@ namespace Nexus::Graphics
 			m_CommandQueue->SubmitCommandList(m_CommandList);
 			m_Device->WaitForIdle();
 
-			pixels = m_Device->ReadFromTexture(texture, m_CommandQueue, 0, 0, 0, 0, 0, mipWidth, mipHeight);
+			Ref<Texture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
+			pixels							= m_Device->ReadFromTexture(framebufferTexture, m_CommandQueue, 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;
