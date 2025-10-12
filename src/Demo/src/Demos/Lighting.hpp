@@ -40,18 +40,26 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_CubeMesh = factory.CreateCube();
 
-			m_DiffuseMap =
-				m_GraphicsDevice->CreateTexture2D(m_CommandQueue,
-												  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"),
-												  true);
-			m_NormalMap =
-				m_GraphicsDevice->CreateTexture2D(m_CommandQueue,
-												  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"),
-												  true);
-			m_SpecularMap =
-				m_GraphicsDevice->CreateTexture2D(m_CommandQueue,
-												  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"),
-												  true);
+			auto [diffuseMap, diffuseMapView] = m_GraphicsDevice->CreateTexture2DWithView(
+				m_CommandQueue,
+				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"),
+				true);
+			m_DiffuseMap	 = diffuseMap;
+			m_DiffuseMapView = m_DiffuseMapView;
+
+			auto [normalMap, normalMapView] = m_GraphicsDevice->CreateTexture2DWithView(
+				m_CommandQueue,
+				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"),
+				true);
+			m_NormalMap		= normalMap;
+			m_NormalMapView = normalMapView;
+
+			auto [specularMap, specularMapView] = m_GraphicsDevice->CreateTexture2DWithView(
+				m_CommandQueue,
+				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"),
+				true);
+			m_SpecularMap	  = specularMap;
+			m_SpecularMapView = specularMapView;
 
 			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
 			cameraUniformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
@@ -123,9 +131,20 @@ namespace Demos
 				transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
 				m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 
-				m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
-				m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
-				m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
+				Nexus::Graphics::CombinedImageSampler diffuseCiSampler = {};
+				diffuseCiSampler.ImageTexture						   = m_DiffuseMapView;
+				diffuseCiSampler.ImageSampler						   = m_Sampler;
+				m_ResourceSet->WriteCombinedImageSampler(diffuseCiSampler, "diffuseMapSampler");
+
+				Nexus::Graphics::CombinedImageSampler normalCiSampler = {};
+				normalCiSampler.ImageTexture						  = m_NormalMapView;
+				normalCiSampler.ImageSampler						  = m_Sampler;
+				m_ResourceSet->WriteCombinedImageSampler(normalCiSampler, "normalMapSampler");
+
+				Nexus::Graphics::CombinedImageSampler specularCiSampler = {};
+				specularCiSampler.ImageTexture							= m_NormalMapView;
+				specularCiSampler.ImageSampler							= m_Sampler;
+				m_ResourceSet->WriteCombinedImageSampler(specularCiSampler, "specularMapSampler");
 
 				m_CommandList->SetResourceSet(m_ResourceSet);
 			}
@@ -199,25 +218,28 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Mesh>			  m_CubeMesh;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_CubeMesh	= nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Texture>	 m_DiffuseMap;
-		Nexus::Ref<Nexus::Graphics::Texture>	 m_NormalMap;
-		Nexus::Ref<Nexus::Graphics::Texture>	 m_SpecularMap;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ResourceSet>  m_ResourceSet		= nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>	  m_DiffuseMap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView> m_DiffuseMapView	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>	  m_NormalMap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView> m_NormalMapView	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>	  m_SpecularMap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView> m_SpecularMapView = nullptr;
+		glm::vec3								  m_ClearColour		= {0.7f, 0.2f, 0.3f};
 
-		VB_UNIFORM_CAMERA_DEMO_LIGHTING			  m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_LIGHTING			  m_CameraUniforms		= {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer = nullptr;
 
-		VB_UNIFORM_TRANSFORM_DEMO_LIGHTING		  m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_LIGHTING		  m_TransformUniforms	   = {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
+		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
 
-		Nexus::FirstPersonCamera m_Camera;
+		Nexus::FirstPersonCamera m_Camera = {};
 
 		float m_Rotation = 0.0f;
 	};

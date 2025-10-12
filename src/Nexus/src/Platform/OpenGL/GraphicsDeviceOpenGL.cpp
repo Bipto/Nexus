@@ -317,6 +317,11 @@ namespace Nexus::Graphics
 		return CreateRef<TextureOpenGL>(spec, this);
 	}
 
+	Ref<ITextureView> GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
+	{
+		return Ref<ITextureView>();
+	}
+
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
 	{
 	#if defined(__EMSCRIPTEN__) || defined(__ANDROID__) || defined(ANDROID)

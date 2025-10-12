@@ -37,56 +37,27 @@ namespace Nexus::Graphics
 		std::vector<BufferCopy> Copies		= {};
 	};
 
-	struct Offset3D
-	{
-		int32_t X = 0;
-		int32_t Y = 0;
-		int32_t Z = 0;
-	};
-
-	struct Extent3D
-	{
-		uint32_t Width	= 0;
-		uint32_t Height = 0;
-		uint32_t Depth	= 0;
-	};
-
-	struct SubresourceRange
-	{
-		uint32_t BaseMipLevel	= 0;
-		uint32_t LevelCount		= 1;
-		uint32_t BaseArrayLayer = 0;
-		uint32_t LayerCount		= 1;
-	};
-
-	struct SubresourceLayers
-	{
-		uint32_t MipLevel		= 0;
-		uint32_t BaseArrayLayer = 0;
-		uint32_t LayerCount		= 0;
-	};
-
 	struct BufferTextureCopyDescription
 	{
-		Ref<DeviceBuffer> BufferHandle		 = nullptr;
-		uint64_t		  BufferOffset		 = 0;
-		uint64_t		  BufferRowLength	 = 0;
-		uint64_t		  BufferImageHeight	 = 0;
-		Ref<Texture>	  TextureHandle		 = nullptr;
-		SubresourceLayers TextureSubresource = {};
-		Offset3D		  TextureOffset		 = {};
-		Extent3D		  TextureExtent		 = {};
+		Ref<DeviceBuffer> BufferHandle		= nullptr;
+		uint64_t		  BufferOffset		= 0;
+		uint64_t		  BufferRowLength	= 0;
+		uint64_t		  BufferImageHeight = 0;
+		Ref<Texture>	  TextureHandle		= nullptr;
+		Offset3D		  TextureOffset		= {};
+		Extent3D		  TextureExtent		= {};
+		uint32_t		  MipLevel			= 0;
 	};
 
 	struct TextureCopyDescription
 	{
-		Ref<Texture>	  Source				 = nullptr;
-		Ref<Texture>	  Destination			 = nullptr;
-		SubresourceLayers SourceSubresource		 = {};
-		SubresourceLayers DestinationSubresource = {};
-		Offset3D		  SourceOffset			 = {};
-		Offset3D		  DestinationOffset		 = {};
-		Extent3D		  Extent				 = {};
+		Ref<Texture> Source				 = nullptr;
+		Ref<Texture> Destination		 = nullptr;
+		Offset3D	 SourceOffset		 = {};
+		Offset3D	 DestinationOffset	 = {};
+		Extent3D	 Extent				 = {};
+		uint32_t	 SourceMipLevel		 = 0;
+		uint32_t	 DestinationMipLevel = 0;
 	};
 
 	struct SetVertexBufferCommand
@@ -103,6 +74,7 @@ namespace Nexus::Graphics
 	struct BeginDebugGroupCommand
 	{
 		std::string GroupName = {};
+		glm::vec4	Colour	  = {};
 	};
 
 	struct EndDebugGroupCommand
@@ -112,6 +84,7 @@ namespace Nexus::Graphics
 	struct InsertDebugMarkerCommand
 	{
 		std::string MarkerName = {};
+		glm::vec4	Colour	   = {};
 	};
 
 	/// @brief A struct representing a set of values to use  to clear the colour
@@ -421,8 +394,8 @@ namespace Nexus::Graphics
 
 	struct CommandListDescription
 	{
-		std::string DebugName = "CommandList";
-		bool AutomaticBarrierTransitions = true;
+		std::string DebugName					= "CommandList";
+		bool		AutomaticBarrierTransitions = true;
 	};
 
 	/// @brief A class representing a command list

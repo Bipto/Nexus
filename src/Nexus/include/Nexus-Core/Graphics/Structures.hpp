@@ -306,4 +306,33 @@ namespace Nexus::Graphics
 		/// @brief How the pixel should be written to the render target
 		WriteMask PixelWriteMask = WriteMask {};
 	};
+
+	struct Offset3D
+	{
+		int32_t X = 0;
+		int32_t Y = 0;
+		int32_t Z = 0;
+	};
+
+	struct Extent3D
+	{
+		uint32_t Width	= 0;
+		uint32_t Height = 0;
+		uint32_t Depth	= 0;
+	};
+
+	struct SubresourceRange
+	{
+		uint32_t BaseMipLevel	= 0;
+		uint32_t LevelCount		= 1;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 1;
+	};
+
+	struct SubresourceLayers
+	{
+		uint32_t MipLevel		= 0;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 0;
+	};
 }	 // namespace Nexus::Graphics

@@ -28,14 +28,18 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateSprite();
 
-			// m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
-			m_Texture =
-				m_GraphicsDevice->CreateTexture2D(m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			auto [texture, textureView] =
+				m_GraphicsDevice->CreateTexture2DWithView(m_CommandQueue,
+														  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"),
+														  false);
+
+			m_Texture	  = texture;
+			m_TextureView = textureView;
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
-			m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
+			m_TextureID = m_ImGuiRenderer->BindTexture(m_TextureView);
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -62,7 +66,10 @@ namespace Demos
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= m_TextureView;
+			ciSampler.ImageSampler							= m_Sampler;
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -127,6 +134,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
 		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
 		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler		= nullptr;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 

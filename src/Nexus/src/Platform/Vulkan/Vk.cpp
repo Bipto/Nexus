@@ -1086,9 +1086,9 @@ namespace Nexus::Vk
 	{
 		std::vector<VkAttachmentDescription2KHR> attachments				= {};
 		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences = {};
-		VkAttachmentReference2KHR				 depthAttachmentReference;
-		VkAttachmentReference2KHR				 resolveAttachmentReference;
-		size_t									 attachmentIndex = 0;
+		VkAttachmentReference2KHR				 depthAttachmentReference	= {};
+		VkAttachmentReference2KHR				 resolveAttachmentReference = {};
+		size_t									 attachmentIndex			= 0;
 
 		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
 		{
@@ -2266,6 +2266,53 @@ namespace Nexus::Vk
 					return VK_IMAGE_LAYOUT_GENERAL;
 				}
 			}
+		}
+	}
+
+	VkImageViewType GetImageViewType(const Graphics::TextureViewDescription &desc)
+	{
+		Ref<Graphics::Texture> texture = desc.TargetTexture;
+
+		switch (texture->GetType())
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (desc.Range.LayerCount > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (desc.Range.LayerCount > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_2D;
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return VK_IMAGE_VIEW_TYPE_3D;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (desc.Range.LayerCount > 6)
+				{
+					return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_CUBE;
+				}
+			}
+			default: throw std::runtime_error("Failed to find a valid image view type");
 		}
 	}
 

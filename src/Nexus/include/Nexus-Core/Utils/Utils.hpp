@@ -17,9 +17,10 @@ namespace Nexus::Graphics
 
 namespace Nexus::Utils
 {
-	NX_API glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
-	NX_API glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
+	NX_API glm::vec4 ColourFromRGBA(float r, float g, float b, float a);
+	NX_API glm::vec4 ColourFromBorderColor(Nexus::Graphics::BorderColor color);
 	NX_API glm::vec4 GenerateRandomColour();
+	NX_API uint32_t	 PackColour(const glm::vec4 &colour);
 
 	template<typename T>
 	inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)

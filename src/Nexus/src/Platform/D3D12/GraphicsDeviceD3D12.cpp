@@ -181,6 +181,11 @@ namespace Nexus::Graphics
 		return CreateRef<TextureD3D12>(spec, this);
 	}
 
+	Ref<ITextureView> GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
+	{
+		return Ref<ITextureView>();
+	}
+
 	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
 		return CreateRef<FenceD3D12>(desc, this);

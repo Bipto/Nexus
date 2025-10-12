@@ -935,44 +935,25 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		Ref<Graphics::Texture>				texture = view.TextureHandle;
-		const Graphics::TextureDescription &spec	= texture->GetDescription();
-		uav.Format									= D3D12::GetD3D12PixelFormat(spec.Format);
+		Ref<Graphics::Texture>				texture		= view.TextureHandle;
+		const Graphics::TextureDescription &textureDesc = texture->GetDescription();
+		uav.Format										= D3D12::GetD3D12PixelFormat(textureDesc.Format);
 
-		switch (spec.Type)
+		switch (textureDesc.Type)
 		{
 			case Graphics::TextureType::Texture1D:
-				if (spec.DepthOrArrayLayers > 1)
-				{
-					uav.ViewDimension	   = D3D12_UAV_DIMENSION_TEXTURE1D;
-					uav.Texture1D.MipSlice = view.MipLevel;
-				}
-				else
-				{
-					uav.ViewDimension				   = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
-					uav.Texture1DArray.FirstArraySlice = view.ArrayLayer;
-					uav.Texture1DArray.ArraySize	   = 1;
-					uav.Texture1DArray.MipSlice		   = view.MipLevel;
-				}
+			{
+				uav.ViewDimension	   = D3D12_UAV_DIMENSION_TEXTURE1D;
+				uav.Texture1D.MipSlice = view.MipLevel;
 				break;
-
+			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.DepthOrArrayLayers > 1)
-				{
-					uav.ViewDimension				   = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
-					uav.Texture2DArray.FirstArraySlice = view.ArrayLayer;
-					uav.Texture2DArray.ArraySize	   = 1;
-					uav.Texture2DArray.MipSlice		   = view.MipLevel;
-					uav.Texture2DArray.PlaneSlice	   = 0;
-				}
-				else
 				{
 					uav.ViewDimension		 = D3D12_UAV_DIMENSION_TEXTURE2D;
 					uav.Texture2D.MipSlice	 = view.MipLevel;
 					uav.Texture2D.PlaneSlice = 0;
 				}
-
 				break;
 			}
 			case Graphics::TextureType::Texture3D:
@@ -981,7 +962,6 @@ namespace Nexus::D3D12
 				uav.Texture3D.MipSlice	  = view.MipLevel;
 				uav.Texture3D.FirstWSlice = view.ArrayLayer;
 				uav.Texture3D.WSize		  = 1;
-
 				break;
 			}
 			default: throw std::runtime_error("Failed to find a valid TextureType");

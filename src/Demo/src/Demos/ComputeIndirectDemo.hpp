@@ -23,14 +23,22 @@ namespace Demos
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
 
-			Nexus::Graphics::TextureDescription textureSpec = {};
-			textureSpec.Width								= 512;
-			textureSpec.Height								= 512;
-			textureSpec.Format								= Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
-			textureSpec.Samples								= 1;
-			textureSpec.MipLevels							= 1;
-			textureSpec.Usage								= Nexus::Graphics::TextureUsage_Storage | Nexus::Graphics::TextureUsage_Sampled;
-			m_Texture										= Nexus::Ref<Nexus::Graphics::Texture>(m_GraphicsDevice->CreateTexture(textureSpec));
+			Nexus::Graphics::TextureDescription textureDesc = {};
+			textureDesc.Width								= 512;
+			textureDesc.Height								= 512;
+			textureDesc.Format								= Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
+			textureDesc.Samples								= 1;
+			textureDesc.MipLevels							= 1;
+			textureDesc.Usage								= Nexus::Graphics::TextureUsage_Storage | Nexus::Graphics::TextureUsage_Sampled;
+			textureDesc.DebugName							= "Compute Texture";
+			m_Texture										= m_GraphicsDevice->CreateTexture(textureDesc);
+
+			Nexus::Graphics::TextureViewDescription viewDesc = {};
+			viewDesc.TargetTexture							 = m_Texture;
+			viewDesc.Format									 = m_Texture->GetPixelFormat();
+			viewDesc.Range									 = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
+			viewDesc.DebugName								 = "Compute Texture View";
+			m_TextureView									 = m_GraphicsDevice->CreateTextureView(viewDesc);
 
 			Nexus::Graphics::ComputePipelineDescription desc = {};
 			desc.ComputeShader =
@@ -38,14 +46,14 @@ namespace Demos
 			m_ComputePipeline = m_GraphicsDevice->CreateComputePipeline(desc);
 
 			m_ResourceSet		  = m_GraphicsDevice->CreateResourceSet(m_ComputePipeline);
-			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_Texture);
+			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_TextureView);
 
 			Nexus::Graphics::DeviceBufferDescription indirectDesc = {};
 			indirectDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
 			indirectDesc.Usage									  = Nexus::Graphics::BufferUsage::Indirect;
 			indirectDesc.SizeInBytes							  = sizeof(Nexus::Graphics::IndirectDispatchArguments);
 			indirectDesc.StrideInBytes							  = sizeof(Nexus::Graphics::IndirectDispatchArguments);
-			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectDesc));
+			m_IndirectBuffer									  = m_GraphicsDevice->CreateDeviceBuffer(indirectDesc);
 
 			Nexus::Graphics::IndirectDispatchArguments args = {};
 			args.GroupCountX								= m_Texture->GetDescription().Width;
@@ -114,11 +122,12 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	 m_IndirectBuffer;
-		Nexus::Ref<Nexus::Graphics::ComputePipeline> m_ComputePipeline;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	 m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Texture>		 m_Texture;
+		Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	 m_IndirectBuffer	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ComputePipeline> m_ComputePipeline	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	 m_ResourceSet		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>		 m_Texture			   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	 m_TextureView		   = nullptr;
 		glm::vec3									 m_ClearColour		   = {0.7f, 0.2f, 0.3f};
 		ImTextureID									 m_ImGuiTextureBinding = 0;
 	};

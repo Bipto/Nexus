@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/ShaderResources.hpp"
 	#include "GraphicsDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/ResourceSet.hpp"
+	#include "Nexus-Core/Graphics/ShaderResources.hpp"
 	#include "TextureVk.hpp"
 	#include "Vk.hpp"
 
@@ -16,10 +16,10 @@ namespace Nexus::Graphics
 		ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device);
 		~ResourceSetVk();
 
-		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
-		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
-		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
-		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;
+		virtual void WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name) override;
+		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name) override;
+		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) override;
+		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name) override;
 
 		const std::vector<std::map<uint32_t, VkDescriptorSet>> &GetDescriptorSets() const;
 

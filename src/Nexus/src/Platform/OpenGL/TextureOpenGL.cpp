@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 
 		if (spec.Samples > 1)
 		{
-			NX_VALIDATE(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+			NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
 		}
 
 		if (spec.Type == TextureType::TextureCube)

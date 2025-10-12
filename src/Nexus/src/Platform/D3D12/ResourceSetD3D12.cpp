@@ -4,9 +4,9 @@
 
 	#include "DeviceBufferD3D12.hpp"
 	#include "Nexus-Core/Utils/Utils.hpp"
+	#include "PipelineD3D12.hpp"
 	#include "SamplerD3D12.hpp"
 	#include "TextureD3D12.hpp"
-	#include "PipelineD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -91,7 +91,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetD3D12::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	void ResourceSetD3D12::WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)
 	{
 		auto d3d12Device = m_Device->GetD3D12Device();
 		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
@@ -167,7 +167,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetD3D12::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
+	void ResourceSetD3D12::WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)
 	{
 		auto d3d12Device = m_Device->GetD3D12Device();
 		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle))
@@ -187,14 +187,14 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetD3D12::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)
 	{
 		const auto d3d12Device = m_Device->GetD3D12Device();
 		// write texture
 		{
-			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
+			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(combinedImageSampler.ImageTexture);
 
-			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(texture->GetDescription());
+			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(d3d12Texture->GetDescription());
 
 			D3D12_CPU_DESCRIPTOR_HANDLE textureHandle  = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 			auto						resourceHandle = d3d12Texture->GetHandle();
@@ -207,11 +207,11 @@ namespace Nexus::Graphics
 			std::string samplerName = m_DescriptorHandleInfo.CombinedImageSamplerMap.at(name);
 
 			auto			  d3d12Device  = m_Device->GetD3D12Device();
-			Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
+			Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(combinedImageSampler.ImageSampler);
 
 			const auto &spec = d3d12Sampler->GetSamplerSpecification();
 
-			const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.TextureBorderColor);
+			const glm::vec4 color = Nexus::Utils::ColourFromBorderColor(spec.TextureBorderColor);
 
 			D3D12_SAMPLER_DESC sd;
 			sd.Filter		  = d3d12Sampler->GetFilter();
@@ -232,13 +232,10 @@ namespace Nexus::Graphics
 			d3d12Device->CreateSampler(&sd, samplerHandle);
 		}
 
-		CombinedImageSampler ciSampler {};
-		ciSampler.ImageTexture			   = texture;
-		ciSampler.ImageSampler			   = sampler;
-		m_BoundCombinedImageSamplers[name] = ciSampler;
+		m_BoundCombinedImageSamplers[name] = combinedImageSampler;
 	}
 
-	void ResourceSetD3D12::WriteStorageImage(StorageImageView view, const std::string &name)
+	void ResourceSetD3D12::WriteStorageImage(const StorageImageView &view, const std::string &name)
 	{
 		const auto d3d12Device = m_Device->GetD3D12Device();
 

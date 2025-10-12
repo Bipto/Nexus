@@ -75,7 +75,21 @@ namespace Nexus::Graphics
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
 			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
 
-			m_ResourceSet->WriteCombinedImageSampler(texture, sampler, "texSampler");
+			Nexus::Graphics::TextureViewDescription viewDesc = {};
+			viewDesc.TargetTexture							 = texture;
+			viewDesc.Format									 = texture->GetPixelFormat();
+			viewDesc.Range									 = {.BaseMipLevel	= 0,
+																.LevelCount		= texture->GetMipLevels(),
+																.BaseArrayLayer = 0,
+																.LayerCount		= texture->GetDepthOrArrayLayers()};
+			viewDesc.DebugName								 = "Mipmap Generator Texture View";
+			Ref<ITextureView> textureView					 = m_Device->CreateTextureView(viewDesc);
+
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= textureView;
+			ciSampler.ImageSampler							= sampler;
+
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
 
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
@@ -128,7 +142,7 @@ namespace Nexus::Graphics
 			m_Device->WaitForIdle();
 
 			Ref<Texture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
-			pixels							= m_Device->ReadFromTexture(framebufferTexture, m_CommandQueue, 0, 0, 0, 0, 0, mipWidth, mipHeight);
+			pixels							= m_CommandQueue->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

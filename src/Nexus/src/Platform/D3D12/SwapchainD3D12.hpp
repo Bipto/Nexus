@@ -18,8 +18,9 @@ namespace Nexus::Graphics
 	  public:
 		SwapchainD3D12(IWindow *window, GraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
-		void SwapBuffers();
-		void SetPresentMode(PresentMode presentMode) final;
+		void			 SwapBuffers() final;
+		Ref<Framebuffer> GetCurrentFramebuffer();
+		void			 SetPresentMode(PresentMode presentMode) final;
 
 		IWindow *GetWindow() final
 		{

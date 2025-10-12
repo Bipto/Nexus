@@ -1148,7 +1148,7 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TextureSubImage1D(texture->GetHandle(),
-												 command.BufferTextureCopy.TextureSubresource.MipLevel,
+												 command.BufferTextureCopy.MipLevel,
 												 command.BufferTextureCopy.TextureOffset.X,
 												 command.BufferTextureCopy.TextureExtent.Width,
 												 dataFormat,
@@ -1162,7 +1162,7 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 				glCall(context.TextureSubImage2D(texture->GetHandle(),
-												 command.BufferTextureCopy.TextureSubresource.MipLevel,
+												 command.BufferTextureCopy.MipLevel,
 												 command.BufferTextureCopy.TextureOffset.X,
 												 command.BufferTextureCopy.TextureOffset.Y,
 												 command.BufferTextureCopy.TextureExtent.Width,
@@ -1175,18 +1175,17 @@ namespace Nexus::GL
 			{
 				size_t offset = command.BufferTextureCopy.BufferOffset;
 
-				glCall(
-					context.TextureSubImage3D(texture->GetHandle(),
-											  command.BufferTextureCopy.TextureSubresource.MipLevel,
-											  command.BufferTextureCopy.TextureOffset.X,
-											  command.BufferTextureCopy.TextureOffset.Y,
-											  command.BufferTextureCopy.TextureSubresource.BaseArrayLayer + command.BufferTextureCopy.TextureOffset.Z,
-											  command.BufferTextureCopy.TextureExtent.Width,
-											  command.BufferTextureCopy.TextureExtent.Height,
-											  command.BufferTextureCopy.TextureExtent.Depth,
-											  dataFormat,
-											  baseType,
-											  (const void *)offset));
+				glCall(context.TextureSubImage3D(texture->GetHandle(),
+												 command.BufferTextureCopy.MipLevel,
+												 command.BufferTextureCopy.TextureOffset.X,
+												 command.BufferTextureCopy.TextureOffset.Y,
+												 command.BufferTextureCopy.TextureOffset.Z,
+												 command.BufferTextureCopy.TextureExtent.Width,
+												 command.BufferTextureCopy.TextureExtent.Height,
+												 command.BufferTextureCopy.TextureExtent.Depth,
+												 dataFormat,
+												 baseType,
+												 (const void *)offset));
 
 				break;
 			}
@@ -1198,7 +1197,7 @@ namespace Nexus::GL
 				size_t offset = command.BufferTextureCopy.BufferOffset;
 
 				glCall(context.TextureSubImage3D(texture->GetHandle(),
-												 command.BufferTextureCopy.TextureSubresource.MipLevel,
+												 command.BufferTextureCopy.MipLevel,
 												 command.BufferTextureCopy.TextureOffset.X,
 												 command.BufferTextureCopy.TextureOffset.Y,
 												 command.BufferTextureCopy.TextureOffset.Z,
@@ -1248,7 +1247,7 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TexSubImage1D(textureType,
-											 command.BufferTextureCopy.TextureSubresource.MipLevel,
+											 command.BufferTextureCopy.MipLevel,
 											 command.BufferTextureCopy.TextureOffset.X,
 											 command.BufferTextureCopy.TextureExtent.Width,
 											 dataFormat,
@@ -1262,7 +1261,7 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 				glCall(context.TexSubImage2D(textureType,
-											 command.BufferTextureCopy.TextureSubresource.MipLevel,
+											 command.BufferTextureCopy.MipLevel,
 											 command.BufferTextureCopy.TextureOffset.X,
 											 command.BufferTextureCopy.TextureOffset.Y,
 											 command.BufferTextureCopy.TextureExtent.Width,
@@ -1272,8 +1271,8 @@ namespace Nexus::GL
 											 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(context.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureSubresource.BaseArrayLayer,
-											 command.BufferTextureCopy.TextureSubresource.MipLevel,
+				glCall(context.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureOffset.Z,
+											 command.BufferTextureCopy.MipLevel,
 											 command.BufferTextureCopy.TextureOffset.X,
 											 command.BufferTextureCopy.TextureOffset.Y,
 											 command.BufferTextureCopy.TextureExtent.Width,
@@ -1287,7 +1286,7 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture3D:
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
 				glCall(context.TexSubImage3D(textureType,
-											 command.BufferTextureCopy.TextureSubresource.MipLevel,
+											 command.BufferTextureCopy.MipLevel,
 											 command.BufferTextureCopy.TextureOffset.X,
 											 command.BufferTextureCopy.TextureOffset.Y,
 											 command.BufferTextureCopy.TextureOffset.Z,
@@ -1344,7 +1343,7 @@ namespace Nexus::GL
 		{
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 			framebufferTextureDesc.TargetTexture						   = texture;
-			framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
 			framebufferTextureDesc.BaseArrayLayer						   = layer;
 			framebufferTextureDesc.LayerCount							   = 1;
 
@@ -1405,7 +1404,7 @@ namespace Nexus::GL
 
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 			framebufferTextureDesc.TargetTexture						   = texture;
-			framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
 			framebufferTextureDesc.BaseArrayLayer						   = layer;
 			framebufferTextureDesc.LayerCount							   = 1;
 
@@ -1447,9 +1446,7 @@ namespace Nexus::GL
 								 const Graphics::TextureCopyDescription &copyDesc,
 								 const GladGLContext					&context)
 	{
-		for (uint32_t layer = copyDesc.SourceOffset.Z;
-			 layer < copyDesc.SourceOffset.Z + copyDesc.SourceSubresource.BaseArrayLayer + copyDesc.SourceSubresource.LayerCount;
-			 layer++)
+		for (uint32_t layer = copyDesc.SourceOffset.Z; layer < copyDesc.SourceOffset.Z + copyDesc.Extent.Depth; layer++)
 		{
 			GLuint sourceFramebufferHandle = 0;
 			GLuint destFramebufferHandle   = 0;
@@ -1458,7 +1455,7 @@ namespace Nexus::GL
 			{
 				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 				framebufferTextureDesc.TargetTexture						   = source;
-				framebufferTextureDesc.MipLevel								   = copyDesc.SourceSubresource.MipLevel;
+				framebufferTextureDesc.MipLevel								   = copyDesc.SourceMipLevel;
 				framebufferTextureDesc.BaseArrayLayer						   = layer;
 				framebufferTextureDesc.LayerCount							   = 1;
 
@@ -1471,7 +1468,7 @@ namespace Nexus::GL
 			{
 				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 				framebufferTextureDesc.TargetTexture						   = destination;
-				framebufferTextureDesc.MipLevel								   = copyDesc.DestinationSubresource.MipLevel;
+				framebufferTextureDesc.MipLevel								   = copyDesc.DestinationMipLevel;
 				framebufferTextureDesc.BaseArrayLayer						   = layer;
 				framebufferTextureDesc.LayerCount							   = 1;
 
@@ -1503,9 +1500,7 @@ namespace Nexus::GL
 									const Graphics::TextureCopyDescription &copyDesc,
 									const GladGLContext					   &context)
 	{
-		for (uint32_t layer = copyDesc.SourceOffset.Z;
-			 layer < copyDesc.SourceOffset.Z + copyDesc.SourceSubresource.BaseArrayLayer + copyDesc.SourceSubresource.LayerCount;
-			 layer++)
+		for (uint32_t layer = copyDesc.SourceOffset.Z; layer < copyDesc.SourceOffset.Z + copyDesc.Extent.Depth; layer++)
 		{
 			GLuint sourceFramebufferHandle = 0;
 			GLuint destFramebufferHandle   = 0;
@@ -1514,7 +1509,7 @@ namespace Nexus::GL
 			{
 				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 				framebufferTextureDesc.TargetTexture						   = source;
-				framebufferTextureDesc.MipLevel								   = copyDesc.SourceSubresource.MipLevel;
+				framebufferTextureDesc.MipLevel								   = copyDesc.SourceMipLevel;
 				framebufferTextureDesc.BaseArrayLayer						   = layer;
 				framebufferTextureDesc.LayerCount							   = 1;
 
@@ -1528,7 +1523,7 @@ namespace Nexus::GL
 			{
 				Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 				framebufferTextureDesc.TargetTexture						   = destination;
-				framebufferTextureDesc.MipLevel								   = copyDesc.DestinationSubresource.MipLevel;
+				framebufferTextureDesc.MipLevel								   = copyDesc.DestinationMipLevel;
 				framebufferTextureDesc.BaseArrayLayer						   = layer;
 				framebufferTextureDesc.LayerCount							   = 1;
 

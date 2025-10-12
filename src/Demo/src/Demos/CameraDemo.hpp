@@ -37,10 +37,13 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateCube();
 
-			m_Texture = m_GraphicsDevice->CreateTexture2D(
+			auto [texture, textureView] = m_GraphicsDevice->CreateTexture2DWithView(
 				m_CommandQueue,
 				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
 				true);
+
+			m_Texture	  = texture;
+			m_TextureView = textureView;
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -115,7 +118,11 @@ namespace Demos
 			transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
 			m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 
-			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= m_TextureView;
+			ciSampler.ImageSampler							= m_Sampler;
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
+
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
@@ -181,20 +188,21 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
-		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler		= nullptr;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
+		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			  m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA			  m_CameraUniforms		= {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer = nullptr;
 
-		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		  m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		  m_TransformUniforms	   = {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer = nullptr;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

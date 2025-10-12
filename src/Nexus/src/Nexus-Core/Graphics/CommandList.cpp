@@ -219,30 +219,33 @@ namespace Nexus::Graphics
 
 			for (const auto &[name, ciSampler] : combinedImageSamplers)
 			{
-				Ref<Texture> texture = ciSampler.ImageTexture;
+				Ref<ITextureView>			  textureView = ciSampler.ImageTexture;
+				const TextureViewDescription &viewDesc	  = textureView->GetDescription();
 
 				TextureBarrierDesc barrier				= {};
 				barrier.BeforeAccess					= BarrierAccess::None;
 				barrier.AfterAccess						= BarrierAccess::ShaderRead;
 				barrier.BeforeStage						= BarrierPipelineStage::None;
 				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.Texture							= ciSampler.ImageTexture;
+				barrier.Texture							= textureView->GetTexture();
 				barrier.Layout							= ciSampler.Layout;
-				barrier.SubresourceRange.BaseArrayLayer = 0;
-				barrier.SubresourceRange.LayerCount		= texture->GetDescription().DepthOrArrayLayers;
-				barrier.SubresourceRange.BaseMipLevel	= 0;
-				barrier.SubresourceRange.LevelCount		= texture->GetDescription().MipLevels;
+				barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+				barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
+				barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
+				barrier.SubresourceRange.LevelCount		= viewDesc.Range.LevelCount;
 				SubmitTextureBarrier(barrier);
 			}
 
 			for (const auto &[name, storageImage] : storageImages)
 			{
+				Ref<Texture> texture = storageImage.TextureHandle;
+
 				TextureBarrierDesc barrier				= {};
 				barrier.BeforeAccess					= BarrierAccess::None;
 				barrier.AfterAccess						= BarrierAccess::ShaderRead;
 				barrier.BeforeStage						= BarrierPipelineStage::None;
 				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.Texture							= storageImage.TextureHandle;
+				barrier.Texture							= texture;
 				barrier.Layout							= storageImage.Layout;
 				barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
 				barrier.SubresourceRange.LayerCount		= 1;
@@ -347,6 +350,54 @@ namespace Nexus::Graphics
 			NX_ERROR("Attempting to record a command into a CommandList without "
 					 "calling Begin()");
 			return;
+		}
+
+		WeakRef<Framebuffer> weakFramebuffer = target.GetFramebuffer();
+		if (Ref<Framebuffer> framebuffer = weakFramebuffer.lock())
+		{
+			// transition colour attachment layouts
+			for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
+			{
+				std::optional<FramebufferTextureDescription> colourAttachmentOpt = framebuffer->GetColorTextureBinding(i);
+				if (colourAttachmentOpt.has_value())
+				{
+					FramebufferTextureDescription colourAttachment = colourAttachmentOpt.value();
+
+					TextureBarrierDesc barrierDesc = {};
+					barrierDesc.Texture			   = colourAttachment.TargetTexture;
+					barrierDesc.BeforeAccess	   = BarrierAccess::None;
+					barrierDesc.AfterAccess		   = BarrierAccess::ColourAttachmentWrite;
+					barrierDesc.BeforeStage		   = BarrierPipelineStage::None;
+					barrierDesc.AfterStage		   = BarrierPipelineStage::ColourAttachmentOutput;
+					barrierDesc.Layout			   = TextureLayout::ColourAttachmentOptimal;
+					barrierDesc.SubresourceRange   = {.BaseMipLevel	  = colourAttachment.MipLevel,
+													  .LevelCount	  = 1,
+													  .BaseArrayLayer = colourAttachment.BaseArrayLayer,
+													  .LayerCount	  = colourAttachment.LayerCount};
+
+					SubmitTextureBarrier(barrierDesc);
+				}
+			}
+
+			// transition depth attachment layout if exists
+			if (std::optional<FramebufferTextureDescription> depthAttachmentOpt = framebuffer->GetDepthTextureBinding())
+			{
+				FramebufferTextureDescription depthAttachment = depthAttachmentOpt.value();
+
+				TextureBarrierDesc barrierDesc = {};
+				barrierDesc.Texture			   = depthAttachment.TargetTexture;
+				barrierDesc.BeforeAccess	   = BarrierAccess::None;
+				barrierDesc.AfterAccess		   = BarrierAccess::DepthStencilAttachmentWrite;
+				barrierDesc.BeforeStage		   = BarrierPipelineStage::None;
+				barrierDesc.AfterStage		   = BarrierPipelineStage::EarlyFragmentTests;
+				barrierDesc.Layout			   = TextureLayout::DepthStencilAttachmentOptimal;
+				barrierDesc.SubresourceRange   = {.BaseMipLevel	  = depthAttachment.MipLevel,
+												  .LevelCount	  = 1,
+												  .BaseArrayLayer = depthAttachment.BaseArrayLayer,
+												  .LayerCount	  = depthAttachment.LayerCount};
+
+				SubmitTextureBarrier(barrierDesc);
+			}
 		}
 
 		m_Commands.push_back(target);
@@ -457,6 +508,19 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		Graphics::TextureBarrierDesc barrierDesc = {};
+		barrierDesc.Texture						 = bufferTextureCopy.TextureHandle;
+		barrierDesc.BeforeAccess				 = BarrierAccess::None;
+		barrierDesc.AfterAccess					 = BarrierAccess::None;
+		barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+		barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+		barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
+		barrierDesc.SubresourceRange			 = {.BaseMipLevel	= bufferTextureCopy.MipLevel,
+													.LevelCount		= 1,
+													.BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
+													.LayerCount		= bufferTextureCopy.TextureExtent.Depth};
+		SubmitTextureBarrier(barrierDesc);
+
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
 		m_Commands.push_back(command);
@@ -472,6 +536,19 @@ namespace Nexus::Graphics
 					 "calling Begin()");
 			return;
 		}
+
+		Graphics::TextureBarrierDesc barrierDesc = {};
+		barrierDesc.Texture						 = textureBufferCopy.TextureHandle;
+		barrierDesc.BeforeAccess				 = BarrierAccess::None;
+		barrierDesc.AfterAccess					 = BarrierAccess::None;
+		barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+		barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+		barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
+		barrierDesc.SubresourceRange			 = {.BaseMipLevel	= textureBufferCopy.MipLevel,
+													.LevelCount		= 1,
+													.BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
+													.LayerCount		= textureBufferCopy.TextureExtent.Depth};
+		SubmitTextureBarrier(barrierDesc);
 
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;

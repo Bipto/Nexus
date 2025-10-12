@@ -165,14 +165,23 @@ namespace Nexus::Graphics
 		Nexus::Graphics::MeshFactory factory(m_Device, m_CommandQueue);
 		m_Cube = factory.CreateCube();
 
-		Graphics::TextureDescription textureSpec = {};
-		textureSpec.Width						 = 1;
-		textureSpec.Height						 = 1;
-		textureSpec.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
-		m_DefaultTexture						 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+		Graphics::TextureDescription textureDesc = {};
+		textureDesc.Width						 = 1;
+		textureDesc.Height						 = 1;
+		textureDesc.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
+		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
+		textureDesc.DebugName					 = "Default Texture";
+		m_DefaultTexture						 = m_Device->CreateTexture(textureDesc);
 
 		uint32_t colour = 0xFFFFFFFF;
-		m_Device->WriteToTexture(m_DefaultTexture, m_CommandQueue, 0, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
+		m_CommandQueue->WriteToTexture(m_DefaultTexture, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
+
+		Graphics::TextureViewDescription viewDesc = {};
+		viewDesc.TargetTexture					  = m_DefaultTexture;
+		viewDesc.Format							  = m_DefaultTexture->GetPixelFormat();
+		viewDesc.Range							  = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
+		viewDesc.DebugName						  = "Default Texture View";
+		m_DefaultTextureView					  = m_Device->CreateTextureView(viewDesc);
 	}
 
 	Renderer3D::~Renderer3D()
@@ -292,7 +301,9 @@ namespace Nexus::Graphics
 			uniformBufferView.Size				= m_CubemapUniformBuffer->GetDescription().SizeInBytes;
 			m_CubemapResourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
 
-			m_CubemapResourceSet->WriteCombinedImageSampler(m_Cubemap, m_CubemapSampler, "skybox");
+			throw std::runtime_error("Not implemented");
+
+			// m_CubemapResourceSet->WriteCombinedImageSampler(m_Cubemap, m_CubemapSampler, "skybox");
 			m_CommandList->SetResourceSet(m_CubemapResourceSet);
 
 			Ref<DeviceBuffer> vertexBuffer	   = m_Cube->GetVertexBuffer();
@@ -374,9 +385,9 @@ namespace Nexus::Graphics
 				transformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
 			}
 
-			Nexus::Ref<Nexus::Graphics::Texture> diffuseTexture	 = m_DefaultTexture;
-			Nexus::Ref<Nexus::Graphics::Texture> normalTexture	 = m_DefaultTexture;
-			Nexus::Ref<Nexus::Graphics::Texture> specularTexture = m_DefaultTexture;
+			Nexus::Ref<Nexus::Graphics::ITextureView> diffuseTexture  = m_DefaultTextureView;
+			Nexus::Ref<Nexus::Graphics::ITextureView> normalTexture	  = m_DefaultTextureView;
+			Nexus::Ref<Nexus::Graphics::ITextureView> specularTexture = m_DefaultTextureView;
 
 			if (mat.DiffuseTexture)
 			{
@@ -393,9 +404,11 @@ namespace Nexus::Graphics
 				specularTexture = mat.SpecularTexture;
 			}
 
-			resourceSet->WriteCombinedImageSampler(diffuseTexture, m_ModelSampler, "diffuseMapSampler");
-			resourceSet->WriteCombinedImageSampler(normalTexture, m_ModelSampler, "normalMapSampler");
-			resourceSet->WriteCombinedImageSampler(specularTexture, m_ModelSampler, "specularMapSampler");
+			throw std::runtime_error("Not implemented");
+
+			// resourceSet->WriteCombinedImageSampler(diffuseTexture, m_ModelSampler, "diffuseMapSampler");
+			// resourceSet->WriteCombinedImageSampler(normalTexture, m_ModelSampler, "normalMapSampler");
+			// resourceSet->WriteCombinedImageSampler(specularTexture, m_ModelSampler, "specularMapSampler");
 
 			UniformBufferView modelCameraUniformView = {};
 			modelCameraUniformView.BufferHandle		 = m_ModelCameraUniformBuffer;

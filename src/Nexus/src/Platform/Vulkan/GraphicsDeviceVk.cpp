@@ -16,6 +16,7 @@
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
 	#include "SwapchainVk.hpp"
+	#include "TextureViewVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 
@@ -188,6 +189,11 @@ namespace Nexus::Graphics
 	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureVk>(spec, this);
+	}
+
+	Ref<ITextureView> GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)
+	{
+		return CreateRef<TextureViewVk>(desc, this);
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

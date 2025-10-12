@@ -171,24 +171,31 @@ namespace Nexus::ImGuiUtils
 
 		size_t bufferSize = width * height * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Graphics::TextureDescription spec = {};
-		spec.Type						  = Graphics::TextureType::Texture2D;
-		spec.Width						  = width;
-		spec.Height						  = height;
-		spec.Format						  = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		spec.Usage						  = Graphics::TextureUsage_Sampled;
-		spec.DebugName					  = "ImGui Font Texture";
-		m_FontTexture					  = m_GraphicsDevice->CreateTexture(spec);
-		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
+		Graphics::TextureDescription textureDesc = {};
+		textureDesc.Type						 = Graphics::TextureType::Texture2D;
+		textureDesc.Width						 = width;
+		textureDesc.Height						 = height;
+		textureDesc.Format						 = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
+		textureDesc.DebugName					 = "ImGui Font Texture";
+		m_FontTexture							 = m_GraphicsDevice->CreateTexture(textureDesc);
+		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, width, height, pixels, bufferSize);
+
+		Graphics::TextureViewDescription viewDesc = {};
+		viewDesc.TargetTexture					  = m_FontTexture;
+		viewDesc.Format							  = m_FontTexture->GetPixelFormat();
+		viewDesc.Range							  = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
+		viewDesc.DebugName						  = "ImGui Font View";
+		m_FontTextureView						  = m_GraphicsDevice->CreateTextureView(viewDesc);
 
 		UnbindTexture(m_FontTextureID);
 
-		m_FontTextureID = BindTexture(m_FontTexture);
+		m_FontTextureID = BindTexture(m_FontTextureView);
 		io.Fonts->SetTexID(m_FontTextureID);
 		io.Fonts->ClearTexData();
 	}
 
-	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
+	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::ITextureView> texture)
 	{
 		ImTextureID id = (ImTextureID)m_TextureID++;
 
@@ -213,7 +220,11 @@ namespace Nexus::ImGuiUtils
 		uniformBufferView.Offset					  = 0;
 		uniformBufferView.Size						  = uniformBuffer->GetDescription().SizeInBytes;
 		resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
-		resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+
+		Graphics::CombinedImageSampler ciSampler = {};
+		ciSampler.ImageTexture					 = texture;
+		ciSampler.ImageSampler					 = m_Sampler;
+		resourceSet->WriteCombinedImageSampler(ciSampler, "Texture");
 
 		return id;
 	}

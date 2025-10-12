@@ -21,6 +21,7 @@
 #include "ShaderModule.hpp"
 #include "Swapchain.hpp"
 #include "Texture.hpp"
+#include "TextureView.hpp"
 #include "TimingQuery.hpp"
 #include "Viewport.hpp"
 
@@ -68,6 +69,16 @@ namespace Nexus::Graphics
 		/// @return A pointer to a texture
 		Ref<Texture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb = false);
 
+		std::pair<Ref<Texture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
+																		   const char		 *filepath,
+																		   bool				  generateMips,
+																		   bool				  srgb = false);
+
+		std::pair<Ref<Texture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
+																		   const std::string &filepath,
+																		   bool				  generateMips,
+																		   bool				  srgb = false);
+
 		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
 		Ref<Framebuffer> CreateFramebuffer(const FramebufferTextureCreateDescription &desc);
@@ -112,6 +123,8 @@ namespace Nexus::Graphics
 
 		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
 
+		virtual Ref<ITextureView> CreateTextureView(const TextureViewDescription &desc) = 0;
+
 		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
 
 		virtual FenceWaitResult WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
@@ -129,28 +142,6 @@ namespace Nexus::Graphics
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
-
-		void WriteToTexture(Ref<Texture>	   texture,
-							Ref<ICommandQueue> commandQueue,
-							uint32_t		   arrayLayer,
-							uint32_t		   mipLevel,
-							uint32_t		   x,
-							uint32_t		   y,
-							uint32_t		   z,
-							uint32_t		   width,
-							uint32_t		   height,
-							const void		  *data,
-							size_t			   size);
-
-		std::vector<char> ReadFromTexture(Ref<Texture>		 texture,
-										  Ref<ICommandQueue> commandQueue,
-										  uint32_t			 arrayLayer,
-										  uint32_t			 mipLevel,
-										  uint32_t			 x,
-										  uint32_t			 y,
-										  uint32_t			 z,
-										  uint32_t			 width,
-										  uint32_t			 height);
 
 		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;

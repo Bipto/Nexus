@@ -44,14 +44,14 @@ namespace Demos
 			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
-			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
+			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
-			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.5f, 2.0f));
@@ -118,7 +118,10 @@ namespace Demos
 
 				if (mat.DiffuseTexture)
 				{
-					resourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");
+					Nexus::Graphics::CombinedImageSampler ciSampler = {};
+					ciSampler.ImageTexture							= mat.DiffuseTexture;
+					ciSampler.ImageSampler							= m_Sampler;
+					resourceSet->WriteCombinedImageSampler(ciSampler, "diffuseMapSampler");
 				}
 				m_CommandList->SetResourceSet(resourceSet);
 
@@ -195,22 +198,22 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Model>			  m_Model;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Model>			  m_Model		= nullptr;
 		glm::vec3									  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-		std::vector<Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
+		std::vector<Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets = {};
 
-		VB_UNIFORM_CAMERA_DEMO_MODELS			  m_CameraUniforms = {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
+		VB_UNIFORM_CAMERA_DEMO_MODELS			  m_CameraUniforms		= {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer = nullptr;
 
-		VB_UNIFORM_TRANSFORM_DEMO_MODELS		  m_TransformUniforms = {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
+		VB_UNIFORM_TRANSFORM_DEMO_MODELS		  m_TransformUniforms	   = {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
+		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
 
-		Nexus::FirstPersonCamera m_Camera;
+		Nexus::FirstPersonCamera m_Camera = {};
 
 		float m_Rotation = 0.0f;
 	};

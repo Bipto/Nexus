@@ -239,10 +239,44 @@ namespace Nexus::Processors
 				}
 			}
 
+			Nexus::Ref<Nexus::Graphics::ITextureView> diffuseTextureView  = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITextureView> normalTextureView	  = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITextureView> specularTextureView = nullptr;
+
+			Nexus::Graphics::TextureViewDescription diffuseViewDesc = {};
+			diffuseViewDesc.TargetTexture							= diffuseTexture;
+			diffuseViewDesc.Format									= diffuseTexture->GetPixelFormat();
+			diffuseViewDesc.Range									= {.BaseMipLevel   = 0,
+																	   .LevelCount	   = diffuseTexture->GetMipLevels(),
+																	   .BaseArrayLayer = 0,
+																	   .LayerCount	   = diffuseTexture->GetDepthOrArrayLayers()};
+			diffuseViewDesc.DebugName								= "Diffuse";
+			diffuseTextureView										= device->CreateTextureView(diffuseViewDesc);
+
+			Nexus::Graphics::TextureViewDescription normalViewDesc = {};
+			normalViewDesc.TargetTexture						   = normalTexture;
+			normalViewDesc.Format								   = normalTexture->GetPixelFormat();
+			normalViewDesc.Range								   = {.BaseMipLevel	  = 0,
+																	  .LevelCount	  = normalTexture->GetMipLevels(),
+																	  .BaseArrayLayer = 0,
+																	  .LayerCount	  = normalTexture->GetDepthOrArrayLayers()};
+			normalViewDesc.DebugName							   = "Normal";
+			normalTextureView									   = device->CreateTextureView(normalViewDesc);
+
+			Nexus::Graphics::TextureViewDescription specularViewDesc = {};
+			specularViewDesc.TargetTexture							 = specularTexture;
+			specularViewDesc.Format									 = specularTexture->GetPixelFormat();
+			specularViewDesc.Range									 = {.BaseMipLevel	= 0,
+																		.LevelCount		= specularTexture->GetMipLevels(),
+																		.BaseArrayLayer = 0,
+																		.LayerCount		= specularTexture->GetDepthOrArrayLayers()};
+			specularViewDesc.DebugName								 = "Specular";
+			specularTextureView										 = device->CreateTextureView(specularViewDesc);
+
 			Nexus::Graphics::Material mat = {};
-			mat.DiffuseTexture			  = diffuseTexture;
-			mat.NormalTexture			  = normalTexture;
-			mat.SpecularTexture			  = specularTexture;
+			mat.DiffuseTexture			  = diffuseTextureView;
+			mat.NormalTexture			  = normalTextureView;
+			mat.SpecularTexture			  = specularTextureView;
 
 			mat.DiffuseColour  = {diffuseColour.r, diffuseColour.g, diffuseColour.b, diffuseColour.a};
 			mat.SpecularColour = {specularColour.r, specularColour.g, specularColour.b, specularColour.a};

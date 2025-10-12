@@ -48,6 +48,7 @@ namespace Nexus::Graphics
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
+		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;

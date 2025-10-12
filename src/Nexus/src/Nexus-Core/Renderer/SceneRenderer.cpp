@@ -51,11 +51,13 @@ namespace Nexus::Graphics
 				const Nexus::FirstPersonCamera &camera		= m_Renderer3D->GetCamera();
 				glm::mat4						worldMatrix = transform->CreateTransformation();
 
-				m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
+				/*m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
 											  spriteRenderer->SpriteTexture,
 											  spriteRenderer->Tiling,
 											  worldMatrix,
-											  entity->ID);
+											  entity->ID);*/
+
+				throw std::runtime_error("Not implemented");
 			});
 
 		m_BatchRenderer->End();

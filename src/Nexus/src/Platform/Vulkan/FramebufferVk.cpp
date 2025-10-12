@@ -15,6 +15,21 @@ namespace Nexus::Graphics
 		CreateFramebuffer();
 	}
 
+	FramebufferVk::FramebufferVk(const FramebufferTextureSetDescription		 &desc,
+								 GraphicsDeviceVk							 *device,
+								 std::optional<FramebufferTextureDescription> resolveAttachment)
+		: m_ResolveAttachment(resolveAttachment),
+		  m_Device(device),
+		  m_Description(desc)
+	{
+		NX_VALIDATE(desc.ValidateSamples(), "Sample count must match across all textures in a framebuffer");
+		NX_VALIDATE(desc.ValidateDimensions(), "The dimensions of all textures in a framebuffer must match");
+		NX_VALIDATE(desc.ValidateUsageFlags(), "The usage flags of all textures must be correct for usage in a framebuffer");
+
+		CreateRenderPass();
+		CreateFramebuffer();
+	}
+
 	FramebufferVk::~FramebufferVk()
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -35,6 +50,16 @@ namespace Nexus::Graphics
 	Ref<TextureVk> FramebufferVk::GetVulkanDepthTexture()
 	{
 		return m_DepthAttachment;
+	}
+
+	std::optional<FramebufferTextureDescription> FramebufferVk::GetResolveAttachmentBinding()
+	{
+		return m_ResolveAttachment;
+	}
+
+	bool FramebufferVk::HasResolveAttachment()
+	{
+		return m_ResolveAttachment.has_value();
 	}
 
 	VkRenderPass FramebufferVk::GetRenderPass()
@@ -93,8 +118,13 @@ namespace Nexus::Graphics
 			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(texture->GetPixelFormat());
 		}
 
-		renderPassDesc.ResolveFormat = {};
-		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.GetSampleCount());
+		if (m_ResolveAttachment.has_value())
+		{
+			FramebufferTextureDescription resolveDesc = m_ResolveAttachment.value();
+			renderPassDesc.ResolveFormat			  = Vk::GetVkPixelDataFormat(resolveDesc.TargetTexture->GetPixelFormat());
+		}
+
+		renderPassDesc.Samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.GetSampleCount());
 
 		m_RenderPass = Vk::CreateRenderPass(m_Device, renderPassDesc);
 	}
@@ -104,11 +134,42 @@ namespace Nexus::Graphics
 		Nexus::Point2D<uint32_t>		 size			 = m_Description.GetSize();
 		Vk::VulkanFramebufferDescription framebufferDesc = {};
 
-		for (Ref<TextureVk> colourAttachment : m_ColourAttachments) { framebufferDesc.ColourImageViews.push_back(colourAttachment->GetImageView()); }
+		for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
+		{
+			const FramebufferTextureDescription &colourAttachmentDesc = m_Description.ColourAttachments.at(i);
+			Ref<TextureVk>						 texture			  = m_ColourAttachments.at(i);
+
+			Graphics::VulkanTextureViewInfo viewInfo = {};
+			viewInfo.BaseArrayLayer					 = colourAttachmentDesc.BaseArrayLayer;
+			viewInfo.LayerCount						 = colourAttachmentDesc.LayerCount;
+			viewInfo.BaseMipLevel					 = colourAttachmentDesc.MipLevel;
+			viewInfo.LevelCount						 = 1;
+			framebufferDesc.ColourImageViews.push_back(texture->GetImageView(viewInfo));
+		}
 
 		if (m_Description.DepthAttachment.has_value())
 		{
-			framebufferDesc.DepthImageView = m_DepthAttachment->GetImageView();
+			FramebufferTextureDescription depthAttachmentDesc = m_Description.DepthAttachment.value();
+
+			Graphics::VulkanTextureViewInfo viewInfo = {};
+			viewInfo.BaseArrayLayer					 = depthAttachmentDesc.BaseArrayLayer;
+			viewInfo.LayerCount						 = depthAttachmentDesc.LayerCount;
+			viewInfo.BaseMipLevel					 = depthAttachmentDesc.MipLevel;
+			viewInfo.LevelCount						 = 1;
+			framebufferDesc.DepthImageView			 = m_DepthAttachment->GetImageView(viewInfo);
+		}
+
+		if (m_ResolveAttachment.has_value())
+		{
+			FramebufferTextureDescription resolveAttachmentDesc = m_ResolveAttachment.value();
+			Ref<TextureVk>				  texture				= std::dynamic_pointer_cast<TextureVk>(resolveAttachmentDesc.TargetTexture);
+
+			Graphics::VulkanTextureViewInfo viewInfo = {};
+			viewInfo.BaseArrayLayer					 = resolveAttachmentDesc.BaseArrayLayer;
+			viewInfo.LayerCount						 = resolveAttachmentDesc.LayerCount;
+			viewInfo.BaseMipLevel					 = resolveAttachmentDesc.MipLevel;
+			viewInfo.LevelCount						 = 1;
+			framebufferDesc.ResolveImageView		 = texture->GetImageView(viewInfo);
 		}
 
 		framebufferDesc.Width			 = size.X;

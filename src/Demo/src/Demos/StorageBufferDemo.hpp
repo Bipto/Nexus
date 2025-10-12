@@ -27,8 +27,13 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateSprite();
 
-			m_Texture =
-				m_GraphicsDevice->CreateTexture2D(m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			auto [texture, textureView] =
+				m_GraphicsDevice->CreateTexture2DWithView(m_CommandQueue,
+														  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"),
+														  false);
+
+			m_Texture	  = texture;
+			m_TextureView = textureView;
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -75,7 +80,10 @@ namespace Demos
 			storageBufferView.Access							 = Nexus::Graphics::ShaderAccess::Read;
 			m_ResourceSet->WriteStorageBuffer(storageBufferView, "TransformBuffer");
 
-			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= m_TextureView;
+			ciSampler.ImageSampler							= m_Sampler;
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -157,18 +165,19 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
-		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler		= nullptr;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
-		glm::mat4								  m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UploadBuffer;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_StorageBuffer;
+		glm::mat4								  m_TransformUniforms = {};
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UploadBuffer	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_StorageBuffer	  = nullptr;
 	};
 }	 // namespace Demos

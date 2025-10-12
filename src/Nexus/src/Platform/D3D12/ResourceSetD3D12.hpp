@@ -13,10 +13,10 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device);
-		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
-		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
-		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
-		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;
+		virtual void WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name) override;
+		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name) override;
+		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) override;
+		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name) override;
 
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSamplerDescriptorHeap();
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetTextureConstantBufferDescriptorHeap();

@@ -59,7 +59,6 @@ namespace Nexus::Graphics
 		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
 
 		void WriteToTexture(Ref<Texture> texture,
-							uint32_t	 arrayLayer,
 							uint32_t	 mipLevel,
 							uint32_t	 x,
 							uint32_t	 y,
@@ -70,7 +69,6 @@ namespace Nexus::Graphics
 							size_t		 size);
 
 		std::vector<char> ReadFromTexture(Ref<Texture> texture,
-										  uint32_t	   arrayLayer,
 										  uint32_t	   mipLevel,
 										  uint32_t	   x,
 										  uint32_t	   y,

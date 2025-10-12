@@ -599,13 +599,13 @@ namespace Nexus::Graphics
 				{
 					context.CopyImageSubData(sourceTexture->GetHandle(),
 											 sourceTexture->GetTextureType(),
-											 copyDesc.SourceSubresource.MipLevel,
+											 copyDesc.SourceMipLevel,
 											 copyDesc.SourceOffset.X,
 											 copyDesc.SourceOffset.Y,
 											 copyDesc.SourceOffset.Z,
 											 destTexture->GetHandle(),
 											 destTexture->GetTextureType(),
-											 copyDesc.DestinationSubresource.MipLevel,
+											 copyDesc.DestinationMipLevel,
 											 copyDesc.DestinationOffset.X,
 											 copyDesc.DestinationOffset.Y,
 											 copyDesc.DestinationOffset.Z,
@@ -832,44 +832,33 @@ namespace Nexus::Graphics
 
 			if (location != -1)
 			{
-	#if !defined(__EMSCRIPTEN__)
 				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
 				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetDescription().Format);
 				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
 
-				GLboolean layered = GL_FALSE;
-				if (texture->GetDescription().DepthOrArrayLayers > 1)
-				{
-					layered = GL_TRUE;
-				}
-
 				glCall(context.BindImageTexture(location,
 												texture->GetHandle(),
 												storageImageView.MipLevel,
-												layered,
+												GL_FALSE,
 												storageImageView.ArrayLayer,
 												access,
 												format));
-	#endif
 			}
 		}
 
 		GLuint storageBufferSlot = 0;
 		for (const auto &[name, storageBufferView] : storageBufferBindings)
 		{
-			// GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
 			GLuint location = context.GetProgramResourceIndex(pipeline->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, name.c_str());
 
 			if (location != -1)
 			{
-	#if !defined(__EMSCRIPTEN__)
 				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(storageBufferView.BufferHandle);
 				size_t					offset = storageBufferView.Offset;
 				size_t					size   = storageBufferView.SizeInBytes;
 				context.BindBufferRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, buffer->GetHandle(), offset, size);
 
 				storageBufferSlot++;
-	#endif
 			}
 		}
 	}

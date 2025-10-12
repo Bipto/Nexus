@@ -85,8 +85,8 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
-		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle;
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles = {};
+		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle		 = {};
 
 		std::optional<RenderTarget>	 m_CurrentRenderTarget	  = {};
 		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};

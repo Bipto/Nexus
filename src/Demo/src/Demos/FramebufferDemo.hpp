@@ -22,16 +22,24 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
-			Nexus::Graphics::FramebufferTextureCreateDescription spec;
-			spec.Width					 = 1280;
-			spec.Height					 = 720;
-			spec.ColourAttachmentFormats = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-			spec.Samples				 = 1;
 
-			m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
+			Nexus::Graphics::FramebufferTextureCreateDescription framebufferDesc;
+			framebufferDesc.Width					= 1280;
+			framebufferDesc.Height					= 720;
+			framebufferDesc.ColourAttachmentFormats = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+			framebufferDesc.Samples					= 1;
+			m_Framebuffer							= m_GraphicsDevice->CreateFramebuffer(framebufferDesc);
 
-			auto texture = m_Framebuffer->GetColorTextureHandle(0);
-			m_TextureID	 = m_ImGuiRenderer->BindTexture(texture);
+			Nexus::Ref<Nexus::Graphics::Texture> texture = m_Framebuffer->GetColorTextureHandle(0);
+
+			Nexus::Graphics::TextureViewDescription viewDesc = {};
+			viewDesc.TargetTexture							 = texture;
+			viewDesc.Format									 = texture->GetPixelFormat();
+			viewDesc.Range									 = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
+			viewDesc.DebugName								 = "Framebuffer Texture View";
+			m_TextureView									 = m_GraphicsDevice->CreateTextureView(viewDesc);
+
+			m_TextureID = m_ImGuiRenderer->BindTexture(m_TextureView);
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -63,11 +71,13 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer			   = nullptr;
 		ImTextureID								 m_TextureID			   = 0;
 		glm::vec3								 m_RenderTargetClearColour = {0.75f, 0.35f, 0.42f};
+
+		Nexus::Ref<Nexus::Graphics::ITextureView> m_TextureView = nullptr;
 	};
 }	 // namespace Demos

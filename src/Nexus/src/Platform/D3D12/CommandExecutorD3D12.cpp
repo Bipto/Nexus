@@ -471,8 +471,8 @@ namespace Nexus::Graphics
 
 		size_t	 sizeInBytes	  = GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 		size_t	 rowPitch		  = sizeInBytes * command.BufferTextureCopy.TextureExtent.Width;
-		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.TextureSubresource.MipLevel,
-																command.BufferTextureCopy.TextureSubresource.BaseArrayLayer,
+		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
+																command.BufferTextureCopy.TextureOffset.Z,
 																command.BufferTextureCopy.TextureHandle->GetDescription().MipLevels);
 
 		D3D12_BOX textureBounds = {};
@@ -501,7 +501,7 @@ namespace Nexus::Graphics
 		dstLocation.SubresourceIndex						  = subresourceIndex;
 
 		D3D12_RESOURCE_STATES resourceState =
-			texture->GetResourceState(command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.TextureSubresource.MipLevel);
+			texture->GetResourceState(command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.MipLevel);
 
 		D3D12_RESOURCE_BARRIER toReadBarrier = {};
 		toReadBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -549,7 +549,7 @@ namespace Nexus::Graphics
 		D3D12_TEXTURE_COPY_LOCATION				srcLocation	  = {};
 		srcLocation.pResource								  = textureHandle.Get();
 		srcLocation.Type									  = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		srcLocation.SubresourceIndex						  = command.TextureBufferCopy.TextureSubresource.MipLevel;
+		srcLocation.SubresourceIndex						  = command.TextureBufferCopy.MipLevel;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> bufferHandle = buffer->GetHandle();
 		D3D12_TEXTURE_COPY_LOCATION				dstLocation	 = {};
@@ -563,13 +563,13 @@ namespace Nexus::Graphics
 		dstLocation.PlacedFootprint.Footprint.RowPitch		 = rowPitch;
 
 		D3D12_RESOURCE_STATES resourceState =
-			texture->GetResourceState(command.TextureBufferCopy.TextureOffset.Z, command.TextureBufferCopy.TextureSubresource.MipLevel);
+			texture->GetResourceState(command.TextureBufferCopy.TextureOffset.Z, command.TextureBufferCopy.MipLevel);
 
 		D3D12_RESOURCE_BARRIER toDestBarrier = {};
 		toDestBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		toDestBarrier.Flags					 = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		toDestBarrier.Transition.pResource	 = textureHandle.Get();
-		toDestBarrier.Transition.Subresource = command.TextureBufferCopy.TextureSubresource.MipLevel;
+		toDestBarrier.Transition.Subresource = command.TextureBufferCopy.MipLevel;
 		toDestBarrier.Transition.StateBefore = resourceState;
 		toDestBarrier.Transition.StateAfter	 = D3D12_RESOURCE_STATE_COPY_SOURCE;
 
@@ -577,7 +577,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		toDefaultBarrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		toDefaultBarrier.Transition.pResource	= textureHandle.Get();
-		toDefaultBarrier.Transition.Subresource = command.TextureBufferCopy.TextureSubresource.MipLevel;
+		toDefaultBarrier.Transition.Subresource = command.TextureBufferCopy.MipLevel;
 		toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
@@ -598,11 +598,9 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Resource2> srcHandle = srcTexture->GetHandle();
 		Microsoft::WRL::ComPtr<ID3D12Resource2> dstHandle = dstTexture->GetHandle();
 
-		D3D12_RESOURCE_STATES srcResourceState =
-			srcTexture->GetResourceState(command.TextureCopy.SourceOffset.Z, command.TextureCopy.SourceSubresource.MipLevel);
-
+		D3D12_RESOURCE_STATES srcResourceState = srcTexture->GetResourceState(command.TextureCopy.SourceOffset.Z, command.TextureCopy.SourceMipLevel);
 		D3D12_RESOURCE_STATES dstResourceState =
-			dstTexture->GetResourceState(command.TextureCopy.DestinationOffset.Z, command.TextureCopy.DestinationSubresource.MipLevel);
+			dstTexture->GetResourceState(command.TextureCopy.DestinationOffset.Z, command.TextureCopy.DestinationMipLevel);
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.TextureCopy.SourceOffset.X;
@@ -616,13 +614,13 @@ namespace Nexus::Graphics
 		{
 			srcLocation.pResource		 = srcHandle.Get();
 			srcLocation.Type			 = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-			srcLocation.SubresourceIndex = command.TextureCopy.SourceSubresource.MipLevel;
+			srcLocation.SubresourceIndex = command.TextureCopy.SourceMipLevel;
 
 			D3D12_RESOURCE_BARRIER barrier = {};
 			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			barrier.Transition.pResource   = srcHandle.Get();
-			barrier.Transition.Subresource = command.TextureCopy.SourceSubresource.MipLevel;
+			barrier.Transition.Subresource = command.TextureCopy.SourceMipLevel;
 			barrier.Transition.StateBefore = srcResourceState;
 			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE;
 			m_CommandList->ResourceBarrier(1, &barrier);
@@ -632,13 +630,13 @@ namespace Nexus::Graphics
 		{
 			dstLocation.pResource		 = dstHandle.Get();
 			dstLocation.Type			 = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-			dstLocation.SubresourceIndex = command.TextureCopy.DestinationSubresource.MipLevel;
+			dstLocation.SubresourceIndex = command.TextureCopy.DestinationMipLevel;
 
 			D3D12_RESOURCE_BARRIER barrier = {};
 			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			barrier.Transition.pResource   = dstHandle.Get();
-			barrier.Transition.Subresource = command.TextureCopy.SourceSubresource.MipLevel;
+			barrier.Transition.Subresource = command.TextureCopy.DestinationMipLevel;
 			barrier.Transition.StateBefore = srcResourceState;
 			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST;
 			m_CommandList->ResourceBarrier(1, &barrier);
@@ -657,14 +655,14 @@ namespace Nexus::Graphics
 			barriers[0].Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barriers[0].Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			barriers[0].Transition.pResource   = srcHandle.Get();
-			barriers[0].Transition.Subresource = command.TextureCopy.SourceSubresource.MipLevel;
+			barriers[0].Transition.Subresource = command.TextureCopy.SourceMipLevel;
 			barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
 			barriers[0].Transition.StateAfter  = srcResourceState;
 
 			barriers[1].Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barriers[1].Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			barriers[1].Transition.pResource   = dstHandle.Get();
-			barriers[1].Transition.Subresource = command.TextureCopy.DestinationSubresource.MipLevel;
+			barriers[1].Transition.Subresource = command.TextureCopy.DestinationMipLevel;
 			barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 			barriers[1].Transition.StateAfter  = dstResourceState;
 
@@ -676,7 +674,8 @@ namespace Nexus::Graphics
 	{
 		if (m_PIXBeginEvent && m_PIXEndEvent)
 		{
-			m_PIXBeginEvent(m_CommandList.Get(), PIX_COLOR_DEFAULT, command.GroupName.c_str());
+			uint32_t colour = Utils::PackColour(command.Colour);
+			m_PIXBeginEvent(m_CommandList.Get(), colour, command.GroupName.c_str());
 		}
 	}
 
@@ -692,7 +691,8 @@ namespace Nexus::Graphics
 	{
 		if (m_PIXSetMarker)
 		{
-			m_PIXSetMarker(m_CommandList.Get(), PIX_COLOR_DEFAULT, command.MarkerName.c_str());
+			uint32_t colour = Utils::PackColour(command.Colour);
+			m_PIXSetMarker(m_CommandList.Get(), colour, command.MarkerName.c_str());
 		}
 	}
 

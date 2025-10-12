@@ -27,7 +27,6 @@ namespace Nexus::Graphics
 	}
 
 	void ICommandQueue::WriteToTexture(Ref<Texture> texture,
-									   uint32_t		arrayLayer,
 									   uint32_t		mipLevel,
 									   uint32_t		x,
 									   uint32_t		y,
@@ -57,9 +56,9 @@ namespace Nexus::Graphics
 		copyDesc.BufferRowLength			  = 0;
 		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyBufferToTexture(copyDesc);
 
 		cmdList->End();
@@ -68,7 +67,6 @@ namespace Nexus::Graphics
 	}
 
 	std::vector<char> ICommandQueue::ReadFromTexture(Ref<Texture> texture,
-													 uint32_t	  arrayLayer,
 													 uint32_t	  mipLevel,
 													 uint32_t	  x,
 													 uint32_t	  y,
@@ -98,8 +96,7 @@ namespace Nexus::Graphics
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
-		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
-
+		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyTextureToBuffer(copyDesc);
 
 		cmdList->End();

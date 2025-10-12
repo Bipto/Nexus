@@ -78,16 +78,27 @@ namespace Nexus::Graphics
 			Utils::FlipPixelsHorizontally(pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
 		}
 
-		Graphics::TextureDescription textureSpec = {};
-		textureSpec.Width						 = m_Width;
-		textureSpec.Height						 = m_Height;
-		textureSpec.DepthOrArrayLayers			 = 1;
-		textureSpec.MipLevels					 = 1;
-		textureSpec.Usage						 = Nexus::Graphics::TextureUsage_Sampled;
-		textureSpec.Type						 = Graphics::TextureType::Texture2D;
-		textureSpec.Format						 = Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		m_HdriImage								 = m_Device->CreateTexture(textureSpec);
-		m_Device->WriteToTexture(m_HdriImage, m_CommandQueue, 0, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
+		Graphics::TextureDescription textureDesc = {};
+		textureDesc.Width						 = m_Width;
+		textureDesc.Height						 = m_Height;
+		textureDesc.DepthOrArrayLayers			 = 1;
+		textureDesc.MipLevels					 = 1;
+		textureDesc.Usage						 = Nexus::Graphics::TextureUsage_Sampled;
+		textureDesc.Type						 = Graphics::TextureType::Texture2D;
+		textureDesc.Format						 = Graphics::PixelFormat::R32_G32_B32_A32_Float;
+		textureDesc.DebugName					 = "HDRI";
+		m_HdriImage								 = m_Device->CreateTexture(textureDesc);
+		m_CommandQueue->WriteToTexture(m_HdriImage, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
+
+		Graphics::TextureViewDescription cubemapViewDesc = {};
+		cubemapViewDesc.TargetTexture					 = m_HdriImage;
+		cubemapViewDesc.Format							 = m_HdriImage->GetPixelFormat();
+		cubemapViewDesc.Range							 = {.BaseMipLevel	= 0,
+															.LevelCount		= m_HdriImage->GetMipLevels(),
+															.BaseArrayLayer = 0,
+															.LayerCount		= m_HdriImage->GetDepthOrArrayLayers()};
+		cubemapViewDesc.DebugName						 = "HDRI View";
+		m_HdriView										 = m_Device->CreateTextureView(cubemapViewDesc);
 	}
 
 	Ref<Texture> HdriProcessor::Generate(uint32_t size)
@@ -110,6 +121,7 @@ namespace Nexus::Graphics
 		cubemapSpec.Height						 = size;
 		cubemapSpec.MipLevels					 = 1;
 		cubemapSpec.DepthOrArrayLayers			 = 6;
+		cubemapSpec.DebugName					 = "Cubemap";
 		Ref<Texture> cubemap					 = m_Device->CreateTexture(cubemapSpec);
 
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
@@ -180,7 +192,11 @@ namespace Nexus::Graphics
 			uniformBufferView.Offset			= 0;
 			uniformBufferView.Size				= uniformBuffer->GetDescription().SizeInBytes;
 			resourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
-			resourceSet->WriteCombinedImageSampler(m_HdriImage, sampler, "equirectangularMap");
+
+			CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture		   = m_HdriView;
+			ciSampler.ImageSampler		   = sampler;
+			resourceSet->WriteCombinedImageSampler(ciSampler, "equirectangularMap");
 
 			commandList->Begin();
 			commandList->SetPipeline(pipeline);
@@ -233,9 +249,9 @@ namespace Nexus::Graphics
 			m_Device->WaitForIdle();
 
 			Ref<Texture>	  colourTexture = framebuffer->GetColorTextureHandle(0);
-			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture, m_CommandQueue, 0, 0, 0, 0, 0, size, size);
+			std::vector<char> pixels		= m_CommandQueue->ReadFromTexture(colourTexture, 0, 0, 0, 0, size, size);
 
-			m_Device->WriteToTexture(cubemap, m_CommandQueue, i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());
+			m_CommandQueue->WriteToTexture(cubemap, 0, 0, 0, i, size, size, pixels.data(), pixels.size());
 		}
 
 		return cubemap;

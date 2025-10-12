@@ -28,7 +28,7 @@ namespace Nexus::ImGuiUtils
 
 	struct ImGuiDescriptorInfo
 	{
-		Ref<Graphics::Texture>		m_Texture		= nullptr;
+		Ref<Graphics::ITextureView> m_Texture		= nullptr;
 		Ref<Graphics::ResourceSet>	m_ResourceSet	= nullptr;
 		Ref<Graphics::Sampler>		m_Sampler		= nullptr;
 		Ref<Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
@@ -41,7 +41,7 @@ namespace Nexus::ImGuiUtils
 		virtual ~ImGuiGraphicsRenderer();
 		void RebuildFontAtlas();
 
-		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture);
+		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::ITextureView> texture);
 		void		UnbindTexture(ImTextureID id);
 
 		void BeforeLayout(Nexus::TimeSpan gameTime);
@@ -66,12 +66,13 @@ namespace Nexus::ImGuiUtils
 		void		SetupHandlers();
 
 	  private:
-		Nexus::Application							 *m_Application	   = nullptr;
-		Nexus::Graphics::GraphicsDevice				 *m_GraphicsDevice = nullptr;
-		Nexus::Ref<Nexus::Graphics::ICommandQueue>	  m_CommandQueue   = nullptr;
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>		  m_FontTexture	   = nullptr;
+		Nexus::Application							 *m_Application		= nullptr;
+		Nexus::Graphics::GraphicsDevice				 *m_GraphicsDevice	= nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandQueue>	  m_CommandQueue	= nullptr;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList		= nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline		= nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_FontTexture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_FontTextureView = nullptr;
 
 		ImGuiContext *m_Context = nullptr;
 

@@ -207,7 +207,7 @@ namespace Nexus::Graphics
 	const uint32_t MAX_VERTEX_COUNT	 = 1024;
 	const uint32_t MAX_TEXTURE_COUNT = 16;
 
-	bool FindTextureInBatch(BatchInfo &info, Ref<Texture> texture, uint32_t &index)
+	bool FindTextureInBatch(BatchInfo &info, Ref<ITextureView> texture, uint32_t &index)
 	{
 		for (uint32_t i = 0; i < info.Textures.size(); i++)
 		{
@@ -220,7 +220,7 @@ namespace Nexus::Graphics
 		return false;
 	}
 
-	float GetOrCreateTexIndex(BatchInfo &info, Ref<Texture> texture)
+	float GetOrCreateTexIndex(BatchInfo &info, Ref<ITextureView> texture)
 	{
 		uint32_t index = 0;
 		if (FindTextureInBatch(info, texture, index))
@@ -235,13 +235,13 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void FlushTextures(BatchInfo &info, Ref<Texture> blankTexture)
+	void FlushTextures(BatchInfo &info, Ref<ITextureView> blankTexture)
 	{
 		info.Textures.clear();
 		info.Textures.push_back(blankTexture);
 	}
 
-	void ResetBatcher(BatchInfo &info, Ref<Texture> blankTexture)
+	void ResetBatcher(BatchInfo &info, Ref<ITextureView> blankTexture)
 	{
 		info.Vertices.clear();
 		info.Indices.clear();
@@ -337,14 +337,24 @@ namespace Nexus::Graphics
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
-		Graphics::TextureDescription textureSpec = {};
-		textureSpec.Width						 = 1;
-		textureSpec.Height						 = 1;
-		textureSpec.DepthOrArrayLayers			 = 1;
-		textureSpec.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
-		textureSpec.Usage						 = Graphics::TextureUsage_Sampled;
-		m_BlankTexture							 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
-		m_Device->WriteToTexture(m_BlankTexture, m_CommandQueue, 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+		Graphics::TextureDescription textureDesc = {};
+		textureDesc.Width						 = 1;
+		textureDesc.Height						 = 1;
+		textureDesc.DepthOrArrayLayers			 = 1;
+		textureDesc.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
+		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
+		textureDesc.DebugName					 = "Blank Texture";
+		m_BlankTexture							 = m_Device->CreateTexture(textureDesc);
+		m_CommandQueue->WriteToTexture(m_BlankTexture, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+
+		Graphics::TextureViewDescription viewDesc = {};
+		viewDesc.TargetTexture					  = m_BlankTexture;
+		viewDesc.Format							  = m_BlankTexture->GetPixelFormat();
+		viewDesc.Range							  = {.BaseMipLevel	 = 0,
+													 .LevelCount	 = m_BlankTexture->GetMipLevels(),
+													 .BaseArrayLayer = 0,
+													 .LayerCount	 = m_BlankTexture->GetDepthOrArrayLayers()};
+		viewDesc.DebugName						  = "Blank Texture View";
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
 																												"Batch Renderer - Vertex Shader",
@@ -407,9 +417,9 @@ namespace Nexus::Graphics
 		m_IsStarted	   = true;
 		m_RenderTarget = target;
 
-		ResetBatcher(m_TextureBatchInfo, m_BlankTexture);
-		ResetBatcher(m_SDFBatchInfo, m_BlankTexture);
-		ResetBatcher(m_FontBatchInfo, m_BlankTexture);
+		ResetBatcher(m_TextureBatchInfo, m_BlankTextureView);
+		ResetBatcher(m_SDFBatchInfo, m_BlankTextureView);
+		ResetBatcher(m_FontBatchInfo, m_BlankTextureView);
 
 		m_Viewport		   = viewport;
 		m_ScissorRectangle = scissor;
@@ -434,15 +444,19 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
 	{
-		DrawQuadFill(min, max, color, m_BlankTexture);
+		DrawQuadFill(min, max, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
 		DrawQuadFill(min, max, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const glm::vec2  &min,
+									 const glm::vec2  &max,
+									 const glm::vec4  &color,
+									 Ref<ITextureView> texture,
+									 float			   tilingFactor)
 	{
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -499,26 +513,30 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color)
 	{
-		DrawQuadFill(rectangle, color, m_BlankTexture);
+		DrawQuadFill(rectangle, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
 		DrawQuadFill(rectangle, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor)
 	{
 		glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
 		glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
 		DrawQuadFill(min, max, color, texture, tilingFactor);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec4 &color, Ref<Texture> texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id)
+	void BatchRenderer::DrawQuadFill(const glm::vec4  &color,
+									 Ref<ITextureView> texture,
+									 float			   tilingFactor,
+									 const glm::mat4  &transform,
+									 Nexus::GUID	   id)
 	{
 		if (!texture)
 		{
-			texture = m_BlankTexture;
+			texture = m_BlankTextureView;
 		}
 
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
@@ -637,7 +655,7 @@ namespace Nexus::Graphics
 		info->Indices.push_back(2 + info->VertexCount);
 		info->Indices.push_back(3 + info->VertexCount);
 
-		float texIndex = GetOrCreateTexIndex(*info, font->GetTexture());
+		float texIndex = GetOrCreateTexIndex(*info, font->GetTextureView());
 
 		BatchVertex v0;
 		v0.Position	 = a;
@@ -816,7 +834,7 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
 	{
-		DrawCircleFill(position, radius, color, numberOfPoints, m_BlankTexture);
+		DrawCircleFill(position, radius, color, numberOfPoints, m_BlankTextureView);
 	}
 
 	void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position,
@@ -826,28 +844,28 @@ namespace Nexus::Graphics
 											 float			  startAngle,
 											 float			  fillAngle)
 	{
-		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, m_BlankTexture);
+		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position,
-											 float			  radius,
-											 const glm::vec4 &color,
-											 uint32_t		  numberOfPoints,
-											 float			  startAngle,
-											 float			  fillAngle,
-											 Ref<Texture>	  texture)
+	void BatchRenderer::DrawCircleRegionFill(const glm::vec2  &position,
+											 float			   radius,
+											 const glm::vec4  &color,
+											 uint32_t		   numberOfPoints,
+											 float			   startAngle,
+											 float			   fillAngle,
+											 Ref<ITextureView> texture)
 	{
 		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position,
-											 float			  radius,
-											 const glm::vec4 &color,
-											 uint32_t		  numberOfPoints,
-											 float			  startAngle,
-											 float			  fillAngle,
-											 Ref<Texture>	  texture,
-											 float			  tilingFactor)
+	void BatchRenderer::DrawCircleRegionFill(const glm::vec2  &position,
+											 float			   radius,
+											 const glm::vec4  &color,
+											 uint32_t		   numberOfPoints,
+											 float			   startAngle,
+											 float			   fillAngle,
+											 Ref<ITextureView> texture,
+											 float			   tilingFactor)
 	{
 		const uint32_t minPoints = 3;
 		const uint32_t maxPoints = 256;
@@ -884,17 +902,21 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+	void BatchRenderer::DrawCircleFill(const glm::vec2	&position,
+									   float			 radius,
+									   const glm::vec4	&color,
+									   uint32_t			 numberOfPoints,
+									   Ref<ITextureView> texture)
 	{
 		DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f, texture);
 	}
 
 	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
 	{
-		DrawCircleFill(circle, color, numberOfPoints, m_BlankTexture);
+		DrawCircleFill(circle, color, numberOfPoints, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<ITextureView> texture)
 	{
 		const auto &pos = circle.GetPosition();
 		DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints, texture);
@@ -903,7 +925,7 @@ namespace Nexus::Graphics
 	void BatchRenderer::DrawCircleFill(const Circle<float> &circle,
 									   const glm::vec4	   &color,
 									   uint32_t				numberOfPoints,
-									   Ref<Texture>			texture,
+									   Ref<ITextureView>	texture,
 									   float				tilingFactor)
 	{
 		DrawCircleRegionFill({circle.GetPosition().X, circle.GetPosition().Y},
@@ -935,17 +957,17 @@ namespace Nexus::Graphics
 									 const glm::vec2 &uv2,
 									 const glm::vec4 &color)
 	{
-		DrawTriangle(pos0, uv0, pos1, uv1, pos2, uv2, color, m_BlankTexture);
+		DrawTriangle(pos0, uv0, pos1, uv1, pos2, uv2, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawTriangle(const glm::vec3 &pos0,
-									 const glm::vec2 &uv0,
-									 const glm::vec3 &pos1,
-									 const glm::vec2 &uv1,
-									 const glm::vec3 &pos2,
-									 const glm::vec2 &uv2,
-									 const glm::vec4 &color,
-									 Ref<Texture>	  texture)
+	void BatchRenderer::DrawTriangle(const glm::vec3  &pos0,
+									 const glm::vec2  &uv0,
+									 const glm::vec3  &pos1,
+									 const glm::vec2  &uv1,
+									 const glm::vec3  &pos2,
+									 const glm::vec2  &uv2,
+									 const glm::vec4  &color,
+									 Ref<ITextureView> texture)
 	{
 		float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -992,15 +1014,15 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color)
 	{
-		DrawPolygonFill(polygon, color, m_BlankTexture);
+		DrawPolygonFill(polygon, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
-		DrawPolygonFill(polygon, color, m_BlankTexture, 1.0f);
+		DrawPolygonFill(polygon, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor)
 	{
 		const auto					  &boundingRectangle = polygon.GetBoundingRectangle();
 		const std::vector<Triangle2D> &tris				 = polygon.GetTriangles();
@@ -1042,17 +1064,17 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color)
 	{
-		DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTexture);
+		DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
 		DrawRoundedRectangleFill(roundedRectangle, color, texture, 1.0f);
 	}
 
 	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle,
 												 const glm::vec4		&color,
-												 Ref<Texture>			 texture,
+												 Ref<ITextureView>		 texture,
 												 float					 tilingFactor)
 	{
 		const Polygon &poly = roundedRectangle.CreatePolygon();
@@ -1121,11 +1143,17 @@ namespace Nexus::Graphics
 			std::string textureName = "texture" + std::to_string(i);
 			if (i < info.Textures.size())
 			{
-				info.ResourceSet->WriteCombinedImageSampler(info.Textures.at(i), m_Sampler, textureName);
+				Graphics::CombinedImageSampler ciSampler = {};
+				ciSampler.ImageTexture					 = info.Textures.at(i);
+				ciSampler.ImageSampler					 = m_Sampler;
+				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 			else
 			{
-				info.ResourceSet->WriteCombinedImageSampler(m_BlankTexture, m_Sampler, textureName);
+				Graphics::CombinedImageSampler ciSampler = {};
+				ciSampler.ImageTexture					 = m_BlankTextureView;
+				ciSampler.ImageSampler					 = m_Sampler;
+				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 		}
 
@@ -1182,6 +1210,6 @@ namespace Nexus::Graphics
 		m_CommandList->End();
 		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
-		FlushTextures(info, m_BlankTexture);
+		FlushTextures(info, m_BlankTextureView);
 	}
 }	 // namespace Nexus::Graphics

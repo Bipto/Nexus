@@ -75,6 +75,11 @@ namespace Nexus::Graphics
 		AcquireBackbufferIndex();
 	}
 
+	Ref<Framebuffer> SwapchainD3D12::GetCurrentFramebuffer()
+	{
+		return nullptr;
+	}
+
 	void SwapchainD3D12::SetPresentMode(PresentMode presentMode)
 	{
 		m_Description.ImagePresentMode = presentMode;

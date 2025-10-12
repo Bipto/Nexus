@@ -436,7 +436,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device)
 	{
-		if (!ValidateForResolveToSwapchain(command))
+		/*if (!ValidateForResolveToSwapchain(command))
 		{
 			return;
 		}
@@ -475,7 +475,7 @@ namespace Nexus::Graphics
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 		context.CmdResolveImage(m_CommandBuffer, framebufferImage, framebufferLayout, swapchainImage, swapchainLayout, 1, &resolve);
 
-		ExecuteCommand(m_CurrentRenderTarget, device);
+		ExecuteCommand(m_CurrentRenderTarget, device);*/
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
@@ -557,14 +557,25 @@ namespace Nexus::Graphics
 
 			VkImageSubresourceLayers imageSubresource = {};
 			imageSubresource.aspectMask				  = aspectFlags;
-			imageSubresource.mipLevel				  = command.BufferTextureCopy.TextureSubresource.MipLevel;
-			imageSubresource.baseArrayLayer			  = command.BufferTextureCopy.TextureSubresource.BaseArrayLayer;
-			imageSubresource.layerCount				  = command.BufferTextureCopy.TextureSubresource.LayerCount;
+			imageSubresource.mipLevel				  = command.BufferTextureCopy.MipLevel;
+			imageSubresource.baseArrayLayer			  = 0;
+			imageSubresource.layerCount				  = 1;
+
+			if (texture->GetType() != TextureType::Texture3D)
+			{
+				imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureOffset.Z;
+				imageSubresource.layerCount		= command.BufferTextureCopy.TextureExtent.Depth;
+			}
 
 			VkOffset3D imageOffset = {};
 			imageOffset.x		   = command.BufferTextureCopy.TextureOffset.X;
 			imageOffset.y		   = command.BufferTextureCopy.TextureOffset.Y;
 			imageOffset.z		   = 0;
+
+			if (texture->GetType() == TextureType::Texture3D)
+			{
+				imageOffset.z = command.BufferTextureCopy.TextureOffset.Z;
+			}
 
 			VkExtent3D imageExtent = {};
 			imageExtent.width	   = command.BufferTextureCopy.TextureExtent.Width;
@@ -629,14 +640,25 @@ namespace Nexus::Graphics
 
 			VkImageSubresourceLayers imageSubresource = {};
 			imageSubresource.aspectMask				  = aspectFlags;
-			imageSubresource.mipLevel				  = command.TextureBufferCopy.TextureSubresource.MipLevel;
-			imageSubresource.baseArrayLayer			  = command.TextureBufferCopy.TextureSubresource.BaseArrayLayer;
-			imageSubresource.layerCount				  = command.TextureBufferCopy.TextureSubresource.LayerCount;
+			imageSubresource.mipLevel				  = command.TextureBufferCopy.MipLevel;
+			imageSubresource.baseArrayLayer			  = 0;
+			imageSubresource.layerCount				  = 1;
+
+			if (texture->GetType() != TextureType::Texture3D)
+			{
+				imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureOffset.Z;
+				imageSubresource.layerCount		= command.TextureBufferCopy.TextureExtent.Depth;
+			}
 
 			VkOffset3D imageOffset = {};
 			imageOffset.x		   = command.TextureBufferCopy.TextureOffset.X;
 			imageOffset.y		   = command.TextureBufferCopy.TextureOffset.Y;
-			imageOffset.z		   = command.TextureBufferCopy.TextureOffset.Z;
+			imageOffset.z		   = 0;
+
+			if (texture->GetType() == TextureType::Texture3D)
+			{
+				imageOffset.z = command.TextureBufferCopy.TextureOffset.Z;
+			}
 
 			VkExtent3D imageExtent = {};
 			imageExtent.width	   = command.TextureBufferCopy.TextureExtent.Width;
@@ -702,25 +724,48 @@ namespace Nexus::Graphics
 		{
 			VkImageSubresourceLayers srcSubresource;
 			srcSubresource.aspectMask	  = srcAspect;
-			srcSubresource.mipLevel		  = command.TextureCopy.SourceSubresource.MipLevel;
-			srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.BaseArrayLayer;
-			srcSubresource.layerCount	  = command.TextureCopy.SourceSubresource.LayerCount;
+			srcSubresource.mipLevel		  = command.TextureCopy.SourceMipLevel;
+			srcSubresource.baseArrayLayer = 0;
+			srcSubresource.layerCount	  = 1;
+
+			if (srcTexture->GetType() != TextureType::Texture3D)
+			{
+				srcSubresource.baseArrayLayer = command.TextureCopy.SourceOffset.Z;
+				srcSubresource.layerCount	  = command.TextureCopy.Extent.Depth;
+			}
 
 			VkOffset3D srcOffset;
 			srcOffset.x = command.TextureCopy.SourceOffset.X;
 			srcOffset.y = command.TextureCopy.SourceOffset.Y;
-			srcOffset.z = command.TextureCopy.SourceOffset.Z;
+			srcOffset.z = 0;
+
+			if (srcTexture->GetType() != TextureType::Texture2D)
+			{
+				srcOffset.z = command.TextureCopy.SourceOffset.Z;
+			}
 
 			VkImageSubresourceLayers dstSubresource;
 			dstSubresource.aspectMask	  = dstAspect;
-			dstSubresource.mipLevel		  = command.TextureCopy.DestinationSubresource.MipLevel;
-			dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.BaseArrayLayer;
-			dstSubresource.layerCount	  = command.TextureCopy.DestinationSubresource.LayerCount;
+			dstSubresource.mipLevel		  = command.TextureCopy.DestinationMipLevel;
+			dstSubresource.baseArrayLayer = 0;
+			dstSubresource.layerCount	  = 1;
+
+			// we can only set these parameters for array textures, i.e. not 3D textures
+			if (dstTexture->GetType() != TextureType::Texture3D)
+			{
+				dstSubresource.baseArrayLayer = command.TextureCopy.DestinationOffset.Z;
+				dstSubresource.layerCount	  = command.TextureCopy.Extent.Depth;
+			}
 
 			VkOffset3D dstOffset;
 			dstOffset.x = command.TextureCopy.DestinationOffset.X;
 			dstOffset.y = command.TextureCopy.DestinationOffset.Y;
-			dstOffset.z = command.TextureCopy.DestinationOffset.Z;
+			dstOffset.z = 0;
+
+			if (dstTexture->GetType() != TextureType::Texture2D)
+			{
+				dstOffset.z = command.TextureCopy.DestinationOffset.Z;
+			}
 
 			VkExtent3D copyExtent;
 			copyExtent.width  = command.TextureCopy.Extent.Width;
@@ -788,17 +833,22 @@ namespace Nexus::Graphics
 			labelEXT.sType				  = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
 			labelEXT.pNext				  = nullptr;
 			labelEXT.pLabelName			  = command.GroupName.c_str();
-			labelEXT.color[0]			  = 0;
-			labelEXT.color[1]			  = 0;
-			labelEXT.color[2]			  = 0;
-			labelEXT.color[3]			  = 0;
+			labelEXT.color[0]			  = command.Colour.r;
+			labelEXT.color[1]			  = command.Colour.g;
+			labelEXT.color[2]			  = command.Colour.b;
+			labelEXT.color[3]			  = command.Colour.a;
 			context.CmdBeginDebugUtilsLabelEXT(m_CommandBuffer, &labelEXT);
 		}
 		else if (context.CmdDebugMarkerBeginEXT)
 		{
 			VkDebugMarkerMarkerInfoEXT markerInfo = {};
 			markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+			markerInfo.pNext					  = nullptr;
 			markerInfo.pMarkerName				  = command.GroupName.c_str();
+			markerInfo.color[0]					  = command.Colour.r;
+			markerInfo.color[1]					  = command.Colour.g;
+			markerInfo.color[2]					  = command.Colour.b;
+			markerInfo.color[3]					  = command.Colour.a;
 			context.CmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
 		}
 	}
@@ -844,17 +894,22 @@ namespace Nexus::Graphics
 			labelEXT.sType				  = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
 			labelEXT.pNext				  = nullptr;
 			labelEXT.pLabelName			  = command.MarkerName.c_str();
-			labelEXT.color[0]			  = 0;
-			labelEXT.color[1]			  = 0;
-			labelEXT.color[2]			  = 0;
-			labelEXT.color[3]			  = 0;
+			labelEXT.color[0]			  = command.Colour.r;
+			labelEXT.color[1]			  = command.Colour.g;
+			labelEXT.color[2]			  = command.Colour.b;
+			labelEXT.color[3]			  = command.Colour.a;
 			context.CmdInsertDebugUtilsLabelEXT(m_CommandBuffer, &labelEXT);
 		}
 		else if (context.CmdDebugMarkerInsertEXT)
 		{
 			VkDebugMarkerMarkerInfoEXT markerInfo = {};
 			markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+			markerInfo.pNext					  = nullptr;
 			markerInfo.pMarkerName				  = command.MarkerName.c_str();
+			markerInfo.color[0]					  = command.Colour.r;
+			markerInfo.color[1]					  = command.Colour.g;
+			markerInfo.color[2]					  = command.Colour.b;
+			markerInfo.color[3]					  = command.Colour.a;
 			context.CmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
 		}
 	}
@@ -1256,7 +1311,7 @@ namespace Nexus::Graphics
 
 	void BeginDynamicRenderingToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
 	{
-		VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
+		/*VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
 
 		VkRect2D renderArea;
 		renderArea.offset = {0, 0};
@@ -1303,12 +1358,12 @@ namespace Nexus::Graphics
 		renderingInfo.pDepthAttachment	   = &depthAttachment;
 
 		const GladVulkanContext &context = device->GetVulkanContext();
-		context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);
+		context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);*/
 	}
 
 	void BeginRenderPassToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
 	{
-		VkFramebuffer framebuffer = swapchain->GetFramebuffer();
+		/*VkFramebuffer framebuffer = swapchain->GetFramebuffer();
 		VkRenderPass  renderpass  = swapchain->GetRenderPass();
 		VkExtent2D	  renderSize  = swapchain->GetSwapchainSize();
 
@@ -1328,40 +1383,42 @@ namespace Nexus::Graphics
 
 		VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
 
-		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
+		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);*/
 	}
 
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
-		Ref<SwapchainVk> swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-		const auto		&swapchainDesc = swapchainVk->GetDescription();
+		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+		// const auto		&swapchainDesc = swapchainVk->GetDescription();
 
-		swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		// swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		// swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		if (swapchainDesc.Samples != 1)
-		{
-			/*m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-												  swapchainVk->GetResolveImage(),
-												  0,
-												  0,
-												  swapchainVk->GetResolveImageLayout(),
-												  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-												  VK_IMAGE_ASPECT_COLOR_BIT);
-			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);*/
-		}
+		// if (swapchainDesc.Samples != 1)
+		//{
+		//	/*m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
+		//										  swapchainVk->GetResolveImage(),
+		//										  0,
+		//										  0,
+		//										  swapchainVk->GetResolveImageLayout(),
+		//										  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		//										  VK_IMAGE_ASPECT_COLOR_BIT);
+		//	swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);*/
+		// }
 
-		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
-		if (features.DynamicRenderingAvailable)
-		{
-			BeginDynamicRenderingToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
-		}
-		else
-		{
-			BeginRenderPassToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
-		}
+		// const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+		// if (features.DynamicRenderingAvailable)
+		//{
+		//	BeginDynamicRenderingToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
+		// }
+		// else
+		//{
+		//	BeginRenderPassToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
+		// }
 
-		m_Rendering = true;
+		// m_Rendering = true;
+
+		StartRenderingToFramebuffer(swapchain->GetCurrentFramebuffer());
 	}
 
 	void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
@@ -1377,16 +1434,51 @@ namespace Nexus::Graphics
 		// attach colour textures
 		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount(); colourAttachmentIndex++)
 		{
-			Ref<TextureVk> texture = framebuffer->GetVulkanColourTexture(colourAttachmentIndex);
-			TextureLayout  layout  = texture->GetTextureLayout(0, 0);
+			FramebufferTextureDescription textureBinding = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
+
+			//// handle the case of submitting a swapchain with multisampling
+			// if (framebuffer->HasResolveAttachment())
+			//{
+			//	textureBinding = framebuffer->GetResolveAttachmentBinding().value();
+			// }
+
+			Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(textureBinding.TargetTexture);
+			TextureLayout  layout  = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
+
+			FramebufferTextureDescription colourAttachmentDesc = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
+
+			VulkanTextureViewInfo viewInfo = {};
+			viewInfo.BaseMipLevel		   = colourAttachmentDesc.MipLevel;
+			viewInfo.LevelCount			   = 1;
+			viewInfo.BaseArrayLayer		   = colourAttachmentDesc.BaseArrayLayer;
+			viewInfo.LayerCount			   = colourAttachmentDesc.LayerCount;
 
 			VkRenderingAttachmentInfo colourAttachment = {};
 			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			colourAttachment.imageView				   = texture->GetImageView();
+			colourAttachment.imageView				   = texture->GetImageView(viewInfo);
 			colourAttachment.imageLayout			   = Vk::GetImageLayout(device, layout);
 			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
 			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
 			colourAttachment.clearValue				   = {};
+
+			// handle the case of submitting a swapchain with multisampling
+			if (framebuffer->HasResolveAttachment())
+			{
+				FramebufferTextureDescription resolveDesc		= framebuffer->GetResolveAttachmentBinding().value();
+				Ref<TextureVk>				  resolveAttachment = std::dynamic_pointer_cast<TextureVk>(resolveDesc.TargetTexture);
+				TextureLayout				  resolveLayout = resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
+
+				VulkanTextureViewInfo viewInfo = {};
+				viewInfo.BaseMipLevel		   = resolveDesc.MipLevel;
+				viewInfo.LevelCount			   = 1;
+				viewInfo.BaseArrayLayer		   = resolveDesc.BaseArrayLayer;
+				viewInfo.LayerCount			   = resolveDesc.LayerCount;
+
+				colourAttachment.resolveImageView	= resolveAttachment->GetImageView(viewInfo);
+				colourAttachment.resolveImageLayout = Vk::GetImageLayout(device, resolveLayout);
+				colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
+			}
+
 			colourAttachments.push_back(colourAttachment);
 		}
 
@@ -1394,11 +1486,21 @@ namespace Nexus::Graphics
 		VkRenderingAttachmentInfo depthAttachment = {};
 		if (framebuffer->HasDepthTexture())
 		{
+			FramebufferTextureDescription textureBinding = framebuffer->GetDepthTextureBinding().value();
+
 			Ref<TextureVk> texture = framebuffer->GetVulkanDepthTexture();
-			TextureLayout  layout  = texture->GetTextureLayout(0, 0);
+			TextureLayout  layout  = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
+
+			FramebufferTextureDescription depthAttachmentDesc = framebuffer->GetDepthTextureBinding().value();
+
+			VulkanTextureViewInfo viewInfo = {};
+			viewInfo.BaseMipLevel		   = depthAttachmentDesc.MipLevel;
+			viewInfo.LevelCount			   = 1;
+			viewInfo.BaseArrayLayer		   = depthAttachmentDesc.BaseArrayLayer;
+			viewInfo.LayerCount			   = depthAttachmentDesc.LayerCount;
 
 			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			depthAttachment.imageView	= texture->GetImageView();
+			depthAttachment.imageView	= texture->GetImageView(viewInfo);
 			depthAttachment.imageLayout = Vk::GetImageLayout(device, layout);
 			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
 			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
@@ -1446,6 +1548,11 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer)
 	{
 		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+
+		if (vulkanFramebuffer->HasResolveAttachment())
+		{
+			FramebufferTextureDescription resolveDesc = vulkanFramebuffer->GetResolveAttachmentBinding().value();
+		}
 
 		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 		if (features.DynamicRenderingAvailable)
@@ -1505,7 +1612,8 @@ namespace Nexus::Graphics
 			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 			if (!features.DynamicRenderingAvailable)
 			{
-				renderPass = swapchainVk->GetRenderPass();
+				Ref<FramebufferVk> framebuffer = std::dynamic_pointer_cast<FramebufferVk>(swapchainVk->GetCurrentFramebuffer());
+				renderPass					   = framebuffer->GetRenderPass();
 				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
 		}

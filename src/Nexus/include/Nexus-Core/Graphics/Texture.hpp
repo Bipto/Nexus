@@ -119,6 +119,21 @@ namespace Nexus::Graphics
 			return m_Description.Usage;
 		}
 
+		TextureType GetType() const
+		{
+			return m_Description.Type;
+		}
+
+		uint32_t GetDepthOrArrayLayers() const
+		{
+			return m_Description.DepthOrArrayLayers;
+		}
+
+		uint32_t GetMipLevels() const
+		{
+			return m_Description.MipLevels;
+		}
+
 		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
 
 	  protected:

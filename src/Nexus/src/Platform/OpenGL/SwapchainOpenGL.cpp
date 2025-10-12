@@ -36,6 +36,11 @@ namespace Nexus::Graphics
 		ResizeIfNecessary();
 	}
 
+	Ref<Framebuffer> SwapchainOpenGL::GetCurrentFramebuffer()
+	{
+		return m_Framebuffer;
+	}
+
 	void SwapchainOpenGL::SetPresentMode(PresentMode presentMode)
 	{
 		m_Description.ImagePresentMode = presentMode;

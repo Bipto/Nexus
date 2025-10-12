@@ -6,6 +6,7 @@
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PipelineVk.hpp"
 	#include "SamplerVk.hpp"
+	#include "TextureViewVk.hpp"
 	#include "TextureVk.hpp"
 
 namespace Nexus::Graphics
@@ -69,7 +70,7 @@ namespace Nexus::Graphics
 		context.DestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
 	}
 
-	void ResourceSetVk::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	void ResourceSetVk::WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -102,7 +103,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
+	void ResourceSetVk::WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -135,11 +136,11 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetVk::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)
 	{
-		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(texture);
-		Ref<SamplerVk> samplerVk	  = std::dynamic_pointer_cast<SamplerVk>(sampler);
-		const auto	  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		Ref<TextureViewVk> textureViewVk  = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
+		Ref<SamplerVk>	   samplerVk	  = std::dynamic_pointer_cast<SamplerVk>(combinedImageSampler.ImageSampler);
+		const auto		  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -147,7 +148,7 @@ namespace Nexus::Graphics
 		VkImageLayout	layout		 = Vk::GetImageLayout(m_Device, TextureLayout::ShaderReadOnlyOptimal);
 
 		VkDescriptorImageInfo imageBufferInfo = {};
-		imageBufferInfo.imageView			  = textureVk->GetImageView();
+		imageBufferInfo.imageView			  = textureViewVk->GetVkImageView();
 		imageBufferInfo.sampler				  = samplerVk->GetSampler();
 		imageBufferInfo.imageLayout			  = layout;
 
@@ -162,13 +163,10 @@ namespace Nexus::Graphics
 
 		context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
 
-		CombinedImageSampler ciSampler {};
-		ciSampler.ImageTexture			   = texture;
-		ciSampler.ImageSampler			   = sampler;
-		m_BoundCombinedImageSamplers[name] = ciSampler;
+		m_BoundCombinedImageSamplers[name] = combinedImageSampler;
 	}
 
-	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
+	void ResourceSetVk::WriteStorageImage(const StorageImageView &view, const std::string &name)
 	{
 		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(view.TextureHandle);
 		const auto	  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
@@ -179,8 +177,14 @@ namespace Nexus::Graphics
 
 		VkImageLayout layout = Vk::GetImageLayout(m_Device, view.Layout);
 
+		VulkanTextureViewInfo viewInfo = {};
+		viewInfo.BaseMipLevel		   = view.MipLevel;
+		viewInfo.LevelCount			   = 1;
+		viewInfo.BaseArrayLayer		   = view.ArrayLayer;
+		viewInfo.LayerCount			   = 1;
+
 		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageView				= textureVk->GetImageView();
+		imageInfo.imageView				= textureVk->GetImageView(viewInfo);
 		imageInfo.imageLayout			= VK_IMAGE_LAYOUT_GENERAL;
 
 		VkWriteDescriptorSet writeDescriptorSet = {};

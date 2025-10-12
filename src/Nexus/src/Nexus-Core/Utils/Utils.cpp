@@ -4,12 +4,12 @@
 
 namespace Nexus::Utils
 {
-	glm::vec4 ColorFromRGBA(float r, float g, float b, float a)
+	glm::vec4 ColourFromRGBA(float r, float g, float b, float a)
 	{
 		return glm::vec4(1.0f / 255.0f * r, 1.0f / 255.0f * g, 1.0f / 255.0f * b, 1.0f / 255.0f * a);
 	}
 
-	glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color)
+	glm::vec4 ColourFromBorderColor(Nexus::Graphics::BorderColor color)
 	{
 		switch (color)
 		{
@@ -27,6 +27,18 @@ namespace Nexus::Utils
 		std::uniform_real_distribution<> dis(0.0f, 1.0f);
 		return glm::vec4(dis(gen), dis(gen), dis(gen), 1.0f);
 	}
+
+	NX_API uint32_t PackColour(const glm::vec4 &colour)
+	{
+		uint8_t r = static_cast<uint8_t>(std::max<uint8_t>(0.0f, std::min<uint8_t>(255.0f, colour.r)));
+		uint8_t g = static_cast<uint8_t>(std::max<uint8_t>(0.0f, std::min<uint8_t>(255.0f, colour.g)));
+		uint8_t b = static_cast<uint8_t>(std::max<uint8_t>(0.0f, std::min<uint8_t>(255.0f, colour.b)));
+		uint8_t a = static_cast<uint8_t>(std::max<uint8_t>(0.0f, std::min<uint8_t>(255.0f, colour.a)));
+
+		// Pack into a uint32_t
+		return (r << 24) | (g << 16) | (b << 8) | a;
+	}
+
 	float XIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 	{
 		float num = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);

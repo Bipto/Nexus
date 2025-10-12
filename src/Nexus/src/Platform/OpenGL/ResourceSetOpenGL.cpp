@@ -8,25 +8,22 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ResourceSetOpenGL::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	void ResourceSetOpenGL::WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)
 	{
 		m_BoundStorageBuffers[name] = storageBuffer;
 	}
 
-	void ResourceSetOpenGL::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
+	void ResourceSetOpenGL::WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)
 	{
 		m_BoundUniformBuffers[name] = uniformBuffer;
 	}
 
-	void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetOpenGL::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)
 	{
-		CombinedImageSampler ciSampler {};
-		ciSampler.ImageTexture			   = texture;
-		ciSampler.ImageSampler			   = sampler;
-		m_BoundCombinedImageSamplers[name] = ciSampler;
+		m_BoundCombinedImageSamplers[name] = combinedImageSampler;
 	}
 
-	void ResourceSetOpenGL::WriteStorageImage(StorageImageView view, const std::string &name)
+	void ResourceSetOpenGL::WriteStorageImage(const StorageImageView &view, const std::string &name)
 	{
 		m_BoundStorageImages[name] = view;
 	}

@@ -4,6 +4,7 @@
 #include "Nexus-Core/Graphics/Sampler.hpp"
 #include "Nexus-Core/Graphics/ShaderResources.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Graphics/TextureView.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -11,9 +12,9 @@ namespace Nexus::Graphics
 {
 	struct CombinedImageSampler
 	{
-		Ref<Texture>  ImageTexture = {};
-		Ref<Sampler>  ImageSampler = {};
-		TextureLayout Layout	   = TextureLayout::ShaderReadOnlyOptimal;
+		Ref<ITextureView> ImageTexture = {};
+		Ref<Sampler>	  ImageSampler = {};
+		TextureLayout	  Layout	   = TextureLayout::ShaderReadOnlyOptimal;
 	};
 
 	enum class ShaderAccess
@@ -55,10 +56,10 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void WriteStorageBuffer(StorageBufferView, const std::string &name)									= 0;
-		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)					= 0;
-		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
-		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								= 0;
+		virtual void WriteStorageBuffer(const StorageBufferView &view, const std::string &name)							  = 0;
+		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)				  = 0;
+		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) = 0;
+		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name)							  = 0;
 
 		static constexpr uint32_t DescriptorSetCount = 64;
 		static uint32_t			  GetLinearDescriptorSlot(uint32_t set, uint32_t binding);

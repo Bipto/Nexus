@@ -18,6 +18,7 @@ namespace Nexus::Graphics
 		SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDevice *graphicsDevice);
 		virtual ~SwapchainOpenGL();
 		void					 SwapBuffers() final;
+		Ref<Framebuffer>		 GetCurrentFramebuffer() final;
 		void					 SetPresentMode(PresentMode presentMode) final;
 		Nexus::Point2D<uint32_t> GetSize() final;
 		PixelFormat				 GetColourFormat() final;
@@ -34,7 +35,8 @@ namespace Nexus::Graphics
 		}
 
 	  private:
-		IWindow *m_Window;
+		IWindow			*m_Window	   = nullptr;
+		Ref<Framebuffer> m_Framebuffer = nullptr;
 
 		uint32_t						  m_SwapchainWidth	= 0;
 		uint32_t						  m_SwapchainHeight = 0;

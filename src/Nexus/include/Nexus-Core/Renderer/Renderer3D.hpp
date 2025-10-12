@@ -69,9 +69,9 @@ namespace Nexus::Graphics
 
 		Ref<CommandList> m_CommandList = nullptr;
 
-		Ref<Nexus::Graphics::Mesh> m_Cube;
+		Ref<Nexus::Graphics::Mesh> m_Cube = nullptr;
 
-		Nexus::FirstPersonCamera m_Camera;
+		Nexus::FirstPersonCamera m_Camera = {};
 
 		Nexus::Ref<Nexus::Graphics::Sampler>		  m_CubemapSampler		 = nullptr;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_CubemapPipeline		 = nullptr;
@@ -87,6 +87,7 @@ namespace Nexus::Graphics
 
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ClearScreenPipeline = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Texture> m_DefaultTexture = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>	  m_DefaultTexture	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView> m_DefaultTextureView = nullptr;
 	};
 }	 // namespace Nexus::Graphics

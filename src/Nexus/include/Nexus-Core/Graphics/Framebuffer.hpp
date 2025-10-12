@@ -21,6 +21,9 @@ namespace Nexus::Graphics
 
 		/// @brief A handle to the texture to bind
 		Ref<Texture> TargetTexture = nullptr;
+
+		/// @brief A boolean value indicating whether the texture is associated with a swapchain
+		bool OwnedBySwapchain = false;
 	};
 
 	/// @brief A structure describing how to create a framebuffer from an existing set of textures

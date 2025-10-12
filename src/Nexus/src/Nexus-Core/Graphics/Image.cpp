@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 							 uint32_t			width,
 							 uint32_t			height)
 	{
-		std::vector<char> pixels = device->ReadFromTexture(texture, commandQueue, arrayLayer, mipLevel, x, y, z, width, height);
+		std::vector<char> pixels = commandQueue->ReadFromTexture(texture, mipLevel, x, y, z, width, height);
 
 		Image image	 = {};
 		image.Width	 = width;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Graphics/TextureView.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -24,6 +25,7 @@ namespace Nexus::Graphics
 		int32_t			m_Height = 0;
 
 		Nexus::Ref<Nexus::Graphics::Texture>	   m_HdriImage	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>  m_HdriView	  = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	};
 }	 // namespace Nexus::Graphics

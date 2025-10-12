@@ -3,6 +3,7 @@
 	#include "SwapchainVk.hpp"
 
 	#include "CommandQueueVk.hpp"
+	#include "FramebufferVk.hpp"
 	#include "GraphicsDeviceVk.hpp"
 	#include "PlatformVk.hpp"
 
@@ -21,8 +22,6 @@ namespace Nexus::Graphics
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
 
 		GraphicsDeviceVk *graphicsDeviceVk = (GraphicsDeviceVk *)graphicsDevice;
-		CreateSurface(graphicsDeviceVk->GetVkInstance());
-		CreateRenderPass();
 		CreateAll();
 
 		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
@@ -33,12 +32,8 @@ namespace Nexus::Graphics
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 		m_GraphicsDevice->WaitForIdle();
 
-		CleanupResolveAttachment();
 		CleanupSwapchain();
-		CleanupDepthStencil();
 		CleanupSemaphores();
-		CleanupFramebuffers();
-		context.DestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
 		context.DestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
 	}
 
@@ -89,6 +84,11 @@ namespace Nexus::Graphics
 		AcquireNextImage();
 	}
 
+	Ref<Framebuffer> SwapchainVk::GetCurrentFramebuffer()
+	{
+		return m_Framebuffers.at(m_CurrentFrameIndex);
+	}
+
 	void SwapchainVk::SetPresentMode(PresentMode presentMode)
 	{
 		m_Description.ImagePresentMode = presentMode;
@@ -98,6 +98,16 @@ namespace Nexus::Graphics
 	Nexus::Point2D<uint32_t> SwapchainVk::GetSize()
 	{
 		return m_Window->GetWindowSize();
+	}
+
+	PixelFormat SwapchainVk::GetColourFormat()
+	{
+		return Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
+	}
+
+	PixelFormat SwapchainVk::GetDepthFormat()
+	{
+		return m_DepthFormat;
 	}
 
 	VkSurfaceKHR SwapchainVk::GetSurface()
@@ -110,102 +120,20 @@ namespace Nexus::Graphics
 		return m_SurfaceFormat;
 	}
 
-	VkFormat SwapchainVk::GetVkDepthFormat()
-	{
-		return m_DepthFormat;
-	}
-
-	PixelFormat SwapchainVk::GetColourFormat()
-	{
-		return Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
-	}
-
-	PixelFormat SwapchainVk::GetDepthFormat()
-	{
-		return PixelFormat::D24_UNorm_S8_UInt;
-	}
-
 	void SwapchainVk::RecreateSwapchain()
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 		context.DeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
 
-		CleanupResolveAttachment();
 		CleanupSwapchain();
-		CleanupDepthStencil();
 		CleanupSemaphores();
 
 		CreateAll();
 	}
 
-	uint32_t SwapchainVk::GetImageCount()
-	{
-		return m_SwapchainImageCount;
-	}
-
 	VkExtent2D SwapchainVk::GetSwapchainSize() const
 	{
 		return m_SwapchainSize;
-	}
-
-	VkImage SwapchainVk::GetColourImage()
-	{
-		return m_SwapchainImages[m_CurrentFrameIndex];
-	}
-
-	VkImage SwapchainVk::GetDepthImage()
-	{
-		return m_DepthImage;
-	}
-
-	VkImage SwapchainVk::GetResolveImage()
-	{
-		return m_ResolveImage;
-	}
-
-	VkImageView SwapchainVk::GetColourImageView()
-	{
-		return m_SwapchainImageViews[m_CurrentFrameIndex];
-	}
-
-	VkImageView SwapchainVk::GetDepthImageView()
-	{
-		return m_DepthImageView;
-	}
-
-	VkImageView SwapchainVk::GetResolveImageView()
-	{
-		return m_ResolveImageView;
-	}
-
-	VkImageLayout SwapchainVk::GetColorImageLayout()
-	{
-		return m_ImageLayouts[m_CurrentFrameIndex];
-	}
-
-	VkImageLayout SwapchainVk::GetDepthImageLayout()
-	{
-		return m_DepthLayout;
-	}
-
-	VkImageLayout SwapchainVk::GetResolveImageLayout()
-	{
-		return m_ResolveImageLayout;
-	}
-
-	void SwapchainVk::SetColorImageLayout(VkImageLayout layout)
-	{
-		m_ImageLayouts[m_CurrentFrameIndex] = layout;
-	}
-
-	void SwapchainVk::SetDepthImageLayout(VkImageLayout layout)
-	{
-		m_DepthLayout = layout;
-	}
-
-	void SwapchainVk::SetResolveImageLayout(VkImageLayout layout)
-	{
-		m_ResolveImageLayout = layout;
 	}
 
 	bool SwapchainVk::IsSwapchainValid() const
@@ -216,16 +144,6 @@ namespace Nexus::Graphics
 	const VkSemaphore &SwapchainVk::GetSemaphore()
 	{
 		return m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
-	}
-
-	VkRenderPass SwapchainVk::GetRenderPass() const
-	{
-		return m_RenderPass;
-	}
-
-	VkFramebuffer SwapchainVk::GetFramebuffer() const
-	{
-		return m_Framebuffers[m_CurrentFrameIndex];
 	}
 
 	void SwapchainVk::CreateSurface(VkInstance instance)
@@ -299,61 +217,62 @@ namespace Nexus::Graphics
 			throw std::runtime_error("Failed to create swapchain");
 		}
 
-		context.GetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &m_SwapchainImageCount, nullptr);
-		m_SwapchainImages.resize(m_SwapchainImageCount);
-		context.GetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &m_SwapchainImageCount, m_SwapchainImages.data());
+		std::vector<VkImage> swapchainImages	 = {};
+		uint32_t			 swapchainImageCount = 0;
+
+		context.GetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &swapchainImageCount, nullptr);
+		swapchainImages.resize(swapchainImageCount);
+		context.GetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &swapchainImageCount, swapchainImages.data());
+
+		m_ColourAttachments.clear();
+
+		for (VkImage image : swapchainImages)
+		{
+			Graphics::TextureDescription desc = {};
+			desc.Width						  = m_SwapchainSize.width;
+			desc.Height						  = m_SwapchainSize.height;
+			desc.DepthOrArrayLayers			  = 1;
+			desc.MipLevels					  = 1;
+			desc.Type						  = TextureType::Texture2D;
+			desc.Usage						  = Graphics::TextureUsage_ColourAttachment;
+			desc.Samples					  = 1;
+			desc.Format						  = Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
+			Ref<TextureVk> texture			  = CreateRef<TextureVk>(image, desc, m_GraphicsDevice, false);
+
+			m_ColourAttachments.push_back(texture);
+		}
 
 		return true;
 	}
 
-	void SwapchainVk::CreateSwapchainImageViews()
-	{
-		m_SwapchainImageViews.resize(m_SwapchainImages.size());
-		m_ImageLayouts.resize(m_SwapchainImages.size());
-
-		for (uint32_t i = 0; i < m_SwapchainImages.size(); i++)
-		{
-			m_SwapchainImageViews[i] = CreateImageView(m_SwapchainImages[i], m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
-			m_ImageLayouts[i]		 = VK_IMAGE_LAYOUT_UNDEFINED;
-		}
-	}
-
 	void SwapchainVk::CreateDepthStencil(GraphicsDeviceVk *graphicsDevice)
 	{
-		std::shared_ptr<PhysicalDeviceVk> physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(graphicsDevice->GetPhysicalDevice());
+		TextureDescription depthDesc = {};
+		depthDesc.Width				 = m_SwapchainSize.width;
+		depthDesc.Height			 = m_SwapchainSize.height;
+		depthDesc.DepthOrArrayLayers = 1;
+		depthDesc.MipLevels			 = 1;
+		depthDesc.Type				 = TextureType::Texture2D;
+		depthDesc.Usage				 = Graphics::TextureUsage_DepthStencilAttachment;
+		depthDesc.Samples			 = m_Description.Samples;
+		depthDesc.Format			 = m_DepthFormat;
 
-		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
-		CreateImage(m_SwapchainSize.width,
-					m_SwapchainSize.height,
-					VK_FORMAT_D24_UNORM_S8_UINT,
-					VK_IMAGE_TILING_OPTIMAL,
-					VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-					m_DepthImage,
-					m_DepthImageMemory,
-					samples,
-					graphicsDevice);
-		m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
-		m_DepthLayout	 = VK_IMAGE_LAYOUT_UNDEFINED;
+		m_DepthAttachment = std::dynamic_pointer_cast<TextureVk>(m_GraphicsDevice->CreateTexture(depthDesc));
 	}
 
 	void SwapchainVk::CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice)
 	{
-		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
+		TextureDescription resolveDesc = {};
+		resolveDesc.Width			   = m_SwapchainSize.width;
+		resolveDesc.Height			   = m_SwapchainSize.height;
+		resolveDesc.DepthOrArrayLayers = 1;
+		resolveDesc.MipLevels		   = 1;
+		resolveDesc.Type			   = TextureType::Texture2D;
+		resolveDesc.Usage			   = Graphics::TextureUsage_ColourAttachment;
+		resolveDesc.Samples			   = m_Description.Samples;
+		resolveDesc.Format			   = Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
 
-		CreateImage(m_SwapchainSize.width,
-					m_SwapchainSize.height,
-					m_SurfaceFormat.format,
-					VK_IMAGE_TILING_OPTIMAL,
-					VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-					m_ResolveImage,
-					m_ResolveMemory,
-					samples,
-					graphicsDevice);
-
-		m_ResolveImageView	 = CreateImageView(m_ResolveImage, m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
-		m_ResolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		m_ResolveAttachment = std::dynamic_pointer_cast<TextureVk>(m_GraphicsDevice->CreateTexture(resolveDesc));
 	}
 
 	void SwapchainVk::CreateSemaphores()
@@ -375,61 +294,56 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::CreateFramebuffers()
 	{
-		CleanupFramebuffers();
+		m_Framebuffers.clear();
 
-		m_Framebuffers.resize(m_SwapchainImageViews.size());
-
-		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
+		for (size_t i = 0; i < m_ColourAttachments.size(); i++)
 		{
-			NX_VALIDATE(m_SwapchainImageViews[i] != VK_NULL_HANDLE, "Swapchain image view is null");
-			NX_VALIDATE(m_ResolveImageView != VK_NULL_HANDLE || m_Description.Samples == 1, "Resolve view is null");
-			NX_VALIDATE(m_DepthImageView, "Depth view is null");
-
-			Vk::VulkanFramebufferDescription framebufferDesc = {};
-
-			if (m_Description.Samples == 1)
-			{
-				framebufferDesc.ColourImageViews.push_back(m_SwapchainImageViews[i]);
-			}
-			else
-			{
-				framebufferDesc.ColourImageViews.push_back(m_ResolveImageView);
-			}
-
-			framebufferDesc.DepthImageView = m_DepthImageView;
+			Graphics::FramebufferTextureDescription colourAttachmentDesc = {};
 
 			if (m_Description.Samples != 1)
 			{
-				framebufferDesc.ResolveImageView = m_SwapchainImageViews[i];
+				colourAttachmentDesc.MipLevel		  = 0;
+				colourAttachmentDesc.BaseArrayLayer	  = 0;
+				colourAttachmentDesc.LayerCount		  = 1;
+				colourAttachmentDesc.TargetTexture	  = m_ResolveAttachment;
+				colourAttachmentDesc.OwnedBySwapchain = false;
+			}
+			else
+			{
+				colourAttachmentDesc.MipLevel		  = 0;
+				colourAttachmentDesc.BaseArrayLayer	  = 0;
+				colourAttachmentDesc.LayerCount		  = 1;
+				colourAttachmentDesc.TargetTexture	  = m_ColourAttachments.at(i);
+				colourAttachmentDesc.OwnedBySwapchain = true;
 			}
 
-			framebufferDesc.Width			 = m_SwapchainSize.width;
-			framebufferDesc.Height			 = m_SwapchainSize.height;
-			framebufferDesc.VulkanRenderPass = m_RenderPass;
+			Graphics::FramebufferTextureDescription depthAttachmentDesc = {};
+			depthAttachmentDesc.MipLevel								= 0;
+			depthAttachmentDesc.BaseArrayLayer							= 0;
+			depthAttachmentDesc.LayerCount								= 1;
+			depthAttachmentDesc.TargetTexture							= m_DepthAttachment;
+			depthAttachmentDesc.OwnedBySwapchain						= false;
 
-			m_Framebuffers[i] = Vk::CreateFramebuffer(m_GraphicsDevice->GetVulkanContext(), m_GraphicsDevice->GetVkDevice(), framebufferDesc);
+			std::optional<FramebufferTextureDescription> resolveAttachmentDescOpt = {};
+
+			if (m_Description.Samples != 1)
+			{
+				Graphics::FramebufferTextureDescription resolveAttachmentDesc = {};
+				resolveAttachmentDesc.MipLevel								  = 0;
+				resolveAttachmentDesc.BaseArrayLayer						  = 0;
+				resolveAttachmentDesc.LayerCount							  = 1;
+				resolveAttachmentDesc.TargetTexture							  = m_ColourAttachments.at(i);
+				resolveAttachmentDesc.OwnedBySwapchain						  = true;
+				resolveAttachmentDescOpt									  = resolveAttachmentDesc;
+			}
+
+			Graphics::FramebufferTextureSetDescription desc = {};
+			desc.ColourAttachments							= {colourAttachmentDesc};
+			desc.DepthAttachment							= depthAttachmentDesc;
+
+			Ref<FramebufferVk> framebuffer = CreateRef<FramebufferVk>(desc, m_GraphicsDevice, resolveAttachmentDescOpt);
+			m_Framebuffers.push_back(framebuffer);
 		}
-	}
-
-	void SwapchainVk::CreateRenderPass()
-	{
-		Vk::VulkanRenderPassDescription desc = {};
-		desc.DepthFormat					 = m_DepthFormat;
-
-		if (m_Description.Samples == 1)
-		{
-			desc.ColourAttachments.push_back(m_SurfaceFormat.format);
-		}
-		else
-		{
-			desc.ColourAttachments.push_back(m_SurfaceFormat.format);
-			desc.ResolveFormat = m_SurfaceFormat.format;
-		}
-
-		desc.Samples	 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.Samples);
-		desc.IsSwapchain = true;
-
-		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice, desc);
 	}
 
 	void SwapchainVk::CreateAll()
@@ -443,7 +357,6 @@ namespace Nexus::Graphics
 		CreateSurface(m_GraphicsDevice->GetVkInstance());
 		if (CreateSwapchain(physicalDeviceVk))
 		{
-			CreateSwapchainImageViews();
 			CreateDepthStencil(m_GraphicsDevice);
 			CreateResolveAttachment(m_GraphicsDevice);
 			CreateSemaphores();
@@ -460,31 +373,8 @@ namespace Nexus::Graphics
 	void SwapchainVk::CleanupSwapchain()
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-
 		context.DeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
-
-		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
-		{
-			context.DestroyImageView(m_GraphicsDevice->m_Device, m_SwapchainImageViews[i], nullptr);
-		}
-
 		context.DestroySwapchainKHR(m_GraphicsDevice->m_Device, m_Swapchain, nullptr);
-	}
-
-	void SwapchainVk::CleanupDepthStencil()
-	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-		context.DestroyImageView(m_GraphicsDevice->m_Device, m_DepthImageView, nullptr);
-		context.DestroyImage(m_GraphicsDevice->m_Device, m_DepthImage, nullptr);
-		context.FreeMemory(m_GraphicsDevice->m_Device, m_DepthImageMemory, nullptr);
-	}
-
-	void SwapchainVk::CleanupResolveAttachment()
-	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-		context.DestroyImageView(m_GraphicsDevice->m_Device, m_ResolveImageView, nullptr);
-		context.DestroyImage(m_GraphicsDevice->m_Device, m_ResolveImage, nullptr);
-		context.FreeMemory(m_GraphicsDevice->m_Device, m_ResolveMemory, nullptr);
 	}
 
 	void SwapchainVk::CleanupSemaphores()
@@ -494,19 +384,6 @@ namespace Nexus::Graphics
 		{
 			context.DestroySemaphore(m_GraphicsDevice->GetVkDevice(), m_PresentSemaphores[i], nullptr);
 		}
-	}
-
-	void SwapchainVk::CleanupFramebuffers()
-	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-
-		for (size_t i = 0; i < m_Framebuffers.size(); i++)
-		{
-			int x = 0;
-			context.DestroyFramebuffer(m_GraphicsDevice->GetVkDevice(), m_Framebuffers[i], nullptr);
-		}
-
-		m_Framebuffers.clear();
 	}
 
 	bool SwapchainVk::AcquireNextImage()
@@ -527,8 +404,6 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to acquire swapchain image");
 		}
-
-		m_CurrentImage = m_SwapchainImages[m_CurrentFrameIndex];
 
 		return true;
 	}

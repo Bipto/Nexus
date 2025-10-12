@@ -15,6 +15,7 @@
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "Nexus-Core/Graphics/TextureView.hpp"
 
 	#include "PNextBuilder.hpp"
 
@@ -170,6 +171,7 @@ namespace Nexus::Vk
 	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
 	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
 	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
+	VkImageViewType			 GetImageViewType(const Graphics::TextureViewDescription &desc);
 
 	struct GladLoaderData
 	{
