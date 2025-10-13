@@ -14,6 +14,7 @@
 	#include "ShaderModuleD3D12.hpp"
 	#include "SwapchainD3D12.hpp"
 	#include "TextureD3D12.hpp"
+	#include "TextureViewD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 
 namespace Nexus::Graphics
@@ -183,7 +184,7 @@ namespace Nexus::Graphics
 
 	Ref<ITextureView> GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return Ref<ITextureView>();
+		return CreateRef<TextureViewD3D12>(desc);
 	}
 
 	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)

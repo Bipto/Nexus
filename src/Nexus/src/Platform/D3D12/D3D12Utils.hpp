@@ -82,7 +82,7 @@ namespace Nexus::D3D12
 	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
 	D3D12_RESOURCE_FLAGS	 GetResourceFlags(const Graphics::TextureDescription &description);
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC	 CreateTextureSrvView(const Graphics::TextureDescription &spec);
+	D3D12_SHADER_RESOURCE_VIEW_DESC	 CreateTextureSrvView(const Graphics::TextureViewDescription &desc);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
 
 	void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress);

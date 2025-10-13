@@ -841,60 +841,62 @@ namespace Nexus::D3D12
 		return flags;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureDescription &spec)
+	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc)
 	{
+		Ref<Graphics::Texture> texture = desc.TargetTexture;
+
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		switch (spec.Type)
+		switch (texture->GetType())
 		{
 			case Graphics::TextureType::Texture1D:
-				if (spec.DepthOrArrayLayers > 1)
+				if (desc.Range.LayerCount > 1)
 				{
 					srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
-					srvDesc.Texture1DArray.MipLevels	   = spec.MipLevels;
-					srvDesc.Texture1DArray.MostDetailedMip = 0;
-					srvDesc.Texture1DArray.FirstArraySlice = 0;
-					srvDesc.Texture1DArray.ArraySize	   = spec.DepthOrArrayLayers;
+					srvDesc.Texture1DArray.MostDetailedMip = desc.Range.BaseMipLevel;
+					srvDesc.Texture1DArray.MipLevels	   = desc.Range.LevelCount;
+					srvDesc.Texture1DArray.FirstArraySlice = desc.Range.BaseArrayLayer;
+					srvDesc.Texture1DArray.ArraySize	   = desc.Range.LayerCount;
 				}
 				else
 				{
 					srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE1D;
-					srvDesc.Texture1D.MostDetailedMip = 0;
-					srvDesc.Texture1D.MipLevels		  = spec.MipLevels;
+					srvDesc.Texture1D.MostDetailedMip = desc.Range.BaseMipLevel;
+					srvDesc.Texture1D.MipLevels		  = desc.Range.LevelCount;
 				}
 				break;
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.DepthOrArrayLayers > 1)
+				if (desc.Range.LayerCount > 1)
 				{
-					if (spec.Samples > 1)
+					if (texture->GetSampleCount() > 1)
 					{
 						srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-						srvDesc.Texture2DMSArray.FirstArraySlice = 0;
-						srvDesc.Texture2DMSArray.ArraySize		 = spec.DepthOrArrayLayers;
+						srvDesc.Texture2DMSArray.FirstArraySlice = desc.Range.BaseArrayLayer;
+						srvDesc.Texture2DMSArray.ArraySize		 = desc.Range.LayerCount;
 					}
 					else
 					{
 						srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-						srvDesc.Texture2DArray.MostDetailedMip = 0;
-						srvDesc.Texture2DArray.FirstArraySlice = 0;
-						srvDesc.Texture2DArray.ArraySize	   = spec.DepthOrArrayLayers;
-						srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
+						srvDesc.Texture2DArray.MostDetailedMip = desc.Range.BaseMipLevel;
+						srvDesc.Texture2DArray.MipLevels	   = desc.Range.LevelCount;
+						srvDesc.Texture2DArray.FirstArraySlice = desc.Range.BaseArrayLayer;
+						srvDesc.Texture2DArray.ArraySize	   = desc.Range.LayerCount;
 					}
 				}
 				else
 				{
-					if (spec.Samples > 1)
+					if (texture->GetSampleCount() > 1)
 					{
 						srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
 					}
 					else
 					{
 						srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE2D;
-						srvDesc.Texture2D.MostDetailedMip = 0;
-						srvDesc.Texture2D.MipLevels		  = spec.MipLevels;
+						srvDesc.Texture2D.MostDetailedMip = desc.Range.BaseMipLevel;
+						srvDesc.Texture2D.MipLevels		  = desc.Range.LevelCount;
 					}
 				}
 
@@ -903,25 +905,25 @@ namespace Nexus::D3D12
 			case Graphics::TextureType::Texture3D:
 			{
 				srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE3D;
-				srvDesc.Texture3D.MostDetailedMip = 0;
-				srvDesc.Texture3D.MipLevels		  = spec.MipLevels;
+				srvDesc.Texture3D.MostDetailedMip = desc.Range.BaseMipLevel;
+				srvDesc.Texture3D.MipLevels		  = desc.Range.LevelCount;
 				break;
 			}
 			case Graphics::TextureType::TextureCube:
 			{
-				if (spec.DepthOrArrayLayers == 1)
+				if (desc.Range.LayerCount > 6)
 				{
-					srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
-					srvDesc.TextureCube.MostDetailedMip = 0;
-					srvDesc.TextureCube.MipLevels		= spec.MipLevels;
+					srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+					srvDesc.TextureCubeArray.First2DArrayFace = desc.Range.BaseArrayLayer / 6;
+					srvDesc.TextureCubeArray.NumCubes		  = desc.Range.LayerCount / 6;
+					srvDesc.TextureCubeArray.MostDetailedMip  = desc.Range.BaseMipLevel;
+					srvDesc.TextureCubeArray.MipLevels		  = desc.Range.LevelCount;
 				}
 				else
 				{
-					srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-					srvDesc.TextureCubeArray.First2DArrayFace = 0;
-					srvDesc.TextureCubeArray.NumCubes		  = spec.DepthOrArrayLayers;
-					srvDesc.TextureCubeArray.MostDetailedMip  = 0;
-					srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
+					srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
+					srvDesc.TextureCube.MostDetailedMip = desc.Range.BaseMipLevel;
+					srvDesc.TextureCube.MipLevels		= desc.Range.LevelCount;
 				}
 				break;
 			}

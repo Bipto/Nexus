@@ -238,10 +238,7 @@ namespace Nexus::Platform
 
 	void Initialise()
 	{
-		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD))
-		{
-			NX_LOG("Could not initialize SDL");
-		}
+		NX_VALIDATE(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD), "Failed to initialize SDL");
 
 		SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED, "1");

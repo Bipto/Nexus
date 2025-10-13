@@ -7,6 +7,7 @@
 	#include "PipelineD3D12.hpp"
 	#include "SamplerD3D12.hpp"
 	#include "TextureD3D12.hpp"
+	#include "TextureViewD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -192,12 +193,13 @@ namespace Nexus::Graphics
 		const auto d3d12Device = m_Device->GetD3D12Device();
 		// write texture
 		{
-			Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(combinedImageSampler.ImageTexture);
+			Ref<TextureViewD3D12> textureView = std::dynamic_pointer_cast<TextureViewD3D12>(combinedImageSampler.ImageTexture);
+			Ref<TextureD3D12>	  texture	  = std::dynamic_pointer_cast<TextureD3D12>(textureView->GetTexture());
 
-			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(d3d12Texture->GetDescription());
+			D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(textureView->GetDescription());
 
 			D3D12_CPU_DESCRIPTOR_HANDLE textureHandle  = m_SRV_UAV_CBV_DescriptorHandles.at(name);
-			auto						resourceHandle = d3d12Texture->GetHandle();
+			auto						resourceHandle = texture->GetHandle();
 			d3d12Device->CreateShaderResourceView(resourceHandle.Get(), &srv, textureHandle);
 		}
 
