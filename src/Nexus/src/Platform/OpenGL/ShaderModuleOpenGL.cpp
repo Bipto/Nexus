@@ -1,8 +1,8 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "ShaderModuleOpenGL.hpp"
-	#include "Nexus-Core/Logging/Log.hpp"
 	#include "GraphicsDeviceOpenGL.hpp"
+	#include "Nexus-Core/Logging/Log.hpp"
 	#include "OpenGLShaderParser.hpp"
 
 	#include <regex>
@@ -31,6 +31,11 @@ namespace Nexus::Graphics
 					glCall(context.GetShaderInfoLog(m_Handle, 512, NULL, infoLog));
 					std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
 					NX_ERROR(errorMessage);
+				}
+
+				if (context.KHR_debug)
+				{
+					context.ObjectLabelKHR(GL_SHADER, m_Handle, -1, m_ModuleSpecification.DebugName.c_str());
 				}
 			});
 	}

@@ -12,6 +12,7 @@
 	#include "ShaderModuleOpenGL.hpp"
 	#include "SwapchainOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
+	#include "TextureViewOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 
 	#include "glad/gl.h"
@@ -223,7 +224,7 @@ namespace Nexus::Graphics
 			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
 
 			GLenum result = fence->Wait(timeout);
-			if (result == GL_ALREADY_SIGNALED || GL_CONDITION_SATISFIED)
+			if (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED)
 			{
 				// if a fence has been signalled successfully and we are not waiting for all the fences, we can return that a fence has been signalled
 				if (!waitAll)
@@ -319,7 +320,7 @@ namespace Nexus::Graphics
 
 	Ref<ITextureView> GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return Ref<ITextureView>();
+		return CreateRef<TextureViewOpenGL>(desc, this);
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

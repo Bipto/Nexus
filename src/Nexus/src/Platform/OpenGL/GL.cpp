@@ -533,6 +533,67 @@ namespace Nexus::GL
 		}
 	}
 
+	GLenum GetViewType(const Graphics::TextureViewDescription &desc)
+	{
+		Ref<Graphics::Texture> texture = desc.TargetTexture;
+
+		switch (texture->GetType())
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (desc.Range.LayerCount > 1)
+				{
+					return GL_TEXTURE_1D_ARRAY;
+				}
+				else
+				{
+					return GL_TEXTURE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (texture->GetSampleCount() > 1)
+				{
+					if (desc.Range.LayerCount > 1)
+					{
+						return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_2D_MULTISAMPLE;
+					}
+				}
+				else
+				{
+					if (desc.Range.LayerCount > 1)
+					{
+						return GL_TEXTURE_2D_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_2D;
+					}
+				}
+				case Graphics::TextureType::Texture3D:
+				{
+					return GL_TEXTURE_3D;
+				}
+				case Graphics::TextureType::TextureCube:
+				{
+					if (desc.Range.LayerCount > 6)
+					{
+						return GL_TEXTURE_CUBE_MAP_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_CUBE_MAP;
+					}
+				}
+				default: throw std::runtime_error("Failed to find a valid texture view type");
+			}
+		}
+	}
+
 	GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion)
 	{
 		supportsByRegion = false;

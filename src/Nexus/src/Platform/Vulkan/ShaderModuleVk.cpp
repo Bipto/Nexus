@@ -14,6 +14,8 @@ namespace Nexus::Graphics
 	{
 		CreateShaderModule();
 		Reflect();
+
+		device->SetObjectName(VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule, shaderModuleSpec.DebugName.c_str());
 	}
 
 	ShaderModuleVk::~ShaderModuleVk()

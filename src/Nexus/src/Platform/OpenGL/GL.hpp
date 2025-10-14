@@ -74,6 +74,7 @@ namespace Nexus::GL
 
 	GLenum GetAccessMask(Graphics::ShaderAccess access);
 	GLenum GetTextureType(const Graphics::TextureDescription &spec);
+	GLenum GetViewType(const Graphics::TextureViewDescription &desc);
 
 	GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion);
 

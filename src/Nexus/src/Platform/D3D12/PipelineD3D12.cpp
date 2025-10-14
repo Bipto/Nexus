@@ -19,6 +19,9 @@ namespace Nexus::Graphics
 		m_InputLayout		  = D3D12::CreateInputLayout(description.Layouts);
 		m_PipelineStateObject = D3D12::CreateGraphicsPipeline(device, description, m_RootSignature, m_InputLayout);
 		m_PrimitiveTopology	  = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
+
+		std::wstring name = {m_Description.DebugName.begin(), m_Description.DebugName.end()};
+		m_PipelineStateObject->SetName(name.c_str());
 	}
 
 	GraphicsPipelineD3D12::~GraphicsPipelineD3D12()

@@ -6,6 +6,7 @@
 	#include "Nexus-Core/nxpch.hpp"
 	#include "ResourceSetOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
+	#include "TextureViewOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 
 	#include "Nexus-Core/Timings/Profiler.hpp"
@@ -798,10 +799,12 @@ namespace Nexus::Graphics
 
 			if (location != -1)
 			{
-				if (Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture))
+				if (Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture))
 				{
-					texture->Bind(location);
-					glSampler->Bind(location, texture->GetDescription().MipLevels > 1);
+					const TextureViewDescription &viewDesc = textureView->GetDescription();
+
+					textureView->Bind(location);
+					glSampler->Bind(location, viewDesc.Range.LevelCount > 1);
 				}
 			}
 		}

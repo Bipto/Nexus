@@ -65,7 +65,7 @@ namespace Nexus::Graphics
 
 	struct ShaderModuleSpecification
 	{
-		std::string			  Name = "ShaderModule";
+		std::string			  DebugName = "ShaderModule";
 		std::string			  Source;
 		ShaderStage			  ShadingStage = ShaderStage::Invalid;
 		std::vector<uint32_t> SpirvBinary;
