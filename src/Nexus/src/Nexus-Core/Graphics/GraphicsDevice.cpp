@@ -60,7 +60,7 @@ namespace Nexus::Graphics
 		auto endTime   = std::chrono::system_clock::now();
 		auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-		moduleSpec.Name				= name;
+		moduleSpec.DebugName		= name;
 		moduleSpec.Source			= result.Source;
 		moduleSpec.ShadingStage		= stage;
 		moduleSpec.SpirvBinary		= result.SpirvBinary;

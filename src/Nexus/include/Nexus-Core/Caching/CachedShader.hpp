@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 
 			m_Hash = hash;
 
-			m_ShaderSpec.Name		  = name;
+			m_ShaderSpec.DebugName	  = name;
 			m_ShaderSpec.Source		  = source;
 			m_ShaderSpec.ShadingStage = stage;
 			m_ShaderSpec.SpirvBinary  = spirv;
