@@ -13,7 +13,8 @@ namespace Nexus::Graphics
 
 	struct FenceDescription
 	{
-		bool Signalled = false;
+		bool		Signalled = false;
+		std::string DebugName = "Fence";
 	};
 
 	class Fence
