@@ -194,52 +194,52 @@ namespace Nexus::Graphics
 			dimension = ResourceDimension::Texture2DMS;
 			return ReflectedShaderDataType::CombinedImageSampler;
 		}
-		else if (type == "texture2DMSArray")
+		else if (type == "texture2DMSArray" || type == "imagee2DMSArray")
 		{
 			dimension = ResourceDimension::Texture2DMSArray;
 			return ReflectedShaderDataType::CombinedImageSampler;
 		}
-		else if (type == "texture1D")
+		else if (type == "texture1D" || type == "image1D")
 		{
 			dimension = ResourceDimension::Texture1D;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2D")
+		else if (type == "texture2D" || type == "image2D")
 		{
 			dimension = ResourceDimension::Texture2D;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture3D")
+		else if (type == "texture3D" || type == "image3D")
 		{
 			dimension = ResourceDimension::Texture3D;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "textureCube")
+		else if (type == "textureCube" || type == "imageCube")
 		{
 			dimension = ResourceDimension::TextureCube;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2DRect")
+		else if (type == "texture2DRect" || type == "image2DRect")
 		{
 			dimension = ResourceDimension::TextureRectangle;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture1DArray")
+		else if (type == "texture1DArray" || type == "image1DArray")
 		{
 			dimension = ResourceDimension::Texture1DArray;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2DArray")
+		else if (type == "texture2DArray" || type == "image2DArray")
 		{
 			dimension = ResourceDimension::Texture2DArray;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "textureCubeArray")
+		else if (type == "textureCubeArray" || type == "imageCubeArray")
 		{
 			dimension = ResourceDimension::TextureCubeArray;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "textureBuffer")
+		else if (type == "textureBuffer" || type == "imageBuffer")
 		{
 			dimension			  = ResourceDimension::NoDimension;
 			storageResourceAccess = StorageResourceAccess::Read;
@@ -251,12 +251,12 @@ namespace Nexus::Graphics
 			storageResourceAccess = StorageResourceAccess::ReadWrite;
 			return ReflectedShaderDataType::StorageTextureBuffer;
 		}
-		else if (type == "texture2DMS")
+		else if (type == "texture2DMS" || type == "image2DMS")
 		{
 			dimension = ResourceDimension::Texture2DMS;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2DMSArray")
+		else if (type == "texture2DMSArray" || type == "image2DMSArray")
 		{
 			dimension = ResourceDimension::Texture2DMSArray;
 			return ReflectedShaderDataType::Texture;
