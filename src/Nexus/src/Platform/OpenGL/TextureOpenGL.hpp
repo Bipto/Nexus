@@ -9,6 +9,7 @@
 namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
+	class TextureViewOpenGL;
 
 	class TextureOpenGL : public Texture
 	{
@@ -26,6 +27,9 @@ namespace Nexus::Graphics
 
 		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 
+		void AddView(WeakRef<TextureViewOpenGL> view);
+		void MarkDirty();
+
 	  private:
 		void CreateTextureFacesDSA(const GladGLContext &context);
 		void CreateTextureFacesNonDSA(const GladGLContext &context);
@@ -42,6 +46,8 @@ namespace Nexus::Graphics
 		uint32_t					m_Framebuffer			  = 0;
 		GL::GLInternalTextureFormat m_GLInternalTextureFormat = GL::GLInternalTextureFormat::Texture2D;
 		std::vector<TextureLayout>	m_TextureLayout			  = {};
+
+		std::vector<WeakRef<TextureViewOpenGL>> m_Views = {};
 	};
 }	 // namespace Nexus::Graphics
 

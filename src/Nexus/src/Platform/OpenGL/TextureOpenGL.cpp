@@ -6,6 +6,7 @@
 	#include "Nexus-Core/Utils/Utils.hpp"
 
 	#include "GraphicsDeviceOpenGL.hpp"
+	#include "TextureViewOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -247,6 +248,22 @@ namespace Nexus::Graphics
 	GL::GLInternalTextureFormat TextureOpenGL::GetInternalGLTextureFormat() const
 	{
 		return m_GLInternalTextureFormat;
+	}
+
+	void TextureOpenGL::AddView(WeakRef<TextureViewOpenGL> view)
+	{
+		m_Views.push_back(view);
+	}
+
+	void TextureOpenGL::MarkDirty()
+	{
+		for (WeakRef<TextureViewOpenGL> &view : m_Views)
+		{
+			if (Ref<TextureViewOpenGL> lockedView = view.lock())
+			{
+				lockedView->MarkDirty();
+			}
+		}
 	}
 }	 // namespace Nexus::Graphics
 

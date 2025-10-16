@@ -320,7 +320,10 @@ namespace Nexus::Graphics
 
 	Ref<ITextureView> GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return CreateRef<TextureViewOpenGL>(desc, this);
+		Ref<TextureOpenGL>	   texture = std::dynamic_pointer_cast<TextureOpenGL>(desc.TargetTexture);
+		Ref<TextureViewOpenGL> view	   = CreateRef<TextureViewOpenGL>(desc, this);
+		texture->AddView(view);
+		return view;
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

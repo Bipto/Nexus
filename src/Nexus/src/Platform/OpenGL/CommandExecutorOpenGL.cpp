@@ -846,6 +846,8 @@ namespace Nexus::Graphics
 												storageImageView.ArrayLayer,
 												access,
 												format));
+
+				texture->MarkDirty();
 			}
 		}
 

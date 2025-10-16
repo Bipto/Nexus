@@ -312,7 +312,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.GraphicsCreateInfo.Debug = true;
-	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
+
+	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
 	spec.WindowProperties.Height		   = 720;
