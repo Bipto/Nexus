@@ -83,23 +83,33 @@ namespace Nexus::Vk
 
 	struct VulkanRenderPassDescription
 	{
-		std::vector<VkFormat>	ColourAttachments = {};
-		std::optional<VkFormat> DepthFormat		  = {};
-		std::optional<VkFormat> ResolveFormat	  = {};
-		VkSampleCountFlagBits	Samples			  = VK_SAMPLE_COUNT_1_BIT;
-		bool					IsSwapchain		  = false;
+		struct VulkanColourAttachmentDesc
+		{
+			VkFormat				ColourFromat  = {};
+			std::optional<VkFormat> ResolveFormat = {};
+		};
+
+		std::vector<VulkanColourAttachmentDesc> ColourAttachments = {};
+		std::optional<VkFormat>					DepthFormat		  = {};
+		VkSampleCountFlagBits					Samples			  = VK_SAMPLE_COUNT_1_BIT;
+		bool									IsSwapchain		  = false;
 	};
 
 	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc);
 
 	struct VulkanFramebufferDescription
 	{
-		std::vector<VkImageView> ColourImageViews = {};
-		VkImageView				 DepthImageView	  = VK_NULL_HANDLE;
-		VkImageView				 ResolveImageView = VK_NULL_HANDLE;
-		VkRenderPass			 VulkanRenderPass = VK_NULL_HANDLE;
-		uint32_t				 Width			  = 0;
-		uint32_t				 Height			  = 0;
+		struct VulkanColourAttachment
+		{
+			VkImageView				   ColourView  = VK_NULL_HANDLE;
+			std::optional<VkImageView> ResolveView = std::nullopt;
+		};
+
+		std::vector<VulkanColourAttachment> ColourImageViews = {};
+		VkImageView							DepthImageView	 = VK_NULL_HANDLE;
+		VkRenderPass						VulkanRenderPass = VK_NULL_HANDLE;
+		uint32_t							Width			 = 0;
+		uint32_t							Height			 = 0;
 	};
 
 	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc);

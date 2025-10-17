@@ -25,8 +25,6 @@
 	#include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 #endif
 
-#include <stb_image_write.h>
-
 namespace Nexus::Graphics
 {
 	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
@@ -150,8 +148,6 @@ namespace Nexus::Graphics
 		auto   texture	  = Ref<Texture>(CreateTexture(spec));
 		commandQueue->WriteToTexture(texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 
-		stbi_write_png("0.png", spec.Width, spec.Height, 4, data, spec.Width * 4);
-
 		stbi_image_free(data);
 
 		if (generateMips)
@@ -163,10 +159,6 @@ namespace Nexus::Graphics
 				auto [width, height]	 = Utils::GetMipSize(spec.Width, spec.Height, i);
 				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1, 0);
 				commandQueue->WriteToTexture(texture, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
-
-				std::stringstream ss;
-				ss << std::to_string(i) << ".png";
-				stbi_write_png(ss.str().c_str(), width, height, 4, pixels.data(), width * 4);
 			}
 		}
 
@@ -223,13 +215,31 @@ namespace Nexus::Graphics
 			textureDesc.Samples			   = desc.Samples;
 			textureDesc.Format			   = format;
 
-			Ref<Texture> texture = CreateTexture(textureDesc);
+			Ref<Texture> colourAttachment = CreateTexture(textureDesc);
 
-			FramebufferTextureDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
-			framebufferTextureDesc.TargetTexture				  = texture;
-			framebufferTextureDesc.BaseArrayLayer				  = 0;
-			framebufferTextureDesc.LayerCount					  = 1;
-			framebufferTextureDesc.MipLevel						  = 0;
+			FramebufferColourAttachmentDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
+			framebufferTextureDesc.ColourAttachment.TargetTexture		   = colourAttachment;
+			framebufferTextureDesc.ColourAttachment.BaseArrayLayer		   = 0;
+			framebufferTextureDesc.ColourAttachment.LayerCount			   = 1;
+			framebufferTextureDesc.ColourAttachment.MipLevel			   = 0;
+
+			// create a resolve attachment if using multi-sampling
+			if (textureDesc.Samples > 1)
+			{
+				TextureDescription resolveTextureDesc = {};
+				resolveTextureDesc.Width			  = desc.Width;
+				resolveTextureDesc.Height			  = desc.Height;
+				resolveTextureDesc.Type				  = TextureType::Texture2D;
+				resolveTextureDesc.Usage			  = Graphics::TextureUsage_ColourAttachment;
+				resolveTextureDesc.Samples			  = 1;
+				resolveTextureDesc.Format			  = format;
+
+				Ref<Texture> resolveAttachment						   = CreateTexture(resolveTextureDesc);
+				framebufferTextureDesc.ColourAttachment.TargetTexture  = resolveAttachment;
+				framebufferTextureDesc.ColourAttachment.BaseArrayLayer = 0;
+				framebufferTextureDesc.ColourAttachment.LayerCount	   = 1;
+				framebufferTextureDesc.ColourAttachment.MipLevel	   = 0;
+			}
 		}
 
 		if (desc.DepthAttachmentFormat.has_value())

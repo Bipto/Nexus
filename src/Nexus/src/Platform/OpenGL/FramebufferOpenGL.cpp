@@ -68,9 +68,9 @@ namespace Nexus::Graphics
 				// attach colour targets
 				for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 				{
-					const Graphics::FramebufferTextureDescription &colourAttachment = m_Description.ColourAttachments.at(i);
-					Ref<Texture>								   texture			= colourAttachment.TargetTexture;
-					GL::AttachTexture(m_FBO, colourAttachment, texture->IsDepth(), i, context);
+					const Graphics::FramebufferColourAttachmentDescription &colourAttachment = m_Description.ColourAttachments.at(i);
+					Ref<Texture>											texture			 = colourAttachment.ColourAttachment.TargetTexture;
+					GL::AttachTexture(m_FBO, colourAttachment.ColourAttachment, texture->IsDepth(), i, context);
 				}
 
 				// attach depth target if needed

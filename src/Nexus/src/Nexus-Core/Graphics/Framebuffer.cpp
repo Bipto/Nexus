@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 		// we need to retrieve the first valid texture from the framebuffer so that we can retrieve it's sample count
 		if (ColourAttachments.size() > 0)
 		{
-			testSampleCount = ColourAttachments[0].TargetTexture->GetSampleCount();
+			testSampleCount = ColourAttachments[0].ColourAttachment.TargetTexture->GetSampleCount();
 		}
 		// if there are no colour attachment, we try to get the depth attachment
 		else if (DepthAttachment.has_value())
@@ -27,7 +27,13 @@ namespace Nexus::Graphics
 		for (const auto &colourAttachment : ColourAttachments)
 		{
 			// the sample count does not match the first texture's so this set is invalid
-			if (colourAttachment.TargetTexture->GetSampleCount() != testSampleCount)
+			if (colourAttachment.ColourAttachment.TargetTexture->GetSampleCount() != testSampleCount)
+			{
+				return false;
+			}
+
+			// each resolve attachment must have a sample count of 1
+			if (colourAttachment.ResolveAttachment.has_value() && colourAttachment.ResolveAttachment.value().TargetTexture->GetSampleCount() != 1)
 			{
 				return false;
 			}
@@ -57,9 +63,9 @@ namespace Nexus::Graphics
 		// we need to retrieve the first valid texture from the framebuffer so that we can retrieve it's width and height
 		if (ColourAttachments.size() > 0)
 		{
-			Ref<Texture> texture = ColourAttachments[0].TargetTexture;
-			testWidth			 = texture->GetWidth();
-			testHeight			 = texture->GetHeight();
+			Ref<Texture> colourAttachment = ColourAttachments[0].ColourAttachment.TargetTexture;
+			testWidth					  = colourAttachment->GetWidth();
+			testHeight					  = colourAttachment->GetHeight();
 		}
 		// if there are no colour attachment, we try to get the depth attachment
 		else if (DepthAttachment.has_value())
@@ -77,12 +83,24 @@ namespace Nexus::Graphics
 		// iterate through all colour attachments and test their widths and heights
 		for (const auto &colourAttachment : ColourAttachments)
 		{
-			Ref<Texture> texture = colourAttachment.TargetTexture;
+			Ref<Texture> colourTexture = colourAttachment.ColourAttachment.TargetTexture;
 
 			// the dimensions of this texture does not match the first texture's so this set is invalid
-			if (texture->GetWidth() != testWidth || texture->GetHeight() != testHeight)
+			if (colourTexture->GetWidth() != testWidth || colourTexture->GetHeight() != testHeight)
 			{
 				return false;
+			}
+
+			if (colourAttachment.ResolveAttachment.has_value())
+			{
+				if (Ref<Texture> resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture)
+				{
+					// the dimensions of this texture does not match the first texture's so this set is invalid
+					if (resolveTexture->GetWidth() != testWidth || resolveTexture->GetHeight() != testHeight)
+					{
+						return false;
+					}
+				}
 			}
 		}
 
@@ -120,10 +138,22 @@ namespace Nexus::Graphics
 		for (const auto &colourAttachment : ColourAttachments)
 		{
 			// a texture that is being in a framebuffer as a colour attachment must have the ColourAttachment usage flag set
-			Ref<Texture> texture = colourAttachment.TargetTexture;
-			if (!(texture->GetUsage() & Graphics::TextureUsage_ColourAttachment))
+			Ref<Texture> colourTexture = colourAttachment.ColourAttachment.TargetTexture;
+			if (!(colourTexture->GetUsage() & Graphics::TextureUsage_ColourAttachment))
 			{
 				return false;
+			}
+
+			if (colourAttachment.ResolveAttachment.has_value())
+			{
+				if (Ref<Texture> resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture)
+				{
+					// a texture that is being in a framebuffer as a resolve attachment must have the ColourAttachment usage flag set
+					if (!(resolveTexture->GetUsage() & Graphics::TextureUsage_ColourAttachment))
+					{
+						return false;
+					}
+				}
 			}
 		}
 
@@ -148,7 +178,7 @@ namespace Nexus::Graphics
 		// technically, this doesn't need to be a loop, but this is simpler
 		for (const auto &colourAttachment : ColourAttachments)
 		{
-			Ref<Texture> texture = colourAttachment.TargetTexture;
+			Ref<Texture> texture = colourAttachment.ColourAttachment.TargetTexture;
 			return texture->GetSampleCount();
 		}
 
@@ -169,7 +199,7 @@ namespace Nexus::Graphics
 		// technically, this doesn't need to be a loop, but this is simpler
 		for (const auto &colourAttachment : ColourAttachments)
 		{
-			Ref<Texture> texture = colourAttachment.TargetTexture;
+			Ref<Texture> texture = colourAttachment.ColourAttachment.TargetTexture;
 
 			Nexus::Point2D<uint32_t> size = {};
 			size.X						  = texture->GetWidth();

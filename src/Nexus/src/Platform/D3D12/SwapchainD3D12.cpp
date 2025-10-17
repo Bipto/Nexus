@@ -23,10 +23,8 @@ namespace Nexus::Graphics
 		m_SwapchainWidth			 = windowSize.X;
 		m_SwapchainHeight			 = windowSize.Y;
 
-		// setup colour attachments for swapchain
-		CreateColourAttachments();
-		CreateDepthAttachment();
-		CreateMultisampledFramebuffer();
+		// setup framebuffers for swapchain images
+		CreateFramebuffers();
 		AcquireBackbufferIndex();
 	}
 
@@ -37,18 +35,10 @@ namespace Nexus::Graphics
 		Flush();
 
 		m_Device->WaitForIdle();
-
-		// release the swapchain's buffers
-		ReleaseBuffers();
 	}
 
 	void SwapchainD3D12::SwapBuffers()
 	{
-		if (m_Description.Samples > 1)
-		{
-			Resolve();
-		}
-
 		// swap the swapchain's buffers and present to the display
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain1;
 		HRESULT									hr			 = m_Swapchain->QueryInterface(IID_PPV_ARGS(&swapchain1));
@@ -101,60 +91,14 @@ namespace Nexus::Graphics
 		return PixelFormat::D24_UNorm_S8_UInt;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveBufferHandle()
-	{
-		return m_Buffers.at(m_CurrentBufferIndex);
-	}
-
 	uint32_t SwapchainD3D12::GetCurrentBufferIndex()
 	{
 		return m_CurrentBufferIndex;
 	}
 
-	const D3D12_CPU_DESCRIPTOR_HANDLE SwapchainD3D12::RetrieveRenderTargetViewDescriptorHandle() const
-	{
-		return m_RenderTargetViewDescriptorHandles.at(m_CurrentBufferIndex);
-	}
-
-	Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveDepthBufferHandle()
-	{
-		return m_DepthBuffer;
-	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE
-	SwapchainD3D12::RetrieveDepthBufferDescriptorHandle()
-	{
-		return m_DepthTextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	}
-
 	uint32_t SwapchainD3D12::GetColorAttachmentCount()
 	{
 		return 1;
-	}
-
-	const D3D12_RESOURCE_STATES SwapchainD3D12::GetCurrentTextureState() const
-	{
-		return m_CurrentTextureStates.at(m_CurrentBufferIndex);
-	}
-
-	const D3D12_RESOURCE_STATES SwapchainD3D12::GetCurrentDepthState() const
-	{
-		return m_CurrentDepthState;
-	}
-
-	void SwapchainD3D12::SetTextureState(D3D12_RESOURCE_STATES state)
-	{
-		m_CurrentTextureStates[m_CurrentBufferIndex] = state;
-	}
-
-	void SwapchainD3D12::SetDepthState(D3D12_RESOURCE_STATES state)
-	{
-		m_CurrentDepthState = state;
-	}
-
-	Ref<Framebuffer> SwapchainD3D12::GetMultisampledFramebuffer()
-	{
-		return m_MultisampledFramebuffer;
 	}
 
 	bool SwapchainD3D12::HasMultisampledFramebuffer() const
@@ -189,18 +133,12 @@ namespace Nexus::Graphics
 
 		// resize the swapchain
 		ResizeBuffers();
-		CreateDepthAttachment();
-		CreateMultisampledFramebuffer();
 	}
 
 	void SwapchainD3D12::ResizeBuffers()
 	{
 		// flush swapchain to ensure that buffers are not in use
 		Flush();
-
-		// we need to release the buffers retrieved from the swapchain before new ones
-		// can be created
-		ReleaseBuffers();
 
 		// resize the swapchains buffers
 		m_Swapchain->ResizeBuffers(BUFFER_COUNT,
@@ -220,7 +158,9 @@ namespace Nexus::Graphics
 		// loop through and retrieve the buffers from the swapchain
 		for (size_t i = 0; i < BUFFER_COUNT; ++i)
 		{
-			m_Swapchain->GetBuffer(i, IID_PPV_ARGS(&m_Buffers[i]));
+			Microsoft::WRL::ComPtr<ID3D12Resource2> buffer;
+
+			m_Swapchain->GetBuffer(i, IID_PPV_ARGS(&buffer));
 
 			Nexus::Graphics::TextureDescription desc = {};
 			desc.Width								 = m_SwapchainWidth;
@@ -228,31 +168,12 @@ namespace Nexus::Graphics
 			desc.DepthOrArrayLayers					 = 1;
 			desc.MipLevels							 = 1;
 			desc.Format								 = PixelFormat::R8_G8_B8_A8_UNorm;
-			Ref<TextureD3D12> texture				 = CreateRef<TextureD3D12>(m_Buffers[i], desc, m_Device);
-
-			D3D12_RENDER_TARGET_VIEW_DESC rtv;
-			rtv.Format				 = DXGI_FORMAT_R8G8B8A8_UNORM;
-			rtv.ViewDimension		 = D3D12_RTV_DIMENSION_TEXTURE2D;
-			rtv.Texture2D.MipSlice	 = 0;
-			rtv.Texture2D.PlaneSlice = 0;
-
-			d3d12Device->CreateRenderTargetView(m_Buffers[i].Get(), &rtv, m_RenderTargetViewDescriptorHandles[i]);
+			Ref<TextureD3D12> texture				 = CreateRef<TextureD3D12>(buffer, desc, m_Device);
 		}
 	}
 
-	void SwapchainD3D12::ReleaseBuffers()
+	void SwapchainD3D12::CreateFramebuffers()
 	{
-		// loop through retrieved buffers and clean them up
-		for (size_t i = 0; i < BUFFER_COUNT; ++i) { m_Buffers[i] = nullptr; }
-	}
-
-	void SwapchainD3D12::CreateColourAttachments()
-	{
-		// resize the buffer vector to a suitable size
-		m_Buffers.resize(BUFFER_COUNT);
-		m_RenderTargetViewDescriptorHandles.resize(BUFFER_COUNT);
-		m_CurrentTextureStates.clear();
-
 		// retrieve the window's native handle
 		NativeWindowInfo info = m_Window->GetNativeWindowInfo();
 		HWND			 hwnd = info.hwnd;
@@ -294,130 +215,8 @@ namespace Nexus::Graphics
 		// retrieve the ID3D12Device
 		const auto d3d12Device = m_Device->GetD3D12Device();
 
-		// create the descriptor heap
-		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
-		descriptorHeapDesc.Type			  = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		descriptorHeapDesc.NumDescriptors = BUFFER_COUNT;
-		descriptorHeapDesc.Flags		  = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		descriptorHeapDesc.NodeMask		  = 0;
-
-		d3d12Device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_RenderTargetViewDescriptorHeap));
-
-		// create handles to descriptor view
-		auto firstHandle	 = m_RenderTargetViewDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		auto handleIncrement = d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-		for (int i = 0; i < BUFFER_COUNT; ++i)
-		{
-			m_RenderTargetViewDescriptorHandles[i] = firstHandle;
-			m_RenderTargetViewDescriptorHandles[i].ptr += handleIncrement * i;
-			m_CurrentTextureStates.push_back(D3D12_RESOURCE_STATE_COMMON);
-		}
-
 		// get the buffers from the swapchain
 		GetBuffers();
-	}
-
-	void SwapchainD3D12::CreateDepthAttachment()
-	{
-		auto d3d12Device	= m_Device->GetD3D12Device();
-		auto size			= m_Window->GetWindowSize();
-		m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors			   = 1;
-		dsvHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		d3d12Device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_DepthTextureDescriptorHeap));
-
-		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-		depthStencilDesc.Format						   = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthStencilDesc.ViewDimension				   = D3D12_DSV_DIMENSION_TEXTURE2D;
-		depthStencilDesc.Flags						   = D3D12_DSV_FLAG_NONE;
-
-		D3D12_CLEAR_VALUE depthOptimizedClearValue	  = {};
-		depthOptimizedClearValue.Format				  = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthOptimizedClearValue.DepthStencil.Depth	  = 1.0f;
-		depthOptimizedClearValue.DepthStencil.Stencil = 0;
-
-		D3D12_HEAP_PROPERTIES heapProperties;
-		heapProperties.Type					= D3D12_HEAP_TYPE_DEFAULT;
-		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heapProperties.CreationNodeMask		= 0;
-		heapProperties.VisibleNodeMask		= 0;
-
-		D3D12_RESOURCE_DESC resourceDesc;
-		resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		resourceDesc.Alignment			= D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-		resourceDesc.Width				= size.X;
-		resourceDesc.Height				= size.Y;
-		resourceDesc.DepthOrArraySize	= 1;
-		resourceDesc.MipLevels			= 1;
-		resourceDesc.Format				= DXGI_FORMAT_D24_UNORM_S8_UINT;
-		resourceDesc.SampleDesc.Count	= 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resourceDesc.Flags				= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-		d3d12Device->CreateCommittedResource(&heapProperties,
-											 D3D12_HEAP_FLAG_NONE,
-											 &resourceDesc,
-											 m_CurrentDepthState,
-											 &depthOptimizedClearValue,
-											 IID_PPV_ARGS(&m_DepthBuffer));
-
-		d3d12Device->CreateDepthStencilView(m_DepthBuffer.Get(),
-											&depthStencilDesc,
-											m_DepthTextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	}
-
-	void SwapchainD3D12::CreateMultisampledFramebuffer()
-	{
-		Nexus::Graphics::FramebufferTextureCreateDescription desc;
-		desc.Width					 = m_SwapchainWidth;
-		desc.Height					 = m_SwapchainHeight;
-		desc.ColourAttachmentFormats = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-		desc.DepthAttachmentFormat	 = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
-		desc.Samples				 = m_Description.Samples;
-
-		GraphicsDevice *device	  = (GraphicsDevice *)m_Device;
-		m_MultisampledFramebuffer = device->CreateFramebuffer(desc);
-	}
-
-	void SwapchainD3D12::Resolve()
-	{
-		if (m_MultisampledFramebuffer->GetWidth() > GetWindow()->GetWindowSize().X)
-		{
-			return;
-		}
-
-		if (m_MultisampledFramebuffer->GetHeight() > GetWindow()->GetWindowSize().Y)
-		{
-			return;
-		}
-
-		Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTextureHandle());
-
-		DXGI_FORMAT			  format		   = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
-		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0, 0);
-		D3D12_RESOURCE_STATES swapchainState   = GetCurrentTextureState();
-
-		std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
-
-		auto swapchainTexture = RetrieveBufferHandle();
-
-		/*m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList7 *cmd)
-			{
-				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
-
-				cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetHandle().Get(), 0, format);
-
-				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, framebufferState);
-				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
-			});*/
 	}
 }	 // namespace Nexus::Graphics
 #endif

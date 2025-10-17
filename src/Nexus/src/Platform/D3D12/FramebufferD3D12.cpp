@@ -154,7 +154,7 @@ namespace Nexus::Graphics
 
 		for (const auto &colourAttachment : m_Description.ColourAttachments)
 		{
-			m_ColourAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.TargetTexture));
+			m_ColourAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ColourAttachment.TargetTexture));
 		}
 
 		if (m_Description.DepthAttachment.has_value())

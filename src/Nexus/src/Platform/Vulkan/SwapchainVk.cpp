@@ -338,10 +338,11 @@ namespace Nexus::Graphics
 			}
 
 			Graphics::FramebufferTextureSetDescription desc = {};
-			desc.ColourAttachments							= {colourAttachmentDesc};
-			desc.DepthAttachment							= depthAttachmentDesc;
+			desc.ColourAttachments							= {
+				 FramebufferColourAttachmentDescription {.ColourAttachment = colourAttachmentDesc, .ResolveAttachment = resolveAttachmentDescOpt}};
+			desc.DepthAttachment = depthAttachmentDesc;
 
-			Ref<FramebufferVk> framebuffer = CreateRef<FramebufferVk>(desc, m_GraphicsDevice, resolveAttachmentDescOpt);
+			Ref<FramebufferVk> framebuffer = CreateRef<FramebufferVk>(desc, m_GraphicsDevice);
 			m_Framebuffers.push_back(framebuffer);
 		}
 	}

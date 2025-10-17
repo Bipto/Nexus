@@ -74,28 +74,6 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<IDXGIFactory7> GetDXGIFactory() const;
 		Microsoft::WRL::ComPtr<ID3D12Device9> GetD3D12Device() const;
 
-		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-							 ID3D12Resource				*resource,
-							 uint32_t					 layer,
-							 uint32_t					 level,
-							 uint32_t					 mipCount,
-							 D3D12_RESOURCE_STATES		 before,
-							 D3D12_RESOURCE_STATES		 after);
-
-		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-							 Ref<TextureD3D12>			 resource,
-							 uint32_t					 layer,
-							 uint32_t					 level,
-							 D3D12_RESOURCE_STATES		 after);
-
-		void ResourceBarrierBuffer(ID3D12GraphicsCommandList7 *cmd,
-								   Ref<DeviceBufferD3D12>	   buffer,
-								   D3D12_RESOURCE_STATES	   before,
-								   D3D12_RESOURCE_STATES	   after);
-
-		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
-		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
-
 		bool Validate() final;
 
 		PixelFormatProperties	   GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;

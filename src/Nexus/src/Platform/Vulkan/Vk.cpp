@@ -960,78 +960,74 @@ namespace Nexus::Vk
 	{
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference>	 colourAttachmentReferences;
+		std::vector<VkAttachmentReference>	 resolveAttachmentReferences;
 		VkAttachmentReference				 depthAttachmentReference;
-		VkAttachmentReference				 resolveAttachmentReference;
 		size_t								 attachmentIndex = 0;
 
-		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
-		{
-			VkAttachmentDescription colourAttachment = {};
-			colourAttachment.format					 = colourAttachmentFormat;
-			colourAttachment.samples				 = desc.Samples;
-			colourAttachment.loadOp					 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.storeOp				 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.stencilLoadOp			 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.stencilStoreOp			 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.initialLayout			 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		bool usingMultisampling = false;
 
-			if (desc.IsSwapchain && desc.Samples != 1)
+		for (const auto &[colourFormat, resolveFormat] : desc.ColourAttachments)
+		{
+			VkAttachmentDescription &colourAttachment = attachments.emplace_back();
+			colourAttachment.format					  = colourFormat;
+			colourAttachment.samples				  = desc.Samples;
+			colourAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp				  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.stencilLoadOp			  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.stencilStoreOp			  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.initialLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachment.finalLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			VkAttachmentReference &attachmentReference = colourAttachmentReferences.emplace_back();
+			attachmentReference.attachment			   = attachmentIndex;
+			attachmentReference.layout				   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachmentIndex++;
+
+			// we have a valid resolve attachment
+			if (resolveFormat.has_value())
 			{
-				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				VkAttachmentDescription &resolveAttachment = attachments.emplace_back();
+				resolveAttachment.format				   = resolveFormat.value();
+				resolveAttachment.samples				   = VK_SAMPLE_COUNT_1_BIT;
+				resolveAttachment.loadOp				   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.stencilLoadOp			   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.stencilStoreOp		   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.initialLayout			   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				resolveAttachment.finalLayout			   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+				VkAttachmentReference &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.attachment			  = attachmentIndex;
+				resolveAttachmentReference.layout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				attachmentIndex++;
+
+				usingMultisampling = true;
 			}
+			// otherwise, we do not have a valid resolve attachment for this colour image
 			else
 			{
-				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				VkAttachmentReference &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.attachment			  = VK_ATTACHMENT_UNUSED;
+				resolveAttachmentReference.layout				  = VK_IMAGE_LAYOUT_UNDEFINED;
 			}
-
-			attachments.push_back(colourAttachment);
-
-			VkAttachmentReference attachmentReference = {};
-			attachmentReference.attachment			  = attachmentIndex;
-			attachmentReference.layout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachmentReferences.push_back(attachmentReference);
-
-			attachmentIndex++;
 		}
 
 		if (desc.DepthFormat)
 		{
 			VkFormat depthFormatVal = desc.DepthFormat.value();
 
-			VkAttachmentDescription depthAttachment = {};
-			depthAttachment.format					= depthFormatVal;
-			depthAttachment.samples					= desc.Samples;
-			depthAttachment.loadOp					= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.storeOp					= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.stencilLoadOp			= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.stencilStoreOp			= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.initialLayout			= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			depthAttachment.finalLayout				= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachments.push_back(depthAttachment);
+			VkAttachmentDescription &depthAttachment = attachments.emplace_back();
+			depthAttachment.format					 = depthFormatVal;
+			depthAttachment.samples					 = desc.Samples;
+			depthAttachment.loadOp					 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp					 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.stencilLoadOp			 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.stencilStoreOp			 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.initialLayout			 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout				 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 			depthAttachmentReference.attachment = attachmentIndex;
 			depthAttachmentReference.layout		= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-			attachmentIndex++;
-		}
-
-		if (desc.ResolveFormat)
-		{
-			VkFormat resolveFormatVal = desc.ResolveFormat.value();
-
-			VkAttachmentDescription resolveAttachment = {};
-			resolveAttachment.format				  = resolveFormatVal;
-			resolveAttachment.samples				  = VK_SAMPLE_COUNT_1_BIT;
-			resolveAttachment.loadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.storeOp				  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.stencilLoadOp			  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.stencilStoreOp		  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.initialLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			resolveAttachment.finalLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachments.push_back(resolveAttachment);
-
-			resolveAttachmentReference.attachment = attachmentIndex;
-			resolveAttachmentReference.layout	  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			attachmentIndex++;
 		}
@@ -1054,9 +1050,9 @@ namespace Nexus::Vk
 		subpassDescription.pPreserveAttachments	   = nullptr;
 		subpassDescription.pResolveAttachments	   = nullptr;
 
-		if (desc.ResolveFormat)
+		if (usingMultisampling)
 		{
-			subpassDescription.pResolveAttachments = &resolveAttachmentReference;
+			subpassDescription.pResolveAttachments = resolveAttachmentReferences.data();
 		}
 
 		std::vector<VkSubpassDependency> dependencies(1);
@@ -1084,85 +1080,91 @@ namespace Nexus::Vk
 
 	VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
-		std::vector<VkAttachmentDescription2KHR> attachments				= {};
-		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences = {};
-		VkAttachmentReference2KHR				 depthAttachmentReference	= {};
-		VkAttachmentReference2KHR				 resolveAttachmentReference = {};
-		size_t									 attachmentIndex			= 0;
+		std::vector<VkAttachmentDescription2KHR> attachments				 = {};
+		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences	 = {};
+		std::vector<VkAttachmentReference2KHR>	 resolveAttachmentReferences = {};
+		VkAttachmentReference2KHR				 depthAttachmentReference	 = {};
+		size_t									 attachmentIndex			 = 0;
 
-		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
+		bool usingMultisampling = false;
+
+		for (const auto &[colourFormat, resolveFormat] : desc.ColourAttachments)
 		{
-			VkAttachmentDescription2KHR colourAttachment = {};
-			colourAttachment.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
-			colourAttachment.pNext						 = nullptr;
-			colourAttachment.flags						 = 0;
-			colourAttachment.format						 = colourAttachmentFormat;
-			colourAttachment.samples					 = desc.Samples;
-			colourAttachment.loadOp						 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.storeOp					 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.stencilLoadOp				 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.stencilStoreOp				 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.initialLayout				 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachment.finalLayout				 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachments.push_back(colourAttachment);
+			VkAttachmentDescription2KHR &colourAttachment = attachments.emplace_back();
+			colourAttachment.sType						  = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			colourAttachment.pNext						  = nullptr;
+			colourAttachment.flags						  = 0;
+			colourAttachment.format						  = colourFormat;
+			colourAttachment.samples					  = desc.Samples;
+			colourAttachment.loadOp						  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.stencilLoadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.stencilStoreOp				  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.initialLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachment.finalLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-			VkAttachmentReference2KHR attachmentReference = {};
-			attachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
-			attachmentReference.pNext					  = nullptr;
-			attachmentReference.attachment				  = attachmentIndex;
-			attachmentReference.layout					  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachmentReferences.push_back(attachmentReference);
+			VkAttachmentReference2KHR &colourAttachmentReference = colourAttachmentReferences.emplace_back();
+			colourAttachmentReference.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+			colourAttachmentReference.pNext						 = nullptr;
+			colourAttachmentReference.attachment				 = attachmentIndex;
+			colourAttachmentReference.layout					 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			attachmentIndex++;
+
+			if (resolveFormat.has_value())
+			{
+				VkAttachmentDescription2KHR &resolveAttachment = attachments.emplace_back();
+				resolveAttachment.sType						   = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+				resolveAttachment.pNext						   = nullptr;
+				resolveAttachment.flags						   = 0;
+				resolveAttachment.format					   = resolveFormat.value();
+				resolveAttachment.samples					   = VK_SAMPLE_COUNT_1_BIT;
+				resolveAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.storeOp					   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.stencilLoadOp				   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.stencilStoreOp			   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.initialLayout				   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				resolveAttachment.finalLayout				   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+				VkAttachmentReference2KHR &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+				resolveAttachmentReference.pNext					  = nullptr;
+				resolveAttachmentReference.attachment				  = attachmentIndex;
+				resolveAttachmentReference.layout					  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				attachmentIndex++;
+
+				usingMultisampling = true;
+			}
+			else
+			{
+				VkAttachmentReference2KHR &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+				resolveAttachmentReference.pNext					  = nullptr;
+				resolveAttachmentReference.attachment				  = VK_ATTACHMENT_UNUSED;
+				resolveAttachmentReference.layout					  = VK_IMAGE_LAYOUT_UNDEFINED;
+			}
 		}
 
 		if (desc.DepthFormat)
 		{
 			VkFormat depthFormat = desc.DepthFormat.value();
 
-			VkAttachmentDescription2KHR depthAttachment = {};
-			depthAttachment.sType						= VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
-			depthAttachment.pNext						= nullptr;
-			depthAttachment.flags						= 0;
-			depthAttachment.format						= depthFormat;
-			depthAttachment.samples						= desc.Samples;
-			depthAttachment.loadOp						= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.storeOp						= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.stencilLoadOp				= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.stencilStoreOp				= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.initialLayout				= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			depthAttachment.finalLayout					= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachments.push_back(depthAttachment);
+			VkAttachmentDescription2KHR &depthAttachment = attachments.emplace_back();
+			depthAttachment.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			depthAttachment.pNext						 = nullptr;
+			depthAttachment.flags						 = 0;
+			depthAttachment.format						 = depthFormat;
+			depthAttachment.samples						 = desc.Samples;
+			depthAttachment.loadOp						 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp						 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.stencilLoadOp				 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.stencilStoreOp				 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.initialLayout				 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout					 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 			depthAttachmentReference.sType		= VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
 			depthAttachmentReference.pNext		= nullptr;
 			depthAttachmentReference.attachment = attachmentIndex;
 			depthAttachmentReference.layout		= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-			attachmentIndex++;
-		}
-
-		if (desc.ResolveFormat)
-		{
-			VkFormat resolveFormat = desc.ResolveFormat.value();
-
-			VkAttachmentDescription2KHR resolveAttachment = {};
-			resolveAttachment.sType						  = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
-			resolveAttachment.pNext						  = nullptr;
-			resolveAttachment.flags						  = 0;
-			resolveAttachment.format					  = resolveFormat;
-			resolveAttachment.samples					  = VK_SAMPLE_COUNT_1_BIT;
-			resolveAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.stencilLoadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.stencilStoreOp			  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.initialLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			resolveAttachment.finalLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachments.push_back(resolveAttachment);
-
-			resolveAttachmentReference.sType	  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
-			resolveAttachmentReference.pNext	  = nullptr;
-			resolveAttachmentReference.attachment = attachmentIndex;
-			resolveAttachmentReference.layout	  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			attachmentIndex++;
 		}
@@ -1187,9 +1189,9 @@ namespace Nexus::Vk
 		subpassDescription.pPreserveAttachments	   = nullptr;
 		subpassDescription.pResolveAttachments	   = nullptr;
 
-		if (desc.ResolveFormat)
+		if (usingMultisampling)
 		{
-			subpassDescription.pResolveAttachments = &resolveAttachmentReference;
+			subpassDescription.pResolveAttachments = resolveAttachmentReferences.data();
 		}
 
 		std::vector<VkSubpassDependency2KHR> dependencies(1);
@@ -1239,16 +1241,19 @@ namespace Nexus::Vk
 	{
 		std::vector<VkImageView> attachments = {};
 
-		for (VkImageView colourView : desc.ColourImageViews) { attachments.push_back(colourView); }
+		for (auto [colourView, resolveView] : desc.ColourImageViews)
+		{
+			attachments.push_back(colourView);
+
+			if (resolveView.has_value())
+			{
+				attachments.push_back(resolveView.value());
+			}
+		}
 
 		if (desc.DepthImageView)
 		{
 			attachments.push_back(desc.DepthImageView);
-		}
-
-		if (desc.ResolveImageView)
-		{
-			attachments.push_back(desc.ResolveImageView);
 		}
 
 		VkFramebufferCreateInfo createInfo = {};

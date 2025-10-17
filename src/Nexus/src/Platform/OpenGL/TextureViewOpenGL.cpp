@@ -37,6 +37,10 @@ namespace Nexus::Graphics
 
 	TextureViewOpenGL::~TextureViewOpenGL()
 	{
+		if (m_Handle)
+		{
+			GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
+		}
 	}
 
 	const TextureViewDescription &TextureViewOpenGL::GetDescription() const

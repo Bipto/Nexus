@@ -1434,24 +1434,19 @@ namespace Nexus::Graphics
 		// attach colour textures
 		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount(); colourAttachmentIndex++)
 		{
-			FramebufferTextureDescription textureBinding = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
+			FramebufferColourAttachmentDescription textureBinding = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
 
-			//// handle the case of submitting a swapchain with multisampling
-			// if (framebuffer->HasResolveAttachment())
-			//{
-			//	textureBinding = framebuffer->GetResolveAttachmentBinding().value();
-			// }
+			Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(textureBinding.ColourAttachment.TargetTexture);
+			TextureLayout  layout =
+				texture->GetTextureLayout(textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel);
 
-			Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(textureBinding.TargetTexture);
-			TextureLayout  layout  = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
-
-			FramebufferTextureDescription colourAttachmentDesc = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
+			FramebufferColourAttachmentDescription colourAttachmentDesc = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
 
 			VulkanTextureViewInfo viewInfo = {};
-			viewInfo.BaseMipLevel		   = colourAttachmentDesc.MipLevel;
+			viewInfo.BaseMipLevel		   = colourAttachmentDesc.ColourAttachment.MipLevel;
 			viewInfo.LevelCount			   = 1;
-			viewInfo.BaseArrayLayer		   = colourAttachmentDesc.BaseArrayLayer;
-			viewInfo.LayerCount			   = colourAttachmentDesc.LayerCount;
+			viewInfo.BaseArrayLayer		   = colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
+			viewInfo.LayerCount			   = colourAttachmentDesc.ColourAttachment.LayerCount;
 
 			VkRenderingAttachmentInfo colourAttachment = {};
 			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -1462,9 +1457,9 @@ namespace Nexus::Graphics
 			colourAttachment.clearValue				   = {};
 
 			// handle the case of submitting a swapchain with multisampling
-			if (framebuffer->HasResolveAttachment())
+			if (colourAttachmentDesc.ResolveAttachment.has_value())
 			{
-				FramebufferTextureDescription resolveDesc		= framebuffer->GetResolveAttachmentBinding().value();
+				FramebufferTextureDescription resolveDesc		= colourAttachmentDesc.ResolveAttachment.value();
 				Ref<TextureVk>				  resolveAttachment = std::dynamic_pointer_cast<TextureVk>(resolveDesc.TargetTexture);
 				TextureLayout				  resolveLayout = resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
 
@@ -1548,11 +1543,6 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer)
 	{
 		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
-
-		if (vulkanFramebuffer->HasResolveAttachment())
-		{
-			FramebufferTextureDescription resolveDesc = vulkanFramebuffer->GetResolveAttachmentBinding().value();
-		}
 
 		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 		if (features.DynamicRenderingAvailable)

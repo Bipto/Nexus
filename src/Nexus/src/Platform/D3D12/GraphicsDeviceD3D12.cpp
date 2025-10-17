@@ -224,7 +224,8 @@ namespace Nexus::Graphics
 		QueueFamilyInfo &info = queueFamilies.emplace_back();
 		info.QueueFamily	  = 0;
 		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
-		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
+		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer |
+											  QueueCapabilities::SparseBinding | QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode);
 
 		return queueFamilies;
 	}
@@ -247,77 +248,6 @@ namespace Nexus::Graphics
 			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
 			fence->Reset();
 		}
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-											  ID3D12Resource			 *resource,
-											  uint32_t					  layer,
-											  uint32_t					  level,
-											  uint32_t					  mipCount,
-											  D3D12_RESOURCE_STATES		  before,
-											  D3D12_RESOURCE_STATES		  after)
-	{
-		if (before == after)
-		{
-			return;
-		}
-
-		uint32_t subresourceIndex = Utils::CalculateSubresource(layer, level, mipCount);
-
-		D3D12_RESOURCE_BARRIER barrier = {};
-		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.pResource   = resource;
-		barrier.Transition.Subresource = subresourceIndex;
-		barrier.Transition.StateBefore = before;
-		barrier.Transition.StateAfter  = after;
-		cmd->ResourceBarrier(1, &barrier);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-											  Ref<TextureD3D12>			  resource,
-											  uint32_t					  layer,
-											  uint32_t					  level,
-											  D3D12_RESOURCE_STATES		  after)
-	{
-		D3D12_RESOURCE_STATES resourceState = resource->GetResourceState(layer, level);
-		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetDescription().MipLevels, resourceState, after);
-		resource->SetResourceState(layer, level, after);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrierBuffer(ID3D12GraphicsCommandList7 *cmd,
-													Ref<DeviceBufferD3D12>		buffer,
-													D3D12_RESOURCE_STATES		before,
-													D3D12_RESOURCE_STATES		after)
-	{
-		auto resourceHandle = buffer->GetHandle();
-
-		D3D12_RESOURCE_BARRIER barrier = {};
-		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.pResource   = resourceHandle.Get();
-		barrier.Transition.StateBefore = before;
-		barrier.Transition.StateAfter  = after;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-		cmd->ResourceBarrier(1, &barrier);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd,
-															 Ref<SwapchainD3D12>		 resource,
-															 D3D12_RESOURCE_STATES		 after)
-	{
-		ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, 0, 1, resource->GetCurrentTextureState(), after);
-		resource->SetTextureState(after);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd,
-															Ref<SwapchainD3D12>			resource,
-															D3D12_RESOURCE_STATES		after)
-	{
-		Microsoft::WRL::ComPtr<ID3D12Resource2> handle = resource->RetrieveDepthBufferHandle();
-		ResourceBarrier(cmd, handle.Get(), 0, 0, 1, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		resource->SetDepthState(after);
 	}
 
 	bool GraphicsDeviceD3D12::Validate()

@@ -30,20 +30,9 @@ namespace Nexus::Graphics
 		PixelFormat				 GetColourFormat() final;
 		PixelFormat				 GetDepthFormat() final;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveBufferHandle();
-		uint32_t								GetCurrentBufferIndex();
+		uint32_t GetCurrentBufferIndex();
 
-		const D3D12_CPU_DESCRIPTOR_HANDLE RetrieveRenderTargetViewDescriptorHandle() const;
-
-		Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveDepthBufferHandle();
-		D3D12_CPU_DESCRIPTOR_HANDLE				RetrieveDepthBufferDescriptorHandle();
-
-		uint32_t					GetColorAttachmentCount();
-		const D3D12_RESOURCE_STATES GetCurrentTextureState() const;
-		const D3D12_RESOURCE_STATES GetCurrentDepthState() const;
-		void						SetTextureState(D3D12_RESOURCE_STATES state);
-		void						SetDepthState(D3D12_RESOURCE_STATES state);
-		Ref<Framebuffer>			GetMultisampledFramebuffer();
+		uint32_t GetColorAttachmentCount();
 
 		bool HasMultisampledFramebuffer() const;
 
@@ -54,13 +43,8 @@ namespace Nexus::Graphics
 		void RecreateSwapchainIfNecessary();
 		void ResizeBuffers();
 		void GetBuffers();
-		void ReleaseBuffers();
 
-		void CreateColourAttachments();
-		void CreateDepthAttachment();
-		void CreateMultisampledFramebuffer();
-
-		void Resolve();
+		void CreateFramebuffers();
 
 	  private:
 		IWindow								   *m_Window	   = nullptr;
@@ -71,19 +55,10 @@ namespace Nexus::Graphics
 		uint32_t m_SwapchainWidth  = 0;
 		uint32_t m_SwapchainHeight = 0;
 
-		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource2>> m_Buffers;
-		uint32_t											 m_CurrentBufferIndex			  = 0;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>		 m_RenderTargetViewDescriptorHeap = nullptr;
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>			 m_RenderTargetViewDescriptorHandles;
+		uint32_t m_CurrentBufferIndex = 0;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource2>		 m_DepthBuffer				  = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthTextureDescriptorHeap = nullptr;
-
-		std::vector<D3D12_RESOURCE_STATES> m_CurrentTextureStates;
-		D3D12_RESOURCE_STATES			   m_CurrentDepthState;
-
-		Nexus::Ref<Framebuffer> m_MultisampledFramebuffer = nullptr;
-		UINT					m_SyncInterval			  = 0;
+		std::vector<Ref<Framebuffer>> m_SwapchainFramebuffers = {};
+		UINT						  m_SyncInterval		  = 0;
 	};
 }	 // namespace Nexus::Graphics
 #endif

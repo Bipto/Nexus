@@ -358,22 +358,22 @@ namespace Nexus::Graphics
 			// transition colour attachment layouts
 			for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
 			{
-				std::optional<FramebufferTextureDescription> colourAttachmentOpt = framebuffer->GetColorTextureBinding(i);
+				std::optional<FramebufferColourAttachmentDescription> colourAttachmentOpt = framebuffer->GetColorTextureBinding(i);
 				if (colourAttachmentOpt.has_value())
 				{
-					FramebufferTextureDescription colourAttachment = colourAttachmentOpt.value();
+					FramebufferColourAttachmentDescription colourAttachment = colourAttachmentOpt.value();
 
 					TextureBarrierDesc barrierDesc = {};
-					barrierDesc.Texture			   = colourAttachment.TargetTexture;
+					barrierDesc.Texture			   = colourAttachment.ColourAttachment.TargetTexture;
 					barrierDesc.BeforeAccess	   = BarrierAccess::None;
 					barrierDesc.AfterAccess		   = BarrierAccess::ColourAttachmentWrite;
 					barrierDesc.BeforeStage		   = BarrierPipelineStage::None;
 					barrierDesc.AfterStage		   = BarrierPipelineStage::ColourAttachmentOutput;
 					barrierDesc.Layout			   = TextureLayout::ColourAttachmentOptimal;
-					barrierDesc.SubresourceRange   = {.BaseMipLevel	  = colourAttachment.MipLevel,
+					barrierDesc.SubresourceRange   = {.BaseMipLevel	  = colourAttachment.ColourAttachment.MipLevel,
 													  .LevelCount	  = 1,
-													  .BaseArrayLayer = colourAttachment.BaseArrayLayer,
-													  .LayerCount	  = colourAttachment.LayerCount};
+													  .BaseArrayLayer = colourAttachment.ColourAttachment.BaseArrayLayer,
+													  .LayerCount	  = colourAttachment.ColourAttachment.LayerCount};
 
 					SubmitTextureBarrier(barrierDesc);
 				}
@@ -511,7 +511,7 @@ namespace Nexus::Graphics
 		Graphics::TextureBarrierDesc barrierDesc = {};
 		barrierDesc.Texture						 = bufferTextureCopy.TextureHandle;
 		barrierDesc.BeforeAccess				 = BarrierAccess::None;
-		barrierDesc.AfterAccess					 = BarrierAccess::None;
+		barrierDesc.AfterAccess					 = BarrierAccess::HostWrite;
 		barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
 		barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
 		barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
@@ -540,7 +540,7 @@ namespace Nexus::Graphics
 		Graphics::TextureBarrierDesc barrierDesc = {};
 		barrierDesc.Texture						 = textureBufferCopy.TextureHandle;
 		barrierDesc.BeforeAccess				 = BarrierAccess::None;
-		barrierDesc.AfterAccess					 = BarrierAccess::None;
+		barrierDesc.AfterAccess					 = BarrierAccess::HostRead;
 		barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
 		barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
 		barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
