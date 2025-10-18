@@ -433,8 +433,8 @@ namespace Nexus::Graphics
 			WeakRef<Swapchain> sc = command.GetSwapchain();
 			if (Ref<SwapchainOpenGL> swapchain = std::dynamic_pointer_cast<SwapchainOpenGL>(sc.lock()))
 			{
-				swapchain->BindAsDrawTarget();
-				GL::SetCurrentContext(swapchain->GetViewContext());
+				Ref<Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+				ExecuteCommand(RenderTarget(framebuffer), device);
 			}
 		}
 		else
@@ -616,7 +616,7 @@ namespace Nexus::Graphics
 				}
 				else
 				{
-					GL::CopyTextureToTexture(sourceTexture, destTexture, copyDesc, context);
+					GL::CopyTextureToTexture(copyDesc, context);
 				}
 			});
 	}

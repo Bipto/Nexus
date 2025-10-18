@@ -476,7 +476,7 @@ namespace Nexus::Vk
 		throw std::runtime_error("Failed to find a valid image view type");
 	}
 
-	bool IsSingleShaderStage(Graphics::ShaderStage stage)
+	static bool IsSingleShaderStage(Graphics::ShaderStage stage)
 	{
 		uint16_t value = static_cast<uint16_t>(stage);
 		return value != 0 && (value & (value - 1)) == 0;
@@ -599,7 +599,7 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
+	static VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
 	{
 		VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
@@ -956,13 +956,13 @@ namespace Nexus::Vk
 		return rangeInfo;
 	}
 
-	VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
+	static VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
-		std::vector<VkAttachmentDescription> attachments;
-		std::vector<VkAttachmentReference>	 colourAttachmentReferences;
-		std::vector<VkAttachmentReference>	 resolveAttachmentReferences;
-		VkAttachmentReference				 depthAttachmentReference;
-		size_t								 attachmentIndex = 0;
+		std::vector<VkAttachmentDescription> attachments				 = {};
+		std::vector<VkAttachmentReference>	 colourAttachmentReferences	 = {};
+		std::vector<VkAttachmentReference>	 resolveAttachmentReferences = {};
+		VkAttachmentReference				 depthAttachmentReference	 = {};
+		size_t								 attachmentIndex			 = 0;
 
 		bool usingMultisampling = false;
 
@@ -1078,7 +1078,7 @@ namespace Nexus::Vk
 		return renderPass;
 	}
 
-	VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
+	static VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
 		std::vector<VkAttachmentDescription2KHR> attachments				 = {};
 		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences	 = {};
@@ -1241,7 +1241,7 @@ namespace Nexus::Vk
 	{
 		std::vector<VkImageView> attachments = {};
 
-		for (auto [colourView, resolveView] : desc.ColourImageViews)
+		for (const auto &[colourView, resolveView] : desc.ColourImageViews)
 		{
 			attachments.push_back(colourView);
 
@@ -1496,7 +1496,7 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	VkDescriptorType GetDescriptorType(Graphics::ShaderResource resource)
+	static VkDescriptorType GetDescriptorType(Graphics::ShaderResource resource)
 	{
 		switch (resource.Type)
 		{

@@ -37,7 +37,7 @@ namespace Nexus::Graphics
 		m_Device->WaitForIdle();
 	}
 
-	void SwapchainD3D12::SwapBuffers()
+	void SwapchainD3D12::SwapBuffers(const SwapchainPresentDescription &presentDesc)
 	{
 		// swap the swapchain's buffers and present to the display
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain1;

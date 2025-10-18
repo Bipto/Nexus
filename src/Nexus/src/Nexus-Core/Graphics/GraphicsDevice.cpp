@@ -234,11 +234,14 @@ namespace Nexus::Graphics
 				resolveTextureDesc.Samples			  = 1;
 				resolveTextureDesc.Format			  = format;
 
-				Ref<Texture> resolveAttachment						   = CreateTexture(resolveTextureDesc);
-				framebufferTextureDesc.ColourAttachment.TargetTexture  = resolveAttachment;
-				framebufferTextureDesc.ColourAttachment.BaseArrayLayer = 0;
-				framebufferTextureDesc.ColourAttachment.LayerCount	   = 1;
-				framebufferTextureDesc.ColourAttachment.MipLevel	   = 0;
+				Ref<Texture> resolveAttachment = CreateTexture(resolveTextureDesc);
+
+				FramebufferTextureDescription resolveAttachmentDesc = {};
+				resolveAttachmentDesc.TargetTexture					= resolveAttachment;
+				resolveAttachmentDesc.BaseArrayLayer				= 0;
+				resolveAttachmentDesc.LayerCount					= 1;
+				resolveAttachmentDesc.MipLevel						= 0;
+				framebufferTextureDesc.ResolveAttachment			= resolveAttachmentDesc;
 			}
 		}
 

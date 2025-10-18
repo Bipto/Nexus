@@ -37,7 +37,7 @@ namespace Nexus::Graphics
 		context.DestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
 	}
 
-	void SwapchainVk::SwapBuffers()
+	void SwapchainVk::SwapBuffers(const SwapchainPresentDescription &presentDesc)
 	{
 		NX_PROFILE_FUNCTION();
 

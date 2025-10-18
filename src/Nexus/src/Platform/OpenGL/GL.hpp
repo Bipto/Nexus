@@ -103,10 +103,7 @@ namespace Nexus::GL
 
 	void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context);
 
-	void CopyTextureToTexture(Ref<Graphics::TextureOpenGL>			  source,
-							  Ref<Graphics::TextureOpenGL>			  destination,
-							  const Graphics::TextureCopyDescription &copyDesc,
-							  const GladGLContext					 &context);
+	void CopyTextureToTexture(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context);
 
 	/// @brief Function that loads required OpenGL functions,
 	// this function should be called by IGraphicsAPI

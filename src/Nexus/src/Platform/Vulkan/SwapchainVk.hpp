@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainVk();
 
-		void					 SwapBuffers() final;
+		void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
 		Ref<Framebuffer>		 GetCurrentFramebuffer() final;
 		void					 SetPresentMode(PresentMode presentMode) final;
 		Nexus::Point2D<uint32_t> GetSize() final;

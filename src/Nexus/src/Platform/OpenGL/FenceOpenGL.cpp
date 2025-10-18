@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 
 	bool FenceOpenGL::IsSignalled() const
 	{
-		GLint status;
+		GLint status = -1;
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.GetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status); });
 		return status == GL_SIGNALED;
 	}
@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	GLsync FenceOpenGL::GetHandle()
+	GLsync FenceOpenGL::GetHandle() const
 	{
 		return m_Sync;
 	}

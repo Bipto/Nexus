@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/Rectangle.hpp"
+
 namespace Nexus::Graphics
 {
 	/// @brief An enum class representing how two pixels should be compared against
@@ -334,5 +336,10 @@ namespace Nexus::Graphics
 		uint32_t MipLevel		= 0;
 		uint32_t BaseArrayLayer = 0;
 		uint32_t LayerCount		= 0;
+	};
+
+	struct SwapchainPresentDescription
+	{
+		std::vector<Rectangle<uint32_t>> PresentRects = {};
 	};
 }	 // namespace Nexus::Graphics

@@ -169,7 +169,7 @@ namespace Nexus::Graphics
 			copyDesc.DestinationMipLevel			  = mip - m_Description.Range.BaseMipLevel;
 			copyDesc.Extent							  = {mipWidth, mipHeight, m_Description.Range.LayerCount};
 
-			GL::CopyTextureToTexture(source, m_EmulatedTextureView, copyDesc, context);
+			GL::CopyTextureToTexture(copyDesc, context);
 		}
 	}
 }	 // namespace Nexus::Graphics

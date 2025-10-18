@@ -115,8 +115,6 @@ namespace Nexus::Graphics
 	void TextureOpenGL::CreateTextureFacesDSA(const GladGLContext &context)
 	{
 		context.CreateTextures(m_TextureType, 1, &m_Handle);
-		context.TextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		context.TextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		context.PixelStorei(GL_PACK_ALIGNMENT, 1);
 		context.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -184,8 +182,6 @@ namespace Nexus::Graphics
 		glCall(context.BindTexture(m_TextureType, m_Handle));
 		glCall(context.PixelStorei(GL_PACK_ALIGNMENT, 1));
 		glCall(context.PixelStorei(GL_UNPACK_ALIGNMENT, 1));
-		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
 		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
 		{

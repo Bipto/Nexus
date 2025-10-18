@@ -4,7 +4,6 @@
 #include "Nexus-Core/Timings/Timespan.hpp"
 #include "Platform/OpenGL/GL.hpp"
 
-
 namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
@@ -18,7 +17,7 @@ namespace Nexus::Graphics
 		bool					IsSignalled() const final;
 		const FenceDescription &GetDescription() const final;
 
-		GLsync GetHandle();
+		GLsync GetHandle() const;
 		void   Reset();
 		GLenum Wait(TimeSpan timeout);
 
@@ -28,7 +27,7 @@ namespace Nexus::Graphics
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device		= nullptr;
-		FenceDescription m_Description = {};
-		GLsync			 m_Sync		   = {};
+		FenceDescription	  m_Description = {};
+		GLsync				  m_Sync		= {};
 	};
 }	 // namespace Nexus::Graphics

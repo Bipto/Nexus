@@ -280,7 +280,7 @@ class DemoApplication : public Nexus::Application
 
 		{
 			NX_PROFILE_SCOPE("CommandQueue::Present");
-			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers(Nexus::Graphics::SwapchainPresentDescription {});
 		}
 	}
 
@@ -310,10 +310,9 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.GraphicsCreateInfo.Debug = true;
-
-	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
 	spec.WindowProperties.Height		   = 720;

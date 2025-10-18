@@ -278,7 +278,7 @@ namespace Nexus::ImGuiUtils
 						if (swapchain)
 						{
 							RenderDrawData(platform_io.Viewports[i]->DrawData);
-							swapchain->SwapBuffers();
+							swapchain->SwapBuffers(Graphics::SwapchainPresentDescription {});
 						}
 					}
 				}
