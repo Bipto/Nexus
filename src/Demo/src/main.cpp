@@ -310,18 +310,19 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.GraphicsCreateInfo.Debug = true;
-	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
-	spec.WindowProperties.Width			   = 1280;
-	spec.WindowProperties.Height		   = 720;
+	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+
+	spec.WindowProperties.Width			   = 1920;
+	spec.WindowProperties.Height		   = 1080;
 	spec.WindowProperties.Title			   = "Demo";
 	spec.WindowProperties.Resizable		   = true;
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 8;
+	spec.SwapchainDescription.Samples		   = 1;
 	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";

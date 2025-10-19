@@ -72,6 +72,7 @@ namespace Nexus::Graphics
 	  private:
 		Ref<ShaderModule>		 CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
 		std::vector<std::string> GetSupportedExtensions(const GladGLContext &context);
+		void					 GetFeatures();
 
 		PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 

@@ -90,6 +90,7 @@ namespace Nexus::GL
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
+				// copy the sections requested
 				if (presentDesc.PresentRects.size() > 0)
 				{
 					for (const auto &rect : presentDesc.PresentRects)
@@ -110,6 +111,7 @@ namespace Nexus::GL
 						GL::CopyTextureToTexture(copyDesc, context);
 					}
 				}
+				// copy the full image
 				else
 				{
 					Graphics::TextureCopyDescription copyDesc = {};

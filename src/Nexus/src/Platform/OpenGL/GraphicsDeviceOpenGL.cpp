@@ -52,6 +52,8 @@ namespace Nexus::Graphics
 				}
 	#endif
 			});
+
+		GetFeatures();
 	}
 
 	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
@@ -93,6 +95,34 @@ namespace Nexus::Graphics
 		}
 
 		return extensions;
+	}
+
+	void GraphicsDeviceOpenGL::GetFeatures()
+	{
+		GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
+		GL::SetCurrentContext(offscreenContext);
+
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				m_Features.SupportsGeometryShaders	   = context.ARB_geometry_shader4 || context.EXT_geometry_shader == 1;
+				m_Features.SupportsTesselationShaders  = context.ARB_tessellation_shader == 1;
+				m_Features.SupportsComputeShaders	   = context.ARB_compute_shader == 1;
+				m_Features.SupportsStorageBuffers	   = context.ARB_buffer_storage == 1;
+				m_Features.SupportsMultiviewport	   = context.OVR_multiview == 1;
+				m_Features.SupportsSamplerAnisotropy   = context.ARB_texture_filter_anisotropic == 1 || context.EXT_texture_filter_anisotropic == 1;
+				m_Features.SupportsETC2Compression	   = context.ARB_ES3_compatibility == 1;
+				m_Features.SupportsASTC_LDRCompression = context.KHR_texture_compression_astc_ldr == 1;
+				m_Features.SupportsBCCompression	   = context.EXT_texture_compression_s3tc == 1 || context.ARB_texture_compression_bptc == 1;
+
+				// This may need revisiting
+				m_Features.SupportShaderStorageImageMultisample = context.ARB_shader_image_load_store == 1;
+
+				m_Features.SupportsCubemapArray		  = context.ARB_texture_cube_map_array == 1 || context.EXT_texture_cube_map_array == 1;
+				m_Features.SupportsIndependentBlend	  = context.ARB_draw_buffers_blend == 1 || context.EXT_draw_buffers_indexed == 1;
+				m_Features.SupportsMeshTaskShaders	  = context.EXT_mesh_shader == 1;
+				m_Features.SupportsDepthBoundsTesting = context.EXT_depth_bounds_test == 1;
+			});
 	}
 
 	PixelFormatProperties GraphicsDeviceOpenGL::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const

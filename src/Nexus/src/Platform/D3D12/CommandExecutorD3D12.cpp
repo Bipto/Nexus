@@ -225,7 +225,7 @@ namespace Nexus::Graphics
 			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
 				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH, command.Stride);
 
-			m_CommandList->ExecuteIndirect(signature.Get(), 1, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 		}
 	}
 
@@ -328,8 +328,9 @@ namespace Nexus::Graphics
 	{
 		if (command.GetType() == RenderTargetType::Swapchain)
 		{
-			WeakRef<Swapchain> swapchain = command.GetSwapchain();
-			SetSwapchain(swapchain, device);
+			Ref<Swapchain> swapchain = command.GetSwapchain().lock();
+			// SetSwapchain(swapchain, device);
+			SetFramebuffer(swapchain->GetCurrentFramebuffer(), device);
 		}
 		else
 		{

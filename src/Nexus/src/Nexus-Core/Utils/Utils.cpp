@@ -297,7 +297,7 @@ namespace Nexus::Utils
 	{
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Upload;
-		bufferDesc.Usage									= BUFFER_USAGE_NONE;
+		bufferDesc.Usage									= Graphics::BufferUsage::None;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
 

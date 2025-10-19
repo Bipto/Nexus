@@ -26,6 +26,11 @@ namespace Nexus::Graphics
 		D3D12_RESOURCE_FLAGS	 flags	   = D3D12::GetResourceFlags(spec);
 		m_TextureFormat					   = D3D12::GetD3D12PixelFormat(spec.Format);
 
+		if (spec.Width == 0)
+		{
+			int x = 0;
+		}
+
 		D3D12_RESOURCE_DESC textureDesc = {};
 		textureDesc.Dimension			= dimension;
 		textureDesc.Alignment			= 0;

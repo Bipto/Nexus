@@ -57,13 +57,42 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::vector<VkRectLayerKHR> presentRectLayers = {};
+
+		for (const Rectangle<uint32_t> &rect : presentDesc.PresentRects)
+		{
+			VkRectLayerKHR rectLayer = {};
+			rectLayer.offset.x		 = static_cast<int32_t>(rect.GetLeft());
+			rectLayer.offset.y		 = static_cast<int32_t>(rect.GetRight());
+			rectLayer.extent.width	 = rect.GetWidth();
+			rectLayer.extent.height	 = rect.GetHeight();
+			rectLayer.layer			 = 0;
+			presentRectLayers.push_back(rectLayer);
+		}
+
+		VkPresentRegionKHR region = {};
+		region.pRectangles		  = presentRectLayers.data();
+		region.rectangleCount	  = static_cast<uint32_t>(presentRectLayers.size());
+
+		VkPresentRegionsKHR presentRegions = {};
+		presentRegions.sType			   = VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR;
+		presentRegions.pNext			   = nullptr;
+		presentRegions.swapchainCount	   = 1;
+		presentRegions.pRegions			   = &region;
+
 		VkPresentInfoKHR presentInfo   = {};
 		presentInfo.sType			   = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.pNext			   = nullptr;
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores	   = &m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
 		presentInfo.swapchainCount	   = 1;
 		presentInfo.pSwapchains		   = &m_Swapchain;
 		presentInfo.pImageIndices	   = &m_CurrentFrameIndex;
+
+		if (presentDesc.PresentRects.size() > 0 && context.KHR_incremental_present)
+		{
+			presentInfo.pNext = &presentRegions;
+		}
 
 		VkResult result = context.QueuePresentKHR(vkQueue, &presentInfo);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
@@ -302,19 +331,17 @@ namespace Nexus::Graphics
 
 			if (m_Description.Samples != 1)
 			{
-				colourAttachmentDesc.MipLevel		  = 0;
-				colourAttachmentDesc.BaseArrayLayer	  = 0;
-				colourAttachmentDesc.LayerCount		  = 1;
-				colourAttachmentDesc.TargetTexture	  = m_ResolveAttachment;
-				colourAttachmentDesc.OwnedBySwapchain = false;
+				colourAttachmentDesc.MipLevel		= 0;
+				colourAttachmentDesc.BaseArrayLayer = 0;
+				colourAttachmentDesc.LayerCount		= 1;
+				colourAttachmentDesc.TargetTexture	= m_ResolveAttachment;
 			}
 			else
 			{
-				colourAttachmentDesc.MipLevel		  = 0;
-				colourAttachmentDesc.BaseArrayLayer	  = 0;
-				colourAttachmentDesc.LayerCount		  = 1;
-				colourAttachmentDesc.TargetTexture	  = m_ColourAttachments.at(i);
-				colourAttachmentDesc.OwnedBySwapchain = true;
+				colourAttachmentDesc.MipLevel		= 0;
+				colourAttachmentDesc.BaseArrayLayer = 0;
+				colourAttachmentDesc.LayerCount		= 1;
+				colourAttachmentDesc.TargetTexture	= m_ColourAttachments.at(i);
 			}
 
 			Graphics::FramebufferTextureDescription depthAttachmentDesc = {};
@@ -322,7 +349,6 @@ namespace Nexus::Graphics
 			depthAttachmentDesc.BaseArrayLayer							= 0;
 			depthAttachmentDesc.LayerCount								= 1;
 			depthAttachmentDesc.TargetTexture							= m_DepthAttachment;
-			depthAttachmentDesc.OwnedBySwapchain						= false;
 
 			std::optional<FramebufferTextureDescription> resolveAttachmentDescOpt = {};
 
@@ -333,14 +359,14 @@ namespace Nexus::Graphics
 				resolveAttachmentDesc.BaseArrayLayer						  = 0;
 				resolveAttachmentDesc.LayerCount							  = 1;
 				resolveAttachmentDesc.TargetTexture							  = m_ColourAttachments.at(i);
-				resolveAttachmentDesc.OwnedBySwapchain						  = true;
 				resolveAttachmentDescOpt									  = resolveAttachmentDesc;
 			}
 
 			Graphics::FramebufferTextureSetDescription desc = {};
 			desc.ColourAttachments							= {
 				 FramebufferColourAttachmentDescription {.ColourAttachment = colourAttachmentDesc, .ResolveAttachment = resolveAttachmentDescOpt}};
-			desc.DepthAttachment = depthAttachmentDesc;
+			desc.DepthAttachment  = depthAttachmentDesc;
+			desc.OwnedBySwapchain = true;
 
 			Ref<FramebufferVk> framebuffer = CreateRef<FramebufferVk>(desc, m_GraphicsDevice);
 			m_Framebuffers.push_back(framebuffer);

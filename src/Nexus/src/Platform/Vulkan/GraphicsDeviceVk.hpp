@@ -104,17 +104,6 @@ namespace Nexus::Graphics
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
 
 	  private:
-		// utility functions
-		VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-		void		CreateImage(uint32_t			  width,
-								uint32_t			  height,
-								VkFormat			  format,
-								VkImageTiling		  tiling,
-								VkImageUsageFlags	  usage,
-								VkMemoryPropertyFlags properties,
-								VkImage				 &image,
-								VkDeviceMemory		 &imageMemory);
-
 		std::vector<const char *> GetRequiredDeviceExtensions();
 		std::vector<std::string>  GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 

@@ -646,6 +646,12 @@ namespace Nexus::Vk
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		}
 
+		if ((desc.Usage & Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly) &&
+			device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+		{
+			flags |= VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
+		}
+
 		return flags;
 	}
 

@@ -44,6 +44,7 @@ namespace Nexus::Graphics
 		void ResizeBuffers();
 		void GetBuffers();
 
+		void ReleaseBuffers();
 		void CreateFramebuffers();
 
 	  private:

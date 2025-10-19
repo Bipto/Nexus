@@ -454,6 +454,8 @@ namespace Nexus::GL
 			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return GL_TESS_EVALUATION_SHADER;
 			case Nexus::Graphics::ShaderStage::Fragment: return GL_FRAGMENT_SHADER;
 			case Nexus::Graphics::ShaderStage::Vertex: return GL_VERTEX_SHADER;
+			case Nexus::Graphics::ShaderStage::Mesh: return GL_MESH_SHADER_EXT;
+			case Nexus::Graphics::ShaderStage::Task: return GL_TASK_SHADER_EXT;
 
 			default: throw std::runtime_error("Failed to find a valid shader stage");
 		}

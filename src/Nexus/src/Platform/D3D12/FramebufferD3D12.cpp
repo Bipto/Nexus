@@ -121,10 +121,10 @@ namespace Nexus::Graphics
 			cpuHandle.ptr += incrementSize;
 		}
 
-		m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
 		if (m_Description.DepthAttachment.has_value())
 		{
+			m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
 			auto &texture = m_DepthAttachment;
 
 			D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};

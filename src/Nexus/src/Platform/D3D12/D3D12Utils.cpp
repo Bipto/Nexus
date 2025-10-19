@@ -1233,8 +1233,7 @@ namespace Nexus::D3D12
 
 		// create the D3D12 root signature
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-		rootSignatureDesc.Flags =
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		rootSignatureDesc.Flags				= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 		rootSignatureDesc.NumStaticSamplers = 0;
 		rootSignatureDesc.pStaticSamplers	= nullptr;
 		rootSignatureDesc.NumParameters		= rootParameters.size();

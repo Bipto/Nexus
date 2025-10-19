@@ -210,7 +210,7 @@ namespace Nexus::Graphics
 						else
 						{
 							uint32_t indirectOffset = command.Offset;
-							for (uint32_t i = 0; i < command.DrawCount; i++)
+							for (size_t i = 0; i < command.DrawCount; i++)
 							{
 								context.DrawArraysIndirect(topology, (const void *)(uint64_t)indirectOffset);
 							}
@@ -264,8 +264,8 @@ namespace Nexus::Graphics
 										   }
 										   else
 										   {
-											   uint32_t indirectOffset = command.Offset;
-											   for (uint32_t i = 0; i < command.DrawCount; i++)
+											   size_t indirectOffset = command.Offset;
+											   for (size_t i = 0; i < command.DrawCount; i++)
 											   {
 												   context.DrawElementsIndirect(
 													   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
@@ -334,10 +334,63 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)
 	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+
+	#if !defined(__EMSCRIPTEN__)
+		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				pipeline->Bind(context);
+				BindResourceSet(m_BoundResourceSet, context);
+
+				if (context.DrawMeshTasksEXT)
+				{
+					context.DrawMeshTasksEXT(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+				}
+			});
+
+	#endif
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)
 	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+
+	#if !defined(__EMSCRIPTEN__)
+		Ref<PipelineOpenGL>		pipeline	   = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
+
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				pipeline->Bind(context);
+				BindResourceSet(m_BoundResourceSet, context);
+
+				context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+
+				if (context.MultiDrawMeshTasksIndirectEXT)
+				{
+					context.MultiDrawMeshTasksIndirectEXT((GLintptr)command.Offset, command.DrawCount, command.Stride);
+				}
+				else if (context.DrawMeshTasksIndirectEXT)
+				{
+					size_t indirectOffset = command.Offset;
+					for (uint32_t i = 0; i < command.DrawCount; i++) { context.DrawMeshTasksIndirectEXT((GLintptr)indirectOffset); }
+					indirectOffset += command.Stride;
+				}
+
+				context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+			});
+
+	#endif
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
@@ -409,16 +462,6 @@ namespace Nexus::Graphics
 	void CommandExecutorOpenGL::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
 	{
 		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
-
-		if (m_CurrentRenderTarget.has_value())
-		{
-			RenderTarget target = m_CurrentRenderTarget.value();
-			if (target.GetType() == RenderTargetType::Swapchain)
-			{
-				Nexus::GL::IOffscreenContext *offscreenContext = deviceGL->GetOffscreenContext();
-				GL::SetCurrentContext(offscreenContext);
-			}
-		}
 
 		if (command.GetType() == RenderTargetType::Framebuffer)
 		{
@@ -623,33 +666,13 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device)
 	{
-		// if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
-		// so we have to fix this by running all debug group functions from the GraphicsDevice context
-		GL::IGLContext *previousContext = GL::GetCurrentContext();
-
-		GraphicsDeviceOpenGL							 *deviceGL		 = (GraphicsDeviceOpenGL *)device;
-		Nexus::Ref<Nexus::Graphics::PhysicalDeviceOpenGL> physicalDevice = deviceGL->GetPhysicalDeviceOpenGL();
-		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
-
 		GL::ExecuteGLCommands([&](const GladGLContext &context)
 							  { glCall(context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str())); });
-
-		GL::SetCurrentContext(previousContext);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device)
 	{
-		// if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
-		// so we have to fix this by running all debug group functions from the GraphicsDevice context
-		GL::IGLContext *previousContext = GL::GetCurrentContext();
-
-		GraphicsDeviceOpenGL							 *deviceGL		 = (GraphicsDeviceOpenGL *)device;
-		Nexus::Ref<Nexus::Graphics::PhysicalDeviceOpenGL> physicalDevice = deviceGL->GetPhysicalDeviceOpenGL();
-		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
-
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.PopDebugGroup(); });
-
-		GL::SetCurrentContext(previousContext);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device)

@@ -435,74 +435,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
-	{
-		VkImageViewCreateInfo viewInfo			 = {};
-		viewInfo.sType							 = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image							 = image;
-		viewInfo.viewType						 = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format							 = format;
-		viewInfo.subresourceRange.aspectMask	 = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel	 = 0;
-		viewInfo.subresourceRange.levelCount	 = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount	 = 1;
-
-		VkImageView imageView;
-		if (m_Context.CreateImageView(m_Device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create texture image view");
-		}
-		return imageView;
-	}
-
-	void GraphicsDeviceVk::CreateImage(uint32_t				 width,
-									   uint32_t				 height,
-									   VkFormat				 format,
-									   VkImageTiling		 tiling,
-									   VkImageUsageFlags	 usage,
-									   VkMemoryPropertyFlags properties,
-									   VkImage				&image,
-									   VkDeviceMemory		&imageMemory)
-	{
-		VkImageCreateInfo imageInfo = {};
-		imageInfo.sType				= VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType			= VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width		= width;
-		imageInfo.extent.height		= height;
-		imageInfo.extent.depth		= 1;
-		imageInfo.mipLevels			= 1;
-		imageInfo.arrayLayers		= 1;
-		imageInfo.format			= format;
-		imageInfo.tiling			= tiling;
-		imageInfo.initialLayout		= VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage				= usage;
-		imageInfo.samples			= VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.sharingMode		= VK_SHARING_MODE_EXCLUSIVE;
-
-		if (m_Context.CreateImage(m_Device, &imageInfo, nullptr, &image) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create image");
-		}
-
-		VkMemoryRequirements memRequirements;
-		m_Context.GetImageMemoryRequirements(m_Device, image, &memRequirements);
-
-		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType				   = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize	   = memRequirements.size;
-		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDeviceVk);
-
-		if (m_Context.AllocateMemory(m_Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to allocate image memory");
-		}
-
-		m_Context.BindImageMemory(m_Device, image, imageMemory, 0);
-	}
-
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
 	{
 		std::vector<const char *> extensions;
@@ -511,9 +443,24 @@ namespace Nexus::Graphics
 		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEVICE_GROUP_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_KHR_DEVICE_GROUP_EXTENSION_NAME);
-		}
 
-		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
+			// incremental present extension to support custom present rectangles
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME);
+			}
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME);
+
+				// swapchain maintenance1 extension to support changing present modes without recreating the swapchain
+				if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
+				}
+			}
+		}
 
 		// this is used for vkCmdBindVertexBuffers2	{
 		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
@@ -615,11 +562,14 @@ namespace Nexus::Graphics
 			}
 		}
 
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
-			}
+			extensions.push_back(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME);
 		}
 
 		return extensions;

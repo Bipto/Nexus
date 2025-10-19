@@ -46,9 +46,20 @@ namespace Nexus::Graphics
 
 		if (SUCCEEDED(hr))
 		{
+			std::vector<RECT> presentRects = {};
+
+			for (const auto &rect : presentDesc.PresentRects)
+			{
+				RECT &presentRect  = presentRects.emplace_back();
+				presentRect.left   = rect.GetLeft();
+				presentRect.top	   = rect.GetTop();
+				presentRect.right  = rect.GetRight();
+				presentRect.bottom = rect.GetBottom();
+			}
+
 			DXGI_PRESENT_PARAMETERS presentParams = {};
-			presentParams.DirtyRectsCount		  = 0;
-			presentParams.pDirtyRects			  = nullptr;
+			presentParams.DirtyRectsCount		  = presentRects.size();
+			presentParams.pDirtyRects			  = presentRects.data();
 			presentParams.pScrollOffset			  = nullptr;
 			presentParams.pScrollRect			  = nullptr;
 
@@ -67,7 +78,7 @@ namespace Nexus::Graphics
 
 	Ref<Framebuffer> SwapchainD3D12::GetCurrentFramebuffer()
 	{
-		return nullptr;
+		return m_SwapchainFramebuffers.at(m_CurrentBufferIndex);
 	}
 
 	void SwapchainD3D12::SetPresentMode(PresentMode presentMode)
@@ -120,8 +131,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::RecreateSwapchainIfNecessary()
 	{
-		auto windowWidth  = m_Window->GetWindowSize().X;
-		auto windowHeight = m_Window->GetWindowSize().Y;
+		const auto &[windowWidth, windowHeight] = m_Window->GetWindowSizeInPixels();
 
 		// if the size of the window is the same, we do not need to do anything and
 		// can return
@@ -140,6 +150,10 @@ namespace Nexus::Graphics
 		// flush swapchain to ensure that buffers are not in use
 		Flush();
 
+		// we need to release the buffers retrieved from the swapchain before new ones
+		// can be created
+		ReleaseBuffers();
+
 		// resize the swapchains buffers
 		m_Swapchain->ResizeBuffers(BUFFER_COUNT,
 								   m_SwapchainWidth,
@@ -153,6 +167,8 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::GetBuffers()
 	{
+		m_SwapchainFramebuffers.clear();
+		m_SwapchainFramebuffers.resize(BUFFER_COUNT);
 		const auto d3d12Device = m_Device->GetD3D12Device();
 
 		// loop through and retrieve the buffers from the swapchain
@@ -162,14 +178,69 @@ namespace Nexus::Graphics
 
 			m_Swapchain->GetBuffer(i, IID_PPV_ARGS(&buffer));
 
-			Nexus::Graphics::TextureDescription desc = {};
-			desc.Width								 = m_SwapchainWidth;
-			desc.Height								 = m_SwapchainHeight;
-			desc.DepthOrArrayLayers					 = 1;
-			desc.MipLevels							 = 1;
-			desc.Format								 = PixelFormat::R8_G8_B8_A8_UNorm;
-			Ref<TextureD3D12> texture				 = CreateRef<TextureD3D12>(buffer, desc, m_Device);
+			Nexus::Graphics::TextureDescription swapchainTextureDesc = {};
+			swapchainTextureDesc.Width								 = m_SwapchainWidth;
+			swapchainTextureDesc.Height								 = m_SwapchainHeight;
+			swapchainTextureDesc.DepthOrArrayLayers					 = 1;
+			swapchainTextureDesc.MipLevels							 = 1;
+			swapchainTextureDesc.Samples							 = 1;
+			swapchainTextureDesc.Format								 = PixelFormat::R8_G8_B8_A8_UNorm;
+			swapchainTextureDesc.Usage								 = Graphics::TextureUsage_ColourAttachment;
+			swapchainTextureDesc.DebugName							 = "Swapchain Colour Texture";
+			Ref<TextureD3D12> swapchainTexture						 = CreateRef<TextureD3D12>(buffer, swapchainTextureDesc, m_Device);
+
+			Graphics::TextureDescription depthAttachmentDesc = {};
+			depthAttachmentDesc.Width						 = m_SwapchainWidth;
+			depthAttachmentDesc.Height						 = m_SwapchainHeight;
+			depthAttachmentDesc.DepthOrArrayLayers			 = 1;
+			depthAttachmentDesc.MipLevels					 = 1;
+			depthAttachmentDesc.Samples						 = m_Description.Samples;
+			depthAttachmentDesc.Format						 = PixelFormat::D24_UNorm_S8_UInt;
+			depthAttachmentDesc.Usage						 = Graphics::TextureUsage_DepthStencilAttachment;
+			depthAttachmentDesc.DebugName					 = "Swapchain Depth Texture";
+			Ref<TextureD3D12> depthAttachment				 = CreateRef<TextureD3D12>(depthAttachmentDesc, m_Device);
+
+			Graphics::FramebufferTextureSetDescription framebufferDesc = {};
+
+			// create a multisampled framebuffer
+			if (m_Description.Samples > 1)
+			{
+				// create the multisampled texture
+				Graphics::TextureDescription multisampledDesc = swapchainTextureDesc;
+				multisampledDesc.Samples					  = m_Description.Samples;
+				multisampledDesc.DebugName					  = "Swapchain Multisampled Colour Texture";
+				Ref<TextureD3D12> multisampledTexture		  = CreateRef<TextureD3D12>(multisampledDesc, m_Device);
+
+				framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription {
+					.ColourAttachment =
+						FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = multisampledTexture},
+					.ResolveAttachment =
+						FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTexture}}};
+				framebufferDesc.DepthAttachment	  = {
+					  FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
+
+				framebufferDesc.OwnedBySwapchain = true;
+
+				m_SwapchainFramebuffers[i] = m_Device->CreateFramebuffer(framebufferDesc);
+			}
+			// create a single sampled framebuffer (no need for a resolve attachment)
+			else
+			{
+				framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription {
+					.ColourAttachment {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTexture}}};
+				framebufferDesc.DepthAttachment	  = {
+					  FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
+
+				framebufferDesc.OwnedBySwapchain = true;
+
+				m_SwapchainFramebuffers[i] = m_Device->CreateFramebuffer(framebufferDesc);
+			}
 		}
+	}	 // namespace Nexus::Graphics
+
+	void SwapchainD3D12::ReleaseBuffers()
+	{
+		m_SwapchainFramebuffers.clear();
 	}
 
 	void SwapchainD3D12::CreateFramebuffers()
@@ -179,7 +250,7 @@ namespace Nexus::Graphics
 		HWND			 hwnd = info.hwnd;
 
 		// create the swapchain
-		auto windowSize = m_Window->GetWindowSize();
+		auto windowSize = m_Window->GetWindowSizeInPixels();
 
 		// set up properties for the swapchain
 		DXGI_SWAP_CHAIN_DESC1 swapchainDesc {};
