@@ -107,7 +107,7 @@ namespace Nexus::Graphics
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
+			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->SetViewport(viewport);
 			m_CommandList->SetScissor(scissor);
 

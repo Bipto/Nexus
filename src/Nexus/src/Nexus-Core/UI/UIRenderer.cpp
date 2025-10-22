@@ -33,7 +33,9 @@ namespace Nexus::UI
 		scissor.Width  = window->GetWindowSize().X;
 		scissor.Height = window->GetWindowSize().Y;
 
-		m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()), vp, scissor);
+		Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+		Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+		m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
 		RenderControl(m_BatchRenderer.get(), root);
 

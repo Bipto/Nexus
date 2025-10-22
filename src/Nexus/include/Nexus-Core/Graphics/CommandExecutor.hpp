@@ -13,13 +13,13 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device) = 0;
 		virtual void Reset()															   = 0;
 
-		bool ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, std::optional<RenderTarget> renderTarget);
+		bool ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, Ref<Framebuffer> renderTarget);
 		bool ValidateForComputeCall(std::optional<WeakRef<Pipeline>> pipeline);
-		bool ValidateForClearColour(std::optional<RenderTarget> target, uint32_t colourIndex);
-		bool ValidateForClearDepth(std::optional<RenderTarget> target);
-		bool ValidateForSetViewport(std::optional<RenderTarget> target, const Viewport &viewport);
-		bool ValidateForSetScissor(std::optional<RenderTarget> target, const Scissor &scissor);
-		bool ValidateForResolveToSwapchain(const ResolveSamplesToSwapchainCommand &command);
+		bool ValidateForClearColour(Ref<Framebuffer> target, uint32_t colourIndex);
+		bool ValidateForClearDepth(Ref<Framebuffer> target);
+		bool ValidateForSetViewport(Ref<Framebuffer> target, const Viewport &viewport);
+		bool ValidateForSetScissor(Ref<Framebuffer> target, const Scissor &scissor);
+		bool ValidateForResolve(const ResolveTextureDescription &command);
 
 		virtual void ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)							 = 0;
@@ -35,10 +35,10 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)										 = 0;
 		virtual void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)					 = 0;
-		virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device)											 = 0;
+		virtual void ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)									 = 0;
 		virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device)										 = 0;
 		virtual void ExecuteCommand(const Scissor &command, GraphicsDevice *device)											 = 0;
-		virtual void ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device)				 = 0;
+		virtual void ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)						 = 0;
 		virtual void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device)							 = 0;
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)						 = 0;
@@ -58,5 +58,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)								 = 0;
 		virtual void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)								 = 0;
 		virtual void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)								 = 0;
+		virtual void ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)								 = 0;
 	};
 };	  // namespace Nexus::Graphics

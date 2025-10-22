@@ -14,12 +14,12 @@ namespace Nexus::Graphics
 		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, commandQueue, true, 1);
 	}
 
-	void SceneRenderer::Render(Scene *scene, RenderTarget &target, TimeSpan time)
+	void SceneRenderer::Render(Scene *scene, Ref<Framebuffer> target, TimeSpan time)
 	{
 		m_Renderer3D->Begin(scene, target, time);
 		m_Renderer3D->End();
 
-		Point2D<uint32_t> targetSize = target.GetSize();
+		Point2D<uint32_t> targetSize = target->GetSize();
 
 		Nexus::Graphics::Viewport vp = {};
 		vp.X						 = 0;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RenderTarget.hpp"
 #include "ResourceSet.hpp"
 #include "Scissor.hpp"
 #include "ShaderModule.hpp"

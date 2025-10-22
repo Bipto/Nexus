@@ -73,6 +73,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -101,6 +103,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -130,6 +134,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (command.expired())
 		{
 			NX_ERROR("Attempting to bind an invalid pipeline");
@@ -161,6 +167,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -174,6 +182,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -192,6 +202,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -207,6 +219,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -222,6 +236,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
@@ -233,6 +249,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
@@ -248,6 +266,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -265,6 +285,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -284,6 +306,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		WeakRef<Pipeline> pl = m_CurrentlyBoundPipeline.lock();
 		if (auto pipeline = pl.lock())
 		{
@@ -295,6 +319,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index) || !ValidateIsRendering())
 		{
 			return;
@@ -332,6 +358,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForClearDepth(m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
@@ -368,37 +396,22 @@ namespace Nexus::Graphics
 		context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)
 	{
 		StopRendering();
 
-		m_CurrentRenderTarget = command;
-		m_RenderSize		  = {m_CurrentRenderTarget.GetSize().X, m_CurrentRenderTarget.GetSize().Y};
-
-		if (m_CurrentRenderTarget.GetType() == RenderTargetType::Swapchain)
+		if (auto framebuffer = command.lock())
 		{
-			WeakRef<Swapchain> sc = m_CurrentRenderTarget.GetSwapchain();
-			if (auto swapchain = sc.lock())
-			{
-				StartRenderingToSwapchain(swapchain);
-			}
-		}
-		else if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
-		{
-			WeakRef<Framebuffer> fb = m_CurrentRenderTarget.GetFramebuffer();
-			if (auto framebuffer = fb.lock())
-			{
-				StartRenderingToFramebuffer(framebuffer);
-			}
-		}
-		else
-		{
-			throw std::runtime_error("Invalid render target type");
+			StartRenderingToFramebuffer(framebuffer);
+			m_CurrentRenderTarget = framebuffer;
+			m_RenderSize		  = {framebuffer->GetWidth(), framebuffer->GetHeight()};
 		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForSetViewport(m_CurrentRenderTarget, command))
 		{
 			return;
@@ -421,6 +434,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
 	{
+		TryStartRendering();
+
 		if (!ValidateForSetScissor(m_CurrentRenderTarget, command))
 		{
 			return;
@@ -434,48 +449,106 @@ namespace Nexus::Graphics
 		context.CmdSetScissor(m_CommandBuffer, 0, 1, &rect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)
 	{
-		/*if (!ValidateForResolveToSwapchain(command))
+		if (!ValidateForResolve(command))
 		{
 			return;
 		}
 
 		StopRendering();
 
-		auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(command.Source);
-		auto swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(command.Target);
+		auto source		 = std::dynamic_pointer_cast<TextureVk>(command.Source);
+		auto destination = std::dynamic_pointer_cast<TextureVk>(command.Destination);
 
-		VkImage framebufferImage = framebufferVk->GetVulkanColourTexture(command.SourceIndex)->GetImage();
-		VkImage swapchainImage	 = swapchainVk->GetColourImage();
+		Point2D<uint32_t> size = Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
-		VkImageSubresourceLayers src;
-		src.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
-		src.baseArrayLayer = 0;
-		src.layerCount	   = 1;
-		src.mipLevel	   = 0;
+		VkImageSubresourceLayers srcSubresource = {};
+		srcSubresource.aspectMask	  = source->IsDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		srcSubresource.mipLevel		  = command.SourceMipLevel;
+		srcSubresource.baseArrayLayer = 0;
+		srcSubresource.layerCount	  = 1;
 
-		VkImageSubresourceLayers dst;
-		dst.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
-		dst.baseArrayLayer = 0;
-		dst.layerCount	   = 1;
-		dst.mipLevel	   = 0;
+		if (source->GetType() != TextureType::Texture3D)
+		{
+			srcSubresource.baseArrayLayer = command.SourceArrayLayer;
+		}
 
-		VkImageResolve resolve;
-		resolve.dstOffset	   = {0, 0, 0};
-		resolve.dstSubresource = dst;
-		resolve.extent		   = {framebufferVk->GetWidth(), framebufferVk->GetHeight(), 1};
-		resolve.srcOffset	   = {0, 0, 0};
-		resolve.srcSubresource = src;
+		VkOffset3D srcOffset = {};
+		srcOffset.x			 = 0;
+		srcOffset.y			 = 0;
+		srcOffset.z			 = 0;
 
-		VkImageLayout framebufferLayout =
-			Vk::GetImageLayout(m_Device, framebufferVk->GetVulkanColourTexture(command.SourceIndex)->GetTextureLayout(0, 0));
-		VkImageLayout swapchainLayout = swapchainVk->GetColorImageLayout();
+		if (source->GetType() == TextureType::Texture3D)
+		{
+			srcOffset.z = command.SourceArrayLayer;
+		}
+
+		VkImageSubresourceLayers dstSubresource = {};
+		dstSubresource.aspectMask	  = destination->IsDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		dstSubresource.mipLevel		  = command.DestinationMipLevel;
+		dstSubresource.baseArrayLayer = 0;
+		dstSubresource.layerCount	  = 1;
+
+		if (destination->GetType() != TextureType::Texture3D)
+		{
+			dstSubresource.baseArrayLayer = command.DestinationArrayLayer;
+		}
+
+		VkOffset3D dstOffset = {};
+		dstOffset.x			 = 0;
+		dstOffset.y			 = 0;
+		dstOffset.z			 = 0;
+
+		if (destination->GetType() == TextureType::Texture3D)
+		{
+			dstOffset.z = command.DestinationArrayLayer;
+		}
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
-		context.CmdResolveImage(m_CommandBuffer, framebufferImage, framebufferLayout, swapchainImage, swapchainLayout, 1, &resolve);
 
-		ExecuteCommand(m_CurrentRenderTarget, device);*/
+		if (context.CmdResolveImage2KHR)
+		{
+			VkImageResolve2KHR resolve = {};
+			resolve.sType			   = VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR;
+			resolve.pNext			   = nullptr;
+			resolve.srcOffset		   = srcOffset;
+			resolve.dstOffset		   = dstOffset;
+			resolve.extent			   = {size.X, size.Y, 1};
+			resolve.srcSubresource	   = srcSubresource;
+			resolve.dstSubresource	   = dstSubresource;
+
+			VkResolveImageInfo2KHR resolveInfo = {};
+			resolveInfo.sType				   = VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2_KHR;
+			resolveInfo.pNext				   = nullptr;
+			resolveInfo.srcImage			   = source->GetImage();
+			resolveInfo.srcImageLayout		   = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			resolveInfo.dstImage			   = destination->GetImage();
+			resolveInfo.dstImageLayout		   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			resolveInfo.regionCount			   = 1;
+			resolveInfo.pRegions			   = &resolve;
+
+			context.CmdResolveImage2KHR(m_CommandBuffer, &resolveInfo);
+		}
+		else
+		{
+			VkImageResolve resolve = {};
+			resolve.srcOffset	   = srcOffset;
+			resolve.dstOffset	   = dstOffset;
+			resolve.extent		   = {size.X, size.Y, 1};
+			resolve.srcSubresource = srcSubresource;
+			resolve.dstSubresource = dstSubresource;
+
+			context.CmdResolveImage(m_CommandBuffer,
+									source->GetImage(),
+									VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+									destination->GetImage(),
+									VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+									1,
+									&resolve);
+		}
+
+		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
@@ -868,7 +941,7 @@ namespace Nexus::Graphics
 		else
 		{
 			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
-			if (std::holds_alternative<RenderTarget>(data))
+			if (std::holds_alternative<WeakRef<Framebuffer>>(data))
 			{
 				StopRendering();
 			}
@@ -1050,8 +1123,6 @@ namespace Nexus::Graphics
 
 			context.CmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 1, &barrier, 0, nullptr, 0, nullptr);
 		}
-
-		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
@@ -1119,6 +1190,9 @@ namespace Nexus::Graphics
 					range.range.levelCount		  = mipLevelCount;
 					range.layout				  = currentLayout;
 					currentLayout				  = layout;
+
+					arrayLayerCount = 1;
+					mipLevelCount	= 1;
 				}
 			}
 		}
@@ -1211,7 +1285,17 @@ namespace Nexus::Graphics
 									   imageBarriers.data());
 		}
 
-		ExecuteCommand(m_CurrentRenderTarget, device);
+		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+			 arrayLayer++)
+		{
+			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+				 mipLevel++)
+			{
+				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
+			}
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
@@ -1283,8 +1367,10 @@ namespace Nexus::Graphics
 
 			context.CmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 0, nullptr, 1, &barrier, 0, nullptr);
 		}
+	}
 
-		ExecuteCommand(m_CurrentRenderTarget, device);
+	void CommandExecutorVk::ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)
+	{
 	}
 
 	void BeginRenderPass(GraphicsDeviceVk			 *device,
@@ -1307,118 +1393,6 @@ namespace Nexus::Graphics
 		{
 			context.CmdBeginRenderPass(commandBuffer, &beginInfo, subpassContents);
 		}
-	}
-
-	void BeginDynamicRenderingToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
-	{
-		/*VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
-
-		VkRect2D renderArea;
-		renderArea.offset = {0, 0};
-		renderArea.extent = swapchainSize;
-
-		VkRenderingAttachmentInfo colourAttachment = {};
-		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-
-		if (swapchain->GetDescription().Samples == 1)
-		{
-			colourAttachment.imageView	 = swapchain->GetColourImageView();
-			colourAttachment.imageLayout = swapchain->GetColorImageLayout();
-		}
-		else
-		{
-			swapchain->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-
-			colourAttachment.imageView	 = swapchain->GetResolveImageView();
-			colourAttachment.imageLayout = swapchain->GetResolveImageLayout();
-
-			colourAttachment.resolveImageView	= swapchain->GetColourImageView();
-			colourAttachment.resolveImageLayout = swapchain->GetColorImageLayout();
-			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
-		}
-
-		colourAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
-		colourAttachment.storeOp	= VK_ATTACHMENT_STORE_OP_STORE;
-		colourAttachment.clearValue = {};
-
-		VkRenderingAttachmentInfo depthAttachment = {};
-		depthAttachment.sType					  = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-		depthAttachment.imageView				  = swapchain->GetDepthImageView();
-		depthAttachment.imageLayout				  = swapchain->GetDepthImageLayout();
-		depthAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
-		depthAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
-		depthAttachment.clearValue				  = {};
-
-		VkRenderingInfo renderingInfo	   = {};
-		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
-		renderingInfo.renderArea		   = renderArea;
-		renderingInfo.layerCount		   = 1;
-		renderingInfo.colorAttachmentCount = 1;
-		renderingInfo.pColorAttachments	   = &colourAttachment;
-		renderingInfo.pDepthAttachment	   = &depthAttachment;
-
-		const GladVulkanContext &context = device->GetVulkanContext();
-		context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);*/
-	}
-
-	void BeginRenderPassToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
-	{
-		/*VkFramebuffer framebuffer = swapchain->GetFramebuffer();
-		VkRenderPass  renderpass  = swapchain->GetRenderPass();
-		VkExtent2D	  renderSize  = swapchain->GetSwapchainSize();
-
-		NX_VALIDATE(framebuffer, "Invalid framebuffer");
-		NX_VALIDATE(renderpass, "Invalid renderpass");
-		NX_VALIDATE(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
-
-		VkRenderPassBeginInfo beginInfo = {};
-		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		beginInfo.pNext					= nullptr;
-		beginInfo.renderPass			= renderpass;
-		beginInfo.framebuffer			= framebuffer;
-		beginInfo.renderArea.offset		= {0, 0};
-		beginInfo.renderArea.extent		= renderSize;
-		beginInfo.clearValueCount		= 0;
-		beginInfo.pClearValues			= nullptr;
-
-		VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
-
-		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);*/
-	}
-
-	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
-	{
-		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-		// const auto		&swapchainDesc = swapchainVk->GetDescription();
-
-		// swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		// swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
-		// if (swapchainDesc.Samples != 1)
-		//{
-		//	/*m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-		//										  swapchainVk->GetResolveImage(),
-		//										  0,
-		//										  0,
-		//										  swapchainVk->GetResolveImageLayout(),
-		//										  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-		//										  VK_IMAGE_ASPECT_COLOR_BIT);
-		//	swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);*/
-		// }
-
-		// const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
-		// if (features.DynamicRenderingAvailable)
-		//{
-		//	BeginDynamicRenderingToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
-		// }
-		// else
-		//{
-		//	BeginRenderPassToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
-		// }
-
-		// m_Rendering = true;
-
-		StartRenderingToFramebuffer(swapchain->GetCurrentFramebuffer());
 	}
 
 	void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
@@ -1593,28 +1567,14 @@ namespace Nexus::Graphics
 		auto						vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock());
 		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
 
-		if (Ref<Swapchain> swapchain = m_CurrentRenderTarget.GetSwapchain().lock())
-		{
-			Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-
-			VkRenderPass renderPass = VK_NULL_HANDLE;
-
-			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
-			if (!features.DynamicRenderingAvailable)
-			{
-				Ref<FramebufferVk> framebuffer = std::dynamic_pointer_cast<FramebufferVk>(swapchainVk->GetCurrentFramebuffer());
-				renderPass					   = framebuffer->GetRenderPass();
-				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
-			}
-		}
-		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
+		if (m_CurrentRenderTarget)
 		{
 			VkRenderPass renderPass = VK_NULL_HANDLE;
 
 			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 			if (!features.DynamicRenderingAvailable)
 			{
-				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget);
 				renderPass						 = framebufferVk->GetRenderPass();
 				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
@@ -1622,6 +1582,17 @@ namespace Nexus::Graphics
 		else
 		{
 			throw std::runtime_error("Failed to find a valid render target type");
+		}
+	}
+
+	void CommandExecutorVk::TryStartRendering()
+	{
+		if (!m_Rendering)
+		{
+			if (m_CurrentRenderTarget)
+			{
+				StartRenderingToFramebuffer(m_CurrentRenderTarget);
+			}
 		}
 	}
 }	 // namespace Nexus::Graphics

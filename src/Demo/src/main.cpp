@@ -267,7 +267,9 @@ class DemoApplication : public Nexus::Application
 			NX_PROFILE_SCOPE("Clear Screen");
 			m_CommandList->Begin();
 
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
@@ -310,13 +312,13 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
-	spec.WindowProperties.Width			   = 1920;
-	spec.WindowProperties.Height		   = 1080;
+	spec.WindowProperties.Width			   = 1280;
+	spec.WindowProperties.Height		   = 720;
 	spec.WindowProperties.Title			   = "Demo";
 	spec.WindowProperties.Resizable		   = true;
 	spec.WindowProperties.RendersPerSecond = {};

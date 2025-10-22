@@ -234,5 +234,21 @@ namespace Nexus::Graphics
 		{
 			return GetSize().Y;
 		}
+
+		/// @brief A method to retrieve the number of samples used by the framebuffer
+		/// @return A 32 but unsigned integer indicating the sample count
+		uint32_t GetSampleCount() const
+		{
+			const auto &desc = GetTextureSetDescription();
+			return desc.GetSampleCount();
+		}
+
+		/// @brief A method to check whether the framebuffer is owned by a swapchain
+		/// @return A boolean indicating whether the framebuffer is owned by a swapchain
+		bool IsOwnedBySwapchain() const
+		{
+			const auto &desc = GetTextureSetDescription();
+			return desc.OwnedBySwapchain;
+		}
 	};
 }	 // namespace Nexus::Graphics

@@ -32,10 +32,10 @@ namespace Nexus::Graphics
 		void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(RenderTarget command, GraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) final;
@@ -55,6 +55,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device) final;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,
@@ -66,7 +67,7 @@ namespace Nexus::Graphics
 
 	  private:
 		std::optional<Ref<Pipeline>>				   m_CurrentlyBoundPipeline		 = {};
-		std::optional<RenderTarget>					   m_CurrentRenderTarget		 = {};
+		Ref<Framebuffer>							   m_CurrentRenderTarget		 = {};
 		std::map<uint32_t, VertexBufferView>		   m_CurrentlyBoundVertexBuffers = {};
 		std::optional<IndexBufferView>				   m_BoundIndexBuffer			 = {};
 		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL> m_BoundResourceSet			 = {};

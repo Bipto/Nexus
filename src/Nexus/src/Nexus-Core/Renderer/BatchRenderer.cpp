@@ -401,13 +401,13 @@ namespace Nexus::Graphics
 		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 	}
 
-	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor)
+	void BatchRenderer::Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor)
 	{
 		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
 		Begin(target, viewport, scissor, projection);
 	}
 
-	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
+	void BatchRenderer::Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
 	{
 		if (m_IsStarted)
 		{
@@ -1181,7 +1181,7 @@ namespace Nexus::Graphics
 		}
 
 		m_CommandList->SetPipeline(info.Pipeline);
-		m_CommandList->SetRenderTarget(m_RenderTarget);
+		m_CommandList->SetFramebuffer(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
 		m_CommandList->SetResourceSet(info.ResourceSet);

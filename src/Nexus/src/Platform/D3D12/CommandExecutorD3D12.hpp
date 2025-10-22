@@ -43,10 +43,10 @@ namespace Nexus::Graphics
 		void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(RenderTarget command, GraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) final;
@@ -66,6 +66,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device) final;
 
 		void SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device);
 		void SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device);
@@ -88,7 +89,7 @@ namespace Nexus::Graphics
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle		 = {};
 
-		std::optional<RenderTarget>	 m_CurrentRenderTarget	  = {};
+		Ref<Framebuffer>			 m_CurrentFramebuffer	  = nullptr;
 		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};
 
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;

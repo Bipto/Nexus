@@ -422,8 +422,7 @@ namespace Nexus::Graphics
 					GLint scissorBox[4];
 					context.GetIntegerv(GL_SCISSOR_BOX, scissorBox);
 
-					RenderTarget target	  = m_CurrentRenderTarget.value();
-					float		 scissorY = target.GetSize().Y - rect.Height - rect.Y;
+					float scissorY = m_CurrentRenderTarget->GetWidth() - m_CurrentRenderTarget->GetHeight() - rect.Y;
 					glCall(context.Scissor(rect.X, scissorY, rect.Width, rect.Height));
 
 					float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
@@ -459,33 +458,15 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)
 	{
 		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
 
-		if (command.GetType() == RenderTargetType::Framebuffer)
+		if (Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.lock()))
 		{
-			WeakRef<Framebuffer> fb = command.GetFramebuffer();
-			if (Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(fb.lock()))
-			{
-				GL::ExecuteGLCommands([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
-			}
+			GL::ExecuteGLCommands([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
+			m_CurrentRenderTarget = framebuffer;
 		}
-		else if (command.GetType() == RenderTargetType::Swapchain)
-		{
-			WeakRef<Swapchain> sc = command.GetSwapchain();
-			if (Ref<SwapchainOpenGL> swapchain = std::dynamic_pointer_cast<SwapchainOpenGL>(sc.lock()))
-			{
-				Ref<Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
-				ExecuteCommand(RenderTarget(framebuffer), device);
-			}
-		}
-		else
-		{
-			throw std::runtime_error("Failed to find a valid render target type");
-		}
-
-		m_CurrentRenderTarget = command;
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
@@ -498,10 +479,8 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				RenderTarget target = m_CurrentRenderTarget.value();
-
 				float left	 = command.X;
-				float bottom = target.GetSize().Y - (command.Y + command.Height);
+				float bottom = m_CurrentRenderTarget->GetHeight() - (command.Y + command.Height);
 
 				glCall(context.Viewport(left, bottom, command.Width, command.Height));
 				glCall(context.DepthRangef(command.MinDepth, command.MaxDepth));
@@ -518,51 +497,34 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				RenderTarget target	  = m_CurrentRenderTarget.value();
-				float		 scissorY = target.GetSize().Y - command.Height - command.Y;
+				float scissorY = m_CurrentRenderTarget->GetHeight() - command.Height - command.Y;
 
 				glCall(context.Scissor(command.X, scissorY, command.Width, command.Height));
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)
 	{
-		if (!ValidateForResolveToSwapchain(command))
+		if (!ValidateForResolve(command))
 		{
 			return;
 		}
 
-		Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.Source);
-		Ref<SwapchainOpenGL>   swapchain   = std::dynamic_pointer_cast<SwapchainOpenGL>(command.Target);
-
-		swapchain->BindAsDrawTarget();
-		GL::IViewContext *viewContext = swapchain->GetViewContext();
-		GL::SetCurrentContext(viewContext);
-
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				framebuffer->BindAsReadBuffer(command.SourceIndex, context);
+				Point2D<uint32_t> size = Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
-				uint32_t framebufferWidth  = framebuffer->GetWidth();
-				uint32_t framebufferHeight = framebuffer->GetHeight();
+				Graphics::TextureCopyDescription copyDesc = {};
+				copyDesc.Source							  = command.Source;
+				copyDesc.Destination					  = command.Destination;
+				copyDesc.SourceOffset					  = {0, 0, (int32_t)command.SourceArrayLayer};
+				copyDesc.DestinationOffset				  = {0, 0, (int32_t)command.DestinationArrayLayer};
+				copyDesc.SourceMipLevel					  = command.SourceMipLevel;
+				copyDesc.DestinationMipLevel			  = command.DestinationMipLevel;
+				copyDesc.Extent							  = {size.X, size.Y, 1};
 
-				Ref<Texture> framebufferTexture = framebuffer->GetColorTextureHandle(command.SourceIndex);
-
-				Nexus::IWindow *window			= swapchain->GetWindow();
-				uint32_t		swapchainWidth	= window->GetWindowSize().X;
-				uint32_t		swapchainHeight = window->GetWindowSize().Y;
-
-				glCall(context.BlitFramebuffer(0,
-											   0,
-											   framebufferWidth,
-											   framebufferHeight,
-											   0,
-											   0,
-											   swapchainWidth,
-											   swapchainHeight,
-											   GL_COLOR_BUFFER_BIT,
-											   GL_LINEAR));
+				GL::CopyTextureToTexture(copyDesc, context);
 			});
 	}
 
@@ -784,6 +746,10 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)
 	{
 	}
 

@@ -37,7 +37,10 @@ namespace Demos
 				int32_t			clearHeight = window->GetWindowSize().Y / 2;
 
 				m_CommandList->Begin();
-				m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+
+				Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+				m_CommandList->SetFramebuffer(framebuffer);
 
 				{
 					Nexus::Graphics::ClearRect clearRect = {};

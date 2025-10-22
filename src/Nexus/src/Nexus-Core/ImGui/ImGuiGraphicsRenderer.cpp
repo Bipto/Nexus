@@ -532,7 +532,9 @@ namespace Nexus::ImGuiUtils
 				if (drawCmd.ElemCount > 0)
 				{
 					m_CommandList->SetPipeline(m_Pipeline);
-					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
+
+					Ref<Graphics::Swapchain> swapchain = info->Swapchain;
+					m_CommandList->SetFramebuffer(swapchain->GetCurrentFramebuffer());
 
 					Graphics::VertexBufferView vertexBufferView = {};
 					vertexBufferView.BufferHandle				= m_VertexBuffer;

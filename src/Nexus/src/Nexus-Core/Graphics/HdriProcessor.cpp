@@ -200,7 +200,7 @@ namespace Nexus::Graphics
 
 			commandList->Begin();
 			commandList->SetPipeline(pipeline);
-			commandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
+			commandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp {};
 			vp.X		= 0;

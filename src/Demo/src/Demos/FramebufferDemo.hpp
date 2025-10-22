@@ -45,14 +45,18 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_Framebuffer});
+			m_CommandList->SetFramebuffer(m_Framebuffer);
 			m_CommandList->ClearColourTarget(0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f});
 			m_CommandList->End();
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
 			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+
+			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
+
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);

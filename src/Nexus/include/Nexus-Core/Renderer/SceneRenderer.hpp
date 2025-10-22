@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	  public:
 		SceneRenderer(GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		~SceneRenderer() = default;
-		void						   Render(Scene *scene, RenderTarget &target, TimeSpan time);
+		void						   Render(Scene *scene, Ref<Framebuffer> target, TimeSpan time);
 		const Nexus::FirstPersonCamera GetCamera() const;
 
 	  private:

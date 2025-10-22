@@ -84,7 +84,9 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
 
@@ -107,7 +109,7 @@ namespace Demos
 			scissor.Width  = windowSize.X;
 			scissor.Height = windowSize.Y;
 
-			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()}, vp, scissor);
+			m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
 			// render splines
 			{

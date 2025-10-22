@@ -70,8 +70,8 @@ namespace Nexus::Graphics
 
 		void Resize();
 
-		void Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor);
-		void Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
+		void Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor);
+		void Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
 
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<ITextureView> texture);
@@ -172,9 +172,9 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformUploadBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer		= nullptr;
 
-		uint32_t					  m_Width  = 0;
-		uint32_t					  m_Height = 0;
-		Nexus::Graphics::RenderTarget m_RenderTarget;
+		uint32_t		 m_Width  = 0;
+		uint32_t		 m_Height = 0;
+		Ref<Framebuffer> m_RenderTarget;
 
 		Nexus::Graphics::Viewport m_Viewport;
 		Nexus::Graphics::Scissor  m_ScissorRectangle;

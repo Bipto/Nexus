@@ -35,10 +35,10 @@ namespace Nexus::Graphics
 		void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(RenderTarget command, GraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) final;
@@ -58,13 +58,14 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device) final;
 		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device) final;
 
-		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
 		void StopRendering();
 		bool ValidateIsRendering();
 
 		void BindGraphicsPipeline();
+		void TryStartRendering();
 
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
@@ -73,8 +74,8 @@ namespace Nexus::Graphics
 		bool			  m_Rendering			   = false;
 		VkExtent2D		  m_RenderSize			   = {0, 0};
 
-		uint32_t	 m_DepthAttachmentIndex = 0;
-		RenderTarget m_CurrentRenderTarget;
+		uint32_t		 m_DepthAttachmentIndex = 0;
+		Ref<Framebuffer> m_CurrentRenderTarget;
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
 

@@ -7,7 +7,6 @@
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Pipeline.hpp"
-#include "RenderTarget.hpp"
 #include "Scissor.hpp"
 #include "Texture.hpp"
 #include "TimingQuery.hpp"
@@ -206,11 +205,14 @@ namespace Nexus::Graphics
 		std::optional<ClearRect> Rect  = {};
 	};
 
-	struct ResolveSamplesToSwapchainCommand
+	struct ResolveTextureDescription
 	{
-		Ref<Framebuffer> Source		 = {};
-		uint32_t		 SourceIndex = {};
-		Ref<Swapchain>	 Target		 = {};
+		Ref<Texture> Source				   = nullptr;
+		Ref<Texture> Destination		   = nullptr;
+		uint32_t	 SourceArrayLayer	   = 0;
+		uint32_t	 SourceMipLevel		   = 0;
+		uint32_t	 DestinationArrayLayer = 0;
+		uint32_t	 DestinationMipLevel   = 0;
 	};
 
 	struct StartTimingQueryCommand
@@ -353,6 +355,11 @@ namespace Nexus::Graphics
 		std::vector<uint8_t> Data	= {};
 	};
 
+	struct EndRenderingCommand
+	{
+		Ref<Framebuffer> TargetFramebuffer = nullptr;
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -367,10 +374,10 @@ namespace Nexus::Graphics
 						 Ref<ResourceSet>,
 						 ClearColorTargetCommand,
 						 ClearDepthStencilTargetCommand,
-						 RenderTarget,
+						 WeakRef<Framebuffer>,
 						 Viewport,
 						 Scissor,
-						 ResolveSamplesToSwapchainCommand,
+						 ResolveTextureDescription,
 						 StartTimingQueryCommand,
 						 StopTimingQueryCommand,
 						 CopyBufferToBufferCommand,
@@ -389,7 +396,8 @@ namespace Nexus::Graphics
 						 PushConstantsDesc,
 						 MemoryBarrierDesc,
 						 TextureBarrierDesc,
-						 BufferBarrierDesc>
+						 BufferBarrierDesc,
+						 EndRenderingCommand>
 		RenderCommandData;
 
 	struct CommandListDescription
@@ -459,13 +467,13 @@ namespace Nexus::Graphics
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value);
 
-		void SetRenderTarget(RenderTarget target);
+		void SetFramebuffer(Ref<Framebuffer> framebuffer);
 
 		void SetViewport(const Viewport &viewport);
 
 		void SetScissor(const Scissor &scissor);
 
-		void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target);
+		void ResolveFramebuffer(const ResolveTextureDescription &desc);
 
 		void StartTimingQuery(Ref<TimingQuery> query);
 
@@ -511,10 +519,14 @@ namespace Nexus::Graphics
 		bool IsRecording() const;
 
 	  private:
+		void EndRendering();
+
+	  private:
 		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
-		bool						   m_Started	 = false;
-		uint32_t					   m_DebugGroups = 0;
+		bool						   m_Started			= false;
+		uint32_t					   m_DebugGroups		= 0;
+		Ref<Framebuffer>			   m_CurrentFramebuffer = nullptr;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

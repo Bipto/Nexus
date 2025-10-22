@@ -81,7 +81,9 @@ namespace Demos
 			dispatchDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DispatchIndirect(dispatchDesc);
 
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
+			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;

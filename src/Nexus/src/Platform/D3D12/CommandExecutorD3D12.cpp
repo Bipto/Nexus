@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -104,7 +104,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -114,7 +114,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -128,7 +128,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -149,7 +149,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
 			return;
 		}
@@ -268,7 +268,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
 	{
-		if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index))
+		if (!ValidateForClearColour(m_CurrentFramebuffer, command.Index))
 		{
 			return;
 		}
@@ -297,11 +297,6 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)
 	{
-		if (!ValidateForClearDepth(m_CurrentRenderTarget))
-		{
-			return;
-		}
-
 		if (m_DepthHandle.ptr)
 		{
 			D3D12_CLEAR_FLAGS clearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
@@ -324,39 +319,13 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)
 	{
-		if (command.GetType() == RenderTargetType::Swapchain)
-		{
-			Ref<Swapchain> swapchain = command.GetSwapchain().lock();
-			// SetSwapchain(swapchain, device);
-			SetFramebuffer(swapchain->GetCurrentFramebuffer(), device);
-		}
-		else
-		{
-			WeakRef<Framebuffer> framebuffer = command.GetFramebuffer();
-			SetFramebuffer(framebuffer, device);
-		}
-
-		m_CurrentRenderTarget = command;
-
-		if (m_CurrentRenderTarget.value().HasDepthAttachment())
-		{
-			m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, &m_DepthHandle);
-		}
-		else
-		{
-			m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, nullptr);
-		}
+		SetFramebuffer(command, device);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
 	{
-		if (!ValidateForSetViewport(m_CurrentRenderTarget, command))
-		{
-			return;
-		}
-
 		D3D12_VIEWPORT vp = {};
 		vp.TopLeftX		  = command.X;
 		vp.TopLeftY		  = command.Y;
@@ -369,11 +338,6 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
 	{
-		if (!ValidateForSetScissor(m_CurrentRenderTarget, command))
-		{
-			return;
-		}
-
 		RECT rect	= {};
 		rect.left	= command.X;
 		rect.top	= command.Y;
@@ -382,14 +346,24 @@ namespace Nexus::Graphics
 		m_CommandList->RSSetScissorRects(1, &rect);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const ResolveSamplesToSwapchainCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)
 	{
-		if (!ValidateForResolveToSwapchain(command))
-		{
-			return;
-		}
+		Ref<TextureD3D12> source			= std::dynamic_pointer_cast<TextureD3D12>(command.Source);
+		uint32_t		  sourceSubresource = Utils::CalculateSubresource(command.SourceMipLevel, command.SourceArrayLayer, source->GetMipLevels());
+		Microsoft::WRL::ComPtr<ID3D12Resource2> sourceHandle = source->GetHandle();
 
-		NX_VALIDATE(1, "ResolveSamplesToSwapchain is not implemented for D3D12 yet");
+		Ref<TextureD3D12> dest = std::dynamic_pointer_cast<TextureD3D12>(command.Destination);
+		uint32_t		  destinationSubresource =
+			Utils::CalculateSubresource(command.DestinationMipLevel, command.DestinationArrayLayer, dest->GetMipLevels());
+		Microsoft::WRL::ComPtr<ID3D12Resource2> destHandle = dest->GetHandle();
+
+		PixelFormat destFormat = dest->GetPixelFormat();
+
+		m_CommandList->ResolveSubresource(destHandle.Get(),
+										  destinationSubresource,
+										  sourceHandle.Get(),
+										  sourceSubresource,
+										  D3D12::GetD3D12PixelFormat(destFormat));
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
@@ -779,6 +753,10 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
 	{
 		NX_VALIDATE(0, "Not implemented");
@@ -823,13 +801,24 @@ namespace Nexus::Graphics
 			{
 				m_DepthHandle = {};
 			}
+
+			if (fb->HasDepthTexture())
+			{
+				m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, &m_DepthHandle);
+			}
+			else
+			{
+				m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, nullptr);
+			}
+
+			m_CurrentFramebuffer = fb;
 		}
 	}
 
 	void CommandExecutorD3D12::ResetPreviousRenderTargets(GraphicsDevice *device)
 	{
-		m_CurrentRenderTarget = {};
-		m_DepthHandle		  = {};
+		m_CurrentFramebuffer = {};
+		m_DepthHandle		 = {};
 	}
 
 	void CommandExecutorD3D12::CreateDrawIndirectSignatureCommand()

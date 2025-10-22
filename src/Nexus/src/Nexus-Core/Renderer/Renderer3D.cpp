@@ -188,14 +188,14 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, RenderTarget target, Nexus::TimeSpan time)
+	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, Ref<Framebuffer> target, Nexus::TimeSpan time)
 	{
 		m_Scene			 = scene;
 		m_RenderTarget	 = target;
 		m_Cubemap		 = scene->SceneEnvironment.EnvironmentCubemap;
 		m_CubemapSampler = scene->SceneEnvironment.CubemapSampler;
 
-		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
 		m_Camera.Update(size.X, size.Y, time);
 	}
 
@@ -215,9 +215,9 @@ namespace Nexus::Graphics
 		ClearGBuffer();
 		RenderCubemap();
 
-		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
 		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(m_RenderTarget);
+		m_CommandList->SetFramebuffer(m_RenderTarget);
 
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
@@ -262,9 +262,9 @@ namespace Nexus::Graphics
 
 	void Renderer3D::RenderCubemap()
 	{
-		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
 		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(m_RenderTarget);
+		m_CommandList->SetFramebuffer(m_RenderTarget);
 
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
@@ -451,9 +451,9 @@ namespace Nexus::Graphics
 
 	void Renderer3D::ClearGBuffer()
 	{
-		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
 		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(m_RenderTarget);
+		m_CommandList->SetFramebuffer(m_RenderTarget);
 
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
