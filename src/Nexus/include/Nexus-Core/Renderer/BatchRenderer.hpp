@@ -46,8 +46,8 @@ namespace Nexus::Graphics
 
 	struct BatchInfo
 	{
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> Pipeline	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	  ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> Pipeline		= nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	   IResourceSet = nullptr;
 
 		std::vector<Nexus::Graphics::BatchVertex>			   Vertices;
 		std::vector<uint32_t>								   Indices;
@@ -57,21 +57,21 @@ namespace Nexus::Graphics
 		uint32_t VertexCount = 0;
 		uint32_t IndexCount	 = 0;
 
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> VertexUploadBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> VertexBuffer		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> IndexUploadBuffer	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> IndexBuffer		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> VertexUploadBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> VertexBuffer		  = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> IndexUploadBuffer  = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> IndexBuffer		  = nullptr;
 	};
 
 	class NX_API BatchRenderer
 	{
 	  public:
-		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount);
+		BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount);
 
 		void Resize();
 
-		void Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor);
-		void Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
+		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor);
+		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
 
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<ITextureView> texture);
@@ -161,20 +161,20 @@ namespace Nexus::Graphics
 		void PerformDraw(BatchInfo &info);
 
 	  private:
-		Nexus::Graphics::GraphicsDevice			*m_Device		= nullptr;
-		Ref<Graphics::ICommandQueue>			 m_CommandQueue = nullptr;
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	= nullptr;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler		= nullptr;
-		bool									 m_IsStarted	= false;
+		Nexus::Graphics::IGraphicsDevice		 *m_Device		 = nullptr;
+		Ref<Graphics::ICommandQueue>			  m_CommandQueue = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler>	  m_Sampler		 = nullptr;
+		bool									  m_IsStarted	 = false;
 
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_BlankTexture		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_BlankTextureView	= nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformUploadBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	   m_BlankTexture		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>  m_BlankTextureView	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformUploadBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformBuffer		 = nullptr;
 
-		uint32_t		 m_Width  = 0;
-		uint32_t		 m_Height = 0;
-		Ref<Framebuffer> m_RenderTarget;
+		uint32_t		  m_Width  = 0;
+		uint32_t		  m_Height = 0;
+		Ref<IFramebuffer> m_RenderTarget;
 
 		Nexus::Graphics::Viewport m_Viewport;
 		Nexus::Graphics::Scissor  m_ScissorRectangle;

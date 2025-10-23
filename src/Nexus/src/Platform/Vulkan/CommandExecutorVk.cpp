@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 		m_CommandBuffer = commandBuffer;
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -101,7 +101,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -132,7 +132,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -165,7 +165,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -180,7 +180,7 @@ namespace Nexus::Graphics
 		context.CmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -200,7 +200,7 @@ namespace Nexus::Graphics
 							   command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -217,7 +217,7 @@ namespace Nexus::Graphics
 		context.CmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawIndirectIndexedDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -234,7 +234,7 @@ namespace Nexus::Graphics
 		context.CmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DispatchDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -247,7 +247,7 @@ namespace Nexus::Graphics
 		context.CmdDispatch(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -256,7 +256,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+		if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferVk>		 indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			const GladVulkanContext &context		= m_Device->GetVulkanContext();
@@ -264,7 +264,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -283,7 +283,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -304,7 +304,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -317,7 +317,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -356,7 +356,7 @@ namespace Nexus::Graphics
 		context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -396,7 +396,7 @@ namespace Nexus::Graphics
 		context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
 	{
 		StopRendering();
 
@@ -408,7 +408,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const Viewport &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -432,7 +432,7 @@ namespace Nexus::Graphics
 		context.CmdSetViewport(m_CommandBuffer, 0, 1, &vp);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const Scissor &command, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
@@ -449,7 +449,7 @@ namespace Nexus::Graphics
 		context.CmdSetScissor(m_CommandBuffer, 0, 1, &rect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForResolve(command))
 		{
@@ -551,7 +551,7 @@ namespace Nexus::Graphics
 		ExecuteCommand(m_CurrentRenderTarget, device);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		Ref<TimingQueryVk>		 queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -560,7 +560,7 @@ namespace Nexus::Graphics
 		context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		Ref<TimingQueryVk>		 queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -568,7 +568,7 @@ namespace Nexus::Graphics
 		context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
 		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);
 		Ref<DeviceBufferVk> dst = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Destination);
@@ -615,7 +615,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
 		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferTextureCopy.BufferHandle);
@@ -698,7 +698,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
 		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.TextureBufferCopy.BufferHandle);
@@ -781,7 +781,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceVk *deviceVk	 = (GraphicsDeviceVk *)device;
 		Ref<TextureVk>	  srcTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Source);
@@ -896,7 +896,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -926,7 +926,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -941,7 +941,7 @@ namespace Nexus::Graphics
 		else
 		{
 			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
-			if (std::holds_alternative<WeakRef<Framebuffer>>(data))
+			if (std::holds_alternative<WeakRef<IFramebuffer>>(data))
 			{
 				StopRendering();
 			}
@@ -957,7 +957,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -987,7 +987,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
 	{
 		float blendConstants[4] = {command.BlendFactorDesc.Red,
 								   command.BlendFactorDesc.Green,
@@ -998,13 +998,13 @@ namespace Nexus::Graphics
 		context.CmdSetBlendConstants(m_CommandBuffer, blendConstants);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 		context.CmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.StencilReference);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device)
 	{
 		// return early if the function is not available to use
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -1050,23 +1050,23 @@ namespace Nexus::Graphics
 												  (const VkAccelerationStructureBuildRangeInfoKHR *const *)buildRanges.data());
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device)
+	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
 	{
 		if (m_Rendering)
 		{
@@ -1125,7 +1125,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)
 	{
 		if (m_Rendering)
 		{
@@ -1134,7 +1134,7 @@ namespace Nexus::Graphics
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		Ref<TextureVk> texture	 = std::dynamic_pointer_cast<TextureVk>(command.Texture);
+		Ref<TextureVk> texture	 = std::dynamic_pointer_cast<TextureVk>(command.ITexture);
 		VkImageLayout  newLayout = Vk::GetImageLayout(m_Device, command.Layout);
 
 		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
@@ -1298,7 +1298,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)
 	{
 		if (m_Rendering)
 		{
@@ -1369,7 +1369,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
 	}
 
@@ -1514,7 +1514,7 @@ namespace Nexus::Graphics
 		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
-	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer)
+	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<IFramebuffer> framebuffer)
 	{
 		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 

@@ -15,14 +15,14 @@ namespace Nexus::Graphics
 	class CommandQueueVk;
 	class FramebufferVk;
 
-	class SwapchainVk : public Swapchain
+	class SwapchainVk : public ISwapchain
 	{
 	  public:
-		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
+		SwapchainVk(IWindow *window, IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainVk();
 
 		void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<Framebuffer>		 GetCurrentFramebuffer() final;
+		Ref<IFramebuffer>		 GetCurrentFramebuffer() final;
 		void					 SetPresentMode(PresentMode presentMode) final;
 		Nexus::Point2D<uint32_t> GetSize() final;
 
@@ -87,10 +87,10 @@ namespace Nexus::Graphics
 		VkSurfaceFormatKHR		 m_SurfaceFormat	   = {};
 		VkExtent2D				 m_SwapchainSize	   = {};
 
-		std::vector<Ref<Texture>>	  m_ColourAttachments = {};
-		Ref<Texture>				  m_DepthAttachment	  = {};
-		Ref<Texture>				  m_ResolveAttachment = {};
-		std::vector<Ref<Framebuffer>> m_Framebuffers	  = {};
+		std::vector<Ref<ITexture>>	   m_ColourAttachments = {};
+		Ref<ITexture>				   m_DepthAttachment   = {};
+		Ref<ITexture>				   m_ResolveAttachment = {};
+		std::vector<Ref<IFramebuffer>> m_Framebuffers	   = {};
 
 		GraphicsDeviceVk *m_GraphicsDevice;
 

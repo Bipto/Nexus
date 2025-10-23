@@ -13,8 +13,8 @@ int main()
 		std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(createInfo));
 
 	std::vector<std::shared_ptr<Nexus::Graphics::IPhysicalDevice>> physicalDevices = api->GetPhysicalDevices();
-	std::unique_ptr<Nexus::Graphics::GraphicsDevice>			   device =
-		std::unique_ptr<Nexus::Graphics::GraphicsDevice>(api->CreateGraphicsDevice(physicalDevices[0]));
+	std::unique_ptr<Nexus::Graphics::IGraphicsDevice>			   device =
+		std::unique_ptr<Nexus::Graphics::IGraphicsDevice>(api->CreateGraphicsDevice(physicalDevices[0]));
 
 	Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 	framebufferSpec.Width									  = 512;

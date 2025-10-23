@@ -41,10 +41,10 @@ namespace Nexus::Graphics
 	class NX_API Renderer3D
 	{
 	  public:
-		Renderer3D(GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		Renderer3D(IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		~Renderer3D();
 
-		void Begin(Scene *scene, Ref<Framebuffer> target, Nexus::TimeSpan time);
+		void Begin(Scene *scene, Ref<IFramebuffer> target, Nexus::TimeSpan time);
 		void End();
 
 		const Nexus::FirstPersonCamera GetCamera() const;
@@ -59,35 +59,35 @@ namespace Nexus::Graphics
 		void CreateClearGBufferPipeline();
 
 	  private:
-		GraphicsDevice				*m_Device		  = nullptr;
+		IGraphicsDevice				*m_Device		  = nullptr;
 		Ref<Graphics::ICommandQueue> m_CommandQueue	  = nullptr;
-		Ref<Framebuffer>			 m_RenderTarget	  = {};
+		Ref<IFramebuffer>			 m_RenderTarget	  = {};
 		FullscreenQuad				 m_FullscreenQuad = {};
 
-		Scene		*m_Scene   = nullptr;
-		Ref<Texture> m_Cubemap = nullptr;
+		Scene		 *m_Scene	= nullptr;
+		Ref<ITexture> m_Cubemap = nullptr;
 
-		Ref<CommandList> m_CommandList = nullptr;
+		Ref<ICommandList> m_CommandList = nullptr;
 
 		Ref<Nexus::Graphics::Mesh> m_Cube = nullptr;
 
 		Nexus::FirstPersonCamera m_Camera = {};
 
-		Nexus::Ref<Nexus::Graphics::Sampler>		  m_CubemapSampler		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_CubemapPipeline		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_CubemapUniformBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_CubemapResourceSet	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler>		   m_CubemapSampler		  = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_CubemapPipeline	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_CubemapUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_CubemapResourceSet	  = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Sampler>													m_ModelSampler				   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline>											m_ModelPipeline				   = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>												m_ModelCameraUniformBuffer	   = nullptr;
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::DeviceBuffer>> m_ModelTransformUniformBuffers = {};
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::ResourceSet>>	m_ModelResourceSets			   = {};
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							m_ModelIDs					   = {};
+		Nexus::Ref<Nexus::Graphics::ISampler>													 m_ModelSampler					= nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline>											 m_ModelPipeline				= nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>												 m_ModelCameraUniformBuffer		= nullptr;
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::IDeviceBuffer>> m_ModelTransformUniformBuffers = {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::IResourceSet>>	 m_ModelResourceSets			= {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							 m_ModelIDs						= {};
 
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ClearScreenPipeline = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_ClearScreenPipeline = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_DefaultTexture	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_DefaultTexture	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView> m_DefaultTextureView = nullptr;
 	};
 }	 // namespace Nexus::Graphics

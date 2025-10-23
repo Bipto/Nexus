@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		return count;
 	}
 
-	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec) : ShaderModule(shaderModuleSpec)
+	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec) : IShaderModule(shaderModuleSpec)
 	{
 		Microsoft::WRL::ComPtr<IDxcCompiler3>	   compiler;
 		Microsoft::WRL::ComPtr<IDxcUtils>		   utils;
@@ -160,7 +160,7 @@ namespace Nexus::Graphics
 		{
 			case D3D_SIT_CBUFFER: return {ReflectedShaderDataType::UniformBuffer, StorageResourceAccess::NoAccess};
 			case D3D_SIT_TBUFFER: return {ReflectedShaderDataType::UniformTextureBuffer, StorageResourceAccess::Read};
-			case D3D_SIT_TEXTURE: return {ReflectedShaderDataType::Texture, StorageResourceAccess::NoAccess};
+			case D3D_SIT_TEXTURE: return {ReflectedShaderDataType::ITexture, StorageResourceAccess::NoAccess};
 			case D3D_SIT_SAMPLER:
 			{
 				if (flags & D3D_SIF_COMPARISON_SAMPLER)
@@ -169,7 +169,7 @@ namespace Nexus::Graphics
 				}
 				else
 				{
-					return {ReflectedShaderDataType::Sampler, StorageResourceAccess::NoAccess};
+					return {ReflectedShaderDataType::ISampler, StorageResourceAccess::NoAccess};
 				}
 			}
 			case D3D_SIT_UAV_RWTYPED: return {ReflectedShaderDataType::StorageTextureBuffer, StorageResourceAccess::ReadWrite};

@@ -10,7 +10,7 @@
 
 namespace Nexus::Graphics
 {
-	class ResourceSetVk : public ResourceSet
+	class ResourceSetVk : public IResourceSet
 	{
 	  public:
 		ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device);

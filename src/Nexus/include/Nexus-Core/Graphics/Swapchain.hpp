@@ -15,14 +15,14 @@ namespace Nexus
 
 namespace Nexus::Graphics
 {
-	class Swapchain
+	class ISwapchain
 	{
 	  public:
-		Swapchain(const SwapchainDescription &spec) : m_Description(spec)
+		ISwapchain(const SwapchainDescription &spec) : m_Description(spec)
 		{
 		}
 
-		virtual ~Swapchain()
+		virtual ~ISwapchain()
 		{
 		}
 
@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 		virtual PixelFormat				 GetColourFormat()											 = 0;
 		virtual PixelFormat				 GetDepthFormat()											 = 0;
 		virtual void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) = 0;
-		virtual Ref<Framebuffer>		 GetCurrentFramebuffer()									 = 0;
+		virtual Ref<IFramebuffer>		 GetCurrentFramebuffer()									 = 0;
 
 		const SwapchainDescription &GetDescription()
 		{
@@ -43,6 +43,6 @@ namespace Nexus::Graphics
 		SwapchainDescription m_Description;
 
 	  private:
-		friend class GraphicsDevice;
+		friend class IGraphicsDevice;
 	};
 }	 // namespace Nexus::Graphics

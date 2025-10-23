@@ -9,7 +9,7 @@
 namespace Nexus::Graphics
 {
 	ShaderModuleVk::ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceVk *device)
-		: ShaderModule(shaderModuleSpec),
+		: IShaderModule(shaderModuleSpec),
 		  m_GraphicsDevice(device)
 	{
 		CreateShaderModule();
@@ -366,7 +366,7 @@ namespace Nexus::Graphics
 			reflectedResource.BindingCount = 1;
 		}
 
-		if (dataType == ReflectedShaderDataType::Texture || dataType == ReflectedShaderDataType::CombinedImageSampler)
+		if (dataType == ReflectedShaderDataType::ITexture || dataType == ReflectedShaderDataType::CombinedImageSampler)
 		{
 			switch (type.image.dim)
 			{
@@ -447,7 +447,7 @@ namespace Nexus::Graphics
 				default: throw std::runtime_error("Failed to find a valid resource dimension");
 			}
 		}
-		else if (dataType == ReflectedShaderDataType::Sampler)
+		else if (dataType == ReflectedShaderDataType::ISampler)
 		{
 			if (type.image.depth)
 			{
@@ -564,13 +564,13 @@ namespace Nexus::Graphics
 		for (const auto &separateImage : resources.separate_images)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-			ExtractResource(reflectedResource, separateImage, compiler, ReflectedShaderDataType::Texture);
+			ExtractResource(reflectedResource, separateImage, compiler, ReflectedShaderDataType::ITexture);
 		}
 
 		for (const auto &separateSampler : resources.acceleration_structures)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-			ExtractResource(reflectedResource, separateSampler, compiler, ReflectedShaderDataType::Sampler);
+			ExtractResource(reflectedResource, separateSampler, compiler, ReflectedShaderDataType::ISampler);
 		}
 
 		return reflectionData;

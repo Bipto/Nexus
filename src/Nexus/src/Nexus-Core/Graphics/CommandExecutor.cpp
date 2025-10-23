@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, Ref<Framebuffer> renderTarget)
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, Ref<IFramebuffer> renderTarget)
 	{
 		bool valid = true;
 
@@ -40,7 +40,7 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(Ref<Framebuffer> target, uint32_t colourIndex)
+	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(Ref<IFramebuffer> target, uint32_t colourIndex)
 	{
 		bool valid = true;
 
@@ -65,7 +65,7 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForClearDepth(Ref<Framebuffer> target)
+	bool CommandExecutor::ValidateForClearDepth(Ref<IFramebuffer> target)
 	{
 		bool valid = true;
 
@@ -88,7 +88,7 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForSetViewport(Ref<Framebuffer> target, const Viewport &viewport)
+	bool CommandExecutor::ValidateForSetViewport(Ref<IFramebuffer> target, const Viewport &viewport)
 	{
 		bool valid = true;
 
@@ -132,7 +132,7 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForSetScissor(Ref<Framebuffer> target, const Scissor &scissor)
+	bool CommandExecutor::ValidateForSetScissor(Ref<IFramebuffer> target, const Scissor &scissor)
 	{
 		bool valid = true;
 
@@ -190,8 +190,8 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		Ref<Texture> source = command.Source;
-		Ref<Texture> dest	= command.Destination;
+		Ref<ITexture> source = command.Source;
+		Ref<ITexture> dest	 = command.Destination;
 		if (source && dest)
 		{
 			if (source->GetWidth() != dest->GetWidth())

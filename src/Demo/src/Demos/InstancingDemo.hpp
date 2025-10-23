@@ -92,8 +92,8 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -227,24 +227,24 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::Mesh>			  m_CubeMesh	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_InstanceBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_InstanceBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ResourceSet>  m_ResourceSet		= nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_DiffuseMap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>  m_ResourceSet		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_DiffuseMap		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView> m_DiffuseMapView	= nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_NormalMap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_NormalMap		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView> m_NormalMapView	= nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_SpecularMap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_SpecularMap		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView> m_SpecularMapView = nullptr;
 		glm::vec3								  m_ClearColour		= {0.7f, 0.2f, 0.3f};
 
 		VB_UNIFORM_CAMERA_DEMO_INSTANCING		  m_CameraUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler> m_Sampler = nullptr;
 
 		Nexus::FirstPersonCamera m_Camera = {};
 

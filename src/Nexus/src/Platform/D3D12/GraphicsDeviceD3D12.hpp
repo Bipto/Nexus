@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 		bool SupportsEnhancedBarriers = false;
 	};
 
-	class GraphicsDeviceD3D12 final : public GraphicsDevice
+	class GraphicsDeviceD3D12 final : public IGraphicsDevice
 	{
 	  public:
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
@@ -30,16 +30,16 @@ namespace Nexus::Graphics
 		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
-		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
-		Ref<ResourceSet>		CreateResourceSet(Ref<Pipeline> pipeline) final;
+		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<IComputePipeline>	 CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<IMeshletPipeline>	 CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		Ref<IResourceSet>		 CreateResourceSet(Ref<Pipeline> pipeline) final;
 
-		Ref<Framebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
-		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
-		Ref<TimingQuery>			CreateTimingQuery() final;
-		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IFramebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
+		Ref<ISampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<ITimingQuery>			CreateTimingQuery() final;
+		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final
@@ -57,13 +57,13 @@ namespace Nexus::Graphics
 			return -1.0f;
 		}
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
-		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
+		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
 		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
-		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
-		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;
 		bool						 IsUVOriginTopLeft() final
 		{
 			return true;
@@ -88,9 +88,9 @@ namespace Nexus::Graphics
 		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
-		void					  GetLimitsAndFeatures();
-		inline static void		  ReportLiveObjects();
+		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
+		void					   GetLimitsAndFeatures();
+		inline static void		   ReportLiveObjects();
 
 	  private:
 	#if defined(_DEBUG)

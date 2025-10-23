@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 	// forward declaration
 	class GraphicsDeviceOpenGL;
 
-	class FramebufferOpenGL : public Framebuffer
+	class FramebufferOpenGL : public IFramebuffer
 	{
 	  public:
 		FramebufferOpenGL(const FramebufferTextureSetDescription &desc, GraphicsDeviceOpenGL *graphicsDevice);

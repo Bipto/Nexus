@@ -23,16 +23,16 @@ const std::string c_MipmapFragmentSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	MipmapGenerator::MipmapGenerator(GraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+	MipmapGenerator::MipmapGenerator(IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_Quad(device, commandQueue, true)
 	{
 		m_CommandList = m_CommandQueue->CreateCommandList();
 
-		Ref<ShaderModule> m_VertexModule =
+		Ref<IShaderModule> m_VertexModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
-		Ref<ShaderModule> m_FragmentModule =
+		Ref<IShaderModule> m_FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
 
 		// set up pipeline for rendering
@@ -52,7 +52,7 @@ namespace Nexus::Graphics
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<char> MipmapGenerator::GenerateMip(Ref<Texture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
+	std::vector<char> MipmapGenerator::GenerateMip(Ref<ITexture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
 	{
 		std::vector<char> pixels = {};
 
@@ -68,12 +68,12 @@ namespace Nexus::Graphics
 			framebufferTextureDesc.Width												= mipWidth;
 			framebufferTextureDesc.Height												= mipHeight;
 
-			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferTextureDesc);
+			Ref<IFramebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferTextureDesc);
 
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
-			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
+			Ref<ISampler> sampler  = m_Device->CreateSampler(samplerSpec);
 
 			Nexus::Graphics::TextureViewDescription viewDesc = {};
 			viewDesc.TargetTexture							 = texture;
@@ -111,19 +111,19 @@ namespace Nexus::Graphics
 			m_CommandList->SetViewport(viewport);
 			m_CommandList->SetScissor(scissor);
 
-			Ref<DeviceBuffer> vertexBuffer	   = m_Quad.GetVertexBuffer();
-			VertexBufferView  vertexBufferView = {};
-			vertexBufferView.BufferHandle	   = vertexBuffer;
-			vertexBufferView.Offset			   = 0;
-			vertexBufferView.Size			   = vertexBuffer->GetSizeInBytes();
+			Ref<IDeviceBuffer> vertexBuffer		= m_Quad.GetVertexBuffer();
+			VertexBufferView   vertexBufferView = {};
+			vertexBufferView.BufferHandle		= vertexBuffer;
+			vertexBufferView.Offset				= 0;
+			vertexBufferView.Size				= vertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			Ref<DeviceBuffer> indexBuffer	  = m_Quad.GetIndexBuffer();
-			IndexBufferView	  indexBufferView = {};
-			indexBufferView.BufferHandle	  = indexBuffer;
-			indexBufferView.Offset			  = 0;
-			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
-			indexBufferView.BufferFormat	  = IndexFormat::UInt32;
+			Ref<IDeviceBuffer> indexBuffer	   = m_Quad.GetIndexBuffer();
+			IndexBufferView	   indexBufferView = {};
+			indexBufferView.BufferHandle	   = indexBuffer;
+			indexBufferView.Offset			   = 0;
+			indexBufferView.Size			   = indexBuffer->GetSizeInBytes();
+			indexBufferView.BufferFormat	   = IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
@@ -141,8 +141,8 @@ namespace Nexus::Graphics
 			m_CommandQueue->SubmitCommandList(m_CommandList);
 			m_Device->WaitForIdle();
 
-			Ref<Texture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
-			pixels							= m_CommandQueue->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
+			Ref<ITexture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
+			pixels							 = m_CommandQueue->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

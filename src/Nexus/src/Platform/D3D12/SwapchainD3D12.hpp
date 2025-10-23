@@ -10,17 +10,17 @@
 
 namespace Nexus::Graphics
 {
-	class GraphicsDevice;
+	class IGraphicsDevice;
 	class GraphicsDeviceD3D12;
 
-	class SwapchainD3D12 : public Swapchain
+	class SwapchainD3D12 : public ISwapchain
 	{
 	  public:
-		SwapchainD3D12(IWindow *window, GraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
+		SwapchainD3D12(IWindow *window, IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
-		void			 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<Framebuffer> GetCurrentFramebuffer();
-		void			 SetPresentMode(PresentMode presentMode) final;
+		void			  SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer> GetCurrentFramebuffer();
+		void			  SetPresentMode(PresentMode presentMode) final;
 
 		IWindow *GetWindow() final
 		{
@@ -33,8 +33,6 @@ namespace Nexus::Graphics
 		uint32_t GetCurrentBufferIndex();
 
 		uint32_t GetColorAttachmentCount();
-
-		bool HasMultisampledFramebuffer() const;
 
 		void AcquireBackbufferIndex();
 
@@ -58,8 +56,8 @@ namespace Nexus::Graphics
 
 		uint32_t m_CurrentBufferIndex = 0;
 
-		std::vector<Ref<Framebuffer>> m_SwapchainFramebuffers = {};
-		UINT						  m_SyncInterval		  = 0;
+		std::vector<Ref<IFramebuffer>> m_SwapchainFramebuffers = {};
+		UINT						   m_SyncInterval		   = 0;
 	};
 }	 // namespace Nexus::Graphics
 #endif

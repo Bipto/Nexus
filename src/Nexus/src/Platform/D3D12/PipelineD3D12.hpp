@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 		virtual const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo()											= 0;
 	};
 
-	class GraphicsPipelineD3D12 : public GraphicsPipeline, public PipelineD3D12
+	class GraphicsPipelineD3D12 : public IGraphicsPipeline, public PipelineD3D12
 	{
 	  public:
 		GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description);
@@ -44,7 +44,7 @@ namespace Nexus::Graphics
 		D3D_PRIMITIVE_TOPOLOGY						m_PrimitiveTopology;
 	};
 
-	class MeshletPipelineD3D12 : public MeshletPipeline, public PipelineD3D12
+	class MeshletPipelineD3D12 : public IMeshletPipeline, public PipelineD3D12
 	{
 	  public:
 		MeshletPipelineD3D12(GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description);
@@ -68,7 +68,7 @@ namespace Nexus::Graphics
 		D3D_PRIMITIVE_TOPOLOGY						m_PrimitiveTopology;
 	};
 
-	class ComputePipelineD3D12 : public ComputePipeline, public PipelineD3D12
+	class ComputePipelineD3D12 : public IComputePipeline, public PipelineD3D12
 	{
 	  public:
 		ComputePipelineD3D12(GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description);

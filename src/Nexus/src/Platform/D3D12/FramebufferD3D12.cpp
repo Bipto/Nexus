@@ -59,6 +59,19 @@ namespace Nexus::Graphics
 	void FramebufferD3D12::Flush()
 	{
 		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->WaitForIdle(); }
+
+		for (const auto &colourAttachment : m_ColourAttachments) { colourAttachment->ReleaseHandle(true); }
+		for (const auto &resolveAttachment : m_ResolveAttachments) { resolveAttachment->ReleaseHandle(true); }
+
+		if (m_DepthAttachment)
+		{
+			m_DepthAttachment->ReleaseHandle(true);
+		}
+
+		m_ColourAttachments	  = {};
+		m_DepthAttachment	  = {};
+		m_ColorDescriptorHeap = nullptr;
+		m_DepthDescriptorHeap = nullptr;
 	}
 
 	void FramebufferD3D12::CreateRTVs()
@@ -95,7 +108,7 @@ namespace Nexus::Graphics
 		for (uint32_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 		{
 			Ref<TextureD3D12> textureD3D12 = m_ColourAttachments.at(i);
-			Ref<Texture>	  texture	   = textureD3D12;
+			Ref<ITexture>	  texture	   = textureD3D12;
 			m_ColourAttachmentCPUHandles.push_back(cpuHandle);
 
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -155,13 +168,17 @@ namespace Nexus::Graphics
 		for (const auto &colourAttachment : m_Description.ColourAttachments)
 		{
 			m_ColourAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ColourAttachment.TargetTexture));
+
+			if (colourAttachment.ResolveAttachment.has_value())
+			{
+				m_ResolveAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ResolveAttachment.value().TargetTexture));
+			}
 		}
 
 		if (m_Description.DepthAttachment.has_value())
 		{
 			m_DepthAttachment = std::dynamic_pointer_cast<TextureD3D12>(m_Description.DepthAttachment.value().TargetTexture);
 		}
-	}
+	}	 // namespace Nexus::Graphics
 }	 // namespace Nexus::Graphics
-
 #endif

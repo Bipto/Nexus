@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		return physicalDevices;
 	}
 
-	Graphics::GraphicsDevice *GraphicsAPI_D3D12::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
+	Graphics::IGraphicsDevice *GraphicsAPI_D3D12::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
 		return new Graphics::GraphicsDeviceD3D12(device, m_DXGIFactory);
 	}

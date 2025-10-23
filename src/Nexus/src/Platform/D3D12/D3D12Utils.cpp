@@ -843,7 +843,7 @@ namespace Nexus::D3D12
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::Texture> texture = desc.TargetTexture;
+		Ref<Graphics::ITexture> texture = desc.TargetTexture;
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -937,7 +937,7 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		Ref<Graphics::Texture>				texture		= view.TextureHandle;
+		Ref<Graphics::ITexture>				texture		= view.TextureHandle;
 		const Graphics::TextureDescription &textureDesc = texture->GetDescription();
 		uav.Format										= D3D12::GetD3D12PixelFormat(textureDesc.Format);
 
@@ -1059,11 +1059,11 @@ namespace Nexus::D3D12
 		switch (resource.Type)
 		{
 			case Graphics::ResourceType::AccelerationStructure:
-			case Graphics::ResourceType::Texture:
+			case Graphics::ResourceType::ITexture:
 			{
 				return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 			}
-			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ISampler:
 			case Graphics::ResourceType::ComparisonSampler:
 			{
 				return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
@@ -1171,12 +1171,12 @@ namespace Nexus::D3D12
 		for (const auto &[textureName, textureInfo] : resources)
 		{
 			// if the resource is a texture, loop through to find any samplers
-			if (textureInfo.Type == Graphics::ResourceType::Texture)
+			if (textureInfo.Type == Graphics::ResourceType::ITexture)
 			{
 				for (const auto &[samplerName, samplerInfo] : resources)
 				{
 					// if the resource is a sampler, then we need to compare it against the texture to check if it forms a combined image sampler
-					if (samplerInfo.Type == Graphics::ResourceType::Sampler)
+					if (samplerInfo.Type == Graphics::ResourceType::ISampler)
 					{
 						// we have found a combined image sampler
 						if (textureInfo.Binding == samplerInfo.Binding && textureInfo.ResourceCount == samplerInfo.ResourceCount)
@@ -1206,7 +1206,7 @@ namespace Nexus::D3D12
 				rootParameter.ShaderVisibility		= shaderVisibility;
 
 				DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
-				descriptorTableInfo.Source				 = DescriptorHandleSource::Sampler;
+				descriptorTableInfo.Source				 = DescriptorHandleSource::ISampler;
 				descriptorTableInfo.Offset				 = currentSamplerOffset;
 
 				for (const auto &range : descriptorRange.SamplerRanges) { currentSamplerOffset += range.NumDescriptors; }

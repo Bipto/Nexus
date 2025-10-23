@@ -10,7 +10,7 @@
 
 namespace Nexus::Graphics
 {
-	class ResourceSetOpenGL : public ResourceSet
+	class ResourceSetOpenGL : public IResourceSet
 	{
 	  public:
 		ResourceSetOpenGL(Ref<Pipeline> pipeline);

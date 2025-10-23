@@ -11,7 +11,7 @@
 namespace Nexus::Graphics
 {
 	CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec)
-		: CommandList(spec),
+		: ICommandList(spec),
 		  m_Queue(commandQueue),
 		  m_Device(graphicsDevice)
 	{

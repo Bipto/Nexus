@@ -11,7 +11,7 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetVk::ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device) : ResourceSet(pipeline), m_Device(device)
+	ResourceSetVk::ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Device(device)
 	{
 		const GladVulkanContext &context		= m_Device->GetVulkanContext();
 		Ref<PipelineVk>			 vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
@@ -74,7 +74,7 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		if (Ref<DeviceBuffer> buffer = storageBuffer.BufferHandle)
+		if (Ref<IDeviceBuffer> buffer = storageBuffer.BufferHandle)
 		{
 			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
@@ -107,7 +107,7 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle)
+		if (Ref<IDeviceBuffer> buffer = uniformBuffer.BufferHandle)
 		{
 			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 

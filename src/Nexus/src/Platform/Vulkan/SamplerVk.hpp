@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-	class SamplerVk : public Sampler
+	class SamplerVk : public ISampler
 	{
 	  public:
 		SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec);

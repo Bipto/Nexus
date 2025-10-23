@@ -10,7 +10,7 @@
 
 namespace Nexus::Graphics
 {
-	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec), m_Device(graphicsDevice)
+	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : ITexture(spec), m_Device(graphicsDevice)
 	{
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");

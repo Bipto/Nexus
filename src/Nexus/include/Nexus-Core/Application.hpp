@@ -87,7 +87,7 @@ namespace Nexus
 		/// @return A handle to the application's main window
 		Nexus::IWindow *GetPrimaryWindow();
 
-		Ref<Nexus::Graphics::Swapchain> GetPrimarySwapchain();
+		Ref<Nexus::Graphics::ISwapchain> GetPrimarySwapchain();
 
 		/// @brief A method that is used to retrieve the size of an application's
 		/// window
@@ -119,7 +119,7 @@ namespace Nexus
 		/// @brief A method that returns a pointer to the application's graphics
 		/// device
 		/// @return A pointer to a graphics device
-		Graphics::GraphicsDevice *GetGraphicsDevice();
+		Graphics::IGraphicsDevice *GetGraphicsDevice();
 
 		Ref<Graphics::ICommandQueue> GetGraphicsCommandQueue();
 
@@ -137,7 +137,7 @@ namespace Nexus
 		std::unique_ptr<Graphics::IGraphicsAPI> m_GraphicsAPI = nullptr;
 
 		/// @brief A pointer to a graphics device
-		std::unique_ptr<Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
+		std::unique_ptr<Graphics::IGraphicsDevice> m_GraphicsDevice = nullptr;
 
 		CommandQueueGroup m_CommandQueueGroup = {};
 
@@ -151,7 +151,7 @@ namespace Nexus
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;
 
-		Ref<Nexus::Graphics::Swapchain> m_Swapchain = nullptr;
+		Ref<Nexus::Graphics::ISwapchain> m_Swapchain = nullptr;
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};

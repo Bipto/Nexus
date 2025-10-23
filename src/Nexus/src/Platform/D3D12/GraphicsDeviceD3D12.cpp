@@ -65,52 +65,52 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		return CreateRef<ShaderModuleD3D12>(moduleSpec);
 	}
 
-	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	Ref<IGraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineD3D12>(this, description);
 	}
 
-	Ref<ComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
+	Ref<IComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		return CreateRef<ComputePipelineD3D12>(this, description);
 	}
 
-	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	Ref<IMeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		return CreateRef<MeshletPipelineD3D12>(this, description);
 	}
 
-	Ref<RayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	Ref<IRayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return Ref<RayTracingPipeline>();
+		return Ref<IRayTracingPipeline>();
 	}
 
-	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
+	Ref<IResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		return CreateRef<ResourceSetD3D12>(pipeline, this);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	Ref<IFramebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
 		return CreateRef<FramebufferD3D12>(desc, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
+	Ref<ISampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerD3D12>(spec);
 	}
 
-	Ref<TimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
+	Ref<ITimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
 	{
 		return CreateRef<TimingQueryD3D12>(this);
 	}
 
-	Ref<DeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<IDeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferD3D12>(desc, this);
 	}
@@ -177,7 +177,7 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
+	Ref<ITexture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureD3D12>(spec, this);
 	}
@@ -187,12 +187,12 @@ namespace Nexus::Graphics
 		return CreateRef<TextureViewD3D12>(desc);
 	}
 
-	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+	Ref<IFence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
 		return CreateRef<FenceD3D12>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<HANDLE> eventHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -241,7 +241,7 @@ namespace Nexus::Graphics
 		return commandQueue;
 	}
 
-	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)
+	void GraphicsDeviceD3D12::ResetFences(Ref<IFence> *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
 		{

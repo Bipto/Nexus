@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-	class TextureD3D12 : public Texture
+	class TextureD3D12 : public ITexture
 	{
 	  public:
 		TextureD3D12(const TextureDescription &spec, GraphicsDeviceD3D12 *device);
@@ -21,6 +21,10 @@ namespace Nexus::Graphics
 		DXGI_FORMAT GetFormat();
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
+
+		/// @brief This is a function to force all ComPtr handles to be released, used when resizing a swapchain
+		/// @param waitForIdle A boolean value indicating whether the handle should be released after the device is idle or immediately
+		void ReleaseHandle(bool waitForIdle);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Resource2>		m_Texture		= nullptr;

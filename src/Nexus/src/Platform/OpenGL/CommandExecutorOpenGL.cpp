@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		Reset();
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 		m_CurrentRenderTarget		  = {};
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -46,7 +46,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundVertexBuffers[command.Slot] = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 		m_BoundIndexBuffer = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
 	{
 		if (command.expired())
 		{
@@ -102,7 +102,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -136,7 +136,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -177,7 +177,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -224,7 +224,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DrawIndirectIndexedDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -283,7 +283,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DispatchDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -303,7 +303,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -319,7 +319,7 @@ namespace Nexus::Graphics
 				pipeline->Bind(context);
 				BindResourceSet(m_BoundResourceSet, context);
 
-				if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+				if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
 				{
 					Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
 					context.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
@@ -332,7 +332,7 @@ namespace Nexus::Graphics
 	#endif
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -357,7 +357,7 @@ namespace Nexus::Graphics
 	#endif
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -393,7 +393,7 @@ namespace Nexus::Graphics
 	#endif
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device)
 	{
 		if (!command)
 		{
@@ -405,7 +405,7 @@ namespace Nexus::Graphics
 		m_BoundResourceSet				   = resourceSet;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index))
 		{
@@ -438,7 +438,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForClearDepth(m_CurrentRenderTarget))
 		{
@@ -458,7 +458,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
 
@@ -469,7 +469,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const Viewport &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForSetViewport(m_CurrentRenderTarget, command))
 		{
@@ -487,7 +487,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const Scissor &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForSetScissor(m_CurrentRenderTarget, command))
 		{
@@ -503,7 +503,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForResolve(command))
 		{
@@ -528,7 +528,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		if (!command.Query)
 		{
@@ -552,7 +552,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		if (!command.Query)
 		{
@@ -576,7 +576,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device)
 	{
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
@@ -584,7 +584,7 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
 	{
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
@@ -592,7 +592,7 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
 	{
 		Ref<TextureOpenGL>			  sourceTexture = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Source);
 		Ref<TextureOpenGL>			  destTexture	= std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
@@ -626,18 +626,18 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands([&](const GladGLContext &context)
 							  { glCall(context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str())); });
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.PopDebugGroup(); });
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -651,7 +651,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -663,7 +663,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
 	{
 		if (m_CurrentlyBoundPipeline.has_value())
 		{
@@ -676,27 +676,27 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device)
+	void CommandExecutorOpenGL::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -728,13 +728,13 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)
 	{
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.TextureBarrier(); });
 
 		const SubresourceRange &range = command.SubresourceRange;
 
-		Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(command.Texture);
+		Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(command.ITexture);
 
 		for (uint32_t arrayLayer = range.BaseArrayLayer; arrayLayer < range.BaseArrayLayer + range.LayerCount; arrayLayer++)
 		{
@@ -745,11 +745,11 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
 	}
 

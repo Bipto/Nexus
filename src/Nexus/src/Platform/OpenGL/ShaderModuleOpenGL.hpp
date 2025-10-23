@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class ShaderModuleOpenGL : public ShaderModule
+	class ShaderModuleOpenGL : public IShaderModule
 	{
 	  public:
 		ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceOpenGL *device);

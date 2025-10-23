@@ -15,13 +15,13 @@ namespace Nexus::Graphics
 	class GraphicsDeviceOpenGL;
 	class FramebufferOpenGL;
 
-	class SwapchainOpenGL : public Swapchain
+	class SwapchainOpenGL : public ISwapchain
 	{
 	  public:
 		SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~SwapchainOpenGL();
 		void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<Framebuffer>		 GetCurrentFramebuffer() final;
+		Ref<IFramebuffer>		 GetCurrentFramebuffer() final;
 		void					 SetPresentMode(PresentMode presentMode) final;
 		Nexus::Point2D<uint32_t> GetSize() final;
 		PixelFormat				 GetColourFormat() final;
@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 
 		GL::IViewContext *GetViewContext();
 		IWindow			 *GetWindow() final;
-		Ref<Framebuffer>  GetFramebuffer();
+		Ref<IFramebuffer> GetFramebuffer();
 		void			  CreateFramebuffer();
 
 	  private:

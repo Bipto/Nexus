@@ -67,52 +67,52 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		return CreateRef<ShaderModuleVk>(moduleSpec, this);
 	}
 
-	Ref<GraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	Ref<IGraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineVk>(description, this);
 	}
 
-	Ref<ComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
+	Ref<IComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		return CreateRef<ComputePipelineVk>(description, this);
 	}
 
-	Ref<MeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	Ref<IMeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		return CreateRef<MeshletPipelineVk>(description, this);
 	}
 
-	Ref<RayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	Ref<IRayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
 		return nullptr;
 	}
 
-	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
+	Ref<IResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		return CreateRef<ResourceSetVk>(pipeline, this);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	Ref<IFramebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
 		return CreateRef<FramebufferVk>(desc, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
+	Ref<ISampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerVk>(this, spec);
 	}
 
-	Ref<TimingQuery> GraphicsDeviceVk::CreateTimingQuery()
+	Ref<ITimingQuery> GraphicsDeviceVk::CreateTimingQuery()
 	{
 		return CreateRef<TimingQueryVk>(this);
 	}
 
-	Ref<DeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<IDeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferVk>(desc, this);
 	}
@@ -133,12 +133,12 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Fence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
+	Ref<IFence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
 	{
 		return CreateRef<FenceVk>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -173,7 +173,7 @@ namespace Nexus::Graphics
 		return CreateRef<CommandQueueVk>(this, description);
 	}
 
-	void GraphicsDeviceVk::ResetFences(Ref<Fence> *fences, uint32_t count)
+	void GraphicsDeviceVk::ResetFences(Ref<IFence> *fences, uint32_t count)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -186,7 +186,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
+	Ref<ITexture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureVk>(spec, this);
 	}

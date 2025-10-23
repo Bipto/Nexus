@@ -11,7 +11,7 @@
 namespace Nexus::Graphics
 {
 	GraphicsPipelineOpenGL::GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description, GraphicsDeviceOpenGL *device)
-		: GraphicsPipeline(description),
+		: IGraphicsPipeline(description),
 		  m_Device(device)
 	{
 		CreateShader();
@@ -401,7 +401,7 @@ namespace Nexus::Graphics
 	}
 
 	ComputePipelineOpenGL::ComputePipelineOpenGL(const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device)
-		: ComputePipeline(description),
+		: IComputePipeline(description),
 		  m_Device(device)
 	{
 		CreateShader();

@@ -2,13 +2,14 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
+	#include "FramebufferD3D12.hpp"
 	#include "GraphicsDeviceD3D12.hpp"
 	#include "TextureD3D12.hpp"
 
 namespace Nexus::Graphics
 {
-	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
-		: Swapchain(swapchainSpec),
+	SwapchainD3D12::SwapchainD3D12(IWindow *window, IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
+		: ISwapchain(swapchainSpec),
 		  m_CommandQueue(queue),
 		  m_Window(window)
 	{
@@ -76,7 +77,7 @@ namespace Nexus::Graphics
 		AcquireBackbufferIndex();
 	}
 
-	Ref<Framebuffer> SwapchainD3D12::GetCurrentFramebuffer()
+	Ref<IFramebuffer> SwapchainD3D12::GetCurrentFramebuffer()
 	{
 		return m_SwapchainFramebuffers.at(m_CurrentBufferIndex);
 	}
@@ -112,11 +113,6 @@ namespace Nexus::Graphics
 		return 1;
 	}
 
-	bool SwapchainD3D12::HasMultisampledFramebuffer() const
-	{
-		return m_Description.Samples > 1;
-	}
-
 	void SwapchainD3D12::AcquireBackbufferIndex()
 	{
 		// retrieve the current buffer index from the swapchain
@@ -127,6 +123,14 @@ namespace Nexus::Graphics
 	{
 		// execute a signal and wait for each buffer in the swapchain
 		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->WaitForIdle(); }
+
+		for (const auto &framebuffer : m_SwapchainFramebuffers)
+		{
+			Ref<FramebufferD3D12> framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(framebuffer);
+			framebufferD3D12->Flush();
+		}
+
+		m_SwapchainFramebuffers.clear();
 	}
 
 	void SwapchainD3D12::RecreateSwapchainIfNecessary()

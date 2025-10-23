@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-	class TimingQueryD3D12 : public TimingQuery
+	class TimingQueryD3D12 : public ITimingQuery
 	{
 	  public:
 		TimingQueryD3D12(GraphicsDeviceD3D12 *device);

@@ -9,7 +9,7 @@
 namespace Nexus::Graphics
 {
 	GraphicsPipelineVk::GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: GraphicsPipeline(description),
+		: IGraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		m_PipelineLayout = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
@@ -127,7 +127,7 @@ namespace Nexus::Graphics
 	}
 
 	MeshletPipelineVk::MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: MeshletPipeline(description),
+		: IMeshletPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		m_PipelineLayout = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
@@ -224,7 +224,7 @@ namespace Nexus::Graphics
 	}
 
 	ComputePipelineVk::ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: ComputePipeline(description),
+		: IComputePipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		NX_VALIDATE(description.ComputeShader->GetShaderStage() == ShaderStage::Compute,

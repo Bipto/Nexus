@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	TextureD3D12::TextureD3D12(const TextureDescription &spec, GraphicsDeviceD3D12 *device) : Texture(spec), m_Device(device)
+	TextureD3D12::TextureD3D12(const TextureDescription &spec, GraphicsDeviceD3D12 *device) : ITexture(spec), m_Device(device)
 	{
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one mip level");
@@ -81,7 +81,7 @@ namespace Nexus::Graphics
 		: m_Texture(handle),
 		  m_Description(spec),
 		  m_Device(device),
-		  Texture(spec)
+		  ITexture(spec)
 	{
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one mip level");
@@ -98,6 +98,8 @@ namespace Nexus::Graphics
 
 		std::wstring name = std::wstring(m_Description.DebugName.begin(), m_Description.DebugName.end());
 		m_Texture->SetName(name.c_str());
+
+		m_TextureLayout.resize(spec.DepthOrArrayLayers * spec.MipLevels, TextureLayout::Undefined);
 	}
 
 	TextureD3D12::~TextureD3D12()
@@ -130,6 +132,32 @@ namespace Nexus::Graphics
 	Microsoft::WRL::ComPtr<ID3D12Resource2> TextureD3D12::GetHandle()
 	{
 		return m_Texture;
+	}
+
+	void TextureD3D12::ReleaseHandle(bool waitForIdle)
+	{
+		// Optionally ensure the device is idle before releasing GPU resources.
+		if (waitForIdle && m_Device)
+		{
+			m_Device->WaitForIdle();
+		}
+
+		// Clear CPU-side state
+		m_TextureLayout.clear();
+		shaderResourceView = {};
+
+		// Release COM/resource references owned by this object.
+		if (m_Texture)
+		{
+			m_Texture.Reset();
+		}
+		if (m_Allocation)
+		{
+			m_Allocation.Reset();
+		}
+
+		// Reset format to unknown
+		m_TextureFormat = DXGI_FORMAT_UNKNOWN;
 	}
 }	 // namespace Nexus::Graphics
 

@@ -219,7 +219,7 @@ namespace Nexus
 	{
 		std::string			   TexturePath	 = {};
 		GUID				   TextureID	 = GUID(0);
-		Ref<Graphics::Texture> SpriteTexture = nullptr;
+		Ref<Graphics::ITexture> SpriteTexture = nullptr;
 		glm::vec4			   SpriteColour	 = {1.0f, 1.0f, 1.0f, 1.0f};
 		float				   Tiling		 = 1.0f;
 
@@ -243,7 +243,7 @@ namespace Nexus
 		{
 			if (!TexturePath.empty())
 			{
-				Nexus::Graphics::GraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
+				Nexus::Graphics::IGraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
 				SpriteTexture							= device->CreateTexture2D(nullptr, TexturePath, true, false);
 			}
 		}

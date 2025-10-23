@@ -53,8 +53,8 @@ namespace Demos
 			m_CommandList->CopyBufferToBuffer(bufferCopy);
 
 			m_CommandList->SetPipeline(m_Pipeline);
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -167,19 +167,19 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet = nullptr;
 		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
-		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler>		  m_Sampler		= nullptr;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
 		glm::mat4								  m_TransformUniforms = {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UploadBuffer	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_StorageBuffer	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UploadBuffer	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_StorageBuffer	  = nullptr;
 	};
 }	 // namespace Demos

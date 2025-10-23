@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 {
 	class TextureD3D12;
 
-	class FramebufferD3D12 : public Framebuffer
+	class FramebufferD3D12 : public IFramebuffer
 	{
 	  public:
 		FramebufferD3D12(const FramebufferTextureSetDescription &desc, GraphicsDeviceD3D12 *device);
@@ -40,7 +40,10 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthDescriptorHeap		= nullptr;
 
 		std::vector<Ref<TextureD3D12>> m_ColourAttachments;
+		std::vector<Ref<TextureD3D12>> m_ResolveAttachments;
 		Ref<TextureD3D12>			   m_DepthAttachment = nullptr;
+
+		friend class SwapchainD3D12;
 	};
 }	 // namespace Nexus::Graphics
 

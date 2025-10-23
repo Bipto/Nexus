@@ -68,14 +68,14 @@ namespace Nexus::Graphics
 		std::string DebugName		   = "Texture";
 	};
 
-	class NX_API Texture
+	class NX_API ITexture
 	{
 	  public:
-		Texture(const TextureDescription &spec) : m_Description(spec)
+		ITexture(const TextureDescription &spec) : m_Description(spec)
 		{
 		}
 
-		virtual ~Texture()
+		virtual ~ITexture()
 		{
 		}
 

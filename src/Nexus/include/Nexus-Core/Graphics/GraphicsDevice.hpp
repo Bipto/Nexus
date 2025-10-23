@@ -30,17 +30,17 @@
 namespace Nexus::Graphics
 {
 	/// @brief A class representing an abstraction over a graphics API
-	class NX_API GraphicsDevice
+	class NX_API IGraphicsDevice
 	{
 	  public:
-		GraphicsDevice() = default;
+		IGraphicsDevice() = default;
 
 		/// @brief A virtual destructor allowing resources to be deleted
-		virtual ~GraphicsDevice() = default;
+		virtual ~IGraphicsDevice() = default;
 
 		/// @brief Copying a GraphicsDevice is not supported
 		/// @param Another GraphicsDevice taken by const reference
-		GraphicsDevice(const GraphicsDevice &) = delete;
+		IGraphicsDevice(const IGraphicsDevice &) = delete;
 
 		/// @brief A pure virtual method that returns the name of the graphics API as
 		/// a string
@@ -51,53 +51,53 @@ namespace Nexus::Graphics
 		/// description
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
-		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
+		virtual Ref<IGraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
 
-		virtual Ref<ComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
+		virtual Ref<IComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
-		virtual Ref<MeshletPipeline> CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
+		virtual Ref<IMeshletPipeline> CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
 
-		virtual Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
+		virtual Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb = false);
+		Ref<ITexture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb = false);
 
 		/// @brief A method that loads a new texture from an image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb = false);
+		Ref<ITexture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb = false);
 
-		std::pair<Ref<Texture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
-																		   const char		 *filepath,
-																		   bool				  generateMips,
-																		   bool				  srgb = false);
+		std::pair<Ref<ITexture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
+																			const char		  *filepath,
+																			bool			   generateMips,
+																			bool			   srgb = false);
 
-		std::pair<Ref<Texture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
-																		   const std::string &filepath,
-																		   bool				  generateMips,
-																		   bool				  srgb = false);
+		std::pair<Ref<ITexture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
+																			const std::string &filepath,
+																			bool			   generateMips,
+																			bool			   srgb = false);
 
-		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
+		virtual Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
-		Ref<Framebuffer> CreateFramebuffer(const FramebufferTextureCreateDescription &desc);
+		Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureCreateDescription &desc);
 
 		/// @brief A pure virtual method that creates a new resource set from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set
 		/// @return A pointer to a resource set
-		virtual Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline) = 0;
+		virtual Ref<IResourceSet> CreateResourceSet(Ref<Pipeline> pipeline) = 0;
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
-		virtual Ref<Sampler> CreateSampler(const SamplerDescription &spec) = 0;
+		virtual Ref<ISampler> CreateSampler(const SamplerDescription &spec) = 0;
 
-		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
+		virtual Ref<IDeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
-		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
+		virtual Ref<ITimingQuery> CreateTimingQuery() = 0;
 
 		virtual Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
 
@@ -121,27 +121,27 @@ namespace Nexus::Graphics
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Ref<Texture> CreateTexture(const TextureDescription &spec) = 0;
+		virtual Ref<ITexture> CreateTexture(const TextureDescription &spec) = 0;
 
 		virtual Ref<ITextureView> CreateTextureView(const TextureViewDescription &desc) = 0;
 
-		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
+		virtual Ref<IFence> CreateFence(const FenceDescription &desc) = 0;
 
-		virtual FenceWaitResult WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
+		virtual FenceWaitResult WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
 
-		virtual void ResetFences(Ref<Fence> *fences, uint32_t count) = 0;
+		virtual void ResetFences(Ref<IFence> *fences, uint32_t count) = 0;
 
 		virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
 
 		virtual Ref<ICommandQueue> CreateCommandQueue(const CommandQueueDescription &description) = 0;
 
-		Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
+		Ref<IShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
-		Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
+		Ref<IShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
-		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
+		Ref<IShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
-		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
+		Ref<IShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
 		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
@@ -156,10 +156,10 @@ namespace Nexus::Graphics
 			const std::vector<uint32_t>							&primitiveCount) const = 0;
 
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;
-		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
+		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;
+		Ref<IShaderModule> TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
-		Ref<CommandList> m_ImmediateCommandList = nullptr;
+		Ref<ICommandList> m_ImmediateCommandList = nullptr;
 	};
 }	 // namespace Nexus::Graphics

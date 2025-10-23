@@ -23,7 +23,7 @@ namespace Nexus
 		m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(Graphics::IGraphicsAPI::CreateAPI(spec.GraphicsCreateInfo));
 
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
-		m_GraphicsDevice = std::unique_ptr<Graphics::GraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
+		m_GraphicsDevice = std::unique_ptr<Graphics::IGraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
 		// iterate through all available command queues
 		std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
@@ -89,7 +89,7 @@ namespace Nexus
 		return m_Window;
 	}
 
-	Ref<Nexus::Graphics::Swapchain> Application::GetPrimarySwapchain()
+	Ref<Nexus::Graphics::ISwapchain> Application::GetPrimarySwapchain()
 	{
 		return m_Swapchain;
 	}
@@ -124,7 +124,7 @@ namespace Nexus
 		m_Running = false;
 	}
 
-	Graphics::GraphicsDevice *Application::GetGraphicsDevice()
+	Graphics::IGraphicsDevice *Application::GetGraphicsDevice()
 	{
 		return m_GraphicsDevice.get();
 	}

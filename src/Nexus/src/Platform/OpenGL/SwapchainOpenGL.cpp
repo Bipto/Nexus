@@ -9,7 +9,7 @@
 namespace Nexus::Graphics
 {
 	SwapchainOpenGL::SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice)
-		: Swapchain(swapchainSpec),
+		: ISwapchain(swapchainSpec),
 		  m_Window(window),
 		  m_Device(graphicsDevice)
 	{
@@ -51,7 +51,7 @@ namespace Nexus::Graphics
 		ResizeIfNecessary();
 	}
 
-	Ref<Framebuffer> SwapchainOpenGL::GetCurrentFramebuffer()
+	Ref<IFramebuffer> SwapchainOpenGL::GetCurrentFramebuffer()
 	{
 		return m_Framebuffer;
 	}
@@ -125,14 +125,14 @@ namespace Nexus::Graphics
 		return m_Window;
 	}
 
-	Ref<Framebuffer> SwapchainOpenGL::GetFramebuffer()
+	Ref<IFramebuffer> SwapchainOpenGL::GetFramebuffer()
 	{
 		return m_Framebuffer;
 	}
 
 	void SwapchainOpenGL::CreateFramebuffer()
 	{
-		GraphicsDevice *device = m_Device;
+		IGraphicsDevice *device = m_Device;
 
 		FramebufferTextureCreateDescription framebufferDesc = {};
 		framebufferDesc.Width								= m_SwapchainWidth;

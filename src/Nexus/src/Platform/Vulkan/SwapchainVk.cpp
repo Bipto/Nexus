@@ -11,8 +11,8 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainVk::SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec)
-		: Swapchain(swapchainSpec),
+	SwapchainVk::SwapchainVk(IWindow *window, IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec)
+		: ISwapchain(swapchainSpec),
 		  m_Window(window)
 	{
 		m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
@@ -113,7 +113,7 @@ namespace Nexus::Graphics
 		AcquireNextImage();
 	}
 
-	Ref<Framebuffer> SwapchainVk::GetCurrentFramebuffer()
+	Ref<IFramebuffer> SwapchainVk::GetCurrentFramebuffer()
 	{
 		return m_Framebuffers.at(m_CurrentFrameIndex);
 	}

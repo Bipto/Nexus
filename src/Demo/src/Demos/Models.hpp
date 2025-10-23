@@ -74,8 +74,8 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -195,26 +195,26 @@ namespace Demos
 
 			for (size_t i = 0; i < m_Model->GetMeshes().size(); i++)
 			{
-				Nexus::Ref<Nexus::Graphics::ResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+				Nexus::Ref<Nexus::Graphics::IResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 				m_ResourceSets.push_back(resourceSet);
 			}
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	= nullptr;
 		Nexus::Ref<Nexus::Graphics::Model>			  m_Model		= nullptr;
 		glm::vec3									  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-		std::vector<Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets = {};
+		std::vector<Nexus::Ref<Nexus::Graphics::IResourceSet>> m_ResourceSets = {};
 
 		VB_UNIFORM_CAMERA_DEMO_MODELS			  m_CameraUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
 
 		VB_UNIFORM_TRANSFORM_DEMO_MODELS		  m_TransformUniforms	   = {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler> m_Sampler = nullptr;
 
 		Nexus::FirstPersonCamera m_Camera = {};
 

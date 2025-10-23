@@ -11,7 +11,7 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : ResourceSet(pipeline), m_Device(device)
+	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
 	{
 		Ref<PipelineD3D12> pipelineD3D12				= std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
 		m_DescriptorHandleInfo							= pipelineD3D12->GetDescriptorHandleInfo();
@@ -60,7 +60,7 @@ namespace Nexus::Graphics
 		{
 			switch (descriptorTableInfo.Source)
 			{
-				case D3D12::DescriptorHandleSource::Sampler:
+				case D3D12::DescriptorHandleSource::ISampler:
 				{
 					D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle = m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 					descriptorHandle.ptr +=

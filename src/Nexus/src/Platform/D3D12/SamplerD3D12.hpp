@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	class SamplerD3D12 : public Sampler
+	class SamplerD3D12 : public ISampler
 	{
 	  public:
 		SamplerD3D12(const SamplerDescription &spec);

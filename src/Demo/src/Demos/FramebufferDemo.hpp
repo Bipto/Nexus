@@ -30,7 +30,7 @@ namespace Demos
 			framebufferDesc.Samples					= 1;
 			m_Framebuffer							= m_GraphicsDevice->CreateFramebuffer(framebufferDesc);
 
-			Nexus::Ref<Nexus::Graphics::Texture> texture = m_Framebuffer->GetColorTextureHandle(0);
+			Nexus::Ref<Nexus::Graphics::ITexture> texture = m_Framebuffer->GetColorTextureHandle(0);
 
 			Nexus::Graphics::TextureViewDescription viewDesc = {};
 			viewDesc.TargetTexture							 = texture;
@@ -53,8 +53,8 @@ namespace Demos
 
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -75,10 +75,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = nullptr;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-		Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer			   = nullptr;
+		Nexus::Ref<Nexus::Graphics::IFramebuffer> m_Framebuffer			   = nullptr;
 		ImTextureID								 m_TextureID			   = 0;
 		glm::vec3								 m_RenderTargetClearColour = {0.75f, 0.35f, 0.42f};
 

@@ -9,7 +9,7 @@
 
 namespace Nexus::Graphics
 {
-	class FramebufferVk : public Framebuffer
+	class FramebufferVk : public IFramebuffer
 	{
 	  public:
 		FramebufferVk(const FramebufferTextureSetDescription &desc, GraphicsDeviceVk *device);

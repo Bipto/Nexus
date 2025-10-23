@@ -11,22 +11,22 @@
 
 namespace Nexus::Graphics
 {
-	void ICommandQueue::SubmitCommandList(Ref<CommandList> commandList)
+	void ICommandQueue::SubmitCommandList(Ref<ICommandList> commandList)
 	{
 		SubmitCommandList(commandList, nullptr);
 	}
 
-	void ICommandQueue::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
+	void ICommandQueue::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
 	{
 		SubmitCommandLists(&commandList, 1, fence);
 	}
 
-	void ICommandQueue::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists)
+	void ICommandQueue::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
 	{
 		SubmitCommandLists(commandLists, numCommandLists, nullptr);
 	}
 
-	void ICommandQueue::WriteToTexture(Ref<Texture> texture,
+	void ICommandQueue::WriteToTexture(Ref<ITexture> texture,
 									   uint32_t		mipLevel,
 									   uint32_t		x,
 									   uint32_t		y,
@@ -36,15 +36,15 @@ namespace Nexus::Graphics
 									   const void  *data,
 									   size_t		size)
 	{
-		GraphicsDevice *device = GetGraphicsDevice();
+		IGraphicsDevice *device = GetGraphicsDevice();
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Upload;
 		bufferDesc.Usage				   = BufferUsage::None;
 		bufferDesc.SizeInBytes			   = size;
 		bufferDesc.StrideInBytes		   = size;
-		Ref<DeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList		   = CreateCommandList();
+		Ref<IDeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
+		Ref<ICommandList>  cmdList		   = CreateCommandList();
 
 		buffer->SetData(data, 0, size);
 
@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 		WaitForIdle();
 	}
 
-	std::vector<char> ICommandQueue::ReadFromTexture(Ref<Texture> texture,
+	std::vector<char> ICommandQueue::ReadFromTexture(Ref<ITexture> texture,
 													 uint32_t	  mipLevel,
 													 uint32_t	  x,
 													 uint32_t	  y,
@@ -74,7 +74,7 @@ namespace Nexus::Graphics
 													 uint32_t	  width,
 													 uint32_t	  height)
 	{
-		GraphicsDevice *device	   = GetGraphicsDevice();
+		IGraphicsDevice *device	   = GetGraphicsDevice();
 		size_t			bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		DeviceBufferDescription bufferDesc = {};
@@ -83,8 +83,8 @@ namespace Nexus::Graphics
 		bufferDesc.SizeInBytes			   = bufferSize;
 		bufferDesc.StrideInBytes		   = bufferSize;
 
-		Ref<DeviceBuffer> buffer  = device->CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList = CreateCommandList();
+		Ref<IDeviceBuffer> buffer  = device->CreateDeviceBuffer(bufferDesc);
+		Ref<ICommandList>  cmdList = CreateCommandList();
 
 		cmdList->Begin();
 

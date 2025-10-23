@@ -9,7 +9,7 @@
 
 namespace Nexus::Graphics
 {
-	class ResourceSetD3D12 : public ResourceSet
+	class ResourceSetD3D12 : public IResourceSet
 	{
 	  public:
 		ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device);

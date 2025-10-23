@@ -19,14 +19,14 @@ namespace Nexus
 
 	namespace Graphics
 	{
-		class GraphicsDevice;
+		class IGraphicsDevice;
 		class ICommandQueue;
 	}	 // namespace Graphics
 
 	class NX_API Project
 	{
 	  public:
-		Project(Graphics::GraphicsDevice	*device,
+		Project(Graphics::IGraphicsDevice	*device,
 				Ref<Graphics::ICommandQueue> commandQueue,
 				const std::string			&name,
 				const std::string			&directory,
@@ -34,7 +34,7 @@ namespace Nexus
 		Project() = default;
 		~Project();
 		void				Serialize();
-		static Ref<Project> Deserialize(const std::string &filepath, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		static Ref<Project> Deserialize(const std::string &filepath, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 
 		Scene *GetLoadedScene()
 		{
@@ -55,10 +55,10 @@ namespace Nexus
 		size_t						  GetNumberOfScenes() const;
 		bool						  IsSceneLoaded() const;
 
-		void LoadScene(uint32_t index, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
-		void LoadScene(const std::string &name, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		void LoadScene(uint32_t index, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		void LoadScene(const std::string &name, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		void CreateNewScene(const std::string &name);
-		void ReloadCurrentScene(Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		void ReloadCurrentScene(Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 
 		void OnUpdate(TimeSpan time);
 		void OnRender(TimeSpan time);

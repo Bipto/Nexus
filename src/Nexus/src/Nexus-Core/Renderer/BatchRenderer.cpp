@@ -251,12 +251,12 @@ namespace Nexus::Graphics
 		FlushTextures(info, blankTexture);
 	}
 
-	void CreateBatcher(BatchInfo								&info,
-					   Nexus::Graphics::GraphicsDevice			*device,
-					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
-					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule,
-					   bool										 useDepthTest,
-					   uint32_t									 sampleCount)
+	void CreateBatcher(BatchInfo								 &info,
+					   Nexus::Graphics::IGraphicsDevice			 *device,
+					   Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule,
+					   Nexus::Ref<Nexus::Graphics::IShaderModule> fragmentModule,
+					   bool										  useDepthTest,
+					   uint32_t									  sampleCount)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
@@ -297,39 +297,39 @@ namespace Nexus::Graphics
 
 		description.ColourTargetSampleCount = sampleCount;
 
-		info.Pipeline	 = device->CreateGraphicsPipeline(description);
-		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
+		info.Pipeline	  = device->CreateGraphicsPipeline(description);
+		info.IResourceSet = device->CreateResourceSet(info.Pipeline);
 
 		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};
 		vertexUploadDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
 		vertexUploadDesc.Usage									  = Graphics::BufferUsage::None;
 		vertexUploadDesc.StrideInBytes							  = sizeof(BatchVertex);
 		vertexUploadDesc.SizeInBytes							  = info.Vertices.size() * sizeof(BatchVertex);
-		info.VertexUploadBuffer									  = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
+		info.VertexUploadBuffer									  = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription vertexDesc = {};
 		vertexDesc.Access									= Graphics::BufferMemoryAccess::Default;
 		vertexDesc.Usage									= Graphics::BufferUsage::Vertex;
 		vertexDesc.StrideInBytes							= sizeof(BatchVertex);
 		vertexDesc.SizeInBytes								= info.Vertices.size() * sizeof(BatchVertex);
-		info.VertexBuffer									= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
+		info.VertexBuffer									= Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
 
 		Nexus::Graphics::DeviceBufferDescription indexUploadDesc = {};
 		indexUploadDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
 		indexUploadDesc.Usage									 = Graphics::BufferUsage::None;
 		indexUploadDesc.StrideInBytes							 = sizeof(uint32_t);
 		indexUploadDesc.SizeInBytes								 = info.Indices.size() * sizeof(uint32_t);
-		info.IndexUploadBuffer									 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
+		info.IndexUploadBuffer									 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription indexDesc = {};
 		indexDesc.Access								   = Graphics::BufferMemoryAccess::Default;
 		indexDesc.Usage									   = Graphics::BufferUsage::Index;
 		indexDesc.StrideInBytes							   = sizeof(uint32_t);
 		indexDesc.SizeInBytes							   = info.Indices.size() * sizeof(uint32_t);
-		info.IndexBuffer								   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
+		info.IndexBuffer								   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_CommandList(commandQueue->CreateCommandList()),
@@ -356,18 +356,19 @@ namespace Nexus::Graphics
 													 .LayerCount	 = m_BlankTexture->GetDepthOrArrayLayers()};
 		viewDesc.DebugName						  = "Blank Texture View";
 
-		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
-																												"Batch Renderer - Vertex Shader",
-																												Nexus::Graphics::ShaderStage::Vertex);
-		Nexus::Ref<Nexus::Graphics::ShaderModule> sdfFragmentModule =
+		Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule =
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
+														   "Batch Renderer - Vertex Shader",
+														   Nexus::Graphics::ShaderStage::Vertex);
+		Nexus::Ref<Nexus::Graphics::IShaderModule> sdfFragmentModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchSDFFragmentShaderSource,
 														   "Batch Renderer - SDF Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
-		Nexus::Ref<Nexus::Graphics::ShaderModule> textureFragmentModule =
+		Nexus::Ref<Nexus::Graphics::IShaderModule> textureFragmentModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchTextureFragmentShaderSource,
 														   "Batch Renderer - Texture Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
-		Nexus::Ref<Nexus::Graphics::ShaderModule> fontFragmentModule =
+		Nexus::Ref<Nexus::Graphics::IShaderModule> fontFragmentModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchFontFragmentShaderSource,
 														   "Batch Renderer - Font Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
@@ -381,14 +382,14 @@ namespace Nexus::Graphics
 		uniformUploadDesc.Usage									   = Graphics::BufferUsage::None;
 		uniformUploadDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformUploadDesc.SizeInBytes							   = sizeof(glm::mat4);
-		m_UniformUploadBuffer									   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
+		m_UniformUploadBuffer									   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription uniformDesc = {};
 		uniformDesc.Access									 = Graphics::BufferMemoryAccess::Default;
 		uniformDesc.Usage									 = Graphics::BufferUsage::Uniform;
 		uniformDesc.StrideInBytes							 = sizeof(glm::mat4);
 		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
-		m_UniformBuffer										 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
+		m_UniformBuffer										 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
 
 		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
@@ -401,13 +402,13 @@ namespace Nexus::Graphics
 		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 	}
 
-	void BatchRenderer::Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor)
+	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor)
 	{
 		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
 		Begin(target, viewport, scissor, projection);
 	}
 
-	void BatchRenderer::Begin(Ref<Framebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
+	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
 	{
 		if (m_IsStarted)
 		{
@@ -1136,7 +1137,7 @@ namespace Nexus::Graphics
 		uniformBufferView.BufferHandle		= m_UniformBuffer;
 		uniformBufferView.Offset			= 0;
 		uniformBufferView.Size				= m_UniformBuffer->GetDescription().SizeInBytes;
-		info.ResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
+		info.IResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
 
 		for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
 		{
@@ -1146,14 +1147,14 @@ namespace Nexus::Graphics
 				Graphics::CombinedImageSampler ciSampler = {};
 				ciSampler.ImageTexture					 = info.Textures.at(i);
 				ciSampler.ImageSampler					 = m_Sampler;
-				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
+				info.IResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 			else
 			{
 				Graphics::CombinedImageSampler ciSampler = {};
 				ciSampler.ImageTexture					 = m_BlankTextureView;
 				ciSampler.ImageSampler					 = m_Sampler;
-				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
+				info.IResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 		}
 
@@ -1184,7 +1185,7 @@ namespace Nexus::Graphics
 		m_CommandList->SetFramebuffer(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
-		m_CommandList->SetResourceSet(info.ResourceSet);
+		m_CommandList->SetResourceSet(info.IResourceSet);
 
 		VertexBufferView vertexBufferView = {};
 		vertexBufferView.BufferHandle	  = info.VertexBuffer;

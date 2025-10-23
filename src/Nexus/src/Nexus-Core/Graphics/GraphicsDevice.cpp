@@ -27,13 +27,13 @@
 
 namespace Nexus::Graphics
 {
-	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
+	Ref<IShaderModule> IGraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
 	{
 		std::string shaderSource = Nexus::FileSystem::ReadFileToString(filepath);
 		return CreateShaderModuleFromSpirvSource(shaderSource, filepath, stage);
 	}
 
-	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
+	Ref<IShaderModule> IGraphicsDevice::CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
 	{
 		ShaderModuleSpecification moduleSpec;
 
@@ -68,33 +68,33 @@ namespace Nexus::Graphics
 		return CreateShaderModule(moduleSpec);
 	}
 
-	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
+	Ref<IShaderModule> IGraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
 	{
 		return TryLoadCachedShader(source, name, stage, GetSupportedShaderFormat());
 	}
 
-	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage)
+	Ref<IShaderModule> IGraphicsDevice::GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage)
 	{
 		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
 		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
 	}
 
-	bool GraphicsDevice::Validate()
+	bool IGraphicsDevice::Validate()
 	{
 		return true;
 	}
 
-	Ref<ShaderModule> GraphicsDevice::TryLoadCachedShader(const std::string &source,
-														  const std::string &name,
-														  ShaderStage		 stage,
-														  ShaderLanguage	 language)
+	Ref<IShaderModule> IGraphicsDevice::TryLoadCachedShader(const std::string &source,
+															const std::string &name,
+															ShaderStage		   stage,
+															ShaderLanguage	   language)
 	{
 		std::size_t hash		   = Utils::Hash(source);
 		std::string languageString = ShaderLanguageToString(language);
 		std::string filepath	   = Nexus::GetApplication()->GetApplicationPath() + std::string("/cache/shaders/") + languageString + "/" + name;
 
-		bool			  shaderCreated = false;
-		Ref<ShaderModule> module		= nullptr;
+		bool			   shaderCreated = false;
+		Ref<IShaderModule> module		 = nullptr;
 
 		if (std::filesystem::exists(filepath))
 		{
@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 		return module;
 	}
 
-	Ref<Texture> GraphicsDevice::CreateTexture2D(Ref<ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb)
+	Ref<ITexture> IGraphicsDevice::CreateTexture2D(Ref<ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb)
 	{
 		int receivedChannels  = 0;
 		int width			  = 0;
@@ -145,7 +145,7 @@ namespace Nexus::Graphics
 		}
 
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
-		auto   texture	  = Ref<Texture>(CreateTexture(spec));
+		auto   texture	  = Ref<ITexture>(CreateTexture(spec));
 		commandQueue->WriteToTexture(texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 
 		stbi_image_free(data);
@@ -165,17 +165,17 @@ namespace Nexus::Graphics
 		return texture;
 	}
 
-	Ref<Texture> GraphicsDevice::CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
+	Ref<ITexture> IGraphicsDevice::CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
 	{
 		return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	std::pair<Ref<Texture>, Ref<ITextureView>> GraphicsDevice::CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
-																					   const char		 *filepath,
-																					   bool				  generateMips,
-																					   bool				  srgb)
+	std::pair<Ref<ITexture>, Ref<ITextureView>> IGraphicsDevice::CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
+																						 const char		   *filepath,
+																						 bool				generateMips,
+																						 bool				srgb)
 	{
-		Ref<Texture> texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
+		Ref<ITexture> texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
 
 		TextureViewDescription viewDesc = {};
 		viewDesc.TargetTexture			= texture;
@@ -191,15 +191,15 @@ namespace Nexus::Graphics
 		return {texture, textureView};
 	}
 
-	std::pair<Ref<Texture>, Ref<ITextureView>> GraphicsDevice::CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
-																					   const std::string &filepath,
-																					   bool				  generateMips,
-																					   bool				  srgb)
+	std::pair<Ref<ITexture>, Ref<ITextureView>> IGraphicsDevice::CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
+																						 const std::string &filepath,
+																						 bool				generateMips,
+																						 bool				srgb)
 	{
 		return CreateTexture2DWithView(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	Ref<Framebuffer> GraphicsDevice::CreateFramebuffer(const FramebufferTextureCreateDescription &desc)
+	Ref<IFramebuffer> IGraphicsDevice::CreateFramebuffer(const FramebufferTextureCreateDescription &desc)
 	{
 		FramebufferTextureSetDescription framebufferDesc = {};
 
@@ -215,7 +215,7 @@ namespace Nexus::Graphics
 			textureDesc.Samples			   = desc.Samples;
 			textureDesc.Format			   = format;
 
-			Ref<Texture> colourAttachment = CreateTexture(textureDesc);
+			Ref<ITexture> colourAttachment = CreateTexture(textureDesc);
 
 			FramebufferColourAttachmentDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
 			framebufferTextureDesc.ColourAttachment.TargetTexture		   = colourAttachment;
@@ -234,7 +234,7 @@ namespace Nexus::Graphics
 				resolveTextureDesc.Samples			  = 1;
 				resolveTextureDesc.Format			  = format;
 
-				Ref<Texture> resolveAttachment = CreateTexture(resolveTextureDesc);
+				Ref<ITexture> resolveAttachment = CreateTexture(resolveTextureDesc);
 
 				FramebufferTextureDescription resolveAttachmentDesc = {};
 				resolveAttachmentDesc.TargetTexture					= resolveAttachment;
@@ -255,7 +255,7 @@ namespace Nexus::Graphics
 			textureDesc.Samples			   = desc.Samples;
 			textureDesc.Format			   = desc.DepthAttachmentFormat.value();
 
-			Ref<Texture> texture = CreateTexture(textureDesc);
+			Ref<ITexture> texture = CreateTexture(textureDesc);
 
 			FramebufferTextureDescription framebufferTextureDesc = {};
 			framebufferTextureDesc.TargetTexture				 = texture;

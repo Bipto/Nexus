@@ -33,8 +33,8 @@ namespace Demos
 
 			m_CommandList->StartTimingQuery(m_TimingQuery);
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
@@ -67,11 +67,11 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
+		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::TimingQuery> m_TimingQuery;
-		float									 m_Timing		= 0;
-		float									 m_TimerCounter = 1.0f;
+		Nexus::Ref<Nexus::Graphics::ITimingQuery> m_TimingQuery;
+		float									  m_Timing		 = 0;
+		float									  m_TimerCounter = 1.0f;
 	};
 }	 // namespace Demos

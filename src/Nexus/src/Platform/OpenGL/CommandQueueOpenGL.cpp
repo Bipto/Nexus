@@ -20,14 +20,14 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<Swapchain> CommandQueueOpenGL::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	Ref<ISwapchain> CommandQueueOpenGL::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
 	{
 		Ref<PhysicalDeviceOpenGL> physicalDevice = m_Device->GetPhysicalDeviceOpenGL();
 		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
 		return CreateRef<SwapchainOpenGL>(window, spec, m_Device);
 	}
 
-	void CommandQueueOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
+	void CommandQueueOpenGL::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -42,7 +42,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	GraphicsDevice *CommandQueueOpenGL::GetGraphicsDevice()
+	IGraphicsDevice *CommandQueueOpenGL::GetGraphicsDevice()
 	{
 		return m_Device;
 	}
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	Ref<CommandList> CommandQueueOpenGL::CreateCommandList(const CommandListDescription &spec)
+	Ref<ICommandList> CommandQueueOpenGL::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListOpenGL>(spec);
 	}

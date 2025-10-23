@@ -83,7 +83,7 @@ Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face										 &face,
 
 namespace Nexus::Graphics
 {
-	Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device)
+	Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, IGraphicsDevice *device)
 		: m_CharacterRanges(characterRanges),
 		  m_FontSize(size),
 		  m_Type(type)
@@ -162,13 +162,13 @@ namespace Nexus::Graphics
 		bufferDesc.Usage				   = Graphics::BufferUsage::None;
 		bufferDesc.SizeInBytes			   = pixels.GetSizeInBytes();
 		bufferDesc.StrideInBytes		   = pixels.GetSizeInBytes();
-		Ref<DeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
+		Ref<IDeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
+	Nexus::Ref<Nexus::Graphics::ITexture> Font::GetTexture()
 	{
 		return m_Texture;
 	}

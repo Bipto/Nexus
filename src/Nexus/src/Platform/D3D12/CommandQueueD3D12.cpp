@@ -43,12 +43,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<Swapchain> CommandQueueD3D12::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	Ref<ISwapchain> CommandQueueD3D12::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
 	{
 		return CreateRef<SwapchainD3D12>(window, m_Device, this, spec);
 	}
 
-	void CommandQueueD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
+	void CommandQueueD3D12::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
 
@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	GraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()
+	IGraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()
 	{
 		return m_Device;
 	}
@@ -89,7 +89,7 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	Ref<CommandList> CommandQueueD3D12::CreateCommandList(const CommandListDescription &spec)
+	Ref<ICommandList> CommandQueueD3D12::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListD3D12>(m_Device, spec);
 	}

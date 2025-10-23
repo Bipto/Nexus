@@ -12,9 +12,9 @@ namespace Nexus::Graphics
 		Utils::FlipPixelsVertically(Pixels.data(), Width, Height, Format);
 	}
 
-	Image Image::FromTexture(GraphicsDevice	   *device,
+	Image Image::FromTexture(IGraphicsDevice	   *device,
 							 Ref<ICommandQueue> commandQueue,
-							 Ref<Texture>		texture,
+							 Ref<ITexture>		texture,
 							 uint32_t			arrayLayer,
 							 uint32_t			mipLevel,
 							 uint32_t			x,

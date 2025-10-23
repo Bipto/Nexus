@@ -68,8 +68,8 @@ namespace Demos
 			dispatchDesc.WorkGroupCountZ					  = 1;
 			m_CommandList->Dispatch(dispatchDesc);
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -111,10 +111,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::ComputePipeline> m_ComputePipeline	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	 m_ResourceSet		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>		 m_Texture			   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	 m_CommandList		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::IComputePipeline> m_ComputePipeline	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	 m_ResourceSet		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>		 m_Texture			   = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView>	 m_TextureView		   = nullptr;
 		glm::vec3									 m_ClearColour		   = {0.7f, 0.2f, 0.3f};
 		ImTextureID									 m_ImGuiTextureBinding = 0;

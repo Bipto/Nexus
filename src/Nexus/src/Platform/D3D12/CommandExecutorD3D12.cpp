@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 		m_PixModule = NULL;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
 	{
 		const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
 
@@ -43,6 +43,8 @@ namespace Nexus::Graphics
 		{
 			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
 		}
+
+		m_CurrentFramebuffer = {};
 	}
 
 	void CommandExecutorD3D12::Reset()
@@ -54,7 +56,7 @@ namespace Nexus::Graphics
 		m_CommandList = commandList;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -76,7 +78,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -93,7 +95,7 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
 	{
 		Ref<Pipeline> pipeline = std::dynamic_pointer_cast<Pipeline>(command.lock());
 
@@ -102,7 +104,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundPipeline = pipeline;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DrawDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -112,7 +114,7 @@ namespace Nexus::Graphics
 		m_CommandList->DrawInstanced(command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -126,7 +128,7 @@ namespace Nexus::Graphics
 											command.InstanceStart);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -147,7 +149,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DrawIndirectIndexedDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -171,7 +173,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DispatchDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -181,14 +183,14 @@ namespace Nexus::Graphics
 		m_CommandList->Dispatch(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
 		}
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+		if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
@@ -200,7 +202,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -210,14 +212,14 @@ namespace Nexus::Graphics
 		m_CommandList->DispatchMesh(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
 		}
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+		if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
@@ -229,7 +231,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -266,7 +268,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForClearColour(m_CurrentFramebuffer, command.Index))
 		{
@@ -295,7 +297,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device)
 	{
 		if (m_DepthHandle.ptr)
 		{
@@ -319,12 +321,12 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
 	{
 		SetFramebuffer(command, device);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const Viewport &command, IGraphicsDevice *device)
 	{
 		D3D12_VIEWPORT vp = {};
 		vp.TopLeftX		  = command.X;
@@ -336,7 +338,7 @@ namespace Nexus::Graphics
 		m_CommandList->RSSetViewports(1, &vp);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const Scissor &command, IGraphicsDevice *device)
 	{
 		RECT rect	= {};
 		rect.left	= command.X;
@@ -346,7 +348,7 @@ namespace Nexus::Graphics
 		m_CommandList->RSSetScissorRects(1, &rect);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
 	{
 		Ref<TextureD3D12> source			= std::dynamic_pointer_cast<TextureD3D12>(command.Source);
 		uint32_t		  sourceSubresource = Utils::CalculateSubresource(command.SourceMipLevel, command.SourceArrayLayer, source->GetMipLevels());
@@ -366,7 +368,7 @@ namespace Nexus::Graphics
 										  D3D12::GetD3D12PixelFormat(destFormat));
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query);
 		Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap	   = queryD3D12->GetQueryHeap();
@@ -374,7 +376,7 @@ namespace Nexus::Graphics
 		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query);
 		Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap	   = queryD3D12->GetQueryHeap();
@@ -382,7 +384,7 @@ namespace Nexus::Graphics
 		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
 		Ref<DeviceBufferD3D12> source = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Source);
 		Ref<DeviceBufferD3D12> dest	  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Destination);
@@ -393,7 +395,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device)
 	{
 		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
@@ -458,7 +460,7 @@ namespace Nexus::Graphics
 		m_CommandList->ResourceBarrier(1, &toDefaultBarrier);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
 	{
 		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
@@ -516,7 +518,7 @@ namespace Nexus::Graphics
 		m_CommandList->ResourceBarrier(1, &toDefaultBarrier);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
 	{
 		Ref<TextureD3D12> srcTexture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureCopy.Source);
 		Ref<TextureD3D12> dstTexture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureCopy.Destination);
@@ -601,7 +603,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
 	{
 		if (m_PIXBeginEvent && m_PIXEndEvent)
 		{
@@ -610,7 +612,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device)
 	{
 		if (m_PIXBeginEvent && m_PIXEndEvent)
 		{
@@ -618,7 +620,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
 	{
 		if (m_PIXSetMarker)
 		{
@@ -627,7 +629,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
 	{
 		float blendFactor[4] = {command.BlendFactorDesc.Red,
 								command.BlendFactorDesc.Green,
@@ -637,32 +639,32 @@ namespace Nexus::Graphics
 		m_CommandList->OMSetBlendFactor(blendFactor);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
 	{
 		m_CommandList->OMSetStencilRef(command.StencilReference);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device)
+	void CommandExecutorD3D12::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)
 	{
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceD3D12 *deviceD3D12   = (GraphicsDeviceD3D12 *)device;
 		const auto			&d3d12Features = deviceD3D12->GetD3D12DeviceFeatures();
@@ -689,7 +691,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceD3D12 *deviceD3D12   = (GraphicsDeviceD3D12 *)device;
 		const auto			&d3d12Features = deviceD3D12->GetD3D12DeviceFeatures();
@@ -705,7 +707,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceD3D12 *deviceD3D12   = (GraphicsDeviceD3D12 *)device;
 		const auto			&d3d12Features = deviceD3D12->GetD3D12DeviceFeatures();
@@ -753,39 +755,41 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
-	}
+		Ref<IFramebuffer> framebuffer = command.TargetFramebuffer;
 
-	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
-	{
-		NX_VALIDATE(0, "Not implemented");
-
-		/*if (Ref<Swapchain> sc = swapchain.lock())
+		if (framebuffer->GetSampleCount() > 1)
 		{
-			Ref<SwapchainD3D12> swapchainD3D12 = std::dynamic_pointer_cast<SwapchainD3D12>(sc);
-
-			if (sc->GetDescription().Samples == 1)
+			for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
 			{
-				std::vector<D3D12_RESOURCE_BARRIER> barriers;
-				GraphicsDeviceD3D12				   *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
+				std::optional<FramebufferColourAttachmentDescription> colourAttachmentDescOpt = framebuffer->GetColorTextureBinding(i);
+				if (colourAttachmentDescOpt.has_value())
+				{
+					FramebufferColourAttachmentDescription colourAttachmentDesc = colourAttachmentDescOpt.value();
+					if (colourAttachmentDesc.ResolveAttachment.has_value())
+					{
+						for (uint32_t i = 0; i < colourAttachmentDesc.ColourAttachment.LayerCount; i++)
+						{
+							FramebufferTextureDescription resolveAttachmentDesc = colourAttachmentDesc.ResolveAttachment.value();
 
-				ResetPreviousRenderTargets(device);
+							ResolveTextureDescription resolveDesc = {};
+							resolveDesc.Source					  = colourAttachmentDesc.ColourAttachment.TargetTexture;
+							resolveDesc.SourceMipLevel			  = colourAttachmentDesc.ColourAttachment.MipLevel;
+							resolveDesc.SourceArrayLayer		  = colourAttachmentDesc.ColourAttachment.BaseArrayLayer + i;
+							resolveDesc.Destination				  = resolveAttachmentDesc.TargetTexture;
+							resolveDesc.DestinationMipLevel		  = resolveAttachmentDesc.MipLevel;
+							resolveDesc.DestinationArrayLayer	  = resolveAttachmentDesc.BaseArrayLayer + i;
 
-				m_DescriptorHandles = {swapchainD3D12->RetrieveRenderTargetViewDescriptorHandle()};
-				m_DepthHandle		= swapchainD3D12->RetrieveDepthBufferDescriptorHandle();
-
-				deviceD3D12->ResourceBarrierSwapchainColour(m_CommandList.Get(), swapchainD3D12, D3D12_RESOURCE_STATE_RENDER_TARGET);
-				deviceD3D12->ResourceBarrierSwapchainDepth(m_CommandList.Get(), swapchainD3D12, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+							ExecuteCommand(resolveDesc, device);
+						}
+					}
+				}
 			}
-			else
-			{
-				SetFramebuffer(swapchainD3D12->GetMultisampledFramebuffer(), device);
-			}
-		}*/
+		}
 	}
 
-	void CommandExecutorD3D12::SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device)
+	void CommandExecutorD3D12::SetFramebuffer(WeakRef<IFramebuffer> framebuffer, IGraphicsDevice *device)
 	{
 		ResetPreviousRenderTargets(device);
 		GraphicsDeviceD3D12 *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
@@ -815,7 +819,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ResetPreviousRenderTargets(GraphicsDevice *device)
+	void CommandExecutorD3D12::ResetPreviousRenderTargets(IGraphicsDevice *device)
 	{
 		m_CurrentFramebuffer = {};
 		m_DepthHandle		 = {};
@@ -887,7 +891,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertResourceBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
+		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.ITexture);
 		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 		bool		  transitionEachSubresourceSeparately = false;
@@ -964,7 +968,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertTextureBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
+		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.ITexture);
 		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 		bool		  transitionEachSubresourceSeparately = false;

@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		}
 	};
 
-	class TextureVk : public Texture
+	class TextureVk : public ITexture
 	{
 	  public:
 		TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device);

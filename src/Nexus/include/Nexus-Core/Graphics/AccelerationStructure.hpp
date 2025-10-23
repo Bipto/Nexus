@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 
 	struct DeviceBufferAddress
 	{
-		Ref<DeviceBuffer> Buffer = nullptr;
+		Ref<IDeviceBuffer> Buffer = nullptr;
 		size_t			  Offset = 0;
 	};
 
@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 
 	enum class DeviceBufferOrHostAddressType
 	{
-		DeviceBuffer,
+		IDeviceBuffer,
 		HostAddress
 	};
 
@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 	{
 		AccelerationStructureType Type		= AccelerationStructureType::BottomLevel;
 		std::string				  DebugName = "Acceleration Structure";
-		Ref<DeviceBuffer>		  Buffer	= nullptr;
+		Ref<IDeviceBuffer>		  Buffer	= nullptr;
 		size_t					  Offset	= 0;
 		size_t					  Size		= 0;
 	};

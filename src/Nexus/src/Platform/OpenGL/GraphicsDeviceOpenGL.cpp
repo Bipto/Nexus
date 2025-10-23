@@ -75,7 +75,7 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->GetOffscreenContext();
 	}
 
-	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<ShaderModuleOpenGL>(moduleSpec, this);
@@ -166,55 +166,55 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<GraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	Ref<IGraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<GraphicsPipelineOpenGL>(description, this);
 	}
 
-	Ref<ComputePipeline> GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
+	Ref<IComputePipeline> GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<ComputePipelineOpenGL>(description, this);
 	}
 
-	Ref<MeshletPipeline> GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	Ref<IMeshletPipeline> GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		NX_VALIDATE(false, "Meshlet pipelines are not supported by OpenGL");
 		return nullptr;
 	}
 
-	Ref<RayTracingPipeline> GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	Ref<IRayTracingPipeline> GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
 		NX_VALIDATE(false, "Ray tracing pipelines are not supported by OpenGL");
 		return nullptr;
 	}
 
-	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
+	Ref<IResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<ResourceSetOpenGL>(pipeline);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	Ref<IFramebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<FramebufferOpenGL>(desc, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
+	Ref<ISampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<SamplerOpenGL>(spec, this);
 	}
 
-	Ref<TimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
+	Ref<ITimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<TimingQueryOpenGL>();
 	}
 
-	Ref<DeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<IDeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<DeviceBufferOpenGL>(desc, this);
@@ -239,13 +239,13 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Fence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
+	Ref<IFence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<FenceOpenGL>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<FenceWaitResult> success(count);
 
@@ -332,7 +332,7 @@ namespace Nexus::Graphics
 		return CreateRef<CommandQueueOpenGL>(this, description);
 	}
 
-	void GraphicsDeviceOpenGL::ResetFences(Ref<Fence> *fences, uint32_t count)
+	void GraphicsDeviceOpenGL::ResetFences(Ref<IFence> *fences, uint32_t count)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		for (uint32_t i = 0; i < count; i++)
@@ -342,7 +342,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
+	Ref<ITexture> GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		return CreateRef<TextureOpenGL>(spec, this);

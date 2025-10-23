@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	struct CombinedImageSampler
 	{
 		Ref<ITextureView> ImageTexture = {};
-		Ref<Sampler>	  ImageSampler = {};
+		Ref<ISampler>	  ImageSampler = {};
 		TextureLayout	  Layout	   = TextureLayout::ShaderReadOnlyOptimal;
 	};
 
@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Ref<Texture>  TextureHandle = nullptr;
+		Ref<ITexture>  TextureHandle = nullptr;
 		uint32_t	  ArrayLayer	= 0;
 		uint32_t	  MipLevel		= 0;
 		ShaderAccess  Access		= ShaderAccess::Read;
@@ -34,7 +34,7 @@ namespace Nexus::Graphics
 
 	struct StorageBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = nullptr;
+		Ref<IDeviceBuffer> BufferHandle = nullptr;
 		size_t			  Offset	   = 0;
 		size_t			  SizeInBytes  = 0;
 		ShaderAccess	  Access	   = ShaderAccess::Read;
@@ -48,11 +48,11 @@ namespace Nexus::Graphics
 
 	class Pipeline;
 
-	class ResourceSet
+	class IResourceSet
 	{
 	  public:
-		ResourceSet(Ref<Pipeline> pipeline);
-		virtual ~ResourceSet()
+		IResourceSet(Ref<Pipeline> pipeline);
+		virtual ~IResourceSet()
 		{
 		}
 

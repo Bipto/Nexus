@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 {
 
 	GraphicsPipelineD3D12::GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description)
-		: GraphicsPipeline(description),
+		: IGraphicsPipeline(description),
 		  m_Description(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
@@ -61,7 +61,7 @@ namespace Nexus::Graphics
 	}
 
 	MeshletPipelineD3D12::MeshletPipelineD3D12(GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description)
-		: MeshletPipeline(description)
+		: IMeshletPipeline(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
 		D3D12::CreateRootSignature(resources, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);
@@ -101,7 +101,7 @@ namespace Nexus::Graphics
 	}
 
 	ComputePipelineD3D12::ComputePipelineD3D12(GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description)
-		: ComputePipeline(description)
+		: IComputePipeline(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
 		D3D12::CreateRootSignature(resources, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);

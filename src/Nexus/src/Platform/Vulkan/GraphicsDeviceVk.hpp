@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 		bool SupportsRayTracing		   = false;
 	};
 
-	class GraphicsDeviceVk final : public GraphicsDevice
+	class GraphicsDeviceVk final : public IGraphicsDevice
 	{
 	  public:
 		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config);
@@ -34,26 +34,26 @@ namespace Nexus::Graphics
 		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<GraphicsPipeline>	CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<ComputePipeline>	CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<MeshletPipeline>	CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
-		Ref<RayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		Ref<IComputePipeline>	 CreateComputePipeline(const ComputePipelineDescription &description) final;
+		Ref<IMeshletPipeline>	 CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		Ref<ResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
-		Ref<Framebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
-		Ref<Sampler>				CreateSampler(const SamplerDescription &spec) final;
-		Ref<TimingQuery>			CreateTimingQuery() final;
-		Ref<DeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		Ref<IResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
+		Ref<IFramebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
+		Ref<ISampler>				CreateSampler(const SamplerDescription &spec) final;
+		Ref<ITimingQuery>			CreateTimingQuery() final;
+		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
-		Ref<Texture>				 CreateTexture(const TextureDescription &spec) final;
+		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
 		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
-		Ref<Fence>					 CreateFence(const FenceDescription &desc) final;
+		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		FenceWaitResult				 WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
-		void						 ResetFences(Ref<Fence> *fences, uint32_t count) final;
+		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final;
 		bool		   IsBufferUsageSupported(BufferUsage usage) final;
@@ -97,7 +97,7 @@ namespace Nexus::Graphics
 
 		// vulkan functions
 	  private:
-		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
+		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 
 		void RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);

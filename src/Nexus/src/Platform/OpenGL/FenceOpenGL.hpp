@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class FenceOpenGL : public Fence
+	class FenceOpenGL : public IFence
 	{
 	  public:
 		FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device);

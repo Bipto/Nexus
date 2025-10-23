@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 		GraphicsAPI_OpenGL(const GraphicsAPICreateInfo &createInfo);
 		virtual ~GraphicsAPI_OpenGL();
 		virtual std::vector<std::shared_ptr<IPhysicalDevice>> GetPhysicalDevices() override;
-		virtual Graphics::GraphicsDevice					 *CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device) override;
+		virtual Graphics::IGraphicsDevice					 *CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device) override;
 		virtual const GraphicsAPICreateInfo					 &GetGraphicsAPICreateInfo() const override;
 
 	  private:

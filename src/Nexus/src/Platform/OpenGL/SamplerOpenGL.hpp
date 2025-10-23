@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class SamplerOpenGL : public Sampler
+	class SamplerOpenGL : public ISampler
 	{
 	  public:
 		SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device);

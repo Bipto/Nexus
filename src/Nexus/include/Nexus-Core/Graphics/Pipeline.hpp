@@ -41,19 +41,19 @@ namespace Nexus::Graphics
 		std::vector<VertexBufferLayout> Layouts;
 
 		/// @brief The fragment shader that will be used with the pipeline
-		Ref<ShaderModule> FragmentModule = nullptr;
+		Ref<IShaderModule> FragmentModule = nullptr;
 
 		/// @brief The geometry shader to use with the pipeline (optional)
-		Ref<ShaderModule> GeometryModule = nullptr;
+		Ref<IShaderModule> GeometryModule = nullptr;
 
 		/// @brief The tesselation control shader to use with the pipeline (optional)
-		Ref<ShaderModule> TesselationControlModule = nullptr;
+		Ref<IShaderModule> TesselationControlModule = nullptr;
 
 		/// @brief The tesselation evaluation shader to use with the pipeline (optional)
-		Ref<ShaderModule> TesselationEvaluationModule = nullptr;
+		Ref<IShaderModule> TesselationEvaluationModule = nullptr;
 
 		/// @brief The vertex shader to use with the pipeline
-		Ref<ShaderModule> VertexModule = nullptr;
+		Ref<IShaderModule> VertexModule = nullptr;
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Graphics Pipeline";
@@ -61,7 +61,7 @@ namespace Nexus::Graphics
 
 	struct ComputePipelineDescription
 	{
-		Ref<ShaderModule> ComputeShader = nullptr;
+		Ref<IShaderModule> ComputeShader = nullptr;
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Compute Pipeline";
@@ -94,13 +94,13 @@ namespace Nexus::Graphics
 		PixelFormat DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
 
 		/// @brief The fragment shader that will be used with the pipeline
-		Ref<ShaderModule> FragmentModule = nullptr;
+		Ref<IShaderModule> FragmentModule = nullptr;
 
 		/// @brief The mesh shader to use with the pipeline
-		Ref<ShaderModule> MeshModule = nullptr;
+		Ref<IShaderModule> MeshModule = nullptr;
 
 		/// @brief The task shader to use with the pipeline (optional)
-		Ref<ShaderModule> TaskModule = nullptr;
+		Ref<IShaderModule> TaskModule = nullptr;
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Meshlet Pipeline";
@@ -124,7 +124,7 @@ namespace Nexus::Graphics
 
 	struct RayTracingPipelineDescription
 	{
-		std::vector<Ref<ShaderModule>> Shaders			 = {};
+		std::vector<Ref<IShaderModule>> Shaders			 = {};
 		std::vector<ShaderGroup>	   ShaderGroups		 = {};
 		uint32_t					   MaxRecursionDepth = 0;
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
@@ -150,9 +150,9 @@ namespace Nexus::Graphics
 				output.Type = ResourceType::StorageImage;
 				break;
 			}
-			case ReflectedShaderDataType::Texture:
+			case ReflectedShaderDataType::ITexture:
 			{
-				output.Type = ResourceType::Texture;
+				output.Type = ResourceType::ITexture;
 				break;
 			}
 			case ReflectedShaderDataType::UniformTextureBuffer:
@@ -165,9 +165,9 @@ namespace Nexus::Graphics
 				output.Type = ResourceType::StorageTextureBuffer;
 				break;
 			}
-			case ReflectedShaderDataType::Sampler:
+			case ReflectedShaderDataType::ISampler:
 			{
-				output.Type = ResourceType::Sampler;
+				output.Type = ResourceType::ISampler;
 				break;
 			}
 			case ReflectedShaderDataType::ComparisonSampler:
@@ -218,14 +218,14 @@ namespace Nexus::Graphics
 		}
 
 		virtual PipelineType				   GetType() const		   = 0;
-		virtual std::vector<Ref<ShaderModule>> GetShaderStages() const = 0;
+		virtual std::vector<Ref<IShaderModule>> GetShaderStages() const = 0;
 
 		std::map<std::string, ShaderResource> GetRequiredShaderResources() const
 		{
 			std::map<std::string, ShaderResource> requiredResources;
 
-			std::vector<Ref<ShaderModule>> shaderStages = GetShaderStages();
-			for (Ref<ShaderModule> module : shaderStages)
+			std::vector<Ref<IShaderModule>> shaderStages = GetShaderStages();
+			for (Ref<IShaderModule> module : shaderStages)
 			{
 				ShaderReflectionData reflectionData = module->Reflect();
 				for (const auto &resource : reflectionData.Resources)
@@ -255,20 +255,20 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A pure virtual class representing an API specific pipeline
-	class GraphicsPipeline : public Pipeline
+	class IGraphicsPipeline : public Pipeline
 	{
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
 		/// creation
-		GraphicsPipeline(const GraphicsPipelineDescription &description) : m_Description(description)
+		IGraphicsPipeline(const GraphicsPipelineDescription &description) : m_Description(description)
 		{
 		}
 
 		/// @brief An empty pipeline cannot be created
-		GraphicsPipeline() = delete;
+		IGraphicsPipeline() = delete;
 
 		/// @brief Virtual destructor allowing API specific resources to be destroyed
-		virtual ~GraphicsPipeline()
+		virtual ~IGraphicsPipeline()
 		{
 		}
 
@@ -282,9 +282,9 @@ namespace Nexus::Graphics
 			return PipelineType::Graphics;
 		}
 
-		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
-			std::vector<Ref<ShaderModule>> stages;
+			std::vector<Ref<IShaderModule>> stages;
 
 			if (m_Description.VertexModule)
 			{
@@ -319,16 +319,16 @@ namespace Nexus::Graphics
 		GraphicsPipelineDescription m_Description = {};
 	};
 
-	class ComputePipeline : public Pipeline
+	class IComputePipeline : public Pipeline
 	{
 	  public:
-		ComputePipeline(const ComputePipelineDescription &description) : m_Description(description)
+		IComputePipeline(const ComputePipelineDescription &description) : m_Description(description)
 		{
 		}
 
-		ComputePipeline() = delete;
+		IComputePipeline() = delete;
 
-		virtual ~ComputePipeline()
+		virtual ~IComputePipeline()
 		{
 		}
 
@@ -342,9 +342,9 @@ namespace Nexus::Graphics
 			return PipelineType::Compute;
 		}
 
-		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
-			std::vector<Ref<ShaderModule>> stages;
+			std::vector<Ref<IShaderModule>> stages;
 
 			if (m_Description.ComputeShader)
 			{
@@ -358,14 +358,14 @@ namespace Nexus::Graphics
 		ComputePipelineDescription m_Description = {};
 	};
 
-	class MeshletPipeline : public Pipeline
+	class IMeshletPipeline : public Pipeline
 	{
 	  public:
-		MeshletPipeline(const MeshletPipelineDescription &description) : m_Description(description)
+		IMeshletPipeline(const MeshletPipelineDescription &description) : m_Description(description)
 		{
 		}
 
-		virtual ~MeshletPipeline()
+		virtual ~IMeshletPipeline()
 		{
 		}
 
@@ -379,9 +379,9 @@ namespace Nexus::Graphics
 			return PipelineType::Compute;
 		}
 
-		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
-			std::vector<Ref<ShaderModule>> stages;
+			std::vector<Ref<IShaderModule>> stages;
 
 			if (m_Description.TaskModule)
 			{
@@ -405,14 +405,14 @@ namespace Nexus::Graphics
 		MeshletPipelineDescription m_Description = {};
 	};
 
-	class RayTracingPipeline : public Pipeline
+	class IRayTracingPipeline : public Pipeline
 	{
 	  public:
-		RayTracingPipeline(const RayTracingPipelineDescription &description) : m_Description(description)
+		IRayTracingPipeline(const RayTracingPipelineDescription &description) : m_Description(description)
 		{
 		}
 
-		virtual ~RayTracingPipeline()
+		virtual ~IRayTracingPipeline()
 		{
 		}
 
@@ -426,7 +426,7 @@ namespace Nexus::Graphics
 			return PipelineType::RayTracing;
 		}
 
-		std::vector<Ref<ShaderModule>> GetShaderStages() const final
+		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
 			return {};
 		}

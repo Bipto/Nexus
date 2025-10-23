@@ -45,13 +45,13 @@ namespace Demos
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			samplerSpec.MinimumLOD						 = m_SelectedMip;
 			samplerSpec.MaximumLOD						 = m_SelectedMip;
-			Nexus::Ref<Nexus::Graphics::Sampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+			Nexus::Ref<Nexus::Graphics::ISampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -141,11 +141,11 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet = nullptr;
 		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 

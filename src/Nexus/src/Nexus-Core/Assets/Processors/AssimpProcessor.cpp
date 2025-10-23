@@ -10,7 +10,7 @@
 
 namespace Nexus::Processors
 {
-	void ProcessMesh(aiMesh *mesh, const aiScene *scene, std::vector<Graphics::MeshData> &meshes, Graphics::GraphicsDevice *device)
+	void ProcessMesh(aiMesh *mesh, const aiScene *scene, std::vector<Graphics::MeshData> &meshes, Graphics::IGraphicsDevice *device)
 	{
 		Graphics::MeshData meshData = {};
 
@@ -82,7 +82,7 @@ namespace Nexus::Processors
 					 const aiScene								  *scene,
 					 const std::vector<Nexus::Graphics::Material> &materials,
 					 std::vector<Graphics::MeshData>			  &meshData,
-					 Graphics::GraphicsDevice					  *device)
+					 Graphics::IGraphicsDevice					  *device)
 	{
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
@@ -93,8 +93,8 @@ namespace Nexus::Processors
 		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, materials, meshData, device); }
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture> LoadEmbeddedTexture(const aiTexture				 *texture,
-															 Nexus::Graphics::GraphicsDevice *device,
+	Nexus::Ref<Nexus::Graphics::ITexture> LoadEmbeddedTexture(const aiTexture				 *texture,
+															 Nexus::Graphics::IGraphicsDevice *device,
 															 Ref<Graphics::ICommandQueue>	  commandQueue)
 	{
 		std::vector<unsigned char> pixels;
@@ -111,29 +111,29 @@ namespace Nexus::Processors
 		textureSpec.Type								= Nexus::Graphics::TextureType::Texture2D;
 		textureSpec.Usage								= Nexus::Graphics::TextureUsage_Sampled;
 
-		Nexus::Ref<Nexus::Graphics::Texture> createdTexture = Nexus::Ref<Nexus::Graphics::Texture>(device->CreateTexture(textureSpec));
+		Nexus::Ref<Nexus::Graphics::ITexture> createdTexture = Nexus::Ref<Nexus::Graphics::ITexture>(device->CreateTexture(textureSpec));
 
 		Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access							 = Graphics::BufferMemoryAccess::Upload;
 		bufferDesc.Usage							 = Graphics::BufferUsage::None;
 		bufferDesc.SizeInBytes						 = pixels.size();
 		bufferDesc.StrideInBytes					 = pixels.size();
-		Ref<Graphics::DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
+		Ref<Graphics::IDeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
 
-		Ref<Graphics::CommandList> cmdList = commandQueue->CreateCommandList();
+		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
 
 		return createdTexture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture> LoadTextureFile(const std::string				 &filename,
+	Nexus::Ref<Nexus::Graphics::ITexture> LoadTextureFile(const std::string				 &filename,
 														 const std::string				 &directory,
 														 bool							  generateMips,
-														 Nexus::Graphics::GraphicsDevice *device,
+														 Nexus::Graphics::IGraphicsDevice *device,
 														 Ref<Graphics::ICommandQueue>	  commandQueue)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
-		Nexus::Ref<Nexus::Graphics::Texture> texture = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture> texture = nullptr;
 
 		if (std::filesystem::is_regular_file(texturePath))
 		{
@@ -145,7 +145,7 @@ namespace Nexus::Processors
 
 	std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene				   *scene,
 														   const std::string			   &directory,
-														   Nexus::Graphics::GraphicsDevice *device,
+														   Nexus::Graphics::IGraphicsDevice *device,
 														   Ref<Graphics::ICommandQueue>		commandQueue)
 	{
 		std::vector<Nexus::Graphics::Material> materials;
@@ -199,9 +199,9 @@ namespace Nexus::Processors
 				specularColour.a = assimpSpecularColour.a;
 			}
 
-			Nexus::Ref<Nexus::Graphics::Texture> diffuseTexture	 = nullptr;
-			Nexus::Ref<Nexus::Graphics::Texture> normalTexture	 = nullptr;
-			Nexus::Ref<Nexus::Graphics::Texture> specularTexture = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITexture> diffuseTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITexture> normalTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITexture> specularTexture = nullptr;
 
 			if (hasDiffuseTexture)
 			{
@@ -310,7 +310,7 @@ namespace Nexus::Processors
 	}
 
 	ModelImportData AssimpProcessor::LoadModel(const std::string		   &filepath,
-											   Graphics::GraphicsDevice	   *device,
+											   Graphics::IGraphicsDevice	   *device,
 											   Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		Assimp::Importer	  importer = {};
@@ -347,7 +347,7 @@ namespace Nexus::Processors
 	}
 
 	Ref<Graphics::Model> AssimpProcessor::Import(const std::string			 &filepath,
-												 Graphics::GraphicsDevice	 *device,
+												 Graphics::IGraphicsDevice	 *device,
 												 Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		ModelImportData					 importData = LoadModel(filepath, device, commandQueue);
@@ -357,14 +357,14 @@ namespace Nexus::Processors
 		{
 			const Graphics::MeshData &data = importData.meshes[i];
 
-			Nexus::Ref<Nexus::Graphics::DeviceBuffer> vertexBuffer =
+			Nexus::Ref<Nexus::Graphics::IDeviceBuffer> vertexBuffer =
 				Nexus::Utils::CreateFilledVertexBuffer(data.vertices.data(),
 													   data.vertices.size() * sizeof(data.vertices[0]),
 													   sizeof(data.vertices[0]),
 													   device,
 													   commandQueue);
 
-			Nexus::Ref<Nexus::Graphics::DeviceBuffer> indexBuffer =
+			Nexus::Ref<Nexus::Graphics::IDeviceBuffer> indexBuffer =
 				Nexus::Utils::CreateFilledIndexBuffer(data.indices.data(),
 													  data.indices.size() * sizeof(data.indices[0]),
 													  sizeof(data.indices[0]),
@@ -380,7 +380,7 @@ namespace Nexus::Processors
 	}
 
 	GUID AssimpProcessor::Process(const std::string			  &filepath,
-								  Graphics::GraphicsDevice	  *device,
+								  Graphics::IGraphicsDevice	  *device,
 								  Ref<Graphics::ICommandQueue> commandQueue,
 								  Project					  *project)
 	{

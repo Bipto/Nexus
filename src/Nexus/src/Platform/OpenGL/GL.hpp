@@ -97,7 +97,7 @@ namespace Nexus::GL
 
 	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
 
-	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::IGraphicsDevice *device);
 
 	void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context);
 

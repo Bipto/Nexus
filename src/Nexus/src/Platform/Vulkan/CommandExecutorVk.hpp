@@ -15,52 +15,52 @@ namespace Nexus::Graphics
 	  public:
 		explicit CommandExecutorVk(GraphicsDeviceVk *device);
 		virtual ~CommandExecutorVk();
-		void ExecuteCommands(Ref<CommandList> commandList, GraphicsDevice *device) final;
+		void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) final;
 		void Reset() final;
 
 		void SetCommandBuffer(VkCommandBuffer commandBuffer);
 
 	  private:
-		void ExecuteCommand(const SetVertexBufferCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const SetIndexBufferCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DrawDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DrawIndexedDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DrawIndirectDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DrawIndirectIndexedDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DispatchDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DispatchIndirectDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DrawMeshDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DrawMeshIndirectDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) final;
-		void ExecuteCommand(const ClearColorTargetCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Framebuffer> command, GraphicsDevice *device) final;
-		void ExecuteCommand(const Viewport &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const Scissor &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const ResolveTextureDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const StartTimingQueryCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const StopTimingQueryCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const BeginDebugGroupCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const EndDebugGroupCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const InsertDebugMarkerCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const SetBlendFactorCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const SetStencilReferenceCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const BuildAccelerationStructuresCommand &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const AccelerationStructureCopyDescription &command, GraphicsDevice *Device) final;
-		void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const PushConstantsDesc &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const MemoryBarrierDesc &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const TextureBarrierDesc &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const BufferBarrierDesc &command, GraphicsDevice *device) final;
-		void ExecuteCommand(const EndRenderingCommand &command, GraphicsDevice *device) final;
+		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DrawIndirectIndexedDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DispatchDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const Viewport &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const Scissor &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device) final;
+		void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
-		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
+		void StartRenderingToFramebuffer(Ref<IFramebuffer> framebuffer);
 		void StopRendering();
 		bool ValidateIsRendering();
 
@@ -74,8 +74,8 @@ namespace Nexus::Graphics
 		bool			  m_Rendering			   = false;
 		VkExtent2D		  m_RenderSize			   = {0, 0};
 
-		uint32_t		 m_DepthAttachmentIndex = 0;
-		Ref<Framebuffer> m_CurrentRenderTarget;
+		uint32_t		  m_DepthAttachmentIndex = 0;
+		Ref<IFramebuffer> m_CurrentRenderTarget;
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
 

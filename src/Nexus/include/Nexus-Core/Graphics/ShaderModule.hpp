@@ -74,14 +74,14 @@ namespace Nexus::Graphics
 		std::vector<ShaderAttribute> OutputAttributes;
 	};
 
-	class ShaderModule
+	class IShaderModule
 	{
 	  public:
-		ShaderModule(const ShaderModuleSpecification &shaderModuleSpec) : m_ModuleSpecification(shaderModuleSpec)
+		IShaderModule(const ShaderModuleSpecification &shaderModuleSpec) : m_ModuleSpecification(shaderModuleSpec)
 		{
 		}
 
-		virtual ~ShaderModule() = default;
+		virtual ~IShaderModule() = default;
 
 		ShaderStage GetShaderStage() const
 		{

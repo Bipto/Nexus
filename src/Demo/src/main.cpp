@@ -267,8 +267,8 @@ class DemoApplication : public Nexus::Application
 			NX_PROFILE_SCOPE("Clear Screen");
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
@@ -301,7 +301,7 @@ class DemoApplication : public Nexus::Application
   private:
 	Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 
-	Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList = nullptr;
+	Nexus::Ref<Nexus::Graphics::ICommandList>	 m_CommandList = nullptr;
 	std::unique_ptr<Demos::Demo>				 m_CurrentDemo = nullptr;
 	std::map<std::string, std::vector<DemoInfo>> m_Demos	   = {};
 
@@ -314,8 +314,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.GraphicsCreateInfo.Debug = true;
-
-	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
 	spec.WindowProperties.Height		   = 720;
@@ -324,7 +323,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 1;
+	spec.SwapchainDescription.Samples		   = 8;
 	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	spec.Organization = "Nexus";

@@ -5,9 +5,9 @@
 
 namespace Nexus::Graphics
 {
-	class GraphicsDevice;
+	class IGraphicsDevice;
 	class ICommandQueue;
-	class Texture;
+	class ITexture;
 
 	struct Image
 	{
@@ -18,9 +18,9 @@ namespace Nexus::Graphics
 
 		void FlipVertically();
 
-		static Image FromTexture(GraphicsDevice	   *device,
+		static Image FromTexture(IGraphicsDevice	   *device,
 								 Ref<ICommandQueue> commandQueue,
-								 Ref<Texture>		texture,
+								 Ref<ITexture>		texture,
 								 uint32_t			arrayLayer,
 								 uint32_t			mipLevel,
 								 uint32_t			x,

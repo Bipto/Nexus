@@ -34,7 +34,7 @@ namespace Demos
 			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
 			CreatePipeline();
@@ -46,8 +46,8 @@ namespace Demos
 			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 
 			m_CommandList->SetPipeline(m_Pipeline);
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -125,9 +125,9 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_VertexBuffer;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_VertexBuffer;
 		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

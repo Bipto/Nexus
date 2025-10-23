@@ -33,8 +33,8 @@ namespace Demos
 				NX_PROFILE_SCOPE("Command recording");
 				m_CommandList->Begin();
 
-				Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-				Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+				Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 				m_CommandList->SetFramebuffer(framebuffer);
 
 				m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -59,7 +59,7 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

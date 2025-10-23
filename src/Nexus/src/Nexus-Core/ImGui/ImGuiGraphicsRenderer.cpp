@@ -199,7 +199,7 @@ namespace Nexus::ImGuiUtils
 	{
 		ImTextureID id = (ImTextureID)m_TextureID++;
 
-		Ref<Graphics::ResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+		Ref<Graphics::IResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
 		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
 		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
@@ -207,7 +207,7 @@ namespace Nexus::ImGuiUtils
 		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
 		uniformBufferDesc.DebugName								   = "ImGui Uniform Buffer";
-		Ref<Graphics::DeviceBuffer> uniformBuffer				   = m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc);
+		Ref<Graphics::IDeviceBuffer> uniformBuffer				   = m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc);
 
 		ImGuiDescriptorInfo &info = m_Descriptors[id];
 		info.m_Texture			  = texture;
@@ -271,7 +271,7 @@ namespace Nexus::ImGuiUtils
 				{
 					ImGuiWindowInfo				   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
 					Nexus::IWindow				   *window	  = info->Window;
-					Ref<Nexus::Graphics::Swapchain> swapchain = info->Swapchain;
+					Ref<Nexus::Graphics::ISwapchain> swapchain = info->ISwapchain;
 
 					if (window && !window->IsClosing())
 					{
@@ -455,7 +455,7 @@ namespace Nexus::ImGuiUtils
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
 			vertexBufferDesc.DebugName								  = "ImGui Vertex Buffer";
-			m_VertexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer = Ref<Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 		}
 
 		if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -468,7 +468,7 @@ namespace Nexus::ImGuiUtils
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
 			indexBufferDesc.DebugName								 = "ImGui Index Buffer";
-			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
+			m_IndexBuffer = Ref<Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 		}
 
 		// update vertex buffer
@@ -533,7 +533,7 @@ namespace Nexus::ImGuiUtils
 				{
 					m_CommandList->SetPipeline(m_Pipeline);
 
-					Ref<Graphics::Swapchain> swapchain = info->Swapchain;
+					Ref<Graphics::ISwapchain> swapchain = info->ISwapchain;
 					m_CommandList->SetFramebuffer(swapchain->GetCurrentFramebuffer());
 
 					Graphics::VertexBufferView vertexBufferView = {};
@@ -693,11 +693,11 @@ namespace Nexus::ImGuiUtils
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
-			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(window, swapchainSpec);
+			Ref<Nexus::Graphics::ISwapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(window, swapchainSpec);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
-			info->Swapchain		  = swapchain;
+			info->ISwapchain		  = swapchain;
 
 			Nexus::ImGuiUtils::ImGuiGraphicsRenderer::SetupInput(window);
 
@@ -860,7 +860,7 @@ namespace Nexus::ImGuiUtils
 
 		ImGuiWindowInfo *info = new ImGuiWindowInfo();
 		info->Window		  = m_Application->GetPrimaryWindow();
-		info->Swapchain		  = m_Application->GetPrimarySwapchain();
+		info->ISwapchain		  = m_Application->GetPrimarySwapchain();
 		vp->PlatformUserData  = info;
 		vp->RendererUserData  = info;
 	}

@@ -17,10 +17,10 @@ namespace Nexus::Graphics
 		std::string DebugName = "Fence";
 	};
 
-	class Fence
+	class IFence
 	{
 	  public:
-		virtual ~Fence()
+		virtual ~IFence()
 		{
 		}
 		virtual bool					IsSignalled() const	   = 0;

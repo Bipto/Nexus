@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-	class TimingQueryVk : public TimingQuery
+	class TimingQueryVk : public ITimingQuery
 	{
 	  public:
 		TimingQueryVk(GraphicsDeviceVk *device);

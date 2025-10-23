@@ -95,10 +95,10 @@ namespace Nexus::Graphics
 
 		FeedbackTexture,
 		StorageImage,
-		Texture,
+		ITexture,
 		UniformTextureBuffer,
 		StorageTextureBuffer,
-		Sampler,
+		ISampler,
 		ComparisonSampler,
 		CombinedImageSampler,
 		UniformBuffer,
@@ -114,10 +114,10 @@ namespace Nexus::Graphics
 	enum class ResourceType
 	{
 		StorageImage,
-		Texture,
+		ITexture,
 		UniformTextureBuffer,
 		StorageTextureBuffer,
-		Sampler,
+		ISampler,
 		ComparisonSampler,
 		CombinedImageSampler,
 		UniformBuffer,

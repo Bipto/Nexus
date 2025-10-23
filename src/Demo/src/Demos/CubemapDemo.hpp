@@ -78,8 +78,8 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::Swapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -180,19 +180,19 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>  m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_Cubemap		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_Cubemap		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView> m_CubemapView = nullptr;
-		Nexus::Ref<Nexus::Graphics::Sampler>	  m_Sampler		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler>	  m_Sampler		= nullptr;
 		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	= nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::Mesh> m_Cube = nullptr;
 
 		VB_UNIFORM_CAMERA_DEMO_CAMERA			  m_CameraUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
 
 		Nexus::FirstPersonCamera m_Camera = {};
 	};

@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	TextureVk::TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device) : Texture(spec), m_GraphicsDevice(device)
+	TextureVk::TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device) : ITexture(spec), m_GraphicsDevice(device)
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
@@ -82,7 +82,7 @@ namespace Nexus::Graphics
 	}
 
 	TextureVk::TextureVk(VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device, bool owned)
-		: Texture(spec),
+		: ITexture(spec),
 		  m_GraphicsDevice(device),
 		  m_Image(image),
 		  m_Owned(owned)

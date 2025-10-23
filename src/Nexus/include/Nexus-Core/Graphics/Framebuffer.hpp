@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		uint32_t MipLevel = 0;
 
 		/// @brief A handle to the texture to bind
-		Ref<Texture> TargetTexture = nullptr;
+		Ref<ITexture> TargetTexture = nullptr;
 	};
 
 	struct FramebufferColourAttachmentDescription
@@ -86,11 +86,11 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A pure virtual class representing an API specific framebuffer
-	class Framebuffer
+	class IFramebuffer
 	{
 	  public:
 		/// @brief A virtual destructor enabling resources to be cleaned up
-		virtual ~Framebuffer() {};
+		virtual ~IFramebuffer() {};
 
 		/// @brief A pure virtual method to return the FramebufferSpecification
 		/// @return The FramebufferSpecification
@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 		/// framebuffer at the specified index
 		/// @param index The index of the texture to retrieve
 		/// @return A pointer to a texture object
-		Ref<Texture> GetColorTextureHandle(uint32_t index = 0)
+		Ref<ITexture> GetColorTextureHandle(uint32_t index = 0)
 		{
 			const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
 			if (index < desc.ColourAttachments.size())
@@ -134,7 +134,7 @@ namespace Nexus::Graphics
 		/// framebuffer at the specified index
 		/// @param index The index of the texture to retrieve
 		/// @return A pointer to a texture object
-		Ref<Texture> GetResolveTextureHandle(uint32_t index = 0)
+		Ref<ITexture> GetResolveTextureHandle(uint32_t index = 0)
 		{
 			const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
 			if (index < desc.ColourAttachments.size())
@@ -174,7 +174,7 @@ namespace Nexus::Graphics
 		/// @brief A method to retrieve the depth texture from the
 		/// framebuffer
 		/// @return A pointer to the texture
-		Ref<Texture> GetDepthTextureHandle()
+		Ref<ITexture> GetDepthTextureHandle()
 		{
 			const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
 			if (desc.DepthAttachment.has_value())

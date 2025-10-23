@@ -69,10 +69,10 @@ namespace Nexus::Graphics
 		std::string DebugName = "DeviceBuffer";
 	};
 
-	class DeviceBuffer
+	class IDeviceBuffer
 	{
 	  public:
-		virtual ~DeviceBuffer()
+		virtual ~IDeviceBuffer()
 		{
 		}
 		virtual void			  SetData(const void *data, uint32_t offset, uint32_t size) = 0;
@@ -119,14 +119,14 @@ namespace Nexus::Graphics
 
 	struct VertexBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = {};
+		Ref<IDeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
 		size_t			  Size		   = 0;
 	};
 
 	struct IndexBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = {};
+		Ref<IDeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
 		size_t			  Size		   = 0;
 		IndexFormat		  BufferFormat = IndexFormat::UInt32;
@@ -134,7 +134,7 @@ namespace Nexus::Graphics
 
 	struct UniformBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = {};
+		Ref<IDeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
 		size_t			  Size		   = 0;
 	};

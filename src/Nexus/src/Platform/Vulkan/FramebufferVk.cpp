@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 		// check if there is a valid depth texture in the description and bind it to the framebuffer if there is
 		if (m_Description.DepthAttachment.has_value())
 		{
-			Ref<Texture> texture = m_Description.DepthAttachment.value().TargetTexture;
+			Ref<ITexture> texture = m_Description.DepthAttachment.value().TargetTexture;
 			m_DepthAttachment	 = std::dynamic_pointer_cast<TextureVk>(texture);
 		}
 	}
@@ -95,7 +95,7 @@ namespace Nexus::Graphics
 				// if the colour attachment has a resolve attachment, we bind this
 				if (colourAttachmentDesc.ResolveAttachment.has_value())
 				{
-					Ref<Texture> resolveTexture = colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
+					Ref<ITexture> resolveTexture = colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
 					m_ResolveAttachments.push_back(std::dynamic_pointer_cast<TextureVk>(resolveTexture));
 				}
 				// otherwise, we bind a placeholder to preserve alignment
@@ -113,20 +113,20 @@ namespace Nexus::Graphics
 
 		for (const auto &colourAttachment : m_Description.ColourAttachments)
 		{
-			Ref<Texture>												 colourTexture = colourAttachment.ColourAttachment.TargetTexture;
+			Ref<ITexture>												 colourTexture = colourAttachment.ColourAttachment.TargetTexture;
 			Vk::VulkanRenderPassDescription::VulkanColourAttachmentDesc &desc		   = renderPassDesc.ColourAttachments.emplace_back();
 			desc.ColourFromat														   = Vk::GetVkPixelDataFormat(colourTexture->GetPixelFormat());
 
 			if (colourAttachment.ResolveAttachment.has_value())
 			{
-				Ref<Texture> resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture;
+				Ref<ITexture> resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture;
 				desc.ResolveFormat			= Vk::GetVkPixelDataFormat(resolveTexture->GetPixelFormat());
 			}
 		}
 
 		if (m_Description.DepthAttachment.has_value())
 		{
-			Ref<Texture> texture	   = m_Description.DepthAttachment.value().TargetTexture;
+			Ref<ITexture> texture	   = m_Description.DepthAttachment.value().TargetTexture;
 			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(texture->GetPixelFormat());
 		}
 

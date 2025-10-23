@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 		VkPipelineLayout					 m_PipelineLayout;
 	};
 
-	class GraphicsPipelineVk : public GraphicsPipeline, public PipelineVk
+	class GraphicsPipelineVk : public IGraphicsPipeline, public PipelineVk
 	{
 	  public:
 		GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
@@ -58,7 +58,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk				  *m_GraphicsDevice;
 	};
 
-	class MeshletPipelineVk : public MeshletPipeline, public PipelineVk
+	class MeshletPipelineVk : public IMeshletPipeline, public PipelineVk
 	{
 	  public:
 		MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk				  *m_GraphicsDevice;
 	};
 
-	class ComputePipelineVk : public ComputePipeline, public PipelineVk
+	class ComputePipelineVk : public IComputePipeline, public PipelineVk
 	{
 	  public:
 		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);

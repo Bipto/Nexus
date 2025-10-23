@@ -23,7 +23,7 @@ namespace Nexus::D3D12
 	enum class DescriptorHandleSource
 	{
 		SRV_UAV_CBV,
-		Sampler
+		ISampler
 	};
 
 	struct DescriptorTableInfo

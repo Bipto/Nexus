@@ -1507,10 +1507,10 @@ namespace Nexus::Vk
 		switch (resource.Type)
 		{
 			case Graphics::ResourceType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			case Graphics::ResourceType::Texture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			case Graphics::ResourceType::ITexture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			case Graphics::ResourceType::UniformTextureBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
 			case Graphics::ResourceType::StorageTextureBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ISampler:
 			case Graphics::ResourceType::ComparisonSampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
 			case Graphics::ResourceType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			case Graphics::ResourceType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -2282,7 +2282,7 @@ namespace Nexus::Vk
 
 	VkImageViewType GetImageViewType(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::Texture> texture = desc.TargetTexture;
+		Ref<Graphics::ITexture> texture = desc.TargetTexture;
 
 		switch (texture->GetType())
 		{

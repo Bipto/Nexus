@@ -23,10 +23,10 @@ namespace Nexus::Processors
 		AssimpProcessor() : IProcessor(MODELS_PROCESSOR_NAME)
 		{
 		}
-		ModelImportData		 LoadModel(const std::string &filepath, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
-		Ref<Graphics::Model> Import(const std::string &filepath, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		ModelImportData		 LoadModel(const std::string &filepath, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		Ref<Graphics::Model> Import(const std::string &filepath, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		GUID				 Process(const std::string			 &filepath,
-									 Graphics::GraphicsDevice	 *device,
+									 Graphics::IGraphicsDevice	 *device,
 									 Ref<Graphics::ICommandQueue> commandQueue,
 									 Project					 *project) final;
 		virtual std::any	 Import(const std::string &filepath) final;

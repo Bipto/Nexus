@@ -551,7 +551,7 @@ namespace Nexus::GL
 
 	GLenum GetViewType(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::Texture> texture = desc.TargetTexture;
+		Ref<Graphics::ITexture> texture = desc.TargetTexture;
 
 		switch (texture->GetType())
 		{
@@ -1155,7 +1155,7 @@ namespace Nexus::GL
 		return targets;
 	}
 
-	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device)
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::IGraphicsDevice *device)
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;

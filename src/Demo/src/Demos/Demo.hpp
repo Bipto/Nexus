@@ -60,7 +60,7 @@ namespace Demos
 
 	  protected:
 		std::string								   m_Name;
-		Nexus::Graphics::GraphicsDevice			  *m_GraphicsDevice = nullptr;
+		Nexus::Graphics::IGraphicsDevice			  *m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue	= nullptr;
 		Nexus::Audio::AudioDevice				  *m_AudioDevice	= nullptr;
 		Nexus::IWindow							  *m_Window			= nullptr;

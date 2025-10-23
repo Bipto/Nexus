@@ -95,9 +95,9 @@ namespace Nexus::Graphics
 	class NX_API Font
 	{
 	  public:
-		Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device);
+		Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, IGraphicsDevice *device);
 
-		Nexus::Ref<Nexus::Graphics::Texture>	  GetTexture();
+		Nexus::Ref<Nexus::Graphics::ITexture>	  GetTexture();
 		Nexus::Ref<Nexus::Graphics::ITextureView> GetTextureView();
 		const Character							 &GetCharacter(char character);
 		uint32_t								  GetSize() const;
@@ -107,7 +107,7 @@ namespace Nexus::Graphics
 		const FontType							  GetFontType() const;
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::Texture>	  m_Texture		= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_Texture		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView> m_TextureView = nullptr;
 		std::vector<CharacterRange>				  m_CharacterRanges;
 		std::map<char, Character>				  m_Characters;

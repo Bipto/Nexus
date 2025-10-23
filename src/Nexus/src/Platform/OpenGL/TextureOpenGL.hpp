@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceOpenGL;
 	class TextureViewOpenGL;
 
-	class TextureOpenGL : public Texture
+	class TextureOpenGL : public ITexture
 	{
 	  public:
 		TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice);

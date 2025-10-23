@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<Swapchain> CommandQueueVk::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	Ref<ISwapchain> CommandQueueVk::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
 	{
 		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(window, m_Device, this, spec);
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
@@ -49,7 +49,7 @@ namespace Nexus::Graphics
 		return swapchain;
 	}
 
-	void CommandQueueVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
+	void CommandQueueVk::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(Vk::SubmitQueue(m_Device, m_Queue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
 	}
 
-	GraphicsDevice *CommandQueueVk::GetGraphicsDevice()
+	IGraphicsDevice *CommandQueueVk::GetGraphicsDevice()
 	{
 		return m_Device;
 	}
@@ -103,7 +103,7 @@ namespace Nexus::Graphics
 		return m_Queue;
 	}
 
-	Ref<CommandList> CommandQueueVk::CreateCommandList(const CommandListDescription &spec)
+	Ref<ICommandList> CommandQueueVk::CreateCommandList(const CommandListDescription &spec)
 	{
 		return CreateRef<CommandListVk>(m_Device, this, spec);
 	}
