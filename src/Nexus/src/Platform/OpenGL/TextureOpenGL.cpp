@@ -141,7 +141,7 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TextureStorage2DMultisample(m_Handle,
-														   m_Description.MipLevels,
+														   m_Description.Samples,
 														   m_InternalFormat,
 														   m_Description.Width,
 														   m_Description.Height,
