@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 
 		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
-		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
@@ -75,10 +75,10 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
-		for (const auto &set : descriptorSets)
+		const auto &descriptorSets = resourceSet->GetDescriptorSets();
+		for (const auto &[setIndex, descriptorSet] : descriptorSets)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, setIndex, 1, &descriptorSet, 0, nullptr);
 		}
 	}
 
@@ -144,7 +144,7 @@ namespace Nexus::Graphics
 
 		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
-		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
@@ -188,7 +188,7 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		const auto &descriptorSets = resourceSet->GetDescriptorSets();
 		for (const auto &set : descriptorSets)
 		{
 			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
@@ -266,7 +266,7 @@ namespace Nexus::Graphics
 
 		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
-		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
@@ -282,7 +282,7 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		const auto &descriptorSets = resourceSet->GetDescriptorSets();
 		for (const auto &set : descriptorSets)
 		{
 			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);

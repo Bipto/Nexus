@@ -95,10 +95,10 @@ namespace Nexus::Graphics
 
 		FeedbackTexture,
 		StorageImage,
-		ITexture,
+		Texture,
 		UniformTextureBuffer,
 		StorageTextureBuffer,
-		ISampler,
+		Sampler,
 		ComparisonSampler,
 		CombinedImageSampler,
 		UniformBuffer,
@@ -107,17 +107,18 @@ namespace Nexus::Graphics
 		AccelerationStructure,
 		Shared,
 		InputAttachment,
-		PushConstant,
+		PushConstants,
 		ShaderRecord
 	};
 
 	enum class ResourceType
 	{
+		PushConstants,
 		StorageImage,
-		ITexture,
+		Texture,
 		UniformTextureBuffer,
 		StorageTextureBuffer,
-		ISampler,
+		Sampler,
 		ComparisonSampler,
 		CombinedImageSampler,
 		UniformBuffer,
@@ -175,13 +176,13 @@ namespace Nexus::Graphics
 
 	struct ShaderResource
 	{
-		ResourceType	 Type		   = ResourceType::StorageImage;
-		std::string		 Name		   = "Resource";
-		uint32_t		 Set		   = 0;
-		uint32_t		 Binding	   = 0;
-		uint32_t		 RegisterSpace = 0;
-		uint32_t		 ResourceCount = 0;
-		ShaderStageFlags Stage		   = {};
+		ResourceType		  Type			= ResourceType::StorageImage;
+		std::string			  Name			= "Resource";
+		uint32_t			  Set			= 0;
+		uint32_t			  Binding		= 0;
+		uint32_t			  RegisterSpace = 0;
+		uint32_t			  ResourceCount = 0;
+		ShaderStageFlags	  Stage			= {};
 		StorageResourceAccess Access		= StorageResourceAccess::NoAccess;
 		ResourceDimension	  Dimension		= ResourceDimension::NoDimension;
 	};

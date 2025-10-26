@@ -13,8 +13,6 @@ namespace Nexus::Graphics
 		  m_GraphicsDevice(device)
 	{
 		CreateShaderModule();
-		Reflect();
-
 		device->SetObjectName(VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule, shaderModuleSpec.DebugName.c_str());
 	}
 
@@ -366,7 +364,7 @@ namespace Nexus::Graphics
 			reflectedResource.BindingCount = 1;
 		}
 
-		if (dataType == ReflectedShaderDataType::ITexture || dataType == ReflectedShaderDataType::CombinedImageSampler)
+		if (dataType == ReflectedShaderDataType::Texture || dataType == ReflectedShaderDataType::CombinedImageSampler)
 		{
 			switch (type.image.dim)
 			{
@@ -447,7 +445,7 @@ namespace Nexus::Graphics
 				default: throw std::runtime_error("Failed to find a valid resource dimension");
 			}
 		}
-		else if (dataType == ReflectedShaderDataType::ISampler)
+		else if (dataType == ReflectedShaderDataType::Sampler)
 		{
 			if (type.image.depth)
 			{
@@ -558,19 +556,19 @@ namespace Nexus::Graphics
 		for (const auto &pushConstant : resources.push_constant_buffers)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-			ExtractResource(reflectedResource, pushConstant, compiler, ReflectedShaderDataType::PushConstant);
+			ExtractResource(reflectedResource, pushConstant, compiler, ReflectedShaderDataType::PushConstants);
 		}
 
 		for (const auto &separateImage : resources.separate_images)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-			ExtractResource(reflectedResource, separateImage, compiler, ReflectedShaderDataType::ITexture);
+			ExtractResource(reflectedResource, separateImage, compiler, ReflectedShaderDataType::Texture);
 		}
 
-		for (const auto &separateSampler : resources.acceleration_structures)
+		for (const auto &separateSampler : resources.separate_samplers)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-			ExtractResource(reflectedResource, separateSampler, compiler, ReflectedShaderDataType::ISampler);
+			ExtractResource(reflectedResource, separateSampler, compiler, ReflectedShaderDataType::Sampler);
 		}
 
 		return reflectionData;

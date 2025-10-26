@@ -1059,11 +1059,11 @@ namespace Nexus::D3D12
 		switch (resource.Type)
 		{
 			case Graphics::ResourceType::AccelerationStructure:
-			case Graphics::ResourceType::ITexture:
+			case Graphics::ResourceType::Texture:
 			{
 				return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 			}
-			case Graphics::ResourceType::ISampler:
+			case Graphics::ResourceType::Sampler:
 			case Graphics::ResourceType::ComparisonSampler:
 			{
 				return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
@@ -1171,12 +1171,12 @@ namespace Nexus::D3D12
 		for (const auto &[textureName, textureInfo] : resources)
 		{
 			// if the resource is a texture, loop through to find any samplers
-			if (textureInfo.Type == Graphics::ResourceType::ITexture)
+			if (textureInfo.Type == Graphics::ResourceType::Texture)
 			{
 				for (const auto &[samplerName, samplerInfo] : resources)
 				{
 					// if the resource is a sampler, then we need to compare it against the texture to check if it forms a combined image sampler
-					if (samplerInfo.Type == Graphics::ResourceType::ISampler)
+					if (samplerInfo.Type == Graphics::ResourceType::Sampler)
 					{
 						// we have found a combined image sampler
 						if (textureInfo.Binding == samplerInfo.Binding && textureInfo.ResourceCount == samplerInfo.ResourceCount)

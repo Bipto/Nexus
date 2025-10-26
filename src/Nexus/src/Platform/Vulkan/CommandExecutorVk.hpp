@@ -9,6 +9,7 @@
 namespace Nexus::Graphics
 {
 	class GraphicsDeviceVk;
+	class PipelineVk;
 
 	class CommandExecutorVk : public CommandExecutor
 	{
@@ -70,9 +71,10 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
 
-		WeakRef<Pipeline> m_CurrentlyBoundPipeline = {};
-		bool			  m_Rendering			   = false;
-		VkExtent2D		  m_RenderSize			   = {0, 0};
+		WeakRef<Pipeline>  m_CurrentlyBoundPipeline	   = {};
+		Ref<ResourceSetVk> m_CurrentlyBoundResourceSet = nullptr;
+		bool			   m_Rendering				   = false;
+		VkExtent2D		   m_RenderSize				   = {0, 0};
 
 		uint32_t		  m_DepthAttachmentIndex = 0;
 		Ref<IFramebuffer> m_CurrentRenderTarget;

@@ -17,22 +17,22 @@ namespace Nexus::Graphics
 		Ref<PipelineVk>			 vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 
 		// calculate required descriptor pool size
-		std::vector<VkDescriptorPoolSize> sizes;
-		for (const auto &descriptorCount : vulkanPipeline->GetDescriptorCounts())
+		std::vector<VkDescriptorPoolSize> sizes = {};
+		for (const auto &[descriptorType, descriptorCount] : vulkanPipeline->GetDescriptorCounts())
 		{
-			VkDescriptorPoolSize size;
-			size.type			 = descriptorCount.first;
-			size.descriptorCount = descriptorCount.second;
+			VkDescriptorPoolSize size = {};
+			size.type				  = descriptorType;
+			size.descriptorCount	  = descriptorCount;
 			sizes.push_back(size);
 		}
 
-		const std::vector<VkDescriptorSetLayout> &descriptorSetLayouts = vulkanPipeline->GetDescriptorSetLayouts();
+		const std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts = vulkanPipeline->GetDescriptorSetLayouts();
 
 		// allocate descriptor pool
 		VkDescriptorPoolCreateInfo poolInfo = {};
 		poolInfo.sType						= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		poolInfo.flags						= VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		poolInfo.maxSets					= FRAMES_IN_FLIGHT * descriptorSetLayouts.size();
+		poolInfo.maxSets					= descriptorSetLayouts.size();
 		poolInfo.poolSizeCount				= (uint32_t)sizes.size();
 		poolInfo.pPoolSizes					= sizes.data();
 
@@ -42,26 +42,24 @@ namespace Nexus::Graphics
 		}
 
 		// allocate descriptor sets
-		m_DescriptorSets.resize(FRAMES_IN_FLIGHT);
-		for (int frameIndex = 0; frameIndex < m_DescriptorSets.size(); frameIndex++)
+		for (const auto &[setIndex, setLayout] : descriptorSetLayouts)
 		{
-			auto &descriptorSets = m_DescriptorSets[frameIndex];
+			VkDescriptorSet &descriptorSet = m_DescriptorSets[setIndex];
 
-			for (uint32_t setIndex = 0; setIndex < descriptorSetLayouts.size(); setIndex++)
+			VkDescriptorSetAllocateInfo allocInfo = {};
+			allocInfo.sType						  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.pNext						  = nullptr;
+			allocInfo.descriptorPool			  = m_DescriptorPool;
+			allocInfo.descriptorSetCount		  = 1;
+			allocInfo.pSetLayouts				  = &setLayout;
+
+			if (context.AllocateDescriptorSets(m_Device->GetVkDevice(), &allocInfo, &descriptorSet) != VK_SUCCESS)
 			{
-				VkDescriptorSetAllocateInfo allocInfo = {};
-				allocInfo.sType						  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-				allocInfo.pNext						  = nullptr;
-				allocInfo.descriptorPool			  = m_DescriptorPool;
-				allocInfo.descriptorSetCount		  = 1;
-				allocInfo.pSetLayouts				  = &descriptorSetLayouts[setIndex];
-
-				if (context.AllocateDescriptorSets(m_Device->GetVkDevice(), &allocInfo, &descriptorSets[setIndex]) != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to create descriptor set");
-				}
+				throw std::runtime_error("Failed to create descriptor set");
 			}
 		}
+
+		m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.get(), device);
 	}
 
 	ResourceSetVk::~ResourceSetVk()
@@ -79,7 +77,6 @@ namespace Nexus::Graphics
 			NX_VALIDATE(buffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
 			Ref<DeviceBufferVk> storageBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
-			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
 			ShaderResource &resourceInfo = m_ShaderResources.at(name);
 
@@ -95,7 +92,7 @@ namespace Nexus::Graphics
 			uniformBufferToWrite.descriptorCount	  = 1;
 			uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
-			uniformBufferToWrite.dstSet				  = descriptorSets.at(resourceInfo.Set);
+			uniformBufferToWrite.dstSet				  = m_DescriptorSets.at(resourceInfo.Set);
 
 			context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
 
@@ -128,7 +125,7 @@ namespace Nexus::Graphics
 			uniformBufferToWrite.descriptorCount	  = 1;
 			uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
-			uniformBufferToWrite.dstSet				  = descriptorSets.at(resourceInfo.Set);
+			uniformBufferToWrite.dstSet				  = m_DescriptorSets.at(resourceInfo.Set);
 
 			context.UpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
 
@@ -138,9 +135,8 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)
 	{
-		Ref<TextureViewVk> textureViewVk  = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
-		Ref<SamplerVk>	   samplerVk	  = std::dynamic_pointer_cast<SamplerVk>(combinedImageSampler.ImageSampler);
-		const auto		  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		Ref<TextureViewVk> textureViewVk = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
+		Ref<SamplerVk>	   samplerVk	 = std::dynamic_pointer_cast<SamplerVk>(combinedImageSampler.ImageSampler);
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -156,7 +152,7 @@ namespace Nexus::Graphics
 		textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		textureToWrite.pNext				= nullptr;
 		textureToWrite.dstBinding			= resourceInfo.Binding;
-		textureToWrite.dstSet				= descriptorSets.at(resourceInfo.Set);
+		textureToWrite.dstSet				= m_DescriptorSets.at(resourceInfo.Set);
 		textureToWrite.descriptorCount		= 1;
 		textureToWrite.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		textureToWrite.pImageInfo			= &imageBufferInfo;
@@ -168,8 +164,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteStorageImage(const StorageImageView &view, const std::string &name)
 	{
-		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(view.TextureHandle);
-		const auto	  &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(view.TextureHandle);
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -190,7 +185,7 @@ namespace Nexus::Graphics
 		VkWriteDescriptorSet writeDescriptorSet = {};
 		writeDescriptorSet.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		writeDescriptorSet.dstBinding			= resourceInfo.Binding;
-		writeDescriptorSet.dstSet				= descriptorSets.at(resourceInfo.Set);
+		writeDescriptorSet.dstSet				= m_DescriptorSets.at(resourceInfo.Set);
 		writeDescriptorSet.descriptorCount		= 1;
 		writeDescriptorSet.descriptorType		= VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		writeDescriptorSet.pImageInfo			= &imageInfo;
@@ -200,9 +195,19 @@ namespace Nexus::Graphics
 		m_BoundStorageImages[name] = view;
 	}
 
-	const std::vector<std::map<uint32_t, VkDescriptorSet>> &ResourceSetVk::GetDescriptorSets() const
+	const std::map<uint32_t, VkDescriptorSet> &ResourceSetVk::GetDescriptorSets() const
 	{
 		return m_DescriptorSets;
+	}
+
+	std::optional<VkShaderStageFlags> ResourceSetVk::GetPushConstantsStageFlags(const std::string &name) const
+	{
+		if (m_PushConstantRanges.contains(name))
+		{
+			return m_PushConstantRanges.at(name);
+		}
+
+		return std::nullopt;
 	}
 }	 // namespace Nexus::Graphics
 

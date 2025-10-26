@@ -4,6 +4,7 @@
 #include "GraphicsDeviceVk.hpp"
 #include "PipelineVk.hpp"
 #include "ResourceSetVk.hpp"
+#include "SamplerVk.hpp"
 #include "ShaderModuleVk.hpp"
 
 #if defined(NX_PLATFORM_VULKAN)
@@ -1502,80 +1503,216 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	static VkDescriptorType GetDescriptorType(Graphics::ShaderResource resource)
+	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device)
 	{
-		switch (resource.Type)
+		std::map<std::string, VkShaderStageFlags> pushConstants = {};
+
+		const Graphics::ResourceSetDescription		   &resourceSetDesc			 = pipeline->GetResourceSetDescription();
+		std::map<std::string, Graphics::ShaderResource> reflectedShaderResources = pipeline->GetRequiredShaderResources();
+
+		for (Graphics::ResourceDescriptor descriptor : resourceSetDesc.Descriptors)
 		{
-			case Graphics::ResourceType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			case Graphics::ResourceType::ITexture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-			case Graphics::ResourceType::UniformTextureBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-			case Graphics::ResourceType::StorageTextureBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-			case Graphics::ResourceType::ISampler:
-			case Graphics::ResourceType::ComparisonSampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
-			case Graphics::ResourceType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			case Graphics::ResourceType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			case Graphics::ResourceType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			case Graphics::ResourceType::AccelerationStructure: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+			if (descriptor.Type == Graphics::ResourceDescriptorType::PushConstants)
+			{
+				if (reflectedShaderResources.contains(descriptor.Name))
+				{
+					const Graphics::ShaderResource &reflectedResource = reflectedShaderResources.at(descriptor.Name);
+					VkShaderStageFlags				shaderStageFlags  = Vk::GetVkShaderStageFlagsFromShaderStages(reflectedResource.Stage);
+					pushConstants[descriptor.Name]					  = shaderStageFlags;
+				}
+			}
+		}
+
+		return pushConstants;
+	}
+
+	static std::optional<VkDescriptorType> GetDescriptorType(Graphics::GraphicsDeviceVk		 *device,
+															 Graphics::ResourceDescriptorType resourceType,
+															 Graphics::ShaderResource		  shaderResource)
+	{
+		switch (resourceType)
+		{
+			case Graphics::ResourceDescriptorType::PushConstants:
+			{
+				return {};
+			}
+			case Graphics::ResourceDescriptorType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			case Graphics::ResourceDescriptorType::DynamicUniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+			case Graphics::ResourceDescriptorType::InlineUniformBlock:
+			{
+				if (device->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
+				{
+					return VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
+				}
+				else
+				{
+					return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				}
+			}
+			case Graphics::ResourceDescriptorType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			case Graphics::ResourceDescriptorType::DynamicStorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+			case Graphics::ResourceDescriptorType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			case Graphics::ResourceDescriptorType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			case Graphics::ResourceDescriptorType::SampledImage: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			case Graphics::ResourceDescriptorType::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
+			case Graphics::ResourceDescriptorType::AccelerationStructure: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+			case Graphics::ResourceDescriptorType::TexelBuffer:
+			{
+				if (shaderResource.Type == Graphics::ResourceType::UniformTextureBuffer)
+				{
+					return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+				}
+				else
+				{
+					return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+				}
+				break;
+			}
 			default: throw std::runtime_error("Could not find a valid descriptor type");
 		}
 	}
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline				   *pipeline,
-										  Graphics::GraphicsDeviceVk		   *device,
-										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
-										  std::map<VkDescriptorType, uint32_t> &descriptorCounts)
+	uint32_t GetMaxDescriptorSetIndex(const std::map<std::string, Graphics::ShaderResource> &resources)
+	{
+		uint32_t setIndex = 0;
+
+		for (const auto &[name, resource] : resources)
+		{
+			if (resource.Set > setIndex)
+			{
+				setIndex = resource.Set;
+			}
+		}
+
+		return setIndex;
+	}
+
+	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
+										  Graphics::GraphicsDeviceVk				*device,
+										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
+										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts)
 	{
 		const GladVulkanContext &context = device->GetVulkanContext();
+
+		const Graphics::ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
 		// retrieve the resources that are referenced by the shaders
 		const auto &shaderResources = pipeline->GetRequiredShaderResources();
 
+		uint32_t maxSetIndex = GetMaxDescriptorSetIndex(shaderResources);
+
 		// create storage for descriptor set layout bindings
-		std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> sets;
+		std::vector<std::vector<VkDescriptorSetLayoutBinding>> layoutBindings(maxSetIndex + 1);
 
-		// iterate through all resources and convert them into Vulkan structures
-		for (const auto &[name, resourceInfo] : shaderResources)
+		// storage for immutable samplers
+		std::map<std::string, std::vector<VkSampler>> vulkanImmutableSamplers = {};
+
+		// iterate through all resources provided by the user
+		for (const auto &descriptor : resourceSetDesc.Descriptors)
 		{
-			VkDescriptorType descriptorType = GetDescriptorType(resourceInfo);
+			// if we can find a resource with this name in the shader, then we try and add it to the descriptor set layout
+			if (shaderResources.contains(descriptor.Name))
+			{
+				// retrieve the descriptor type from the resource
+				const Graphics::ShaderResource &resourceDesc	  = shaderResources.at(descriptor.Name);
+				std::optional<VkDescriptorType> descriptorTypeOpt = GetDescriptorType(device, descriptor.Type, resourceDesc);
 
-			VkDescriptorSetLayoutBinding &layoutBinding = sets[resourceInfo.Set].emplace_back();
-			layoutBinding.binding						= resourceInfo.Binding;
-			layoutBinding.descriptorCount				= resourceInfo.ResourceCount;
-			layoutBinding.descriptorType				= descriptorType;
-			layoutBinding.stageFlags					= Vk::GetVkShaderStageFlagsFromShaderStages(resourceInfo.Stage);
-			layoutBinding.pImmutableSamplers			= nullptr;
+				// if we are able to create a Vulkan descriptor from this type, then we do so
+				// some descriptors do not apply in Vulkan e.g. PushConstants
+				if (descriptorTypeOpt.has_value())
+				{
+					VkDescriptorType descriptorType = descriptorTypeOpt.value();
 
-			descriptorCounts[descriptorType] += resourceInfo.ResourceCount;
+					// create the Vulkan descriptor set layout binding
+					VkDescriptorSetLayoutBinding &layoutBinding = layoutBindings[resourceDesc.Set].emplace_back();
+					layoutBinding.binding						= resourceDesc.Binding;
+					layoutBinding.descriptorCount				= resourceDesc.ResourceCount;
+					layoutBinding.descriptorType				= descriptorType;
+					layoutBinding.stageFlags					= Vk::GetVkShaderStageFlagsFromShaderStages(resourceDesc.Stage);
+					layoutBinding.pImmutableSamplers			= nullptr;
+
+					// create immutable samplers if requested
+					if (resourceSetDesc.ImmutableSamplers.contains(descriptor.Name))
+					{
+						const std::vector<Ref<Graphics::ISampler>> &samplers = resourceSetDesc.ImmutableSamplers.at(descriptor.Name);
+
+						for (size_t i = 0; i < samplers.size(); i++)
+						{
+							Ref<Graphics::SamplerVk> vkSampler = std::dynamic_pointer_cast<Graphics::SamplerVk>(samplers.at(i));
+							vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
+						}
+
+						layoutBinding.pImmutableSamplers = vulkanImmutableSamplers[descriptor.Name].data();
+					}
+
+					descriptorCounts[descriptorType] += resourceDesc.ResourceCount;
+				}
+			}
+			// otherwise, we are trying to bind a resource to the descriptor set that doesn't exist in the shader
+			// this is incorrect and an error
+			else
+			{
+				std::string errorMessage =
+					std::format("Attempting to bind descriptor with name {} but no resource with this name exists in the shader", descriptor.Name);
+			}
 		}
 
-		// iterate through each vector of descriptor set layout bindings and create the layout
-		for (const auto &[setIndex, layoutBindings] : sets)
-		{
-			VkDescriptorSetLayoutCreateInfo createInfo = {};
-			createInfo.sType						   = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			createInfo.pNext						   = nullptr;
-			createInfo.flags						   = 0;
-			createInfo.pBindings					   = layoutBindings.data();
-			createInfo.bindingCount					   = layoutBindings.size();
+		std::vector<VkDescriptorSetLayout> layoutVector = {};
 
-			VkDescriptorSetLayout &layout = descriptorSetLayouts.emplace_back();
-			NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
+		// iterate through each vector of descriptor set layout bindings and create the layout
+		for (size_t setIndex = 0; setIndex < layoutBindings.size(); setIndex++)
+		{
+			const auto &set = layoutBindings.at(setIndex);
+
+			VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
+			layoutCreateInfo.sType							 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutCreateInfo.pNext							 = nullptr;
+			layoutCreateInfo.flags							 = 0;
+			layoutCreateInfo.pBindings						 = set.data();
+			layoutCreateInfo.bindingCount					 = set.size();
+
+			VkDescriptorSetLayout &layout = descriptorSetLayouts[setIndex];
+			NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &layoutCreateInfo, nullptr, &layout) == VK_SUCCESS,
 						"Failed to create descriptor set layout");
+
+			layoutVector.push_back(layout);
 		}
 
 		// create the actual VkPipelineLayout
-		VkPipelineLayout layout;
+		VkPipelineLayout layout = VK_NULL_HANDLE;
 
-		VkPipelineLayoutCreateInfo info = {};
-		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		info.pNext						= nullptr;
-		info.flags						= 0;
-		info.setLayoutCount				= descriptorSetLayouts.size();
-		info.pSetLayouts				= descriptorSetLayouts.data();
-		info.pushConstantRangeCount		= 0;
-		info.pPushConstantRanges		= nullptr;
+		std::vector<VkPushConstantRange> pushConstantRanges = {};
 
-		NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
+		// create push constant ranges
+		for (const auto &resource : resourceSetDesc.Descriptors)
+		{
+			if (resource.Type == Graphics::ResourceDescriptorType::PushConstants)
+			{
+				if (shaderResources.contains(resource.Name))
+				{
+					const Graphics::ShaderResource &reflectedResource = shaderResources.at(resource.Name);
+					VkShaderStageFlags				shaderStages	  = Vk::GetVkShaderStageFlagsFromShaderStages(reflectedResource.Stage);
+
+					VkPushConstantRange &range = pushConstantRanges.emplace_back();
+					range.stageFlags		   = shaderStages;
+					range.offset			   = 0;
+					range.size				   = resource.CountOrSizeInBytes;
+				}
+			}
+		}
+
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+		pipelineLayoutInfo.sType					  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.pNext					  = nullptr;
+		pipelineLayoutInfo.flags					  = 0;
+		pipelineLayoutInfo.setLayoutCount			  = layoutVector.size();
+		pipelineLayoutInfo.pSetLayouts				  = layoutVector.data();
+		pipelineLayoutInfo.pushConstantRangeCount	  = pushConstantRanges.size();
+		pipelineLayoutInfo.pPushConstantRanges		  = pushConstantRanges.data();
+
+		// validate whether the layout was able to be created
+		NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout) == VK_SUCCESS,
+					"Failed to create pipeline layout");
 
 		return layout;
 	}

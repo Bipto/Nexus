@@ -381,6 +381,15 @@ namespace Nexus::Graphics
 			builder.Add(synchronizationFeatures);
 		}
 
+		VkPhysicalDeviceInlineUniformBlockFeaturesEXT inlineUniformBlockFeatures = {};
+		inlineUniformBlockFeatures.sType			  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT;
+		inlineUniformBlockFeatures.pNext			  = nullptr;
+		inlineUniformBlockFeatures.inlineUniformBlock = VK_TRUE;
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
+		{
+			builder.Add(inlineUniformBlockFeatures);
+		}
+
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.pNext			  = nullptr;
@@ -570,6 +579,16 @@ namespace Nexus::Graphics
 		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_6_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_MAINTENANCE_6_EXTENSION_NAME);
 		}
 
 		return extensions;

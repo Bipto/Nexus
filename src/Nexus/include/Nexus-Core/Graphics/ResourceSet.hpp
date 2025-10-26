@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Ref<ITexture>  TextureHandle = nullptr;
+		Ref<ITexture> TextureHandle = nullptr;
 		uint32_t	  ArrayLayer	= 0;
 		uint32_t	  MipLevel		= 0;
 		ShaderAccess  Access		= ShaderAccess::Read;
@@ -35,15 +35,44 @@ namespace Nexus::Graphics
 	struct StorageBufferView
 	{
 		Ref<IDeviceBuffer> BufferHandle = nullptr;
-		size_t			  Offset	   = 0;
-		size_t			  SizeInBytes  = 0;
-		ShaderAccess	  Access	   = ShaderAccess::Read;
+		size_t			   Offset		= 0;
+		size_t			   SizeInBytes	= 0;
+		ShaderAccess	   Access		= ShaderAccess::Read;
 	};
 
 	struct BindingInfo
 	{
 		uint32_t Set	 = 0;
 		uint32_t Binding = 0;
+	};
+
+	enum class ResourceDescriptorType
+	{
+		PushConstants,
+		UniformBuffer,
+		DynamicUniformBuffer,
+		InlineUniformBlock,
+		StorageBuffer,
+		DynamicStorageBuffer,
+		StorageImage,
+		CombinedImageSampler,
+		SampledImage,
+		Sampler,
+		AccelerationStructure,
+		TexelBuffer
+	};
+
+	struct ResourceDescriptor
+	{
+		std::string			   Name				  = "Resource";
+		ResourceDescriptorType Type				  = ResourceDescriptorType::UniformBuffer;
+		uint32_t			   CountOrSizeInBytes = 0;
+	};
+
+	struct ResourceSetDescription
+	{
+		std::vector<ResourceDescriptor>					  Descriptors		= {};
+		std::map<std::string, std::vector<Ref<ISampler>>> ImmutableSamplers = {};
 	};
 
 	class Pipeline;

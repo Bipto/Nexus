@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass)					 = 0;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) = 0;
 
-		const std::vector<VkDescriptorSetLayout> &GetDescriptorSetLayouts() const
+		const std::map<uint32_t, VkDescriptorSetLayout> &GetDescriptorSetLayouts() const
 		{
 			return m_DescriptorSetLayouts;
 		}
@@ -34,9 +34,9 @@ namespace Nexus::Graphics
 		}
 
 	  protected:
-		std::vector<VkDescriptorSetLayout>	 m_DescriptorSetLayouts = {};
-		std::map<VkDescriptorType, uint32_t> m_DescriptorCounts;
-		VkPipelineLayout					 m_PipelineLayout;
+		std::map<uint32_t, VkDescriptorSetLayout> m_DescriptorSetLayouts = {};
+		std::map<VkDescriptorType, uint32_t>	  m_DescriptorCounts	 = {};
+		VkPipelineLayout						  m_PipelineLayout		 = VK_NULL_HANDLE;
 	};
 
 	class GraphicsPipelineVk : public IGraphicsPipeline, public PipelineVk
@@ -54,8 +54,8 @@ namespace Nexus::Graphics
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
 	  private:
-		std::map<VkRenderPass, VkPipeline> m_Pipelines;
-		GraphicsDeviceVk				  *m_GraphicsDevice;
+		std::map<VkRenderPass, VkPipeline> m_Pipelines		= {};
+		GraphicsDeviceVk				  *m_GraphicsDevice = {};
 	};
 
 	class MeshletPipelineVk : public IMeshletPipeline, public PipelineVk
@@ -72,8 +72,8 @@ namespace Nexus::Graphics
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
 	  private:
-		std::map<VkRenderPass, VkPipeline> m_Pipelines;
-		GraphicsDeviceVk				  *m_GraphicsDevice;
+		std::map<VkRenderPass, VkPipeline> m_Pipelines		= {};
+		GraphicsDeviceVk				  *m_GraphicsDevice = {};
 	};
 
 	class ComputePipelineVk : public IComputePipeline, public PipelineVk
@@ -85,8 +85,8 @@ namespace Nexus::Graphics
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
-		VkPipeline		  m_Pipeline;
-		GraphicsDeviceVk *m_GraphicsDevice;
+		VkPipeline		  m_Pipeline	   = {};
+		GraphicsDeviceVk *m_GraphicsDevice = {};
 	};
 }	 // namespace Nexus::Graphics
 

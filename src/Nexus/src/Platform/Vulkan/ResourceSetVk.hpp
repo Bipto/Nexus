@@ -21,13 +21,16 @@ namespace Nexus::Graphics
 		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) override;
 		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name) override;
 
-		const std::vector<std::map<uint32_t, VkDescriptorSet>> &GetDescriptorSets() const;
+		const std::map<uint32_t, VkDescriptorSet> &GetDescriptorSets() const;
+		std::optional<VkShaderStageFlags>		   GetPushConstantsStageFlags(const std::string &name) const;
+		VkPipelineLayout						   GetPipelineLayout();
 
 	  private:
-		VkDescriptorPool								 m_DescriptorPool;
-		std::vector<std::map<uint32_t, VkDescriptorSet>> m_DescriptorSets;
+		VkDescriptorPool					m_DescriptorPool = VK_NULL_HANDLE;
+		std::map<uint32_t, VkDescriptorSet> m_DescriptorSets = {};
 
-		GraphicsDeviceVk *m_Device = nullptr;
+		GraphicsDeviceVk						 *m_Device			   = nullptr;
+		std::map<std::string, VkShaderStageFlags> m_PushConstantRanges = {};
 	};
 }	 // namespace Nexus::Graphics
 

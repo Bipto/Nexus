@@ -57,6 +57,9 @@ namespace Nexus::Graphics
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Graphics Pipeline";
+
+		/// @brief A struct representing the layout of shader resources
+		ResourceSetDescription ResourceDescription = {};
 	};
 
 	struct ComputePipelineDescription
@@ -65,6 +68,9 @@ namespace Nexus::Graphics
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Compute Pipeline";
+
+		/// @brief A struct representing the layout of shader resources
+		ResourceSetDescription ResourceDescription = {};
 	};
 
 	struct MeshletPipelineDescription
@@ -104,6 +110,9 @@ namespace Nexus::Graphics
 
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Meshlet Pipeline";
+
+		/// @brief A struct representing the layout of shader resources
+		ResourceSetDescription ResourceDescription = {};
 	};
 
 	enum class ShaderGroupType
@@ -124,11 +133,15 @@ namespace Nexus::Graphics
 
 	struct RayTracingPipelineDescription
 	{
-		std::vector<Ref<IShaderModule>> Shaders			 = {};
-		std::vector<ShaderGroup>	   ShaderGroups		 = {};
-		uint32_t					   MaxRecursionDepth = 0;
+		std::vector<Ref<IShaderModule>> Shaders			  = {};
+		std::vector<ShaderGroup>		ShaderGroups	  = {};
+		uint32_t						MaxRecursionDepth = 0;
+
 		/// @brief The debug name of the pipeline, shows in graphics debuggers
 		std::string DebugName = "Ray Tracing Pipeline";
+
+		/// @brief A struct representing the layout of shader resources
+		ResourceSetDescription ResourceDescription = {};
 	};
 
 	enum class PipelineType
@@ -150,9 +163,9 @@ namespace Nexus::Graphics
 				output.Type = ResourceType::StorageImage;
 				break;
 			}
-			case ReflectedShaderDataType::ITexture:
+			case ReflectedShaderDataType::Texture:
 			{
-				output.Type = ResourceType::ITexture;
+				output.Type = ResourceType::Texture;
 				break;
 			}
 			case ReflectedShaderDataType::UniformTextureBuffer:
@@ -165,9 +178,9 @@ namespace Nexus::Graphics
 				output.Type = ResourceType::StorageTextureBuffer;
 				break;
 			}
-			case ReflectedShaderDataType::ISampler:
+			case ReflectedShaderDataType::Sampler:
 			{
-				output.Type = ResourceType::ISampler;
+				output.Type = ResourceType::Sampler;
 				break;
 			}
 			case ReflectedShaderDataType::ComparisonSampler:
@@ -195,6 +208,11 @@ namespace Nexus::Graphics
 				output.Type = ResourceType::AccelerationStructure;
 				break;
 			}
+			case ReflectedShaderDataType::PushConstants:
+			{
+				output.Type = ResourceType::PushConstants;
+				break;
+			}
 			default: throw std::runtime_error("Failed to find a valid resource type");
 		}
 
@@ -217,8 +235,9 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual PipelineType				   GetType() const		   = 0;
-		virtual std::vector<Ref<IShaderModule>> GetShaderStages() const = 0;
+		virtual PipelineType					GetType() const					  = 0;
+		virtual std::vector<Ref<IShaderModule>> GetShaderStages() const			  = 0;
+		virtual const ResourceSetDescription   &GetResourceSetDescription() const = 0;
 
 		std::map<std::string, ShaderResource> GetRequiredShaderResources() const
 		{
@@ -282,6 +301,12 @@ namespace Nexus::Graphics
 			return PipelineType::Graphics;
 		}
 
+		const ResourceSetDescription &GetResourceSetDescription() const final
+		{
+			const GraphicsPipelineDescription &desc = GetPipelineDescription();
+			return desc.ResourceDescription;
+		}
+
 		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
 			std::vector<Ref<IShaderModule>> stages;
@@ -337,6 +362,12 @@ namespace Nexus::Graphics
 			return m_Description;
 		}
 
+		const ResourceSetDescription &GetResourceSetDescription() const final
+		{
+			const ComputePipelineDescription &desc = GetPipelineDescription();
+			return desc.ResourceDescription;
+		}
+
 		virtual PipelineType GetType() const final
 		{
 			return PipelineType::Compute;
@@ -369,9 +400,15 @@ namespace Nexus::Graphics
 		{
 		}
 
-		const MeshletPipelineDescription &GetPipelineDescription()
+		const MeshletPipelineDescription &GetPipelineDescription() const
 		{
 			return m_Description;
+		}
+
+		const ResourceSetDescription &GetResourceSetDescription() const final
+		{
+			const MeshletPipelineDescription &desc = GetPipelineDescription();
+			return desc.ResourceDescription;
 		}
 
 		virtual PipelineType GetType() const final
@@ -416,9 +453,15 @@ namespace Nexus::Graphics
 		{
 		}
 
-		const RayTracingPipelineDescription &GetPipelineDescription()
+		const RayTracingPipelineDescription &GetPipelineDescription() const
 		{
 			return m_Description;
+		}
+
+		const ResourceSetDescription &GetResourceSetDescription() const final
+		{
+			const RayTracingPipelineDescription &desc = GetPipelineDescription();
+			return desc.ResourceDescription;
 		}
 
 		virtual PipelineType GetType() const final

@@ -314,6 +314,7 @@ namespace Nexus::Graphics
 			auto			resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
 			Ref<PipelineVk> pipelineVk	  = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 			pipelineVk->SetResourceSet(m_CommandBuffer, resourceSetVk);
+			m_CurrentlyBoundResourceSet = resourceSetVk;
 		}
 	}
 
@@ -1064,6 +1065,54 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
+		if (!m_CurrentlyBoundResourceSet)
+			return;
+
+		std::optional<VkShaderStageFlags> stageFlags = m_CurrentlyBoundResourceSet->GetPushConstantsStageFlags(command.Name);
+
+		if (!stageFlags.has_value())
+			return;
+
+		if (Ref<PipelineVk> pipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock()))
+		{
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+			if (context.CmdPushConstants2)
+			{
+				VkPushConstantsInfo pushConstantsInfo = {};
+				pushConstantsInfo.sType				  = VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO;
+				pushConstantsInfo.pNext				  = nullptr;
+				pushConstantsInfo.layout			  = pipeline->GetPipelineLayout();
+				pushConstantsInfo.stageFlags		  = stageFlags.value();
+				pushConstantsInfo.offset			  = command.Offset;
+				pushConstantsInfo.size				  = command.Data.size();
+				pushConstantsInfo.pValues			  = command.Data.data();
+
+				context.CmdPushConstants2(m_CommandBuffer, &pushConstantsInfo);
+			}
+			else if (context.CmdPushConstants2KHR)
+			{
+				VkPushConstantsInfoKHR pushConstantsInfo = {};
+				pushConstantsInfo.sType					 = VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO_KHR;
+				pushConstantsInfo.pNext					 = nullptr;
+				pushConstantsInfo.layout				 = pipeline->GetPipelineLayout();
+				pushConstantsInfo.stageFlags			 = stageFlags.value();
+				pushConstantsInfo.offset				 = command.Offset;
+				pushConstantsInfo.size					 = command.Data.size();
+				pushConstantsInfo.pValues				 = command.Data.data();
+
+				context.CmdPushConstants2(m_CommandBuffer, &pushConstantsInfo);
+			}
+			else
+			{
+				context.CmdPushConstants(m_CommandBuffer,
+										 pipeline->GetPipelineLayout(),
+										 stageFlags.value(),
+										 command.Offset,
+										 command.Data.size(),
+										 command.Data.data());
+			}
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)

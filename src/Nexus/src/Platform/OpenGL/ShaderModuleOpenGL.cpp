@@ -202,42 +202,42 @@ namespace Nexus::Graphics
 		else if (type == "texture1D" || type == "image1D")
 		{
 			dimension = ResourceDimension::Texture1D;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "texture2D" || type == "image2D")
 		{
 			dimension = ResourceDimension::Texture2D;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "texture3D" || type == "image3D")
 		{
 			dimension = ResourceDimension::Texture3D;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "textureCube" || type == "imageCube")
 		{
 			dimension = ResourceDimension::TextureCube;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "texture2DRect" || type == "image2DRect")
 		{
 			dimension = ResourceDimension::TextureRectangle;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "texture1DArray" || type == "image1DArray")
 		{
 			dimension = ResourceDimension::Texture1DArray;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "texture2DArray" || type == "image2DArray")
 		{
 			dimension = ResourceDimension::Texture2DArray;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "textureCubeArray" || type == "imageCubeArray")
 		{
 			dimension = ResourceDimension::TextureCubeArray;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "textureBuffer" || type == "imageBuffer")
 		{
@@ -254,17 +254,17 @@ namespace Nexus::Graphics
 		else if (type == "texture2DMS" || type == "image2DMS")
 		{
 			dimension = ResourceDimension::Texture2DMS;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "texture2DMSArray" || type == "image2DMSArray")
 		{
 			dimension = ResourceDimension::Texture2DMSArray;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "sampler")
 		{
 			dimension = ResourceDimension::NoDimension;
-			return ReflectedShaderDataType::ISampler;
+			return ReflectedShaderDataType::Sampler;
 		}
 		else if (type == "sampler2DShadow")
 		{
@@ -274,17 +274,17 @@ namespace Nexus::Graphics
 		else if (type == "samplerCubeShadow")
 		{
 			dimension = ResourceDimension::TextureCube;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "sampler2DArrayShadow")
 		{
 			dimension = ResourceDimension::Texture2DArray;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "samplerCubeArrayShadow")
 		{
 			dimension = ResourceDimension::TextureCubeArray;
-			return ReflectedShaderDataType::ITexture;
+			return ReflectedShaderDataType::Texture;
 		}
 		else if (type == "mat2")
 		{
