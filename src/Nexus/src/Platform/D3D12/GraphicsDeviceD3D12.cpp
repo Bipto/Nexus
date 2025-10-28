@@ -120,6 +120,11 @@ namespace Nexus::Graphics
 		return Ref<IAccelerationStructure>();
 	}
 
+	Ref<ITexelBuffer> GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
+	{
+		return nullptr;
+	}
+
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
 	{
 		return m_Allocator.Get();

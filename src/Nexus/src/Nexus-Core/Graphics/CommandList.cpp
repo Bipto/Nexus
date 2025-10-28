@@ -216,11 +216,9 @@ namespace Nexus::Graphics
 
 		if (m_Description.AutomaticBarrierTransitions)
 		{
-			const auto &combinedImageSamplers = resources->GetBoundCombinedImageSamplers();
-			const auto &storageImages		  = resources->GetBoundStorageImages();
-			const auto &storageBuffers		  = resources->GetBoundStorageBuffers();
+			const auto &boundResources = resources->GetBoundResources();
 
-			for (const auto &[name, ciSampler] : combinedImageSamplers)
+			for (const auto &[name, ciSampler] : boundResources.CombinedImageSamplers)
 			{
 				Ref<ITextureView>			  textureView = ciSampler.ImageTexture;
 				const TextureViewDescription &viewDesc	  = textureView->GetDescription();
@@ -239,7 +237,25 @@ namespace Nexus::Graphics
 				SubmitTextureBarrier(barrier);
 			}
 
-			for (const auto &[name, storageImage] : storageImages)
+			for (const auto &[name, imageView] : boundResources.SampledImages)
+			{
+				const TextureViewDescription &viewDesc = imageView->GetDescription();
+
+				TextureBarrierDesc barrier				= {};
+				barrier.BeforeAccess					= BarrierAccess::None;
+				barrier.AfterAccess						= BarrierAccess::ShaderRead;
+				barrier.BeforeStage						= BarrierPipelineStage::None;
+				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+				barrier.ITexture						= imageView->GetTexture();
+				barrier.Layout							= TextureLayout::ShaderReadOnlyOptimal;
+				barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+				barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
+				barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
+				barrier.SubresourceRange.LevelCount		= viewDesc.Range.LevelCount;
+				SubmitTextureBarrier(barrier);
+			}
+
+			for (const auto &[name, storageImage] : boundResources.StorageImages)
 			{
 				Ref<ITexture> texture = storageImage.TextureHandle;
 
@@ -255,19 +271,6 @@ namespace Nexus::Graphics
 				barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
 				barrier.SubresourceRange.LevelCount		= 1;
 				SubmitTextureBarrier(barrier);
-			}
-
-			for (const auto &[name, storageBuffer] : storageBuffers)
-			{
-				BufferBarrierDesc barrier = {};
-				barrier.AfterAccess		  = BarrierAccess::ShaderWrite;
-				barrier.BeforeAccess	  = BarrierAccess::None;
-				barrier.AfterStage		  = BarrierPipelineStage::AllGraphics;
-				barrier.BeforeStage		  = BarrierPipelineStage::None;
-				barrier.Buffer			  = storageBuffer.BufferHandle;
-				barrier.Offset			  = storageBuffer.Offset;
-				barrier.Size			  = storageBuffer.SizeInBytes;
-				SubmitBufferBarrier(barrier);
 			}
 		}
 

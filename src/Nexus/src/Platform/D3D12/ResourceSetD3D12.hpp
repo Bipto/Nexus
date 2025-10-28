@@ -9,14 +9,23 @@
 
 namespace Nexus::Graphics
 {
-	class ResourceSetD3D12 : public IResourceSet
+	class ResourceSetD3D12 final : public IResourceSet
 	{
 	  public:
 		ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device);
-		virtual void WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name) override;
-		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name) override;
-		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) override;
-		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name) override;
+
+		void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name) final;
+		void WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name) final;
+		void WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name) final;
+		void WriteStorageBuffer(const StorageBufferView &view, const std::string &name) final;
+		void WriteDynamicStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name) final;
+		void WriteStorageImage(const StorageImageView &view, const std::string &name) final;
+		void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) final;
+		void WriteSampledImage(Ref<ITextureView> textureView, const std::string &name) final;
+		void WriteSampler(Ref<ISampler> sampler, const std::string &name) final;
+		void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name) final;
+		void WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name) final;
+		void Flush() final;
 
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSamplerDescriptorHeap();
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetTextureConstantBufferDescriptorHeap();

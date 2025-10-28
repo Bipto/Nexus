@@ -188,6 +188,17 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void ResourceSetD3D12::WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)
+	{
+	}
+
+	void ResourceSetD3D12::WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)
+	{
+	}
+	void ResourceSetD3D12::WriteDynamicStorageBuffer(const StorageBufferView &uniformBuffer, const std::string &name)
+	{
+	}
+
 	void ResourceSetD3D12::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)
 	{
 		const auto d3d12Device = m_Device->GetD3D12Device();
@@ -253,6 +264,26 @@ namespace Nexus::Graphics
 		}
 
 		m_BoundStorageImages[name] = view;
+	}
+
+	void ResourceSetD3D12::WriteSampledImage(Ref<ITextureView> textureView, const std::string &name)
+	{
+	}
+
+	void ResourceSetD3D12::WriteSampler(Ref<ISampler> sampler, const std::string &name)
+	{
+	}
+
+	void ResourceSetD3D12::WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name)
+	{
+	}
+
+	void ResourceSetD3D12::WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	{
+	}
+
+	void ResourceSetD3D12::Flush()
+	{
 	}
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetSamplerDescriptorHeap()

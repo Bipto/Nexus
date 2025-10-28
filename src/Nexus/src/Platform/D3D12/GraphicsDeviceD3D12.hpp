@@ -41,6 +41,7 @@ namespace Nexus::Graphics
 		Ref<ITimingQuery>			CreateTimingQuery() final;
 		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
+		Ref<ITexelBuffer>			CreateTexelBuffer(const TexelBufferDescription &desc) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final
 		{

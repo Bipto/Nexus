@@ -9,11 +9,6 @@ namespace Nexus::Graphics
 		m_ShaderResources = pipeline->GetRequiredShaderResources();
 	}
 
-	uint32_t IResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t binding)
-	{
-		return (set * DescriptorSetCount) + binding;
-	}
-
 	const std::map<std::string, UniformBufferView> &IResourceSet::GetBoundUniformBuffers() const
 	{
 		return m_BoundUniformBuffers;
@@ -32,5 +27,10 @@ namespace Nexus::Graphics
 	const std::map<std::string, StorageBufferView> &Nexus::Graphics::IResourceSet::GetBoundStorageBuffers() const
 	{
 		return m_BoundStorageBuffers;
+	}
+
+	const ResourceSetDescriptors &IResourceSet::GetBoundResources() const
+	{
+		return m_BoundResources;
 	}
 }	 // namespace Nexus::Graphics

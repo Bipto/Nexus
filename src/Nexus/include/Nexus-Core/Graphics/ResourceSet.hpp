@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
 #include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 #include "Nexus-Core/Graphics/Sampler.hpp"
 #include "Nexus-Core/Graphics/ShaderResources.hpp"
+#include "Nexus-Core/Graphics/TexelBuffer.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Graphics/TextureView.hpp"
 #include "Nexus-Core/Types.hpp"
@@ -75,6 +77,21 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<Ref<ISampler>>> ImmutableSamplers = {};
 	};
 
+	struct ResourceSetDescriptors
+	{
+		std::map<std::string, UniformBufferView>		   UniformBuffers		  = {};
+		std::map<std::string, UniformBufferView>		   DynamicUniformBuffers  = {};
+		std::map<std::string, std::vector<uint8_t>>		   InlineUniformBlocks	  = {};
+		std::map<std::string, StorageBufferView>		   StorageBuffers		  = {};
+		std::map<std::string, StorageBufferView>		   DynamicStorageBuffers  = {};
+		std::map<std::string, StorageImageView>			   StorageImages		  = {};
+		std::map<std::string, CombinedImageSampler>		   CombinedImageSamplers  = {};
+		std::map<std::string, Ref<ITextureView>>		   SampledImages		  = {};
+		std::map<std::string, Ref<ISampler>>			   Samplers				  = {};
+		std::map<std::string, Ref<IAccelerationStructure>> AccelerationStructures = {};
+		std::map<std::string, Ref<ITexelBuffer>>		   TexelBuffers			  = {};
+	};
+
 	class Pipeline;
 
 	class IResourceSet
@@ -85,23 +102,32 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void WriteStorageBuffer(const StorageBufferView &view, const std::string &name)							  = 0;
-		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)				  = 0;
-		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name) = 0;
-		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name)							  = 0;
-
-		static constexpr uint32_t DescriptorSetCount = 64;
-		static uint32_t			  GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
+		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)					= 0;
+		virtual void WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)				= 0;
+		virtual void WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)					= 0;
+		virtual void WriteStorageBuffer(const StorageBufferView &view, const std::string &name)								= 0;
+		virtual void WriteDynamicStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)				= 0;
+		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name)								= 0;
+		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)	= 0;
+		virtual void WriteSampledImage(Ref<ITextureView> textureView, const std::string &name)								= 0;
+		virtual void WriteSampler(Ref<ISampler> sampler, const std::string &name)											= 0;
+		virtual void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name) = 0;
+		virtual void WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)								= 0;
+		virtual void Flush()																								= 0;
 
 		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
 		const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;
 		const std::map<std::string, StorageImageView>	  &GetBoundStorageImages() const;
 		const std::map<std::string, StorageBufferView>	  &GetBoundStorageBuffers() const;
+		const ResourceSetDescriptors					  &GetBoundResources() const;
 
 	  protected:
 		WeakRef<Pipeline> m_Pipeline = {};
 
 		std::map<std::string, Nexus::Graphics::ShaderResource> m_ShaderResources;
+
+		ResourceSetDescriptors m_BoundResources	 = {};
+		ResourceSetDescriptors m_QueuedResources = {};
 
 		std::map<std::string, UniformBufferView>	m_BoundUniformBuffers;
 		std::map<std::string, CombinedImageSampler> m_BoundCombinedImageSamplers;

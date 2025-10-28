@@ -16,6 +16,7 @@
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
 	#include "SwapchainVk.hpp"
+	#include "TexelBufferVk.cpp"
 	#include "TextureViewVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
@@ -120,6 +121,11 @@ namespace Nexus::Graphics
 	Ref<IAccelerationStructure> GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
 		return CreateRef<AccelerationStructureVk>(desc, this);
+	}
+
+	Ref<ITexelBuffer> GraphicsDeviceVk::CreateTexelBuffer(const TexelBufferDescription &desc)
+	{
+		return CreateRef<TexelBufferVk>(desc, this);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const

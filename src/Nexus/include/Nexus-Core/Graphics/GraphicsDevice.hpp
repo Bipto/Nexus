@@ -20,6 +20,7 @@
 #include "Sampler.hpp"
 #include "ShaderModule.hpp"
 #include "Swapchain.hpp"
+#include "TexelBuffer.hpp"
 #include "Texture.hpp"
 #include "TextureView.hpp"
 #include "TimingQuery.hpp"
@@ -100,6 +101,8 @@ namespace Nexus::Graphics
 		virtual Ref<ITimingQuery> CreateTimingQuery() = 0;
 
 		virtual Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
+
+		virtual Ref<ITexelBuffer> CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
 		/// the supported shading language of the backend

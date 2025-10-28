@@ -47,7 +47,7 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -127,6 +127,11 @@ namespace Demos
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 			pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
+			pipelineDescription.ResourceDescription.Descriptors = {
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "texSampler",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+													 .CountOrSizeInBytes = 1}};
+
 			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
@@ -142,5 +147,5 @@ namespace Demos
 		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID = 0;
-	};
+	};	  // namespace Demos
 }	 // namespace Demos

@@ -225,6 +225,11 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
+	Ref<ITexelBuffer> GraphicsDeviceOpenGL::CreateTexelBuffer(const TexelBufferDescription &desc)
+	{
+		return nullptr;
+	}
+
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
 	{
 		GraphicsCapabilities capabilities;

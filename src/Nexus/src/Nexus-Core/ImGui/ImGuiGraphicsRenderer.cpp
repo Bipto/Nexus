@@ -218,6 +218,7 @@ namespace Nexus::ImGuiUtils
 		ciSampler.ImageTexture					 = texture;
 		ciSampler.ImageSampler					 = m_Sampler;
 		resourceSet->WriteCombinedImageSampler(ciSampler, "Texture");
+		resourceSet->Flush();
 
 		return id;
 	}
