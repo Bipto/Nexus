@@ -16,7 +16,7 @@
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
 	#include "SwapchainVk.hpp"
-	#include "TexelBufferVk.cpp"
+	#include "TexelBufferVk.hpp"
 	#include "TextureViewVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"

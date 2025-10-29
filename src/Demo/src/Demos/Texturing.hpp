@@ -72,7 +72,8 @@ namespace Demos
 			Nexus::Graphics::CombinedImageSampler ciSampler = {};
 			ciSampler.ImageTexture							= m_TextureView;
 			ciSampler.ImageSampler							= m_Sampler;
-			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
+			m_ResourceSet->Flush();
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -117,10 +118,12 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing.vert.glsl",
-																										Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing.frag.glsl",
-																										Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing/texturing.vert.glsl",
+																	   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing/texturing.frag.glsl",
+																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
@@ -128,7 +131,7 @@ namespace Demos
 			pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
 			pipelineDescription.ResourceDescription.Descriptors = {
-				Nexus::Graphics::ResourceDescriptor {.Name				 = "texSampler",
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture",
 													 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
 													 .CountOrSizeInBytes = 1}};
 

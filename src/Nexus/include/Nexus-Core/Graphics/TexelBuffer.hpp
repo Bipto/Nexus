@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 		PixelFormat		   Format	   = {};
 	};
 
-	class ITexelBuffer
+	class NX_API ITexelBuffer
 	{
 	  public:
 		virtual ~ITexelBuffer()										 = default;

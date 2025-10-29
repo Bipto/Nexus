@@ -653,6 +653,16 @@ namespace Nexus::Vk
 			flags |= VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
 		}
 
+		if (desc.Usage & Graphics::BufferUsage::TexelUniform)
+		{
+			flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::TexelStorage)
+		{
+			flags |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+		}
+
 		return flags;
 	}
 

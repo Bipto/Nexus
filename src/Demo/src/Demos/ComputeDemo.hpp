@@ -43,6 +43,11 @@ namespace Demos
 			Nexus::Graphics::ComputePipelineDescription desc = {};
 			desc.ComputeShader =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute.glsl", Nexus::Graphics::ShaderStage::Compute);
+			desc.ResourceDescription.Descriptors = {
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Image",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
+													 .CountOrSizeInBytes = 1},
+			};
 			m_ComputePipeline = m_GraphicsDevice->CreateComputePipeline(desc);
 
 			m_ResourceSet		  = m_GraphicsDevice->CreateResourceSet(m_ComputePipeline);
@@ -55,7 +60,9 @@ namespace Demos
 			storageImageView.TextureHandle					   = m_Texture;
 			storageImageView.MipLevel						   = 0;
 			storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
-			m_ResourceSet->WriteStorageImage(storageImageView, "out_tex");
+			m_ResourceSet->WriteStorageImage(storageImageView, "u_Image");
+
+			m_ResourceSet->Flush();
 
 			m_CommandList->Begin();
 
@@ -68,7 +75,7 @@ namespace Demos
 			dispatchDesc.WorkGroupCountZ					  = 1;
 			m_CommandList->Dispatch(dispatchDesc);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -111,12 +118,12 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	 m_CommandList		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::IComputePipeline> m_ComputePipeline	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	 m_ResourceSet		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		 m_Texture			   = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	 m_TextureView		   = nullptr;
-		glm::vec3									 m_ClearColour		   = {0.7f, 0.2f, 0.3f};
-		ImTextureID									 m_ImGuiTextureBinding = 0;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList			= nullptr;
+		Nexus::Ref<Nexus::Graphics::IComputePipeline> m_ComputePipeline		= nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet			= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture				= nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView			= nullptr;
+		glm::vec3									  m_ClearColour			= {0.7f, 0.2f, 0.3f};
+		ImTextureID									  m_ImGuiTextureBinding = 0;
 	};
 }	 // namespace Demos

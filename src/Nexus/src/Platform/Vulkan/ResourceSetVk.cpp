@@ -122,9 +122,14 @@ namespace Nexus::Graphics
 		m_QueuedResources.AccelerationStructures[name] = accelerationStructure;
 	}
 
-	void ResourceSetVk::WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	void ResourceSetVk::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
 	{
-		m_QueuedResources.TexelBuffers[name] = texelBuffer;
+		m_QueuedResources.UniformTexelBuffers[name] = texelBuffer;
+	}
+
+	void ResourceSetVk::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	{
+		m_QueuedResources.StorageTexelBuffers[name] = texelBuffer;
 	}
 
 	static void GenerateWriteBufferDescriptor(const std::string								&resourceName,
@@ -320,7 +325,7 @@ namespace Nexus::Graphics
 											  buffer->GetVkBuffer(),
 											  view.Offset,
 											  view.SizeInBytes,
-											  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
+											  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 											  resource.Binding,
 											  m_DescriptorSets.at(resource.Set));
 
@@ -459,30 +464,39 @@ namespace Nexus::Graphics
 			}
 		}
 
-		// texel buffers
-		for (const auto &[name, texelBuffer] : m_QueuedResources.TexelBuffers)
+		// uniform texel buffers
+		for (const auto &[name, texelBuffer] : m_QueuedResources.UniformTexelBuffers)
 		{
 			if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
 			{
 				const ShaderResource &resource = m_ShaderResources.at(name);
 
-				const auto &reflectedShaderResources = m_Pipeline->GetRequiredShaderResources();
-				if (reflectedShaderResources.contains(name))
-				{
-					const auto		&reflectedResource = reflectedShaderResources.at(name);
-					VkDescriptorType descriptorType	   = reflectedResource.Type == ResourceType::StorageTextureBuffer
-															 ? VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER
-															 : VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+				GenerateWriteTexelBufferDescriptor(resource.Name,
+												   descriptorSetWrites,
+												   texelBufferVk->GetVkBufferView(),
+												   resource.Binding,
+												   m_DescriptorSets.at(resource.Set),
+												   VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER);
 
-					GenerateWriteTexelBufferDescriptor(resource.Name,
-													   descriptorSetWrites,
-													   texelBufferVk->GetVkBufferView(),
-													   resource.Binding,
-													   m_DescriptorSets.at(resource.Set),
-													   descriptorType);
+				m_BoundResources.UniformTexelBuffers[name] = texelBuffer;
+			}
+		}
 
-					m_BoundResources.TexelBuffers[name] = texelBuffer;
-				}
+		// storage texel buffers
+		for (const auto &[name, texelBuffer] : m_QueuedResources.StorageTexelBuffers)
+		{
+			if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+			{
+				const ShaderResource &resource = m_ShaderResources.at(name);
+
+				GenerateWriteTexelBufferDescriptor(resource.Name,
+												   descriptorSetWrites,
+												   texelBufferVk->GetVkBufferView(),
+												   resource.Binding,
+												   m_DescriptorSets.at(resource.Set),
+												   VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER);
+
+				m_BoundResources.UniformTexelBuffers[name] = texelBuffer;
 			}
 		}
 

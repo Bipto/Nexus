@@ -47,13 +47,17 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ResourceSetOpenGL::WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
-	{
-	}
-
 	void ResourceSetOpenGL::WriteStorageImage(const StorageImageView &view, const std::string &name)
 	{
 		m_BoundStorageImages[name] = view;
+	}
+
+	void ResourceSetOpenGL::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	{
+	}
+
+	void ResourceSetOpenGL::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	{
 	}
 
 	void ResourceSetOpenGL::Flush()

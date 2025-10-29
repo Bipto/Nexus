@@ -42,6 +42,19 @@ namespace Demos
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
+			Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
+			transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer;
+			transformUniformBufferView.Offset							  = 0;
+			transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
+			m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
+
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= m_TextureView;
+			ciSampler.ImageSampler							= m_Sampler;
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
+
+			m_ResourceSet->Flush();
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -51,7 +64,7 @@ namespace Demos
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -72,17 +85,6 @@ namespace Demos
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-
-			Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
-			transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer;
-			transformUniformBufferView.Offset							  = 0;
-			transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
-			m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
-
-			Nexus::Graphics::CombinedImageSampler ciSampler = {};
-			ciSampler.ImageTexture							= m_TextureView;
-			ciSampler.ImageSampler							= m_Sampler;
-			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -128,10 +130,10 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers.vert.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers/uniform_buffers.vert.glsl",
 																	   Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/shader_buffers.frag.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers/uniform_buffers.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
@@ -147,6 +149,14 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
+			pipelineDescription.ResourceDescription.Descriptors = {
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+													 .CountOrSizeInBytes = 1},
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "Transform",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+													 .CountOrSizeInBytes = 1}};
+
 			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
@@ -157,18 +167,18 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet = nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ISampler>		  m_Sampler		= nullptr;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>		   m_Texture	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_TextureView = nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ISampler>		   m_Sampler	 = nullptr;
+		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
-		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO  m_TransformUniforms	   = {};
+		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO   m_TransformUniforms		= {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
 	};
 }	 // namespace Demos

@@ -13,23 +13,23 @@ std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
 
-						 "layout(location = 0) in vec2 Position;\n"
-						 "layout(location = 1) in vec2 TexCoord;\n"
-						 "layout(location = 2) in vec4 Color;\n"
+						 "layout(location = 0) in vec2 a_Position;\n"
+						 "layout(location = 1) in vec2 a_TexCoord;\n"
+						 "layout(location = 2) in vec4 a_Colour;\n"
 
-						 "layout(location = 0) out vec2 Frag_UV;\n"
-						 "layout(location = 1) out vec4 Frag_Color;\n"
+						 "layout(location = 0) out vec2 o_Frag_UV;\n"
+						 "layout(location = 1) out vec4 o_Frag_Colour;\n"
 
 						 "layout(push_constant) uniform PushConstants\n"
 						 "{\n"
 						 "    mat4 MVP;\n"
-						 "} pc;\n"
+						 "} pushConstants;\n"
 
 						 "void main()\n"
 						 "{\n"
-						 "    gl_Position = pc.MVP * vec4(Position, 0.0, 1.0);\n"
-						 "    Frag_UV = vec2(TexCoord.x, TexCoord.y);\n"
-						 "    Frag_Color = Color;\n"
+						 "    gl_Position = pushConstants.MVP * vec4(a_Position, 0.0, 1.0);\n"
+						 "    o_Frag_UV = vec2(a_TexCoord.x, a_TexCoord.y);\n"
+						 "    o_Frag_Colour = a_Colour;\n"
 						 "}";
 	return shader;
 }
@@ -38,16 +38,16 @@ std::string GetImGuiShaderFragmentSource()
 {
 	std::string shader = "#version 450 core\n"
 
-						 "layout(location = 0) in vec2 Frag_UV;\n"
-						 "layout(location = 1) in vec4 Frag_Color;\n"
+						 "layout(location = 0) in vec2 a_Frag_UV;\n"
+						 "layout(location = 1) in vec4 a_Frag_Colour;\n"
 
-						 "layout(set = 1, binding = 0) uniform sampler2D Texture;\n"
+						 "layout(set = 1, binding = 0) uniform sampler2D u_Texture;\n"
 
-						 "layout(location = 0) out vec4 OutColor;\n"
+						 "layout(location = 0) out vec4 o_Colour;\n"
 
 						 "void main()\n"
 						 "{\n"
-						 "    OutColor = Frag_Color * texture(Texture, Frag_UV.st)\n;"
+						 "    o_Colour = a_Frag_Colour * texture(u_Texture, a_Frag_UV.st)\n;"
 						 "}";
 	return shader;
 }
@@ -160,10 +160,10 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.DebugName = "ImGui Pipeline";
 
-		pipelineDesc.ResourceDescription.Descriptors = {Graphics::ResourceDescriptor {.Name = "pc",
+		pipelineDesc.ResourceDescription.Descriptors = {Graphics::ResourceDescriptor {.Name = "pushConstants",
 																					  .Type = Graphics::ResourceDescriptorType::PushConstants,
 																					  .CountOrSizeInBytes = sizeof(glm::mat4)},
-														{Graphics::ResourceDescriptor {.Name = "Texture",
+														{Graphics::ResourceDescriptor {.Name = "u_Texture",
 																					   .Type = Graphics::ResourceDescriptorType::CombinedImageSampler,
 																					   .CountOrSizeInBytes = 1}}};
 
@@ -217,7 +217,7 @@ namespace Nexus::ImGuiUtils
 		Graphics::CombinedImageSampler ciSampler = {};
 		ciSampler.ImageTexture					 = texture;
 		ciSampler.ImageSampler					 = m_Sampler;
-		resourceSet->WriteCombinedImageSampler(ciSampler, "Texture");
+		resourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
 		resourceSet->Flush();
 
 		return id;
@@ -565,7 +565,7 @@ namespace Nexus::ImGuiUtils
 					// descriptorInfo.m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
 					m_CommandList->SetResourceSet(descriptorInfo.m_ResourceSet);
 
-					m_CommandList->WritePushConstants("pc", &mvp, sizeof(mvp), 0);
+					m_CommandList->WritePushConstants("pushConstants", &mvp, sizeof(mvp), 0);
 
 					Graphics::DrawIndexedDescription drawDesc = {};
 					drawDesc.VertexStart					  = drawCmd.VtxOffset + vtxOffset;

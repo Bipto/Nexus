@@ -43,14 +43,20 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			Nexus::Graphics::SamplerDescription samplerSpec {};
-			samplerSpec.MinimumLOD						 = m_SelectedMip;
-			samplerSpec.MaximumLOD						 = m_SelectedMip;
+			samplerSpec.MinimumLOD						  = m_SelectedMip;
+			samplerSpec.MaximumLOD						  = m_SelectedMip;
 			Nexus::Ref<Nexus::Graphics::ISampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= m_TextureView;
+			ciSampler.ImageSampler							= sampler;
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
+			m_ResourceSet->Flush();
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -71,11 +77,6 @@ namespace Demos
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-
-			Nexus::Graphics::CombinedImageSampler ciSampler = {};
-			ciSampler.ImageTexture							= m_TextureView;
-			ciSampler.ImageSampler							= sampler;
-			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -126,28 +127,35 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing.vert.glsl",
-																										Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing.frag.glsl",
-																										Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing/texturing.vert.glsl",
+																	   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing/texturing.frag.glsl",
+																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 			pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
+			pipelineDescription.ResourceDescription.Descriptors = {
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+													 .CountOrSizeInBytes = 1}};
+
 			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	= nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet = nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView = nullptr;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_ResourceSet = nullptr;
+		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture>		   m_Texture	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_TextureView = nullptr;
+		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID	  = 0;
 		int			m_SelectedMip = 0;

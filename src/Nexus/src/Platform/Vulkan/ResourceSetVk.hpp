@@ -26,7 +26,8 @@ namespace Nexus::Graphics
 		void WriteSampledImage(Ref<ITextureView> textureView, const std::string &name) final;
 		void WriteSampler(Ref<ISampler> sampler, const std::string &name) final;
 		void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name) final;
-		void WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name) final;
+		void WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name) final;
+		void WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name) final;
 		void Flush() final;
 
 		const std::map<uint32_t, VkDescriptorSet> &GetDescriptorSets() const;

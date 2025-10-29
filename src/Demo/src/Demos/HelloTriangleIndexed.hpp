@@ -55,7 +55,7 @@ namespace Demos
 			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -123,20 +123,20 @@ namespace Demos
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle/hello_triangle.vert.glsl",
 																	   Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle/hello_triangle.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList;
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_VertexBuffer;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_IndexBuffer;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_VertexBuffer;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_IndexBuffer;
+		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

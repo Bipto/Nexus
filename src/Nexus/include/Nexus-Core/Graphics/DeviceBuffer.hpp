@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		Readback
 	};
 
-	enum BufferUsage : uint8_t
+	enum BufferUsage : uint16_t
 	{
 		None									= 0,
 		Vertex									= BIT(0),
@@ -48,7 +48,9 @@ namespace Nexus::Graphics
 		Indirect								= BIT(4),
 		AccelerationStructureStorage			= BIT(5),
 		AccelerationStructureBuildInputReadOnly = BIT(6),
-		TransformFeedback						= BIT(7)
+		TransformFeedback						= BIT(7),
+		TexelUniform							= BIT(8),
+		TexelStorage							= BIT(9)
 	};
 
 	struct DeviceBufferDescription
@@ -120,22 +122,22 @@ namespace Nexus::Graphics
 	struct VertexBufferView
 	{
 		Ref<IDeviceBuffer> BufferHandle = {};
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
+		size_t			   Offset		= 0;
+		size_t			   Size			= 0;
 	};
 
 	struct IndexBufferView
 	{
 		Ref<IDeviceBuffer> BufferHandle = {};
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
-		IndexFormat		  BufferFormat = IndexFormat::UInt32;
+		size_t			   Offset		= 0;
+		size_t			   Size			= 0;
+		IndexFormat		   BufferFormat = IndexFormat::UInt32;
 	};
 
 	struct UniformBufferView
 	{
 		Ref<IDeviceBuffer> BufferHandle = {};
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
+		size_t			   Offset		= 0;
+		size_t			   Size			= 0;
 	};
 }	 // namespace Nexus::Graphics

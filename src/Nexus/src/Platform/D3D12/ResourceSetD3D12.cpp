@@ -278,7 +278,11 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ResourceSetD3D12::WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	void ResourceSetD3D12::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
+	{
+	}
+
+	void ResourceSetD3D12::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
 	{
 	}
 

@@ -89,7 +89,8 @@ namespace Nexus::Graphics
 		std::map<std::string, Ref<ITextureView>>		   SampledImages		  = {};
 		std::map<std::string, Ref<ISampler>>			   Samplers				  = {};
 		std::map<std::string, Ref<IAccelerationStructure>> AccelerationStructures = {};
-		std::map<std::string, Ref<ITexelBuffer>>		   TexelBuffers			  = {};
+		std::map<std::string, Ref<ITexelBuffer>>		   UniformTexelBuffers	  = {};
+		std::map<std::string, Ref<ITexelBuffer>>		   StorageTexelBuffers	  = {};
 	};
 
 	class Pipeline;
@@ -112,7 +113,8 @@ namespace Nexus::Graphics
 		virtual void WriteSampledImage(Ref<ITextureView> textureView, const std::string &name)								= 0;
 		virtual void WriteSampler(Ref<ISampler> sampler, const std::string &name)											= 0;
 		virtual void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name) = 0;
-		virtual void WriteTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)								= 0;
+		virtual void WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)						= 0;
+		virtual void WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)						= 0;
 		virtual void Flush()																								= 0;
 
 		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
