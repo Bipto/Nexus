@@ -41,8 +41,8 @@ namespace Demos
 			m_TextureView									 = m_GraphicsDevice->CreateTextureView(viewDesc);
 
 			Nexus::Graphics::ComputePipelineDescription desc = {};
-			desc.ComputeShader =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute.glsl", Nexus::Graphics::ShaderStage::Compute);
+			desc.ComputeShader = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute/compute.glsl",
+																						Nexus::Graphics::ShaderStage::Compute);
 			desc.ResourceDescription.Descriptors = {
 				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Image",
 													 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
@@ -52,10 +52,7 @@ namespace Demos
 
 			m_ResourceSet		  = m_GraphicsDevice->CreateResourceSet(m_ComputePipeline);
 			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_TextureView);
-		}
 
-		virtual void Render(Nexus::TimeSpan time) override
-		{
 			Nexus::Graphics::StorageImageView storageImageView = {};
 			storageImageView.TextureHandle					   = m_Texture;
 			storageImageView.MipLevel						   = 0;
@@ -63,7 +60,10 @@ namespace Demos
 			m_ResourceSet->WriteStorageImage(storageImageView, "u_Image");
 
 			m_ResourceSet->Flush();
+		}
 
+		virtual void Render(Nexus::TimeSpan time) override
+		{
 			m_CommandList->Begin();
 
 			m_CommandList->SetPipeline(m_ComputePipeline);

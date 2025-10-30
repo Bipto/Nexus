@@ -37,20 +37,28 @@ namespace Demos
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
+			Nexus::Graphics::StorageBufferView storageBufferView = {};
+			storageBufferView.BufferHandle						 = m_StorageBuffer;
+			storageBufferView.Offset							 = 0;
+			storageBufferView.SizeInBytes						 = sizeof(glm::mat4);
+			storageBufferView.Access							 = Nexus::Graphics::ShaderAccess::ReadWrite;
+			m_ResourceSet->WriteStorageBuffer(storageBufferView, "TransformBuffer");
+
+			Nexus::Graphics::CombinedImageSampler ciSampler = {};
+			ciSampler.ImageTexture							= m_TextureView;
+			ciSampler.ImageSampler							= m_Sampler;
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
+
+			m_ResourceSet->Flush();
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_UploadBuffer->SetData(&transform, 0, sizeof(transform));
+			m_StorageBuffer->SetData(&transform, 0, sizeof(transform));
 
 			m_CommandList->Begin();
-
-			Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source								  = m_UploadBuffer;
-			bufferCopy.Destination							  = m_StorageBuffer;
-			bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeof(glm::mat4)}};
-			m_CommandList->CopyBufferToBuffer(bufferCopy);
 
 			m_CommandList->SetPipeline(m_Pipeline);
 			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
@@ -74,20 +82,6 @@ namespace Demos
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-
-			Nexus::Graphics::StorageBufferView storageBufferView = {};
-			storageBufferView.BufferHandle						 = m_StorageBuffer;
-			storageBufferView.Offset							 = 0;
-			storageBufferView.SizeInBytes						 = sizeof(glm::mat4);
-			storageBufferView.Access							 = Nexus::Graphics::ShaderAccess::Read;
-			m_ResourceSet->WriteStorageBuffer(storageBufferView, "TransformBuffer");
-
-			Nexus::Graphics::CombinedImageSampler ciSampler = {};
-			ciSampler.ImageTexture							= m_TextureView;
-			ciSampler.ImageSampler							= m_Sampler;
-			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
-
-			m_ResourceSet->Flush();
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -140,18 +134,11 @@ namespace Demos
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
+			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Storage;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
 			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
-
-			Nexus::Graphics::DeviceBufferDescription uploadBufferDesc = {};
-			uploadBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
-			uploadBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::None;
-			uploadBufferDesc.StrideInBytes							  = sizeof(glm::mat4);
-			uploadBufferDesc.SizeInBytes							  = sizeof(glm::mat4);
-			m_UploadBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(uploadBufferDesc);
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
@@ -189,7 +176,6 @@ namespace Demos
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
 		glm::mat4								   m_TransformUniforms = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UploadBuffer	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_StorageBuffer	   = nullptr;
 	};
 }	 // namespace Demos

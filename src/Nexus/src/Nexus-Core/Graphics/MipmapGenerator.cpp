@@ -3,22 +3,22 @@
 #include "Nexus-Core/nxpch.hpp"
 
 const std::string c_MipmapVertexSource = "#version 450 core\n"
-										 "layout (location = 0) in vec3 Position;\n"
-										 "layout (location = 1) in vec2 TexCoord;\n"
-										 "layout (location = 0) out vec2 OutTexCoord;\n"
+										 "layout (location = 0) in vec3 a_Position;\n"
+										 "layout (location = 1) in vec2 a_TexCoord;\n"
+										 "layout (location = 0) out vec2 o_TexCoord;\n"
 										 "void main()\n"
 										 "{\n"
-										 "    gl_Position = vec4(Position, 1.0);\n"
-										 "    OutTexCoord = TexCoord;\n"
+										 "    gl_Position = vec4(a_Position, 1.0);\n"
+										 "    o_TexCoord = a_TexCoord;\n"
 										 "}";
 
 const std::string c_MipmapFragmentSource = "#version 450 core\n"
-										   "layout(location = 0) in vec2 OutTexCoord;\n"
-										   "layout(location = 0) out vec4 FragColor;\n"
-										   "layout(binding = 0, set = 0) uniform sampler2D texSampler;\n"
+										   "layout(location = 0) in vec2 a_TexCoord;\n"
+										   "layout(location = 0) out vec4 o_Colour;\n"
+										   "layout(binding = 0, set = 0) uniform sampler2D u_Texture;\n"
 										   "void main()\n"
 										   "{\n"
-										   "    FragColor = texture(texSampler, OutTexCoord);\n"
+										   "    o_Colour = texture(u_Texture, a_TexCoord);\n"
 										   "}";
 
 namespace Nexus::Graphics
@@ -48,8 +48,14 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthFormat		  = PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
-		m_Pipeline					= m_Device->CreateGraphicsPipeline(pipelineDescription);
-		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
+
+		pipelineDescription.ResourceDescription.Descriptors = {
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1}};
+
+		m_Pipeline	  = m_Device->CreateGraphicsPipeline(pipelineDescription);
+		m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
 	}
 
 	std::vector<char> MipmapGenerator::GenerateMip(Ref<ITexture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
@@ -89,7 +95,8 @@ namespace Nexus::Graphics
 			ciSampler.ImageTexture							= textureView;
 			ciSampler.ImageSampler							= sampler;
 
-			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "texSampler");
+			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
+			m_ResourceSet->Flush();
 
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;

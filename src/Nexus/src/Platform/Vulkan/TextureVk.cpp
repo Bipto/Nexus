@@ -69,7 +69,12 @@ namespace Nexus::Graphics
 
 		// we only need to commit memory for this texture if it was not requested to bound sparsely
 		bool sparseTexture = m_Description.CreateFlags & TextureCreateFlags_SparseBinding;
-		if (!sparseTexture)
+		if (sparseTexture)
+		{
+			imageInfo.flags = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
+			NX_VALIDATE(context.CreateImage(device->GetVkDevice(), &imageInfo, nullptr, &m_Image) == VK_SUCCESS, "Failed to create image");
+		}
+		else
 		{
 			VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
 

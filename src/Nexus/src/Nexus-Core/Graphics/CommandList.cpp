@@ -533,18 +533,21 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Graphics::TextureBarrierDesc barrierDesc = {};
-		barrierDesc.ITexture					 = bufferTextureCopy.TextureHandle;
-		barrierDesc.BeforeAccess				 = BarrierAccess::None;
-		barrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
-		barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
-		barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
-		barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
-		barrierDesc.SubresourceRange			 = {.BaseMipLevel	= bufferTextureCopy.MipLevel,
-													.LevelCount		= 1,
-													.BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
-													.LayerCount		= bufferTextureCopy.TextureExtent.Depth};
-		SubmitTextureBarrier(barrierDesc);
+		if (m_Description.AutomaticBarrierTransitions)
+		{
+			Graphics::TextureBarrierDesc barrierDesc = {};
+			barrierDesc.ITexture					 = bufferTextureCopy.TextureHandle;
+			barrierDesc.BeforeAccess				 = BarrierAccess::None;
+			barrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
+			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
+			barrierDesc.SubresourceRange			 = {.BaseMipLevel	= bufferTextureCopy.MipLevel,
+														.LevelCount		= 1,
+														.BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
+														.LayerCount		= bufferTextureCopy.TextureExtent.Depth};
+			SubmitTextureBarrier(barrierDesc);
+		}
 
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
@@ -562,18 +565,21 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Graphics::TextureBarrierDesc barrierDesc = {};
-		barrierDesc.ITexture					 = textureBufferCopy.TextureHandle;
-		barrierDesc.BeforeAccess				 = BarrierAccess::None;
-		barrierDesc.AfterAccess					 = BarrierAccess::HostRead;
-		barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
-		barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
-		barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
-		barrierDesc.SubresourceRange			 = {.BaseMipLevel	= textureBufferCopy.MipLevel,
-													.LevelCount		= 1,
-													.BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
-													.LayerCount		= textureBufferCopy.TextureExtent.Depth};
-		SubmitTextureBarrier(barrierDesc);
+		if (m_Description.AutomaticBarrierTransitions)
+		{
+			Graphics::TextureBarrierDesc barrierDesc = {};
+			barrierDesc.ITexture					 = textureBufferCopy.TextureHandle;
+			barrierDesc.BeforeAccess				 = BarrierAccess::None;
+			barrierDesc.AfterAccess					 = BarrierAccess::HostRead;
+			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.Layout						 = TextureLayout::TransferSrcOptimal;
+			barrierDesc.SubresourceRange			 = {.BaseMipLevel	= textureBufferCopy.MipLevel,
+														.LevelCount		= 1,
+														.BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
+														.LayerCount		= textureBufferCopy.TextureExtent.Depth};
+			SubmitTextureBarrier(barrierDesc);
+		}
 
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
@@ -589,6 +595,35 @@ namespace Nexus::Graphics
 			NX_ERROR("Attempting to record a command into a CommandList without "
 					 "calling Begin()");
 			return;
+		}
+
+		if (m_Description.AutomaticBarrierTransitions)
+		{
+			Graphics::TextureBarrierDesc sourceBarrierDesc = {};
+			sourceBarrierDesc.ITexture					   = textureCopy.Source;
+			sourceBarrierDesc.BeforeAccess				   = BarrierAccess::None;
+			sourceBarrierDesc.AfterAccess				   = BarrierAccess::TransferWrite;
+			sourceBarrierDesc.BeforeStage				   = BarrierPipelineStage::Copy;
+			sourceBarrierDesc.AfterStage				   = BarrierPipelineStage::Copy;
+			sourceBarrierDesc.Layout					   = TextureLayout::TransferSrcOptimal;
+			sourceBarrierDesc.SubresourceRange			   = {.BaseMipLevel	  = textureCopy.SourceMipLevel,
+															  .LevelCount	  = 1,
+															  .BaseArrayLayer = (uint32_t)textureCopy.SourceOffset.Z,
+															  .LayerCount	  = textureCopy.Extent.Depth};
+			SubmitTextureBarrier(sourceBarrierDesc);
+
+			Graphics::TextureBarrierDesc destBarrierDesc = {};
+			destBarrierDesc.ITexture					 = textureCopy.Destination;
+			destBarrierDesc.BeforeAccess				 = BarrierAccess::None;
+			destBarrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
+			destBarrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+			destBarrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+			destBarrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
+			destBarrierDesc.SubresourceRange			 = {.BaseMipLevel	= textureCopy.DestinationMipLevel,
+															.LevelCount		= 1,
+															.BaseArrayLayer = (uint32_t)textureCopy.DestinationOffset.Z,
+															.LayerCount		= textureCopy.Extent.Depth};
+			SubmitTextureBarrier(destBarrierDesc);
 		}
 
 		Graphics::CopyTextureToTextureCommand command;

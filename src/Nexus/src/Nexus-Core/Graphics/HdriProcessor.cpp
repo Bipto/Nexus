@@ -10,9 +10,9 @@
 
 const std::string HdriVertexShaderSource = "#version 450 core\n"
 
-										   "layout(location = 0) in vec3 Position;\n"
+										   "layout(location = 0) in vec3 a_Position;\n"
 
-										   "layout(location = 0) out vec3 LocalPos;\n"
+										   "layout(location = 0) out vec3 o_LocalPos;\n"
 
 										   "layout(binding = 0, set = 0) uniform Camera\n"
 										   "{\n"
@@ -22,17 +22,17 @@ const std::string HdriVertexShaderSource = "#version 450 core\n"
 
 										   "void main()\n"
 										   "{\n"
-										   "    LocalPos = Position;\n"
-										   "    gl_Position = u_Projection * u_View * vec4(Position, 1.0);\n"
+										   "    o_LocalPos = a_Position;\n"
+										   "    gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);\n"
 										   "}";
 
 const std::string HdriFragmentShaderSource = "#version 450 core\n"
 
-											 "layout(location = 0) in vec3 LocalPos;\n"
+											 "layout(location = 0) in vec3 a_LocalPos;\n"
 
-											 "layout(location = 0) out vec4 FragColor;\n"
+											 "layout(location = 0) out vec4 o_Colour;\n"
 
-											 "layout(binding = 0, set = 1) uniform sampler2D equirectangularMap;\n"
+											 "layout(binding = 0, set = 1) uniform sampler2D u_EquirectangularMap;\n"
 
 											 "const vec2 invAtan = vec2(0.1591, 0.3183);\n"
 											 "vec2 SampleSphericalMap(vec3 v)\n"
@@ -45,9 +45,9 @@ const std::string HdriFragmentShaderSource = "#version 450 core\n"
 
 											 "void main()\n"
 											 "{\n"
-											 "    vec2 uv = SampleSphericalMap(normalize(LocalPos));\n"
-											 "    vec3 colour = texture(equirectangularMap, uv).rgb;\n"
-											 "    FragColor = vec4(colour, 1.0);\n"
+											 "    vec2 uv = SampleSphericalMap(normalize(a_LocalPos));\n"
+											 "    vec3 colour = texture(u_EquirectangularMap, uv).rgb;\n"
+											 "    o_Colour = vec4(colour, 1.0);\n"
 											 "}";
 
 namespace Nexus::Graphics
@@ -136,7 +136,16 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount = 1;
 		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentFormat.value();
 
-		pipelineDescription.Layouts		   = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+		pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+
+		pipelineDescription.ResourceDescription.Descriptors = {
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_EquirectangularMap",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "Camera",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+												 .CountOrSizeInBytes = 1}};
+
 		Ref<IGraphicsPipeline> pipeline	   = m_Device->CreateGraphicsPipeline(pipelineDescription);
 		Ref<IResourceSet>	   resourceSet = m_Device->CreateResourceSet(pipeline);
 
@@ -196,7 +205,9 @@ namespace Nexus::Graphics
 			CombinedImageSampler ciSampler = {};
 			ciSampler.ImageTexture		   = m_HdriView;
 			ciSampler.ImageSampler		   = sampler;
-			resourceSet->WriteCombinedImageSampler(ciSampler, "equirectangularMap");
+			resourceSet->WriteCombinedImageSampler(ciSampler, "u_EquirectangularMap");
+
+			resourceSet->Flush();
 
 			commandList->Begin();
 			commandList->SetPipeline(pipeline);

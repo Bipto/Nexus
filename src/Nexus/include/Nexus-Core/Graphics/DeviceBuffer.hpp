@@ -38,6 +38,12 @@ namespace Nexus::Graphics
 		Readback
 	};
 
+	enum BufferCreateFlags : uint8_t
+	{
+		BufferCreateFlags_None			= 0,
+		BufferCreateFlags_SparseBinding = BIT(0)
+	};
+
 	enum BufferUsage : uint16_t
 	{
 		None									= 0,
@@ -55,6 +61,9 @@ namespace Nexus::Graphics
 
 	struct DeviceBufferDescription
 	{
+		/// @brief Flags containing how the buffer should be created
+		BufferCreateFlags Flags = BufferCreateFlags_None;
+
 		/// @brief The accessibility of the buffer
 		BufferMemoryAccess Access = BufferMemoryAccess::Default;
 
