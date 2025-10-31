@@ -279,6 +279,21 @@ namespace Nexus::Graphics
 
 		/// @brief Whether the values of the depth buffer should be limited
 		bool DepthClipEnabled = false;
+
+		/// @brief The bias to add to any depth values
+		int32_t DepthBias = 0;
+
+		/// @brief Whether to clamp all values above the near/far depth range to the near/far values
+		bool DepthClamp = false;
+
+		/// @brief The maximum depth bias for a pixel
+		float DepthBiasClamp = 0.0f;
+
+		/// @brief Scalar on a given pixel's slope
+		float SlopeScaledDepthBias = 0.0f;
+
+		/// @brief Whether to rasterize the final output
+		bool Discard = false;
 	};
 
 	/// @brief A struct represenging how pixels should be blended

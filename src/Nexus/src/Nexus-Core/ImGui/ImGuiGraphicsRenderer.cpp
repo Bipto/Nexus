@@ -128,9 +128,9 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.VertexModule	= m_VertexShader;
 		pipelineDesc.FragmentModule = m_FragmentShader;
 
-		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+		pipelineDesc.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+		pipelineDesc.ColourTargetCount = 1;
+		pipelineDesc.Samples		   = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending		 = true;
 		pipelineDesc.ColourBlendStates[0].SourceColourBlend		 = Nexus::Graphics::BlendFactor::SourceAlpha;

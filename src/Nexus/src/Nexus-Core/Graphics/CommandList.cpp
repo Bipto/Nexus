@@ -229,7 +229,7 @@ namespace Nexus::Graphics
 				barrier.BeforeStage						= BarrierPipelineStage::None;
 				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
 				barrier.ITexture						= textureView->GetTexture();
-				barrier.Layout							= ciSampler.Layout;
+				barrier.Layout							= TextureLayout::ShaderReadOnlyOptimal;
 				barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
 				barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
 				barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
@@ -265,7 +265,7 @@ namespace Nexus::Graphics
 				barrier.BeforeStage						= BarrierPipelineStage::None;
 				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
 				barrier.ITexture						= texture;
-				barrier.Layout							= storageImage.Layout;
+				barrier.Layout							= TextureLayout::General;
 				barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
 				barrier.SubresourceRange.LayerCount		= 1;
 				barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
@@ -570,7 +570,7 @@ namespace Nexus::Graphics
 			Graphics::TextureBarrierDesc barrierDesc = {};
 			barrierDesc.ITexture					 = textureBufferCopy.TextureHandle;
 			barrierDesc.BeforeAccess				 = BarrierAccess::None;
-			barrierDesc.AfterAccess					 = BarrierAccess::HostRead;
+			barrierDesc.AfterAccess					 = BarrierAccess::TransferRead;
 			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
 			barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
 			barrierDesc.Layout						 = TextureLayout::TransferSrcOptimal;

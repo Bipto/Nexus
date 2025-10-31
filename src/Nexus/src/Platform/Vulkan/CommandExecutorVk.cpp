@@ -1101,7 +1101,7 @@ namespace Nexus::Graphics
 				pushConstantsInfo.size					 = command.Data.size();
 				pushConstantsInfo.pValues				 = command.Data.data();
 
-				context.CmdPushConstants2(m_CommandBuffer, &pushConstantsInfo);
+				context.CmdPushConstants2KHR(m_CommandBuffer, &pushConstantsInfo);
 			}
 			else
 			{
@@ -1197,13 +1197,6 @@ namespace Nexus::Graphics
 
 		std::vector<SubresourceRangeLayout> ranges;
 
-		VkImageLayout currentLayout =
-			Vk::GetImageLayout(m_Device, texture->GetTextureLayout(command.SubresourceRange.BaseArrayLayer, command.SubresourceRange.BaseMipLevel));
-		uint32_t arrayLayerStart = command.SubresourceRange.BaseArrayLayer;
-		uint32_t mipLevelStart	 = command.SubresourceRange.BaseMipLevel;
-		uint32_t arrayLayerCount = 0;
-		uint32_t mipLevelCount	 = 0;
-
 		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
 			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
 			 arrayLayer++)
@@ -1212,50 +1205,14 @@ namespace Nexus::Graphics
 				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
 				 mipLevel++)
 			{
-				VkImageLayout layout = Vk::GetImageLayout(m_Device, texture->GetTextureLayout(arrayLayer, mipLevel));
-
-				// start new subresource range
-				if (arrayLayerCount == 0)
-				{
-					arrayLayerStart = arrayLayer;
-					mipLevelStart	= mipLevel;
-					arrayLayerCount = 1;
-					mipLevelCount	= 1;
-					currentLayout	= layout;
-				}
-				// if the layout is the same and we are still in the same array layer, then extend the range
-				else if (layout == currentLayout && arrayLayer == arrayLayerStart && mipLevel == mipLevelStart + mipLevelCount)
-				{
-					++mipLevelCount;
-				}
-				// otherwise, we need to record this range and begin a new one
-				else
-				{
-					SubresourceRangeLayout &range = ranges.emplace_back();
-					range.range.aspectMask		  = Vk::GetAspectFlags(texture->IsDepth());
-					range.range.baseArrayLayer	  = arrayLayerStart;
-					range.range.layerCount		  = arrayLayerCount;
-					range.range.baseMipLevel	  = mipLevelStart;
-					range.range.levelCount		  = mipLevelCount;
-					range.layout				  = currentLayout;
-					currentLayout				  = layout;
-
-					arrayLayerCount = 1;
-					mipLevelCount	= 1;
-				}
+				SubresourceRangeLayout &range = ranges.emplace_back();
+				range.range.aspectMask		  = Vk::GetAspectFlags(texture->IsDepth());
+				range.range.baseArrayLayer	  = arrayLayer;
+				range.range.layerCount		  = 1;
+				range.range.baseMipLevel	  = mipLevel;
+				range.range.levelCount		  = 1;
+				range.layout				  = Vk::GetImageLayout(m_Device, texture->GetTextureLayout(arrayLayer, mipLevel));
 			}
-		}
-
-		// flush the final range
-		if (arrayLayerCount > 0)
-		{
-			SubresourceRangeLayout &range = ranges.emplace_back();
-			range.range.aspectMask		  = Vk::GetAspectFlags(texture->IsDepth());
-			range.range.baseArrayLayer	  = arrayLayerStart;
-			range.range.layerCount		  = arrayLayerCount;
-			range.range.baseMipLevel	  = mipLevelStart;
-			range.range.levelCount		  = mipLevelCount;
-			range.layout				  = currentLayout;
 		}
 
 		if (context.CmdPipelineBarrier2KHR)

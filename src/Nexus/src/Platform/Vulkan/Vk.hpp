@@ -123,8 +123,9 @@ namespace Nexus::Vk
 	// pipeline methods
 	VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
 	VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
-	VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc);
-	VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo(uint32_t sampleCount);
+	VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc,
+																						const Graphics::DepthStencilDescription	   &depthStencilDesc);
+	VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo(uint32_t sampleCount, uint32_t *sampleMask);
 	std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates(
 		uint32_t											  colourAttachmentCount,
 		const std::array<Graphics::BlendStateDescription, 8> &blendStates);
@@ -159,7 +160,8 @@ namespace Nexus::Vk
 									  Graphics::PixelFormat									  depthFormat,
 									  VkPipelineLayout										  pipelineLayout,
 									  Graphics::Topology									  topology,
-									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
+									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
+									  uint32_t												 *pSampleMask);
 
 	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
 							  VkSwapchainKHR			  swapchain,

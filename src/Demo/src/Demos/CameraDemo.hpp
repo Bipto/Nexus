@@ -184,9 +184,9 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
-			pipelineDescription.ColourTargetCount		= 1;
-			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+			pipelineDescription.Samples			  = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+			pipelineDescription.ColourTargetCount = 1;
+			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 
 			pipelineDescription.ResourceDescription.Descriptors = {
 				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture",

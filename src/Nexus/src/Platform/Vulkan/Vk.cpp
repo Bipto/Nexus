@@ -1310,7 +1310,8 @@ namespace Nexus::Vk
 		return info;
 	}
 
-	VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc)
+	VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc,
+																			  const Graphics::DepthStencilDescription	 &depthStencilDesc)
 	{
 		VkPolygonMode	polygonMode	 = Vk::GetPolygonMode(rasterizerDesc.TriangleFillMode);
 		VkCullModeFlags cullingFlags = Vk::GetCullMode(rasterizerDesc.TriangleCullMode);
@@ -1319,21 +1320,21 @@ namespace Nexus::Vk
 		VkPipelineRasterizationStateCreateInfo info = {};
 		info.sType									= VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		info.pNext									= nullptr;
-		info.depthClampEnable						= VK_FALSE;
-		info.rasterizerDiscardEnable				= VK_FALSE;
+		info.depthClampEnable						= rasterizerDesc.DepthClamp ? VK_TRUE : VK_FALSE;
+		info.rasterizerDiscardEnable				= rasterizerDesc.Discard ? VK_TRUE : VK_FALSE;
 		info.polygonMode							= polygonMode;
 		info.lineWidth								= 1.0f;
 		info.cullMode								= cullingFlags;
-		info.depthBiasEnable						= VK_FALSE;
-		info.depthBiasConstantFactor				= 0.0f;
-		info.depthBiasClamp							= 0.0f;
-		info.depthBiasSlopeFactor					= 0.0f;
 		info.frontFace								= frontFace;
+		info.depthBiasEnable						= rasterizerDesc.DepthBias != 0 ? VK_TRUE : VK_FALSE;
+		info.depthBiasConstantFactor				= rasterizerDesc.DepthBias;
+		info.depthBiasClamp							= rasterizerDesc.DepthBiasClamp;
+		info.depthBiasSlopeFactor					= rasterizerDesc.SlopeScaledDepthBias;
 
 		return info;
 	}
 
-	VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(uint32_t sampleCount)
+	VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(uint32_t sampleCount, uint32_t *sampleMask)
 	{
 		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(sampleCount);
 
@@ -1344,7 +1345,7 @@ namespace Nexus::Vk
 		info.minSampleShading					  = 0.0f;
 		info.rasterizationSamples				  = samples;
 		info.minSampleShading					  = 1.0f;
-		info.pSampleMask						  = nullptr;
+		info.pSampleMask						  = sampleMask;
 		info.alphaToCoverageEnable				  = VK_FALSE;
 		info.alphaToOneEnable					  = VK_FALSE;
 		return info;
@@ -1566,21 +1567,11 @@ namespace Nexus::Vk
 			case Graphics::ResourceDescriptorType::SampledImage: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			case Graphics::ResourceDescriptorType::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
 			case Graphics::ResourceDescriptorType::AccelerationStructure: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-			case Graphics::ResourceDescriptorType::TexelBuffer:
-			{
-				if (shaderResource.Type == Graphics::ResourceType::UniformTextureBuffer)
-				{
-					return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-				}
-				else
-				{
-					return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-				}
-				break;
-			}
+			case Graphics::ResourceDescriptorType::UniformTexelBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+			case Graphics::ResourceDescriptorType::StorageTexelBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
 			default: throw std::runtime_error("Could not find a valid descriptor type");
 		}
-	}
+	}	 // namespace Nexus::Vk
 
 	uint32_t GetMaxDescriptorSetIndex(const std::map<std::string, Graphics::ShaderResource> &resources)
 	{
@@ -1597,6 +1588,92 @@ namespace Nexus::Vk
 		return setIndex;
 	}
 
+	static bool IsCompatibleResource(Graphics::ResourceDescriptorType descriptorType,
+									 Graphics::ResourceType			  reflectedType,
+									 uint32_t						  reflectedResourceCount,
+									 uint32_t						  requestedDescriptorCount)
+	{
+		switch (reflectedType)
+		{
+			case Graphics::ResourceType::PushConstants:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::PushConstants;
+			}
+			case Graphics::ResourceType::StorageImage:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::StorageImage && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::Texture:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::SampledImage && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::UniformTextureBuffer:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::UniformTexelBuffer && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::StorageTextureBuffer:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::StorageTexelBuffer && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ComparisonSampler:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::Sampler && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::CombinedImageSampler:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::CombinedImageSampler && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::UniformBuffer:
+			{
+				if (descriptorType == Graphics::ResourceDescriptorType::InlineUniformBlock)
+				{
+					return true;
+				}
+				else
+				{
+					return descriptorType == Graphics::ResourceDescriptorType::UniformBuffer ||
+						   descriptorType == Graphics::ResourceDescriptorType::DynamicUniformBuffer &&
+							   reflectedResourceCount == requestedDescriptorCount;
+				}
+			}
+			case Graphics::ResourceType::StorageBuffer:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::StorageBuffer ||
+					   descriptorType == Graphics::ResourceDescriptorType::DynamicStorageBuffer && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::AccelerationStructure:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::AccelerationStructure &&
+					   reflectedResourceCount == requestedDescriptorCount;
+			}
+			default: throw std::runtime_error("Failed to find ResourceType");
+		}
+	}
+
+	static void ValidateVulkanPipelineLayout(const Graphics::ResourceSetDescription				   &resourceSetDesc,
+											 const std::map<std::string, Graphics::ShaderResource> &reflectedResources)
+	{
+		for (const auto &[shaderResourceName, shaderResource] : reflectedResources)
+		{
+			bool found = false;
+
+			for (const auto &descriptor : resourceSetDesc.Descriptors)
+			{
+				if (descriptor.Name == shaderResourceName)
+				{
+					NX_VALIDATE(
+						IsCompatibleResource(descriptor.Type, shaderResource.Type, shaderResource.ResourceCount, descriptor.CountOrSizeInBytes),
+						"Mismatch between reflected shader type and requested resource type");
+
+					found = true;
+				}
+			}
+
+			NX_VALIDATE(found, "Resource was specified in shader but was not included in pipeline description");
+		}
+	}
+
 	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
 										  Graphics::GraphicsDeviceVk				*device,
 										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
@@ -1608,6 +1685,8 @@ namespace Nexus::Vk
 
 		// retrieve the resources that are referenced by the shaders
 		const auto &shaderResources = pipeline->GetRequiredShaderResources();
+
+		ValidateVulkanPipelineLayout(resourceSetDesc, shaderResources);
 
 		uint32_t maxSetIndex = GetMaxDescriptorSetIndex(shaderResources);
 
@@ -1739,15 +1818,16 @@ namespace Nexus::Vk
 									  Graphics::PixelFormat									  depthFormat,
 									  VkPipelineLayout										  pipelineLayout,
 									  Graphics::Topology									  topology,
-									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts)
+									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
+									  uint32_t												 *pSampleMask)
 	{
 		const GladVulkanContext				 &context		 = device->GetVulkanContext();
 		const Graphics::VulkanDeviceFeatures &deviceFeatures = device->GetDeviceFeatures();
 
 		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo(depthStencilDesc);
-		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= Vk::CreateRasterizationStateCreateInfo(rasterizerDesc);
+		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= Vk::CreateRasterizationStateCreateInfo(rasterizerDesc, depthStencilDesc);
 
-		VkPipelineMultisampleStateCreateInfo multisampleInfo = CreateMultisampleStateCreateInfo(samples);
+		VkPipelineMultisampleStateCreateInfo multisampleInfo = CreateMultisampleStateCreateInfo(samples, pSampleMask);
 
 		VkPipelineViewportStateCreateInfo viewportState = {};
 		viewportState.sType								= VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

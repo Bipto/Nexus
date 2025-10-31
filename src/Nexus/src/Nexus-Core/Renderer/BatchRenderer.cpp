@@ -6,16 +6,16 @@
 
 const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 
-											  "layout(location = 0) in vec4 Color;\n"
-											  "layout(location = 1) in vec3 Position;\n"
-											  "layout(location = 2) in float TexIndex;\n"
-											  "layout(location = 3) in vec2 TexCoord;\n"
-											  "layout(location = 4) in uvec2 EntityID;\n"
+											  "layout(location = 0) in vec4 a_Color;\n"
+											  "layout(location = 1) in vec3 a_Position;\n"
+											  "layout(location = 2) in float a_TexIndex;\n"
+											  "layout(location = 3) in vec2 a_TexCoord;\n"
+											  "layout(location = 4) in uvec2 a_EntityID;\n"
 
-											  "layout(location = 0) out vec2 texCoord;\n"
-											  "layout(location = 1) out vec4 outColor;\n"
-											  "layout(location = 2) out flat float texIndex;\n"
-											  "layout(location = 3) out flat uvec2 outEntityID;\n"
+											  "layout(location = 0) out vec2 o_TexCoord;\n"
+											  "layout(location = 1) out vec4 o_Colour;\n"
+											  "layout(location = 2) out flat float o_TexIndex;\n"
+											  "layout(location = 3) out flat uvec2 o_EntityID;\n"
 
 											  "layout(binding = 0, set = 0) uniform MVP\n"
 											  "{\n"
@@ -24,170 +24,170 @@ const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 
 											  "void main()\n"
 											  "{\n"
-											  "    gl_Position = u_MVP * vec4(Position, 1.0);\n"
-											  "    texCoord = TexCoord;\n"
-											  "    outColor = Color;\n"
-											  "    texIndex = TexIndex;\n"
-											  "    outEntityID = EntityID;\n"
+											  "    gl_Position = u_MVP * vec4(a_Position, 1.0);\n"
+											  "    o_TexCoord = a_TexCoord;\n"
+											  "    o_Colour = a_Color;\n"
+											  "    o_TexIndex = a_TexIndex;\n"
+											  "    o_EntityID = a_EntityID;\n"
 											  "}";
 
 const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
 
-													   "layout (location = 0) out vec4 FragColor;\n"
+													   "layout (location = 0) out vec4 o_Colour;\n"
 													   "layout (location = 1) out uvec2 o_EntityID;\n"
 
-													   "layout (location = 0) in vec2 texCoord;\n"
-													   "layout (location = 1) in vec4 outColor;\n"
-													   "layout (location = 2) in flat float texIndex;\n"
-													   "layout(location = 3) in flat uvec2 outEntityID;\n"
+													   "layout (location = 0) in vec2 a_TexCoord;\n"
+													   "layout (location = 1) in vec4 a_Colour;\n"
+													   "layout (location = 2) in flat float a_TexIndex;\n"
+													   "layout(location = 3) in flat uvec2 a_EntityID;\n"
 
-													   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-													   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-													   "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-													   "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-													   "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-													   "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-													   "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-													   "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-													   "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-													   "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-													   "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-													   "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-													   "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-													   "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-													   "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-													   "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+													   "layout (set = 1, binding = 0) uniform sampler2D u_Texture0;\n"
+													   "layout (set = 1, binding = 1) uniform sampler2D u_Texture1;\n"
+													   "layout (set = 1, binding = 2) uniform sampler2D u_Texture2;\n"
+													   "layout (set = 1, binding = 3) uniform sampler2D u_Texture3;\n"
+													   "layout (set = 1, binding = 4) uniform sampler2D u_Texture4;\n"
+													   "layout (set = 1, binding = 5) uniform sampler2D u_Texture5;\n"
+													   "layout (set = 1, binding = 6) uniform sampler2D u_Texture6;\n"
+													   "layout (set = 1, binding = 7) uniform sampler2D u_Texture7;\n"
+													   "layout (set = 1, binding = 8) uniform sampler2D u_Texture8;\n"
+													   "layout (set = 1, binding = 9) uniform sampler2D u_Texture9;\n"
+													   "layout (set = 1, binding = 10) uniform sampler2D u_Texture10;\n"
+													   "layout (set = 1, binding = 11) uniform sampler2D u_Texture11;\n"
+													   "layout (set = 1, binding = 12) uniform sampler2D u_Texture12;\n"
+													   "layout (set = 1, binding = 13) uniform sampler2D u_Texture13;\n"
+													   "layout (set = 1, binding = 14) uniform sampler2D u_Texture14;\n"
+													   "layout (set = 1, binding = 15) uniform sampler2D u_Texture15;\n"
 
 													   "void main()\n"
 													   "{\n"
-													   "    switch (int(texIndex))\n"
+													   "    switch (int(a_TexIndex))\n"
 													   "    {\n"
-													   "        case 0: FragColor = texture(texture0, texCoord); break;\n"
-													   "        case 1: FragColor = texture(texture1, texCoord); break;\n"
-													   "        case 2: FragColor = texture(texture2, texCoord); break;\n"
-													   "        case 3: FragColor = texture(texture3, texCoord); break;\n"
-													   "        case 4: FragColor = texture(texture4, texCoord); break;\n"
-													   "        case 5: FragColor = texture(texture5, texCoord); break;\n"
-													   "        case 6: FragColor = texture(texture6, texCoord); break;\n"
-													   "        case 7: FragColor = texture(texture7, texCoord); break;\n"
-													   "        case 8: FragColor = texture(texture8, texCoord); break;\n"
-													   "        case 9: FragColor = texture(texture9, texCoord); break;\n"
-													   "        case 10: FragColor = texture(texture10, texCoord); break;\n"
-													   "        case 11: FragColor = texture(texture11, texCoord); break;\n"
-													   "        case 12: FragColor = texture(texture12, texCoord); break;\n"
-													   "        case 13: FragColor = texture(texture13, texCoord); break;\n"
-													   "        case 14: FragColor = texture(texture14, texCoord); break;\n"
-													   "        case 15: FragColor = texture(texture15, texCoord); break;\n"
+													   "        case 0: o_Colour = texture(u_Texture0, a_TexCoord); break;\n"
+													   "        case 1: o_Colour = texture(u_Texture1, a_TexCoord); break;\n"
+													   "        case 2: o_Colour = texture(u_Texture2, a_TexCoord); break;\n"
+													   "        case 3: o_Colour = texture(u_Texture3, a_TexCoord); break;\n"
+													   "        case 4: o_Colour = texture(u_Texture4, a_TexCoord); break;\n"
+													   "        case 5: o_Colour = texture(u_Texture5, a_TexCoord); break;\n"
+													   "        case 6: o_Colour = texture(u_Texture6, a_TexCoord); break;\n"
+													   "        case 7: o_Colour = texture(u_Texture7, a_TexCoord); break;\n"
+													   "        case 8: o_Colour = texture(u_Texture8, a_TexCoord); break;\n"
+													   "        case 9: o_Colour = texture(u_Texture9, a_TexCoord); break;\n"
+													   "        case 10: o_Colour = texture(u_Texture10, a_TexCoord); break;\n"
+													   "        case 11: o_Colour = texture(u_Texture11, a_TexCoord); break;\n"
+													   "        case 12: o_Colour = texture(u_Texture12, a_TexCoord); break;\n"
+													   "        case 13: o_Colour = texture(u_Texture13, a_TexCoord); break;\n"
+													   "        case 14: o_Colour = texture(u_Texture14, a_TexCoord); break;\n"
+													   "        case 15: o_Colour = texture(u_Texture15, a_TexCoord); break;\n"
 													   "    }\n"
-													   "    FragColor *= outColor;\n"
-													   "    o_EntityID = outEntityID;\n"
-													   "	if (FragColor.a == 0) discard;\n"
+													   "    o_Colour *= a_Colour;\n"
+													   "    o_EntityID = a_EntityID;\n"
+													   "	if (o_Colour.a == 0) discard;\n"
 													   "}\n";
 
 const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
 
-													"layout (location = 0) out vec4 FragColor;\n"
+													"layout (location = 0) out vec4 o_Colour;\n"
 													"layout (location = 1) out uvec2 o_EntityID;\n"
 
-													"layout (location = 0) in vec2 texCoord;\n"
-													"layout (location = 1) in vec4 outColor;\n"
-													"layout (location = 2) in flat float texIndex;\n"
-													"layout(location = 3) in flat uvec2 outEntityID;\n"
+													"layout (location = 0) in vec2 a_TexCoord;\n"
+													"layout (location = 1) in vec4 a_Colour;\n"
+													"layout (location = 2) in flat float a_TexIndex;\n"
+													"layout(location = 3) in flat uvec2 a_EntityID;\n"
 
-													"layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-													"layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-													"layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-													"layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-													"layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-													"layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-													"layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-													"layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-													"layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-													"layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-													"layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-													"layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-													"layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-													"layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-													"layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-													"layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+													"layout (set = 1, binding = 0) uniform sampler2D u_Texture0;\n"
+													"layout (set = 1, binding = 1) uniform sampler2D u_Texture1;\n"
+													"layout (set = 1, binding = 2) uniform sampler2D u_Texture2;\n"
+													"layout (set = 1, binding = 3) uniform sampler2D u_Texture3;\n"
+													"layout (set = 1, binding = 4) uniform sampler2D u_Texture4;\n"
+													"layout (set = 1, binding = 5) uniform sampler2D u_Texture5;\n"
+													"layout (set = 1, binding = 6) uniform sampler2D u_Texture6;\n"
+													"layout (set = 1, binding = 7) uniform sampler2D u_Texture7;\n"
+													"layout (set = 1, binding = 8) uniform sampler2D u_Texture8;\n"
+													"layout (set = 1, binding = 9) uniform sampler2D u_Texture9;\n"
+													"layout (set = 1, binding = 10) uniform sampler2D u_Texture10;\n"
+													"layout (set = 1, binding = 11) uniform sampler2D u_Texture11;\n"
+													"layout (set = 1, binding = 12) uniform sampler2D u_Texture12;\n"
+													"layout (set = 1, binding = 13) uniform sampler2D u_Texture13;\n"
+													"layout (set = 1, binding = 14) uniform sampler2D u_Texture14;\n"
+													"layout (set = 1, binding = 15) uniform sampler2D u_Texture15;\n"
 
 													"void main()\n"
 													"{\n"
 													"   float alpha = 0;"
 
-													"    switch (int(texIndex))\n"
+													"    switch (int(a_TexIndex))\n"
 													"    {\n"
-													"        case 0: alpha = texture(texture0, texCoord).r; break;\n"
-													"        case 1: alpha = texture(texture1, texCoord).r; break;\n"
-													"        case 2: alpha = texture(texture2, texCoord).r; break;\n"
-													"        case 3: alpha = texture(texture3, texCoord).r; break;\n"
-													"        case 4: alpha = texture(texture4, texCoord).r; break;\n"
-													"        case 5: alpha = texture(texture5, texCoord).r; break;\n"
-													"        case 6: alpha = texture(texture6, texCoord).r; break;\n"
-													"        case 7: alpha = texture(texture7, texCoord).r; break;\n"
-													"        case 8: alpha = texture(texture8, texCoord).r; break;\n"
-													"        case 9: alpha = texture(texture9, texCoord).r; break;\n"
-													"        case 10: alpha = texture(texture10, texCoord).r; break;\n"
-													"        case 11: alpha = texture(texture11, texCoord).r; break;\n"
-													"        case 12: alpha = texture(texture12, texCoord).r; break;\n"
-													"        case 13: alpha = texture(texture13, texCoord).r; break;\n"
-													"        case 14: alpha = texture(texture14, texCoord).r; break;\n"
-													"        case 15: alpha = texture(texture15, texCoord).r; break;\n"
+													"        case 0: alpha = texture(u_Texture0, a_TexCoord).r; break;\n"
+													"        case 1: alpha = texture(u_Texture1, a_TexCoord).r; break;\n"
+													"        case 2: alpha = texture(u_Texture2, a_TexCoord).r; break;\n"
+													"        case 3: alpha = texture(u_Texture3, a_TexCoord).r; break;\n"
+													"        case 4: alpha = texture(u_Texture4, a_TexCoord).r; break;\n"
+													"        case 5: alpha = texture(u_Texture5, a_TexCoord).r; break;\n"
+													"        case 6: alpha = texture(u_Texture6, a_TexCoord).r; break;\n"
+													"        case 7: alpha = texture(u_Texture7, a_TexCoord).r; break;\n"
+													"        case 8: alpha = texture(u_Texture8, a_TexCoord).r; break;\n"
+													"        case 9: alpha = texture(u_Texture9, a_TexCoord).r; break;\n"
+													"        case 10: alpha = texture(u_Texture10, a_TexCoord).r; break;\n"
+													"        case 11: alpha = texture(u_Texture11, a_TexCoord).r; break;\n"
+													"        case 12: alpha = texture(u_Texture12, a_TexCoord).r; break;\n"
+													"        case 13: alpha = texture(u_Texture13, a_TexCoord).r; break;\n"
+													"        case 14: alpha = texture(u_Texture14, a_TexCoord).r; break;\n"
+													"        case 15: alpha = texture(u_Texture15, a_TexCoord).r; break;\n"
 													"    }\n"
-													"    FragColor = vec4(outColor.rgb, alpha);\n"
-													"    o_EntityID = outEntityID;\n"
-													"	 if (FragColor.a == 0) discard;\n"
+													"    o_Colour = vec4(a_Colour.rgb, alpha);\n"
+													"    o_EntityID = a_EntityID;\n"
+													"	 if (o_Colour.a == 0) discard;\n"
 													"}\n";
 
 const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 
-												   "layout (location = 0) out vec4 FragColor;\n"
+												   "layout (location = 0) out vec4 o_Colour;\n"
 												   "layout (location = 1) out uvec2 o_EntityID;\n"
 
-												   "layout (location = 0) in vec2 texCoord;\n"
-												   "layout (location = 1) in vec4 outColor;\n"
-												   "layout (location = 2) in flat float texIndex;\n"
-												   "layout(location = 3) in flat uvec2 outEntityID;\n"
+												   "layout (location = 0) in vec2 a_TexCoord;\n"
+												   "layout (location = 1) in vec4 a_Colour;\n"
+												   "layout (location = 2) in flat float a_TexIndex;\n"
+												   "layout(location = 3) in flat uvec2 a_EntityID;\n"
 
-												   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-												   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-												   "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-												   "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-												   "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-												   "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-												   "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-												   "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-												   "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-												   "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-												   "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-												   "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-												   "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-												   "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-												   "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-												   "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+												   "layout (set = 1, binding = 0) uniform sampler2D u_Texture0;\n"
+												   "layout (set = 1, binding = 1) uniform sampler2D u_Texture1;\n"
+												   "layout (set = 1, binding = 2) uniform sampler2D u_Texture2;\n"
+												   "layout (set = 1, binding = 3) uniform sampler2D u_Texture3;\n"
+												   "layout (set = 1, binding = 4) uniform sampler2D u_Texture4;\n"
+												   "layout (set = 1, binding = 5) uniform sampler2D u_Texture5;\n"
+												   "layout (set = 1, binding = 6) uniform sampler2D u_Texture6;\n"
+												   "layout (set = 1, binding = 7) uniform sampler2D u_Texture7;\n"
+												   "layout (set = 1, binding = 8) uniform sampler2D u_Texture8;\n"
+												   "layout (set = 1, binding = 9) uniform sampler2D u_Texture9;\n"
+												   "layout (set = 1, binding = 10) uniform sampler2D u_Texture10;\n"
+												   "layout (set = 1, binding = 11) uniform sampler2D u_Texture11;\n"
+												   "layout (set = 1, binding = 12) uniform sampler2D u_Texture12;\n"
+												   "layout (set = 1, binding = 13) uniform sampler2D u_Texture13;\n"
+												   "layout (set = 1, binding = 14) uniform sampler2D u_Texture14;\n"
+												   "layout (set = 1, binding = 15) uniform sampler2D u_Texture15;\n"
 
 												   "void main()\n"
 												   "{\n"
 												   "    float alpha = 0;\n"
 
-												   "    switch (int(texIndex))\n"
+												   "    switch (int(a_TexIndex))\n"
 												   "    {\n"
-												   "        case 0: alpha = texture(texture0, texCoord).r; break;\n"
-												   "        case 1: alpha = texture(texture1, texCoord).r; break;\n"
-												   "        case 2: alpha = texture(texture2, texCoord).r; break;\n"
-												   "        case 3: alpha = texture(texture3, texCoord).r; break;\n"
-												   "        case 4: alpha = texture(texture4, texCoord).r; break;\n"
-												   "        case 5: alpha = texture(texture5, texCoord).r; break;\n"
-												   "        case 6: alpha = texture(texture6, texCoord).r; break;\n"
-												   "        case 7: alpha = texture(texture7, texCoord).r; break;\n"
-												   "        case 8: alpha = texture(texture8, texCoord).r; break;\n"
-												   "        case 9: alpha = texture(texture9, texCoord).r; break;\n"
-												   "        case 10: alpha = texture(texture10, texCoord).r; break;\n"
-												   "        case 11: alpha = texture(texture11, texCoord).r; break;\n"
-												   "        case 12: alpha = texture(texture12, texCoord).r; break;\n"
-												   "        case 13: alpha = texture(texture13, texCoord).r; break;\n"
-												   "        case 14: alpha = texture(texture14, texCoord).r; break;\n"
-												   "        case 15: alpha = texture(texture15, texCoord).r; break;\n"
+												   "        case 0: alpha = texture(u_Texture0, a_TexCoord).r; break;\n"
+												   "        case 1: alpha = texture(u_Texture1, a_TexCoord).r; break;\n"
+												   "        case 2: alpha = texture(u_Texture2, a_TexCoord).r; break;\n"
+												   "        case 3: alpha = texture(u_Texture3, a_TexCoord).r; break;\n"
+												   "        case 4: alpha = texture(u_Texture4, a_TexCoord).r; break;\n"
+												   "        case 5: alpha = texture(u_Texture5, a_TexCoord).r; break;\n"
+												   "        case 6: alpha = texture(u_Texture6, a_TexCoord).r; break;\n"
+												   "        case 7: alpha = texture(u_Texture7, a_TexCoord).r; break;\n"
+												   "        case 8: alpha = texture(u_Texture8, a_TexCoord).r; break;\n"
+												   "        case 9: alpha = texture(u_Texture9, a_TexCoord).r; break;\n"
+												   "        case 10: alpha = texture(u_Texture10, a_TexCoord).r; break;\n"
+												   "        case 11: alpha = texture(u_Texture11, a_TexCoord).r; break;\n"
+												   "        case 12: alpha = texture(u_Texture12, a_TexCoord).r; break;\n"
+												   "        case 13: alpha = texture(u_Texture13, a_TexCoord).r; break;\n"
+												   "        case 14: alpha = texture(u_Texture14, a_TexCoord).r; break;\n"
+												   "        case 15: alpha = texture(u_Texture15, a_TexCoord).r; break;\n"
 												   "    }\n"
 
 												   "    if (alpha < 0.45)\n"
@@ -198,8 +198,8 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 												   "    float w = fwidth(alpha);\n"
 												   "    float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);\n"
 
-												   "    FragColor = vec4(outColor.rgb, opacity);\n"
-												   "    o_EntityID = outEntityID;\n"
+												   "    o_Colour = vec4(o_Colour.rgb, opacity);\n"
+												   "    o_EntityID = a_EntityID;\n"
 												   "}\n";
 
 namespace Nexus::Graphics
@@ -207,7 +207,7 @@ namespace Nexus::Graphics
 	const uint32_t MAX_VERTEX_COUNT	 = 1024;
 	const uint32_t MAX_TEXTURE_COUNT = 16;
 
-	bool FindTextureInBatch(BatchInfo &info, Ref<ITextureView> texture, uint32_t &index)
+	static bool FindTextureInBatch(BatchInfo &info, Ref<ITextureView> texture, uint32_t &index)
 	{
 		for (uint32_t i = 0; i < info.Textures.size(); i++)
 		{
@@ -220,7 +220,7 @@ namespace Nexus::Graphics
 		return false;
 	}
 
-	float GetOrCreateTexIndex(BatchInfo &info, Ref<ITextureView> texture)
+	static float GetOrCreateTexIndex(BatchInfo &info, Ref<ITextureView> texture)
 	{
 		uint32_t index = 0;
 		if (FindTextureInBatch(info, texture, index))
@@ -235,13 +235,13 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void FlushTextures(BatchInfo &info, Ref<ITextureView> blankTexture)
+	static void FlushTextures(BatchInfo &info, Ref<ITextureView> blankTexture)
 	{
 		info.Textures.clear();
 		info.Textures.push_back(blankTexture);
 	}
 
-	void ResetBatcher(BatchInfo &info, Ref<ITextureView> blankTexture)
+	static void ResetBatcher(BatchInfo &info, Ref<ITextureView> blankTexture)
 	{
 		info.Vertices.clear();
 		info.Indices.clear();
@@ -251,12 +251,12 @@ namespace Nexus::Graphics
 		FlushTextures(info, blankTexture);
 	}
 
-	void CreateBatcher(BatchInfo								 &info,
-					   Nexus::Graphics::IGraphicsDevice			 *device,
-					   Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule,
-					   Nexus::Ref<Nexus::Graphics::IShaderModule> fragmentModule,
-					   bool										  useDepthTest,
-					   uint32_t									  sampleCount)
+	static void CreateBatcher(BatchInfo									&info,
+							  Nexus::Graphics::IGraphicsDevice			*device,
+							  Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule,
+							  Nexus::Ref<Nexus::Graphics::IShaderModule> fragmentModule,
+							  bool										 useDepthTest,
+							  uint32_t									 sampleCount)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
@@ -295,7 +295,60 @@ namespace Nexus::Graphics
 			description.DepthStencilDesc.EnableDepthWrite = false;
 		}
 
-		description.ColourTargetSampleCount = sampleCount;
+		description.Samples = sampleCount;
+
+		description.ResourceDescription.Descriptors = {
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture0",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture1",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture2",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture3",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture4",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture5",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture6",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture7",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture8",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture9",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture10",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture11",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture12",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture13",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture14",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture15",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "MVP",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+												 .CountOrSizeInBytes = 1}};
 
 		info.Pipeline	  = device->CreateGraphicsPipeline(description);
 		info.IResourceSet = device->CreateResourceSet(info.Pipeline);
@@ -355,6 +408,7 @@ namespace Nexus::Graphics
 													 .BaseArrayLayer = 0,
 													 .LayerCount	 = m_BlankTexture->GetDepthOrArrayLayers()};
 		viewDesc.DebugName						  = "Blank Texture View";
+		m_BlankTextureView						  = m_Device->CreateTextureView(viewDesc);
 
 		Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
@@ -1141,7 +1195,7 @@ namespace Nexus::Graphics
 
 		for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
 		{
-			std::string textureName = "texture" + std::to_string(i);
+			std::string textureName = "u_Texture" + std::to_string(i);
 			if (i < info.Textures.size())
 			{
 				Graphics::CombinedImageSampler ciSampler = {};
@@ -1157,6 +1211,8 @@ namespace Nexus::Graphics
 				info.IResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 		}
+
+		info.IResourceSet->Flush();
 
 		m_CommandList->Begin();
 

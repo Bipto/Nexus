@@ -16,7 +16,6 @@ namespace Nexus::Graphics
 	{
 		Ref<ITextureView> ImageTexture = {};
 		Ref<ISampler>	  ImageSampler = {};
-		TextureLayout	  Layout	   = TextureLayout::ShaderReadOnlyOptimal;
 	};
 
 	enum class ShaderAccess
@@ -31,7 +30,6 @@ namespace Nexus::Graphics
 		uint32_t	  ArrayLayer	= 0;
 		uint32_t	  MipLevel		= 0;
 		ShaderAccess  Access		= ShaderAccess::Read;
-		TextureLayout Layout		= TextureLayout::General;
 	};
 
 	struct StorageBufferView
@@ -61,7 +59,8 @@ namespace Nexus::Graphics
 		SampledImage,
 		Sampler,
 		AccelerationStructure,
-		TexelBuffer
+		UniformTexelBuffer,
+		StorageTexelBuffer
 	};
 
 	struct ResourceDescriptor

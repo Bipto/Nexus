@@ -169,11 +169,19 @@ namespace Demos
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap/cubemap.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.ColourTargetCount		= 1;
-			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+			pipelineDescription.ColourTargetCount = 1;
+			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+			pipelineDescription.Samples			  = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+
+			pipelineDescription.ResourceDescription.Descriptors = {
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Skybox",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+													 .CountOrSizeInBytes = 1},
+				Nexus::Graphics::ResourceDescriptor {.Name				 = "Camera",
+													 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+													 .CountOrSizeInBytes = 1}};
 
 			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

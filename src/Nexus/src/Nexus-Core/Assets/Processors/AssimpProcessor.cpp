@@ -93,9 +93,9 @@ namespace Nexus::Processors
 		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, materials, meshData, device); }
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITexture> LoadEmbeddedTexture(const aiTexture				 *texture,
-															 Nexus::Graphics::IGraphicsDevice *device,
-															 Ref<Graphics::ICommandQueue>	  commandQueue)
+	Nexus::Ref<Nexus::Graphics::ITexture> LoadEmbeddedTexture(const aiTexture				   *texture,
+															  Nexus::Graphics::IGraphicsDevice *device,
+															  Ref<Graphics::ICommandQueue>		commandQueue)
 	{
 		std::vector<unsigned char> pixels;
 		pixels.reserve(texture->mWidth * texture->mHeight * 4);
@@ -125,11 +125,11 @@ namespace Nexus::Processors
 		return createdTexture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITexture> LoadTextureFile(const std::string				 &filename,
-														 const std::string				 &directory,
-														 bool							  generateMips,
-														 Nexus::Graphics::IGraphicsDevice *device,
-														 Ref<Graphics::ICommandQueue>	  commandQueue)
+	Nexus::Ref<Nexus::Graphics::ITexture> LoadTextureFile(const std::string				   &filename,
+														  const std::string				   &directory,
+														  bool								generateMips,
+														  Nexus::Graphics::IGraphicsDevice *device,
+														  Ref<Graphics::ICommandQueue>		commandQueue)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
@@ -143,10 +143,10 @@ namespace Nexus::Processors
 		return texture;
 	}
 
-	std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene				   *scene,
-														   const std::string			   &directory,
+	std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene					*scene,
+														   const std::string				&directory,
 														   Nexus::Graphics::IGraphicsDevice *device,
-														   Ref<Graphics::ICommandQueue>		commandQueue)
+														   Ref<Graphics::ICommandQueue>		 commandQueue)
 	{
 		std::vector<Nexus::Graphics::Material> materials;
 		materials.reserve(scene->mNumMaterials);
@@ -199,8 +199,8 @@ namespace Nexus::Processors
 				specularColour.a = assimpSpecularColour.a;
 			}
 
-			Nexus::Ref<Nexus::Graphics::ITexture> diffuseTexture	 = nullptr;
-			Nexus::Ref<Nexus::Graphics::ITexture> normalTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITexture> diffuseTexture  = nullptr;
+			Nexus::Ref<Nexus::Graphics::ITexture> normalTexture	  = nullptr;
 			Nexus::Ref<Nexus::Graphics::ITexture> specularTexture = nullptr;
 
 			if (hasDiffuseTexture)
@@ -243,35 +243,44 @@ namespace Nexus::Processors
 			Nexus::Ref<Nexus::Graphics::ITextureView> normalTextureView	  = nullptr;
 			Nexus::Ref<Nexus::Graphics::ITextureView> specularTextureView = nullptr;
 
-			Nexus::Graphics::TextureViewDescription diffuseViewDesc = {};
-			diffuseViewDesc.TargetTexture							= diffuseTexture;
-			diffuseViewDesc.Format									= diffuseTexture->GetPixelFormat();
-			diffuseViewDesc.Range									= {.BaseMipLevel   = 0,
-																	   .LevelCount	   = diffuseTexture->GetMipLevels(),
-																	   .BaseArrayLayer = 0,
-																	   .LayerCount	   = diffuseTexture->GetDepthOrArrayLayers()};
-			diffuseViewDesc.DebugName								= "Diffuse";
-			diffuseTextureView										= device->CreateTextureView(diffuseViewDesc);
+			if (diffuseTexture)
+			{
+				Nexus::Graphics::TextureViewDescription diffuseViewDesc = {};
+				diffuseViewDesc.TargetTexture							= diffuseTexture;
+				diffuseViewDesc.Format									= diffuseTexture->GetPixelFormat();
+				diffuseViewDesc.Range									= {.BaseMipLevel   = 0,
+																		   .LevelCount	   = diffuseTexture->GetMipLevels(),
+																		   .BaseArrayLayer = 0,
+																		   .LayerCount	   = diffuseTexture->GetDepthOrArrayLayers()};
+				diffuseViewDesc.DebugName								= "Diffuse";
+				diffuseTextureView										= device->CreateTextureView(diffuseViewDesc);
+			}
 
-			Nexus::Graphics::TextureViewDescription normalViewDesc = {};
-			normalViewDesc.TargetTexture						   = normalTexture;
-			normalViewDesc.Format								   = normalTexture->GetPixelFormat();
-			normalViewDesc.Range								   = {.BaseMipLevel	  = 0,
-																	  .LevelCount	  = normalTexture->GetMipLevels(),
-																	  .BaseArrayLayer = 0,
-																	  .LayerCount	  = normalTexture->GetDepthOrArrayLayers()};
-			normalViewDesc.DebugName							   = "Normal";
-			normalTextureView									   = device->CreateTextureView(normalViewDesc);
+			if (normalTexture)
+			{
+				Nexus::Graphics::TextureViewDescription normalViewDesc = {};
+				normalViewDesc.TargetTexture						   = normalTexture;
+				normalViewDesc.Format								   = normalTexture->GetPixelFormat();
+				normalViewDesc.Range								   = {.BaseMipLevel	  = 0,
+																		  .LevelCount	  = normalTexture->GetMipLevels(),
+																		  .BaseArrayLayer = 0,
+																		  .LayerCount	  = normalTexture->GetDepthOrArrayLayers()};
+				normalViewDesc.DebugName							   = "Normal";
+				normalTextureView									   = device->CreateTextureView(normalViewDesc);
+			}
 
-			Nexus::Graphics::TextureViewDescription specularViewDesc = {};
-			specularViewDesc.TargetTexture							 = specularTexture;
-			specularViewDesc.Format									 = specularTexture->GetPixelFormat();
-			specularViewDesc.Range									 = {.BaseMipLevel	= 0,
-																		.LevelCount		= specularTexture->GetMipLevels(),
-																		.BaseArrayLayer = 0,
-																		.LayerCount		= specularTexture->GetDepthOrArrayLayers()};
-			specularViewDesc.DebugName								 = "Specular";
-			specularTextureView										 = device->CreateTextureView(specularViewDesc);
+			if (specularTexture)
+			{
+				Nexus::Graphics::TextureViewDescription specularViewDesc = {};
+				specularViewDesc.TargetTexture							 = specularTexture;
+				specularViewDesc.Format									 = specularTexture->GetPixelFormat();
+				specularViewDesc.Range									 = {.BaseMipLevel	= 0,
+																			.LevelCount		= specularTexture->GetMipLevels(),
+																			.BaseArrayLayer = 0,
+																			.LayerCount		= specularTexture->GetDepthOrArrayLayers()};
+				specularViewDesc.DebugName								 = "Specular";
+				specularTextureView										 = device->CreateTextureView(specularViewDesc);
+			}
 
 			Nexus::Graphics::Material mat = {};
 			mat.DiffuseTexture			  = diffuseTextureView;
@@ -310,7 +319,7 @@ namespace Nexus::Processors
 	}
 
 	ModelImportData AssimpProcessor::LoadModel(const std::string		   &filepath,
-											   Graphics::IGraphicsDevice	   *device,
+											   Graphics::IGraphicsDevice   *device,
 											   Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		Assimp::Importer	  importer = {};

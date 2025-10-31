@@ -394,8 +394,8 @@ namespace Nexus::D3D12
 		pipelineDesc.DSVFormat						 = depthFormat;
 		pipelineDesc.BlendState						 = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
 		pipelineDesc.DepthStencilState				 = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
-		pipelineDesc.SampleMask						 = 0xFFFFFFFF;
-		pipelineDesc.SampleDesc.Count				 = description.ColourTargetSampleCount;
+		pipelineDesc.SampleMask						 = description.SampleMask;
+		pipelineDesc.SampleDesc.Count				 = description.Samples;
 		pipelineDesc.SampleDesc.Quality				 = 0;
 		pipelineDesc.NodeMask						 = 0;
 		pipelineDesc.CachedPSO.CachedBlobSizeInBytes = 0;
@@ -495,9 +495,6 @@ namespace Nexus::D3D12
 		D3D12_BLEND_DESC blendDesc = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, blendDesc);
 
-		UINT sampleMask = UINT_MAX;
-		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, sampleMask);
-
 		D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
 
@@ -534,9 +531,13 @@ namespace Nexus::D3D12
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat);
 
 		DXGI_SAMPLE_DESC sampleDesc = {};
-		sampleDesc.Count			= description.ColourTargetSampleCount;
+		sampleDesc.Count			= description.Samples;
 		sampleDesc.Quality			= 0;
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc);
+
+		D3D12_SAMPLE_MASK mask = {};
+		mask.SampleMask		   = description.SampleMask;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, mask);
 
 		UINT nodeMask = 0;
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
@@ -741,8 +742,9 @@ namespace Nexus::D3D12
 		D3D12_BLEND_DESC blendDesc = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, blendDesc);
 
-		UINT sampleMask = UINT_MAX;
-		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, sampleMask);
+		D3D12_SAMPLE_MASK mask = {};
+		mask.SampleMask		   = description.SampleMask;
+		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, mask);
 
 		D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
@@ -765,7 +767,7 @@ namespace Nexus::D3D12
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat);
 
 		DXGI_SAMPLE_DESC sampleDesc = {};
-		sampleDesc.Count			= description.ColourTargetSampleCount;
+		sampleDesc.Count			= description.Samples;
 		sampleDesc.Quality			= 0;
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc);
 
@@ -1315,10 +1317,10 @@ namespace Nexus::D3D12
 			desc.FrontCounterClockwise = false;
 		}
 
-		desc.DepthBias			   = 0;
-		desc.DepthBiasClamp		   = .0f;
-		desc.SlopeScaledDepthBias  = .0f;
-		desc.DepthClipEnable	   = FALSE;
+		desc.DepthBias			   = rasterizerState.DepthBias;
+		desc.DepthBiasClamp		   = rasterizerState.DepthBiasClamp;
+		desc.SlopeScaledDepthBias  = rasterizerState.SlopeScaledDepthBias;
+		desc.DepthClipEnable	   = rasterizerState.DepthClipEnabled ? TRUE : FALSE;
 		desc.MultisampleEnable	   = FALSE;
 		desc.AntialiasedLineEnable = FALSE;
 		desc.ForcedSampleCount	   = 0;

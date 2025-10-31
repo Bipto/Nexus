@@ -508,11 +508,11 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_CubemapFragmentShader, "cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.ColourTargetCount		= 2;
-		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
-		pipelineDescription.ColourTargetSampleCount = 1;
-		pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+		pipelineDescription.ColourTargetCount = 2;
+		pipelineDescription.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		pipelineDescription.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;
+		pipelineDescription.Samples			  = 1;
+		pipelineDescription.Layouts			  = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
 		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = false;
 		pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = false;
@@ -552,10 +552,10 @@ namespace Nexus::Graphics
 
 		pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
-		pipelineDescription.ColourTargetCount		= 2;
-		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
-		pipelineDescription.ColourTargetSampleCount = 1;
+		pipelineDescription.ColourTargetCount = 2;
+		pipelineDescription.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		pipelineDescription.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;
+		pipelineDescription.Samples			  = 1;
 
 		pipelineDescription.ColourBlendStates[0].EnableBlending			= true;
 		pipelineDescription.ColourBlendStates[0].SourceColourBlend		= Nexus::Graphics::BlendFactor::SourceAlpha;
@@ -602,10 +602,10 @@ namespace Nexus::Graphics
 
 		pipelineDescription.Layouts = {m_FullscreenQuad.GetVertexBufferLayout()};
 
-		pipelineDescription.ColourTargetCount		= 2;
-		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
-		pipelineDescription.ColourTargetSampleCount = 1;
+		pipelineDescription.ColourTargetCount = 2;
+		pipelineDescription.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		pipelineDescription.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;
+		pipelineDescription.Samples			  = 1;
 
 		pipelineDescription.ColourBlendStates[0].EnableBlending			= true;
 		pipelineDescription.ColourBlendStates[0].SourceColourBlend		= Nexus::Graphics::BlendFactor::SourceAlpha;

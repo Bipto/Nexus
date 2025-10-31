@@ -41,7 +41,7 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -105,9 +105,9 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 			pipelineDescription.Layouts								  = {Nexus::Graphics::VertexPosition::GetLayout()};
 
-			pipelineDescription.ColourTargetCount		= 1;
-			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+			pipelineDescription.ColourTargetCount = 1;
+			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+			pipelineDescription.Samples			  = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.PrimitiveTopology = Nexus::Graphics::Topology::PointList;
 
@@ -126,9 +126,9 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList;
+		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList;
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_VertexBuffer;
-		glm::vec3									  m_ClearColour = {0.0f, 0.0f, 0.0f};
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_VertexBuffer;
+		glm::vec3									   m_ClearColour = {0.0f, 0.0f, 0.0f};
 	};
 }	 // namespace Demos

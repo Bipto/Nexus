@@ -51,7 +51,7 @@ namespace Nexus::Graphics
 																   m_GraphicsDevice,
 																   m_Description.DepthStencilDesc,
 																   m_Description.RasterizerStateDesc,
-																   m_Description.ColourTargetSampleCount,
+																   m_Description.Samples,
 																   shaderStages,
 																   m_Description.ColourTargetCount,
 																   m_Description.ColourFormats,
@@ -59,7 +59,8 @@ namespace Nexus::Graphics
 																   m_Description.DepthFormat,
 																   m_PipelineLayout,
 																   m_Description.PrimitiveTopology,
-																   m_Description.Layouts);
+																   m_Description.Layouts,
+																   &m_Description.SampleMask);
 
 			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
 		}
@@ -166,7 +167,7 @@ namespace Nexus::Graphics
 																   m_GraphicsDevice,
 																   m_Description.DepthStencilDesc,
 																   m_Description.RasterizerStateDesc,
-																   m_Description.ColourTargetSampleCount,
+																   m_Description.Samples,
 																   shaderStages,
 																   m_Description.ColourTargetCount,
 																   m_Description.ColourFormats,
@@ -174,7 +175,8 @@ namespace Nexus::Graphics
 																   m_Description.DepthFormat,
 																   m_PipelineLayout,
 																   m_Description.PrimitiveTopology,
-																								   {});
+																								   {},
+																   &m_Description.SampleMask);
 
 			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
 		}
