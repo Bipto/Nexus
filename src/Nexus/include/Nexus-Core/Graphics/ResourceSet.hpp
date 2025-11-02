@@ -76,45 +76,69 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<Ref<ISampler>>> ImmutableSamplers = {};
 	};
 
-	struct ResourceSetDescriptors
+	using InlineBlock = std::vector<uint8_t>;
+
+	struct NX_API ResourceSetDescriptors
 	{
-		std::map<std::string, UniformBufferView>		   UniformBuffers		  = {};
-		std::map<std::string, UniformBufferView>		   DynamicUniformBuffers  = {};
-		std::map<std::string, std::vector<uint8_t>>		   InlineUniformBlocks	  = {};
-		std::map<std::string, StorageBufferView>		   StorageBuffers		  = {};
-		std::map<std::string, StorageBufferView>		   DynamicStorageBuffers  = {};
-		std::map<std::string, StorageImageView>			   StorageImages		  = {};
-		std::map<std::string, CombinedImageSampler>		   CombinedImageSamplers  = {};
-		std::map<std::string, Ref<ITextureView>>		   SampledImages		  = {};
-		std::map<std::string, Ref<ISampler>>			   Samplers				  = {};
-		std::map<std::string, Ref<IAccelerationStructure>> AccelerationStructures = {};
-		std::map<std::string, Ref<ITexelBuffer>>		   UniformTexelBuffers	  = {};
-		std::map<std::string, Ref<ITexelBuffer>>		   StorageTexelBuffers	  = {};
+		std::map<std::string, std::vector<UniformBufferView>>			UniformBuffers		   = {};
+		std::map<std::string, std::vector<UniformBufferView>>			DynamicUniformBuffers  = {};
+		std::map<std::string, std::vector<InlineBlock>>					InlineUniformBlocks	   = {};
+		std::map<std::string, std::vector<StorageBufferView>>			StorageBuffers		   = {};
+		std::map<std::string, std::vector<StorageBufferView>>			DynamicStorageBuffers  = {};
+		std::map<std::string, std::vector<StorageImageView>>			StorageImages		   = {};
+		std::map<std::string, std::vector<CombinedImageSampler>>		CombinedImageSamplers  = {};
+		std::map<std::string, std::vector<Ref<ITextureView>>>			SampledImages		   = {};
+		std::map<std::string, std::vector<Ref<ISampler>>>				Samplers			   = {};
+		std::map<std::string, std::vector<Ref<IAccelerationStructure>>> AccelerationStructures = {};
+		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			UniformTexelBuffers	   = {};
+		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			StorageTexelBuffers	   = {};
+
+		void Reset();
 	};
 
 	class Pipeline;
 
-	class IResourceSet
+	class NX_API IResourceSet
 	{
 	  public:
 		IResourceSet(Ref<Pipeline> pipeline);
-		virtual ~IResourceSet()
-		{
-		}
+		virtual ~IResourceSet();
 
-		virtual void WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)					= 0;
-		virtual void WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)				= 0;
-		virtual void WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)					= 0;
-		virtual void WriteStorageBuffer(const StorageBufferView &view, const std::string &name)								= 0;
-		virtual void WriteDynamicStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)				= 0;
-		virtual void WriteStorageImage(const StorageImageView &view, const std::string &name)								= 0;
-		virtual void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)	= 0;
-		virtual void WriteSampledImage(Ref<ITextureView> textureView, const std::string &name)								= 0;
-		virtual void WriteSampler(Ref<ISampler> sampler, const std::string &name)											= 0;
-		virtual void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name) = 0;
-		virtual void WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)						= 0;
-		virtual void WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)						= 0;
-		virtual void Flush()																								= 0;
+		// single descriptors
+		void WriteUniformBuffer(const UniformBufferView &uniformBuffers, const std::string &name);
+		void WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffers, const std::string &name);
+		void WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name);
+		void WriteStorageBuffer(const StorageBufferView &views, const std::string &name);
+		void WriteDynamicStorageBuffer(const StorageBufferView &storageBuffers, const std::string &name);
+		void WriteStorageImage(const StorageImageView &views, const std::string &name);
+		void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSamplers, const std::string &name);
+		void WriteSampledImage(Ref<ITextureView> textureViews, const std::string &name);
+		void WriteSampler(Ref<ISampler> samplers, const std::string &name);
+		void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructures, const std::string &name);
+		void WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name);
+		void WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name);
+
+		// arrays
+		void WriteUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count);
+		void WriteDynamicUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count);
+		void WriteInlineUniformBlocks(const void *data, size_t sizeInBytes, const std::string &name, size_t startElement, size_t count);
+		void WriteStorageBuffers(const StorageBufferView *views, const std::string &name, size_t startElement, size_t count);
+		void WriteDynamicStorageBuffers(const StorageBufferView *storageBuffers, const std::string &name, size_t startElement, size_t count);
+		void WriteStorageImages(const StorageImageView *views, const std::string &name, size_t startElement, size_t count);
+		void WriteCombinedImageSamplers(const CombinedImageSampler *combinedImageSamplers,
+										const std::string		   &name,
+										size_t						startElement,
+										size_t						count);
+		void WriteSampledImages(Ref<ITextureView> *textureViews, const std::string &name, size_t startElement, size_t count);
+		void WriteSamplers(Ref<ISampler> *samplers, const std::string &name, size_t startElement, size_t count);
+		void WriteAccelerationStructures(Ref<IAccelerationStructure> *accelerationStructures,
+										 const std::string			 &name,
+										 size_t						  startElement,
+										 size_t						  count);
+		void WriteUniformTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count);
+		void WriteStorageTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count);
+
+		virtual void Flush() = 0;
 
 		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
 		const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;

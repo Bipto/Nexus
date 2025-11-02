@@ -218,59 +218,68 @@ namespace Nexus::Graphics
 		{
 			const auto &boundResources = resources->GetBoundResources();
 
-			for (const auto &[name, ciSampler] : boundResources.CombinedImageSamplers)
+			for (const auto &[name, ciSamplers] : boundResources.CombinedImageSamplers)
 			{
-				Ref<ITextureView>			  textureView = ciSampler.ImageTexture;
-				const TextureViewDescription &viewDesc	  = textureView->GetDescription();
+				for (const CombinedImageSampler &ciSampler : ciSamplers)
+				{
+					Ref<ITextureView>			  textureView = ciSampler.ImageTexture;
+					const TextureViewDescription &viewDesc	  = textureView->GetDescription();
 
-				TextureBarrierDesc barrier				= {};
-				barrier.BeforeAccess					= BarrierAccess::None;
-				barrier.AfterAccess						= BarrierAccess::ShaderRead;
-				barrier.BeforeStage						= BarrierPipelineStage::None;
-				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.ITexture						= textureView->GetTexture();
-				barrier.Layout							= TextureLayout::ShaderReadOnlyOptimal;
-				barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
-				barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
-				barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
-				barrier.SubresourceRange.LevelCount		= viewDesc.Range.LevelCount;
-				SubmitTextureBarrier(barrier);
+					TextureBarrierDesc barrier				= {};
+					barrier.BeforeAccess					= BarrierAccess::None;
+					barrier.AfterAccess						= BarrierAccess::ShaderRead;
+					barrier.BeforeStage						= BarrierPipelineStage::None;
+					barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+					barrier.ITexture						= textureView->GetTexture();
+					barrier.Layout							= TextureLayout::ShaderReadOnlyOptimal;
+					barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+					barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
+					barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
+					barrier.SubresourceRange.LevelCount		= viewDesc.Range.LevelCount;
+					SubmitTextureBarrier(barrier);
+				}
 			}
 
-			for (const auto &[name, imageView] : boundResources.SampledImages)
+			for (const auto &[name, imageViews] : boundResources.SampledImages)
 			{
-				const TextureViewDescription &viewDesc = imageView->GetDescription();
+				for (Ref<ITextureView> imageView : imageViews)
+				{
+					const TextureViewDescription &viewDesc = imageView->GetDescription();
 
-				TextureBarrierDesc barrier				= {};
-				barrier.BeforeAccess					= BarrierAccess::None;
-				barrier.AfterAccess						= BarrierAccess::ShaderRead;
-				barrier.BeforeStage						= BarrierPipelineStage::None;
-				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.ITexture						= imageView->GetTexture();
-				barrier.Layout							= TextureLayout::ShaderReadOnlyOptimal;
-				barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
-				barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
-				barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
-				barrier.SubresourceRange.LevelCount		= viewDesc.Range.LevelCount;
-				SubmitTextureBarrier(barrier);
+					TextureBarrierDesc barrier				= {};
+					barrier.BeforeAccess					= BarrierAccess::None;
+					barrier.AfterAccess						= BarrierAccess::ShaderRead;
+					barrier.BeforeStage						= BarrierPipelineStage::None;
+					barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+					barrier.ITexture						= imageView->GetTexture();
+					barrier.Layout							= TextureLayout::ShaderReadOnlyOptimal;
+					barrier.SubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+					barrier.SubresourceRange.LayerCount		= viewDesc.Range.LayerCount;
+					barrier.SubresourceRange.BaseMipLevel	= viewDesc.Range.BaseMipLevel;
+					barrier.SubresourceRange.LevelCount		= viewDesc.Range.LevelCount;
+					SubmitTextureBarrier(barrier);
+				}
 			}
 
-			for (const auto &[name, storageImage] : boundResources.StorageImages)
+			for (const auto &[name, storageImages] : boundResources.StorageImages)
 			{
-				Ref<ITexture> texture = storageImage.TextureHandle;
+				for (const StorageImageView &storageImage : storageImages)
+				{
+					Ref<ITexture> texture = storageImage.TextureHandle;
 
-				TextureBarrierDesc barrier				= {};
-				barrier.BeforeAccess					= BarrierAccess::None;
-				barrier.AfterAccess						= BarrierAccess::ShaderRead;
-				barrier.BeforeStage						= BarrierPipelineStage::None;
-				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.ITexture						= texture;
-				barrier.Layout							= TextureLayout::General;
-				barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
-				barrier.SubresourceRange.LayerCount		= 1;
-				barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
-				barrier.SubresourceRange.LevelCount		= 1;
-				SubmitTextureBarrier(barrier);
+					TextureBarrierDesc barrier				= {};
+					barrier.BeforeAccess					= BarrierAccess::None;
+					barrier.AfterAccess						= BarrierAccess::ShaderRead;
+					barrier.BeforeStage						= BarrierPipelineStage::None;
+					barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
+					barrier.ITexture						= texture;
+					barrier.Layout							= TextureLayout::General;
+					barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
+					barrier.SubresourceRange.LayerCount		= 1;
+					barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
+					barrier.SubresourceRange.LevelCount		= 1;
+					SubmitTextureBarrier(barrier);
+				}
 			}
 		}
 

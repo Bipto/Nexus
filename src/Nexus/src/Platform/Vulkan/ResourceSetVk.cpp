@@ -70,68 +70,6 @@ namespace Nexus::Graphics
 		context.DestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
 	}
 
-	void ResourceSetVk::WriteStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)
-	{
-		m_QueuedResources.StorageBuffers[name] = storageBuffer;
-	}
-
-	void ResourceSetVk::WriteUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)
-	{
-		m_QueuedResources.UniformBuffers[name] = uniformBuffer;
-	}
-
-	void ResourceSetVk::WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffer, const std::string &name)
-	{
-		m_QueuedResources.DynamicUniformBuffers[name] = uniformBuffer;
-	}
-
-	void ResourceSetVk::WriteDynamicStorageBuffer(const StorageBufferView &storageBuffer, const std::string &name)
-	{
-		m_QueuedResources.DynamicStorageBuffers[name] = storageBuffer;
-	}
-
-	void ResourceSetVk::WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)
-	{
-		std::vector<uint8_t> &storage = m_QueuedResources.InlineUniformBlocks[name];
-		storage.resize(sizeInBytes);
-		memcpy(storage.data(), data, sizeInBytes);
-	}
-
-	void ResourceSetVk::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSampler, const std::string &name)
-	{
-		m_QueuedResources.CombinedImageSamplers[name] = combinedImageSampler;
-	}
-
-	void ResourceSetVk::WriteStorageImage(const StorageImageView &view, const std::string &name)
-	{
-		m_QueuedResources.StorageImages[name] = view;
-	}
-
-	void ResourceSetVk::WriteSampledImage(Ref<ITextureView> textureView, const std::string &name)
-	{
-		m_QueuedResources.SampledImages[name] = textureView;
-	}
-
-	void ResourceSetVk::WriteSampler(Ref<ISampler> sampler, const std::string &name)
-	{
-		m_QueuedResources.Samplers[name] = sampler;
-	}
-
-	void ResourceSetVk::WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructure, const std::string &name)
-	{
-		m_QueuedResources.AccelerationStructures[name] = accelerationStructure;
-	}
-
-	void ResourceSetVk::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
-	{
-		m_QueuedResources.UniformTexelBuffers[name] = texelBuffer;
-	}
-
-	void ResourceSetVk::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffer, const std::string &name)
-	{
-		m_QueuedResources.StorageTexelBuffers[name] = texelBuffer;
-	}
-
 	static void GenerateWriteBufferDescriptor(const std::string								&resourceName,
 											  std::map<std::string, VkDescriptorBufferInfo> &buffersToWrite,
 											  std::vector<VkWriteDescriptorSet>				&descriptorSetWrites,
@@ -140,6 +78,7 @@ namespace Nexus::Graphics
 											  size_t										 size,
 											  VkDescriptorType								 descriptorType,
 											  uint32_t										 binding,
+											  uint32_t										 arrayElement,
 											  VkDescriptorSet								 descriptorSet)
 	{
 		VkDescriptorBufferInfo &bufferInfo = buffersToWrite[resourceName];
@@ -163,6 +102,7 @@ namespace Nexus::Graphics
 														  const void													   *data,
 														  size_t															dataSize,
 														  uint32_t															binding,
+														  uint32_t															arrayElement,
 														  VkDescriptorSet													descriptorSet)
 	{
 		VkWriteDescriptorSetInlineUniformBlockEXT &blockInfo = blocksToWrite[resourceName];
@@ -175,6 +115,7 @@ namespace Nexus::Graphics
 		descriptorInfo.pNext				 = &blockInfo;
 		descriptorInfo.dstSet				 = descriptorSet;
 		descriptorInfo.dstBinding			 = binding;
+		descriptorInfo.dstArrayElement		 = arrayElement;
 		descriptorInfo.descriptorCount		 = dataSize;
 		descriptorInfo.descriptorType		 = VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
 	}
@@ -187,6 +128,7 @@ namespace Nexus::Graphics
 											 VkSampler									   sampler,
 											 VkDescriptorType							   descriptorType,
 											 uint32_t									   binding,
+											 uint32_t									   arrayElement,
 											 VkDescriptorSet							   descriptorSet)
 	{
 		VkDescriptorImageInfo &imageInfo = imagesToWrite[resourceName];
@@ -199,6 +141,7 @@ namespace Nexus::Graphics
 		descriptorInfo.pNext				 = nullptr;
 		descriptorInfo.dstSet				 = descriptorSet;
 		descriptorInfo.dstBinding			 = binding;
+		descriptorInfo.dstArrayElement		 = arrayElement;
 		descriptorInfo.descriptorCount		 = 1;
 		descriptorInfo.descriptorType		 = descriptorType;
 		descriptorInfo.pImageInfo			 = &imageInfo;
@@ -210,6 +153,7 @@ namespace Nexus::Graphics
 		std::vector<VkWriteDescriptorSet>									&descriptorSetWrites,
 		VkAccelerationStructureKHR											 accelerationStructure,
 		uint32_t															 binding,
+		uint32_t															 arrayElement,
 		VkDescriptorSet														 descriptorSet)
 	{
 		VkWriteDescriptorSetAccelerationStructureKHR &asWrite = accelerationStructuresToWrite[resourceName];
@@ -223,6 +167,7 @@ namespace Nexus::Graphics
 		descriptorInfo.pNext				 = &asWrite;
 		descriptorInfo.dstSet				 = descriptorSet;
 		descriptorInfo.dstBinding			 = binding;
+		descriptorInfo.dstArrayElement		 = arrayElement;
 		descriptorInfo.descriptorCount		 = 1;
 		descriptorInfo.descriptorType		 = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
 	}
@@ -232,13 +177,15 @@ namespace Nexus::Graphics
 												   VkBufferView						  bufferView,
 												   uint32_t							  binding,
 												   VkDescriptorSet					  descriptorSet,
-												   VkDescriptorType					  descriptorType)
+												   VkDescriptorType					  descriptorType,
+												   uint32_t							  arrayElement)
 	{
 		VkWriteDescriptorSet &descriptorInfo = descriptorSetWrites.emplace_back();
 		descriptorInfo.sType				 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorInfo.pNext				 = nullptr;
 		descriptorInfo.dstSet				 = descriptorSet;
 		descriptorInfo.dstBinding			 = binding;
+		descriptorInfo.dstArrayElement		 = arrayElement;
 		descriptorInfo.descriptorCount		 = 1;
 		descriptorInfo.descriptorType		 = descriptorType;
 		descriptorInfo.pTexelBufferView		 = &bufferView;
@@ -255,248 +202,311 @@ namespace Nexus::Graphics
 		std::vector<VkWriteDescriptorSet>									descriptorSetWrites			  = {};
 
 		// uniform buffers
-		for (const auto &[name, view] : m_QueuedResources.UniformBuffers)
+		for (const auto &[name, views] : m_QueuedResources.UniformBuffers)
 		{
-			if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &view = views[arrayIndex];
+				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteBufferDescriptor(name,
-											  buffersToWrite,
-											  descriptorSetWrites,
-											  buffer->GetVkBuffer(),
-											  view.Offset,
-											  view.Size,
-											  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-											  resource.Binding,
-											  m_DescriptorSets.at(resource.Set));
+					GenerateWriteBufferDescriptor(name,
+												  buffersToWrite,
+												  descriptorSetWrites,
+												  buffer->GetVkBuffer(),
+												  view.Offset,
+												  view.Size,
+												  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+												  resource.Binding,
+												  arrayIndex,
+												  m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.UniformBuffers[name] = view;
+					m_BoundResources.UniformBuffers[name][arrayIndex] = view;
+				}
 			}
 		}
 
 		// dynamic uniform buffers
-		for (const auto &[name, view] : m_QueuedResources.DynamicUniformBuffers)
+		for (const auto &[name, views] : m_QueuedResources.DynamicUniformBuffers)
 		{
-			if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &view = views[arrayIndex];
+				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteBufferDescriptor(name,
-											  buffersToWrite,
-											  descriptorSetWrites,
-											  buffer->GetVkBuffer(),
-											  view.Offset,
-											  view.Size,
-											  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-											  resource.Binding,
-											  m_DescriptorSets.at(resource.Set));
+					GenerateWriteBufferDescriptor(name,
+												  buffersToWrite,
+												  descriptorSetWrites,
+												  buffer->GetVkBuffer(),
+												  view.Offset,
+												  view.Size,
+												  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+												  arrayIndex,
+												  resource.Binding,
+												  m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.DynamicUniformBuffers[name] = view;
+					m_BoundResources.DynamicUniformBuffers[name][arrayIndex] = view;
+				}
 			}
 		}
 
 		// inline uniform block
-		for (const auto &[name, inlineData] : m_QueuedResources.InlineUniformBlocks)
+		for (const auto &[name, inlineDatas] : m_QueuedResources.InlineUniformBlocks)
 		{
-			const ShaderResource &resource = m_ShaderResources.at(name);
+			for (size_t arrayIndex = 0; arrayIndex < inlineDatas.size(); arrayIndex++)
+			{
+				const auto			 &inlineData = inlineDatas[arrayIndex];
+				const ShaderResource &resource	 = m_ShaderResources.at(name);
 
-			GenerateWriteInlineUniformBlockDescriptor(name,
-													  inlineBlocksToWrite,
-													  descriptorSetWrites,
-													  inlineData.data(),
-													  inlineData.size(),
-													  resource.Binding,
-													  m_DescriptorSets.at(resource.Set));
+				GenerateWriteInlineUniformBlockDescriptor(name,
+														  inlineBlocksToWrite,
+														  descriptorSetWrites,
+														  inlineData.data(),
+														  inlineData.size(),
+														  resource.Binding,
+														  arrayIndex,
+														  m_DescriptorSets.at(resource.Set));
 
-			m_BoundResources.InlineUniformBlocks[name] = inlineData;
+				m_BoundResources.InlineUniformBlocks[name][arrayIndex] = inlineData;
+			}
 		}
 
 		// storage buffers
-		for (const auto &[name, view] : m_QueuedResources.StorageBuffers)
+		for (const auto &[name, views] : m_QueuedResources.StorageBuffers)
 		{
-			if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &view = views[arrayIndex];
+				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteBufferDescriptor(name,
-											  buffersToWrite,
-											  descriptorSetWrites,
-											  buffer->GetVkBuffer(),
-											  view.Offset,
-											  view.SizeInBytes,
-											  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-											  resource.Binding,
-											  m_DescriptorSets.at(resource.Set));
+					GenerateWriteBufferDescriptor(name,
+												  buffersToWrite,
+												  descriptorSetWrites,
+												  buffer->GetVkBuffer(),
+												  view.Offset,
+												  view.SizeInBytes,
+												  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+												  resource.Binding,
+												  arrayIndex,
+												  m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.StorageBuffers[name] = view;
+					m_BoundResources.StorageBuffers[name][arrayIndex] = view;
+				}
 			}
 		}
 
 		// dynamic storage buffers
-		for (const auto &[name, view] : m_QueuedResources.DynamicStorageBuffers)
+		for (const auto &[name, views] : m_QueuedResources.DynamicStorageBuffers)
 		{
-			if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &view = views[arrayIndex];
+				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteBufferDescriptor(name,
-											  buffersToWrite,
-											  descriptorSetWrites,
-											  buffer->GetVkBuffer(),
-											  view.Offset,
-											  view.SizeInBytes,
-											  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
-											  resource.Binding,
-											  m_DescriptorSets.at(resource.Set));
+					GenerateWriteBufferDescriptor(name,
+												  buffersToWrite,
+												  descriptorSetWrites,
+												  buffer->GetVkBuffer(),
+												  view.Offset,
+												  view.SizeInBytes,
+												  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
+												  resource.Binding,
+												  arrayIndex,
+												  m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.DynamicStorageBuffers[name] = view;
+					m_BoundResources.DynamicStorageBuffers[name][arrayIndex] = view;
+				}
 			}
 		}
 
 		// storage images
-		for (const auto &[name, storageImage] : m_QueuedResources.StorageImages)
+		for (const auto &[name, storageImages] : m_QueuedResources.StorageImages)
 		{
-			if (Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(storageImage.TextureHandle))
+			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &storageImage = storageImages[arrayIndex];
+				if (Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(storageImage.TextureHandle))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				VulkanTextureViewInfo viewInfo = {};
-				viewInfo.BaseMipLevel		   = storageImage.MipLevel;
-				viewInfo.LevelCount			   = 1;
-				viewInfo.BaseArrayLayer		   = storageImage.ArrayLayer;
-				viewInfo.LayerCount			   = 1;
+					VulkanTextureViewInfo viewInfo = {};
+					viewInfo.BaseMipLevel		   = storageImage.MipLevel;
+					viewInfo.LevelCount			   = 1;
+					viewInfo.BaseArrayLayer		   = storageImage.ArrayLayer;
+					viewInfo.LayerCount			   = 1;
 
-				GenerateWriteImageDescriptor(name,
-											 imagesToWrite,
-											 descriptorSetWrites,
-											 texture->GetImageView(viewInfo),
-											 VK_IMAGE_LAYOUT_GENERAL,
-											 VK_NULL_HANDLE,
-											 VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-											 resource.Binding,
-											 m_DescriptorSets.at(resource.Set));
+					GenerateWriteImageDescriptor(name,
+												 imagesToWrite,
+												 descriptorSetWrites,
+												 texture->GetImageView(viewInfo),
+												 VK_IMAGE_LAYOUT_GENERAL,
+												 VK_NULL_HANDLE,
+												 VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+												 resource.Binding,
+												 arrayIndex,
+												 m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.StorageImages[name] = storageImage;
+					m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
+				}
 			}
 		}
 
 		// combined image samplers
-		for (const auto &[name, combinedImageSampler] : m_QueuedResources.CombinedImageSamplers)
+		for (const auto &[name, combinedImageSamplers] : m_QueuedResources.CombinedImageSamplers)
 		{
-			Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
-			Ref<SamplerVk>	   sampler	   = std::dynamic_pointer_cast<SamplerVk>(combinedImageSampler.ImageSampler);
-			if (textureView && sampler)
+			for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				GenerateWriteImageDescriptor(name,
-											 imagesToWrite,
-											 descriptorSetWrites,
-											 textureView->GetVkImageView(),
-											 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-											 sampler->GetSampler(),
-											 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-											 resource.Binding,
-											 m_DescriptorSets.at(resource.Set));
+				Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
+				Ref<SamplerVk>	   sampler	   = std::dynamic_pointer_cast<SamplerVk>(combinedImageSampler.ImageSampler);
+				if (textureView && sampler)
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				m_BoundResources.CombinedImageSamplers[name] = combinedImageSampler;
+					GenerateWriteImageDescriptor(name,
+												 imagesToWrite,
+												 descriptorSetWrites,
+												 textureView->GetVkImageView(),
+												 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+												 sampler->GetSampler(),
+												 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+												 resource.Binding,
+												 arrayIndex,
+												 m_DescriptorSets.at(resource.Set));
+
+					m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
+				}
 			}
 		}
 
 		// sampled images
-		for (const auto &[name, sampledImage] : m_QueuedResources.SampledImages)
+		for (const auto &[name, sampledImages] : m_QueuedResources.SampledImages)
 		{
-			if (Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(sampledImage))
+			for (size_t arrayIndex = 0; arrayIndex < sampledImages.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &sampledImage = sampledImages[arrayIndex];
 
-				GenerateWriteImageDescriptor(name,
-											 imagesToWrite,
-											 descriptorSetWrites,
-											 textureView->GetVkImageView(),
-											 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-											 VK_NULL_HANDLE,
-											 VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-											 resource.Binding,
-											 m_DescriptorSets.at(resource.Set));
+				if (Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(sampledImage))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				m_BoundResources.SampledImages[name] = sampledImage;
+					GenerateWriteImageDescriptor(name,
+												 imagesToWrite,
+												 descriptorSetWrites,
+												 textureView->GetVkImageView(),
+												 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+												 VK_NULL_HANDLE,
+												 VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+												 resource.Binding,
+												 arrayIndex,
+												 m_DescriptorSets.at(resource.Set));
+
+					m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
+				}
 			}
 		}
 
 		// samplers
-		for (const auto &[name, sampler] : m_QueuedResources.Samplers)
+		for (const auto &[name, samplers] : m_QueuedResources.Samplers)
 		{
-			if (Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler))
+			for (size_t arrayIndex = 0; arrayIndex < samplers.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &sampler = samplers[arrayIndex];
 
-				GenerateWriteImageDescriptor(name,
-											 imagesToWrite,
-											 descriptorSetWrites,
-											 VK_NULL_HANDLE,
-											 VK_IMAGE_LAYOUT_UNDEFINED,
-											 samplerVk->GetSampler(),
-											 VK_DESCRIPTOR_TYPE_SAMPLER,
-											 resource.Binding,
-											 m_DescriptorSets.at(resource.Set));
+				if (Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				m_BoundResources.Samplers[name] = sampler;
+					GenerateWriteImageDescriptor(name,
+												 imagesToWrite,
+												 descriptorSetWrites,
+												 VK_NULL_HANDLE,
+												 VK_IMAGE_LAYOUT_UNDEFINED,
+												 samplerVk->GetSampler(),
+												 VK_DESCRIPTOR_TYPE_SAMPLER,
+												 resource.Binding,
+												 arrayIndex,
+												 m_DescriptorSets.at(resource.Set));
+
+					m_BoundResources.Samplers[name][arrayIndex] = sampler;
+				}
 			}
 		}
 
 		// acceleration structures
-		for (const auto &[name, accelerationStructure] : m_QueuedResources.AccelerationStructures)
+		for (const auto &[name, accelerationStructures] : m_QueuedResources.AccelerationStructures)
 		{
-			if (Ref<AccelerationStructureVk> accelerationStructureVk = std::dynamic_pointer_cast<AccelerationStructureVk>(accelerationStructure))
+			for (size_t arrayIndex = 0; arrayIndex < accelerationStructures.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &accelerationStructure = accelerationStructures[arrayIndex];
+				if (Ref<AccelerationStructureVk> accelerationStructureVk = std::dynamic_pointer_cast<AccelerationStructureVk>(accelerationStructure))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteAccelerationStructureDescriptor(name,
-															 accelerationStructuresToWrite,
-															 descriptorSetWrites,
-															 accelerationStructureVk->GetHandle(),
-															 resource.Binding,
-															 m_DescriptorSets.at(resource.Set));
+					GenerateWriteAccelerationStructureDescriptor(name,
+																 accelerationStructuresToWrite,
+																 descriptorSetWrites,
+																 accelerationStructureVk->GetHandle(),
+																 resource.Binding,
+																 arrayIndex,
+																 m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.AccelerationStructures[name] = accelerationStructure;
+					m_BoundResources.AccelerationStructures[name][arrayIndex] = accelerationStructure;
+				}
 			}
 		}
 
 		// uniform texel buffers
-		for (const auto &[name, texelBuffer] : m_QueuedResources.UniformTexelBuffers)
+		for (const auto &[name, texelBuffers] : m_QueuedResources.UniformTexelBuffers)
 		{
-			if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &texelBuffer = texelBuffers[arrayIndex];
+				if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteTexelBufferDescriptor(resource.Name,
-												   descriptorSetWrites,
-												   texelBufferVk->GetVkBufferView(),
-												   resource.Binding,
-												   m_DescriptorSets.at(resource.Set),
-												   VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER);
+					GenerateWriteTexelBufferDescriptor(resource.Name,
+													   descriptorSetWrites,
+													   texelBufferVk->GetVkBufferView(),
+													   resource.Binding,
+													   m_DescriptorSets.at(resource.Set),
+													   VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+													   arrayIndex);
 
-				m_BoundResources.UniformTexelBuffers[name] = texelBuffer;
+					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
+				}
 			}
 		}
 
 		// storage texel buffers
-		for (const auto &[name, texelBuffer] : m_QueuedResources.StorageTexelBuffers)
+		for (const auto &[name, texelBuffers] : m_QueuedResources.StorageTexelBuffers)
 		{
-			if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
-				const ShaderResource &resource = m_ShaderResources.at(name);
+				const auto &texelBuffer = texelBuffers[arrayIndex];
+				if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+				{
+					const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteTexelBufferDescriptor(resource.Name,
-												   descriptorSetWrites,
-												   texelBufferVk->GetVkBufferView(),
-												   resource.Binding,
-												   m_DescriptorSets.at(resource.Set),
-												   VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER);
+					GenerateWriteTexelBufferDescriptor(resource.Name,
+													   descriptorSetWrites,
+													   texelBufferVk->GetVkBufferView(),
+													   resource.Binding,
+													   m_DescriptorSets.at(resource.Set),
+													   VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
+													   arrayIndex);
 
-				m_BoundResources.UniformTexelBuffers[name] = texelBuffer;
+					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
+				}
 			}
 		}
 
@@ -504,7 +514,7 @@ namespace Nexus::Graphics
 		context.UpdateDescriptorSets(m_Device->GetVkDevice(), descriptorSetWrites.size(), descriptorSetWrites.data(), 0, nullptr);
 
 		// reset the resource queue
-		m_QueuedResources = {};
+		m_QueuedResources.Reset();
 	}
 
 	const std::map<uint32_t, VkDescriptorSet> &ResourceSetVk::GetDescriptorSets() const
