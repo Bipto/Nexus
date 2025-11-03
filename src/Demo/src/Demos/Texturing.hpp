@@ -75,7 +75,10 @@ namespace Demos
 			m_ResourceSet->WriteCombinedImageSampler(ciSampler, "u_Texture");
 			m_ResourceSet->Flush();
 
-			m_CommandList->SetResourceSet(m_ResourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_ResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer();

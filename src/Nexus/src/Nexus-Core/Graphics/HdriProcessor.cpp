@@ -229,7 +229,10 @@ namespace Nexus::Graphics
 			scissor.Height = size;
 			commandList->SetScissor(scissor);
 
-			commandList->SetResourceSet(resourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = resourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			commandList->SetResourceSet(resourceBindingDesc);
 
 			Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle				= cube->GetVertexBuffer();

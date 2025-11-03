@@ -350,8 +350,8 @@ namespace Nexus::Graphics
 												 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
 												 .CountOrSizeInBytes = 1}};
 
-		info.Pipeline	  = device->CreateGraphicsPipeline(description);
-		info.IResourceSet = device->CreateResourceSet(info.Pipeline);
+		info.Pipeline	 = device->CreateGraphicsPipeline(description);
+		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
 		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};
 		vertexUploadDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
@@ -1191,7 +1191,7 @@ namespace Nexus::Graphics
 		uniformBufferView.BufferHandle		= m_UniformBuffer;
 		uniformBufferView.Offset			= 0;
 		uniformBufferView.Size				= m_UniformBuffer->GetDescription().SizeInBytes;
-		info.IResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
+		info.ResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
 
 		for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
 		{
@@ -1201,18 +1201,18 @@ namespace Nexus::Graphics
 				Graphics::CombinedImageSampler ciSampler = {};
 				ciSampler.ImageTexture					 = info.Textures.at(i);
 				ciSampler.ImageSampler					 = m_Sampler;
-				info.IResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
+				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 			else
 			{
 				Graphics::CombinedImageSampler ciSampler = {};
 				ciSampler.ImageTexture					 = m_BlankTextureView;
 				ciSampler.ImageSampler					 = m_Sampler;
-				info.IResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
+				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 		}
 
-		info.IResourceSet->Flush();
+		info.ResourceSet->Flush();
 
 		m_CommandList->Begin();
 
@@ -1241,7 +1241,11 @@ namespace Nexus::Graphics
 		m_CommandList->SetFramebuffer(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
-		m_CommandList->SetResourceSet(info.IResourceSet);
+
+		Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+		resourceBindingDesc.TargetResourceSet							   = info.ResourceSet;
+		resourceBindingDesc.DynamicOffsets								   = {};
+		m_CommandList->SetResourceSet(resourceBindingDesc);
 
 		VertexBufferView vertexBufferView = {};
 		vertexBufferView.BufferHandle	  = info.VertexBuffer;

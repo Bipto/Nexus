@@ -203,7 +203,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void ICommandList::SetResourceSet(Ref<IResourceSet> resources)
+	void ICommandList::SetResourceSet(const ResourceSetBindingDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -216,7 +216,7 @@ namespace Nexus::Graphics
 
 		if (m_Description.AutomaticBarrierTransitions)
 		{
-			const auto &boundResources = resources->GetBoundResources();
+			const auto &boundResources = desc.TargetResourceSet->GetBoundResources();
 
 			for (const auto &[name, ciSamplers] : boundResources.CombinedImageSamplers)
 			{
@@ -283,7 +283,7 @@ namespace Nexus::Graphics
 			}
 		}
 
-		m_Commands.push_back(resources);
+		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)

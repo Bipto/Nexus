@@ -67,7 +67,11 @@ namespace Demos
 			m_CommandList->Begin();
 
 			m_CommandList->SetPipeline(m_ComputePipeline);
-			m_CommandList->SetResourceSet(m_ResourceSet);
+
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_ResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::DispatchDescription dispatchDesc = {};
 			dispatchDesc.WorkGroupCountX					  = m_Texture->GetDescription().Width;

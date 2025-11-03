@@ -33,7 +33,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;
@@ -77,11 +77,11 @@ namespace Nexus::Graphics
 		VkExtent2D		   m_RenderSize				   = {0, 0};
 
 		uint32_t		  m_DepthAttachmentIndex = 0;
-		Ref<IFramebuffer> m_CurrentRenderTarget;
+		Ref<IFramebuffer> m_CurrentRenderTarget	 = nullptr;
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
 
-		std::vector<RenderCommandData> m_Commands;
+		std::vector<RenderCommandData> m_Commands			 = {};
 		size_t						   m_CurrentCommandIndex = 0;
 	};
 }	 // namespace Nexus::Graphics

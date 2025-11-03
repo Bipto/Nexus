@@ -152,7 +152,10 @@ namespace Demos
 			Nexus::Graphics::ClearDepthStencilValue clearValue;
 			m_CommandList->ClearDepthTarget(clearValue);
 
-			m_CommandList->SetResourceSet(m_ResourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_ResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			// draw cube
 			{

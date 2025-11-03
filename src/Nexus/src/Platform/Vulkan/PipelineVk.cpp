@@ -37,11 +37,6 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	VkPipelineLayout GraphicsPipelineVk::GetPipelineLayout()
-	{
-		return m_PipelineLayout;
-	}
-
 	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
 	{
 		if (m_Pipelines.find(renderPass) == m_Pipelines.end())
@@ -72,14 +67,13 @@ namespace Nexus::Graphics
 		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
-	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-
-		const auto &descriptorSets = resourceSet->GetDescriptorSets();
-		for (const auto &[setIndex, descriptorSet] : descriptorSets)
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+		if (resourceSet)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, setIndex, 1, &descriptorSet, 0, nullptr);
+			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_GRAPHICS, desc.DynamicOffsets);
 		}
 	}
 
@@ -151,11 +145,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	VkPipelineLayout MeshletPipelineVk::GetPipelineLayout()
-	{
-		return m_PipelineLayout;
-	}
-
 	void MeshletPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
@@ -186,14 +175,21 @@ namespace Nexus::Graphics
 		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
-	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets();
-		for (const auto &set : descriptorSets)
+		if (resourceSet)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			const auto &descriptorSets = resourceSet->GetDescriptorSets();
+
+			std::vector<uint32_t> offsets = {};
+
+			for (const auto &set : descriptorSets)
+			{
+				context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			}
 		}
 	}
 
@@ -280,14 +276,14 @@ namespace Nexus::Graphics
 		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
 	}
 
-	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets();
-		for (const auto &set : descriptorSets)
+		if (resourceSet)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_GRAPHICS, desc.DynamicOffsets);
 		}
 	}
 }	 // namespace Nexus::Graphics

@@ -116,7 +116,10 @@ namespace Demos
 			Nexus::Graphics::ClearDepthStencilValue clearDepth {};
 			m_CommandList->ClearDepthTarget(clearDepth);
 
-			m_CommandList->SetResourceSet(m_ResourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_ResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle					   = m_Cube->GetVertexBuffer();

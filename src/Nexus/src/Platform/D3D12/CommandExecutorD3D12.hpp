@@ -40,7 +40,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;

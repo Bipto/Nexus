@@ -260,6 +260,12 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
+	struct ResourceSetBindingDescription
+	{
+		Ref<IResourceSet>							 TargetResourceSet = nullptr;
+		std::map<std::string, std::vector<uint32_t>> DynamicOffsets	   = {};
+	};
+
 	enum class BarrierPipelineStage
 	{
 		None,
@@ -371,7 +377,7 @@ namespace Nexus::Graphics
 						 DispatchIndirectDescription,
 						 DrawMeshDescription,
 						 DrawMeshIndirectDescription,
-						 Ref<IResourceSet>,
+						 ResourceSetBindingDescription,
 						 ClearColorTargetCommand,
 						 ClearDepthStencilTargetCommand,
 						 WeakRef<IFramebuffer>,
@@ -455,9 +461,7 @@ namespace Nexus::Graphics
 
 		void DrawMeshIndirect(const DrawMeshIndirectDescription &desc);
 
-		/// @brief A method that updates the resources bound within a pipeline
-		/// @param resources A reference counted pointer to a ResourceSet
-		void SetResourceSet(Ref<IResourceSet> resources);
+		void SetResourceSet(const ResourceSetBindingDescription &desc);
 
 		void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
 

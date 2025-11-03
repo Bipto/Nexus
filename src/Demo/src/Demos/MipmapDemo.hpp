@@ -78,7 +78,10 @@ namespace Demos
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_CommandList->SetResourceSet(m_ResourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_ResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer();

@@ -187,6 +187,17 @@ namespace Nexus::Vk
 	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
 	VkImageViewType			 GetImageViewType(const Graphics::TextureViewDescription &desc);
 
+	void BindDescriptorSets(const GladVulkanContext &context,
+							VkCommandBuffer			 commandBuffer,
+							VkPipelineBindPoint		 bindPoint,
+							VkPipelineLayout		 pipelineLayout,
+							uint32_t				 setIndex,
+							uint32_t				 setCount,
+							const VkDescriptorSet	*descriptorSets,
+							VkShaderStageFlags		 stageFlags,
+							const uint32_t			*dynamicOffsets,
+							size_t					 dynamicOffsetCount);
+
 	struct GladLoaderData
 	{
 		VkInstance instance = VK_NULL_HANDLE;

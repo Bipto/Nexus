@@ -2554,6 +2554,45 @@ namespace Nexus::Vk
 		}
 	}
 
+	void BindDescriptorSets(const GladVulkanContext &context,
+							VkCommandBuffer			 commandBuffer,
+							VkPipelineBindPoint		 bindPoint,
+							VkPipelineLayout		 pipelineLayout,
+							uint32_t				 setIndex,
+							uint32_t				 setCount,
+							const VkDescriptorSet	*descriptorSets,
+							VkShaderStageFlags		 stageFlags,
+							const uint32_t			*dynamicOffsets,
+							size_t					 dynamicOffsetCount)
+	{
+		if (context.CmdBindDescriptorSets2)
+		{
+			VkBindDescriptorSetsInfo info = {};
+			info.sType					  = VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO;
+			info.pNext					  = nullptr;
+			info.stageFlags				  = stageFlags;
+			info.layout					  = pipelineLayout;
+			info.firstSet				  = setIndex;
+			info.descriptorSetCount		  = setCount;
+			info.pDescriptorSets		  = descriptorSets;
+			info.dynamicOffsetCount		  = dynamicOffsetCount;
+			info.pDynamicOffsets		  = dynamicOffsets;
+
+			context.CmdBindDescriptorSets2(commandBuffer, &info);
+		}
+		else
+		{
+			context.CmdBindDescriptorSets(commandBuffer,
+										  bindPoint,
+										  pipelineLayout,
+										  setIndex,
+										  setCount,
+										  descriptorSets,
+										  dynamicOffsetCount,
+										  dynamicOffsets);
+		}
+	}
+
 	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName)
 	{
 		void *result = nullptr;

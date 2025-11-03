@@ -303,8 +303,10 @@ namespace Nexus::Graphics
 
 			throw std::runtime_error("Not implemented");
 
-			// m_CubemapResourceSet->WriteCombinedImageSampler(m_Cubemap, m_CubemapSampler, "skybox");
-			m_CommandList->SetResourceSet(m_CubemapResourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_CubemapResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Ref<IDeviceBuffer> vertexBuffer		= m_Cube->GetVertexBuffer();
 			VertexBufferView   vertexBufferView = {};
@@ -422,7 +424,10 @@ namespace Nexus::Graphics
 			modelTransformUniformView.Size				= transformUniformBuffer->GetDescription().SizeInBytes;
 			resourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
 
-			m_CommandList->SetResourceSet(resourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = resourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Ref<IDeviceBuffer> vertexBuffer		= mesh->GetVertexBuffer();
 			VertexBufferView   vertexBufferView = {};

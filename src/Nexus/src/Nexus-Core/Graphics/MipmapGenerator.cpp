@@ -133,7 +133,10 @@ namespace Nexus::Graphics
 			indexBufferView.BufferFormat	   = IndexFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
-			m_CommandList->SetResourceSet(m_ResourceSet);
+			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+			resourceBindingDesc.TargetResourceSet							   = m_ResourceSet;
+			resourceBindingDesc.DynamicOffsets								   = {};
+			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			DrawIndexedDescription drawDesc = {};
 			drawDesc.VertexStart			= 0;

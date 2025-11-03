@@ -13,6 +13,64 @@
 
 namespace Nexus::Graphics
 {
+	static void CreateDynamicOffsetDataAndStageFlags(Pipeline														*pipeline,
+													 std::map<uint32_t, std::vector<uint32_t>>						&offsetData,
+													 std::map<std::string, ResourceSetVk::DynamicOffsetDescription> &memberOffsets,
+													 VkShaderStageFlags												&pipelineStages,
+													 const std::map<std::string, Nexus::Graphics::ShaderResource>	&shaderResources)
+	{
+		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
+
+		struct BindingData
+		{
+			uint32_t	ArraySize	= 0;
+			std::string BindingName = "";
+		};
+
+		// this is a structure that maps set->binding->count
+		std::map<uint32_t, std::map<uint32_t, BindingData>> descriptorMap = {};
+
+		// stores the number of dynamic offsets that need to be stored per descriptor set
+		std::map<uint32_t, size_t> setCounts = {};
+
+		// iterate through all descriptors
+		for (const auto &descriptor : resourceSetDesc.Descriptors)
+		{
+			// retrieve the reflected resource in the shader
+			const ShaderResource &resource = shaderResources.at(descriptor.Name);
+
+			// retrieve the stage flags for this descriptor and store it
+			pipelineStages |= Vk::GetVkShaderStageFlagsFromShaderStages(resource.Stage);
+
+			// if the descriptor is dynamic, we need to work the position of it in the offsets array
+			if (descriptor.Type == ResourceDescriptorType::DynamicUniformBuffer || descriptor.Type == ResourceDescriptorType::DynamicStorageBuffer)
+			{
+				BindingData &bindingData = descriptorMap[resource.Set][resource.Binding];
+				bindingData.BindingName	 = descriptor.Name;
+				bindingData.ArraySize	 = descriptor.CountOrSizeInBytes;
+
+				setCounts[resource.Set] += descriptor.CountOrSizeInBytes;
+			}
+		}
+
+		size_t totalDynamicBindingCount = 0;
+
+		// calculate the correct locations for the dynamic offsets
+		for (const auto &[setIndex, bindings] : descriptorMap)
+		{
+			for (const auto &[bindingIndex, bindingData] : bindings)
+			{
+				ResourceSetVk::DynamicOffsetDescription &vulkanOffsetDesc = memberOffsets[bindingData.BindingName];
+				vulkanOffsetDesc.Set									  = setIndex;
+				vulkanOffsetDesc.Offset									  = totalDynamicBindingCount;
+
+				totalDynamicBindingCount += bindingData.ArraySize;
+			}
+		}
+
+		for (const auto &[setIndex, dynamicOffsetCount] : setCounts) { offsetData[setIndex].resize(dynamicOffsetCount); }
+	}
+
 	ResourceSetVk::ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
 	{
 		const GladVulkanContext &context		= m_Device->GetVulkanContext();
@@ -62,6 +120,7 @@ namespace Nexus::Graphics
 		}
 
 		m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.get(), device);
+		CreateDynamicOffsetDataAndStageFlags(pipeline.get(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources);
 	}
 
 	ResourceSetVk::~ResourceSetVk()
@@ -515,6 +574,43 @@ namespace Nexus::Graphics
 
 		// reset the resource queue
 		m_QueuedResources.Reset();
+	}
+
+	void ResourceSetVk::Bind(const GladVulkanContext							&context,
+							 VkCommandBuffer									 cmd,
+							 PipelineVk											*pipeline,
+							 VkPipelineBindPoint								 bindPoint,
+							 const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets)
+	{
+		// iterate through all dynamic offsets and enter their values into the correct spot in the buffer
+		for (const auto &[descriptorName, dynamicOffsetVector] : dynamicOffsets)
+		{
+			const DynamicOffsetDescription &dynamicOffsetDesc = m_DynamicOffsetMap[descriptorName];
+
+			// maybe this should iterate through each element in the stored list rather than the submitted one to prevent crashes when accessing out
+			// of bounds ????
+			for (size_t dynamicOffsetIndex = 0; dynamicOffsetIndex < dynamicOffsetVector.size(); dynamicOffsetIndex++)
+			{
+				// retrieve the actual dynamic offset and put it into the dynamic offsets buffer at the correct spot
+				uint32_t dynamicOffset															  = dynamicOffsetVector[dynamicOffsetIndex];
+				m_DynamicOffsets[dynamicOffsetDesc.Set][dynamicOffsetDesc.Offset + dynamicOffset] = dynamicOffset;
+			}
+		}
+
+		for (const auto &[setIndex, descriptorSet] : m_DescriptorSets)
+		{
+			std::vector<uint32_t> &dynamicOffsets = m_DynamicOffsets[setIndex];
+			Vk::BindDescriptorSets(context,
+								   cmd,
+								   bindPoint,
+								   pipeline->GetPipelineLayout(),
+								   setIndex,
+								   1,
+								   &descriptorSet,
+								   m_PipelineStages,
+								   dynamicOffsets.data(),
+								   dynamicOffsets.size());
+		}
 	}
 
 	const std::map<uint32_t, VkDescriptorSet> &ResourceSetVk::GetDescriptorSets() const

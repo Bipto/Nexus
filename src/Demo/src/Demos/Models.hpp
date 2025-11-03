@@ -129,7 +129,10 @@ namespace Demos
 
 				resourceSet->Flush();
 
-				m_CommandList->SetResourceSet(resourceSet);
+				Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+				resourceBindingDesc.TargetResourceSet							   = resourceSet;
+				resourceBindingDesc.DynamicOffsets								   = {};
+				m_CommandList->SetResourceSet(resourceBindingDesc);
 
 				Nexus::Graphics::VertexBufferView vertexBufferView = {};
 				vertexBufferView.BufferHandle					   = mesh->GetVertexBuffer();

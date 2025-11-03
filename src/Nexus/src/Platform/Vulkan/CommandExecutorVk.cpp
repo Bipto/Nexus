@@ -304,17 +304,18 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
 		TryStartRendering();
 
 		WeakRef<Pipeline> pl = m_CurrentlyBoundPipeline.lock();
 		if (auto pipeline = pl.lock())
 		{
-			auto			resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
-			Ref<PipelineVk> pipelineVk	  = std::dynamic_pointer_cast<PipelineVk>(pipeline);
-			pipelineVk->SetResourceSet(m_CommandBuffer, resourceSetVk);
-			m_CurrentlyBoundResourceSet = resourceSetVk;
+			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+			pipelineVk->SetResourceSet(m_CommandBuffer, desc);
+
+			Ref<ResourceSetVk> resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+			m_CurrentlyBoundResourceSet	   = resourceSet;
 		}
 	}
 

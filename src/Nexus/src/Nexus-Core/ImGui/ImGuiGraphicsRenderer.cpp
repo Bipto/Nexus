@@ -560,10 +560,12 @@ namespace Nexus::ImGuiUtils
 					auto	 &io  = ImGui::GetIO();
 					glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
 
-					// TODO: Probably could optimise this with push constants
 					auto &descriptorInfo = m_Descriptors.at(drawCmd.TextureId);
-					// descriptorInfo.m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
-					m_CommandList->SetResourceSet(descriptorInfo.m_ResourceSet);
+
+					Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+					resourceBindingDesc.TargetResourceSet							   = descriptorInfo.m_ResourceSet;
+					resourceBindingDesc.DynamicOffsets								   = {};
+					m_CommandList->SetResourceSet(resourceBindingDesc);
 
 					m_CommandList->WritePushConstants("pushConstants", &mvp, sizeof(mvp), 0);
 

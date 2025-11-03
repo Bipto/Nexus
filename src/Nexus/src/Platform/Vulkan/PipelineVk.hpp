@@ -15,8 +15,8 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass)					 = 0;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) = 0;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass)								= 0;
+		virtual void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) = 0;
 
 		const std::map<uint32_t, VkDescriptorSetLayout> &GetDescriptorSetLayouts() const
 		{
@@ -43,12 +43,11 @@ namespace Nexus::Graphics
 	{
 	  public:
 		GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
-		~GraphicsPipelineVk();
+		virtual ~GraphicsPipelineVk();
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
-		VkPipelineLayout						   GetPipelineLayout();
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
+		void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
 
 	  private:
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
@@ -62,11 +61,10 @@ namespace Nexus::Graphics
 	{
 	  public:
 		MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
-		~MeshletPipelineVk();
-		VkPipelineLayout GetPipelineLayout();
+		virtual ~MeshletPipelineVk();
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
+		void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
 
 	  private:
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
@@ -81,8 +79,8 @@ namespace Nexus::Graphics
 	  public:
 		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		virtual ~ComputePipelineVk();
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
+		void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
 
 	  private:
 		VkPipeline		  m_Pipeline	   = {};

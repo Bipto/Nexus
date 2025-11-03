@@ -231,7 +231,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
 		{
@@ -240,7 +240,7 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
 
-		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(command);
+		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(desc.TargetResourceSet);
 		GraphicsDeviceD3D12	 *deviceD3D12	   = (GraphicsDeviceD3D12 *)device;
 
 		const std::vector<ID3D12DescriptorHeap *> &heaps = d3d12ResourceSet->GetDescriptorHeaps();

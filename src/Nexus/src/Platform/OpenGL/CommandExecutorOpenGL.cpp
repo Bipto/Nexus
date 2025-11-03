@@ -393,15 +393,15 @@ namespace Nexus::Graphics
 	#endif
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(Ref<IResourceSet> command, IGraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
-		if (!command)
+		if (!desc.TargetResourceSet)
 		{
 			NX_ERROR("Attempting to update pipeline with invalid resources");
 			return;
 		}
 
-		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
+		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(desc.TargetResourceSet);
 		m_BoundResourceSet				   = resourceSet;
 	}
 
