@@ -4,6 +4,18 @@
 
 namespace Nexus::OpenGL
 {
+	static inline std::string Trim(const std::string &s)
+	{
+		auto begin = std::find_if_not(s.begin(), s.end(), [](unsigned char ch) { return std::isspace(ch); });
+
+		auto end = std::find_if_not(s.rbegin(), s.rend(), [](unsigned char ch) { return std::isspace(ch); }).base();
+
+		if (begin >= end)
+			return {};
+
+		return std::string(begin, end);
+	}
+
 	OpenGLShaderParser::OpenGLShaderParser()
 	{
 	}
@@ -107,22 +119,22 @@ namespace Nexus::OpenGL
 
 		// reflect buffer blocks
 		{
-			std::regex pattern(R"((?:layout\s*\(\s*([^)]+)\s*\)\s*)?((?:\w+\s+)*)(uniform|buffer|shared)\s+(\w+)\s*\{([\s\S]*?)\}\s*(\w+)?\s*;)",
+			std::regex pattern(R"((?:layout\s*\(\s*([^)]+)\s*\)\s*)?((?:\w+\s+)*)(uniform|buffer|shared)\s+(\w+)\s*\{([\s\S]*?)\}\s*([^;]*);)",
 							   std::regex::ECMAScript);
 
 			auto begin = std::sregex_iterator(inputSource.begin(), inputSource.end(), pattern);
 			auto end   = std::sregex_iterator();
 
-			for (auto i = begin; i != end; ++i)
+			for (auto &i = begin; i != end; ++i)
 			{
 				std::smatch match = *i;
 
-				ReflectedShaderBuffer &buffer = reflectionData.Buffers.emplace_back();
-				buffer.LayoutQualifiers		  = match[1];
-				buffer.MemoryQualififers	  = match[2];
-				buffer.StorageQualifier		  = match[3];
-				buffer.BlockName			  = match[4];
-				buffer.InstanceName			  = match[6].matched ? match[6].str() : std::string {};
+				ReflectedShaderBuffer buffer = {};
+				buffer.LayoutQualifiers		 = match[1];
+				buffer.MemoryQualififers	 = match[2];
+				buffer.StorageQualifier		 = match[3];
+				buffer.BlockName			 = match[4];
+				buffer.InstanceName			 = {};
 
 				// extract members
 				{
@@ -142,9 +154,34 @@ namespace Nexus::OpenGL
 						member.ArraySize			  = ExtractArraySize(memberMatch[3]);
 					}
 				}
+
+				// retrieve all instance's of the buffer used in the shader
+				std::string		  instances = match[6];
+				std::stringstream ss(instances);
+				std::string		  instance;
+
+				bool hasInstance = false;
+
+				// iterate through all instance names in the array
+				while (std::getline(ss, instance, ','))
+				{
+					std::string trimmedName = Trim(instance);
+					if (!trimmedName.empty())
+					{
+						buffer.InstanceName = trimmedName;
+						reflectionData.Buffers.push_back(buffer);
+						hasInstance = true;
+					}
+				}
+
+				// if we did not find any instance names, then we need to provide just the block
+				if (!hasInstance)
+				{
+					reflectionData.Buffers.push_back(buffer);
+				}
+
+				return reflectionData;
 			}
 		}
-
-		return reflectionData;
 	}
 }	 // namespace Nexus::OpenGL

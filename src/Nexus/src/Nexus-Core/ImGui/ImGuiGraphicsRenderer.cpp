@@ -160,7 +160,7 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.DebugName = "ImGui Pipeline";
 
-		pipelineDesc.ResourceDescription.Descriptors = {Graphics::ResourceDescriptor {.Name = "pushConstants",
+		pipelineDesc.ResourceDescription.Descriptors = {Graphics::ResourceDescriptor {.Name = "PushConstants",
 																					  .Type = Graphics::ResourceDescriptorType::PushConstants,
 																					  .CountOrSizeInBytes = sizeof(glm::mat4)},
 														{Graphics::ResourceDescriptor {.Name = "u_Texture",
@@ -567,7 +567,7 @@ namespace Nexus::ImGuiUtils
 					resourceBindingDesc.DynamicOffsets								   = {};
 					m_CommandList->SetResourceSet(resourceBindingDesc);
 
-					m_CommandList->WritePushConstants("pushConstants", &mvp, sizeof(mvp), 0);
+					m_CommandList->WritePushConstants("PushConstants", &mvp, sizeof(mvp), 0);
 
 					Graphics::DrawIndexedDescription drawDesc = {};
 					drawDesc.VertexStart					  = drawCmd.VtxOffset + vtxOffset;

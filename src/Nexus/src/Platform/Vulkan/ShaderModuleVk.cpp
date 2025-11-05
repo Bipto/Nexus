@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 		return m_ShaderModule;
 	}
 
-	void ExtractAttribute(Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler)
+	static void ExtractAttribute(Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler)
 	{
 		attribute.Binding = compiler.get_decoration(spirvResource.id, spv::DecorationLocation);
 		attribute.Name	  = spirvResource.name;
@@ -341,17 +341,18 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractResource(ReflectedResource			 &reflectedResource,
-						 const spirv_cross::Resource &spirvResource,
-						 spirv_cross::Compiler		 &compiler,
-						 ReflectedShaderDataType	  dataType)
+	static void ExtractResource(ReflectedResource			&reflectedResource,
+								const spirv_cross::Resource &spirvResource,
+								spirv_cross::Compiler		&compiler,
+								ReflectedShaderDataType		 dataType)
 	{
 		uint32_t					 set	 = compiler.get_decoration(spirvResource.id, spv::DecorationDescriptorSet);
 		uint32_t					 binding = compiler.get_decoration(spirvResource.id, spv::DecorationBinding);
 		const spirv_cross::SPIRType &type	 = compiler.get_type(spirvResource.type_id);
 
 		reflectedResource.Type			= dataType;
-		reflectedResource.Name			= spirvResource.name;
+		reflectedResource.BlockName		= compiler.get_name(spirvResource.base_type_id);
+		reflectedResource.InstanceName	= spirvResource.name;
 		reflectedResource.DescriptorSet = set;
 		reflectedResource.BindingPoint	= binding;
 

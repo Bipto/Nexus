@@ -63,6 +63,17 @@ namespace Nexus::Graphics
 		StorageTexelBuffer
 	};
 
+	inline bool IsBuffer(ResourceDescriptorType type)
+	{
+		bool isBuffer = type == Graphics::ResourceDescriptorType::UniformBuffer || type == Graphics::ResourceDescriptorType::DynamicUniformBuffer ||
+						type == Graphics::ResourceDescriptorType::InlineUniformBlock || type == Graphics::ResourceDescriptorType::StorageBuffer ||
+						type == Graphics::ResourceDescriptorType::DynamicStorageBuffer ||
+						type == Graphics::ResourceDescriptorType::UniformTexelBuffer ||
+						type == Graphics::ResourceDescriptorType::StorageTexelBuffer || type == Graphics::ResourceDescriptorType::PushConstants;
+
+		return isBuffer;
+	}
+
 	struct ResourceDescriptor
 	{
 		std::string			   Name				  = "Resource";
@@ -82,7 +93,7 @@ namespace Nexus::Graphics
 	{
 		std::map<std::string, std::vector<UniformBufferView>>			UniformBuffers		   = {};
 		std::map<std::string, std::vector<UniformBufferView>>			DynamicUniformBuffers  = {};
-		std::map<std::string, std::vector<InlineBlock>>					InlineUniformBlocks	   = {};
+		std::map<std::string, InlineBlock>								InlineUniformBlocks	   = {};
 		std::map<std::string, std::vector<StorageBufferView>>			StorageBuffers		   = {};
 		std::map<std::string, std::vector<StorageBufferView>>			DynamicStorageBuffers  = {};
 		std::map<std::string, std::vector<StorageImageView>>			StorageImages		   = {};
@@ -121,7 +132,6 @@ namespace Nexus::Graphics
 		// arrays
 		void WriteUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count);
 		void WriteDynamicUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count);
-		void WriteInlineUniformBlocks(const void *data, size_t sizeInBytes, const std::string &name, size_t startElement, size_t count);
 		void WriteStorageBuffers(const StorageBufferView *views, const std::string &name, size_t startElement, size_t count);
 		void WriteDynamicStorageBuffers(const StorageBufferView *storageBuffers, const std::string &name, size_t startElement, size_t count);
 		void WriteStorageImages(const StorageImageView *views, const std::string &name, size_t startElement, size_t count);

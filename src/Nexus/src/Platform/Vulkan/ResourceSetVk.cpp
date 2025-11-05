@@ -270,7 +270,7 @@ namespace Nexus::Graphics
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
-					GenerateWriteBufferDescriptor(name,
+					GenerateWriteBufferDescriptor(resource.Name,
 												  buffersToWrite,
 												  descriptorSetWrites,
 												  buffer->GetVkBuffer(),
@@ -296,7 +296,7 @@ namespace Nexus::Graphics
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
-					GenerateWriteBufferDescriptor(name,
+					GenerateWriteBufferDescriptor(resource.Name,
 												  buffersToWrite,
 												  descriptorSetWrites,
 												  buffer->GetVkBuffer(),
@@ -313,24 +313,20 @@ namespace Nexus::Graphics
 		}
 
 		// inline uniform block
-		for (const auto &[name, inlineDatas] : m_QueuedResources.InlineUniformBlocks)
+		for (const auto &[name, inlineData] : m_QueuedResources.InlineUniformBlocks)
 		{
-			for (size_t arrayIndex = 0; arrayIndex < inlineDatas.size(); arrayIndex++)
-			{
-				const auto			 &inlineData = inlineDatas[arrayIndex];
-				const ShaderResource &resource	 = m_ShaderResources.at(name);
+			const ShaderResource &resource = m_ShaderResources.at(name);
 
-				GenerateWriteInlineUniformBlockDescriptor(name,
-														  inlineBlocksToWrite,
-														  descriptorSetWrites,
-														  inlineData.data(),
-														  inlineData.size(),
-														  resource.Binding,
-														  arrayIndex,
-														  m_DescriptorSets.at(resource.Set));
+			GenerateWriteInlineUniformBlockDescriptor(resource.Name,
+													  inlineBlocksToWrite,
+													  descriptorSetWrites,
+													  inlineData.data(),
+													  inlineData.size(),
+													  resource.Binding,
+													  0,
+													  m_DescriptorSets.at(resource.Set));
 
-				m_BoundResources.InlineUniformBlocks[name][arrayIndex] = inlineData;
-			}
+			m_BoundResources.InlineUniformBlocks[name] = inlineData;
 		}
 
 		// storage buffers
@@ -343,7 +339,7 @@ namespace Nexus::Graphics
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
-					GenerateWriteBufferDescriptor(name,
+					GenerateWriteBufferDescriptor(resource.Name,
 												  buffersToWrite,
 												  descriptorSetWrites,
 												  buffer->GetVkBuffer(),
@@ -369,7 +365,7 @@ namespace Nexus::Graphics
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
-					GenerateWriteBufferDescriptor(name,
+					GenerateWriteBufferDescriptor(resource.Name,
 												  buffersToWrite,
 												  descriptorSetWrites,
 												  buffer->GetVkBuffer(),

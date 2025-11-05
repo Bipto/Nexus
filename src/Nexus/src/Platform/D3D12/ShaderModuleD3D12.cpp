@@ -205,18 +205,22 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractResource(ShaderReflectionData &reflectionData, D3D12_SHADER_INPUT_BIND_DESC resource)
+	void ExtractResource(ShaderReflectionData						   &reflectionData,
+						 D3D12_SHADER_INPUT_BIND_DESC					resource,
+						 Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection)
 	{
 		auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
 
-		ReflectedResource &reflectedResource	= reflectionData.Resources.emplace_back();
-		reflectedResource.Type					= dataType;
-		reflectedResource.Name					= resource.Name;
+		ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+		reflectedResource.Type				 = dataType;
+		// reflectedResource.BlockName				= resource.Name;
 		reflectedResource.StorageResourceAccess = storageAccess;
 		reflectedResource.Dimension				= ExtractDimension(resource.Dimension);
 		reflectedResource.BindingPoint			= resource.BindPoint;
 		reflectedResource.BindingCount			= resource.BindCount;
 		reflectedResource.RegisterSpace			= resource.Space;
+		reflectedResource.InstanceName			= resource.Name;
+		NX_VALIDATE(0, "Not implemented");
 	}
 
 	void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult)
@@ -255,7 +259,7 @@ namespace Nexus::Graphics
 		{
 			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
 			shaderReflection->GetResourceBindingDesc(i, &bindDesc);
-			ExtractResource(m_ReflectionData, bindDesc);
+			ExtractResource(m_ReflectionData, bindDesc, shaderReflection);
 		}
 	}
 }	 // namespace Nexus::Graphics

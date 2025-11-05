@@ -56,10 +56,10 @@ namespace Nexus::Graphics
 		return m_Handle;
 	}
 
-	ReflectedShaderDataType StringToReflectedShaderDataType(const std::string	  &type,
-															ResourceDimension	  &dimension,
-															StorageResourceAccess &storageResourceAccess,
-															const std::string	  &memoryQualifier)
+	static ReflectedShaderDataType StringToReflectedShaderDataType(const std::string	 &type,
+																   ResourceDimension	 &dimension,
+																   StorageResourceAccess &storageResourceAccess,
+																   const std::string	 &memoryQualifier)
 	{
 		dimension			  = ResourceDimension::NoDimension;
 		storageResourceAccess = StorageResourceAccess::NoAccess;
@@ -387,7 +387,7 @@ namespace Nexus::Graphics
 		throw std::runtime_error("Failed to find a valid type");
 	}
 
-	std::optional<uint32_t> ExtractUniformBindingLocation(const std::string &input)
+	static std::optional<uint32_t> ExtractUniformBindingLocation(const std::string &input)
 	{
 		std::regex pattern(R"(location\s*=\s*(\d+))");
 
@@ -401,7 +401,7 @@ namespace Nexus::Graphics
 		return {};
 	}
 
-	std::optional<uint32_t> ExtractBufferBindingLocation(const std::string &input)
+	static std::optional<uint32_t> ExtractBufferBindingLocation(const std::string &input)
 	{
 		std::regex pattern(R"(binding\s*=\s*(\d+))");
 
@@ -415,7 +415,7 @@ namespace Nexus::Graphics
 		return {};
 	}
 
-	ReflectedResource ExtractResourceType(const OpenGL::ReflectedShaderResource &uniform)
+	static ReflectedResource ExtractResourceType(const OpenGL::ReflectedShaderResource &uniform)
 	{
 		ResourceDimension		dimension			  = {};
 		StorageResourceAccess	storageResourceAccess = {};
@@ -425,7 +425,7 @@ namespace Nexus::Graphics
 		reflectedResource.Type					= type;
 		reflectedResource.Dimension				= dimension;
 		reflectedResource.StorageResourceAccess = storageResourceAccess;
-		reflectedResource.Name					= uniform.Name;
+		reflectedResource.InstanceName			= uniform.Name;
 
 		std::optional<uint32_t> bindingPoint = ExtractUniformBindingLocation(uniform.LayoutQualififers);
 		if (bindingPoint)
@@ -450,7 +450,7 @@ namespace Nexus::Graphics
 		return reflectedResource;
 	}
 
-	ReflectedResource ExtractBuffer(const OpenGL::ReflectedShaderBuffer &reflectedBuffer)
+	static ReflectedResource ExtractBuffer(const OpenGL::ReflectedShaderBuffer &reflectedBuffer)
 	{
 		ResourceDimension		dimension			  = {};
 		StorageResourceAccess	storageResourceAccess = {};
@@ -461,7 +461,8 @@ namespace Nexus::Graphics
 		reflectedResource.Type					= type;
 		reflectedResource.Dimension				= dimension;
 		reflectedResource.StorageResourceAccess = storageResourceAccess;
-		reflectedResource.Name					= reflectedBuffer.InstanceName.empty() ? reflectedBuffer.InstanceName : reflectedBuffer.BlockName;
+		reflectedResource.InstanceName			= reflectedBuffer.InstanceName;
+		reflectedResource.BlockName				= reflectedBuffer.BlockName;
 
 		std::optional<uint32_t> bindingPoint = ExtractBufferBindingLocation(reflectedBuffer.LayoutQualifiers);
 		if (bindingPoint)
@@ -478,7 +479,7 @@ namespace Nexus::Graphics
 		return reflectedResource;
 	}
 
-	ShaderReflectionData ExtractReflectionData(const OpenGL::ReflectedShaderResources &data)
+	static ShaderReflectionData ExtractReflectionData(const OpenGL::ReflectedShaderResources &data)
 	{
 		ShaderReflectionData reflectionData = {};
 
@@ -490,7 +491,7 @@ namespace Nexus::Graphics
 				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
 
 				Attribute &attribute = reflectionData.Inputs.emplace_back();
-				attribute.Name		 = reflectedResource.Name;
+				attribute.Name		 = reflectedResource.InstanceName;
 				attribute.Binding	 = reflectedResource.BindingPoint;
 				attribute.Type		 = reflectedResource.Type;
 			}
@@ -500,7 +501,7 @@ namespace Nexus::Graphics
 				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
 
 				Attribute &attribute = reflectionData.Outputs.emplace_back();
-				attribute.Name		 = reflectedResource.Name;
+				attribute.Name		 = reflectedResource.InstanceName;
 				attribute.Binding	 = reflectedResource.BindingPoint;
 				attribute.Type		 = reflectedResource.Type;
 			}

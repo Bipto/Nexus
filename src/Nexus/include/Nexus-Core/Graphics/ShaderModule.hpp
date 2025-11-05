@@ -10,7 +10,8 @@ namespace Nexus::Graphics
 	struct ReflectedResource
 	{
 		ReflectedShaderDataType Type				  = ReflectedShaderDataType::UniformBuffer;
-		std::string				Name				  = {};
+		std::string				BlockName			  = {};
+		std::string				InstanceName		  = {};
 		ResourceDimension		Dimension			  = ResourceDimension::NoDimension;
 		StorageResourceAccess	StorageResourceAccess = StorageResourceAccess::NoAccess;
 		uint32_t				DescriptorSet		  = 0;

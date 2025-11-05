@@ -1660,7 +1660,7 @@ namespace Nexus::Vk
 
 			for (const auto &descriptor : resourceSetDesc.Descriptors)
 			{
-				if (descriptor.Name == shaderResourceName)
+				if (descriptor.Name == shaderResource.Name)
 				{
 					NX_VALIDATE(
 						IsCompatibleResource(descriptor.Type, shaderResource.Type, shaderResource.ResourceCount, descriptor.CountOrSizeInBytes),

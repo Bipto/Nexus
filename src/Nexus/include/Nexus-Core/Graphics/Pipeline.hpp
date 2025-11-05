@@ -223,7 +223,7 @@ namespace Nexus::Graphics
 		}
 
 		output.Access		 = resource.StorageResourceAccess;
-		output.Name			 = resource.Name;
+		output.Name			 = !resource.BlockName.empty() ? resource.BlockName : resource.InstanceName;
 		output.Set			 = resource.DescriptorSet;
 		output.Binding		 = resource.BindingPoint;
 		output.ResourceCount = resource.BindingCount;
@@ -255,9 +255,11 @@ namespace Nexus::Graphics
 				ShaderReflectionData reflectionData = module->Reflect();
 				for (const auto &resource : reflectionData.Resources)
 				{
-					if (requiredResources.find(resource.Name) != requiredResources.end())
+					std::string resourceName = !resource.BlockName.empty() ? resource.BlockName : resource.InstanceName;
+
+					if (requiredResources.find(resourceName) != requiredResources.end())
 					{
-						ShaderResource &requiredResource = requiredResources.at(resource.Name);
+						ShaderResource &requiredResource = requiredResources.at(resourceName);
 						ShaderResource	newResource		 = ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
 
 						if (newResource == requiredResource)
@@ -269,8 +271,8 @@ namespace Nexus::Graphics
 					}
 					else
 					{
-						ShaderResource newResource		 = ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
-						requiredResources[resource.Name] = newResource;
+						ShaderResource newResource		= ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
+						requiredResources[resourceName] = newResource;
 					}
 				}
 			}

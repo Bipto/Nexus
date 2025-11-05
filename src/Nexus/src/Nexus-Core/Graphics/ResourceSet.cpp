@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 	{
 		for (auto &[name, buffers] : UniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
 		for (auto &[name, buffers] : DynamicUniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
-		for (auto &[name, buffers] : InlineUniformBlocks) { std::fill(buffers.begin(), buffers.end(), Graphics::InlineBlock {}); }
+		for (auto &[name, buffers] : InlineUniformBlocks) { std::fill(buffers.begin(), buffers.end(), 0); }
 		for (auto &[name, buffers] : StorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
 		for (auto &[name, buffers] : DynamicStorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
 		for (auto &[name, images] : StorageImages) { std::fill(images.begin(), images.end(), Graphics::StorageImageView {}); }
@@ -134,7 +134,9 @@ namespace Nexus::Graphics
 
 	void IResourceSet::WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)
 	{
-		WriteInlineUniformBlocks(data, sizeInBytes, name, 0, 1);
+		auto &inlineBlock = m_QueuedResources.InlineUniformBlocks[name];
+		inlineBlock.resize(sizeInBytes);
+		memcpy(inlineBlock.data(), data, sizeInBytes);
 	}
 
 	void IResourceSet::WriteStorageBuffer(const StorageBufferView &views, const std::string &name)
@@ -197,17 +199,6 @@ namespace Nexus::Graphics
 		{
 			m_QueuedResources.DynamicUniformBuffers[name][index] = *uniformBuffers;
 			uniformBuffers++;
-		}
-	}
-
-	void IResourceSet::WriteInlineUniformBlocks(const void *data, size_t sizeInBytes, const std::string &name, size_t startElement, size_t count)
-	{
-		for (size_t index = startElement; index < startElement + count; index++)
-		{
-			auto		&inlineBlocks = m_QueuedResources.InlineUniformBlocks[name];
-			InlineBlock &storage	  = inlineBlocks[index];
-			storage.resize(sizeInBytes);
-			memcpy(storage.data(), data, sizeInBytes);
 		}
 	}
 

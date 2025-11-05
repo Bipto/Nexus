@@ -11,6 +11,7 @@
 	#include "SamplerOpenGL.hpp"
 	#include "ShaderModuleOpenGL.hpp"
 	#include "SwapchainOpenGL.hpp"
+	#include "TexelBufferOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
 	#include "TextureViewOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
@@ -193,7 +194,7 @@ namespace Nexus::Graphics
 	Ref<IResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ResourceSetOpenGL>(pipeline);
+		return CreateRef<ResourceSetOpenGL>(pipeline, this);
 	}
 
 	Ref<IFramebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)

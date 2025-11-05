@@ -525,6 +525,9 @@ namespace Nexus::Graphics
 				copyDesc.Extent							  = {size.X, size.Y, 1};
 
 				GL::CopyTextureToTexture(copyDesc, context);
+
+				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.Destination);
+				buffer->MarkDirty();
 			});
 	}
 
@@ -582,6 +585,9 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
+
+		Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
+		texture->MarkDirty();
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
@@ -624,6 +630,9 @@ namespace Nexus::Graphics
 					GL::CopyTextureToTexture(copyDesc, context);
 				}
 			});
+
+		Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
+		texture->MarkDirty();
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
@@ -694,6 +703,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
+		if (m_BoundResourceSet)
+		{
+			m_BoundResourceSet->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size());
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
@@ -836,7 +849,10 @@ namespace Nexus::Graphics
 												access,
 												format));
 
-				texture->MarkDirty();
+				if (storageImageView.Access == ShaderAccess::ReadWrite)
+				{
+					texture->MarkDirty();
+				}
 			}
 		}
 
