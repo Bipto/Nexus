@@ -306,7 +306,9 @@ namespace Nexus::Graphics
 		// dynamic uniform buffers
 		for (const auto &[name, views] : m_BoundResources.DynamicUniformBuffers)
 		{
-			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			const std::vector<int32_t>	&bindingPoints	= m_BindingLocations.at(name);
+			const std::vector<uint32_t> &dynamicOffsets = bindingDesc.DynamicOffsets.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
@@ -314,10 +316,16 @@ namespace Nexus::Graphics
 				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
 				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
 
+				uint32_t dynamicOffset = 0;
+				if (arrayIndex < dynamicOffsets.size())
+				{
+					dynamicOffset = dynamicOffsets[arrayIndex];
+				}
+
 				if (buffer && bindingIndex != -1)
 				{
 					context.UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
-					context.BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), view.Offset, view.Size);
+					context.BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), dynamicOffset, view.Size);
 					uniformBufferBindingPoint++;
 				}
 			}
@@ -348,8 +356,8 @@ namespace Nexus::Graphics
 
 				if (buffer && bindingIndex != -1)
 				{
-					context.UniformBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
-					context.BindBufferRange(GL_SHADER_STORAGE_BLOCK, storageBufferBindingPoint, buffer->GetHandle(), view.Offset, view.SizeInBytes);
+					context.ShaderStorageBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
+					context.BindBufferRange(GL_SHADER_STORAGE_BUFFER, storageBufferBindingPoint, buffer->GetHandle(), view.Offset, view.SizeInBytes);
 					storageBufferBindingPoint++;
 				}
 			}
@@ -358,17 +366,29 @@ namespace Nexus::Graphics
 		// dynamic storage buffers
 		for (const auto &[name, views] : m_BoundResources.DynamicStorageBuffers)
 		{
-			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			const std::vector<int32_t>	&bindingPoints	= m_BindingLocations.at(name);
+			const std::vector<uint32_t> &dynamicOffsets = bindingDesc.DynamicOffsets.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto			   &view		 = views[arrayIndex];
 				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
 				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
 
+				uint32_t dynamicOffset = 0;
+				if (arrayIndex < dynamicOffsets.size())
+				{
+					dynamicOffset = dynamicOffsets[arrayIndex];
+				}
+
 				if (buffer && bindingIndex != -1)
 				{
-					context.UniformBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
-					context.BindBufferRange(GL_SHADER_STORAGE_BLOCK, storageBufferBindingPoint, buffer->GetHandle(), view.Offset, view.SizeInBytes);
+					context.ShaderStorageBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
+					context.BindBufferRange(GL_SHADER_STORAGE_BUFFER,
+											storageBufferBindingPoint,
+											buffer->GetHandle(),
+											dynamicOffset,
+											view.SizeInBytes);
 					storageBufferBindingPoint++;
 				}
 			}
