@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
-		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
+		void BindResourceSet(const GladGLContext &context);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,
 									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
 									std::optional<Nexus::Graphics::IndexBufferView>											indexBuffer,
@@ -66,11 +66,11 @@ namespace Nexus::Graphics
 									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
-		std::optional<Ref<Pipeline>>				   m_CurrentlyBoundPipeline		 = {};
-		Ref<IFramebuffer>							   m_CurrentRenderTarget		 = {};
-		std::map<uint32_t, VertexBufferView>		   m_CurrentlyBoundVertexBuffers = {};
-		std::optional<IndexBufferView>				   m_BoundIndexBuffer			 = {};
-		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL> m_BoundResourceSet			 = {};
+		std::optional<Ref<Pipeline>>				 m_CurrentlyBoundPipeline	   = {};
+		Ref<IFramebuffer>							 m_CurrentRenderTarget		   = {};
+		std::map<uint32_t, VertexBufferView>		 m_CurrentlyBoundVertexBuffers = {};
+		std::optional<IndexBufferView>				 m_BoundIndexBuffer			   = {};
+		std::optional<ResourceSetBindingDescription> m_BoundResourceSet			   = {};
 	};
 }	 // namespace Nexus::Graphics
 

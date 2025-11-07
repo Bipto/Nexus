@@ -21,6 +21,9 @@ namespace Nexus::Graphics
 					// the sampler must have been bound at least once to name it
 					context.BindSampler(0, m_Handle);
 					context.ObjectLabelKHR(GL_SAMPLER, m_Handle, -1, spec.DebugName.c_str());
+
+					uint32_t lodRange = spec.MaximumLOD - spec.MinimumLOD;
+					Setup(lodRange != 0, context);
 				}
 			});
 	}
@@ -81,15 +84,10 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void SamplerOpenGL::Bind(uint32_t slot, bool hasMips)
+	void SamplerOpenGL::Bind(uint32_t slot)
 	{
 		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
-		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context)
-			{
-				glCall(context.BindSampler(slot, m_Handle));
-				Setup(hasMips, context);
-			});
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { glCall(context.BindSampler(slot, m_Handle)); });
 	}
 }	 // namespace Nexus::Graphics
 

@@ -1202,7 +1202,8 @@ namespace Nexus::GL
 
 		if (command.BufferTextureCopy.TextureOffset.Z > 1)
 		{
-			NX_VALIDATE(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
+			const Graphics::TextureDescription &textureDesc = texture->GetDescription();
+			NX_VALIDATE(textureDesc.Type == Graphics::TextureType::Texture3D || textureDesc.Type == Graphics::TextureType::TextureCube,
 						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
@@ -1299,7 +1300,8 @@ namespace Nexus::GL
 
 		if (command.BufferTextureCopy.TextureOffset.Z > 1)
 		{
-			NX_VALIDATE(texture->GetDescription().Type == Graphics::TextureType::Texture3D,
+			const Graphics::TextureDescription &textureDesc = texture->GetDescription();
+			NX_VALIDATE(textureDesc.Type == Graphics::TextureType::Texture3D || textureDesc.Type == Graphics::TextureType::TextureCube,
 						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 

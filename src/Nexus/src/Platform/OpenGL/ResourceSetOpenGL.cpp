@@ -28,23 +28,46 @@ namespace Nexus::Graphics
 
 					if (isUniformBuffer)
 					{
-						if (descriptor.Type != ResourceDescriptorType::PushConstants && descriptor.Type != ResourceDescriptorType::InlineUniformBlock)
+						if (descriptor.CountOrSizeInBytes == 1 || descriptor.Type == ResourceDescriptorType::PushConstants ||
+							descriptor.Type == ResourceDescriptorType::InlineUniformBlock)
 						{
-							NX_VALIDATE(descriptor.CountOrSizeInBytes == 1, "OpenGL backend does not support uniform buffer arrays");
+							int32_t location = context.GetUniformBlockIndex(pipelineGL->GetShaderHandle(), descriptor.Name.c_str());
+							m_BindingLocations[descriptor.Name] = {location};
 						}
+						else
+						{
+							for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
+							{
+								std::stringstream ss;
+								ss << descriptor.Name << "[" << std::to_string(i) << "]";
 
-						int32_t location					= context.GetUniformBlockIndex(pipelineGL->GetShaderHandle(), descriptor.Name.c_str());
-						m_BindingLocations[descriptor.Name] = {location};
+								int32_t location = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
+								m_BindingLocations[descriptor.Name].push_back(location);
+							}
+						}
 					}
 					else if (isStorageBuffer)
 					{
-						NX_VALIDATE(descriptor.CountOrSizeInBytes == 1, "OpenGL backend does not support storage buffer arrays");
-
 						if (context.GetProgramResourceIndex)
 						{
-							int32_t location =
-								context.GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, descriptor.Name.c_str());
-							m_BindingLocations[descriptor.Name] = {location};
+							if (descriptor.CountOrSizeInBytes == 1)
+							{
+								int32_t location =
+									context.GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, descriptor.Name.c_str());
+								m_BindingLocations[descriptor.Name] = {location};
+							}
+							else
+							{
+								for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
+								{
+									std::stringstream ss;
+									ss << descriptor.Name << "[" << std::to_string(i) << "]";
+
+									int32_t location =
+										context.GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, ss.str().c_str());
+									m_BindingLocations[descriptor.Name].push_back(location);
+								}
+							}
 						}
 					}
 					else
@@ -59,9 +82,7 @@ namespace Nexus::Graphics
 							for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
 							{
 								std::stringstream ss;
-								ss << descriptor.Name << "[";
-								ss << std::to_string(i);
-								ss << "]";
+								ss << descriptor.Name << "[" << std::to_string(i) << "]";
 
 								int32_t location = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
 								m_BindingLocations[descriptor.Name].push_back(location);
@@ -244,8 +265,240 @@ namespace Nexus::Graphics
 		m_QueuedResources.Reset();
 	}
 
-	void ResourceSetOpenGL::Bind(const ResourceSetBindingDescription &bindingDesc)
+	void ResourceSetOpenGL::Bind(const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle, const GladGLContext &context)
 	{
+		uint32_t uniformBufferBindingPoint = 0;
+		uint32_t storageBufferBindingPoint = 0;
+
+		// pusg constants
+		for (const auto &[name, buffer] : m_EmulatedPushConstants)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			int32_t						bindingIndex  = bindingPoints[0];
+			if (bindingIndex != -1)
+			{
+				context.UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
+				context.BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), 0, buffer->GetSizeInBytes());
+				uniformBufferBindingPoint++;
+			}
+		}
+
+		// uniform buffers
+		for (const auto &[name, views] : m_BoundResources.UniformBuffers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
+			{
+				const auto &view = views[arrayIndex];
+
+				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+
+				if (buffer && bindingIndex != -1)
+				{
+					context.UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
+					context.BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), view.Offset, view.Size);
+					uniformBufferBindingPoint++;
+				}
+			}
+		}
+
+		// dynamic uniform buffers
+		for (const auto &[name, views] : m_BoundResources.DynamicUniformBuffers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
+			{
+				const auto &view = views[arrayIndex];
+
+				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+
+				if (buffer && bindingIndex != -1)
+				{
+					context.UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
+					context.BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), view.Offset, view.Size);
+					uniformBufferBindingPoint++;
+				}
+			}
+		}
+		// inline uniform block
+		for (const auto &[name, uniformBuffer] : m_EmulatedInlineUniformBlocks)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			int32_t						bindingIndex  = bindingPoints[0];
+			if (bindingIndex != -1)
+			{
+				context.UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
+				context.BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, uniformBuffer->GetHandle(), 0, uniformBuffer->GetSizeInBytes());
+				uniformBufferBindingPoint++;
+			}
+		}
+
+		// storage buffers
+		for (const auto &[name, views] : m_BoundResources.StorageBuffers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
+			{
+				const auto &view = views[arrayIndex];
+
+				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+
+				if (buffer && bindingIndex != -1)
+				{
+					context.UniformBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
+					context.BindBufferRange(GL_SHADER_STORAGE_BLOCK, storageBufferBindingPoint, buffer->GetHandle(), view.Offset, view.SizeInBytes);
+					storageBufferBindingPoint++;
+				}
+			}
+		}
+
+		// dynamic storage buffers
+		for (const auto &[name, views] : m_BoundResources.DynamicStorageBuffers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
+			{
+				const auto			   &view		 = views[arrayIndex];
+				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+
+				if (buffer && bindingIndex != -1)
+				{
+					context.UniformBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
+					context.BindBufferRange(GL_SHADER_STORAGE_BLOCK, storageBufferBindingPoint, buffer->GetHandle(), view.Offset, view.SizeInBytes);
+					storageBufferBindingPoint++;
+				}
+			}
+		}
+
+		// storage images
+		for (const auto &[name, storageImages] : m_BoundResources.StorageImages)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
+			{
+				const auto		  &storageImage = storageImages[arrayIndex];
+				int32_t			   bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<TextureOpenGL> texture		= std::dynamic_pointer_cast<TextureOpenGL>(storageImage.TextureHandle);
+
+				if (texture && bindingIndex != -1)
+				{
+					GLenum format	 = GL::GetSizedInternalFormat(storageImage.TextureHandle->GetDescription().Format);
+					GLenum access	 = GL::GetAccessMask(storageImage.Access);
+					bool   isLayered = storageImage.ArrayLayer != 0;
+
+					context.BindImageTexture(bindingIndex,
+											 texture->GetHandle(),
+											 storageImage.MipLevel,
+											 isLayered ? GL_TRUE : GL_FALSE,
+											 storageImage.ArrayLayer,
+											 access,
+											 format);
+
+					if (storageImage.Access == ShaderAccess::ReadWrite)
+					{
+						texture->MarkDirty();
+					}
+				}
+			}
+		}
+
+		// combined image samplers
+		for (const auto &[name, combinedImageSamplers] : m_BoundResources.CombinedImageSamplers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+
+			for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size(); arrayIndex++)
+			{
+				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
+				int32_t		bindingIndex		 = bindingPoints.at(arrayIndex);
+
+				Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture);
+				Ref<SamplerOpenGL>	   sampler	   = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler);
+
+				if (textureView && sampler && bindingIndex != -1)
+				{
+					const TextureViewDescription &viewDesc = textureView->GetDescription();
+					textureView->Bind(bindingIndex);
+					sampler->Bind(bindingIndex);
+				}
+			}
+		}
+
+		// sampled images
+		for (const auto &[name, sampledImages] : m_BoundResources.SampledImages)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+
+			for (size_t arrayIndex = 0; arrayIndex < sampledImages.size(); arrayIndex++)
+			{
+				const auto			  &sampledImage = sampledImages[arrayIndex];
+				int32_t				   bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<TextureViewOpenGL> textureView	= std::dynamic_pointer_cast<TextureViewOpenGL>(sampledImage);
+
+				if (textureView && bindingIndex != -1)
+				{
+					textureView->Bind(bindingIndex);
+				}
+			}
+		}
+
+		// samplers
+		for (const auto &[name, samplers] : m_BoundResources.Samplers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+
+			for (size_t arrayIndex = 0; arrayIndex < samplers.size(); arrayIndex++)
+			{
+				const auto		  &sampler		= samplers[arrayIndex];
+				int32_t			   bindingIndex = bindingPoints.at(arrayIndex);
+				Ref<SamplerOpenGL> samplerGL	= std::dynamic_pointer_cast<SamplerOpenGL>(sampler);
+
+				if (samplerGL && bindingIndex != -1)
+				{
+					samplerGL->Bind(bindingIndex);
+				}
+			}
+		}
+
+		// uniform texel buffers
+		for (const auto &[name, texelBuffers] : m_BoundResources.UniformTexelBuffers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+
+			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
+			{
+				const auto			  &texelBuffer	 = texelBuffers[arrayIndex];
+				int32_t				   bindingIndex	 = bindingPoints.at(arrayIndex);
+				Ref<TexelBufferOpenGL> texelBufferGL = std::dynamic_pointer_cast<TexelBufferOpenGL>(texelBuffer);
+
+				if (texelBufferGL && bindingIndex != -1)
+				{
+					texelBufferGL->Bind(bindingIndex);
+				}
+			}
+		}
+
+		// storage texel buffers
+		for (const auto &[name, texelBuffers] : m_BoundResources.StorageTexelBuffers)
+		{
+			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
+
+			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
+			{
+				const auto			  &texelBuffer	 = texelBuffers[arrayIndex];
+				int32_t				   bindingIndex	 = bindingPoints.at(arrayIndex);
+				Ref<TexelBufferOpenGL> texelBufferGL = std::dynamic_pointer_cast<TexelBufferOpenGL>(texelBuffer);
+
+				if (texelBufferGL && bindingIndex != -1)
+				{
+					texelBufferGL->Bind(bindingIndex);
+				}
+			}
+		}
 	}
 
 	void ResourceSetOpenGL::SetPushConstants(const std::string &name, const void *data, size_t offset, size_t size)

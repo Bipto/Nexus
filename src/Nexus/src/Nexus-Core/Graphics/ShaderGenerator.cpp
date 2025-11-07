@@ -87,17 +87,9 @@ namespace Nexus::Graphics
 		auto					shaderType	   = GetTypeOfShader(options.Stage);
 		shaderc::CompileOptions compileOptions = {};
 
-		// disables the generation of code using demote instead of discard
-		if (options.OutputFormat == Graphics::ShaderLanguage::GLSL || options.OutputFormat == Graphics::ShaderLanguage::GLSLES)
-		{
-			compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
-			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
-		}
-		else
-		{
-			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
-		}
+		// this means the standard of GLSL used in the written shader, not the output
+		compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+		compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
 
 		compileOptions.SetGenerateDebugInfo();
 

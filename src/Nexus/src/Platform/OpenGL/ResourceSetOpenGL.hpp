@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 		ResourceSetOpenGL(Ref<Pipeline> pipeline, GraphicsDeviceOpenGL *device);
 		void Flush() final;
 
-		void Bind(const ResourceSetBindingDescription &bindingDesc);
+		void Bind(const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle, const GladGLContext &context);
 		void SetPushConstants(const std::string &name, const void *data, size_t offset, size_t size);
 
 	  private:

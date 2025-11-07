@@ -34,6 +34,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundPipeline	  = {};
 		m_CurrentlyBoundVertexBuffers = {};
 		m_CurrentRenderTarget		  = {};
+		m_BoundResourceSet			  = {};
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
@@ -84,7 +85,7 @@ namespace Nexus::Graphics
 				pipeline->CreateVAO(context);
 				pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset, context);
 				pipeline->Bind(context);
-				BindResourceSet(m_BoundResourceSet, context);
+				BindResourceSet(context);
 
 				bool valid = true;
 				for (const auto &[binding, view] : vertexBuffers)
@@ -296,7 +297,7 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 				Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 				pipeline->Bind(context);
-				BindResourceSet(m_BoundResourceSet, context);
+				BindResourceSet(context);
 				context.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 				context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
 	#endif
@@ -317,7 +318,7 @@ namespace Nexus::Graphics
 			[&](const GladGLContext &context)
 			{
 				pipeline->Bind(context);
-				BindResourceSet(m_BoundResourceSet, context);
+				BindResourceSet(context);
 
 				if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
 				{
@@ -346,7 +347,7 @@ namespace Nexus::Graphics
 			[&](const GladGLContext &context)
 			{
 				pipeline->Bind(context);
-				BindResourceSet(m_BoundResourceSet, context);
+				BindResourceSet(context);
 
 				if (context.DrawMeshTasksEXT)
 				{
@@ -372,7 +373,7 @@ namespace Nexus::Graphics
 			[&](const GladGLContext &context)
 			{
 				pipeline->Bind(context);
-				BindResourceSet(m_BoundResourceSet, context);
+				BindResourceSet(context);
 
 				context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 
@@ -402,7 +403,7 @@ namespace Nexus::Graphics
 		}
 
 		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(desc.TargetResourceSet);
-		m_BoundResourceSet				   = resourceSet;
+		m_BoundResourceSet				   = desc;
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)
@@ -703,9 +704,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
-		if (m_BoundResourceSet)
+		if (m_BoundResourceSet.has_value())
 		{
-			m_BoundResourceSet->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size());
+			Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(m_BoundResourceSet.value().TargetResourceSet);
+			resourceSet->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size());
 		}
 	}
 
@@ -766,7 +768,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context)
+	void CommandExecutorOpenGL::BindResourceSet(const GladGLContext &context)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 		if (!pipeline)
@@ -774,101 +776,13 @@ namespace Nexus::Graphics
 
 		pipeline->Bind(context);
 
-		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
-		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
-		const auto &storageImageBindings  = resourceSet->GetBoundStorageImages();
-		const auto &storageBufferBindings = resourceSet->GetBoundStorageBuffers();
-
-		for (const auto &[name, combinedImageSampler] : combinedImageSamplers)
+		if (m_BoundResourceSet.has_value())
 		{
-			bool valid = true;
-
-			if (!combinedImageSampler.ImageSampler)
+			ResourceSetBindingDescription bindingDescription = m_BoundResourceSet.value();
+			Ref<ResourceSetOpenGL>		  resourceSet		 = std::dynamic_pointer_cast<ResourceSetOpenGL>(bindingDescription.TargetResourceSet);
+			if (resourceSet)
 			{
-				NX_ERROR("Attempting to bind an invalid sampler");
-				valid = false;
-			}
-
-			if (!valid)
-			{
-				continue;
-			}
-
-			Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler);
-
-			// find the slot in the shader where the uniform is located
-			GLint location = context.GetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-
-			if (location != -1)
-			{
-				if (Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture))
-				{
-					const TextureViewDescription &viewDesc = textureView->GetDescription();
-
-					textureView->Bind(location);
-					glSampler->Bind(location, viewDesc.Range.LevelCount > 1);
-				}
-			}
-		}
-
-		GLuint uniformBufferSlot = 0;
-		for (const auto &[name, uniformBufferView] : uniformBufferBindings)
-		{
-			Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBufferView.BufferHandle);
-
-			GLint location = context.GetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
-
-			if (location != -1)
-			{
-				glCall(context.UniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
-				context.BindBufferRange(GL_UNIFORM_BUFFER,
-										uniformBufferSlot,
-										uniformBufferGL->GetHandle(),
-										uniformBufferView.Offset,
-										uniformBufferView.Size);
-
-				uniformBufferSlot++;
-			}
-		}
-
-		for (const auto &[name, storageImageView] : storageImageBindings)
-		{
-			GLint location = context.GetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-
-			if (location != -1)
-			{
-				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
-				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetDescription().Format);
-				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
-
-				glCall(context.BindImageTexture(location,
-												texture->GetHandle(),
-												storageImageView.MipLevel,
-												GL_FALSE,
-												storageImageView.ArrayLayer,
-												access,
-												format));
-
-				if (storageImageView.Access == ShaderAccess::ReadWrite)
-				{
-					texture->MarkDirty();
-				}
-			}
-		}
-
-		GLuint storageBufferSlot = 0;
-		for (const auto &[name, storageBufferView] : storageBufferBindings)
-		{
-			GLuint location = context.GetProgramResourceIndex(pipeline->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, name.c_str());
-
-			if (location != -1)
-			{
-				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(storageBufferView.BufferHandle);
-				size_t					offset = storageBufferView.Offset;
-				size_t					size   = storageBufferView.SizeInBytes;
-				context.BindBufferRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, buffer->GetHandle(), offset, size);
-
-				storageBufferSlot++;
+				resourceSet->Bind(bindingDescription, pipeline->GetShaderHandle(), context);
 			}
 		}
 	}
