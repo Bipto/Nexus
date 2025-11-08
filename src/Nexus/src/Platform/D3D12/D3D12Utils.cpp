@@ -1106,28 +1106,42 @@ namespace Nexus::D3D12
 		}
 	}
 
-	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
-							 Microsoft::WRL::ComPtr<ID3D12Device9>					device,
-							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
-							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
-							 DescriptorHandleInfo								   &descriptorHandleInfo)
+	// a util struct to temporarily store the different types of ranges prior to creating the root signature
+	struct DescriptorRangeInfo
 	{
-		// a util struct to temporarily store the different types of ranges prior to creating the root signature
-		struct DescriptorRangeInfo
+		std::vector<D3D12_DESCRIPTOR_RANGE>			 SamplerRanges = {};
+		std::vector<D3D12_DESCRIPTOR_RANGE>			 OtherRanges   = {};
+		std::map<std::string, D3D12_ROOT_CONSTANTS>	 RootConstants = {};
+		std::map<std::string, D3D12_ROOT_DESCRIPTOR> RootCBVs	   = {};
+		std::map<std::string, D3D12_ROOT_DESCRIPTOR> RootSRVs	   = {};
+		std::map<std::string, D3D12_ROOT_DESCRIPTOR> RootUAVs	   = {};
+	};
+
+	static std::optional<Graphics::ResourceDescriptor> GetDescriptorFromResourceSetDesc(const std::string					   &name,
+																						const Graphics::ResourceSetDescription &resourceSetDesc)
+	{
+		for (const Graphics::ResourceDescriptor &descriptor : resourceSetDesc.Descriptors)
 		{
-			std::vector<D3D12_DESCRIPTOR_RANGE> SamplerRanges = {};
-			std::vector<D3D12_DESCRIPTOR_RANGE> OtherRanges	  = {};
-		};
+			if (descriptor.Name == name)
+			{
+				return descriptor;
+			}
+		}
 
-		// create storage for descriptor ranges and root parameters
-		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges;
-		std::vector<D3D12_ROOT_PARAMETER>					   rootParameters;
+		return {};
+	}
 
-		uint32_t samplerIndex	 = 0;
-		uint32_t nonSamplerIndex = 0;
+	static void CreateDescriptorRangeMap(const std::map<std::string, Graphics::ShaderResource>	&reflectedResources,
+										 const Graphics::ResourceSetDescription					&requestedResources,
+										 std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorRangeMap,
+										 std::map<std::string, uint32_t>						&rootParameterIndexes,
+										 DescriptorHandleInfo									&descriptorHandleInfo)
+	{
+		uint32_t samplerIndex		= 0;
+		uint32_t nonSamplerIndex	= 0;
+		uint32_t rootParameterIndex = 0;
 
-		// iterate through resources and create descriptor range
-		for (const auto &[name, resourceInfo] : resources)
+		for (const auto &[name, resourceInfo] : reflectedResources)
 		{
 			D3D12_SHADER_VISIBILITY		visibility	   = GetShaderVisibility(resourceInfo.Stage);
 			D3D12_DESCRIPTOR_RANGE_TYPE descriptorType = GetDescriptorRangeType(resourceInfo);
@@ -1135,7 +1149,7 @@ namespace Nexus::D3D12
 			// samplers cannot share a descriptor range with other descriptors so we need them to be separate
 			if (descriptorType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER)
 			{
-				D3D12_DESCRIPTOR_RANGE &range			= descriptorRanges[visibility].SamplerRanges.emplace_back();
+				D3D12_DESCRIPTOR_RANGE &range			= descriptorRangeMap[visibility].SamplerRanges.emplace_back();
 				range.RangeType							= GetDescriptorRangeType(resourceInfo);
 				range.BaseShaderRegister				= resourceInfo.Binding;
 				range.NumDescriptors					= resourceInfo.ResourceCount;
@@ -1143,32 +1157,160 @@ namespace Nexus::D3D12
 				range.RegisterSpace						= resourceInfo.RegisterSpace;
 
 				// retrieve and then increment offset
-				descriptorHandleInfo.SamplerIndexes[resourceInfo.Name] = samplerIndex;
+				for (size_t i = 0; i < resourceInfo.ResourceCount; i++)
+				{
+					descriptorHandleInfo.SamplerIndexes[resourceInfo.Name].push_back(samplerIndex + i);
+				}
+
 				samplerIndex += resourceInfo.ResourceCount;
 				descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
 			}
 			else
 			{
-				D3D12_DESCRIPTOR_RANGE &range			= descriptorRanges[visibility].OtherRanges.emplace_back();
-				range.RangeType							= GetDescriptorRangeType(resourceInfo);
-				range.BaseShaderRegister				= resourceInfo.Binding;
-				range.NumDescriptors					= resourceInfo.ResourceCount;
-				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				range.RegisterSpace						= resourceInfo.RegisterSpace;
+				RootParameterType rootParameterType	 = RootParameterType::CBV_SRV_UAV_HeapRange;
+				size_t			  countOf32BitValues = 0;
 
-				// retrieve and then increment offset
-				descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name] = nonSamplerIndex;
-				nonSamplerIndex += resourceInfo.ResourceCount;
-				descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
+				std::optional<Graphics::ResourceDescriptor> requestedDescriptor = GetDescriptorFromResourceSetDesc(name, requestedResources);
 
-				// if the resource is a storage buffer, we need to record how to bind it correctly in D3D12, e.g. StructuredBuffer/ByteAddressBuffer
-				if (resourceInfo.Type == Graphics::ResourceType::StorageBuffer)
+				// try to find the correct descriptor type for the resource, if it exists in the provided ResourceSetDescription
+				if (requestedDescriptor.has_value())
 				{
-					descriptorHandleInfo.StorageBuffers[name] = resourceInfo.Access;
+					Graphics::ResourceDescriptor descriptor = requestedDescriptor.value();
+
+					if (descriptor.Type == Graphics::ResourceDescriptorType::PushConstants ||
+						descriptor.Type == Graphics::ResourceDescriptorType::InlineUniformBlock)
+					{
+						rootParameterType  = RootParameterType::RootConstants;
+						countOf32BitValues = descriptor.CountOrSizeInBytes / 4;
+					}
+					else if (descriptor.Type == Graphics::ResourceDescriptorType::DynamicUniformBuffer)
+					{
+						rootParameterType = RootParameterType::RootCBV;
+					}
+					else if (descriptor.Type == Graphics::ResourceDescriptorType::DynamicStorageBuffer)
+					{
+						Graphics::StorageResourceAccess access		= resourceInfo.Access;
+						bool							readonly	= {};
+						bool							byteAddress = {};
+						D3D12::GetShaderAccessModifiers(access, readonly, byteAddress);
+
+						if (readonly)
+						{
+							rootParameterType = RootParameterType::RootSRV;
+						}
+						else
+						{
+							rootParameterType = RootParameterType::RootUAV;
+						}
+					}
+				}
+
+				// we are creating a range in a sampler descriptor table
+				if (rootParameterType == RootParameterType::SamplerHeapRange)
+				{
+					D3D12_DESCRIPTOR_RANGE &range			= descriptorRangeMap[visibility].SamplerRanges.emplace_back();
+					range.RangeType							= GetDescriptorRangeType(resourceInfo);
+					range.BaseShaderRegister				= resourceInfo.Binding;
+					range.NumDescriptors					= resourceInfo.ResourceCount;
+					range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+					range.RegisterSpace						= resourceInfo.RegisterSpace;
+
+					for (size_t i = 0; i < resourceInfo.ResourceCount; i++)
+					{
+						descriptorHandleInfo.SamplerIndexes[resourceInfo.Name].push_back(samplerIndex + i);
+					}
+
+					// retrieve and then increment offset
+					samplerIndex += resourceInfo.ResourceCount;
+					descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
+				}
+				// creating range in sampler heap
+				else if (rootParameterType == RootParameterType::CBV_SRV_UAV_HeapRange)
+				{
+					D3D12_DESCRIPTOR_RANGE &range = descriptorRangeMap[visibility].OtherRanges.emplace_back();
+
+					range.RangeType							= GetDescriptorRangeType(resourceInfo);
+					range.BaseShaderRegister				= resourceInfo.Binding;
+					range.NumDescriptors					= resourceInfo.ResourceCount;
+					range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+					range.RegisterSpace						= resourceInfo.RegisterSpace;
+
+					for (size_t i = 0; i < resourceInfo.ResourceCount; i++)
+					{
+						descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name].push_back(nonSamplerIndex + i);
+					}
+
+					// retrieve and then increment offset
+					nonSamplerIndex += resourceInfo.ResourceCount;
+					descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
+
+					// if the resource is a storage buffer, we need to record how to bind it correctly in D3D12, e.g.
+					// StructuredBuffer/ByteAddressBuffer
+					if (resourceInfo.Type == Graphics::ResourceType::StorageBuffer)
+					{
+						descriptorHandleInfo.StorageBuffers[name] = resourceInfo.Access;
+					}
+				}
+				// creating root constants
+				else if (rootParameterType == RootParameterType::RootConstants)
+				{
+					D3D12_ROOT_CONSTANTS &constants = descriptorRangeMap[visibility].RootConstants[name];
+					constants.Num32BitValues		= countOf32BitValues;
+					constants.RegisterSpace			= resourceInfo.RegisterSpace;
+					constants.ShaderRegister		= resourceInfo.Binding;
+
+					rootParameterIndexes[name] = rootParameterIndex++;
+				}
+				// creating root CBV
+				else if (rootParameterType == RootParameterType::RootCBV)
+				{
+					for (uint32_t shaderRegister = resourceInfo.Binding; shaderRegister < resourceInfo.Binding + resourceInfo.ResourceCount;
+						 shaderRegister++)
+					{
+						D3D12_ROOT_DESCRIPTOR &descriptor = descriptorRangeMap[visibility].RootCBVs[name];
+						descriptor.RegisterSpace		  = resourceInfo.RegisterSpace;
+						descriptor.ShaderRegister		  = shaderRegister;
+
+						rootParameterIndexes[name] = rootParameterIndex++;
+					}
+				}
+				// creating root SRV
+				else if (rootParameterType == RootParameterType::RootSRV)
+				{
+					for (uint32_t shaderRegister = resourceInfo.Binding; shaderRegister < resourceInfo.Binding + resourceInfo.ResourceCount;
+						 shaderRegister++)
+					{
+						D3D12_ROOT_DESCRIPTOR &descriptor = descriptorRangeMap[visibility].RootSRVs[name];
+						descriptor.RegisterSpace		  = resourceInfo.RegisterSpace;
+						descriptor.ShaderRegister		  = shaderRegister;
+
+						rootParameterIndexes[name] = rootParameterIndex++;
+					}
+				}
+				// creating root UAV
+				else if (rootParameterType == RootParameterType::RootUAV)
+				{
+					for (uint32_t shaderRegister = resourceInfo.Binding; shaderRegister < resourceInfo.Binding + resourceInfo.ResourceCount;
+						 shaderRegister++)
+					{
+						D3D12_ROOT_DESCRIPTOR &descriptor = descriptorRangeMap[visibility].RootUAVs[name];
+						descriptor.RegisterSpace		  = resourceInfo.RegisterSpace;
+						descriptor.ShaderRegister		  = shaderRegister;
+
+						rootParameterIndexes[name] = rootParameterIndex++;
+					}
+				}
+				else
+				{
+					throw std::runtime_error("Failed to find a valid descriptor type");
 				}
 			}
 		}
+	}
 
+	static void FindCombinedImageSamplers(const std::map<std::string, Graphics::ShaderResource> &resources,
+										  DescriptorHandleInfo									&descriptorHandleInfo)
+	{
 		// loop through all resources to find textures
 		for (const auto &[textureName, textureInfo] : resources)
 		{
@@ -1189,13 +1331,23 @@ namespace Nexus::D3D12
 				}
 			}
 		}
+	}
 
+	static void CreateDescriptorRanges(const std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorMap,
+									   DescriptorHandleInfo											&descriptorHandleInfo,
+									   std::vector<D3D12_ROOT_PARAMETER>							&rootParameters,
+									   std::map<std::string, uint32_t>								&rootParameterIndexes,
+									   RootSignatureBindingLocations								&rootSignatureBindingLocation)
+	{
 		size_t currentSamplerOffset	   = 0;
 		size_t currentNonSamplerOffset = 0;
 
+		uint32_t rootParameterIndex = 0;
+
 		// create the descriptor tables for the ranges
-		for (const auto &[shaderVisibility, descriptorRange] : descriptorRanges)
+		for (const auto &[shaderVisibility, descriptorRange] : descriptorMap)
 		{
+			// create samplers, if needed
 			if (!descriptorRange.SamplerRanges.empty())
 			{
 				D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
@@ -1211,9 +1363,15 @@ namespace Nexus::D3D12
 				descriptorTableInfo.Source				 = DescriptorHandleSource::ISampler;
 				descriptorTableInfo.Offset				 = currentSamplerOffset;
 
+				RootParameterBindingLocation &samplerBindingLocation = rootSignatureBindingLocation.HeapBindings.emplace_back();
+				samplerBindingLocation.ParameterType				 = RootParameterType::SamplerHeapRange;
+				samplerBindingLocation.RootParameterIndex			 = rootParameterIndex++;
+				samplerBindingLocation.DescriptorOffset				 = currentSamplerOffset;
+
 				for (const auto &range : descriptorRange.SamplerRanges) { currentSamplerOffset += range.NumDescriptors; }
 			}
 
+			// create ranges for all referenced resources, if needed
 			if (!descriptorRange.OtherRanges.empty())
 			{
 				D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
@@ -1229,17 +1387,91 @@ namespace Nexus::D3D12
 				descriptorTableInfo.Source				 = DescriptorHandleSource::SRV_UAV_CBV;
 				descriptorTableInfo.Offset				 = currentNonSamplerOffset;
 
+				RootParameterBindingLocation &samplerBindingLocation = rootSignatureBindingLocation.HeapBindings.emplace_back();
+				samplerBindingLocation.ParameterType				 = RootParameterType::CBV_SRV_UAV_HeapRange;
+				samplerBindingLocation.RootParameterIndex			 = rootParameterIndex++;
+				samplerBindingLocation.DescriptorOffset				 = currentNonSamplerOffset;
+
 				for (const auto &range : descriptorRange.OtherRanges) { currentNonSamplerOffset += range.NumDescriptors; }
 			}
-		}
 
-		// create the D3D12 root signature
+			for (const auto &[name, rootConstants] : descriptorRange.RootConstants)
+			{
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+				rootParameter.Constants				= rootConstants;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				RootParameterBindingLocation &samplerBindingLocation = rootSignatureBindingLocation.DynamicResources[name];
+				samplerBindingLocation.ParameterType				 = RootParameterType::RootConstants;
+				samplerBindingLocation.RootParameterIndex			 = rootParameterIndex++;
+				samplerBindingLocation.DescriptorOffset				 = 0;
+			}
+
+			for (const auto &[name, rootCBV] : descriptorRange.RootCBVs)
+			{
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_CBV;
+				rootParameter.Descriptor			= rootCBV;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				RootParameterBindingLocation &samplerBindingLocation = rootSignatureBindingLocation.DynamicResources[name];
+				samplerBindingLocation.ParameterType				 = RootParameterType::RootCBV;
+				samplerBindingLocation.RootParameterIndex			 = rootParameterIndex++;
+				samplerBindingLocation.DescriptorOffset				 = 0;
+			}
+
+			for (const auto &[name, rootSRV] : descriptorRange.RootSRVs)
+			{
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_SRV;
+				rootParameter.Descriptor			= rootSRV;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				RootParameterBindingLocation &samplerBindingLocation = rootSignatureBindingLocation.DynamicResources[name];
+				samplerBindingLocation.ParameterType				 = RootParameterType::RootSRV;
+				samplerBindingLocation.RootParameterIndex			 = rootParameterIndex++;
+				samplerBindingLocation.DescriptorOffset				 = 0;
+			}
+
+			for (const auto &[name, rootUAV] : descriptorRange.RootUAVs)
+			{
+				D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
+				rootParameter.ParameterType			= D3D12_ROOT_PARAMETER_TYPE_UAV;
+				rootParameter.Descriptor			= rootUAV;
+				rootParameter.ShaderVisibility		= shaderVisibility;
+
+				RootParameterBindingLocation &samplerBindingLocation = rootSignatureBindingLocation.DynamicResources[name];
+				samplerBindingLocation.ParameterType				 = RootParameterType::RootUAV;
+				samplerBindingLocation.RootParameterIndex			 = rootParameterIndex++;
+				samplerBindingLocation.DescriptorOffset				 = 0;
+			}
+		}
+	}
+
+	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
+							 const Graphics::ResourceSetDescription				   &requestedResources,
+							 Microsoft::WRL::ComPtr<ID3D12Device9>					device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
+							 DescriptorHandleInfo								   &descriptorHandleInfo,
+							 RootSignatureBindingLocations						   &rootSignatureBindingLocation)
+	{
+		// create storage for descriptor ranges and root parameters
+		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges		= {};
+		std::vector<D3D12_ROOT_PARAMETER>					   rootParameters		= {};
+		std::map<std::string, uint32_t>						   rootParameterIndexes = {};
+
+		CreateDescriptorRangeMap(reflectedResources, requestedResources, descriptorRanges, rootParameterIndexes, descriptorHandleInfo);
+		FindCombinedImageSamplers(reflectedResources, descriptorHandleInfo);
+		CreateDescriptorRanges(descriptorRanges, descriptorHandleInfo, rootParameters, rootParameterIndexes, rootSignatureBindingLocation);
+
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Flags						= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		rootSignatureDesc.NumStaticSamplers			= 0;
-		rootSignatureDesc.pStaticSamplers			= nullptr;
-		rootSignatureDesc.NumParameters				= rootParameters.size();
-		rootSignatureDesc.pParameters				= rootParameters.data();
+		rootSignatureDesc.Flags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		rootSignatureDesc.pStaticSamplers = nullptr;
+		rootSignatureDesc.NumParameters	  = rootParameters.size();
+		rootSignatureDesc.pParameters	  = rootParameters.data();
 
 		// serialize the root signature and report any errors if they occur
 		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;

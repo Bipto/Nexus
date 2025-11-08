@@ -34,8 +34,8 @@ namespace Nexus::D3D12
 
 	struct DescriptorHandleInfo
 	{
-		std::map<std::string, uint32_t>						   SamplerIndexes		   = {};
-		std::map<std::string, uint32_t>						   NonSamplerIndexes	   = {};
+		std::map<std::string, std::vector<uint32_t>>		   SamplerIndexes		   = {};
+		std::map<std::string, std::vector<uint32_t>>		   NonSamplerIndexes	   = {};
 		std::vector<DescriptorTableInfo>					   DescriptorTables		   = {};
 		uint32_t											   SamplerHeapCount		   = 0;
 		uint32_t											   SRV_UAV_CBV_HeapCount   = 0;
@@ -88,12 +88,37 @@ namespace Nexus::D3D12
 
 	void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress);
 
+	enum class RootParameterType
+	{
+		SamplerHeapRange,
+		CBV_SRV_UAV_HeapRange,
+		RootConstants,
+		RootCBV,
+		RootSRV,
+		RootUAV
+	};
+
+	struct RootParameterBindingLocation
+	{
+		RootParameterType ParameterType		 = {};
+		uint32_t		  RootParameterIndex = 0;
+		uint32_t		  DescriptorOffset	 = 0;
+	};
+
+	struct RootSignatureBindingLocations
+	{
+		std::vector<RootParameterBindingLocation>			HeapBindings	 = {};
+		std::map<std::string, RootParameterBindingLocation> DynamicResources = {};
+	};
+
 	// pipeline
-	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &resources,
+	void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
+							 const Graphics::ResourceSetDescription				   &requestedResources,
 							 Microsoft::WRL::ComPtr<ID3D12Device9>					device,
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
-							 DescriptorHandleInfo								   &descriptorHandleInfo);
+							 DescriptorHandleInfo								   &descriptorHandleInfo,
+							 RootSignatureBindingLocations						   &rootSignatureBindingLocation);
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
 	D3D_PRIMITIVE_TOPOLOGY				  CreatePrimitiveTopology(Graphics::Topology topology);

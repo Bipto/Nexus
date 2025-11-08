@@ -49,6 +49,13 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::Reset()
 	{
+		m_DescriptorHandles = {};
+		m_DepthHandle		= {};
+
+		m_CurrentlyBoundResourceSet = nullptr;
+
+		m_CurrentFramebuffer	 = {};
+		m_CurrentlyBoundPipeline = {};
 	}
 
 	void CommandExecutorD3D12::SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
@@ -243,28 +250,12 @@ namespace Nexus::Graphics
 		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(desc.TargetResourceSet);
 		GraphicsDeviceD3D12	 *deviceD3D12	   = (GraphicsDeviceD3D12 *)device;
 
-		const std::vector<ID3D12DescriptorHeap *> &heaps = d3d12ResourceSet->GetDescriptorHeaps();
-		m_CommandList->SetDescriptorHeaps(heaps.size(), heaps.data());
+		if (d3d12ResourceSet)
+		{
+			m_CurrentlyBoundResourceSet = d3d12ResourceSet;
 
-		uint32_t heapIndex = 0;
-
-		if (pipelineType == PipelineType::Graphics)
-		{
-			for (const D3D12_GPU_DESCRIPTOR_HANDLE &descriptorTable : d3d12ResourceSet->GetDescriptorTables())
-			{
-				m_CommandList->SetGraphicsRootDescriptorTable(heapIndex++, descriptorTable);
-			}
-		}
-		else if (pipelineType == PipelineType::Compute)
-		{
-			for (const D3D12_GPU_DESCRIPTOR_HANDLE &descriptorTable : d3d12ResourceSet->GetDescriptorTables())
-			{
-				m_CommandList->SetComputeRootDescriptorTable(heapIndex++, descriptorTable);
-			}
-		}
-		else
-		{
-			throw std::runtime_error("Failed to find a valid pipeline type");
+			bool isGraphics = pipelineType != PipelineType::Compute;
+			d3d12ResourceSet->Bind(isGraphics, m_CommandList, desc.DynamicOffsets);
 		}
 	}
 
@@ -662,6 +653,13 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
+		if (!m_CurrentlyBoundResourceSet && !m_CurrentlyBoundPipeline.has_value())
+			return;
+
+		bool isGraphics = m_CurrentlyBoundPipeline.value()->GetType() != PipelineType::Compute;
+
+		m_CurrentlyBoundResourceSet
+			->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size(), isGraphics, m_CommandList);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)

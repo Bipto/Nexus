@@ -95,7 +95,7 @@ namespace Nexus::Graphics
 		return m_ReflectionData;
 	}
 
-	ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
+	static ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
 	{
 		switch (componentType)
 		{
@@ -136,7 +136,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractAttribute(std::vector<Attribute> &attributes, D3D12_SIGNATURE_PARAMETER_DESC shaderParameter)
+	static void ExtractAttribute(std::vector<Attribute> &attributes, D3D12_SIGNATURE_PARAMETER_DESC shaderParameter)
 	{
 		std::string					name		   = shaderParameter.SemanticName ? shaderParameter.SemanticName : "";
 		std::string					fullName	   = name + std::to_string(shaderParameter.SemanticIndex);
@@ -154,7 +154,7 @@ namespace Nexus::Graphics
 		attribute.StreamIndex				  = streamIndex;
 	}
 
-	std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type, UINT flags)
+	static std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type, UINT flags)
 	{
 		switch (type)
 		{
@@ -188,7 +188,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	ResourceDimension ExtractDimension(D3D_SRV_DIMENSION dimension)
+	static ResourceDimension ExtractDimension(D3D_SRV_DIMENSION dimension)
 	{
 		switch (dimension)
 		{
@@ -205,9 +205,9 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractResource(ShaderReflectionData						   &reflectionData,
-						 D3D12_SHADER_INPUT_BIND_DESC					resource,
-						 Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection)
+	static void ExtractResource(ShaderReflectionData						  &reflectionData,
+								D3D12_SHADER_INPUT_BIND_DESC				   resource,
+								Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection)
 	{
 		auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
 
@@ -220,7 +220,6 @@ namespace Nexus::Graphics
 		reflectedResource.BindingCount			= resource.BindCount;
 		reflectedResource.RegisterSpace			= resource.Space;
 		reflectedResource.InstanceName			= resource.Name;
-		NX_VALIDATE(0, "Not implemented");
 	}
 
 	void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult)

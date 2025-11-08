@@ -17,6 +17,7 @@ namespace Nexus::Graphics
 	class FramebufferD3D12;
 	class GraphicsDeviceD3D12;
 	class GraphicsPipelineD3D12;
+	class ResourceSetD3D12;
 
 	class CommandExecutorD3D12 : public CommandExecutor
 	{
@@ -87,6 +88,8 @@ namespace Nexus::Graphics
 
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle		 = {};
+
+		Ref<ResourceSetD3D12> m_CurrentlyBoundResourceSet = nullptr;
 
 		Ref<IFramebuffer>			 m_CurrentFramebuffer	  = {};
 		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};

@@ -13,6 +13,7 @@
 	#include "SamplerD3D12.hpp"
 	#include "ShaderModuleD3D12.hpp"
 	#include "SwapchainD3D12.hpp"
+	#include "TexelBufferD3D12.hpp"
 	#include "TextureD3D12.hpp"
 	#include "TextureViewD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
@@ -122,7 +123,7 @@ namespace Nexus::Graphics
 
 	Ref<ITexelBuffer> GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return nullptr;
+		return CreateRef<TexelBufferD3D12>(desc);
 	}
 
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
