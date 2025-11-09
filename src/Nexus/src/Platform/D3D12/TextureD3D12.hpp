@@ -31,7 +31,6 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation	= nullptr;
 		DXGI_FORMAT									m_TextureFormat = DXGI_FORMAT_UNKNOWN;
 
-		TextureDescription	 m_Description;
 		GraphicsDeviceD3D12 *m_Device = nullptr;
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceView = {};

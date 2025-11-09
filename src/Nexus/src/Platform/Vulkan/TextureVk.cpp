@@ -179,18 +179,20 @@ namespace Nexus::Graphics
 
 	TextureLayout TextureVk::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
 	{
-		NX_VALIDATE(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
-		return m_TextureLayouts[arrayLayer * m_Description.MipLevels + mipLevel];
+		size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
+		return m_TextureLayouts[index];
 	}
 
 	void TextureVk::SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout)
 	{
-		NX_VALIDATE(arrayLayer <= m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_VALIDATE(mipLevel <= m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
-		m_TextureLayouts[arrayLayer * m_Description.MipLevels + mipLevel] = layout;
+		size_t index			= (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
+		m_TextureLayouts[index] = layout;
 	}
 }	 // namespace Nexus::Graphics
 

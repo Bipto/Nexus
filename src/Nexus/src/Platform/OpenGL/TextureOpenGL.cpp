@@ -62,7 +62,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer out of bounds");
 		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
 
-		size_t index = (size_t)(arrayLayer * m_Description.DepthOrArrayLayers + mipLevel);
+		size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
 		return m_TextureLayout[index];
 	}
 
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer out of bounds");
 		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
 
-		size_t index		   = (size_t)((arrayLayer * m_Description.MipLevels + mipLevel));
+		size_t index		   = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
 		m_TextureLayout[index] = layout;
 	}
 
