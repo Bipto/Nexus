@@ -34,7 +34,7 @@ namespace Demos
 
 				Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
 				vertexBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
-				vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly;
+				vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly;
 				vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 				vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
 				m_VertexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
@@ -44,7 +44,7 @@ namespace Demos
 
 				Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
 				indexBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
-				indexBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly;
+				indexBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly;
 				indexBufferDesc.StrideInBytes							 = sizeof(uint32_t);
 				indexBufferDesc.SizeInBytes								 = indices.size() * sizeof(uint32_t);
 				m_IndexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
@@ -85,15 +85,15 @@ namespace Demos
 			scratchBufferDesc.DebugName								   = "Scratch Buffer";
 			scratchBufferDesc.SizeInBytes							   = buildSize.BuildScratchSize;
 			scratchBufferDesc.StrideInBytes							   = buildSize.BuildScratchSize;
-			scratchBufferDesc.Usage									   = Nexus::Graphics::BufferUsage::Storage;
-			Nexus::Ref<Nexus::Graphics::IDeviceBuffer> scratchBuffer	   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
+			scratchBufferDesc.Usage									   = Nexus::Graphics::BufferUsage_Storage;
+			Nexus::Ref<Nexus::Graphics::IDeviceBuffer> scratchBuffer   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription accelerationBufferDesc = {};
 			accelerationBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
 			accelerationBufferDesc.DebugName								= "Acceleration Structure Buffer";
 			accelerationBufferDesc.SizeInBytes								= buildSize.AccelerationStructureSize;
 			accelerationBufferDesc.StrideInBytes							= 0;
-			accelerationBufferDesc.Usage									= Nexus::Graphics::BufferUsage::AccelerationStructureStorage;
+			accelerationBufferDesc.Usage									= Nexus::Graphics::BufferUsage_AccelerationStructureStorage;
 			m_AccelerationStructureBuffer									= m_GraphicsDevice->CreateDeviceBuffer(accelerationBufferDesc);
 
 			Nexus::Graphics::AccelerationStructureDescription accelerationStructureDesc = {};
@@ -130,7 +130,7 @@ namespace Demos
 				NX_PROFILE_SCOPE("Command recording");
 
 				m_CommandList->Begin();
-				Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 				Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 				m_CommandList->SetFramebuffer(framebuffer);
 				m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -156,7 +156,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndexBuffer;

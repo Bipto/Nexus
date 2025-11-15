@@ -616,7 +616,7 @@ namespace Nexus::GL
 
 		switch (access)
 		{
-			case Graphics::BarrierAccess::None:
+			case Graphics::BarrierAccess::NoAccess:
 			{
 				// we are not synchronizing anything
 				return 0;
@@ -1131,17 +1131,17 @@ namespace Nexus::GL
 	{
 		std::vector<GLenum> targets;
 
-		if (usage & Graphics::BufferUsage::Vertex)
+		if (usage & Graphics::BufferUsage_Vertex)
 		{
 			targets.push_back(GL_ARRAY_BUFFER);
 		}
 
-		if (usage & Graphics::BufferUsage::Index)
+		if (usage & Graphics::BufferUsage_Index)
 		{
 			targets.push_back(GL_ELEMENT_ARRAY_BUFFER);
 		}
 
-		if (usage & Graphics::BufferUsage::Uniform)
+		if (usage & Graphics::BufferUsage_Uniform)
 		{
 			targets.push_back(GL_UNIFORM_BUFFER);
 		}

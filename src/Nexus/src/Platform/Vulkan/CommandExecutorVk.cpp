@@ -991,10 +991,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
 	{
-		float blendConstants[4] = {command.BlendFactorDesc.Red,
-								   command.BlendFactorDesc.Green,
-								   command.BlendFactorDesc.Blue,
-								   command.BlendFactorDesc.Alpha};
+		float blendConstants[4] = {command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue, command.BlendFactor.Alpha};
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 		context.CmdSetBlendConstants(m_CommandBuffer, blendConstants);
@@ -1198,12 +1195,12 @@ namespace Nexus::Graphics
 
 		std::vector<SubresourceRangeLayout> ranges;
 
-		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
-			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+		for (uint32_t arrayLayer = command.TextureSubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.TextureSubresourceRange.BaseArrayLayer + command.TextureSubresourceRange.LayerCount;
 			 arrayLayer++)
 		{
-			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
-				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+			for (uint32_t mipLevel = command.TextureSubresourceRange.BaseMipLevel;
+				 mipLevel < command.TextureSubresourceRange.BaseMipLevel + command.TextureSubresourceRange.LevelCount;
 				 mipLevel++)
 			{
 				SubresourceRangeLayout &range = ranges.emplace_back();
@@ -1292,12 +1289,12 @@ namespace Nexus::Graphics
 									   imageBarriers.data());
 		}
 
-		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
-			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+		for (uint32_t arrayLayer = command.TextureSubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.TextureSubresourceRange.BaseArrayLayer + command.TextureSubresourceRange.LayerCount;
 			 arrayLayer++)
 		{
-			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
-				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+			for (uint32_t mipLevel = command.TextureSubresourceRange.BaseMipLevel;
+				 mipLevel < command.TextureSubresourceRange.BaseMipLevel + command.TextureSubresourceRange.LevelCount;
 				 mipLevel++)
 			{
 				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);

@@ -9,15 +9,15 @@ namespace Nexus::Graphics
 {
 	struct ReflectedResource
 	{
-		ReflectedShaderDataType Type				  = ReflectedShaderDataType::UniformBuffer;
-		std::string				BlockName			  = {};
-		std::string				InstanceName		  = {};
-		ResourceDimension		Dimension			  = ResourceDimension::NoDimension;
-		StorageResourceAccess	StorageResourceAccess = StorageResourceAccess::NoAccess;
-		uint32_t				DescriptorSet		  = 0;
-		uint32_t				BindingPoint		  = 0;
-		uint32_t				BindingCount		  = 0;
-		uint32_t				RegisterSpace		  = 0;
+		ReflectedShaderDataType Type		   = ReflectedShaderDataType::UniformBuffer;
+		std::string				BlockName	   = {};
+		std::string				InstanceName   = {};
+		ResourceDimension		Dimension	   = ResourceDimension::NoDimension;
+		StorageResourceAccess	ResourceAccess = StorageResourceAccess::NoAccess;
+		uint32_t				DescriptorSet  = 0;
+		uint32_t				BindingPoint   = 0;
+		uint32_t				BindingCount   = 0;
+		uint32_t				RegisterSpace  = 0;
 	};
 
 	struct Attribute

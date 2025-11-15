@@ -865,87 +865,53 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertResourceBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.ITexture);
-		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
+		Ref<TextureD3D12>						texture	 = std::dynamic_pointer_cast<TextureD3D12>(command.ITexture);
+		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	 = texture->GetHandle();
+		std::vector<D3D12_RESOURCE_BARRIER>		barriers = {};
 
-		bool		  transitionEachSubresourceSeparately = false;
-		TextureLayout testLayout						  = texture->GetTextureLayout(0, 0);
-
-		if (command.SubresourceRange.LayerCount == texture->GetDescription().DepthOrArrayLayers &&
-			command.SubresourceRange.LevelCount == texture->GetDescription().MipLevels)
+		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+			 arrayLayer++)
 		{
-			for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
-				 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
-				 arrayLayer++)
+			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+				 mipLevel++)
 			{
-				for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
-					 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
-					 mipLevel++)
+				D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(texture->GetTextureLayout(arrayLayer, mipLevel));
+				D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
+
+				if (beforeState == afterState)
 				{
-					TextureLayout subresourceLayout = texture->GetTextureLayout(arrayLayer, mipLevel);
-					if (subresourceLayout != testLayout)
-					{
-						transitionEachSubresourceSeparately = true;
-						break;
-					}
+					continue;
 				}
-			}
-		}
-		else
-		{
-			transitionEachSubresourceSeparately = true;
-		}
 
-		std::vector<D3D12_RESOURCE_BARRIER> barriers = {};
+				uint32_t subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, texture->GetDescription().MipLevels);
 
-		if (!transitionEachSubresourceSeparately)
-		{
-			D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(testLayout);
-			D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
-
-			if (beforeState != afterState)
-			{
 				D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
 				barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 				barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
 				barrier.Transition.pResource	= handle.Get();
-				barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+				barrier.Transition.Subresource	= subresourceIndex;
 				barrier.Transition.StateBefore	= beforeState;
 				barrier.Transition.StateAfter	= afterState;
-			}
-		}
-		else
-		{
-			for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
-				 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
-				 arrayLayer++)
-			{
-				for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
-					 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
-					 mipLevel++)
-				{
-					D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(texture->GetTextureLayout(arrayLayer, mipLevel));
-					D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
-
-					if (beforeState != afterState)
-					{
-						uint32_t subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, texture->GetDescription().MipLevels);
-
-						D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
-						barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-						barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-						barrier.Transition.pResource	= handle.Get();
-						barrier.Transition.Subresource	= subresourceIndex;
-						barrier.Transition.StateBefore	= beforeState;
-						barrier.Transition.StateAfter	= afterState;
-					}
-				}
 			}
 		}
 
 		if (barriers.size() > 0)
 		{
 			m_CommandList->ResourceBarrier(barriers.size(), barriers.data());
+		}
+
+		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+			 arrayLayer++)
+		{
+			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+				 mipLevel++)
+			{
+				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
+			}
 		}
 	}
 

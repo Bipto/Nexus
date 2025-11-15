@@ -162,7 +162,7 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
 		cameraUniformBufferDesc.Access									 = BufferMemoryAccess::Upload;
-		cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
+		cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Uniform;
 		cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
 		cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
 		Ref<IDeviceBuffer> uniformBuffer								 = m_Device->CreateDeviceBuffer(cameraUniformBufferDesc);

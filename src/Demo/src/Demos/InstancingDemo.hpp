@@ -58,14 +58,14 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
 			cameraUniformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
-			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
+			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
 			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription instanceBufferDesc = {};
 			instanceBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			instanceBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Vertex;
+			instanceBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Vertex;
 			instanceBufferDesc.StrideInBytes							= sizeof(glm::mat4);
 			instanceBufferDesc.SizeInBytes								= m_InstanceCount * sizeof(glm::mat4);
 			m_InstanceBuffer											= m_GraphicsDevice->CreateDeviceBuffer(instanceBufferDesc);

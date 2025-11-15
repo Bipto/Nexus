@@ -445,7 +445,7 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
 			vertexBufferDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
-			vertexBufferDesc.Usage									  = Graphics::BufferUsage::Vertex;
+			vertexBufferDesc.Usage									  = Graphics::BufferUsage_Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
 			vertexBufferDesc.DebugName								  = "ImGui Vertex Buffer";
@@ -458,7 +458,7 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
 			indexBufferDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
-			indexBufferDesc.Usage									 = Graphics::BufferUsage::Index;
+			indexBufferDesc.Usage									 = Graphics::BufferUsage_Index;
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
 			indexBufferDesc.DebugName								 = "ImGui Index Buffer";
@@ -684,7 +684,7 @@ namespace Nexus::ImGuiUtils
 			WindowDescription windowSpec;
 			windowSpec.Width  = vp->Size.x;
 			windowSpec.Height = vp->Size.y;
-			windowSpec.Flags  = WindowFlags_Utility | WindowFlags_HighPixelDensity | WindowFlags_Borderless;
+			windowSpec.Flags  = WindowFlags_HighPixelDensity | WindowFlags_Borderless;
 
 			Nexus::Graphics::SwapchainDescription swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
 

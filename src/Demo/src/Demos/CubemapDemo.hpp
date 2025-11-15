@@ -36,7 +36,7 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
 			cameraUniformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
-			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
+			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
 			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);

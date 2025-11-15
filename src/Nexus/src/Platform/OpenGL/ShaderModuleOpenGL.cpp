@@ -421,11 +421,11 @@ namespace Nexus::Graphics
 		StorageResourceAccess	storageResourceAccess = {};
 		ReflectedShaderDataType type = StringToReflectedShaderDataType(uniform.Type, dimension, storageResourceAccess, uniform.MemoryQualififers);
 
-		ReflectedResource reflectedResource		= {};
-		reflectedResource.Type					= type;
-		reflectedResource.Dimension				= dimension;
-		reflectedResource.StorageResourceAccess = storageResourceAccess;
-		reflectedResource.InstanceName			= uniform.Name;
+		ReflectedResource reflectedResource = {};
+		reflectedResource.Type				= type;
+		reflectedResource.Dimension			= dimension;
+		reflectedResource.ResourceAccess	= storageResourceAccess;
+		reflectedResource.InstanceName		= uniform.Name;
 
 		std::optional<uint32_t> bindingPoint = ExtractUniformBindingLocation(uniform.LayoutQualififers);
 		if (bindingPoint)
@@ -457,12 +457,12 @@ namespace Nexus::Graphics
 		ReflectedShaderDataType type =
 			StringToReflectedShaderDataType(reflectedBuffer.StorageQualifier, dimension, storageResourceAccess, reflectedBuffer.MemoryQualififers);
 
-		ReflectedResource reflectedResource		= {};
-		reflectedResource.Type					= type;
-		reflectedResource.Dimension				= dimension;
-		reflectedResource.StorageResourceAccess = storageResourceAccess;
-		reflectedResource.InstanceName			= reflectedBuffer.InstanceName;
-		reflectedResource.BlockName				= reflectedBuffer.BlockName;
+		ReflectedResource reflectedResource = {};
+		reflectedResource.Type				= type;
+		reflectedResource.Dimension			= dimension;
+		reflectedResource.ResourceAccess	= storageResourceAccess;
+		reflectedResource.InstanceName		= reflectedBuffer.InstanceName;
+		reflectedResource.BlockName			= reflectedBuffer.BlockName;
 
 		std::optional<uint32_t> bindingPoint = ExtractBufferBindingLocation(reflectedBuffer.LayoutQualifiers);
 		if (bindingPoint)

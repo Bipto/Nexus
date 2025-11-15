@@ -27,20 +27,20 @@ namespace Nexus::Graphics
 	}
 
 	void ICommandQueue::WriteToTexture(Ref<ITexture> texture,
-									   uint32_t		mipLevel,
-									   uint32_t		x,
-									   uint32_t		y,
-									   uint32_t		z,
-									   uint32_t		width,
-									   uint32_t		height,
-									   const void  *data,
-									   size_t		size)
+									   uint32_t		 mipLevel,
+									   uint32_t		 x,
+									   uint32_t		 y,
+									   uint32_t		 z,
+									   uint32_t		 width,
+									   uint32_t		 height,
+									   const void	*data,
+									   size_t		 size)
 	{
 		IGraphicsDevice *device = GetGraphicsDevice();
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Upload;
-		bufferDesc.Usage				   = BufferUsage::None;
+		bufferDesc.Usage				   = BufferUsage_None;
 		bufferDesc.SizeInBytes			   = size;
 		bufferDesc.StrideInBytes		   = size;
 		Ref<IDeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
@@ -67,19 +67,19 @@ namespace Nexus::Graphics
 	}
 
 	std::vector<char> ICommandQueue::ReadFromTexture(Ref<ITexture> texture,
-													 uint32_t	  mipLevel,
-													 uint32_t	  x,
-													 uint32_t	  y,
-													 uint32_t	  z,
-													 uint32_t	  width,
-													 uint32_t	  height)
+													 uint32_t	   mipLevel,
+													 uint32_t	   x,
+													 uint32_t	   y,
+													 uint32_t	   z,
+													 uint32_t	   width,
+													 uint32_t	   height)
 	{
-		IGraphicsDevice *device	   = GetGraphicsDevice();
-		size_t			bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+		IGraphicsDevice *device		= GetGraphicsDevice();
+		size_t			 bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Readback;
-		bufferDesc.Usage				   = BufferUsage::None;
+		bufferDesc.Usage				   = BufferUsage_None;
 		bufferDesc.SizeInBytes			   = bufferSize;
 		bufferDesc.StrideInBytes		   = bufferSize;
 

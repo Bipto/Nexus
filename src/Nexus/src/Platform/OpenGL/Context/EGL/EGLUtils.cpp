@@ -27,11 +27,10 @@ namespace Nexus::GL
 
 #if !defined(NX_PLATFORM_ANDROID)
 		Nexus::WindowDescription windowSpec {};
-		windowSpec.Width	 = 1;
-		windowSpec.Height	 = 1;
-		windowSpec.Resizable = false;
-		IWindow *window		 = Platform::CreatePlatformWindow(windowSpec);
-		window->Hide();
+		windowSpec.Width  = 1;
+		windowSpec.Height = 1;
+		windowSpec.Flags  = WindowFlags_Hidden;
+		IWindow *window	  = Platform::CreatePlatformWindow(windowSpec);
 
 		NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
 		EGLDisplay		 display	= eglGetDisplay(windowInfo.display);
@@ -43,4 +42,4 @@ namespace Nexus::GL
 
 		return physicalDevices;
 	}
-}
+}	 // namespace Nexus::GL

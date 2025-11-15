@@ -604,39 +604,39 @@ namespace Nexus::Vk
 	{
 		VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-		if (desc.Usage & Graphics::BufferUsage::Vertex)
+		if (desc.Usage & Graphics::BufferUsage_Vertex)
 		{
 			flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Index)
+		if (desc.Usage & Graphics::BufferUsage_Index)
 		{
 			flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Uniform)
+		if (desc.Usage & Graphics::BufferUsage_Uniform)
 		{
 			flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Storage)
+		if (desc.Usage & Graphics::BufferUsage_Storage)
 		{
 			flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Indirect)
+		if (desc.Usage & Graphics::BufferUsage_Indirect)
 		{
 			flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 		}
 
 		if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
 		{
-			if (desc.Usage & Graphics::BufferUsage::AccelerationStructureStorage)
+			if (desc.Usage & Graphics::BufferUsage_AccelerationStructureStorage)
 			{
 				flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
 			}
 
-			if (desc.Usage & Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly)
+			if (desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly)
 			{
 				flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
 			}
@@ -647,18 +647,18 @@ namespace Nexus::Vk
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		}
 
-		if ((desc.Usage & Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly) &&
+		if ((desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly) &&
 			device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::TexelUniform)
+		if (desc.Usage & Graphics::BufferUsage_TexelUniform)
 		{
 			flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::TexelStorage)
+		if (desc.Usage & Graphics::BufferUsage_TexelStorage)
 		{
 			flags |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
 		}
@@ -2073,7 +2073,7 @@ namespace Nexus::Vk
 		switch (access)
 		{
 			// equivalent of VK_ACCESS_NONE in VK_VERSION_1_3
-			case Graphics::BarrierAccess::None: return VkAccessFlagBits(0);
+			case Graphics::BarrierAccess::NoAccess: return VkAccessFlagBits(0);
 			case Graphics::BarrierAccess::IndirectCommandRead: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
 			case Graphics::BarrierAccess::IndexRead: return VK_ACCESS_INDEX_READ_BIT;
 			case Graphics::BarrierAccess::VertexAttributeRead: return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
@@ -2166,7 +2166,7 @@ namespace Nexus::Vk
 		switch (stage)
 		{
 			// equivalent of VK_PIPELINE_STAGE_NONE in VK_VERSION_1_3
-			case Graphics::BarrierPipelineStage::None: return VkPipelineStageFlagBits(0);
+			case Graphics::BarrierPipelineStage::NoStage: return VkPipelineStageFlagBits(0);
 			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
 			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
 			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
@@ -2257,7 +2257,7 @@ namespace Nexus::Vk
 	{
 		switch (access)
 		{
-			case Graphics::BarrierAccess::None: return VK_ACCESS_2_NONE;
+			case Graphics::BarrierAccess::NoAccess: return VK_ACCESS_2_NONE;
 			case Graphics::BarrierAccess::IndirectCommandRead: return VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
 			case Graphics::BarrierAccess::IndexRead: return VK_ACCESS_2_INDEX_READ_BIT;
 			case Graphics::BarrierAccess::VertexAttributeRead: return VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
@@ -2350,7 +2350,7 @@ namespace Nexus::Vk
 	{
 		switch (stage)
 		{
-			case Graphics::BarrierPipelineStage::None: return VK_PIPELINE_STAGE_2_NONE;
+			case Graphics::BarrierPipelineStage::NoStage: return VK_PIPELINE_STAGE_2_NONE;
 			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
 			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
 			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
@@ -2513,6 +2513,7 @@ namespace Nexus::Vk
 					return VK_IMAGE_LAYOUT_GENERAL;
 				}
 			}
+			default: throw std::runtime_error("Failed to find a valid image layout");
 		}
 	}
 
@@ -2609,19 +2610,19 @@ namespace Nexus::Vk
 		if (data->device != VK_NULL_HANDLE)
 		{
 			PFN_vkGetDeviceProcAddr getDeviceProcAddr = (PFN_vkGetDeviceProcAddr)Vk::GetNxDeviceProcAddr();
-			result									  = getDeviceProcAddr(data->device, pName);
+			result									  = (void *)getDeviceProcAddr(data->device, pName);
 		}
 
 		if (!result && data->instance != VK_NULL_HANDLE)
 		{
 			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
-			result										  = getInstanceProcAddr(data->instance, pName);
+			result										  = (void *)getInstanceProcAddr(data->instance, pName);
 		}
 
 		if (!result)
 		{
 			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
-			result										  = getInstanceProcAddr(VK_NULL_HANDLE, pName);
+			result										  = (void *)getInstanceProcAddr(VK_NULL_HANDLE, pName);
 		}
 
 		return result;

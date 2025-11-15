@@ -355,28 +355,28 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};
 		vertexUploadDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
-		vertexUploadDesc.Usage									  = Graphics::BufferUsage::None;
+		vertexUploadDesc.Usage									  = Graphics::BufferUsage_None;
 		vertexUploadDesc.StrideInBytes							  = sizeof(BatchVertex);
 		vertexUploadDesc.SizeInBytes							  = info.Vertices.size() * sizeof(BatchVertex);
 		info.VertexUploadBuffer									  = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription vertexDesc = {};
 		vertexDesc.Access									= Graphics::BufferMemoryAccess::Default;
-		vertexDesc.Usage									= Graphics::BufferUsage::Vertex;
+		vertexDesc.Usage									= Graphics::BufferUsage_Vertex;
 		vertexDesc.StrideInBytes							= sizeof(BatchVertex);
 		vertexDesc.SizeInBytes								= info.Vertices.size() * sizeof(BatchVertex);
 		info.VertexBuffer									= Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
 
 		Nexus::Graphics::DeviceBufferDescription indexUploadDesc = {};
 		indexUploadDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
-		indexUploadDesc.Usage									 = Graphics::BufferUsage::None;
+		indexUploadDesc.Usage									 = Graphics::BufferUsage_None;
 		indexUploadDesc.StrideInBytes							 = sizeof(uint32_t);
 		indexUploadDesc.SizeInBytes								 = info.Indices.size() * sizeof(uint32_t);
 		info.IndexUploadBuffer									 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription indexDesc = {};
 		indexDesc.Access								   = Graphics::BufferMemoryAccess::Default;
-		indexDesc.Usage									   = Graphics::BufferUsage::Index;
+		indexDesc.Usage									   = Graphics::BufferUsage_Index;
 		indexDesc.StrideInBytes							   = sizeof(uint32_t);
 		indexDesc.SizeInBytes							   = info.Indices.size() * sizeof(uint32_t);
 		info.IndexBuffer								   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
@@ -433,14 +433,14 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::DeviceBufferDescription uniformUploadDesc = {};
 		uniformUploadDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
-		uniformUploadDesc.Usage									   = Graphics::BufferUsage::None;
+		uniformUploadDesc.Usage									   = Graphics::BufferUsage_None;
 		uniformUploadDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformUploadDesc.SizeInBytes							   = sizeof(glm::mat4);
 		m_UniformUploadBuffer									   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription uniformDesc = {};
 		uniformDesc.Access									 = Graphics::BufferMemoryAccess::Default;
-		uniformDesc.Usage									 = Graphics::BufferUsage::Uniform;
+		uniformDesc.Usage									 = Graphics::BufferUsage_Uniform;
 		uniformDesc.StrideInBytes							 = sizeof(glm::mat4);
 		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
 		m_UniformBuffer										 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));

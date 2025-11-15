@@ -665,12 +665,7 @@ namespace Nexus::Graphics
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
-			{
-				context.BlendColor(command.BlendFactorDesc.Red,
-								   command.BlendFactorDesc.Green,
-								   command.BlendFactorDesc.Blue,
-								   command.BlendFactorDesc.Alpha);
-			});
+			{ context.BlendColor(command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue, command.BlendFactor.Alpha); });
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
@@ -747,7 +742,7 @@ namespace Nexus::Graphics
 	{
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.TextureBarrier(); });
 
-		const SubresourceRange &range = command.SubresourceRange;
+		const SubresourceRange &range = command.TextureSubresourceRange;
 
 		Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(command.ITexture);
 

@@ -64,7 +64,7 @@ namespace Nexus::Graphics
 
 				if (context.KHR_debug)
 				{
-					context.ObjectLabelKHR(GL_SYNC_FENCE, (GLuint)m_Sync, -1, m_Description.DebugName.c_str());
+					context.ObjectPtrLabelKHR(m_Sync, -1, m_Description.DebugName.c_str());
 				}
 			});
 	}

@@ -94,7 +94,7 @@ namespace Nexus::Graphics
 					if (descriptor.Type == ResourceDescriptorType::PushConstants)
 					{
 						DeviceBufferDescription bufferDesc = {};
-						bufferDesc.Usage				   = BufferUsage::Uniform;
+						bufferDesc.Usage				   = BufferUsage_Uniform;
 						bufferDesc.DebugName			   = descriptor.Name;
 						bufferDesc.Access				   = BufferMemoryAccess::Upload;
 						bufferDesc.SizeInBytes			   = descriptor.CountOrSizeInBytes;
@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 					else if (descriptor.Type == ResourceDescriptorType::InlineUniformBlock)
 					{
 						DeviceBufferDescription bufferDesc = {};
-						bufferDesc.Usage				   = BufferUsage::Uniform;
+						bufferDesc.Usage				   = BufferUsage_Uniform;
 						bufferDesc.DebugName			   = descriptor.Name;
 						bufferDesc.Access				   = BufferMemoryAccess::Upload;
 						bufferDesc.SizeInBytes			   = descriptor.CountOrSizeInBytes;

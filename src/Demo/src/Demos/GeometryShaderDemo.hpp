@@ -27,7 +27,7 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
 			vertexBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
-			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::Vertex;
+			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage_Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
 			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));

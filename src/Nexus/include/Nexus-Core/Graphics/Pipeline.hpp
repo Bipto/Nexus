@@ -222,7 +222,7 @@ namespace Nexus::Graphics
 			default: throw std::runtime_error("Failed to find a valid resource type");
 		}
 
-		output.Access		 = resource.StorageResourceAccess;
+		output.Access		 = resource.ResourceAccess;
 		output.Name			 = !resource.BlockName.empty() ? resource.BlockName : resource.InstanceName;
 		output.Set			 = resource.DescriptorSet;
 		output.Binding		 = resource.BindingPoint;

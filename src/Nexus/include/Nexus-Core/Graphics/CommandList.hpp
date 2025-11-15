@@ -247,7 +247,7 @@ namespace Nexus::Graphics
 
 	struct SetBlendFactorCommand
 	{
-		BlendFactorDesc BlendFactorDesc = {};
+		BlendFactorDesc BlendFactor = {};
 	};
 
 	struct SetStencilReferenceCommand
@@ -268,7 +268,7 @@ namespace Nexus::Graphics
 
 	enum class BarrierPipelineStage
 	{
-		None,
+		NoStage,
 		DrawIndirect,
 		VertexInput,
 		VertexShader,
@@ -299,7 +299,7 @@ namespace Nexus::Graphics
 
 	enum class BarrierAccess
 	{
-		None,
+		NoAccess,
 		IndirectCommandRead,
 		IndexRead,
 		VertexAttributeRead,
@@ -334,13 +334,13 @@ namespace Nexus::Graphics
 
 	struct TextureBarrierDesc
 	{
-		Ref<Graphics::ITexture> ITexture		 = nullptr;
-		TextureLayout			Layout			 = {};
-		BarrierAccess			BeforeAccess	 = {};
-		BarrierAccess			AfterAccess		 = {};
-		BarrierPipelineStage	BeforeStage		 = {};
-		BarrierPipelineStage	AfterStage		 = {};
-		SubresourceRange		SubresourceRange = {};
+		Ref<Graphics::ITexture> ITexture				= nullptr;
+		TextureLayout			Layout					= {};
+		BarrierAccess			BeforeAccess			= {};
+		BarrierAccess			AfterAccess				= {};
+		BarrierPipelineStage	BeforeStage				= {};
+		BarrierPipelineStage	AfterStage				= {};
+		SubresourceRange		TextureSubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc

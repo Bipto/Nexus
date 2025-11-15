@@ -138,7 +138,7 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Storage;
+			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Storage;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
 			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);

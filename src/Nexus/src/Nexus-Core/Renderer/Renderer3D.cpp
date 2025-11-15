@@ -356,7 +356,7 @@ namespace Nexus::Graphics
 				{
 					DeviceBufferDescription transformBufferDesc = {};
 					transformBufferDesc.Access					= Graphics::BufferMemoryAccess::Upload;
-					transformBufferDesc.Usage					= Graphics::BufferUsage::Uniform;
+					transformBufferDesc.Usage					= Graphics::BufferUsage_Uniform;
 					transformBufferDesc.StrideInBytes			= sizeof(ModelTransformUniforms);
 					transformBufferDesc.SizeInBytes				= sizeof(ModelTransformUniforms);
 					Ref<IDeviceBuffer> transformUniformBuffer	= m_Device->CreateDeviceBuffer(transformBufferDesc);
@@ -529,7 +529,7 @@ namespace Nexus::Graphics
 
 		DeviceBufferDescription cubemapBufferDesc = {};
 		cubemapBufferDesc.Access				  = Graphics::BufferMemoryAccess::Upload;
-		cubemapBufferDesc.Usage					  = Graphics::BufferUsage::Uniform;
+		cubemapBufferDesc.Usage					  = Graphics::BufferUsage_Uniform;
 		cubemapBufferDesc.StrideInBytes			  = sizeof(CubemapCameraUniforms);
 		cubemapBufferDesc.SizeInBytes			  = sizeof(CubemapCameraUniforms);
 		m_CubemapUniformBuffer					  = Ref<IDeviceBuffer>(m_Device->CreateDeviceBuffer(cubemapBufferDesc));
@@ -576,7 +576,7 @@ namespace Nexus::Graphics
 		{
 			DeviceBufferDescription cameraBufferDesc = {};
 			cameraBufferDesc.Access					 = Graphics::BufferMemoryAccess::Upload;
-			cameraBufferDesc.Usage					 = Graphics::BufferUsage::Uniform;
+			cameraBufferDesc.Usage					 = Graphics::BufferUsage_Uniform;
 			cameraBufferDesc.StrideInBytes			 = sizeof(ModelCameraUniforms);
 			cameraBufferDesc.SizeInBytes			 = sizeof(ModelCameraUniforms);
 			m_ModelCameraUniformBuffer				 = Ref<IDeviceBuffer>(m_Device->CreateDeviceBuffer(cameraBufferDesc));

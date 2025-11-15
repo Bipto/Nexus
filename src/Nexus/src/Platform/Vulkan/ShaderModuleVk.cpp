@@ -416,8 +416,8 @@ namespace Nexus::Graphics
 				}
 				case spv::Dim::DimBuffer:
 				{
-					reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
-					dataType								= ReflectedShaderDataType::UniformTextureBuffer;
+					reflectedResource.ResourceAccess = StorageResourceAccess::Read;
+					dataType						 = ReflectedShaderDataType::UniformTextureBuffer;
 					break;
 				}
 				case spv::Dim::DimCube:
@@ -461,34 +461,34 @@ namespace Nexus::Graphics
 
 			if (isReadonly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Read;
 			}
 			else if (isWriteOnly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Write;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Write;
 			}
 			else
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::ReadWrite;
+				reflectedResource.ResourceAccess = StorageResourceAccess::ReadWrite;
 			}
 		}
 		else if (dataType == ReflectedShaderDataType::StorageImage)
 		{
-			auto flags		 = compiler.get_decoration_bitset(spirvResource.id);
-			bool isReadonly	 = flags.get(spv::DecorationNonWritable);
-			bool isWriteOnly = flags.get(spv::DecorationNonReadable);
+			const auto &flags		= compiler.get_decoration_bitset(spirvResource.id);
+			bool		isReadonly	= flags.get(spv::DecorationNonWritable);
+			bool		isWriteOnly = flags.get(spv::DecorationNonReadable);
 
 			if (isReadonly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Read;
 			}
 			else if (isWriteOnly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Write;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Write;
 			}
 			else
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::ReadWrite;
+				reflectedResource.ResourceAccess = StorageResourceAccess::ReadWrite;
 			}
 		}
 	}

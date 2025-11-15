@@ -31,7 +31,7 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription indirectBufferDesc = {};
 			indirectBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Indirect;
+			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Indirect;
 			indirectBufferDesc.StrideInBytes							= sizeof(Nexus::Graphics::IndirectDrawArguments);
 			indirectBufferDesc.SizeInBytes								= sizeof(Nexus::Graphics::IndirectDrawArguments);
 			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));

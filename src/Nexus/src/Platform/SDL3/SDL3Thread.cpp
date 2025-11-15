@@ -34,7 +34,7 @@ namespace Nexus::Threading
 		SDL_PropertiesID properties = SDL_CreateProperties();
 		SDL_SetStringProperty(properties, SDL_PROP_THREAD_CREATE_NAME_STRING, description.Name.c_str());
 		SDL_SetNumberProperty(properties, SDL_PROP_THREAD_CREATE_STACKSIZE_NUMBER, description.StackSize);
-		SDL_SetPointerProperty(properties, SDL_PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, ThreadEntry);
+		SDL_SetPointerProperty(properties, SDL_PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, (void *)ThreadEntry);
 		SDL_SetPointerProperty(properties, SDL_PROP_THREAD_CREATE_USERDATA_POINTER, this);
 
 		m_Thread = SDL_CreateThreadWithProperties(properties);
@@ -98,4 +98,4 @@ namespace Nexus::Threading
 		return 0;
 	}
 
-}	 // namespace Nexus
+}	 // namespace Nexus::Threading
