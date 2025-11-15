@@ -16,7 +16,7 @@ namespace Nexus::UI
 	class UIManager : public Nexus::Application
 	{
 	  public:
-		UIManager(const Nexus::ApplicationSpecification &spec) : Application(spec)
+		UIManager(const Nexus::ApplicationDescription &spec) : Application(spec)
 		{
 		}
 

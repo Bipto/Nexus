@@ -682,9 +682,9 @@ namespace Nexus::ImGuiUtils
 			auto graphicsDevice = app->GetGraphicsDevice();
 
 			WindowDescription windowSpec;
-			windowSpec.Width	  = vp->Size.x;
-			windowSpec.Height	  = vp->Size.y;
-			windowSpec.Borderless = true;
+			windowSpec.Width  = vp->Size.x;
+			windowSpec.Height = vp->Size.y;
+			windowSpec.Flags  = WindowFlags_Utility | WindowFlags_HighPixelDensity | WindowFlags_Borderless;
 
 			Nexus::Graphics::SwapchainDescription swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
 

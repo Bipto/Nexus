@@ -10,6 +10,6 @@ namespace Nexus::Graphics
 		virtual ~ISampler()
 		{
 		}
-		virtual const SamplerDescription &GetSamplerSpecification() = 0;
+		virtual const SamplerDescription &GetSamplerDescription() = 0;
 	};
 }	 // namespace Nexus::Graphics

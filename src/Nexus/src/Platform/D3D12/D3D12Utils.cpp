@@ -1510,7 +1510,7 @@ namespace Nexus::D3D12
 		}
 
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Flags						= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		rootSignatureDesc.Flags						= rootSignatureFlags;
 		rootSignatureDesc.pStaticSamplers			= nullptr;
 		rootSignatureDesc.NumParameters				= rootParameters.size();
 		rootSignatureDesc.pParameters				= rootParameters.data();

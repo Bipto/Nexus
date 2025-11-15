@@ -14,7 +14,7 @@
 
 namespace Nexus
 {
-	Application::Application(const ApplicationSpecification &spec)
+	Application::Application(const ApplicationDescription &spec)
 	{
 		m_Description = spec;
 
@@ -151,7 +151,7 @@ namespace Nexus
 
 	const char *Application::GetApplicationPath()
 	{
-		return Platform::GetApplicationPath(m_Description.Organization, m_Description.App);
+		return Platform::GetApplicationPath(m_Description.Organization.c_str(), m_Description.App.c_str());
 	}
 
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)

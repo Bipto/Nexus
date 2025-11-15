@@ -11,7 +11,7 @@
 	#include <emscripten.h>
 #endif
 
-#include "ApplicationSpecification.hpp"
+#include "ApplicationDescription.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Point.hpp"
@@ -35,7 +35,7 @@ namespace Nexus
 	  public:
 		/// @brief A constructor taking in a specification
 		/// @param spec The options to use when creating an application
-		Application(const ApplicationSpecification &spec);
+		Application(const ApplicationDescription &spec);
 
 		/// @brief Copying an application is not supported
 		/// @param A const reference to an application to copy
@@ -146,7 +146,7 @@ namespace Nexus
 
 	  private:
 		/// @brief The specification that the application was created with
-		ApplicationSpecification m_Description {};
+		ApplicationDescription m_Description {};
 
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;

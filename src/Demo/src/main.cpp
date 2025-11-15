@@ -49,7 +49,7 @@ struct DemoInfo
 class DemoApplication : public Nexus::Application
 {
   public:
-	DemoApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
+	DemoApplication(const Nexus::ApplicationDescription &spec) : Application(spec)
 	{
 	}
 
@@ -310,24 +310,25 @@ class DemoApplication : public Nexus::Application
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
-	Nexus::ApplicationSpecification spec;
+	Nexus::ApplicationDescription desc;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
-	spec.GraphicsCreateInfo.Debug = true;
-	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	desc.GraphicsCreateInfo.Debug = true;
 
-	spec.WindowProperties.Width			   = 1280;
-	spec.WindowProperties.Height		   = 720;
-	spec.WindowProperties.Title			   = "Demo";
-	spec.WindowProperties.Resizable		   = true;
-	spec.WindowProperties.RendersPerSecond = {};
-	spec.WindowProperties.UpdatesPerSecond = {};
+	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
-	spec.SwapchainDescription.Samples		   = 8;
-	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
+	desc.WindowProperties.Width			   = 1280;
+	desc.WindowProperties.Height		   = 720;
+	desc.WindowProperties.Title			   = "Demo";
+	desc.WindowProperties.Flags			   = WindowFlags_Resizable | WindowFlags_HighPixelDensity;
+	desc.WindowProperties.RendersPerSecond = {};
+	desc.WindowProperties.UpdatesPerSecond = {};
 
-	spec.Organization = "Nexus";
-	spec.App		  = "Demo";
+	desc.SwapchainDescription.Samples		   = 8;
+	desc.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
-	return new DemoApplication(spec);
+	desc.Organization = "Nexus";
+	desc.App		  = "Demo";
+
+	return new DemoApplication(desc);
 }

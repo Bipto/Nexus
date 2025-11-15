@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Framebuffer.hpp"
-#include "Nexus-Core/ApplicationSpecification.hpp"
+#include "Nexus-Core/ApplicationDescription.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Structures.hpp"
 #include "Nexus-Core/nxpch.hpp"

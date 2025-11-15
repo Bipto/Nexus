@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "D3D12Include.hpp"
-	#include "Nexus-Core/ApplicationSpecification.hpp"
+	#include "Nexus-Core/ApplicationDescription.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/PixelFormat.hpp"

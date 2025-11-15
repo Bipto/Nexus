@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	const SamplerDescription &SamplerD3D12::GetSamplerSpecification()
+	const SamplerDescription &SamplerD3D12::GetSamplerDescription()
 	{
 		return m_Description;
 	}

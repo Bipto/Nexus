@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "ApplicationSpecification.hpp"
+#include "ApplicationDescription.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"

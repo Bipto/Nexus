@@ -33,7 +33,7 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteSamplers(1, &m_Handle); });
 	}
 
-	const SamplerDescription &SamplerOpenGL::GetSamplerSpecification()
+	const SamplerDescription &SamplerOpenGL::GetSamplerDescription()
 	{
 		return m_Description;
 	}

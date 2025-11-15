@@ -116,6 +116,126 @@ namespace Nexus::Graphics
 		}
 	}
 
+	static void CreateConstantBufferView(Microsoft::WRL::ComPtr<ID3D12Device9> device,
+										 Ref<DeviceBufferD3D12>				   buffer,
+										 size_t								   offset,
+										 size_t								   sizeInBytes,
+										 D3D12_CPU_DESCRIPTOR_HANDLE		   cpuHandle)
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource2> bufferHandle = buffer->GetHandle();
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
+		desc.BufferLocation					 = bufferHandle->GetGPUVirtualAddress() + offset;
+
+		// constant buffers are accessed in 256 byte chunks
+		size_t bufferViewSize = Utils::AlignTo<size_t>(sizeInBytes, 256);
+		desc.SizeInBytes	  = bufferViewSize;
+
+		device->CreateConstantBufferView(&desc, cpuHandle);
+	}
+
+	static void CreateSrvBufferView(Microsoft::WRL::ComPtr<ID3D12Device9>	device,
+									Microsoft::WRL::ComPtr<ID3D12Resource2> buffer,
+									size_t									offset,
+									size_t									sizeInBytes,
+									size_t									strideInBytes,
+									D3D12_CPU_DESCRIPTOR_HANDLE				cpuHandle,
+									bool									byteAddress,
+									DXGI_FORMAT								format)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_BUFFER;
+
+		if (byteAddress)
+		{
+			srvDesc.Format					   = format;
+			srvDesc.Buffer.FirstElement		   = Utils::AlignTo<size_t>(offset, 4);
+			srvDesc.Buffer.NumElements		   = sizeInBytes / 4;
+			srvDesc.Buffer.StructureByteStride = 0;
+			srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_RAW;
+		}
+		else
+		{
+			size_t stride					   = strideInBytes;
+			srvDesc.Format					   = format;
+			srvDesc.Buffer.FirstElement		   = (offset / stride);
+			srvDesc.Buffer.NumElements		   = (sizeInBytes / stride);
+			srvDesc.Buffer.StructureByteStride = stride;
+			srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_NONE;
+		}
+
+		device->CreateShaderResourceView(buffer.Get(), &srvDesc, cpuHandle);
+	}
+
+	static void CreateUavBufferView(Microsoft::WRL::ComPtr<ID3D12Device9>	device,
+									Microsoft::WRL::ComPtr<ID3D12Resource2> buffer,
+									size_t									offset,
+									size_t									sizeInBytes,
+									size_t									strideInBytes,
+									D3D12_CPU_DESCRIPTOR_HANDLE				cpuHandle,
+									bool									byteAddress,
+									DXGI_FORMAT								format)
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+
+		if (byteAddress)
+		{
+			uavDesc.Format					   = format;
+			uavDesc.Buffer.FirstElement		   = Utils::AlignTo<size_t>(offset, 4);
+			uavDesc.Buffer.NumElements		   = sizeInBytes / 4;
+			uavDesc.Buffer.StructureByteStride = 0;
+			uavDesc.Buffer.Flags			   = D3D12_BUFFER_UAV_FLAG_RAW;
+		}
+		else
+		{
+			size_t stride					   = strideInBytes;
+			uavDesc.Format					   = format;
+			uavDesc.Buffer.FirstElement		   = (offset / stride);
+			uavDesc.Buffer.NumElements		   = (sizeInBytes / stride);
+			uavDesc.Buffer.StructureByteStride = stride;
+			uavDesc.Buffer.Flags			   = D3D12_BUFFER_UAV_FLAG_NONE;
+		}
+
+		device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uavDesc, cpuHandle);
+	}
+
+	static void CreateSrvTextureView(Microsoft::WRL::ComPtr<ID3D12Device9> device,
+									 Ref<TextureViewD3D12>				   textureView,
+									 D3D12_CPU_DESCRIPTOR_HANDLE		   cpuHandle)
+	{
+		Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(textureView->GetTexture());
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(textureView->GetDescription());
+
+		auto resourceHandle = texture->GetHandle();
+		device->CreateShaderResourceView(resourceHandle.Get(), &srv, cpuHandle);
+	}
+
+	static void CreateSampler(Microsoft::WRL::ComPtr<ID3D12Device9> device, Ref<SamplerD3D12> sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
+	{
+		const Graphics::SamplerDescription &desc = sampler->GetSamplerDescription();
+
+		const glm::vec4 color = Nexus::Utils::ColourFromBorderColor(desc.TextureBorderColor);
+
+		D3D12_SAMPLER_DESC sd = {};
+		sd.Filter			  = sampler->GetFilter();
+		sd.AddressU			  = sampler->GetAddressModeU();
+		sd.AddressV			  = sampler->GetAddressModeV();
+		sd.AddressW			  = sampler->GetAddressModeW();
+		sd.MipLODBias		  = desc.LODBias;
+		sd.MaxAnisotropy	  = desc.MaximumAnisotropy;
+		sd.ComparisonFunc	  = sampler->GetComparisonFunc();
+		sd.BorderColor[0]	  = color.r;
+		sd.BorderColor[1]	  = color.g;
+		sd.BorderColor[2]	  = color.b;
+		sd.BorderColor[3]	  = color.a;
+		sd.MinLOD			  = desc.MinimumLOD;
+		sd.MaxLOD			  = desc.MaximumLOD;
+
+		device->CreateSampler(&sd, cpuHandle);
+	}
+
 	void ResourceSetD3D12::Flush()
 	{
 		Microsoft::WRL::ComPtr<ID3D12Device9> device = m_Device->GetD3D12Device();
@@ -131,15 +251,7 @@ namespace Nexus::Graphics
 
 				if (Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(view.BufferHandle))
 				{
-					D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
-					desc.BufferLocation					 = buffer->GetHandle()->GetGPUVirtualAddress() + view.Offset;
-
-					// constant buffers are accessed in 256 byte chunks
-					size_t bufferViewSize = Utils::AlignTo<size_t>(view.Size, 256);
-					desc.SizeInBytes	  = bufferViewSize;
-
-					device->CreateConstantBufferView(&desc, descriptorHandles.at(arrayIndex));
-
+					CreateConstantBufferView(device, buffer, view.Offset, view.Size, descriptorHandles.at(arrayIndex));
 					m_BoundResources.UniformBuffers[name][arrayIndex] = view;
 				}
 			}
@@ -169,6 +281,35 @@ namespace Nexus::Graphics
 				const auto &view = views[arrayIndex];
 				if (Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(view.BufferHandle))
 				{
+					StorageResourceAccess access	  = m_DescriptorHandleInfo.StorageBuffers.at(name);
+					bool				  readonly	  = false;
+					bool				  byteAddress = false;
+					D3D12::GetShaderAccessModifiers(access, readonly, byteAddress);
+					const auto &descriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+
+					if (readonly)
+					{
+						CreateSrvBufferView(device,
+											buffer->GetHandle(),
+											view.Offset,
+											view.SizeInBytes,
+											buffer->GetStrideInBytes(),
+											descriptorHandles.at(arrayIndex),
+											byteAddress,
+											DXGI_FORMAT_UNKNOWN);
+					}
+					else
+					{
+						CreateUavBufferView(device,
+											buffer->GetHandle(),
+											view.Offset,
+											view.SizeInBytes,
+											buffer->GetStrideInBytes(),
+											descriptorHandles.at(arrayIndex),
+											byteAddress,
+											DXGI_FORMAT_UNKNOWN);
+					}
+
 					m_BoundResources.StorageBuffers[name][arrayIndex] = view;
 				}
 			}
@@ -190,11 +331,19 @@ namespace Nexus::Graphics
 		// storage images
 		for (const auto &[name, storageImages] : m_QueuedResources.StorageImages)
 		{
+			const auto &descriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
 				if (Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(storageImage.TextureHandle))
 				{
+					D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(storageImage);
+
+					D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = descriptorHandles.at(arrayIndex);
+					auto						resourceHandle = texture->GetHandle();
+					device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
+
 					m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
 				}
 			}
@@ -217,42 +366,11 @@ namespace Nexus::Graphics
 				Ref<SamplerD3D12>	  sampler	  = std::dynamic_pointer_cast<SamplerD3D12>(combinedImageSampler.ImageSampler);
 				if (textureView && sampler)
 				{
-					// write texture
-					{
-						Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(textureView->GetTexture());
+					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
+					CreateSrvTextureView(device, textureView, textureHandle);
 
-						D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(textureView->GetDescription());
-
-						D3D12_CPU_DESCRIPTOR_HANDLE textureHandle  = srv_crb_uavDescriptorHandles.at(arrayIndex);
-						auto						resourceHandle = texture->GetHandle();
-
-						device->CreateShaderResourceView(resourceHandle.Get(), &srv, textureHandle);
-					}
-
-					// write sampler
-					{
-						const auto &spec = sampler->GetSamplerSpecification();
-
-						const glm::vec4 color = Nexus::Utils::ColourFromBorderColor(spec.TextureBorderColor);
-
-						D3D12_SAMPLER_DESC sd;
-						sd.Filter		  = sampler->GetFilter();
-						sd.AddressU		  = sampler->GetAddressModeU();
-						sd.AddressV		  = sampler->GetAddressModeV();
-						sd.AddressW		  = sampler->GetAddressModeW();
-						sd.MipLODBias	  = spec.LODBias;
-						sd.MaxAnisotropy  = spec.MaximumAnisotropy;
-						sd.ComparisonFunc = sampler->GetComparisonFunc();
-						sd.BorderColor[0] = color.r;
-						sd.BorderColor[1] = color.g;
-						sd.BorderColor[2] = color.b;
-						sd.BorderColor[3] = color.a;
-						sd.MinLOD		  = spec.MinimumLOD;
-						sd.MaxLOD		  = spec.MaximumLOD;
-
-						D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
-						device->CreateSampler(&sd, samplerHandle);
-					}
+					D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
+					CreateSampler(device, sampler, samplerHandle);
 
 					m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
 				}
@@ -262,12 +380,17 @@ namespace Nexus::Graphics
 		// sampled images
 		for (const auto &[name, sampledImages] : m_QueuedResources.SampledImages)
 		{
+			const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < sampledImages.size(); arrayIndex++)
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
 				if (Ref<TextureViewD3D12> textureView = std::dynamic_pointer_cast<TextureViewD3D12>(sampledImage))
 				{
+					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
+					CreateSrvTextureView(device, textureView, textureHandle);
+
 					m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
 				}
 			}
@@ -276,12 +399,17 @@ namespace Nexus::Graphics
 		// samplers
 		for (const auto &[name, samplers] : m_QueuedResources.Samplers)
 		{
+			const auto &samplerDescriptorHandles = m_SamplerDescriptorHandles.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < samplers.size(); arrayIndex++)
 			{
 				const auto &sampler = samplers[arrayIndex];
 
-				if (Ref<SamplerD3D12> samplerVk = std::dynamic_pointer_cast<SamplerD3D12>(sampler))
+				if (Ref<SamplerD3D12> samplerD3D12 = std::dynamic_pointer_cast<SamplerD3D12>(sampler))
 				{
+					D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
+					CreateSampler(device, samplerD3D12, samplerHandle);
+
 					m_BoundResources.Samplers[name][arrayIndex] = sampler;
 				}
 			}
@@ -290,11 +418,27 @@ namespace Nexus::Graphics
 		// uniform texel buffers
 		for (const auto &[name, texelBuffers] : m_QueuedResources.UniformTexelBuffers)
 		{
+			const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferD3D12> texelBufferVk = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
+				if (Ref<TexelBufferD3D12> texelBufferD3D12 = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
 				{
+					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
+
+					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
+					DXGI_FORMAT					pixelFormat	  = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
+
+					CreateSrvBufferView(device,
+										buffer->GetHandle(),
+										0,
+										buffer->GetSizeInBytes(),
+										buffer->GetStrideInBytes(),
+										textureHandle,
+										false,
+										pixelFormat);
+
 					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
 				}
 			}
@@ -303,11 +447,27 @@ namespace Nexus::Graphics
 		// storage texel buffers
 		for (const auto &[name, texelBuffers] : m_QueuedResources.StorageTexelBuffers)
 		{
+			const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
+
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferD3D12> texelBufferVk = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
+				if (Ref<TexelBufferD3D12> texelBufferD3D12 = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
 				{
+					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
+
+					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
+					DXGI_FORMAT					pixelFormat	  = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
+
+					CreateUavBufferView(device,
+										buffer->GetHandle(),
+										0,
+										buffer->GetSizeInBytes(),
+										buffer->GetStrideInBytes(),
+										textureHandle,
+										false,
+										pixelFormat);
+
 					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
 				}
 			}

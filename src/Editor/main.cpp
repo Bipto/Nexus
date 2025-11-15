@@ -24,7 +24,7 @@
 class EditorApplication : public Nexus::Application
 {
   public:
-	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
+	EditorApplication(const Nexus::ApplicationDescription &spec) : Application(spec)
 	{
 	}
 
@@ -642,7 +642,7 @@ class EditorApplication : public Nexus::Application
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
-	Nexus::ApplicationSpecification spec;
+	Nexus::ApplicationDescription spec;
 	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.GraphicsCreateInfo.Debug = true;
 	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;

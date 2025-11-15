@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 	  public:
 		SamplerD3D12(const SamplerDescription &spec);
 		virtual ~SamplerD3D12();
-		virtual const SamplerDescription &GetSamplerSpecification() override;
+		virtual const SamplerDescription &GetSamplerDescription() override;
 
 		D3D12_FILTER			   GetFilter();
 		D3D12_TEXTURE_ADDRESS_MODE GetAddressModeU();

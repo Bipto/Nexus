@@ -375,7 +375,7 @@ namespace Nexus::Graphics
 			{
 				if (options12.EnhancedBarriersSupported)
 				{
-					m_D3D12Features.SupportsEnhancedBarriers = true;
+					// m_D3D12Features.SupportsEnhancedBarriers = true;
 				}
 			}
 		}

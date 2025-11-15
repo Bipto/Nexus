@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	  public:
 		SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device);
 		virtual ~SamplerOpenGL();
-		virtual const SamplerDescription &GetSamplerSpecification() override;
+		virtual const SamplerDescription &GetSamplerDescription() override;
 		unsigned int					  GetHandle() const;
 
 		void Bind(uint32_t slot);

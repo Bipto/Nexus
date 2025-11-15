@@ -2,7 +2,7 @@
 
 #include "AudioBuffer.hpp"
 #include "AudioSource.hpp"
-#include "Nexus-Core/ApplicationSpecification.hpp"
+#include "Nexus-Core/ApplicationDescription.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
