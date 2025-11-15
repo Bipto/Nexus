@@ -7,10 +7,10 @@
 
 namespace Nexus::Graphics
 {
-	class CommandListOpenGL : public CommandList
+	class CommandListOpenGL : public ICommandList
 	{
 	  public:
-		CommandListOpenGL(const CommandListDescription &spec) : CommandList(spec)
+		CommandListOpenGL(const CommandListDescription &spec) : ICommandList(spec)
 		{
 		}
 

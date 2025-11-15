@@ -23,7 +23,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::Swapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
 			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
 			m_CommandList									   = m_CommandQueue->CreateCommandList();
 			m_BatchRenderer									   = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
@@ -59,7 +59,11 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
+
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
 
@@ -82,7 +86,7 @@ namespace Demos
 			scissor.Width  = size.X;
 			scissor.Height = size.Y;
 
-			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()}, vp, scissor);
+			m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
 			for (const auto &quad : m_Quads)
 			{
@@ -138,7 +142,7 @@ namespace Demos
 		};
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;

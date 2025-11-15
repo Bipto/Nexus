@@ -1,39 +1,59 @@
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/nxpch.hpp"
-
 	#include "SwapchainOpenGL.hpp"
-
 	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
-
 	#include "GraphicsDeviceOpenGL.hpp"
+	#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Graphics
 {
-	SwapchainOpenGL::SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDevice *graphicsDevice)
-		: Swapchain(swapchainSpec),
-		  m_Window(window)
+	SwapchainOpenGL::SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice)
+		: ISwapchain(swapchainSpec),
+		  m_Window(window),
+		  m_Device(graphicsDevice)
 	{
 		m_SwapchainWidth  = m_Window->GetWindowSize().X;
 		m_SwapchainHeight = m_Window->GetWindowSize().Y;
 
-		GraphicsDeviceOpenGL *graphicsDeviceOpenGL = (GraphicsDeviceOpenGL *)graphicsDevice;
-
-		m_ViewContext = GL::CreateViewContext(window, graphicsDeviceOpenGL);
+		m_ViewContext = GL::CreateViewContext(window, graphicsDevice);
 		m_ViewContext->MakeCurrent();
 
 		SetPresentMode(m_Description.ImagePresentMode);
+
+		GL::SetCurrentContext(graphicsDevice->GetOffscreenContext());
+		CreateFramebuffer();
 	}
 
 	SwapchainOpenGL::~SwapchainOpenGL()
 	{
+		GL::SetCurrentContext(m_Device->GetOffscreenContext());
 	}
 
-	void SwapchainOpenGL::SwapBuffers()
+	void SwapchainOpenGL::SwapBuffers(const SwapchainPresentDescription &presentDesc)
 	{
-		m_ViewContext->Swap();
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				if (context.PushDebugGroup)
+				{
+					context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, "SwapchainOpenGL::SwapBuffers");
+				}
+
+				m_ViewContext->Swap(std::dynamic_pointer_cast<TextureOpenGL>(m_Framebuffer->GetColorTextureHandle(0)), presentDesc);
+
+				if (context.PopDebugGroup)
+				{
+					context.PopDebugGroup();
+				}
+			});
+
 		ResizeIfNecessary();
+	}
+
+	Ref<IFramebuffer> SwapchainOpenGL::GetCurrentFramebuffer()
+	{
+		return m_Framebuffer;
 	}
 
 	void SwapchainOpenGL::SetPresentMode(PresentMode presentMode)
@@ -65,27 +85,25 @@ namespace Nexus::Graphics
 
 	PixelFormat SwapchainOpenGL::GetColourFormat()
 	{
-		return PixelFormat::R8_G8_B8_A8_UNorm;
+		return m_ColourFormat;
 	}
 
 	PixelFormat SwapchainOpenGL::GetDepthFormat()
 	{
-		return PixelFormat::D24_UNorm_S8_UInt;
+		return m_DepthFormat;
 	}
 
 	void SwapchainOpenGL::ResizeIfNecessary()
 	{
 		Nexus::Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
 
-		GL::ExecuteGLCommands(
-			[&](const GladGLContext &context)
-			{
-				glCall(context.Viewport(0, 0, windowSize.X, windowSize.Y));
-				glCall(context.Scissor(0, 0, windowSize.X, windowSize.Y));
-			});
+		if (windowSize.X != m_SwapchainWidth || windowSize.Y != m_SwapchainHeight)
+		{
+			m_SwapchainWidth  = windowSize.X;
+			m_SwapchainHeight = windowSize.Y;
 
-		m_SwapchainWidth  = windowSize.X;
-		m_SwapchainHeight = windowSize.Y;
+			CreateFramebuffer();
+		}
 	}
 
 	void SwapchainOpenGL::BindAsDrawTarget()
@@ -100,6 +118,29 @@ namespace Nexus::Graphics
 	GL::IViewContext *SwapchainOpenGL::GetViewContext()
 	{
 		return m_ViewContext.get();
+	}
+
+	IWindow *SwapchainOpenGL::GetWindow()
+	{
+		return m_Window;
+	}
+
+	Ref<IFramebuffer> SwapchainOpenGL::GetFramebuffer()
+	{
+		return m_Framebuffer;
+	}
+
+	void SwapchainOpenGL::CreateFramebuffer()
+	{
+		IGraphicsDevice *device = m_Device;
+
+		FramebufferTextureCreateDescription framebufferDesc = {};
+		framebufferDesc.Width								= m_SwapchainWidth;
+		framebufferDesc.Height								= m_SwapchainHeight;
+		framebufferDesc.Samples								= m_Description.Samples;
+		framebufferDesc.ColourAttachmentFormats				= {m_ColourFormat};
+		framebufferDesc.DepthAttachmentFormat				= m_DepthFormat;
+		m_Framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(device->CreateFramebuffer(framebufferDesc));
 	}
 }	 // namespace Nexus::Graphics
 

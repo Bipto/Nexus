@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/Rectangle.hpp"
+
 namespace Nexus::Graphics
 {
 	/// @brief An enum class representing how two pixels should be compared against
@@ -277,6 +279,21 @@ namespace Nexus::Graphics
 
 		/// @brief Whether the values of the depth buffer should be limited
 		bool DepthClipEnabled = false;
+
+		/// @brief The bias to add to any depth values
+		int32_t DepthBias = 0;
+
+		/// @brief Whether to clamp all values above the near/far depth range to the near/far values
+		bool DepthClamp = false;
+
+		/// @brief The maximum depth bias for a pixel
+		float DepthBiasClamp = 0.0f;
+
+		/// @brief Scalar on a given pixel's slope
+		float SlopeScaledDepthBias = 0.0f;
+
+		/// @brief Whether to rasterize the final output
+		bool Discard = false;
 	};
 
 	/// @brief A struct represenging how pixels should be blended
@@ -305,5 +322,39 @@ namespace Nexus::Graphics
 
 		/// @brief How the pixel should be written to the render target
 		WriteMask PixelWriteMask = WriteMask {};
+	};
+
+	struct Offset3D
+	{
+		int32_t X = 0;
+		int32_t Y = 0;
+		int32_t Z = 0;
+	};
+
+	struct Extent3D
+	{
+		uint32_t Width	= 0;
+		uint32_t Height = 0;
+		uint32_t Depth	= 0;
+	};
+
+	struct SubresourceRange
+	{
+		uint32_t BaseMipLevel	= 0;
+		uint32_t LevelCount		= 1;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 1;
+	};
+
+	struct SubresourceLayers
+	{
+		uint32_t MipLevel		= 0;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 0;
+	};
+
+	struct SwapchainPresentDescription
+	{
+		std::vector<Rectangle<uint32_t>> PresentRects = {};
 	};
 }	 // namespace Nexus::Graphics

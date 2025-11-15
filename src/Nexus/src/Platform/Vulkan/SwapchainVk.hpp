@@ -2,10 +2,9 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/nxpch.hpp"
-
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/IWindow.hpp"
+	#include "Nexus-Core/nxpch.hpp"
 	#include "PhysicalDeviceVk.hpp"
 	#include "Vk.hpp"
 
@@ -14,72 +13,49 @@ namespace Nexus::Graphics
 	// forward declaration
 	class GraphicsDeviceVk;
 	class CommandQueueVk;
+	class FramebufferVk;
 
-	class SwapchainVk : public Swapchain
+	class SwapchainVk : public ISwapchain
 	{
 	  public:
-		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
+		SwapchainVk(IWindow *window, IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainVk();
 
-		void					 SwapBuffers() final;
+		void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>		 GetCurrentFramebuffer() final;
 		void					 SetPresentMode(PresentMode presentMode) final;
 		Nexus::Point2D<uint32_t> GetSize() final;
-		VkSurfaceKHR			 GetSurface();
-		VkSurfaceFormatKHR		 GetSurfaceFormat();
-		VkFormat				 GetVkDepthFormat();
+
+		PixelFormat GetColourFormat() final;
+		PixelFormat GetDepthFormat() final;
+
+		VkSurfaceKHR	   GetSurface();
+		VkSurfaceFormatKHR GetSurfaceFormat();
 
 		IWindow *GetWindow() final
 		{
 			return m_Window;
 		}
 
-		PixelFormat GetColourFormat() final;
-		PixelFormat GetDepthFormat() final;
-
 		void RecreateSwapchain();
 
-		uint32_t   GetImageCount();
 		VkExtent2D GetSwapchainSize() const;
-
-		VkImage GetColourImage();
-		VkImage GetDepthImage();
-		VkImage GetResolveImage();
-
-		VkImageView GetColourImageView();
-		VkImageView GetDepthImageView();
-		VkImageView GetResolveImageView();
-
-		VkImageLayout GetColorImageLayout();
-		VkImageLayout GetDepthImageLayout();
-		VkImageLayout GetResolveImageLayout();
-
-		void SetColorImageLayout(VkImageLayout layout);
-		void SetDepthImageLayout(VkImageLayout layout);
-		void SetResolveImageLayout(VkImageLayout layout);
 
 		bool			   IsSwapchainValid() const;
 		const VkSemaphore &GetSemaphore();
-		VkRenderPass	   GetRenderPass() const;
-		VkFramebuffer	   GetFramebuffer() const;
 
 	  private:
 		void CreateSurface(VkInstance instance);
 		bool CreateSwapchain(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
-		void CreateSwapchainImageViews();
 		void CreateDepthStencil(GraphicsDeviceVk *graphicsDevice);
 		void CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice);
 		void CreateSemaphores();
 
 		void CreateFramebuffers();
-		void CreateRenderPass();
-
 		void CreateAll();
 
 		void CleanupSwapchain();
-		void CleanupDepthStencil();
-		void CleanupResolveAttachment();
 		void CleanupSemaphores();
-		void CleanupFramebuffers();
 
 		bool AcquireNextImage();
 
@@ -102,37 +78,24 @@ namespace Nexus::Graphics
 		CommandQueueVk *m_CommandQueue = nullptr;
 
 		// vulkan types
-		VkSurfaceKHR m_Surface;
+		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
 
-		VkSwapchainKHR			 m_Swapchain;
-		VkSurfaceCapabilitiesKHR m_SurfaceCapabilities;
-		VkSurfaceFormatKHR		 m_SurfaceFormat;
-		VkExtent2D				 m_SwapchainSize;
+		PixelFormat m_DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
 
-		std::vector<VkImage>	   m_SwapchainImages;
-		uint32_t				   m_SwapchainImageCount;
-		std::vector<VkImageView>   m_SwapchainImageViews;
-		std::vector<VkImageLayout> m_ImageLayouts;
+		VkSwapchainKHR			 m_Swapchain		   = VK_NULL_HANDLE;
+		VkSurfaceCapabilitiesKHR m_SurfaceCapabilities = {};
+		VkSurfaceFormatKHR		 m_SurfaceFormat	   = {};
+		VkExtent2D				 m_SwapchainSize	   = {};
 
-		VkImage		   m_ResolveImage;
-		VkDeviceMemory m_ResolveMemory;
-		VkImageView	   m_ResolveImageView;
-		VkImageLayout  m_ResolveImageLayout;
-
-		VkFormat	   m_DepthFormat = VK_FORMAT_D24_UNORM_S8_UINT;
-		VkImage		   m_DepthImage;
-		VkDeviceMemory m_DepthImageMemory;
-		VkImageView	   m_DepthImageView;
-		VkImageLayout  m_DepthLayout;
-
-		std::vector<VkFramebuffer> m_Framebuffers;
-		VkRenderPass			   m_RenderPass;
+		std::vector<Ref<ITexture>>	   m_ColourAttachments = {};
+		Ref<ITexture>				   m_DepthAttachment   = {};
+		Ref<ITexture>				   m_ResolveAttachment = {};
+		std::vector<Ref<IFramebuffer>> m_Framebuffers	   = {};
 
 		GraphicsDeviceVk *m_GraphicsDevice;
 
 		uint32_t m_FrameNumber		 = 0;
 		uint32_t m_CurrentFrameIndex = 0;
-		VkImage	 m_CurrentImage		 = nullptr;
 		bool	 m_SwapchainValid	 = false;
 
 		VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];

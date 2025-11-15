@@ -13,13 +13,14 @@ namespace Nexus::Graphics
 
 	struct FenceDescription
 	{
-		bool Signalled = false;
+		bool		Signalled = false;
+		std::string DebugName = "Fence";
 	};
 
-	class Fence
+	class IFence
 	{
 	  public:
-		virtual ~Fence()
+		virtual ~IFence()
 		{
 		}
 		virtual bool					IsSignalled() const	   = 0;

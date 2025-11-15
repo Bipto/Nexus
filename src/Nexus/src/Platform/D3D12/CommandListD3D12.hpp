@@ -10,7 +10,7 @@
 
 namespace Nexus::Graphics
 {
-	class CommandListD3D12 : public CommandList
+	class CommandListD3D12 : public ICommandList
 	{
 	  public:
 		CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListDescription &spec);

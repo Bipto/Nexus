@@ -1,8 +1,8 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "ShaderModuleOpenGL.hpp"
-	#include "Nexus-Core/Logging/Log.hpp"
 	#include "GraphicsDeviceOpenGL.hpp"
+	#include "Nexus-Core/Logging/Log.hpp"
 	#include "OpenGLShaderParser.hpp"
 
 	#include <regex>
@@ -10,7 +10,7 @@
 namespace Nexus::Graphics
 {
 	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceOpenGL *device)
-		: ShaderModule(shaderModuleSpec),
+		: IShaderModule(shaderModuleSpec),
 		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage)),
 		  m_Device(device)
 	{
@@ -32,6 +32,11 @@ namespace Nexus::Graphics
 					std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
 					NX_ERROR(errorMessage);
 				}
+
+				if (context.KHR_debug)
+				{
+					context.ObjectLabelKHR(GL_SHADER, m_Handle, -1, m_ModuleSpecification.DebugName.c_str());
+				}
 			});
 	}
 
@@ -51,10 +56,10 @@ namespace Nexus::Graphics
 		return m_Handle;
 	}
 
-	ReflectedShaderDataType StringToReflectedShaderDataType(const std::string	  &type,
-															ResourceDimension	  &dimension,
-															StorageResourceAccess &storageResourceAccess,
-															const std::string	  &memoryQualifier)
+	static ReflectedShaderDataType StringToReflectedShaderDataType(const std::string	 &type,
+																   ResourceDimension	 &dimension,
+																   StorageResourceAccess &storageResourceAccess,
+																   const std::string	 &memoryQualifier)
 	{
 		dimension			  = ResourceDimension::NoDimension;
 		storageResourceAccess = StorageResourceAccess::NoAccess;
@@ -189,52 +194,52 @@ namespace Nexus::Graphics
 			dimension = ResourceDimension::Texture2DMS;
 			return ReflectedShaderDataType::CombinedImageSampler;
 		}
-		else if (type == "texture2DMSArray")
+		else if (type == "texture2DMSArray" || type == "imagee2DMSArray")
 		{
 			dimension = ResourceDimension::Texture2DMSArray;
 			return ReflectedShaderDataType::CombinedImageSampler;
 		}
-		else if (type == "texture1D")
+		else if (type == "texture1D" || type == "image1D")
 		{
 			dimension = ResourceDimension::Texture1D;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2D")
+		else if (type == "texture2D" || type == "image2D")
 		{
 			dimension = ResourceDimension::Texture2D;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture3D")
+		else if (type == "texture3D" || type == "image3D")
 		{
 			dimension = ResourceDimension::Texture3D;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "textureCube")
+		else if (type == "textureCube" || type == "imageCube")
 		{
 			dimension = ResourceDimension::TextureCube;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2DRect")
+		else if (type == "texture2DRect" || type == "image2DRect")
 		{
 			dimension = ResourceDimension::TextureRectangle;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture1DArray")
+		else if (type == "texture1DArray" || type == "image1DArray")
 		{
 			dimension = ResourceDimension::Texture1DArray;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2DArray")
+		else if (type == "texture2DArray" || type == "image2DArray")
 		{
 			dimension = ResourceDimension::Texture2DArray;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "textureCubeArray")
+		else if (type == "textureCubeArray" || type == "imageCubeArray")
 		{
 			dimension = ResourceDimension::TextureCubeArray;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "textureBuffer")
+		else if (type == "textureBuffer" || type == "imageBuffer")
 		{
 			dimension			  = ResourceDimension::NoDimension;
 			storageResourceAccess = StorageResourceAccess::Read;
@@ -246,12 +251,12 @@ namespace Nexus::Graphics
 			storageResourceAccess = StorageResourceAccess::ReadWrite;
 			return ReflectedShaderDataType::StorageTextureBuffer;
 		}
-		else if (type == "texture2DMS")
+		else if (type == "texture2DMS" || type == "image2DMS")
 		{
 			dimension = ResourceDimension::Texture2DMS;
 			return ReflectedShaderDataType::Texture;
 		}
-		else if (type == "texture2DMSArray")
+		else if (type == "texture2DMSArray" || type == "image2DMSArray")
 		{
 			dimension = ResourceDimension::Texture2DMSArray;
 			return ReflectedShaderDataType::Texture;
@@ -382,7 +387,7 @@ namespace Nexus::Graphics
 		throw std::runtime_error("Failed to find a valid type");
 	}
 
-	std::optional<uint32_t> ExtractUniformBindingLocation(const std::string &input)
+	static std::optional<uint32_t> ExtractUniformBindingLocation(const std::string &input)
 	{
 		std::regex pattern(R"(location\s*=\s*(\d+))");
 
@@ -396,7 +401,7 @@ namespace Nexus::Graphics
 		return {};
 	}
 
-	std::optional<uint32_t> ExtractBufferBindingLocation(const std::string &input)
+	static std::optional<uint32_t> ExtractBufferBindingLocation(const std::string &input)
 	{
 		std::regex pattern(R"(binding\s*=\s*(\d+))");
 
@@ -410,17 +415,17 @@ namespace Nexus::Graphics
 		return {};
 	}
 
-	ReflectedResource ExtractResourceType(const OpenGL::ReflectedShaderResource &uniform)
+	static ReflectedResource ExtractResourceType(const OpenGL::ReflectedShaderResource &uniform)
 	{
 		ResourceDimension		dimension			  = {};
 		StorageResourceAccess	storageResourceAccess = {};
 		ReflectedShaderDataType type = StringToReflectedShaderDataType(uniform.Type, dimension, storageResourceAccess, uniform.MemoryQualififers);
 
-		ReflectedResource reflectedResource		= {};
-		reflectedResource.Type					= type;
-		reflectedResource.Dimension				= dimension;
-		reflectedResource.StorageResourceAccess = storageResourceAccess;
-		reflectedResource.Name					= uniform.Name;
+		ReflectedResource reflectedResource = {};
+		reflectedResource.Type				= type;
+		reflectedResource.Dimension			= dimension;
+		reflectedResource.ResourceAccess	= storageResourceAccess;
+		reflectedResource.InstanceName		= uniform.Name;
 
 		std::optional<uint32_t> bindingPoint = ExtractUniformBindingLocation(uniform.LayoutQualififers);
 		if (bindingPoint)
@@ -445,18 +450,19 @@ namespace Nexus::Graphics
 		return reflectedResource;
 	}
 
-	ReflectedResource ExtractBuffer(const OpenGL::ReflectedShaderBuffer &reflectedBuffer)
+	static ReflectedResource ExtractBuffer(const OpenGL::ReflectedShaderBuffer &reflectedBuffer)
 	{
 		ResourceDimension		dimension			  = {};
 		StorageResourceAccess	storageResourceAccess = {};
 		ReflectedShaderDataType type =
 			StringToReflectedShaderDataType(reflectedBuffer.StorageQualifier, dimension, storageResourceAccess, reflectedBuffer.MemoryQualififers);
 
-		ReflectedResource reflectedResource		= {};
-		reflectedResource.Type					= type;
-		reflectedResource.Dimension				= dimension;
-		reflectedResource.StorageResourceAccess = storageResourceAccess;
-		reflectedResource.Name					= reflectedBuffer.InstanceName.empty() ? reflectedBuffer.InstanceName : reflectedBuffer.BlockName;
+		ReflectedResource reflectedResource = {};
+		reflectedResource.Type				= type;
+		reflectedResource.Dimension			= dimension;
+		reflectedResource.ResourceAccess	= storageResourceAccess;
+		reflectedResource.InstanceName		= reflectedBuffer.InstanceName;
+		reflectedResource.BlockName			= reflectedBuffer.BlockName;
 
 		std::optional<uint32_t> bindingPoint = ExtractBufferBindingLocation(reflectedBuffer.LayoutQualifiers);
 		if (bindingPoint)
@@ -473,7 +479,7 @@ namespace Nexus::Graphics
 		return reflectedResource;
 	}
 
-	ShaderReflectionData ExtractReflectionData(const OpenGL::ReflectedShaderResources &data)
+	static ShaderReflectionData ExtractReflectionData(const OpenGL::ReflectedShaderResources &data)
 	{
 		ShaderReflectionData reflectionData = {};
 
@@ -485,7 +491,7 @@ namespace Nexus::Graphics
 				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
 
 				Attribute &attribute = reflectionData.Inputs.emplace_back();
-				attribute.Name		 = reflectedResource.Name;
+				attribute.Name		 = reflectedResource.InstanceName;
 				attribute.Binding	 = reflectedResource.BindingPoint;
 				attribute.Type		 = reflectedResource.Type;
 			}
@@ -495,7 +501,7 @@ namespace Nexus::Graphics
 				Graphics::ReflectedResource reflectedResource = ExtractResourceType(resource);
 
 				Attribute &attribute = reflectionData.Outputs.emplace_back();
-				attribute.Name		 = reflectedResource.Name;
+				attribute.Name		 = reflectedResource.InstanceName;
 				attribute.Binding	 = reflectedResource.BindingPoint;
 				attribute.Type		 = reflectedResource.Type;
 			}

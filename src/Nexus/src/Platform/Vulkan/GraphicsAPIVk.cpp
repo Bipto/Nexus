@@ -212,7 +212,7 @@ namespace Nexus::Graphics
 		return physicalDevices;
 	}
 
-	Graphics::GraphicsDevice *GraphicsAPI_Vk::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
+	Graphics::IGraphicsDevice *GraphicsAPI_Vk::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
 		VulkanDeviceConfig config			  = {};
 		config.Debug						  = m_CreateInfo.Debug;

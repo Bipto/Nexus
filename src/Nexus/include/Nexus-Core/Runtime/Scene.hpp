@@ -34,8 +34,8 @@ namespace Nexus
 	struct Environment
 	{
 		std::string			   CubemapPath		  = {};
-		Ref<Graphics::Texture> EnvironmentCubemap = nullptr;
-		Ref<Graphics::Sampler> CubemapSampler	  = nullptr;
+		Ref<Graphics::ITexture> EnvironmentCubemap = nullptr;
+		Ref<Graphics::ISampler> CubemapSampler	  = nullptr;
 		glm::vec4			   ClearColour		  = {1.0f, 1.0f, 1.0f, 1.0f};
 	};
 
@@ -65,7 +65,7 @@ namespace Nexus
 		static Scene *Deserialize(const SceneInfo			  &info,
 								  const std::string			  &sceneDirectory,
 								  Project					  *project,
-								  Graphics::GraphicsDevice	  *device,
+								  Graphics::IGraphicsDevice	  *device,
 								  Ref<Graphics::ICommandQueue> commandQueue);
 
 	  public:

@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 
 	bool FenceOpenGL::IsSignalled() const
 	{
-		GLint status;
+		GLint status = -1;
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.GetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status); });
 		return status == GL_SIGNALED;
 	}
@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	GLsync FenceOpenGL::GetHandle()
+	GLsync FenceOpenGL::GetHandle() const
 	{
 		return m_Sync;
 	}
@@ -60,6 +60,11 @@ namespace Nexus::Graphics
 					{
 						throw std::runtime_error("Failed to wait for fence");
 					}
+				}
+
+				if (context.KHR_debug)
+				{
+					context.ObjectPtrLabelKHR(m_Sync, -1, m_Description.DebugName.c_str());
 				}
 			});
 	}

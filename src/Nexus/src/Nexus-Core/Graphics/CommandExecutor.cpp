@@ -2,12 +2,11 @@
 
 namespace Nexus::Graphics
 {
-	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline,
-																   std::optional<RenderTarget>		renderTarget)
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, Ref<IFramebuffer> renderTarget)
 	{
 		bool valid = true;
 
-		if (!renderTarget.has_value())
+		if (!renderTarget)
 		{
 			NX_ERROR("Attempting to execute graphics command without a bound render target");
 			valid = false;
@@ -41,24 +40,23 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(std::optional<RenderTarget> target, uint32_t colourIndex)
+	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(Ref<IFramebuffer> target, uint32_t colourIndex)
 	{
 		bool valid = true;
 
-		if (!target.has_value())
+		if (!target)
 		{
 			NX_ERROR("Attempting to clear a colour target but no render target is bound");
 			valid = false;
 		}
 
-		if (target.has_value())
+		if (target)
 		{
-			RenderTarget t = target.value();
-			if (colourIndex > t.GetColorAttachmentCount())
+			if (colourIndex > target->GetColorTextureCount())
 			{
 				std::stringstream ss;
 				ss << "Attempting to clear colour attachment at index: " << colourIndex << ", but render target contains "
-				   << t.GetColorAttachmentCount() << " colour targets";
+				   << target->GetColorTextureCount() << " colour targets";
 				NX_ERROR(ss.str());
 				valid = false;
 			}
@@ -67,20 +65,19 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForClearDepth(std::optional<RenderTarget> target)
+	bool CommandExecutor::ValidateForClearDepth(Ref<IFramebuffer> target)
 	{
 		bool valid = true;
 
-		if (!target.has_value())
+		if (!target)
 		{
 			NX_ERROR("Attempting to clear a depth/stencil target but none is bound");
 			valid = false;
 		}
 
-		if (target.has_value())
+		if (target)
 		{
-			RenderTarget t = target.value();
-			if (!t.HasDepthAttachment())
+			if (!target->HasDepthTexture())
 			{
 				NX_ERROR("Attempting to clear depth/stencil target but render target "
 						 "does not contain depth attachment");
@@ -91,11 +88,11 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForSetViewport(std::optional<RenderTarget> target, const Viewport &viewport)
+	bool CommandExecutor::ValidateForSetViewport(Ref<IFramebuffer> target, const Viewport &viewport)
 	{
 		bool valid = true;
 
-		if (!target.has_value())
+		if (!target)
 		{
 			NX_ERROR("Attempting to set viewport but no render target has been specified");
 			valid = false;
@@ -113,10 +110,9 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (target.has_value())
+		if (target)
 		{
-			RenderTarget t = target.value();
-			Point2D<uint32_t> renderTargetSize = t.GetSize();
+			Point2D<uint32_t> renderTargetSize = target->GetSize();
 
 			if (viewport.X + viewport.Width > renderTargetSize.X)
 			{
@@ -136,11 +132,11 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForSetScissor(std::optional<RenderTarget> target, const Scissor &scissor)
+	bool CommandExecutor::ValidateForSetScissor(Ref<IFramebuffer> target, const Scissor &scissor)
 	{
 		bool valid = true;
 
-		if (!target.has_value())
+		if (!target)
 		{
 			NX_ERROR("Attempting to set scissor but no render target has been specified");
 			valid = false;
@@ -158,18 +154,16 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (target.has_value())
+		if (target)
 		{
-			RenderTarget t = target.value();
-
-			if (scissor.X + scissor.Width > t.GetSize().X)
+			if (scissor.X + scissor.Width > target->GetWidth())
 			{
 				NX_ERROR("Attempting to set a scissor with a total width that is greater "
 						 "than the width of the bound render target");
 				valid = false;
 			}
 
-			if (scissor.Y + scissor.Height > t.GetSize().Y)
+			if (scissor.Y + scissor.Height > target->GetHeight())
 			{
 				NX_ERROR("Attempting to set a scissor with a total height that is "
 						 "greater than the height of the bound render target");
@@ -180,7 +174,7 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForResolveToSwapchain(const ResolveSamplesToSwapchainCommand &command)
+	bool CommandExecutor::ValidateForResolve(const ResolveTextureDescription &command)
 	{
 		bool valid = true;
 
@@ -190,42 +184,32 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (!command.Target)
+		if (!command.Destination)
 		{
 			NX_ERROR("Attempting to resolve to an invalid swapchain");
 			valid = false;
 		}
 
-		Ref<Framebuffer> source = command.Source;
-		Ref<Swapchain>	 target = command.Target;
-
-		if (source && target)
+		Ref<ITexture> source = command.Source;
+		Ref<ITexture> dest	 = command.Destination;
+		if (source && dest)
 		{
-			if (command.SourceIndex > source->GetColorTextureCount())
-			{
-				std::stringstream ss;
-				ss << "Attempting to resolve from colour attachment: " << command.SourceIndex << " but supplied framebuffer has "
-				   << source->GetColorTextureCount() << " colour attachments";
-				NX_ERROR(ss.str());
-				valid = false;
-			}
-
-			if (source->GetFramebufferSpecification().Width != target->GetSize().X)
+			if (source->GetWidth() != dest->GetWidth())
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from a framebuffer to a swapchain of "
 					  "mismatching widths. The width of the framebuffer is "
-				   << source->GetFramebufferSpecification().Width << " and the width of the swapchain is " << target->GetSize().X;
+				   << source->GetWidth() << " and the width of the swapchain is " << dest->GetWidth();
 				NX_ERROR(ss.str());
 				valid = false;
 			}
 
-			if (source->GetFramebufferSpecification().Height != target->GetSize().Y)
+			if (source->GetHeight() != dest->GetHeight())
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from a framebuffer to a swapchain of "
 					  "mismatching heights. The height of the framebuffer is "
-				   << source->GetFramebufferSpecification().Height << " and the height of the swapchain is " << target->GetSize().Y;
+				   << source->GetHeight() << " and the height of the swapchain is " << dest->GetHeight();
 				NX_ERROR(ss.str());
 				valid = false;
 			}

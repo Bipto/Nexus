@@ -39,43 +39,41 @@ namespace Nexus::Graphics
 		std::string DebugName		 = "Queue";
 	};
 
-	class GraphicsDevice;
+	class IGraphicsDevice;
 
 	class NX_API ICommandQueue
 	{
 	  public:
 		virtual ~ICommandQueue()																				  = default;
 		virtual const CommandQueueDescription &GetDescription() const											  = 0;
-		virtual Ref<Swapchain>				   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) = 0;
-		void								   SubmitCommandList(Ref<CommandList> commandList);
-		void								   SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence);
-		void								   SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists);
-		virtual void						   SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
-		virtual GraphicsDevice				  *GetGraphicsDevice()																			  = 0;
-		virtual bool						   WaitForIdle()																				  = 0;
+		virtual Ref<ISwapchain>				   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) = 0;
+		void								   SubmitCommandList(Ref<ICommandList> commandList);
+		void								   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence);
+		void								   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists);
+		virtual void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) = 0;
+		virtual IGraphicsDevice				  *GetGraphicsDevice()																				= 0;
+		virtual bool						   WaitForIdle()																					= 0;
 
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
-		virtual Ref<CommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
+		virtual Ref<ICommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
 
-		void WriteToTexture(Ref<Texture> texture,
-							uint32_t	 arrayLayer,
-							uint32_t	 mipLevel,
-							uint32_t	 x,
-							uint32_t	 y,
-							uint32_t	 z,
-							uint32_t	 width,
-							uint32_t	 height,
-							const void	*data,
-							size_t		 size);
+		void WriteToTexture(Ref<ITexture> texture,
+							uint32_t	  mipLevel,
+							uint32_t	  x,
+							uint32_t	  y,
+							uint32_t	  z,
+							uint32_t	  width,
+							uint32_t	  height,
+							const void	 *data,
+							size_t		  size);
 
-		std::vector<char> ReadFromTexture(Ref<Texture> texture,
-										  uint32_t	   arrayLayer,
-										  uint32_t	   mipLevel,
-										  uint32_t	   x,
-										  uint32_t	   y,
-										  uint32_t	   z,
-										  uint32_t	   width,
-										  uint32_t	   height);
+		std::vector<char> ReadFromTexture(Ref<ITexture> texture,
+										  uint32_t		mipLevel,
+										  uint32_t		x,
+										  uint32_t		y,
+										  uint32_t		z,
+										  uint32_t		width,
+										  uint32_t		height);
 	};
 }	 // namespace Nexus::Graphics

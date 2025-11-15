@@ -4,10 +4,10 @@
 
 namespace Nexus::Graphics
 {
-	class TimingQuery
+	class ITimingQuery
 	{
 	  public:
-		virtual ~TimingQuery()
+		virtual ~ITimingQuery()
 		{
 		}
 		virtual void  Resolve()				   = 0;

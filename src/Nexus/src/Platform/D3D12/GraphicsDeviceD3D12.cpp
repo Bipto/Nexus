@@ -13,7 +13,9 @@
 	#include "SamplerD3D12.hpp"
 	#include "ShaderModuleD3D12.hpp"
 	#include "SwapchainD3D12.hpp"
+	#include "TexelBufferD3D12.hpp"
 	#include "TextureD3D12.hpp"
+	#include "TextureViewD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 
 namespace Nexus::Graphics
@@ -64,52 +66,52 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		return CreateRef<ShaderModuleD3D12>(moduleSpec);
 	}
 
-	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	Ref<IGraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineD3D12>(this, description);
 	}
 
-	Ref<ComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
+	Ref<IComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		return CreateRef<ComputePipelineD3D12>(this, description);
 	}
 
-	Ref<MeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	Ref<IMeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		return CreateRef<MeshletPipelineD3D12>(this, description);
 	}
 
-	Ref<RayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	Ref<IRayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return Ref<RayTracingPipeline>();
+		return Ref<IRayTracingPipeline>();
 	}
 
-	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
+	Ref<IResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		return CreateRef<ResourceSetD3D12>(pipeline, this);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
+	Ref<IFramebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferD3D12>(spec, this);
+		return CreateRef<FramebufferD3D12>(desc, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
+	Ref<ISampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerD3D12>(spec);
 	}
 
-	Ref<TimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
+	Ref<ITimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
 	{
 		return CreateRef<TimingQueryD3D12>(this);
 	}
 
-	Ref<DeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<IDeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferD3D12>(desc, this);
 	}
@@ -117,6 +119,11 @@ namespace Nexus::Graphics
 	Ref<IAccelerationStructure> GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
 		return Ref<IAccelerationStructure>();
+	}
+
+	Ref<ITexelBuffer> GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
+	{
+		return CreateRef<TexelBufferD3D12>(desc);
 	}
 
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
@@ -141,6 +148,23 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
+		for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
+		{
+			WeakRef<CommandQueueD3D12> commandQueue = m_CreatedCommandQueues.at(i);
+
+			// check if the command queue pointer has expired, if it has remove it and continue iterating
+			if (commandQueue.expired())
+			{
+				m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
+				i--;
+				continue;
+			}
+
+			if (Ref<CommandQueueD3D12> lockedQueue = commandQueue.lock())
+			{
+				lockedQueue->WaitForIdle();
+			}
+		}
 	}
 
 	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()
@@ -159,17 +183,22 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
+	Ref<ITexture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureD3D12>(spec, this);
 	}
 
-	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+	Ref<ITextureView> GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
+	{
+		return CreateRef<TextureViewD3D12>(desc);
+	}
+
+	Ref<IFence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
 		return CreateRef<FenceD3D12>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<HANDLE> eventHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -201,7 +230,8 @@ namespace Nexus::Graphics
 		QueueFamilyInfo &info = queueFamilies.emplace_back();
 		info.QueueFamily	  = 0;
 		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
-		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
+		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer |
+											  QueueCapabilities::SparseBinding | QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode);
 
 		return queueFamilies;
 	}
@@ -217,84 +247,13 @@ namespace Nexus::Graphics
 		return commandQueue;
 	}
 
-	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)
+	void GraphicsDeviceD3D12::ResetFences(Ref<IFence> *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
 		{
 			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
 			fence->Reset();
 		}
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-											  ID3D12Resource			 *resource,
-											  uint32_t					  layer,
-											  uint32_t					  level,
-											  uint32_t					  mipCount,
-											  D3D12_RESOURCE_STATES		  before,
-											  D3D12_RESOURCE_STATES		  after)
-	{
-		if (before == after)
-		{
-			return;
-		}
-
-		uint32_t subresourceIndex = Utils::CalculateSubresource(layer, level, mipCount);
-
-		D3D12_RESOURCE_BARRIER barrier = {};
-		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.pResource   = resource;
-		barrier.Transition.Subresource = subresourceIndex;
-		barrier.Transition.StateBefore = before;
-		barrier.Transition.StateAfter  = after;
-		cmd->ResourceBarrier(1, &barrier);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-											  Ref<TextureD3D12>			  resource,
-											  uint32_t					  layer,
-											  uint32_t					  level,
-											  D3D12_RESOURCE_STATES		  after)
-	{
-		D3D12_RESOURCE_STATES resourceState = resource->GetResourceState(layer, level);
-		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetDescription().MipLevels, resourceState, after);
-		resource->SetResourceState(layer, level, after);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrierBuffer(ID3D12GraphicsCommandList7 *cmd,
-													Ref<DeviceBufferD3D12>		buffer,
-													D3D12_RESOURCE_STATES		before,
-													D3D12_RESOURCE_STATES		after)
-	{
-		auto resourceHandle = buffer->GetHandle();
-
-		D3D12_RESOURCE_BARRIER barrier = {};
-		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.pResource   = resourceHandle.Get();
-		barrier.Transition.StateBefore = before;
-		barrier.Transition.StateAfter  = after;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-		cmd->ResourceBarrier(1, &barrier);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd,
-															 Ref<SwapchainD3D12>		 resource,
-															 D3D12_RESOURCE_STATES		 after)
-	{
-		ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, 0, 1, resource->GetCurrentTextureState(), after);
-		resource->SetTextureState(after);
-	}
-
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd,
-															Ref<SwapchainD3D12>			resource,
-															D3D12_RESOURCE_STATES		after)
-	{
-		Microsoft::WRL::ComPtr<ID3D12Resource2> handle = resource->RetrieveDepthBufferHandle();
-		ResourceBarrier(cmd, handle.Get(), 0, 0, 1, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		resource->SetDepthState(after);
 	}
 
 	bool GraphicsDeviceD3D12::Validate()
@@ -416,7 +375,7 @@ namespace Nexus::Graphics
 			{
 				if (options12.EnhancedBarriersSupported)
 				{
-					m_D3D12Features.SupportsEnhancedBarriers = true;
+					// m_D3D12Features.SupportsEnhancedBarriers = true;
 				}
 			}
 		}

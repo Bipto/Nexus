@@ -3,7 +3,7 @@
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
-	Nexus::ApplicationSpecification spec;
+	Nexus::ApplicationDescription spec;
 	spec.GraphicsCreateInfo.API = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 

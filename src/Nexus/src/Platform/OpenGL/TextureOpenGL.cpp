@@ -6,17 +6,18 @@
 	#include "Nexus-Core/Utils/Utils.hpp"
 
 	#include "GraphicsDeviceOpenGL.hpp"
+	#include "TextureViewOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
-	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec), m_Device(graphicsDevice)
+	TextureOpenGL::TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice) : ITexture(spec), m_Device(graphicsDevice)
 	{
 		NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");
 
 		if (spec.Samples > 1)
 		{
-			NX_VALIDATE(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+			NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
 		}
 
 		if (spec.Type == TextureType::TextureCube)
@@ -61,7 +62,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer out of bounds");
 		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
 
-		size_t index = (size_t)(arrayLayer * m_Description.DepthOrArrayLayers + mipLevel);
+		size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
 		return m_TextureLayout[index];
 	}
 
@@ -70,7 +71,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers, "Array layer out of bounds");
 		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
 
-		size_t index		   = (size_t)((arrayLayer * m_Description.MipLevels + mipLevel));
+		size_t index		   = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
 		m_TextureLayout[index] = layout;
 	}
 
@@ -114,10 +115,14 @@ namespace Nexus::Graphics
 	void TextureOpenGL::CreateTextureFacesDSA(const GladGLContext &context)
 	{
 		context.CreateTextures(m_TextureType, 1, &m_Handle);
-		context.TextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		context.TextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		context.PixelStorei(GL_PACK_ALIGNMENT, 1);
 		context.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			NX_VALIDATE(context.ARB_sparse_texture == 1, "Context must support the ARB_sparse_texture extension to use sparse textures");
+			context.TextureParameteri(m_Handle, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+		}
 
 		switch (m_GLInternalTextureFormat)
 		{
@@ -136,7 +141,7 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 	#if !defined(__EMSCRIPTEN__)
 				glCall(context.TextureStorage2DMultisample(m_Handle,
-														   m_Description.MipLevels,
+														   m_Description.Samples,
 														   m_InternalFormat,
 														   m_Description.Width,
 														   m_Description.Height,
@@ -177,8 +182,12 @@ namespace Nexus::Graphics
 		glCall(context.BindTexture(m_TextureType, m_Handle));
 		glCall(context.PixelStorei(GL_PACK_ALIGNMENT, 1));
 		glCall(context.PixelStorei(GL_UNPACK_ALIGNMENT, 1));
-		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			NX_VALIDATE(context.ARB_sparse_texture == 1, "Context must support the ARB_sparse_texture extension to use sparse textures");
+			context.TexParameteri(m_TextureType, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+		}
 
 		switch (m_GLInternalTextureFormat)
 		{
@@ -235,6 +244,22 @@ namespace Nexus::Graphics
 	GL::GLInternalTextureFormat TextureOpenGL::GetInternalGLTextureFormat() const
 	{
 		return m_GLInternalTextureFormat;
+	}
+
+	void TextureOpenGL::AddView(WeakRef<TextureViewOpenGL> view)
+	{
+		m_Views.push_back(view);
+	}
+
+	void TextureOpenGL::MarkDirty()
+	{
+		for (WeakRef<TextureViewOpenGL> &view : m_Views)
+		{
+			if (Ref<TextureViewOpenGL> lockedView = view.lock())
+			{
+				lockedView->MarkDirty();
+			}
+		}
 	}
 }	 // namespace Nexus::Graphics
 

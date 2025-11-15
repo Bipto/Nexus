@@ -4,9 +4,9 @@
 
 	#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 
-	#include <dxcapi.h>
-	#include <dxc/dxcapi.h>
 	#include <d3d12shader.h>
+	#include <dxc/dxcapi.h>
+	#include <dxcapi.h>
 
 std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
 {
@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		return count;
 	}
 
-	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec) : ShaderModule(shaderModuleSpec)
+	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec) : IShaderModule(shaderModuleSpec)
 	{
 		Microsoft::WRL::ComPtr<IDxcCompiler3>	   compiler;
 		Microsoft::WRL::ComPtr<IDxcUtils>		   utils;
@@ -95,7 +95,7 @@ namespace Nexus::Graphics
 		return m_ReflectionData;
 	}
 
-	ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
+	static ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
 	{
 		switch (componentType)
 		{
@@ -136,7 +136,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractAttribute(std::vector<Attribute> &attributes, D3D12_SIGNATURE_PARAMETER_DESC shaderParameter)
+	static void ExtractAttribute(std::vector<Attribute> &attributes, D3D12_SIGNATURE_PARAMETER_DESC shaderParameter)
 	{
 		std::string					name		   = shaderParameter.SemanticName ? shaderParameter.SemanticName : "";
 		std::string					fullName	   = name + std::to_string(shaderParameter.SemanticIndex);
@@ -154,7 +154,7 @@ namespace Nexus::Graphics
 		attribute.StreamIndex				  = streamIndex;
 	}
 
-	std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type, UINT flags)
+	static std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type, UINT flags)
 	{
 		switch (type)
 		{
@@ -188,7 +188,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	ResourceDimension ExtractDimension(D3D_SRV_DIMENSION dimension)
+	static ResourceDimension ExtractDimension(D3D_SRV_DIMENSION dimension)
 	{
 		switch (dimension)
 		{
@@ -205,18 +205,21 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractResource(ShaderReflectionData &reflectionData, D3D12_SHADER_INPUT_BIND_DESC resource)
+	static void ExtractResource(ShaderReflectionData						  &reflectionData,
+								D3D12_SHADER_INPUT_BIND_DESC				   resource,
+								Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection)
 	{
 		auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
 
-		ReflectedResource &reflectedResource	= reflectionData.Resources.emplace_back();
-		reflectedResource.Type					= dataType;
-		reflectedResource.Name					= resource.Name;
+		ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+		reflectedResource.Type				 = dataType;
+		// reflectedResource.BlockName				= resource.Name;
 		reflectedResource.StorageResourceAccess = storageAccess;
 		reflectedResource.Dimension				= ExtractDimension(resource.Dimension);
 		reflectedResource.BindingPoint			= resource.BindPoint;
 		reflectedResource.BindingCount			= resource.BindCount;
 		reflectedResource.RegisterSpace			= resource.Space;
+		reflectedResource.InstanceName			= resource.Name;
 	}
 
 	void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult)
@@ -255,7 +258,7 @@ namespace Nexus::Graphics
 		{
 			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
 			shaderReflection->GetResourceBindingDesc(i, &bindDesc);
-			ExtractResource(m_ReflectionData, bindDesc);
+			ExtractResource(m_ReflectionData, bindDesc, shaderReflection);
 		}
 	}
 }	 // namespace Nexus::Graphics

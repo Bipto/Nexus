@@ -9,7 +9,7 @@
 
 namespace Nexus::Graphics
 {
-	class CommandListVk : public CommandList
+	class CommandListVk : public ICommandList
 	{
 	  public:
 		CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec);

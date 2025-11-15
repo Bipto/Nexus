@@ -6,12 +6,20 @@ namespace Nexus::Graphics
 {
 	DeviceBufferVk::DeviceBufferVk(const DeviceBufferDescription &desc, GraphicsDeviceVk *device) : m_BufferDescription(desc), m_Device(device)
 	{
-		VkBufferCreateInfo		bufferCreateInfo = Vk::GetVkBufferCreateInfo(desc, device);
-		VmaAllocationCreateInfo vmaAllocInfo	 = Vk::GetVmaAllocationCreateInfo(desc, device);
+		VkBufferCreateInfo bufferCreateInfo = Vk::GetVkBufferCreateInfo(desc, device);
 
-		NX_VALIDATE(vmaCreateBuffer(device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) ==
-						VK_SUCCESS,
-					"Failed to create buffer");
+		bool sparseBuffer = desc.Flags & BufferCreateFlags_SparseBinding;
+		if (sparseBuffer)
+		{
+			bufferCreateInfo.flags = VK_BUFFER_CREATE_SPARSE_BINDING_BIT | VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT;
+		}
+		else
+		{
+			VmaAllocationCreateInfo vmaAllocInfo = Vk::GetVmaAllocationCreateInfo(desc, device);
+			NX_VALIDATE(vmaCreateBuffer(device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) ==
+							VK_SUCCESS,
+						"Failed to create buffer");
+		}
 
 		device->SetObjectName(VK_OBJECT_TYPE_BUFFER, (uint64_t)m_Buffer.Buffer, desc.DebugName.c_str());
 	}

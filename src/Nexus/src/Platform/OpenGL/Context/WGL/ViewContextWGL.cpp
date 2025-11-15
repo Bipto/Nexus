@@ -5,6 +5,7 @@
 	#include "glad/wgl.h"
 
 	#include "Platform/OpenGL/GL.hpp"
+	#include "Platform/OpenGL/TextureOpenGL.hpp"
 
 namespace Nexus::GL
 {
@@ -28,12 +29,13 @@ namespace Nexus::GL
 		// TODO: Why does this crash sometimes???
 		// wglDeleteContext(m_HGLRC);
 
-		if (GL::GetCurrentContext() == this) {}
-
-		m_PBuffer->MakeCurrent();
+		if (GL::GetCurrentContext() == this)
+		{
+			m_PBuffer->MakeCurrent();
+		}
 	}
 
-	void PrintErrorMessage(DWORD error)
+	static void PrintErrorMessage(DWORD error)
 	{
 		LPSTR  messageBuffer = nullptr;
 		size_t size			 = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -75,8 +77,59 @@ namespace Nexus::GL
 		return success;
 	}
 
-	void ViewContextWGL::Swap()
+	void ViewContextWGL::Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc)
 	{
+		NX_VALIDATE(texture, "Texture cannot be null");
+
+		// retrieve the previous context
+		GL::IGLContext *previousContext = GL::GetCurrentContext();
+
+		// Make the swapchain's context current
+		GL::SetCurrentContext(this);
+
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				// copy the sections requested
+				if (presentDesc.PresentRects.size() > 0)
+				{
+					for (const auto &rect : presentDesc.PresentRects)
+					{
+						Graphics::TextureCopyDescription copyDesc = {};
+
+						// framebuffer texture
+						copyDesc.Source			= texture;
+						copyDesc.SourceOffset	= {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
+						copyDesc.SourceMipLevel = 0;
+
+						// backbuffer
+						copyDesc.Destination		 = nullptr;
+						copyDesc.DestinationMipLevel = 0;
+						copyDesc.DestinationOffset	 = {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
+
+						copyDesc.Extent = {rect.GetWidth(), rect.GetHeight(), 1};
+						GL::CopyTextureToTexture(copyDesc, context);
+					}
+				}
+				// copy the full image
+				else
+				{
+					Graphics::TextureCopyDescription copyDesc = {};
+
+					// framebuffer texture
+					copyDesc.Source			= texture;
+					copyDesc.SourceOffset	= {0, 0, 0};
+					copyDesc.SourceMipLevel = 0;
+
+					// backbuffer
+					copyDesc.Destination		 = nullptr;
+					copyDesc.DestinationMipLevel = 0;
+					copyDesc.DestinationOffset	 = {0, 0, 0};
+					copyDesc.Extent				 = {texture->GetWidth(), texture->GetHeight(), 1};
+					GL::CopyTextureToTexture(copyDesc, context);
+				}
+			});
+
 		if (wglSwapLayerBuffers != nullptr)
 		{
 			wglSwapLayerBuffers(m_HDC, WGL_SWAP_MAIN_PLANE);
@@ -86,6 +139,8 @@ namespace Nexus::GL
 			SwapBuffers(m_HDC);
 		}
 
+		// restore the graphics device context
+		GL::SetCurrentContext(previousContext);
 	}
 
 	void ViewContextWGL::SetVSync(bool enabled)
@@ -136,13 +191,14 @@ namespace Nexus::GL
 		iAttributes.push_back(WGL_DRAW_TO_WINDOW_ARB);
 		iAttributes.push_back(GL_TRUE);
 
-		if (spec.Samples > 1)
+		// not required anymore
+		/*if (spec.Samples >= 1)
 		{
 			iAttributes.push_back(WGL_SAMPLE_BUFFERS_ARB);
 			iAttributes.push_back(GL_TRUE);
 			iAttributes.push_back(WGL_SAMPLES_ARB);
 			iAttributes.push_back(spec.Samples);
-		}
+		}*/
 
 		if (spec.DoubleBuffered)
 		{
@@ -169,7 +225,8 @@ namespace Nexus::GL
 		iAttributes.push_back(0);
 
 		wglChoosePixelFormatARB(hdc, iAttributes.data(), fAttributes, 1, &pixelFormat, &numFormats);
-		SetPixelFormat(hdc, pixelFormat, &pfd);
+		BOOL pixelFormatSet = SetPixelFormat(hdc, pixelFormat, &pfd);
+		assert(pixelFormatSet, "Failed to set pixel format");
 
 		std::vector<int> attributes = {};
 		attributes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
@@ -197,6 +254,7 @@ namespace Nexus::GL
 		attributes.push_back(0);
 
 		HGLRC hglrc = wglCreateContextAttribsARB(hdc, sharedContext, attributes.data());
+		NX_VALIDATE(wglShareLists(sharedContext, hglrc), "Failed to share contexts");
 
 		NX_VALIDATE(hglrc, "Failed to create hglrc");
 

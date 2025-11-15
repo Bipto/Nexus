@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-	FullscreenQuad::FullscreenQuad(GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool hasUv)
+	FullscreenQuad::FullscreenQuad(IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool hasUv)
 		: m_GraphicsDevice(device),
 		  m_CommandQueue(commandQueue),
 		  m_HasUV(hasUv)
@@ -17,12 +17,12 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<DeviceBuffer> FullscreenQuad::GetVertexBuffer()
+	Ref<IDeviceBuffer> FullscreenQuad::GetVertexBuffer()
 	{
 		return m_VertexBuffer;
 	}
 
-	Ref<DeviceBuffer> FullscreenQuad::GetIndexBuffer()
+	Ref<IDeviceBuffer> FullscreenQuad::GetIndexBuffer()
 	{
 		return m_IndexBuffer;
 	}

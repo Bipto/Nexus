@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class DeviceBufferOpenGL : public DeviceBuffer
+	class DeviceBufferOpenGL : public IDeviceBuffer
 	{
 	  public:
 		DeviceBufferOpenGL(const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device);

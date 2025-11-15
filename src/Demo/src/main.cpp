@@ -49,7 +49,7 @@ struct DemoInfo
 class DemoApplication : public Nexus::Application
 {
   public:
-	DemoApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
+	DemoApplication(const Nexus::ApplicationDescription &spec) : Application(spec)
 	{
 	}
 
@@ -191,7 +191,7 @@ class DemoApplication : public Nexus::Application
 				std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
 				ImGui::Text("%s", label.c_str());
 
-				std::string info = m_CurrentDemo->GetInfo();
+				const std::string &info = m_CurrentDemo->GetInfo();
 				if (!info.empty())
 				{
 					std::string description = std::string("Description: ") + info;
@@ -267,20 +267,22 @@ class DemoApplication : public Nexus::Application
 			NX_PROFILE_SCOPE("Clear Screen");
 			m_CommandList->Begin();
 
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
 
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_GraphicsDevice->WaitForIdle();
 		}
 
 		m_ImGuiRenderer->AfterLayout();
+		m_GraphicsDevice->WaitForIdle();
 
 		{
 			NX_PROFILE_SCOPE("CommandQueue::Present");
-			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers(Nexus::Graphics::SwapchainPresentDescription {});
 		}
 	}
 
@@ -299,7 +301,7 @@ class DemoApplication : public Nexus::Application
   private:
 	Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 
-	Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList = nullptr;
+	Nexus::Ref<Nexus::Graphics::ICommandList>	 m_CommandList = nullptr;
 	std::unique_ptr<Demos::Demo>				 m_CurrentDemo = nullptr;
 	std::map<std::string, std::vector<DemoInfo>> m_Demos	   = {};
 
@@ -308,25 +310,25 @@ class DemoApplication : public Nexus::Application
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
-	Nexus::ApplicationSpecification spec;
+	Nexus::ApplicationDescription desc;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
-	spec.GraphicsCreateInfo.Debug = false;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	desc.GraphicsCreateInfo.Debug = true;
 
-	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
-	spec.WindowProperties.Width			   = 1280;
-	spec.WindowProperties.Height		   = 720;
-	spec.WindowProperties.Title			   = "Demo";
-	spec.WindowProperties.Resizable		   = true;
-	spec.WindowProperties.RendersPerSecond = {};
-	spec.WindowProperties.UpdatesPerSecond = {};
+	desc.WindowProperties.Width			   = 1280;
+	desc.WindowProperties.Height		   = 720;
+	desc.WindowProperties.Title			   = "Demo";
+	desc.WindowProperties.Flags			   = WindowFlags_Resizable | WindowFlags_HighPixelDensity;
+	desc.WindowProperties.RendersPerSecond = {};
+	desc.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainDescription.Samples		   = 1;
-	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
+	desc.SwapchainDescription.Samples		   = 1;
+	desc.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
-	spec.Organization = "Nexus";
-	spec.App		  = "Demo";
+	desc.Organization = "Nexus";
+	desc.App		  = "Demo";
 
-	return new DemoApplication(spec);
+	return new DemoApplication(desc);
 }

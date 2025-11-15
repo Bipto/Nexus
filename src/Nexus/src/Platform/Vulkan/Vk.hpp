@@ -15,6 +15,7 @@
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "Nexus-Core/Graphics/TextureView.hpp"
 
 	#include "PNextBuilder.hpp"
 
@@ -45,7 +46,7 @@ namespace Nexus::Vk
 	VkBlendFactor		  GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
 	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColor color);
 	VkImageUsageFlagBits  GetVkImageUsageFlags(Graphics::PixelFormat format, uint8_t usage);
-	VkImageCreateFlagBits GetVkImageCreateFlagBits(Graphics::TextureType textureType, uint8_t usage);
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(const Graphics::TextureDescription &description);
 	VkImageType			  GetVkImageType(Graphics::TextureType textureType);
 	VkImageViewType		  GetVkImageViewType(const Graphics::TextureDescription &spec);
 
@@ -82,23 +83,33 @@ namespace Nexus::Vk
 
 	struct VulkanRenderPassDescription
 	{
-		std::vector<VkFormat>	ColourAttachments = {};
-		std::optional<VkFormat> DepthFormat		  = {};
-		std::optional<VkFormat> ResolveFormat	  = {};
-		VkSampleCountFlagBits	Samples			  = VK_SAMPLE_COUNT_1_BIT;
-		bool					IsSwapchain		  = false;
+		struct VulkanColourAttachmentDesc
+		{
+			VkFormat				ColourFromat  = {};
+			std::optional<VkFormat> ResolveFormat = {};
+		};
+
+		std::vector<VulkanColourAttachmentDesc> ColourAttachments = {};
+		std::optional<VkFormat>					DepthFormat		  = {};
+		VkSampleCountFlagBits					Samples			  = VK_SAMPLE_COUNT_1_BIT;
+		bool									IsSwapchain		  = false;
 	};
 
 	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc);
 
 	struct VulkanFramebufferDescription
 	{
-		std::vector<VkImageView> ColourImageViews = {};
-		VkImageView				 DepthImageView	  = VK_NULL_HANDLE;
-		VkImageView				 ResolveImageView = VK_NULL_HANDLE;
-		VkRenderPass			 VulkanRenderPass = VK_NULL_HANDLE;
-		uint32_t				 Width			  = 0;
-		uint32_t				 Height			  = 0;
+		struct VulkanColourAttachment
+		{
+			VkImageView				   ColourView  = VK_NULL_HANDLE;
+			std::optional<VkImageView> ResolveView = std::nullopt;
+		};
+
+		std::vector<VulkanColourAttachment> ColourImageViews = {};
+		VkImageView							DepthImageView	 = VK_NULL_HANDLE;
+		VkRenderPass						VulkanRenderPass = VK_NULL_HANDLE;
+		uint32_t							Width			 = 0;
+		uint32_t							Height			 = 0;
 	};
 
 	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc);
@@ -112,8 +123,9 @@ namespace Nexus::Vk
 	// pipeline methods
 	VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
 	VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
-	VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc);
-	VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo(uint32_t sampleCount);
+	VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc,
+																						const Graphics::DepthStencilDescription	   &depthStencilDesc);
+	VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo(uint32_t sampleCount, uint32_t *sampleMask);
 	std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates(
 		uint32_t											  colourAttachmentCount,
 		const std::array<Graphics::BlendStateDescription, 8> &blendStates);
@@ -129,10 +141,12 @@ namespace Nexus::Vk
 
 	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module);
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline				   *pipeline,
-										  Graphics::GraphicsDeviceVk		   *device,
-										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
-										  std::map<VkDescriptorType, uint32_t> &descriptorCounts);
+	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device);
+
+	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
+										  Graphics::GraphicsDeviceVk				*device,
+										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
+										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts);
 
 	VkPipeline CreateGraphicsPipeline(VkRenderPass											  renderPass,
 									  Graphics::GraphicsDeviceVk							 *device,
@@ -146,7 +160,8 @@ namespace Nexus::Vk
 									  Graphics::PixelFormat									  depthFormat,
 									  VkPipelineLayout										  pipelineLayout,
 									  Graphics::Topology									  topology,
-									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
+									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
+									  uint32_t												 *pSampleMask);
 
 	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
 							  VkSwapchainKHR			  swapchain,
@@ -170,6 +185,18 @@ namespace Nexus::Vk
 	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
 	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
 	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
+	VkImageViewType			 GetImageViewType(const Graphics::TextureViewDescription &desc);
+
+	void BindDescriptorSets(const GladVulkanContext &context,
+							VkCommandBuffer			 commandBuffer,
+							VkPipelineBindPoint		 bindPoint,
+							VkPipelineLayout		 pipelineLayout,
+							uint32_t				 setIndex,
+							uint32_t				 setCount,
+							const VkDescriptorSet	*descriptorSets,
+							VkShaderStageFlags		 stageFlags,
+							const uint32_t			*dynamicOffsets,
+							size_t					 dynamicOffsetCount);
 
 	struct GladLoaderData
 	{

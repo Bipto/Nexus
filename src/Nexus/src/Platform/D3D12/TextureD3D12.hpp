@@ -8,30 +8,34 @@
 
 namespace Nexus::Graphics
 {
-	class TextureD3D12 : public Texture
+	class TextureD3D12 : public ITexture
 	{
 	  public:
 		TextureD3D12(const TextureDescription &spec, GraphicsDeviceD3D12 *device);
+		TextureD3D12(Microsoft::WRL::ComPtr<ID3D12Resource2> handle, const TextureDescription &spec, GraphicsDeviceD3D12 *device);
 		virtual ~TextureD3D12();
-		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
 
-		DXGI_FORMAT			  GetFormat();
-		void				  SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state);
-		D3D12_RESOURCE_STATES GetResourceState(uint32_t arrayLayer, uint32_t mipLevel);
+		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
+		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
+
+		DXGI_FORMAT GetFormat();
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
+
+		/// @brief This is a function to force all ComPtr handles to be released, used when resizing a swapchain
+		/// @param waitForIdle A boolean value indicating whether the handle should be released after the device is idle or immediately
+		void ReleaseHandle(bool waitForIdle);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Resource2>		m_Texture		= nullptr;
 		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation	= nullptr;
 		DXGI_FORMAT									m_TextureFormat = DXGI_FORMAT_UNKNOWN;
 
-		TextureDescription	 m_Description;
 		GraphicsDeviceD3D12 *m_Device = nullptr;
 
-		std::vector<D3D12_RESOURCE_STATES> m_ResourceStates;
-
 		D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceView = {};
+
+		std::vector<TextureLayout> m_TextureLayout = {};
 	};
 }	 // namespace Nexus::Graphics
 

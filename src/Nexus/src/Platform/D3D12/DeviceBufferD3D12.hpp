@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceD3D12;
 
-	class DeviceBufferD3D12 : public DeviceBuffer
+	class DeviceBufferD3D12 : public IDeviceBuffer
 	{
 	  public:
 		DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice);

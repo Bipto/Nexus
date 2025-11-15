@@ -24,7 +24,7 @@
 class EditorApplication : public Nexus::Application
 {
   public:
-	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
+	EditorApplication(const Nexus::ApplicationDescription &spec) : Application(spec)
 	{
 	}
 
@@ -576,7 +576,7 @@ class EditorApplication : public Nexus::Application
 
 		if (m_ClickPosition)
 		{
-			Nexus::Ref<Nexus::Graphics::Texture> idTexture = m_Framebuffer->GetColorTexture(1);
+			Nexus::Ref<Nexus::Graphics::ITexture> idTexture = m_Framebuffer->GetColorTexture(1);
 
 			// FIX ME
 			std::vector<char> pixels;
@@ -620,11 +620,11 @@ class EditorApplication : public Nexus::Application
   private:
 	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
 	std::unique_ptr<Nexus::Graphics::SceneRenderer>			  m_SceneRenderer = nullptr;
-	Nexus::Ref<Nexus::Graphics::Framebuffer>				  m_Framebuffer	  = nullptr;
+	Nexus::Ref<Nexus::Graphics::IFramebuffer>				  m_Framebuffer	  = nullptr;
 
 	ImTextureID m_FramebufferTextureID = {};
 
-	Nexus::Ref<Nexus::Graphics::Texture> m_Cubemap = nullptr;
+	Nexus::Ref<Nexus::Graphics::ITexture> m_Cubemap = nullptr;
 	Nexus::Ref<Nexus::Graphics::Model>	 m_Model   = nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
@@ -642,7 +642,7 @@ class EditorApplication : public Nexus::Application
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
-	Nexus::ApplicationSpecification spec;
+	Nexus::ApplicationDescription spec;
 	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.GraphicsCreateInfo.Debug = true;
 	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;

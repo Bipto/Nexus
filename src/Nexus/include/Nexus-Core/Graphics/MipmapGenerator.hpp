@@ -9,21 +9,21 @@ namespace Nexus::Graphics
 	{
 	  public:
 		MipmapGenerator() = default;
-		explicit MipmapGenerator(GraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
-		std::vector<char> GenerateMip(Ref<Texture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom);
+		explicit MipmapGenerator(IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+		std::vector<char> GenerateMip(Ref<ITexture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer);
 
 		static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
 
 	  private:
-		GraphicsDevice	*m_Device	   = nullptr;
-		Ref<CommandList> m_CommandList = nullptr;
+		IGraphicsDevice	*m_Device	   = nullptr;
+		Ref<ICommandList> m_CommandList = nullptr;
 		FullscreenQuad	 m_Quad {};
 
-		Ref<ShaderModule> m_VertexModule   = nullptr;
-		Ref<ShaderModule> m_FragmentModule = nullptr;
+		Ref<IShaderModule> m_VertexModule   = nullptr;
+		Ref<IShaderModule> m_FragmentModule = nullptr;
 
-		Ref<GraphicsPipeline> m_Pipeline	= nullptr;
-		Ref<ResourceSet>	  m_ResourceSet = nullptr;
+		Ref<IGraphicsPipeline> m_Pipeline	= nullptr;
+		Ref<IResourceSet>	  m_ResourceSet = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	};

@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	SceneRenderer::SceneRenderer(Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	SceneRenderer::SceneRenderer(Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue)
 	{
@@ -14,12 +14,12 @@ namespace Nexus::Graphics
 		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, commandQueue, true, 1);
 	}
 
-	void SceneRenderer::Render(Scene *scene, RenderTarget &target, TimeSpan time)
+	void SceneRenderer::Render(Scene *scene, Ref<IFramebuffer> target, TimeSpan time)
 	{
 		m_Renderer3D->Begin(scene, target, time);
 		m_Renderer3D->End();
 
-		Point2D<uint32_t> targetSize = target.GetSize();
+		Point2D<uint32_t> targetSize = target->GetSize();
 
 		Nexus::Graphics::Viewport vp = {};
 		vp.X						 = 0;
@@ -51,11 +51,13 @@ namespace Nexus::Graphics
 				const Nexus::FirstPersonCamera &camera		= m_Renderer3D->GetCamera();
 				glm::mat4						worldMatrix = transform->CreateTransformation();
 
-				m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
+				/*m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
 											  spriteRenderer->SpriteTexture,
 											  spriteRenderer->Tiling,
 											  worldMatrix,
-											  entity->ID);
+											  entity->ID);*/
+
+				throw std::runtime_error("Not implemented");
 			});
 
 		m_BatchRenderer->End();

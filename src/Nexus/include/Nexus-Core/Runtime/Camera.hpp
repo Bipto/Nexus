@@ -21,7 +21,7 @@ namespace Nexus
 	  public:
 		FirstPersonCamera() = default;
 
-		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
+		FirstPersonCamera(Graphics::IGraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
 			: m_Device(device)
 		{
 			this->Resize(width, height);
@@ -250,7 +250,7 @@ namespace Nexus
 		}
 
 	  private:
-		Graphics::GraphicsDevice *m_Device = nullptr;
+		Graphics::IGraphicsDevice *m_Device = nullptr;
 		glm::vec3 m_Position {0.0f, 0.0f, 5.0f};
 		glm::vec3				  m_Front {0.0f, 0.0f, -1.0f};
 		glm::vec3 m_Up {0.0f, 1.0f, 0.0f};

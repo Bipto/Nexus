@@ -9,21 +9,23 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class SamplerOpenGL : public Sampler
+	class SamplerOpenGL : public ISampler
 	{
 	  public:
 		SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device);
 		virtual ~SamplerOpenGL();
-		virtual const SamplerDescription   &GetSamplerSpecification() override;
-		unsigned int						GetHandle() const;
+		virtual const SamplerDescription &GetSamplerDescription() override;
+		unsigned int					  GetHandle() const;
 
-		void Bind(uint32_t slot, bool hasMips);
+		void Bind(uint32_t slot);
+
+	  private:
 		void Setup(bool hasMips, const GladGLContext &context);
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device = nullptr;
 		SamplerDescription	  m_Description;
-		unsigned int		 m_Handle = 0;
+		unsigned int		  m_Handle = 0;
 	};
 }	 // namespace Nexus::Graphics
 

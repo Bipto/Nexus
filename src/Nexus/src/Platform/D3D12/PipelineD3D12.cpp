@@ -11,14 +11,26 @@ namespace Nexus::Graphics
 {
 
 	GraphicsPipelineD3D12::GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description)
-		: GraphicsPipeline(description),
+		: IGraphicsPipeline(description),
 		  m_Description(description)
 	{
-		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);
+		const auto &reflectedShaderResources = GetRequiredShaderResources();
+
+		D3D12::CreateRootSignature(reflectedShaderResources,
+								   description.ResourceDescription,
+								   device->GetD3D12Device(),
+								   m_RootSignatureBlob,
+								   m_RootSignature,
+								   m_DescriptorHandleInfo,
+								   m_RootSignatureBindingLocations,
+								   m_Description.Layouts.size() > 0);
+
 		m_InputLayout		  = D3D12::CreateInputLayout(description.Layouts);
 		m_PipelineStateObject = D3D12::CreateGraphicsPipeline(device, description, m_RootSignature, m_InputLayout);
 		m_PrimitiveTopology	  = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
+
+		std::wstring name = {m_Description.DebugName.begin(), m_Description.DebugName.end()};
+		m_PipelineStateObject->SetName(name.c_str());
 	}
 
 	GraphicsPipelineD3D12::~GraphicsPipelineD3D12()
@@ -45,6 +57,11 @@ namespace Nexus::Graphics
 		return m_PrimitiveTopology;
 	}
 
+	const D3D12::RootSignatureBindingLocations &GraphicsPipelineD3D12::GetRootSignatureBindingLocations() const
+	{
+		return m_RootSignatureBindingLocations;
+	}
+
 	void GraphicsPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
 	{
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
@@ -58,10 +75,18 @@ namespace Nexus::Graphics
 	}
 
 	MeshletPipelineD3D12::MeshletPipelineD3D12(GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description)
-		: MeshletPipeline(description)
+		: IMeshletPipeline(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);
+		D3D12::CreateRootSignature(resources,
+								   description.ResourceDescription,
+								   device->GetD3D12Device(),
+								   m_RootSignatureBlob,
+								   m_RootSignature,
+								   m_DescriptorHandleInfo,
+								   m_RootSignatureBindingLocations,
+								   false);
+
 		m_PipelineStateObject = D3D12::CreateMeshletPipeline(device, description, m_RootSignature);
 		m_PrimitiveTopology	  = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
 	}
@@ -85,6 +110,11 @@ namespace Nexus::Graphics
 		return m_PrimitiveTopology;
 	}
 
+	const D3D12::RootSignatureBindingLocations &MeshletPipelineD3D12::GetRootSignatureBindingLocations() const
+	{
+		return m_RootSignatureBindingLocations;
+	}
+
 	void MeshletPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
 	{
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
@@ -98,10 +128,18 @@ namespace Nexus::Graphics
 	}
 
 	ComputePipelineD3D12::ComputePipelineD3D12(GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description)
-		: ComputePipeline(description)
+		: IComputePipeline(description)
 	{
 		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo);
+		D3D12::CreateRootSignature(resources,
+								   description.ResourceDescription,
+								   device->GetD3D12Device(),
+								   m_RootSignatureBlob,
+								   m_RootSignature,
+								   m_DescriptorHandleInfo,
+								   m_RootSignatureBindingLocations,
+								   false);
+
 		m_PipelineStateObject = D3D12::CreateComputePipeline(device, description, m_RootSignature);
 	}
 
@@ -118,6 +156,11 @@ namespace Nexus::Graphics
 	const D3D12::DescriptorHandleInfo &ComputePipelineD3D12::GetDescriptorHandleInfo()
 	{
 		return m_DescriptorHandleInfo;
+	}
+
+	const D3D12::RootSignatureBindingLocations &ComputePipelineD3D12::GetRootSignatureBindingLocations() const
+	{
+		return m_RootSignatureBindingLocations;
 	}
 }	 // namespace Nexus::Graphics
 

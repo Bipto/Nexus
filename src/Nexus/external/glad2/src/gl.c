@@ -2943,6 +2943,13 @@ static void glad_gl_load_GL_EXT_memory_object_win32(GladGLContext *context, GLAD
     context->ImportMemoryWin32HandleEXT = (PFNGLIMPORTMEMORYWIN32HANDLEEXTPROC) load(userptr, "glImportMemoryWin32HandleEXT");
     context->ImportMemoryWin32NameEXT = (PFNGLIMPORTMEMORYWIN32NAMEEXTPROC) load(userptr, "glImportMemoryWin32NameEXT");
 }
+static void glad_gl_load_GL_EXT_mesh_shader(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_mesh_shader) return;
+    context->DrawMeshTasksEXT = (PFNGLDRAWMESHTASKSEXTPROC) load(userptr, "glDrawMeshTasksEXT");
+    context->DrawMeshTasksIndirectEXT = (PFNGLDRAWMESHTASKSINDIRECTEXTPROC) load(userptr, "glDrawMeshTasksIndirectEXT");
+    context->MultiDrawMeshTasksIndirectCountEXT = (PFNGLMULTIDRAWMESHTASKSINDIRECTCOUNTEXTPROC) load(userptr, "glMultiDrawMeshTasksIndirectCountEXT");
+    context->MultiDrawMeshTasksIndirectEXT = (PFNGLMULTIDRAWMESHTASKSINDIRECTEXTPROC) load(userptr, "glMultiDrawMeshTasksIndirectEXT");
+}
 static void glad_gl_load_GL_EXT_multi_draw_arrays(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->EXT_multi_draw_arrays) return;
     context->MultiDrawArraysEXT = (PFNGLMULTIDRAWARRAYSEXTPROC) load(userptr, "glMultiDrawArraysEXT");
@@ -6735,6 +6742,7 @@ static int glad_gl_find_extensions_gl(GladGLContext *context) {
     context->EXT_memory_object = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object");
     context->EXT_memory_object_fd = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object_fd");
     context->EXT_memory_object_win32 = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object_win32");
+    context->EXT_mesh_shader = glad_gl_has_extension(exts, exts_i, "GL_EXT_mesh_shader");
     context->EXT_misc_attribute = glad_gl_has_extension(exts, exts_i, "GL_EXT_misc_attribute");
     context->EXT_multi_draw_arrays = glad_gl_has_extension(exts, exts_i, "GL_EXT_multi_draw_arrays");
     context->EXT_multisample = glad_gl_has_extension(exts, exts_i, "GL_EXT_multisample");
@@ -7304,6 +7312,7 @@ int gladLoadGLContextUserPtr(GladGLContext *context, GLADuserptrloadfunc load, v
     glad_gl_load_GL_EXT_memory_object(context, load, userptr);
     glad_gl_load_GL_EXT_memory_object_fd(context, load, userptr);
     glad_gl_load_GL_EXT_memory_object_win32(context, load, userptr);
+    glad_gl_load_GL_EXT_mesh_shader(context, load, userptr);
     glad_gl_load_GL_EXT_multi_draw_arrays(context, load, userptr);
     glad_gl_load_GL_EXT_multisample(context, load, userptr);
     glad_gl_load_GL_EXT_paletted_texture(context, load, userptr);
@@ -7485,6 +7494,7 @@ static int glad_gl_find_extensions_gles2(GladGLContext *context) {
     context->EXT_memory_object = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object");
     context->EXT_memory_object_fd = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object_fd");
     context->EXT_memory_object_win32 = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object_win32");
+    context->EXT_mesh_shader = glad_gl_has_extension(exts, exts_i, "GL_EXT_mesh_shader");
     context->EXT_multi_draw_arrays = glad_gl_has_extension(exts, exts_i, "GL_EXT_multi_draw_arrays");
     context->EXT_multiview_tessellation_geometry_shader = glad_gl_has_extension(exts, exts_i, "GL_EXT_multiview_tessellation_geometry_shader");
     context->EXT_multiview_texture_multisample = glad_gl_has_extension(exts, exts_i, "GL_EXT_multiview_texture_multisample");
@@ -7679,6 +7689,8 @@ static int glad_gl_find_extensions_gles2(GladGLContext *context) {
     context->EXT_texture_view = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_view");
     context->EXT_unpack_subimage = glad_gl_has_extension(exts, exts_i, "GL_EXT_unpack_subimage");
     context->FJ_shader_binary_GCCSO = glad_gl_has_extension(exts, exts_i, "GL_FJ_shader_binary_GCCSO");
+    context->HUAWEI_program_binary = glad_gl_has_extension(exts, exts_i, "GL_HUAWEI_program_binary");
+    context->HUAWEI_shader_binary = glad_gl_has_extension(exts, exts_i, "GL_HUAWEI_shader_binary");
     context->IMG_bindless_texture = glad_gl_has_extension(exts, exts_i, "GL_IMG_bindless_texture");
     context->IMG_framebuffer_downsample = glad_gl_has_extension(exts, exts_i, "GL_IMG_framebuffer_downsample");
     context->IMG_multisampled_render_to_texture = glad_gl_has_extension(exts, exts_i, "GL_IMG_multisampled_render_to_texture");
@@ -7857,6 +7869,7 @@ int gladLoadGLES2ContextUserPtr(GladGLContext *context, GLADuserptrloadfunc load
     glad_gl_load_GL_EXT_memory_object(context, load, userptr);
     glad_gl_load_GL_EXT_memory_object_fd(context, load, userptr);
     glad_gl_load_GL_EXT_memory_object_win32(context, load, userptr);
+    glad_gl_load_GL_EXT_mesh_shader(context, load, userptr);
     glad_gl_load_GL_EXT_multi_draw_arrays(context, load, userptr);
     glad_gl_load_GL_EXT_polygon_offset_clamp(context, load, userptr);
     glad_gl_load_GL_EXT_raster_multisample(context, load, userptr);

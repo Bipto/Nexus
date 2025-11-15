@@ -10,16 +10,17 @@
 
 namespace Nexus::Graphics
 {
-	class DeviceBuffer;
-	class GraphicsDevice;
+	class IDeviceBuffer;
+	class IGraphicsDevice;
 	class ICommandQueue;
 }	 // namespace Nexus::Graphics
 
 namespace Nexus::Utils
 {
-	NX_API glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
-	NX_API glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
+	NX_API glm::vec4 ColourFromRGBA(float r, float g, float b, float a);
+	NX_API glm::vec4 ColourFromBorderColor(Nexus::Graphics::BorderColor color);
 	NX_API glm::vec4 GenerateRandomColour();
+	NX_API uint32_t	 PackColour(const glm::vec4 &colour);
 
 	template<typename T>
 	inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
@@ -131,24 +132,24 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	Ref<Graphics::DeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
+	Ref<Graphics::IDeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
 
-	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void					 *data,
+	Ref<Graphics::IDeviceBuffer> CreateFilledVertexBuffer(const void					 *data,
 														 size_t						  sizeInBytes,
 														 size_t						  strideInBytes,
-														 Graphics::GraphicsDevice	 *device,
+														 Graphics::IGraphicsDevice	 *device,
 														 Ref<Graphics::ICommandQueue> commandQueue);
 
-	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void					*data,
+	Ref<Graphics::IDeviceBuffer> CreateFilledIndexBuffer(const void					*data,
 														size_t						 sizeInBytes,
 														size_t						 strideInBytes,
-														Graphics::GraphicsDevice	*devic,
+														Graphics::IGraphicsDevice	*devic,
 														Ref<Graphics::ICommandQueue> commandQueuee);
 
-	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void				  *data,
+	Ref<Graphics::IDeviceBuffer> CreateFilledUniformBuffer(const void				  *data,
 														  size_t					   sizeInBytes,
 														  size_t					   strideInBytes,
-														  Graphics::GraphicsDevice	  *device,
+														  Graphics::IGraphicsDevice	  *device,
 														  Ref<Graphics::ICommandQueue> commandQueue);
 
 	template<typename T>

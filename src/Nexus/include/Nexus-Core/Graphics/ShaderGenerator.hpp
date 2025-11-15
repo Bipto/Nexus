@@ -21,6 +21,28 @@ namespace Nexus::Graphics
 		SPIRV
 	};
 
+	/// @brief An enum representing the type of SPIRV code to emit
+	enum class TargetEnvironment
+	{
+		Vulkan_1_0,
+		Vulkan_1_1,
+		Vulkan_1_2,
+		Vulkan_1_3,
+		OpenGL
+	};
+
+	/// @brief An enum representing the version of SPIRV to emit
+	enum class SPIRV_Version
+	{
+		Version_1_0,
+		Version_1_1,
+		Version_1_2,
+		Version_1_3,
+		Version_1_4,
+		Version_1_5,
+		Version_1_6,
+	};
+
 	std::string ShaderLanguageToString(ShaderLanguage language);
 
 	/// @brief A struct representing a set of options when generating a shader
@@ -77,6 +99,12 @@ namespace Nexus::Graphics
 		/// native shader string
 		/// @return A compilation result returning the output of the shader generation
 		CompilationResult Generate(const std::string &source, ShaderGenerationOptions options);
+
+		std::vector<uint32_t> GenerateSPIRV(const std::string &source,
+											ShaderStage		   stage,
+											TargetEnvironment  env,
+											SPIRV_Version	   version,
+											bool			   debugInfo);
 	};
 
 	std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage);

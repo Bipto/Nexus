@@ -2,32 +2,49 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/ShaderResources.hpp"
 	#include "GraphicsDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/ResourceSet.hpp"
+	#include "Nexus-Core/Graphics/ShaderResources.hpp"
 	#include "TextureVk.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
 {
-	class ResourceSetVk : public ResourceSet
+	class ResourceSetVk final : public IResourceSet
 	{
+	  public:
+		struct DynamicOffsetDescription
+		{
+			uint32_t Set	= 0;
+			size_t	 Offset = 0;
+		};
+
 	  public:
 		ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device);
 		~ResourceSetVk();
+		void Flush() final;
 
-		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
-		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
-		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
-		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;
+		void Bind(const GladVulkanContext							 &context,
+				  VkCommandBuffer									  cmd,
+				  PipelineVk										 *pipeline,
+				  VkPipelineBindPoint								  bindPoint,
+				  const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets);
 
-		const std::vector<std::map<uint32_t, VkDescriptorSet>> &GetDescriptorSets() const;
+		const std::map<uint32_t, VkDescriptorSet> &GetDescriptorSets() const;
+		std::optional<VkShaderStageFlags>		   GetPushConstantsStageFlags(const std::string &name) const;
 
 	  private:
-		VkDescriptorPool								 m_DescriptorPool;
-		std::vector<std::map<uint32_t, VkDescriptorSet>> m_DescriptorSets;
+		VkDescriptorPool					m_DescriptorPool = VK_NULL_HANDLE;
+		std::map<uint32_t, VkDescriptorSet> m_DescriptorSets = {};
+		VkShaderStageFlags					m_PipelineStages = {};
 
-		GraphicsDeviceVk *m_Device = nullptr;
+		std::map<uint32_t, std::vector<uint32_t>>		m_DynamicOffsets   = {};
+		std::map<std::string, DynamicOffsetDescription> m_DynamicOffsetMap = {};
+
+		Ref<Pipeline> m_Pipeline = nullptr;
+
+		GraphicsDeviceVk						 *m_Device			   = nullptr;
+		std::map<std::string, VkShaderStageFlags> m_PushConstantRanges = {};
 	};
 }	 // namespace Nexus::Graphics
 

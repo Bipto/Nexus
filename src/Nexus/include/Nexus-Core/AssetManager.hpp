@@ -19,7 +19,7 @@ namespace Nexus
 		/// @brief A constructor taking in a reference counted pointer to a graphics
 		/// device
 		/// @param graphicsDevice A pointer to a graphics device
-		AssetManager(Graphics::GraphicsDevice *graphicsDevice, Ref<Graphics::ICommandQueue> commandQueue, Project *project)
+		AssetManager(Graphics::IGraphicsDevice *graphicsDevice, Ref<Graphics::ICommandQueue> commandQueue, Project *project)
 			: m_GraphicsDevice(graphicsDevice),
 			  m_CommandQueue(commandQueue),
 			  m_Project(project)
@@ -42,14 +42,14 @@ namespace Nexus
 		/// @param filepath A filepath to retrieve a texture from, if the texture has
 		/// already been loaded then the cached one will be returned
 		/// @return A reference counted pointer to a texture
-		Ref<Graphics::Texture> GetTexture(const std::string &filepath);
+		Ref<Graphics::ITexture> GetTexture(const std::string &filepath);
 
 	  private:
 		std::any LoadAsset(GUID id);
 
 	  private:
 		/// @brief A reference counted pointer to a graphics device
-		Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
+		Graphics::IGraphicsDevice *m_GraphicsDevice = nullptr;
 
 		Ref<Graphics::ICommandQueue> m_CommandQueue = nullptr;
 

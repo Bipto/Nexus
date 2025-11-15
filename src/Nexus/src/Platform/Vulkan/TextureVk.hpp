@@ -8,26 +8,42 @@
 
 namespace Nexus::Graphics
 {
-	class TextureVk : public Texture
+	struct VulkanTextureViewInfo
+	{
+		uint32_t BaseMipLevel	= 0;
+		uint32_t LevelCount		= 0;
+		uint32_t BaseArrayLayer = 0;
+		uint32_t LayerCount		= 0;
+
+		bool operator<(const VulkanTextureViewInfo &other) const
+		{
+			return std::tie(BaseMipLevel, LevelCount, BaseArrayLayer, LayerCount) <
+				   std::tie(other.BaseMipLevel, other.LevelCount, other.BaseArrayLayer, other.LayerCount);
+		}
+	};
+
+	class TextureVk : public ITexture
 	{
 	  public:
 		TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device);
+		TextureVk(VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device, bool owned = false);
 		virtual ~TextureVk();
 
 		VkImage		GetImage();
-		VkImageView GetImageView();
+		VkImageView GetImageView(const VulkanTextureViewInfo &desc);
 
 		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
 		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
 
 	  private:
-		GraphicsDeviceVk *m_GraphicsDevice;
-		VkImage			  m_Image = VK_NULL_HANDLE;
-		VmaAllocation	  m_Allocation;
-		VkImageView		  m_ImageView = VK_NULL_HANDLE;
-		VkFormat		  m_Format;
+		GraphicsDeviceVk *m_GraphicsDevice = nullptr;
+		VkImage			  m_Image		   = VK_NULL_HANDLE;
+		VmaAllocation	  m_Allocation	   = VK_NULL_HANDLE;
 
-		std::vector<TextureLayout> m_TextureLayouts;
+		bool m_Owned = true;
+
+		std::vector<TextureLayout>					 m_TextureLayouts = {};
+		std::map<VulkanTextureViewInfo, VkImageView> m_ImageViews	  = {};
 	};
 }	 // namespace Nexus::Graphics
 

@@ -17,6 +17,9 @@ namespace Nexus::Graphics
 		m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
 		hr			 = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
 		NX_VALIDATE(SUCCEEDED(hr) == true, "Failed to create fence event");
+
+		std::wstring name = std::wstring(m_Description.DebugName.begin(), m_Description.DebugName.end());
+		m_Fence->SetName(name.c_str());
 	}
 
 	FenceD3D12::~FenceD3D12()

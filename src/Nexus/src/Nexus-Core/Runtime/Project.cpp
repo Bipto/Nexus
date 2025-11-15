@@ -15,7 +15,7 @@ const std::string DefaultSceneName = "UntitledScene";
 
 namespace Nexus
 {
-	Project::Project(Graphics::GraphicsDevice	 *device,
+	Project::Project(Graphics::IGraphicsDevice	 *device,
 					 Ref<Graphics::ICommandQueue> commandQueue,
 					 const std::string			 &name,
 					 const std::string			 &directory,
@@ -52,7 +52,7 @@ namespace Nexus
 		Nexus::FileSystem::CreateFileDirectory(assetsDirectory);
 	}
 
-	Ref<Project> Project::Deserialize(const std::string &filepath, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	Ref<Project> Project::Deserialize(const std::string &filepath, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		std::string directory = std::filesystem::path(filepath).parent_path().string();
 
@@ -115,7 +115,7 @@ namespace Nexus
 		return m_LoadedScene != nullptr;
 	}
 
-	void Project::LoadScene(uint32_t index, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	void Project::LoadScene(uint32_t index, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		if (m_Scenes.size() > index)
 		{
@@ -125,7 +125,7 @@ namespace Nexus
 		}
 	}
 
-	void Project::LoadScene(const std::string &name, Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	void Project::LoadScene(const std::string &name, Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		for (size_t i = 0; i < m_Scenes.size(); i++)
 		{
@@ -154,7 +154,7 @@ namespace Nexus
 		m_LoadedScene->ParentProject = this;
 	}
 
-	void Project::ReloadCurrentScene(Graphics::GraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	void Project::ReloadCurrentScene(Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		LoadScene(m_LoadedScene->Name, device, commandQueue);
 	}

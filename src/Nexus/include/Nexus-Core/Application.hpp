@@ -11,7 +11,7 @@
 	#include <emscripten.h>
 #endif
 
-#include "ApplicationSpecification.hpp"
+#include "ApplicationDescription.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Point.hpp"
@@ -35,7 +35,7 @@ namespace Nexus
 	  public:
 		/// @brief A constructor taking in a specification
 		/// @param spec The options to use when creating an application
-		Application(const ApplicationSpecification &spec);
+		Application(const ApplicationDescription &spec);
 
 		/// @brief Copying an application is not supported
 		/// @param A const reference to an application to copy
@@ -87,7 +87,7 @@ namespace Nexus
 		/// @return A handle to the application's main window
 		Nexus::IWindow *GetPrimaryWindow();
 
-		Ref<Nexus::Graphics::Swapchain> GetPrimarySwapchain();
+		Ref<Nexus::Graphics::ISwapchain> GetPrimarySwapchain();
 
 		/// @brief A method that is used to retrieve the size of an application's
 		/// window
@@ -119,7 +119,7 @@ namespace Nexus
 		/// @brief A method that returns a pointer to the application's graphics
 		/// device
 		/// @return A pointer to a graphics device
-		Graphics::GraphicsDevice *GetGraphicsDevice();
+		Graphics::IGraphicsDevice *GetGraphicsDevice();
 
 		Ref<Graphics::ICommandQueue> GetGraphicsCommandQueue();
 
@@ -137,7 +137,7 @@ namespace Nexus
 		std::unique_ptr<Graphics::IGraphicsAPI> m_GraphicsAPI = nullptr;
 
 		/// @brief A pointer to a graphics device
-		std::unique_ptr<Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
+		std::unique_ptr<Graphics::IGraphicsDevice> m_GraphicsDevice = nullptr;
 
 		CommandQueueGroup m_CommandQueueGroup = {};
 
@@ -146,12 +146,12 @@ namespace Nexus
 
 	  private:
 		/// @brief The specification that the application was created with
-		ApplicationSpecification m_Description {};
+		ApplicationDescription m_Description {};
 
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;
 
-		Ref<Nexus::Graphics::Swapchain> m_Swapchain = nullptr;
+		Ref<Nexus::Graphics::ISwapchain> m_Swapchain = nullptr;
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};

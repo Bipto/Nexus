@@ -9,7 +9,7 @@
 namespace Nexus::Graphics
 {
 	GraphicsPipelineVk::GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: GraphicsPipeline(description),
+		: IGraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		m_PipelineLayout = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 
 		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
-		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
@@ -35,11 +35,6 @@ namespace Nexus::Graphics
 	const GraphicsPipelineDescription &GraphicsPipelineVk::GetPipelineDescription() const
 	{
 		return m_Description;
-	}
-
-	VkPipelineLayout GraphicsPipelineVk::GetPipelineLayout()
-	{
-		return m_PipelineLayout;
 	}
 
 	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
@@ -51,7 +46,7 @@ namespace Nexus::Graphics
 																   m_GraphicsDevice,
 																   m_Description.DepthStencilDesc,
 																   m_Description.RasterizerStateDesc,
-																   m_Description.ColourTargetSampleCount,
+																   m_Description.Samples,
 																   shaderStages,
 																   m_Description.ColourTargetCount,
 																   m_Description.ColourFormats,
@@ -59,7 +54,8 @@ namespace Nexus::Graphics
 																   m_Description.DepthFormat,
 																   m_PipelineLayout,
 																   m_Description.PrimitiveTopology,
-																   m_Description.Layouts);
+																   m_Description.Layouts,
+																   &m_Description.SampleMask);
 
 			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
 		}
@@ -71,14 +67,13 @@ namespace Nexus::Graphics
 		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
-	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-
-		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
-		for (const auto &set : descriptorSets)
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+		if (resourceSet)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_GRAPHICS, desc.DynamicOffsets);
 		}
 	}
 
@@ -127,7 +122,7 @@ namespace Nexus::Graphics
 	}
 
 	MeshletPipelineVk::MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: MeshletPipeline(description),
+		: IMeshletPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		m_PipelineLayout = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
@@ -144,15 +139,10 @@ namespace Nexus::Graphics
 
 		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
-		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
-	}
-
-	VkPipelineLayout MeshletPipelineVk::GetPipelineLayout()
-	{
-		return m_PipelineLayout;
 	}
 
 	void MeshletPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
@@ -166,7 +156,7 @@ namespace Nexus::Graphics
 																   m_GraphicsDevice,
 																   m_Description.DepthStencilDesc,
 																   m_Description.RasterizerStateDesc,
-																   m_Description.ColourTargetSampleCount,
+																   m_Description.Samples,
 																   shaderStages,
 																   m_Description.ColourTargetCount,
 																   m_Description.ColourFormats,
@@ -174,7 +164,8 @@ namespace Nexus::Graphics
 																   m_Description.DepthFormat,
 																   m_PipelineLayout,
 																   m_Description.PrimitiveTopology,
-																								   {});
+																								   {},
+																   &m_Description.SampleMask);
 
 			m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipelines[renderPass], m_Description.DebugName.c_str());
 		}
@@ -184,14 +175,21 @@ namespace Nexus::Graphics
 		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
-	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
-		for (const auto &set : descriptorSets)
+		if (resourceSet)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			const auto &descriptorSets = resourceSet->GetDescriptorSets();
+
+			std::vector<uint32_t> offsets = {};
+
+			for (const auto &set : descriptorSets)
+			{
+				context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			}
 		}
 	}
 
@@ -224,7 +222,7 @@ namespace Nexus::Graphics
 	}
 
 	ComputePipelineVk::ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: ComputePipeline(description),
+		: IComputePipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
 		NX_VALIDATE(description.ComputeShader->GetShaderStage() == ShaderStage::Compute,
@@ -266,7 +264,7 @@ namespace Nexus::Graphics
 
 		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 
-		for (const auto &descriptorSetLayout : m_DescriptorSetLayouts)
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
@@ -278,14 +276,14 @@ namespace Nexus::Graphics
 		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
 	}
 
-	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
-		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
 
-		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
-		for (const auto &set : descriptorSets)
+		if (resourceSet)
 		{
-			context.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_GRAPHICS, desc.DynamicOffsets);
 		}
 	}
 }	 // namespace Nexus::Graphics

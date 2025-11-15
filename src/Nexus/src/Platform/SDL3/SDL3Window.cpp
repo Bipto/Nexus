@@ -9,11 +9,123 @@
 
 namespace Nexus
 {
+	static uint32_t GetSDl3WindowFlags(uint32_t windowFlags)
+	{
+		uint32_t sdlFlags = 0;
+
+		if (windowFlags & WindowFlags_Fullscreen)
+		{
+			sdlFlags |= SDL_WINDOW_RESIZABLE;
+		}
+
+		if (windowFlags & WindowFlags_Occluded)
+		{
+			sdlFlags |= SDL_WINDOW_OCCLUDED;
+		}
+
+		if (windowFlags & WindowFlags_Hidden)
+		{
+			sdlFlags |= SDL_WINDOW_HIDDEN;
+		}
+
+		if (windowFlags & WindowFlags_Borderless)
+		{
+			sdlFlags |= SDL_WINDOW_BORDERLESS;
+		}
+
+		if (windowFlags & WindowFlags_Resizable)
+		{
+			sdlFlags |= SDL_WINDOW_RESIZABLE;
+		}
+
+		if (windowFlags & WindowFlags_Minimized)
+		{
+			sdlFlags |= SDL_WINDOW_MINIMIZED;
+		}
+
+		if (windowFlags & WindowFlags_Maximized)
+		{
+			sdlFlags |= SDL_WINDOW_MAXIMIZED;
+		}
+
+		if (windowFlags & WindowFlags_MouseGrabbed)
+		{
+			sdlFlags |= SDL_WINDOW_MOUSE_GRABBED;
+		}
+
+		if (windowFlags & WindowFlags_InputFocus)
+		{
+			sdlFlags |= SDL_WINDOW_INPUT_FOCUS;
+		}
+
+		if (windowFlags & WindowFlags_MouseFocus)
+		{
+			sdlFlags |= SDL_WINDOW_MOUSE_FOCUS;
+		}
+
+		if (windowFlags & WindowFlags_Modal)
+		{
+			sdlFlags |= SDL_WINDOW_MODAL;
+		}
+
+		if (windowFlags & WindowFlags_HighPixelDensity)
+		{
+			sdlFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+		}
+
+		if (windowFlags & WindowFlags_MouseCapture)
+		{
+			sdlFlags |= SDL_WINDOW_MOUSE_CAPTURE;
+		}
+
+		if (windowFlags & WindowFlags_MouseRelativeMode)
+		{
+			sdlFlags |= SDL_WINDOW_MOUSE_RELATIVE_MODE;
+		}
+
+		if (windowFlags & WindowFlags_AlwaysOnTop)
+		{
+			sdlFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
+		}
+
+		if (windowFlags & WindowFlags_Utility)
+		{
+			sdlFlags |= SDL_WINDOW_UTILITY;
+		}
+
+		if (windowFlags & WindowFlags_Tooltip)
+		{
+			sdlFlags |= SDL_WINDOW_TOOLTIP;
+		}
+
+		if (windowFlags & WindowFlags_PopupMenu)
+		{
+			sdlFlags |= SDL_WINDOW_POPUP_MENU;
+		}
+
+		if (windowFlags & WindowFlags_KeyboardGrabbed)
+		{
+			sdlFlags |= SDL_WINDOW_KEYBOARD_GRABBED;
+		}
+
+		if (windowFlags & WindowFlags_Transparent)
+		{
+			sdlFlags |= SDL_WINDOW_TRANSPARENT;
+		}
+
+		if (windowFlags & WindowFlags_NotFocusable)
+		{
+			sdlFlags |= SDL_WINDOW_NOT_FOCUSABLE;
+		}
+
+		return sdlFlags;
+	}
+
 	SDL3Window::SDL3Window(const WindowDescription &windowProps) : IWindow(windowProps), m_Description(windowProps)
 	{
 		std::string idSelector = "#" + windowProps.CanvasId;
 		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
-		uint32_t flags = GetFlags(windowProps);
+		uint32_t flags = GetSDl3WindowFlags(windowProps.Flags);
 		m_Window	   = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
 		if (m_Window == nullptr)
@@ -611,35 +723,6 @@ namespace Nexus
 			return false;
 
 		return IsMouseButtonPressed(id.value(), state);
-	}
-
-	uint32_t SDL3Window::GetFlags(const WindowDescription &windowSpec)
-	{
-		// required for emscripten to handle resizing correctly
-		uint32_t flags = 0;
-		// flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
-
-		if (windowSpec.Resizable)
-		{
-			flags |= SDL_WINDOW_RESIZABLE;
-		}
-
-		if (windowSpec.Borderless)
-		{
-			flags |= SDL_WINDOW_BORDERLESS;
-		}
-
-		if (windowSpec.Utility)
-		{
-			flags |= SDL_WINDOW_UTILITY;
-		}
-
-		if (!windowSpec.Shown)
-		{
-			flags |= SDL_WINDOW_HIDDEN;
-		}
-
-		return flags;
 	}
 
 	void SDL3Window::SetupTimer()

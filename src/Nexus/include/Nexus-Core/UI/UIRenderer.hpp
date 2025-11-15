@@ -12,7 +12,7 @@ namespace Nexus::UI
 	class NX_API UIRenderer
 	{
 	  public:
-		UIRenderer(Graphics::GraphicsDevice *device);
+		UIRenderer(Graphics::IGraphicsDevice *device);
 		virtual ~UIRenderer();
 
 		void Render(Control *root);
@@ -21,7 +21,7 @@ namespace Nexus::UI
 		void RenderControl(Graphics::BatchRenderer *renderer, Control *control);
 
 	  private:
-		Graphics::GraphicsDevice				*m_Device		 = nullptr;
+		Graphics::IGraphicsDevice				*m_Device		 = nullptr;
 		std::unique_ptr<Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 	};
 }	 // namespace Nexus::UI

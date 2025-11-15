@@ -3,11 +3,11 @@
 
 namespace Nexus::Graphics
 {
-	CommandList::CommandList(const CommandListDescription &spec) : m_Description(spec)
+	ICommandList::ICommandList(const CommandListDescription &spec) : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
 	{
 	}
 
-	void CommandList::Begin()
+	void ICommandList::Begin()
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -18,11 +18,12 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.clear();
-		m_Started	  = true;
-		m_DebugGroups = 0;
+		m_Started				   = true;
+		m_DebugGroups			   = 0;
+		m_AutomaticBarrierTracking = m_Description.AutomaticBarrierTransitions;
 	}
 
-	void CommandList::End()
+	void ICommandList::End()
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -30,6 +31,9 @@ namespace Nexus::Graphics
 		{
 			NX_ERROR("Attempting to end a CommandList but the CommandList was not begun");
 		}
+
+		// just in case
+		EndRendering();
 
 		// clean up any unclosed debug groups
 		for (uint32_t i = 0; i < m_DebugGroups; i++) { EndDebugGroup(); }
@@ -41,7 +45,17 @@ namespace Nexus::Graphics
 		m_Started = false;
 	}
 
-	void CommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
+	void ICommandList::BeginAutomaticBarrierManagement()
+	{
+		m_AutomaticBarrierTracking = true;
+	}
+
+	void ICommandList::EndAutomaticBarrierManagement()
+	{
+		m_AutomaticBarrierTracking = false;
+	}
+
+	void ICommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -58,7 +72,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetIndexBuffer(IndexBufferView indexBuffer)
+	void ICommandList::SetIndexBuffer(IndexBufferView indexBuffer)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -74,7 +88,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
+	void ICommandList::SetPipeline(Ref<Pipeline> pipeline)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -88,7 +102,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pipeline);
 	}
 
-	void CommandList::Draw(const DrawDescription &desc)
+	void ICommandList::Draw(const DrawDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -102,7 +116,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndexed(const DrawIndexedDescription &desc)
+	void ICommandList::DrawIndexed(const DrawIndexedDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -116,7 +130,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndirect(const DrawIndirectDescription &desc)
+	void ICommandList::DrawIndirect(const DrawIndirectDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -130,7 +144,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
+	void ICommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -144,7 +158,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::Dispatch(const DispatchDescription &desc)
+	void ICommandList::Dispatch(const DispatchDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -158,7 +172,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
+	void ICommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -172,7 +186,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawMesh(const DrawMeshDescription &desc)
+	void ICommandList::DrawMesh(const DrawMeshDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -186,7 +200,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
+	void ICommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -200,7 +214,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
+	void ICommandList::SetResourceSet(const ResourceSetBindingDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -211,64 +225,79 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_Description.AutomaticBarrierTransitions)
+		if (m_AutomaticBarrierTracking)
 		{
-			const auto &combinedImageSamplers = resources->GetBoundCombinedImageSamplers();
-			const auto &storageImages		  = resources->GetBoundStorageImages();
-			const auto &storageBuffers		  = resources->GetBoundStorageBuffers();
+			const auto &boundResources = desc.TargetResourceSet->GetBoundResources();
 
-			for (const auto &[name, ciSampler] : combinedImageSamplers)
+			for (const auto &[name, ciSamplers] : boundResources.CombinedImageSamplers)
 			{
-				Ref<Texture> texture = ciSampler.ImageTexture;
+				for (const CombinedImageSampler &ciSampler : ciSamplers)
+				{
+					Ref<ITextureView>			  textureView = ciSampler.ImageTexture;
+					const TextureViewDescription &viewDesc	  = textureView->GetDescription();
 
-				TextureBarrierDesc barrier				= {};
-				barrier.BeforeAccess					= BarrierAccess::None;
-				barrier.AfterAccess						= BarrierAccess::ShaderRead;
-				barrier.BeforeStage						= BarrierPipelineStage::None;
-				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.Texture							= ciSampler.ImageTexture;
-				barrier.Layout							= ciSampler.Layout;
-				barrier.SubresourceRange.BaseArrayLayer = 0;
-				barrier.SubresourceRange.LayerCount		= texture->GetDescription().DepthOrArrayLayers;
-				barrier.SubresourceRange.BaseMipLevel	= 0;
-				barrier.SubresourceRange.LevelCount		= texture->GetDescription().MipLevels;
-				SubmitTextureBarrier(barrier);
+					TextureBarrierDesc barrier					   = {};
+					barrier.BeforeAccess						   = BarrierAccess::NoAccess;
+					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
+					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
+					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
+					barrier.ITexture							   = textureView->GetTexture();
+					barrier.Layout								   = TextureLayout::ShaderReadOnlyOptimal;
+					barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+					barrier.TextureSubresourceRange.LayerCount	   = viewDesc.Range.LayerCount;
+					barrier.TextureSubresourceRange.BaseMipLevel   = viewDesc.Range.BaseMipLevel;
+					barrier.TextureSubresourceRange.LevelCount	   = viewDesc.Range.LevelCount;
+					SubmitTextureBarrier(barrier);
+				}
 			}
 
-			for (const auto &[name, storageImage] : storageImages)
+			for (const auto &[name, imageViews] : boundResources.SampledImages)
 			{
-				TextureBarrierDesc barrier				= {};
-				barrier.BeforeAccess					= BarrierAccess::None;
-				barrier.AfterAccess						= BarrierAccess::ShaderRead;
-				barrier.BeforeStage						= BarrierPipelineStage::None;
-				barrier.AfterStage						= BarrierPipelineStage::AllGraphics;
-				barrier.Texture							= storageImage.TextureHandle;
-				barrier.Layout							= storageImage.Layout;
-				barrier.SubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
-				barrier.SubresourceRange.LayerCount		= 1;
-				barrier.SubresourceRange.BaseMipLevel	= storageImage.MipLevel;
-				barrier.SubresourceRange.LevelCount		= 1;
-				SubmitTextureBarrier(barrier);
+				for (Ref<ITextureView> imageView : imageViews)
+				{
+					const TextureViewDescription &viewDesc = imageView->GetDescription();
+
+					TextureBarrierDesc barrier					   = {};
+					barrier.BeforeAccess						   = BarrierAccess::NoAccess;
+					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
+					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
+					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
+					barrier.ITexture							   = imageView->GetTexture();
+					barrier.Layout								   = TextureLayout::ShaderReadOnlyOptimal;
+					barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+					barrier.TextureSubresourceRange.LayerCount	   = viewDesc.Range.LayerCount;
+					barrier.TextureSubresourceRange.BaseMipLevel   = viewDesc.Range.BaseMipLevel;
+					barrier.TextureSubresourceRange.LevelCount	   = viewDesc.Range.LevelCount;
+					SubmitTextureBarrier(barrier);
+				}
 			}
 
-			for (const auto &[name, storageBuffer] : storageBuffers)
+			for (const auto &[name, storageImages] : boundResources.StorageImages)
 			{
-				BufferBarrierDesc barrier = {};
-				barrier.AfterAccess		  = BarrierAccess::ShaderWrite;
-				barrier.BeforeAccess	  = BarrierAccess::None;
-				barrier.AfterStage		  = BarrierPipelineStage::AllGraphics;
-				barrier.BeforeStage		  = BarrierPipelineStage::None;
-				barrier.Buffer			  = storageBuffer.BufferHandle;
-				barrier.Offset			  = storageBuffer.Offset;
-				barrier.Size			  = storageBuffer.SizeInBytes;
-				SubmitBufferBarrier(barrier);
+				for (const StorageImageView &storageImage : storageImages)
+				{
+					Ref<ITexture> texture = storageImage.TextureHandle;
+
+					TextureBarrierDesc barrier					   = {};
+					barrier.BeforeAccess						   = BarrierAccess::NoAccess;
+					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
+					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
+					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
+					barrier.ITexture							   = texture;
+					barrier.Layout								   = TextureLayout::General;
+					barrier.TextureSubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
+					barrier.TextureSubresourceRange.LayerCount	   = 1;
+					barrier.TextureSubresourceRange.BaseMipLevel   = storageImage.MipLevel;
+					barrier.TextureSubresourceRange.LevelCount	   = 1;
+					SubmitTextureBarrier(barrier);
+				}
 			}
 		}
 
-		m_Commands.push_back(resources);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
+	void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -286,7 +315,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
+	void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -304,7 +333,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
+	void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -321,7 +350,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
+	void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -338,7 +367,76 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetRenderTarget(RenderTarget target)
+	static void TransitionFramebufferLayouts(ICommandList	  *commandList,
+											 Ref<IFramebuffer> framebuffer,
+											 TextureLayout	   colourLayout,
+											 TextureLayout	   depthLayout)
+	{
+		// transition colour attachment layouts
+		for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
+		{
+			std::optional<FramebufferColourAttachmentDescription> colourAttachmentOpt = framebuffer->GetColorTextureBinding(i);
+			if (colourAttachmentOpt.has_value())
+			{
+				FramebufferColourAttachmentDescription colourAttachment = colourAttachmentOpt.value();
+
+				TextureBarrierDesc barrierDesc		= {};
+				barrierDesc.ITexture				= colourAttachment.ColourAttachment.TargetTexture;
+				barrierDesc.BeforeAccess			= BarrierAccess::NoAccess;
+				barrierDesc.AfterAccess				= BarrierAccess::ColourAttachmentWrite;
+				barrierDesc.BeforeStage				= BarrierPipelineStage::NoStage;
+				barrierDesc.AfterStage				= BarrierPipelineStage::ColourAttachmentOutput;
+				barrierDesc.Layout					= colourLayout;
+				barrierDesc.TextureSubresourceRange = {.BaseMipLevel   = colourAttachment.ColourAttachment.MipLevel,
+													   .LevelCount	   = 1,
+													   .BaseArrayLayer = colourAttachment.ColourAttachment.BaseArrayLayer,
+													   .LayerCount	   = colourAttachment.ColourAttachment.LayerCount};
+
+				commandList->SubmitTextureBarrier(barrierDesc);
+
+				if (colourAttachment.ResolveAttachment.has_value())
+				{
+					FramebufferTextureDescription resolveAttachmentDesc = colourAttachment.ResolveAttachment.value();
+
+					TextureBarrierDesc barrierDesc		= {};
+					barrierDesc.ITexture				= resolveAttachmentDesc.TargetTexture;
+					barrierDesc.BeforeAccess			= BarrierAccess::ColourAttachmentWrite;
+					barrierDesc.AfterAccess				= BarrierAccess::NoAccess;
+					barrierDesc.BeforeStage				= BarrierPipelineStage::ColourAttachmentOutput;
+					barrierDesc.AfterStage				= BarrierPipelineStage::AllGraphics;
+					barrierDesc.Layout					= colourLayout;
+					barrierDesc.TextureSubresourceRange = {.BaseMipLevel   = resolveAttachmentDesc.MipLevel,
+														   .LevelCount	   = 1,
+														   .BaseArrayLayer = resolveAttachmentDesc.BaseArrayLayer,
+														   .LayerCount	   = resolveAttachmentDesc.LayerCount};
+
+					commandList->SubmitTextureBarrier(barrierDesc);
+				}
+			}
+		}
+
+		// transition depth attachment layout if exists
+		if (std::optional<FramebufferTextureDescription> depthAttachmentOpt = framebuffer->GetDepthTextureBinding())
+		{
+			FramebufferTextureDescription depthAttachment = depthAttachmentOpt.value();
+
+			TextureBarrierDesc barrierDesc		= {};
+			barrierDesc.ITexture				= depthAttachment.TargetTexture;
+			barrierDesc.BeforeAccess			= BarrierAccess::NoAccess;
+			barrierDesc.AfterAccess				= BarrierAccess::DepthStencilAttachmentWrite;
+			barrierDesc.BeforeStage				= BarrierPipelineStage::NoStage;
+			barrierDesc.AfterStage				= BarrierPipelineStage::EarlyFragmentTests;
+			barrierDesc.Layout					= depthLayout;
+			barrierDesc.TextureSubresourceRange = {.BaseMipLevel   = depthAttachment.MipLevel,
+												   .LevelCount	   = 1,
+												   .BaseArrayLayer = depthAttachment.BaseArrayLayer,
+												   .LayerCount	   = depthAttachment.LayerCount};
+
+			commandList->SubmitTextureBarrier(barrierDesc);
+		}
+	}
+
+	void ICommandList::SetFramebuffer(Ref<IFramebuffer> framebuffer)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -349,10 +447,15 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		m_Commands.push_back(target);
+		EndRendering();
+
+		TransitionFramebufferLayouts(this, framebuffer, TextureLayout::ColourAttachmentOptimal, TextureLayout::DepthStencilAttachmentOptimal);
+		m_CurrentFramebuffer = framebuffer;
+
+		m_Commands.push_back(framebuffer);
 	}
 
-	void CommandList::SetViewport(const Viewport &viewport)
+	void ICommandList::SetViewport(const Viewport &viewport)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -366,7 +469,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(viewport);
 	}
 
-	void CommandList::SetScissor(const Scissor &scissor)
+	void ICommandList::SetScissor(const Scissor &scissor)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -380,7 +483,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(scissor);
 	}
 
-	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target)
+	void ICommandList::ResolveFramebuffer(const ResolveTextureDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -391,14 +494,39 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		ResolveSamplesToSwapchainCommand command;
-		command.Source		= source;
-		command.SourceIndex = sourceIndex;
-		command.Target		= target;
-		m_Commands.push_back(command);
+		if (m_AutomaticBarrierTracking)
+		{
+			TextureBarrierDesc sourceBarrierDesc	  = {};
+			sourceBarrierDesc.ITexture				  = desc.Source;
+			sourceBarrierDesc.BeforeAccess			  = BarrierAccess::ColourAttachmentWrite;
+			sourceBarrierDesc.AfterAccess			  = BarrierAccess::TransferRead;
+			sourceBarrierDesc.BeforeStage			  = BarrierPipelineStage::ColourAttachmentOutput;
+			sourceBarrierDesc.AfterStage			  = BarrierPipelineStage::Resolve;
+			sourceBarrierDesc.Layout				  = TextureLayout::ResolveSrc;
+			sourceBarrierDesc.TextureSubresourceRange = {.BaseMipLevel	 = desc.SourceMipLevel,
+														 .LevelCount	 = 1,
+														 .BaseArrayLayer = desc.SourceArrayLayer,
+														 .LayerCount	 = 1};
+			SubmitTextureBarrier(sourceBarrierDesc);
+
+			TextureBarrierDesc destBarrierDesc		= {};
+			destBarrierDesc.ITexture				= desc.Destination;
+			destBarrierDesc.BeforeAccess			= BarrierAccess::NoAccess;
+			destBarrierDesc.AfterAccess				= BarrierAccess::TransferWrite;
+			destBarrierDesc.BeforeStage				= BarrierPipelineStage::NoStage;
+			destBarrierDesc.AfterStage				= BarrierPipelineStage::Resolve;
+			destBarrierDesc.Layout					= TextureLayout::ResolveDest;
+			destBarrierDesc.TextureSubresourceRange = {.BaseMipLevel   = desc.DestinationMipLevel,
+													   .LevelCount	   = 1,
+													   .BaseArrayLayer = desc.DestinationArrayLayer,
+													   .LayerCount	   = 1};
+			SubmitTextureBarrier(destBarrierDesc);
+		}
+
+		m_Commands.push_back(desc);
 	}
 
-	void Nexus::Graphics::CommandList::StartTimingQuery(Ref<TimingQuery> query)
+	void Nexus::Graphics::ICommandList::StartTimingQuery(Ref<ITimingQuery> query)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -414,7 +542,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void Nexus::Graphics::CommandList::StopTimingQuery(Ref<TimingQuery> query)
+	void Nexus::Graphics::ICommandList::StopTimingQuery(Ref<ITimingQuery> query)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -430,7 +558,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
+	void ICommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -446,7 +574,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
+	void ICommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -455,6 +583,22 @@ namespace Nexus::Graphics
 			NX_ERROR("Attempting to record a command into a CommandList without "
 					 "calling Begin()");
 			return;
+		}
+
+		if (m_AutomaticBarrierTracking)
+		{
+			Graphics::TextureBarrierDesc barrierDesc = {};
+			barrierDesc.ITexture					 = bufferTextureCopy.TextureHandle;
+			barrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
+			barrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
+			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
+			barrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= bufferTextureCopy.MipLevel,
+														.LevelCount		= 1,
+														.BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
+														.LayerCount		= bufferTextureCopy.TextureExtent.Depth};
+			SubmitTextureBarrier(barrierDesc);
 		}
 
 		Graphics::CopyBufferToTextureCommand command;
@@ -462,7 +606,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
+	void ICommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -471,6 +615,22 @@ namespace Nexus::Graphics
 			NX_ERROR("Attempting to record a command into a CommandList without "
 					 "calling Begin()");
 			return;
+		}
+
+		if (m_AutomaticBarrierTracking)
+		{
+			Graphics::TextureBarrierDesc barrierDesc = {};
+			barrierDesc.ITexture					 = textureBufferCopy.TextureHandle;
+			barrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
+			barrierDesc.AfterAccess					 = BarrierAccess::TransferRead;
+			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+			barrierDesc.Layout						 = TextureLayout::TransferSrcOptimal;
+			barrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= textureBufferCopy.MipLevel,
+														.LevelCount		= 1,
+														.BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
+														.LayerCount		= textureBufferCopy.TextureExtent.Depth};
+			SubmitTextureBarrier(barrierDesc);
 		}
 
 		Graphics::CopyTextureToBufferCommand command;
@@ -478,7 +638,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
+	void ICommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -489,12 +649,41 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		if (m_AutomaticBarrierTracking)
+		{
+			Graphics::TextureBarrierDesc sourceBarrierDesc = {};
+			sourceBarrierDesc.ITexture					   = textureCopy.Source;
+			sourceBarrierDesc.BeforeAccess				   = BarrierAccess::NoAccess;
+			sourceBarrierDesc.AfterAccess				   = BarrierAccess::TransferWrite;
+			sourceBarrierDesc.BeforeStage				   = BarrierPipelineStage::Copy;
+			sourceBarrierDesc.AfterStage				   = BarrierPipelineStage::Copy;
+			sourceBarrierDesc.Layout					   = TextureLayout::TransferSrcOptimal;
+			sourceBarrierDesc.TextureSubresourceRange	   = {.BaseMipLevel	  = textureCopy.SourceMipLevel,
+															  .LevelCount	  = 1,
+															  .BaseArrayLayer = (uint32_t)textureCopy.SourceOffset.Z,
+															  .LayerCount	  = textureCopy.Extent.Depth};
+			SubmitTextureBarrier(sourceBarrierDesc);
+
+			Graphics::TextureBarrierDesc destBarrierDesc = {};
+			destBarrierDesc.ITexture					 = textureCopy.Destination;
+			destBarrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
+			destBarrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
+			destBarrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
+			destBarrierDesc.AfterStage					 = BarrierPipelineStage::Copy;
+			destBarrierDesc.Layout						 = TextureLayout::TransferDstOptimal;
+			destBarrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= textureCopy.DestinationMipLevel,
+															.LevelCount		= 1,
+															.BaseArrayLayer = (uint32_t)textureCopy.DestinationOffset.Z,
+															.LayerCount		= textureCopy.Extent.Depth};
+			SubmitTextureBarrier(destBarrierDesc);
+		}
+
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::BeginDebugGroup(const std::string &name)
+	void ICommandList::BeginDebugGroup(const std::string &name)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -512,7 +701,7 @@ namespace Nexus::Graphics
 		m_DebugGroups++;
 	}
 
-	void CommandList::EndDebugGroup()
+	void ICommandList::EndDebugGroup()
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -529,7 +718,7 @@ namespace Nexus::Graphics
 		m_DebugGroups--;
 	}
 
-	void CommandList::InsertDebugMarker(const std::string &name)
+	void ICommandList::InsertDebugMarker(const std::string &name)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -545,16 +734,16 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
+	void ICommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
 	{
 		NX_PROFILE_FUNCTION();
 
 		SetBlendFactorCommand command;
-		command.BlendFactorDesc = blendFactor;
+		command.BlendFactor = blendFactor;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetStencilReference(uint32_t stencilReference)
+	void ICommandList::SetStencilReference(uint32_t stencilReference)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -563,7 +752,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
+	void ICommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -572,28 +761,28 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
+	void ICommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
 	{
 		NX_PROFILE_FUNCTION();
 
 		m_Commands.push_back(description);
 	}
 
-	void CommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
+	void ICommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
 	{
 		NX_PROFILE_FUNCTION();
 
 		m_Commands.push_back(description);
 	}
 
-	void CommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
+	void ICommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
 	{
 		NX_PROFILE_FUNCTION();
 
 		m_Commands.push_back(description);
 	}
 
-	void CommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
+	void ICommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -605,45 +794,61 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pushConstantDesc);
 	}
 
-	void CommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
+	void ICommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
 	{
 		NX_PROFILE_FUNCTION();
-
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
+	void ICommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
 	{
 		NX_PROFILE_FUNCTION();
-
 		m_Commands.push_back(desc);
 	}
 
-	void CommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
+	void ICommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
 	{
 		NX_PROFILE_FUNCTION();
-
 		m_Commands.push_back(desc);
 	}
 
-	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
+	const std::vector<RenderCommandData> &ICommandList::GetCommandData() const
 	{
 		NX_PROFILE_FUNCTION();
 
 		return m_Commands;
 	}
 
-	const CommandListDescription &CommandList::GetDescription()
+	const CommandListDescription &ICommandList::GetDescription()
 	{
 		NX_PROFILE_FUNCTION();
 
 		return m_Description;
 	}
 
-	bool CommandList::IsRecording() const
+	bool ICommandList::IsRecording() const
 	{
 		NX_PROFILE_FUNCTION();
 
 		return m_Started;
+	}
+
+	void ICommandList::EndRendering()
+	{
+		if (!m_CurrentFramebuffer)
+		{
+			return;
+		}
+
+		EndRenderingCommand command = {};
+		command.TargetFramebuffer	= m_CurrentFramebuffer;
+		m_Commands.push_back(command);
+
+		if (m_CurrentFramebuffer->IsOwnedBySwapchain())
+		{
+			TransitionFramebufferLayouts(this, m_CurrentFramebuffer, TextureLayout::PresentSrc, TextureLayout::DepthStencilAttachmentOptimal);
+		}
+
+		m_CurrentFramebuffer = nullptr;
 	}
 }	 // namespace Nexus::Graphics

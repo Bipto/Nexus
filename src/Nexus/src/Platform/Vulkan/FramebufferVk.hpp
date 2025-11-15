@@ -9,40 +9,40 @@
 
 namespace Nexus::Graphics
 {
-	class FramebufferVk : public Framebuffer
+	class FramebufferVk : public IFramebuffer
 	{
 	  public:
-		FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device);
+		FramebufferVk(const FramebufferTextureSetDescription &desc, GraphicsDeviceVk *device);
 		~FramebufferVk();
 
-		virtual const FramebufferSpecification GetFramebufferSpecification() override;
-		virtual void						   SetFramebufferSpecification(const FramebufferSpecification &spec) override;
+		const FramebufferTextureSetDescription GetTextureSetDescription() const final;
 
-		virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
-		virtual Ref<Texture> GetDepthTexture() override;
-
-		Ref<TextureVk> GetVulkanColorTexture(uint32_t index = 0);
+		Ref<TextureVk> GetVulkanColourTexture(uint32_t index = 0);
 		Ref<TextureVk> GetVulkanDepthTexture();
+		Ref<TextureVk> GetVulkanResolveTexture(uint32_t index = 0);
 
 		VkRenderPass  GetRenderPass();
 		VkFramebuffer GetFramebuffer();
 
 	  private:
-		virtual void Recreate() override;
-
-		void CreateColorTargets();
-		void CreateDepthTargets();
-
-		void CreateRenderPass();
 		void CreateFramebuffer();
 
+		void AttachColourTargets();
+		void AttachDepthTargets();
+		void AttachResolveTargets();
+
+		void CreateRenderPass();
+		void CreateVulkanFramebuffer();
+
 	  private:
-		GraphicsDeviceVk *m_Device;
+		GraphicsDeviceVk				*m_Device;
+		FramebufferTextureSetDescription m_Description = {};
 
-		std::vector<Ref<TextureVk>> m_ColorAttachments;
-		Ref<TextureVk>				m_DepthAttachment = nullptr;
+		std::vector<Ref<TextureVk>> m_ColourAttachments	 = {};
+		Ref<TextureVk>				m_DepthAttachment	 = nullptr;
+		std::vector<Ref<TextureVk>> m_ResolveAttachments = {};
 
-		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+		VkRenderPass  m_RenderPass	= VK_NULL_HANDLE;
 		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
 	};
 }	 // namespace Nexus::Graphics

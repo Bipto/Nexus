@@ -9,14 +9,15 @@ namespace Nexus::Graphics
 {
 	struct ReflectedResource
 	{
-		ReflectedShaderDataType Type				  = ReflectedShaderDataType::UniformBuffer;
-		std::string				Name				  = {};
-		ResourceDimension		Dimension			  = ResourceDimension::NoDimension;
-		StorageResourceAccess	StorageResourceAccess = StorageResourceAccess::NoAccess;
-		uint32_t				DescriptorSet		  = 0;
-		uint32_t				BindingPoint		  = 0;
-		uint32_t				BindingCount		  = 0;
-		uint32_t				RegisterSpace		  = 0;
+		ReflectedShaderDataType Type		   = ReflectedShaderDataType::UniformBuffer;
+		std::string				BlockName	   = {};
+		std::string				InstanceName   = {};
+		ResourceDimension		Dimension	   = ResourceDimension::NoDimension;
+		StorageResourceAccess	ResourceAccess = StorageResourceAccess::NoAccess;
+		uint32_t				DescriptorSet  = 0;
+		uint32_t				BindingPoint   = 0;
+		uint32_t				BindingCount   = 0;
+		uint32_t				RegisterSpace  = 0;
 	};
 
 	struct Attribute
@@ -65,7 +66,7 @@ namespace Nexus::Graphics
 
 	struct ShaderModuleSpecification
 	{
-		std::string			  Name = "ShaderModule";
+		std::string			  DebugName = "ShaderModule";
 		std::string			  Source;
 		ShaderStage			  ShadingStage = ShaderStage::Invalid;
 		std::vector<uint32_t> SpirvBinary;
@@ -74,14 +75,14 @@ namespace Nexus::Graphics
 		std::vector<ShaderAttribute> OutputAttributes;
 	};
 
-	class ShaderModule
+	class IShaderModule
 	{
 	  public:
-		ShaderModule(const ShaderModuleSpecification &shaderModuleSpec) : m_ModuleSpecification(shaderModuleSpec)
+		IShaderModule(const ShaderModuleSpecification &shaderModuleSpec) : m_ModuleSpecification(shaderModuleSpec)
 		{
 		}
 
-		virtual ~ShaderModule() = default;
+		virtual ~IShaderModule() = default;
 
 		ShaderStage GetShaderStage() const
 		{

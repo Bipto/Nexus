@@ -16,6 +16,8 @@
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
 	#include "SwapchainVk.hpp"
+	#include "TexelBufferVk.hpp"
+	#include "TextureViewVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 
@@ -66,52 +68,52 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
 	{
 		return CreateRef<ShaderModuleVk>(moduleSpec, this);
 	}
 
-	Ref<GraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	Ref<IGraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineVk>(description, this);
 	}
 
-	Ref<ComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
+	Ref<IComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		return CreateRef<ComputePipelineVk>(description, this);
 	}
 
-	Ref<MeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	Ref<IMeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		return CreateRef<MeshletPipelineVk>(description, this);
 	}
 
-	Ref<RayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	Ref<IRayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
 		return nullptr;
 	}
 
-	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
+	Ref<IResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		return CreateRef<ResourceSetVk>(pipeline, this);
 	}
 
-	Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
+	Ref<IFramebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferVk>(spec, this);
+		return CreateRef<FramebufferVk>(desc, this);
 	}
 
-	Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
+	Ref<ISampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
 	{
 		return CreateRef<SamplerVk>(this, spec);
 	}
 
-	Ref<TimingQuery> GraphicsDeviceVk::CreateTimingQuery()
+	Ref<ITimingQuery> GraphicsDeviceVk::CreateTimingQuery()
 	{
 		return CreateRef<TimingQueryVk>(this);
 	}
 
-	Ref<DeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<IDeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		return CreateRef<DeviceBufferVk>(desc, this);
 	}
@@ -119,6 +121,11 @@ namespace Nexus::Graphics
 	Ref<IAccelerationStructure> GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
 		return CreateRef<AccelerationStructureVk>(desc, this);
+	}
+
+	Ref<ITexelBuffer> GraphicsDeviceVk::CreateTexelBuffer(const TexelBufferDescription &desc)
+	{
+		return CreateRef<TexelBufferVk>(desc, this);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
@@ -132,12 +139,12 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<Fence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
+	Ref<IFence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
 	{
 		return CreateRef<FenceVk>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -172,7 +179,7 @@ namespace Nexus::Graphics
 		return CreateRef<CommandQueueVk>(this, description);
 	}
 
-	void GraphicsDeviceVk::ResetFences(Ref<Fence> *fences, uint32_t count)
+	void GraphicsDeviceVk::ResetFences(Ref<IFence> *fences, uint32_t count)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -185,9 +192,14 @@ namespace Nexus::Graphics
 		NX_VALIDATE(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
+	Ref<ITexture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
 		return CreateRef<TextureVk>(spec, this);
+	}
+
+	Ref<ITextureView> GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)
+	{
+		return CreateRef<TextureViewVk>(desc, this);
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
@@ -375,6 +387,15 @@ namespace Nexus::Graphics
 			builder.Add(synchronizationFeatures);
 		}
 
+		VkPhysicalDeviceInlineUniformBlockFeaturesEXT inlineUniformBlockFeatures = {};
+		inlineUniformBlockFeatures.sType			  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT;
+		inlineUniformBlockFeatures.pNext			  = nullptr;
+		inlineUniformBlockFeatures.inlineUniformBlock = VK_TRUE;
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
+		{
+			builder.Add(inlineUniformBlockFeatures);
+		}
+
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.pNext			  = nullptr;
@@ -429,74 +450,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
-	{
-		VkImageViewCreateInfo viewInfo			 = {};
-		viewInfo.sType							 = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image							 = image;
-		viewInfo.viewType						 = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format							 = format;
-		viewInfo.subresourceRange.aspectMask	 = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel	 = 0;
-		viewInfo.subresourceRange.levelCount	 = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount	 = 1;
-
-		VkImageView imageView;
-		if (m_Context.CreateImageView(m_Device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create texture image view");
-		}
-		return imageView;
-	}
-
-	void GraphicsDeviceVk::CreateImage(uint32_t				 width,
-									   uint32_t				 height,
-									   VkFormat				 format,
-									   VkImageTiling		 tiling,
-									   VkImageUsageFlags	 usage,
-									   VkMemoryPropertyFlags properties,
-									   VkImage				&image,
-									   VkDeviceMemory		&imageMemory)
-	{
-		VkImageCreateInfo imageInfo = {};
-		imageInfo.sType				= VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType			= VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width		= width;
-		imageInfo.extent.height		= height;
-		imageInfo.extent.depth		= 1;
-		imageInfo.mipLevels			= 1;
-		imageInfo.arrayLayers		= 1;
-		imageInfo.format			= format;
-		imageInfo.tiling			= tiling;
-		imageInfo.initialLayout		= VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage				= usage;
-		imageInfo.samples			= VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.sharingMode		= VK_SHARING_MODE_EXCLUSIVE;
-
-		if (m_Context.CreateImage(m_Device, &imageInfo, nullptr, &image) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create image");
-		}
-
-		VkMemoryRequirements memRequirements;
-		m_Context.GetImageMemoryRequirements(m_Device, image, &memRequirements);
-
-		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType				   = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize	   = memRequirements.size;
-		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDeviceVk);
-
-		if (m_Context.AllocateMemory(m_Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to allocate image memory");
-		}
-
-		m_Context.BindImageMemory(m_Device, image, imageMemory, 0);
-	}
-
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
 	{
 		std::vector<const char *> extensions;
@@ -505,9 +458,24 @@ namespace Nexus::Graphics
 		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEVICE_GROUP_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_KHR_DEVICE_GROUP_EXTENSION_NAME);
-		}
 
-		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
+			// incremental present extension to support custom present rectangles
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME);
+			}
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME);
+
+				// swapchain maintenance1 extension to support changing present modes without recreating the swapchain
+				if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
+				}
+			}
+		}
 
 		// this is used for vkCmdBindVertexBuffers2	{
 		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
@@ -609,11 +577,24 @@ namespace Nexus::Graphics
 			}
 		}
 
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
-			}
+			extensions.push_back(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_6_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_MAINTENANCE_6_EXTENSION_NAME);
 		}
 
 		return extensions;

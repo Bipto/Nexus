@@ -187,12 +187,6 @@ namespace Nexus
 		bool		   IsMouseButtonPressed(MouseButton state) final;
 
 	  private:
-		/// @brief A method that returns a set of flags to use when creating the
-		/// window
-		/// @param api The graphics API to create the swapchain
-		/// @return An unsigned int representing the flags
-		uint32_t GetFlags(const WindowDescription &windowSpec);
-
 		void SetupTimer();
 
 		const WindowDescription &GetDescription() const;

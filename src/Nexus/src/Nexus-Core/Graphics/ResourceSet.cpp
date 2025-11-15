@@ -4,33 +4,313 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSet::ResourceSet(Ref<Pipeline> pipeline) : m_Pipeline(pipeline)
+	static void CreateInitialStorageForDescriptors(const ResourceSetDescription &resourceDesc,
+												   ResourceSetDescriptors		&boundResources,
+												   ResourceSetDescriptors		&queuedResources)
 	{
-		m_ShaderResources = pipeline->GetRequiredShaderResources();
+		// iterate through all descriptors
+		for (const ResourceDescriptor &descriptor : resourceDesc.Descriptors)
+		{
+			switch (descriptor.Type)
+			{
+				// push constants are not recorded within the descriptors
+				case ResourceDescriptorType::PushConstants: continue;
+				case ResourceDescriptorType::UniformBuffer:
+				{
+					boundResources.UniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.UniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::DynamicUniformBuffer:
+				{
+					boundResources.DynamicUniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.DynamicUniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::InlineUniformBlock:
+				{
+					boundResources.InlineUniformBlocks[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.InlineUniformBlocks[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::StorageBuffer:
+				{
+					boundResources.StorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.StorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::DynamicStorageBuffer:
+				{
+					boundResources.DynamicStorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.DynamicStorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::StorageImage:
+				{
+					boundResources.StorageImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.StorageImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::CombinedImageSampler:
+				{
+					boundResources.CombinedImageSamplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.CombinedImageSamplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::SampledImage:
+				{
+					boundResources.SampledImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.SampledImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::Sampler:
+				{
+					boundResources.Samplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.Samplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::AccelerationStructure:
+				{
+					boundResources.AccelerationStructures[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.AccelerationStructures[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::UniformTexelBuffer:
+				{
+					boundResources.UniformTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.UniformTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				case ResourceDescriptorType::StorageTexelBuffer:
+				{
+					boundResources.StorageTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					queuedResources.StorageTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+					break;
+				}
+				default: throw std::runtime_error("Failed to find a valid descriptor type");
+			}
+		}
 	}
 
-	uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t binding)
+	void ResourceSetDescriptors::Reset()
 	{
-		return (set * DescriptorSetCount) + binding;
+		for (auto &[name, buffers] : UniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
+		for (auto &[name, buffers] : DynamicUniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
+		for (auto &[name, buffers] : InlineUniformBlocks) { std::fill(buffers.begin(), buffers.end(), 0); }
+		for (auto &[name, buffers] : StorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
+		for (auto &[name, buffers] : DynamicStorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
+		for (auto &[name, images] : StorageImages) { std::fill(images.begin(), images.end(), Graphics::StorageImageView {}); }
+		for (auto &[name, ciSamplers] : CombinedImageSamplers) { std::fill(ciSamplers.begin(), ciSamplers.end(), Graphics::CombinedImageSampler {}); }
+		for (auto &[name, images] : SampledImages) { std::fill(images.begin(), images.end(), nullptr); }
+		for (auto &[name, samplers] : Samplers) { std::fill(samplers.begin(), samplers.end(), nullptr); }
+		for (auto &[name, accelerationStructures] : AccelerationStructures)
+		{
+			std::fill(accelerationStructures.begin(), accelerationStructures.end(), nullptr);
+		}
+		for (auto &[name, buffers] : UniformTexelBuffers) { std::fill(buffers.begin(), buffers.end(), nullptr); }
+		for (auto &[name, buffers] : StorageTexelBuffers) { std::fill(buffers.begin(), buffers.end(), nullptr); }
 	}
 
-	const std::map<std::string, UniformBufferView> &ResourceSet::GetBoundUniformBuffers() const
+	IResourceSet::IResourceSet(Ref<Pipeline> pipeline) : m_Pipeline(pipeline)
+	{
+		m_ShaderResources							  = pipeline->GetRequiredShaderResources();
+		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
+		CreateInitialStorageForDescriptors(resourceSetDesc, m_BoundResources, m_QueuedResources);
+	}
+
+	IResourceSet::~IResourceSet()
+	{
+	}
+
+	void IResourceSet::WriteUniformBuffer(const UniformBufferView &uniformBuffers, const std::string &name)
+	{
+		WriteUniformBuffers(&uniformBuffers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffers, const std::string &name)
+	{
+		WriteDynamicUniformBuffers(&uniformBuffers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)
+	{
+		auto &inlineBlock = m_QueuedResources.InlineUniformBlocks[name];
+		inlineBlock.resize(sizeInBytes);
+		memcpy(inlineBlock.data(), data, sizeInBytes);
+	}
+
+	void IResourceSet::WriteStorageBuffer(const StorageBufferView &views, const std::string &name)
+	{
+		WriteStorageBuffers(&views, name, 0, 1);
+	}
+
+	void IResourceSet::WriteDynamicStorageBuffer(const StorageBufferView &storageBuffers, const std::string &name)
+	{
+		WriteDynamicStorageBuffers(&storageBuffers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteStorageImage(const StorageImageView &views, const std::string &name)
+	{
+		WriteStorageImages(&views, name, 0, 1);
+	}
+
+	void IResourceSet::WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSamplers, const std::string &name)
+	{
+		WriteCombinedImageSamplers(&combinedImageSamplers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteSampledImage(Ref<ITextureView> textureViews, const std::string &name)
+	{
+		WriteSampledImages(&textureViews, name, 0, 1);
+	}
+
+	void IResourceSet::WriteSampler(Ref<ISampler> samplers, const std::string &name)
+	{
+		WriteSamplers(&samplers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructures, const std::string &name)
+	{
+		WriteAccelerationStructures(&accelerationStructures, name, 0, 1);
+	}
+
+	void IResourceSet::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name)
+	{
+		WriteUniformTexelBuffers(&texelBuffers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name)
+	{
+		WriteStorageTexelBuffers(&texelBuffers, name, 0, 1);
+	}
+
+	void IResourceSet::WriteUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.UniformBuffers[name][index] = *uniformBuffers;
+			uniformBuffers++;
+		}
+	}
+
+	void IResourceSet::WriteDynamicUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.DynamicUniformBuffers[name][index] = *uniformBuffers;
+			uniformBuffers++;
+		}
+	}
+
+	void IResourceSet::WriteStorageBuffers(const StorageBufferView *views, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.StorageBuffers[name][index] = *views;
+			views++;
+		}
+	}
+
+	void IResourceSet::WriteDynamicStorageBuffers(const StorageBufferView *storageBuffers, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.DynamicStorageBuffers[name][index] = *storageBuffers;
+			storageBuffers++;
+		}
+	}
+
+	void IResourceSet::WriteStorageImages(const StorageImageView *views, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.StorageImages[name][index] = *views;
+			views++;
+		}
+	}
+
+	void IResourceSet::WriteCombinedImageSamplers(const CombinedImageSampler *combinedImageSamplers,
+												  const std::string			 &name,
+												  size_t					  startElement,
+												  size_t					  count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.CombinedImageSamplers[name][index] = *combinedImageSamplers;
+			combinedImageSamplers++;
+		}
+	}
+
+	void IResourceSet::WriteSampledImages(Ref<ITextureView> *textureViews, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.SampledImages[name][index] = *textureViews;
+			textureViews++;
+		}
+	}
+
+	void IResourceSet::WriteSamplers(Ref<ISampler> *samplers, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.Samplers[name][index] = *samplers;
+			samplers++;
+		}
+	}
+
+	void IResourceSet::WriteAccelerationStructures(Ref<IAccelerationStructure> *accelerationStructures,
+												   const std::string		   &name,
+												   size_t						startElement,
+												   size_t						count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.AccelerationStructures[name][index] = *accelerationStructures;
+			accelerationStructures++;
+		}
+	}
+
+	void IResourceSet::WriteUniformTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.UniformTexelBuffers[name][index] = *texelBuffers;
+			texelBuffers++;
+		}
+	}
+
+	void IResourceSet::WriteStorageTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count)
+	{
+		for (size_t index = startElement; index < startElement + count; index++)
+		{
+			m_QueuedResources.StorageTexelBuffers[name][index] = *texelBuffers;
+			texelBuffers++;
+		}
+	}
+
+	const std::map<std::string, UniformBufferView> &IResourceSet::GetBoundUniformBuffers() const
 	{
 		return m_BoundUniformBuffers;
 	}
 
-	const std::map<std::string, CombinedImageSampler> &ResourceSet::GetBoundCombinedImageSamplers() const
+	const std::map<std::string, CombinedImageSampler> &IResourceSet::GetBoundCombinedImageSamplers() const
 	{
 		return m_BoundCombinedImageSamplers;
 	}
 
-	const std::map<std::string, StorageImageView> &ResourceSet::GetBoundStorageImages() const
+	const std::map<std::string, StorageImageView> &IResourceSet::GetBoundStorageImages() const
 	{
 		return m_BoundStorageImages;
 	}
 
-	const std::map<std::string, StorageBufferView> &Nexus::Graphics::ResourceSet::GetBoundStorageBuffers() const
+	const std::map<std::string, StorageBufferView> &Nexus::Graphics::IResourceSet::GetBoundStorageBuffers() const
 	{
 		return m_BoundStorageBuffers;
+	}
+
+	const ResourceSetDescriptors &IResourceSet::GetBoundResources() const
+	{
+		return m_BoundResources;
 	}
 }	 // namespace Nexus::Graphics

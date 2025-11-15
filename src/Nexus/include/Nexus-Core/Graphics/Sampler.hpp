@@ -4,12 +4,12 @@
 
 namespace Nexus::Graphics
 {
-	class Sampler
+	class ISampler
 	{
 	  public:
-		virtual ~Sampler()
+		virtual ~ISampler()
 		{
 		}
-		virtual const SamplerDescription &GetSamplerSpecification() = 0;
+		virtual const SamplerDescription &GetSamplerDescription() = 0;
 	};
 }	 // namespace Nexus::Graphics

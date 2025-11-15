@@ -38,21 +38,32 @@ namespace Nexus::Graphics
 		Readback
 	};
 
-#define BUFFER_USAGE_NONE 0
-
-	enum BufferUsage : uint8_t
+	enum BufferCreateFlags : uint8_t
 	{
-		Vertex									= BIT(0),
-		Index									= BIT(1),
-		Uniform									= BIT(2),
-		Storage									= BIT(3),
-		Indirect								= BIT(4),
-		AccelerationStructureStorage			= BIT(5),
-		AccelerationStructureBuildInputReadOnly = BIT(6)
+		BufferCreateFlags_None			= 0,
+		BufferCreateFlags_SparseBinding = BIT(0)
+	};
+
+	enum BufferUsage : uint16_t
+	{
+		BufferUsage_None									= 0,
+		BufferUsage_Vertex									= BIT(0),
+		BufferUsage_Index									= BIT(1),
+		BufferUsage_Uniform									= BIT(2),
+		BufferUsage_Storage									= BIT(3),
+		BufferUsage_Indirect								= BIT(4),
+		BufferUsage_AccelerationStructureStorage			= BIT(5),
+		BufferUsage_AccelerationStructureBuildInputReadOnly = BIT(6),
+		BufferUsage_TransformFeedback						= BIT(7),
+		BufferUsage_TexelUniform							= BIT(8),
+		BufferUsage_TexelStorage							= BIT(9)
 	};
 
 	struct DeviceBufferDescription
 	{
+		/// @brief Flags containing how the buffer should be created
+		BufferCreateFlags Flags = BufferCreateFlags_None;
+
 		/// @brief The accessibility of the buffer
 		BufferMemoryAccess Access = BufferMemoryAccess::Default;
 
@@ -69,10 +80,10 @@ namespace Nexus::Graphics
 		std::string DebugName = "DeviceBuffer";
 	};
 
-	class DeviceBuffer
+	class IDeviceBuffer
 	{
 	  public:
-		virtual ~DeviceBuffer()
+		virtual ~IDeviceBuffer()
 		{
 		}
 		virtual void			  SetData(const void *data, uint32_t offset, uint32_t size) = 0;
@@ -119,23 +130,23 @@ namespace Nexus::Graphics
 
 	struct VertexBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = {};
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
+		Ref<IDeviceBuffer> BufferHandle = {};
+		size_t			   Offset		= 0;
+		size_t			   Size			= 0;
 	};
 
 	struct IndexBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = {};
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
-		IndexFormat		  BufferFormat = IndexFormat::UInt32;
+		Ref<IDeviceBuffer> BufferHandle = {};
+		size_t			   Offset		= 0;
+		size_t			   Size			= 0;
+		IndexFormat		   BufferFormat = IndexFormat::UInt32;
 	};
 
 	struct UniformBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = {};
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
+		Ref<IDeviceBuffer> BufferHandle = {};
+		size_t			   Offset		= 0;
+		size_t			   Size			= 0;
 	};
 }	 // namespace Nexus::Graphics

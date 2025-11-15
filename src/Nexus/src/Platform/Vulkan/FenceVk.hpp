@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	class FenceVk : public Fence
+	class FenceVk : public IFence
 	{
 	  public:
 		FenceVk(const FenceDescription &desc, GraphicsDeviceVk *device);

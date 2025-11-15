@@ -8,6 +8,8 @@
 
 	#include "EGLUtils.hpp"
 
+	#include "Platform/OpenGL/TextureOpenGL.hpp"
+
 namespace Nexus::GL
 {
 	ViewContextEGL::ViewContextEGL(EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextSpecification &spec)
@@ -86,16 +88,16 @@ namespace Nexus::GL
 			contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION);
 			contextAttribs.push_back(spec.VersionMinor);
 
-            if (spec.UseCoreProfile)
-            {
-                contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
-                contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
-            }
-            else
-            {
-                contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
-                contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
-            }
+			if (spec.UseCoreProfile)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
+			}
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
+			}
 		}
 		else
 		{
@@ -130,28 +132,27 @@ namespace Nexus::GL
 			std::cout << errorMessage << std::endl;
 		}
 
-        if (!eglMakeCurrent(m_EGLDisplay, m_Surface, m_Surface, m_Context))
-        {
-            std::cout << "Failed to make context current" << std::endl;
-        }
+		if (!eglMakeCurrent(m_EGLDisplay, m_Surface, m_Surface, m_Context))
+		{
+			std::cout << "Failed to make context current" << std::endl;
+		}
 
-        eglSwapInterval(m_EGLDisplay, (EGLint)spec.Vsync);
+		eglSwapInterval(m_EGLDisplay, (EGLint)spec.Vsync);
 
-        if (spec.GLVersion == OpenGLVersion::OpenGL)
-        {
-            if (!gladLoaderLoadGLContext(&m_GladContext))
-            {
-                std::cout << "Failed to load OpenGL function pointers" << std::endl;
-            }
-
-        }
-        else
-        {
-            if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
-            {
-                std::cout << "Failed to load OpenGLES function pointers" << std::endl;
-            }
-        }
+		if (spec.GLVersion == OpenGLVersion::OpenGL)
+		{
+			if (!gladLoaderLoadGLContext(&m_GladContext))
+			{
+				std::cout << "Failed to load OpenGL function pointers" << std::endl;
+			}
+		}
+		else
+		{
+			if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
+			{
+				std::cout << "Failed to load OpenGLES function pointers" << std::endl;
+			}
+		}
 	}
 
 	ViewContextEGL::~ViewContextEGL()
@@ -166,10 +167,86 @@ namespace Nexus::GL
 		return eglMakeCurrent(m_EGLDisplay, m_Surface, m_Surface, m_Context);
 	}
 
-	void ViewContextEGL::Swap()
+	void ViewContextEGL::Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc)
 	{
+		NX_VALIDATE(texture, "Texture cannot be null");
+
+		// retrieve the previous context
+		GL::IGLContext *previousContext = GL::GetCurrentContext();
+
+		// Make the swapchain's context current
 		GL::SetCurrentContext(this);
-		eglSwapBuffers(m_EGLDisplay, m_Surface);
+
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				// copy the sections requested
+				if (presentDesc.PresentRects.size() > 0)
+				{
+					for (const auto &rect : presentDesc.PresentRects)
+					{
+						Graphics::TextureCopyDescription copyDesc = {};
+
+						// framebuffer texture
+						copyDesc.Source			= texture;
+						copyDesc.SourceOffset	= {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
+						copyDesc.SourceMipLevel = 0;
+
+						// backbuffer
+						copyDesc.Destination		 = nullptr;
+						copyDesc.DestinationMipLevel = 0;
+						copyDesc.DestinationOffset	 = {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
+
+						copyDesc.Extent = {rect.GetWidth(), rect.GetHeight(), 1};
+						GL::CopyTextureToTexture(copyDesc, context);
+					}
+				}
+				// copy the full image
+				else
+				{
+					Graphics::TextureCopyDescription copyDesc = {};
+
+					// framebuffer texture
+					copyDesc.Source			= texture;
+					copyDesc.SourceOffset	= {0, 0, 0};
+					copyDesc.SourceMipLevel = 0;
+
+					// backbuffer
+					copyDesc.Destination		 = nullptr;
+					copyDesc.DestinationMipLevel = 0;
+					copyDesc.DestinationOffset	 = {0, 0, 0};
+					copyDesc.Extent				 = {texture->GetWidth(), texture->GetHeight(), 1};
+					GL::CopyTextureToTexture(copyDesc, context);
+				}
+			});
+
+		if (glad_eglSwapBuffersWithDamageKHR != nullptr)
+		{
+			struct EGLRect
+			{
+				EGLint x	  = 0;
+				EGLint y	  = 0;
+				EGLint width  = 0;
+				EGLint height = 0;
+			};
+
+			std::vector<EGLRect> presentRects(presentDesc.PresentRects.size());
+
+			for (size_t i = 0; i < presentDesc.PresentRects.size(); i++)
+			{
+				const auto &presentRect = presentDesc.PresentRects.at(i);
+				presentRects[i]			= {.x	   = (EGLint)presentRect.GetLeft(),
+										   .y	   = (EGLint)presentRect.GetTop(),
+										   .width  = (EGLint)presentRect.GetWidth(),
+										   .height = (EGLint)presentRect.GetHeight()};
+			}
+
+			eglSwapBuffersWithDamageKHR(m_EGLDisplay, m_Surface, &presentRects[0].x, presentRects.size());
+		}
+		else
+		{
+			eglSwapBuffers(m_EGLDisplay, m_Surface);
+		}
 	}
 
 	void ViewContextEGL::SetVSync(bool enabled)

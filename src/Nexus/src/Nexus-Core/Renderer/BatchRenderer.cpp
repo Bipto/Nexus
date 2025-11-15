@@ -6,16 +6,16 @@
 
 const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 
-											  "layout(location = 0) in vec4 Color;\n"
-											  "layout(location = 1) in vec3 Position;\n"
-											  "layout(location = 2) in float TexIndex;\n"
-											  "layout(location = 3) in vec2 TexCoord;\n"
-											  "layout(location = 4) in uvec2 EntityID;\n"
+											  "layout(location = 0) in vec4 a_Color;\n"
+											  "layout(location = 1) in vec3 a_Position;\n"
+											  "layout(location = 2) in float a_TexIndex;\n"
+											  "layout(location = 3) in vec2 a_TexCoord;\n"
+											  "layout(location = 4) in uvec2 a_EntityID;\n"
 
-											  "layout(location = 0) out vec2 texCoord;\n"
-											  "layout(location = 1) out vec4 outColor;\n"
-											  "layout(location = 2) out flat float texIndex;\n"
-											  "layout(location = 3) out flat uvec2 outEntityID;\n"
+											  "layout(location = 0) out vec2 o_TexCoord;\n"
+											  "layout(location = 1) out vec4 o_Colour;\n"
+											  "layout(location = 2) out flat float o_TexIndex;\n"
+											  "layout(location = 3) out flat uvec2 o_EntityID;\n"
 
 											  "layout(binding = 0, set = 0) uniform MVP\n"
 											  "{\n"
@@ -24,170 +24,170 @@ const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 
 											  "void main()\n"
 											  "{\n"
-											  "    gl_Position = u_MVP * vec4(Position, 1.0);\n"
-											  "    texCoord = TexCoord;\n"
-											  "    outColor = Color;\n"
-											  "    texIndex = TexIndex;\n"
-											  "    outEntityID = EntityID;\n"
+											  "    gl_Position = u_MVP * vec4(a_Position, 1.0);\n"
+											  "    o_TexCoord = a_TexCoord;\n"
+											  "    o_Colour = a_Color;\n"
+											  "    o_TexIndex = a_TexIndex;\n"
+											  "    o_EntityID = a_EntityID;\n"
 											  "}";
 
 const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
 
-													   "layout (location = 0) out vec4 FragColor;\n"
+													   "layout (location = 0) out vec4 o_Colour;\n"
 													   "layout (location = 1) out uvec2 o_EntityID;\n"
 
-													   "layout (location = 0) in vec2 texCoord;\n"
-													   "layout (location = 1) in vec4 outColor;\n"
-													   "layout (location = 2) in flat float texIndex;\n"
-													   "layout(location = 3) in flat uvec2 outEntityID;\n"
+													   "layout (location = 0) in vec2 a_TexCoord;\n"
+													   "layout (location = 1) in vec4 a_Colour;\n"
+													   "layout (location = 2) in flat float a_TexIndex;\n"
+													   "layout(location = 3) in flat uvec2 a_EntityID;\n"
 
-													   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-													   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-													   "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-													   "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-													   "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-													   "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-													   "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-													   "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-													   "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-													   "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-													   "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-													   "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-													   "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-													   "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-													   "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-													   "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+													   "layout (set = 1, binding = 0) uniform sampler2D u_Texture0;\n"
+													   "layout (set = 1, binding = 1) uniform sampler2D u_Texture1;\n"
+													   "layout (set = 1, binding = 2) uniform sampler2D u_Texture2;\n"
+													   "layout (set = 1, binding = 3) uniform sampler2D u_Texture3;\n"
+													   "layout (set = 1, binding = 4) uniform sampler2D u_Texture4;\n"
+													   "layout (set = 1, binding = 5) uniform sampler2D u_Texture5;\n"
+													   "layout (set = 1, binding = 6) uniform sampler2D u_Texture6;\n"
+													   "layout (set = 1, binding = 7) uniform sampler2D u_Texture7;\n"
+													   "layout (set = 1, binding = 8) uniform sampler2D u_Texture8;\n"
+													   "layout (set = 1, binding = 9) uniform sampler2D u_Texture9;\n"
+													   "layout (set = 1, binding = 10) uniform sampler2D u_Texture10;\n"
+													   "layout (set = 1, binding = 11) uniform sampler2D u_Texture11;\n"
+													   "layout (set = 1, binding = 12) uniform sampler2D u_Texture12;\n"
+													   "layout (set = 1, binding = 13) uniform sampler2D u_Texture13;\n"
+													   "layout (set = 1, binding = 14) uniform sampler2D u_Texture14;\n"
+													   "layout (set = 1, binding = 15) uniform sampler2D u_Texture15;\n"
 
 													   "void main()\n"
 													   "{\n"
-													   "    switch (int(texIndex))\n"
+													   "    switch (int(a_TexIndex))\n"
 													   "    {\n"
-													   "        case 0: FragColor = texture(texture0, texCoord); break;\n"
-													   "        case 1: FragColor = texture(texture1, texCoord); break;\n"
-													   "        case 2: FragColor = texture(texture2, texCoord); break;\n"
-													   "        case 3: FragColor = texture(texture3, texCoord); break;\n"
-													   "        case 4: FragColor = texture(texture4, texCoord); break;\n"
-													   "        case 5: FragColor = texture(texture5, texCoord); break;\n"
-													   "        case 6: FragColor = texture(texture6, texCoord); break;\n"
-													   "        case 7: FragColor = texture(texture7, texCoord); break;\n"
-													   "        case 8: FragColor = texture(texture8, texCoord); break;\n"
-													   "        case 9: FragColor = texture(texture9, texCoord); break;\n"
-													   "        case 10: FragColor = texture(texture10, texCoord); break;\n"
-													   "        case 11: FragColor = texture(texture11, texCoord); break;\n"
-													   "        case 12: FragColor = texture(texture12, texCoord); break;\n"
-													   "        case 13: FragColor = texture(texture13, texCoord); break;\n"
-													   "        case 14: FragColor = texture(texture14, texCoord); break;\n"
-													   "        case 15: FragColor = texture(texture15, texCoord); break;\n"
+													   "        case 0: o_Colour = texture(u_Texture0, a_TexCoord); break;\n"
+													   "        case 1: o_Colour = texture(u_Texture1, a_TexCoord); break;\n"
+													   "        case 2: o_Colour = texture(u_Texture2, a_TexCoord); break;\n"
+													   "        case 3: o_Colour = texture(u_Texture3, a_TexCoord); break;\n"
+													   "        case 4: o_Colour = texture(u_Texture4, a_TexCoord); break;\n"
+													   "        case 5: o_Colour = texture(u_Texture5, a_TexCoord); break;\n"
+													   "        case 6: o_Colour = texture(u_Texture6, a_TexCoord); break;\n"
+													   "        case 7: o_Colour = texture(u_Texture7, a_TexCoord); break;\n"
+													   "        case 8: o_Colour = texture(u_Texture8, a_TexCoord); break;\n"
+													   "        case 9: o_Colour = texture(u_Texture9, a_TexCoord); break;\n"
+													   "        case 10: o_Colour = texture(u_Texture10, a_TexCoord); break;\n"
+													   "        case 11: o_Colour = texture(u_Texture11, a_TexCoord); break;\n"
+													   "        case 12: o_Colour = texture(u_Texture12, a_TexCoord); break;\n"
+													   "        case 13: o_Colour = texture(u_Texture13, a_TexCoord); break;\n"
+													   "        case 14: o_Colour = texture(u_Texture14, a_TexCoord); break;\n"
+													   "        case 15: o_Colour = texture(u_Texture15, a_TexCoord); break;\n"
 													   "    }\n"
-													   "    FragColor *= outColor;\n"
-													   "    o_EntityID = outEntityID;\n"
-													   "	if (FragColor.a == 0) discard;\n"
+													   "    o_Colour *= a_Colour;\n"
+													   "    o_EntityID = a_EntityID;\n"
+													   "	if (o_Colour.a == 0) discard;\n"
 													   "}\n";
 
 const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
 
-													"layout (location = 0) out vec4 FragColor;\n"
+													"layout (location = 0) out vec4 o_Colour;\n"
 													"layout (location = 1) out uvec2 o_EntityID;\n"
 
-													"layout (location = 0) in vec2 texCoord;\n"
-													"layout (location = 1) in vec4 outColor;\n"
-													"layout (location = 2) in flat float texIndex;\n"
-													"layout(location = 3) in flat uvec2 outEntityID;\n"
+													"layout (location = 0) in vec2 a_TexCoord;\n"
+													"layout (location = 1) in vec4 a_Colour;\n"
+													"layout (location = 2) in flat float a_TexIndex;\n"
+													"layout(location = 3) in flat uvec2 a_EntityID;\n"
 
-													"layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-													"layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-													"layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-													"layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-													"layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-													"layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-													"layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-													"layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-													"layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-													"layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-													"layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-													"layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-													"layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-													"layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-													"layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-													"layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+													"layout (set = 1, binding = 0) uniform sampler2D u_Texture0;\n"
+													"layout (set = 1, binding = 1) uniform sampler2D u_Texture1;\n"
+													"layout (set = 1, binding = 2) uniform sampler2D u_Texture2;\n"
+													"layout (set = 1, binding = 3) uniform sampler2D u_Texture3;\n"
+													"layout (set = 1, binding = 4) uniform sampler2D u_Texture4;\n"
+													"layout (set = 1, binding = 5) uniform sampler2D u_Texture5;\n"
+													"layout (set = 1, binding = 6) uniform sampler2D u_Texture6;\n"
+													"layout (set = 1, binding = 7) uniform sampler2D u_Texture7;\n"
+													"layout (set = 1, binding = 8) uniform sampler2D u_Texture8;\n"
+													"layout (set = 1, binding = 9) uniform sampler2D u_Texture9;\n"
+													"layout (set = 1, binding = 10) uniform sampler2D u_Texture10;\n"
+													"layout (set = 1, binding = 11) uniform sampler2D u_Texture11;\n"
+													"layout (set = 1, binding = 12) uniform sampler2D u_Texture12;\n"
+													"layout (set = 1, binding = 13) uniform sampler2D u_Texture13;\n"
+													"layout (set = 1, binding = 14) uniform sampler2D u_Texture14;\n"
+													"layout (set = 1, binding = 15) uniform sampler2D u_Texture15;\n"
 
 													"void main()\n"
 													"{\n"
 													"   float alpha = 0;"
 
-													"    switch (int(texIndex))\n"
+													"    switch (int(a_TexIndex))\n"
 													"    {\n"
-													"        case 0: alpha = texture(texture0, texCoord).r; break;\n"
-													"        case 1: alpha = texture(texture1, texCoord).r; break;\n"
-													"        case 2: alpha = texture(texture2, texCoord).r; break;\n"
-													"        case 3: alpha = texture(texture3, texCoord).r; break;\n"
-													"        case 4: alpha = texture(texture4, texCoord).r; break;\n"
-													"        case 5: alpha = texture(texture5, texCoord).r; break;\n"
-													"        case 6: alpha = texture(texture6, texCoord).r; break;\n"
-													"        case 7: alpha = texture(texture7, texCoord).r; break;\n"
-													"        case 8: alpha = texture(texture8, texCoord).r; break;\n"
-													"        case 9: alpha = texture(texture9, texCoord).r; break;\n"
-													"        case 10: alpha = texture(texture10, texCoord).r; break;\n"
-													"        case 11: alpha = texture(texture11, texCoord).r; break;\n"
-													"        case 12: alpha = texture(texture12, texCoord).r; break;\n"
-													"        case 13: alpha = texture(texture13, texCoord).r; break;\n"
-													"        case 14: alpha = texture(texture14, texCoord).r; break;\n"
-													"        case 15: alpha = texture(texture15, texCoord).r; break;\n"
+													"        case 0: alpha = texture(u_Texture0, a_TexCoord).r; break;\n"
+													"        case 1: alpha = texture(u_Texture1, a_TexCoord).r; break;\n"
+													"        case 2: alpha = texture(u_Texture2, a_TexCoord).r; break;\n"
+													"        case 3: alpha = texture(u_Texture3, a_TexCoord).r; break;\n"
+													"        case 4: alpha = texture(u_Texture4, a_TexCoord).r; break;\n"
+													"        case 5: alpha = texture(u_Texture5, a_TexCoord).r; break;\n"
+													"        case 6: alpha = texture(u_Texture6, a_TexCoord).r; break;\n"
+													"        case 7: alpha = texture(u_Texture7, a_TexCoord).r; break;\n"
+													"        case 8: alpha = texture(u_Texture8, a_TexCoord).r; break;\n"
+													"        case 9: alpha = texture(u_Texture9, a_TexCoord).r; break;\n"
+													"        case 10: alpha = texture(u_Texture10, a_TexCoord).r; break;\n"
+													"        case 11: alpha = texture(u_Texture11, a_TexCoord).r; break;\n"
+													"        case 12: alpha = texture(u_Texture12, a_TexCoord).r; break;\n"
+													"        case 13: alpha = texture(u_Texture13, a_TexCoord).r; break;\n"
+													"        case 14: alpha = texture(u_Texture14, a_TexCoord).r; break;\n"
+													"        case 15: alpha = texture(u_Texture15, a_TexCoord).r; break;\n"
 													"    }\n"
-													"    FragColor = vec4(outColor.rgb, alpha);\n"
-													"    o_EntityID = outEntityID;\n"
-													"	 if (FragColor.a == 0) discard;\n"
+													"    o_Colour = vec4(a_Colour.rgb, alpha);\n"
+													"    o_EntityID = a_EntityID;\n"
+													"	 if (o_Colour.a == 0) discard;\n"
 													"}\n";
 
 const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 
-												   "layout (location = 0) out vec4 FragColor;\n"
+												   "layout (location = 0) out vec4 o_Colour;\n"
 												   "layout (location = 1) out uvec2 o_EntityID;\n"
 
-												   "layout (location = 0) in vec2 texCoord;\n"
-												   "layout (location = 1) in vec4 outColor;\n"
-												   "layout (location = 2) in flat float texIndex;\n"
-												   "layout(location = 3) in flat uvec2 outEntityID;\n"
+												   "layout (location = 0) in vec2 a_TexCoord;\n"
+												   "layout (location = 1) in vec4 a_Colour;\n"
+												   "layout (location = 2) in flat float a_TexIndex;\n"
+												   "layout(location = 3) in flat uvec2 a_EntityID;\n"
 
-												   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-												   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-												   "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-												   "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-												   "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-												   "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-												   "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-												   "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-												   "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-												   "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-												   "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-												   "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-												   "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-												   "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-												   "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-												   "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+												   "layout (set = 1, binding = 0) uniform sampler2D u_Texture0;\n"
+												   "layout (set = 1, binding = 1) uniform sampler2D u_Texture1;\n"
+												   "layout (set = 1, binding = 2) uniform sampler2D u_Texture2;\n"
+												   "layout (set = 1, binding = 3) uniform sampler2D u_Texture3;\n"
+												   "layout (set = 1, binding = 4) uniform sampler2D u_Texture4;\n"
+												   "layout (set = 1, binding = 5) uniform sampler2D u_Texture5;\n"
+												   "layout (set = 1, binding = 6) uniform sampler2D u_Texture6;\n"
+												   "layout (set = 1, binding = 7) uniform sampler2D u_Texture7;\n"
+												   "layout (set = 1, binding = 8) uniform sampler2D u_Texture8;\n"
+												   "layout (set = 1, binding = 9) uniform sampler2D u_Texture9;\n"
+												   "layout (set = 1, binding = 10) uniform sampler2D u_Texture10;\n"
+												   "layout (set = 1, binding = 11) uniform sampler2D u_Texture11;\n"
+												   "layout (set = 1, binding = 12) uniform sampler2D u_Texture12;\n"
+												   "layout (set = 1, binding = 13) uniform sampler2D u_Texture13;\n"
+												   "layout (set = 1, binding = 14) uniform sampler2D u_Texture14;\n"
+												   "layout (set = 1, binding = 15) uniform sampler2D u_Texture15;\n"
 
 												   "void main()\n"
 												   "{\n"
 												   "    float alpha = 0;\n"
 
-												   "    switch (int(texIndex))\n"
+												   "    switch (int(a_TexIndex))\n"
 												   "    {\n"
-												   "        case 0: alpha = texture(texture0, texCoord).r; break;\n"
-												   "        case 1: alpha = texture(texture1, texCoord).r; break;\n"
-												   "        case 2: alpha = texture(texture2, texCoord).r; break;\n"
-												   "        case 3: alpha = texture(texture3, texCoord).r; break;\n"
-												   "        case 4: alpha = texture(texture4, texCoord).r; break;\n"
-												   "        case 5: alpha = texture(texture5, texCoord).r; break;\n"
-												   "        case 6: alpha = texture(texture6, texCoord).r; break;\n"
-												   "        case 7: alpha = texture(texture7, texCoord).r; break;\n"
-												   "        case 8: alpha = texture(texture8, texCoord).r; break;\n"
-												   "        case 9: alpha = texture(texture9, texCoord).r; break;\n"
-												   "        case 10: alpha = texture(texture10, texCoord).r; break;\n"
-												   "        case 11: alpha = texture(texture11, texCoord).r; break;\n"
-												   "        case 12: alpha = texture(texture12, texCoord).r; break;\n"
-												   "        case 13: alpha = texture(texture13, texCoord).r; break;\n"
-												   "        case 14: alpha = texture(texture14, texCoord).r; break;\n"
-												   "        case 15: alpha = texture(texture15, texCoord).r; break;\n"
+												   "        case 0: alpha = texture(u_Texture0, a_TexCoord).r; break;\n"
+												   "        case 1: alpha = texture(u_Texture1, a_TexCoord).r; break;\n"
+												   "        case 2: alpha = texture(u_Texture2, a_TexCoord).r; break;\n"
+												   "        case 3: alpha = texture(u_Texture3, a_TexCoord).r; break;\n"
+												   "        case 4: alpha = texture(u_Texture4, a_TexCoord).r; break;\n"
+												   "        case 5: alpha = texture(u_Texture5, a_TexCoord).r; break;\n"
+												   "        case 6: alpha = texture(u_Texture6, a_TexCoord).r; break;\n"
+												   "        case 7: alpha = texture(u_Texture7, a_TexCoord).r; break;\n"
+												   "        case 8: alpha = texture(u_Texture8, a_TexCoord).r; break;\n"
+												   "        case 9: alpha = texture(u_Texture9, a_TexCoord).r; break;\n"
+												   "        case 10: alpha = texture(u_Texture10, a_TexCoord).r; break;\n"
+												   "        case 11: alpha = texture(u_Texture11, a_TexCoord).r; break;\n"
+												   "        case 12: alpha = texture(u_Texture12, a_TexCoord).r; break;\n"
+												   "        case 13: alpha = texture(u_Texture13, a_TexCoord).r; break;\n"
+												   "        case 14: alpha = texture(u_Texture14, a_TexCoord).r; break;\n"
+												   "        case 15: alpha = texture(u_Texture15, a_TexCoord).r; break;\n"
 												   "    }\n"
 
 												   "    if (alpha < 0.45)\n"
@@ -198,8 +198,8 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 												   "    float w = fwidth(alpha);\n"
 												   "    float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);\n"
 
-												   "    FragColor = vec4(outColor.rgb, opacity);\n"
-												   "    o_EntityID = outEntityID;\n"
+												   "    o_Colour = vec4(o_Colour.rgb, opacity);\n"
+												   "    o_EntityID = a_EntityID;\n"
 												   "}\n";
 
 namespace Nexus::Graphics
@@ -207,7 +207,7 @@ namespace Nexus::Graphics
 	const uint32_t MAX_VERTEX_COUNT	 = 1024;
 	const uint32_t MAX_TEXTURE_COUNT = 16;
 
-	bool FindTextureInBatch(BatchInfo &info, Ref<Texture> texture, uint32_t &index)
+	static bool FindTextureInBatch(BatchInfo &info, Ref<ITextureView> texture, uint32_t &index)
 	{
 		for (uint32_t i = 0; i < info.Textures.size(); i++)
 		{
@@ -220,7 +220,7 @@ namespace Nexus::Graphics
 		return false;
 	}
 
-	float GetOrCreateTexIndex(BatchInfo &info, Ref<Texture> texture)
+	static float GetOrCreateTexIndex(BatchInfo &info, Ref<ITextureView> texture)
 	{
 		uint32_t index = 0;
 		if (FindTextureInBatch(info, texture, index))
@@ -235,13 +235,13 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void FlushTextures(BatchInfo &info, Ref<Texture> blankTexture)
+	static void FlushTextures(BatchInfo &info, Ref<ITextureView> blankTexture)
 	{
 		info.Textures.clear();
 		info.Textures.push_back(blankTexture);
 	}
 
-	void ResetBatcher(BatchInfo &info, Ref<Texture> blankTexture)
+	static void ResetBatcher(BatchInfo &info, Ref<ITextureView> blankTexture)
 	{
 		info.Vertices.clear();
 		info.Indices.clear();
@@ -251,12 +251,12 @@ namespace Nexus::Graphics
 		FlushTextures(info, blankTexture);
 	}
 
-	void CreateBatcher(BatchInfo								&info,
-					   Nexus::Graphics::GraphicsDevice			*device,
-					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
-					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule,
-					   bool										 useDepthTest,
-					   uint32_t									 sampleCount)
+	static void CreateBatcher(BatchInfo									&info,
+							  Nexus::Graphics::IGraphicsDevice			*device,
+							  Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule,
+							  Nexus::Ref<Nexus::Graphics::IShaderModule> fragmentModule,
+							  bool										 useDepthTest,
+							  uint32_t									 sampleCount)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
@@ -295,41 +295,94 @@ namespace Nexus::Graphics
 			description.DepthStencilDesc.EnableDepthWrite = false;
 		}
 
-		description.ColourTargetSampleCount = sampleCount;
+		description.Samples = sampleCount;
+
+		description.ResourceDescription.Descriptors = {
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture0",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture1",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture2",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture3",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture4",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture5",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture6",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture7",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture8",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture9",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture10",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture11",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture12",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture13",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture14",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Texture15",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												 .CountOrSizeInBytes = 1},
+			Nexus::Graphics::ResourceDescriptor {.Name				 = "MVP",
+												 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+												 .CountOrSizeInBytes = 1}};
 
 		info.Pipeline	 = device->CreateGraphicsPipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
 		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};
 		vertexUploadDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
-		vertexUploadDesc.Usage									  = BUFFER_USAGE_NONE;
+		vertexUploadDesc.Usage									  = Graphics::BufferUsage_None;
 		vertexUploadDesc.StrideInBytes							  = sizeof(BatchVertex);
 		vertexUploadDesc.SizeInBytes							  = info.Vertices.size() * sizeof(BatchVertex);
-		info.VertexUploadBuffer									  = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
+		info.VertexUploadBuffer									  = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription vertexDesc = {};
 		vertexDesc.Access									= Graphics::BufferMemoryAccess::Default;
-		vertexDesc.Usage									= Graphics::BufferUsage::Vertex;
+		vertexDesc.Usage									= Graphics::BufferUsage_Vertex;
 		vertexDesc.StrideInBytes							= sizeof(BatchVertex);
 		vertexDesc.SizeInBytes								= info.Vertices.size() * sizeof(BatchVertex);
-		info.VertexBuffer									= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
+		info.VertexBuffer									= Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
 
 		Nexus::Graphics::DeviceBufferDescription indexUploadDesc = {};
 		indexUploadDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
-		indexUploadDesc.Usage									 = BUFFER_USAGE_NONE;
+		indexUploadDesc.Usage									 = Graphics::BufferUsage_None;
 		indexUploadDesc.StrideInBytes							 = sizeof(uint32_t);
 		indexUploadDesc.SizeInBytes								 = info.Indices.size() * sizeof(uint32_t);
-		info.IndexUploadBuffer									 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
+		info.IndexUploadBuffer									 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription indexDesc = {};
 		indexDesc.Access								   = Graphics::BufferMemoryAccess::Default;
-		indexDesc.Usage									   = Graphics::BufferUsage::Index;
+		indexDesc.Usage									   = Graphics::BufferUsage_Index;
 		indexDesc.StrideInBytes							   = sizeof(uint32_t);
 		indexDesc.SizeInBytes							   = info.Indices.size() * sizeof(uint32_t);
-		info.IndexBuffer								   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
+		info.IndexBuffer								   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_CommandList(commandQueue->CreateCommandList()),
@@ -337,27 +390,39 @@ namespace Nexus::Graphics
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
-		Graphics::TextureDescription textureSpec = {};
-		textureSpec.Width						 = 1;
-		textureSpec.Height						 = 1;
-		textureSpec.DepthOrArrayLayers			 = 1;
-		textureSpec.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
-		textureSpec.Usage						 = Graphics::TextureUsage_Sampled;
-		m_BlankTexture							 = Ref<Texture>(m_Device->CreateTexture(textureSpec));
-		m_Device->WriteToTexture(m_BlankTexture, m_CommandQueue, 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+		Graphics::TextureDescription textureDesc = {};
+		textureDesc.Width						 = 1;
+		textureDesc.Height						 = 1;
+		textureDesc.DepthOrArrayLayers			 = 1;
+		textureDesc.Format						 = PixelFormat::R8_G8_B8_A8_UNorm;
+		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
+		textureDesc.DebugName					 = "Blank Texture";
+		m_BlankTexture							 = m_Device->CreateTexture(textureDesc);
+		m_CommandQueue->WriteToTexture(m_BlankTexture, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
 
-		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
-																												"Batch Renderer - Vertex Shader",
-																												Nexus::Graphics::ShaderStage::Vertex);
-		Nexus::Ref<Nexus::Graphics::ShaderModule> sdfFragmentModule =
+		Graphics::TextureViewDescription viewDesc = {};
+		viewDesc.TargetTexture					  = m_BlankTexture;
+		viewDesc.Format							  = m_BlankTexture->GetPixelFormat();
+		viewDesc.Range							  = {.BaseMipLevel	 = 0,
+													 .LevelCount	 = m_BlankTexture->GetMipLevels(),
+													 .BaseArrayLayer = 0,
+													 .LayerCount	 = m_BlankTexture->GetDepthOrArrayLayers()};
+		viewDesc.DebugName						  = "Blank Texture View";
+		m_BlankTextureView						  = m_Device->CreateTextureView(viewDesc);
+
+		Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule =
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
+														   "Batch Renderer - Vertex Shader",
+														   Nexus::Graphics::ShaderStage::Vertex);
+		Nexus::Ref<Nexus::Graphics::IShaderModule> sdfFragmentModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchSDFFragmentShaderSource,
 														   "Batch Renderer - SDF Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
-		Nexus::Ref<Nexus::Graphics::ShaderModule> textureFragmentModule =
+		Nexus::Ref<Nexus::Graphics::IShaderModule> textureFragmentModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchTextureFragmentShaderSource,
 														   "Batch Renderer - Texture Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
-		Nexus::Ref<Nexus::Graphics::ShaderModule> fontFragmentModule =
+		Nexus::Ref<Nexus::Graphics::IShaderModule> fontFragmentModule =
 			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchFontFragmentShaderSource,
 														   "Batch Renderer - Font Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
@@ -368,17 +433,17 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::DeviceBufferDescription uniformUploadDesc = {};
 		uniformUploadDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
-		uniformUploadDesc.Usage									   = BUFFER_USAGE_NONE;
+		uniformUploadDesc.Usage									   = Graphics::BufferUsage_None;
 		uniformUploadDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformUploadDesc.SizeInBytes							   = sizeof(glm::mat4);
-		m_UniformUploadBuffer									   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
+		m_UniformUploadBuffer									   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
 
 		Nexus::Graphics::DeviceBufferDescription uniformDesc = {};
 		uniformDesc.Access									 = Graphics::BufferMemoryAccess::Default;
-		uniformDesc.Usage									 = Graphics::BufferUsage::Uniform;
+		uniformDesc.Usage									 = Graphics::BufferUsage_Uniform;
 		uniformDesc.StrideInBytes							 = sizeof(glm::mat4);
 		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
-		m_UniformBuffer										 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
+		m_UniformBuffer										 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
 
 		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
@@ -391,13 +456,13 @@ namespace Nexus::Graphics
 		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 	}
 
-	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor)
+	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor)
 	{
 		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
 		Begin(target, viewport, scissor, projection);
 	}
 
-	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
+	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
 	{
 		if (m_IsStarted)
 		{
@@ -407,9 +472,9 @@ namespace Nexus::Graphics
 		m_IsStarted	   = true;
 		m_RenderTarget = target;
 
-		ResetBatcher(m_TextureBatchInfo, m_BlankTexture);
-		ResetBatcher(m_SDFBatchInfo, m_BlankTexture);
-		ResetBatcher(m_FontBatchInfo, m_BlankTexture);
+		ResetBatcher(m_TextureBatchInfo, m_BlankTextureView);
+		ResetBatcher(m_SDFBatchInfo, m_BlankTextureView);
+		ResetBatcher(m_FontBatchInfo, m_BlankTextureView);
 
 		m_Viewport		   = viewport;
 		m_ScissorRectangle = scissor;
@@ -434,15 +499,19 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
 	{
-		DrawQuadFill(min, max, color, m_BlankTexture);
+		DrawQuadFill(min, max, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
 		DrawQuadFill(min, max, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const glm::vec2  &min,
+									 const glm::vec2  &max,
+									 const glm::vec4  &color,
+									 Ref<ITextureView> texture,
+									 float			   tilingFactor)
 	{
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -499,26 +568,30 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color)
 	{
-		DrawQuadFill(rectangle, color, m_BlankTexture);
+		DrawQuadFill(rectangle, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
 		DrawQuadFill(rectangle, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor)
 	{
 		glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
 		glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
 		DrawQuadFill(min, max, color, texture, tilingFactor);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec4 &color, Ref<Texture> texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id)
+	void BatchRenderer::DrawQuadFill(const glm::vec4  &color,
+									 Ref<ITextureView> texture,
+									 float			   tilingFactor,
+									 const glm::mat4  &transform,
+									 Nexus::GUID	   id)
 	{
 		if (!texture)
 		{
-			texture = m_BlankTexture;
+			texture = m_BlankTextureView;
 		}
 
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
@@ -637,7 +710,7 @@ namespace Nexus::Graphics
 		info->Indices.push_back(2 + info->VertexCount);
 		info->Indices.push_back(3 + info->VertexCount);
 
-		float texIndex = GetOrCreateTexIndex(*info, font->GetTexture());
+		float texIndex = GetOrCreateTexIndex(*info, font->GetTextureView());
 
 		BatchVertex v0;
 		v0.Position	 = a;
@@ -816,7 +889,7 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
 	{
-		DrawCircleFill(position, radius, color, numberOfPoints, m_BlankTexture);
+		DrawCircleFill(position, radius, color, numberOfPoints, m_BlankTextureView);
 	}
 
 	void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position,
@@ -826,28 +899,28 @@ namespace Nexus::Graphics
 											 float			  startAngle,
 											 float			  fillAngle)
 	{
-		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, m_BlankTexture);
+		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position,
-											 float			  radius,
-											 const glm::vec4 &color,
-											 uint32_t		  numberOfPoints,
-											 float			  startAngle,
-											 float			  fillAngle,
-											 Ref<Texture>	  texture)
+	void BatchRenderer::DrawCircleRegionFill(const glm::vec2  &position,
+											 float			   radius,
+											 const glm::vec4  &color,
+											 uint32_t		   numberOfPoints,
+											 float			   startAngle,
+											 float			   fillAngle,
+											 Ref<ITextureView> texture)
 	{
 		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position,
-											 float			  radius,
-											 const glm::vec4 &color,
-											 uint32_t		  numberOfPoints,
-											 float			  startAngle,
-											 float			  fillAngle,
-											 Ref<Texture>	  texture,
-											 float			  tilingFactor)
+	void BatchRenderer::DrawCircleRegionFill(const glm::vec2  &position,
+											 float			   radius,
+											 const glm::vec4  &color,
+											 uint32_t		   numberOfPoints,
+											 float			   startAngle,
+											 float			   fillAngle,
+											 Ref<ITextureView> texture,
+											 float			   tilingFactor)
 	{
 		const uint32_t minPoints = 3;
 		const uint32_t maxPoints = 256;
@@ -884,17 +957,21 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+	void BatchRenderer::DrawCircleFill(const glm::vec2	&position,
+									   float			 radius,
+									   const glm::vec4	&color,
+									   uint32_t			 numberOfPoints,
+									   Ref<ITextureView> texture)
 	{
 		DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f, texture);
 	}
 
 	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
 	{
-		DrawCircleFill(circle, color, numberOfPoints, m_BlankTexture);
+		DrawCircleFill(circle, color, numberOfPoints, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<ITextureView> texture)
 	{
 		const auto &pos = circle.GetPosition();
 		DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints, texture);
@@ -903,7 +980,7 @@ namespace Nexus::Graphics
 	void BatchRenderer::DrawCircleFill(const Circle<float> &circle,
 									   const glm::vec4	   &color,
 									   uint32_t				numberOfPoints,
-									   Ref<Texture>			texture,
+									   Ref<ITextureView>	texture,
 									   float				tilingFactor)
 	{
 		DrawCircleRegionFill({circle.GetPosition().X, circle.GetPosition().Y},
@@ -935,17 +1012,17 @@ namespace Nexus::Graphics
 									 const glm::vec2 &uv2,
 									 const glm::vec4 &color)
 	{
-		DrawTriangle(pos0, uv0, pos1, uv1, pos2, uv2, color, m_BlankTexture);
+		DrawTriangle(pos0, uv0, pos1, uv1, pos2, uv2, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawTriangle(const glm::vec3 &pos0,
-									 const glm::vec2 &uv0,
-									 const glm::vec3 &pos1,
-									 const glm::vec2 &uv1,
-									 const glm::vec3 &pos2,
-									 const glm::vec2 &uv2,
-									 const glm::vec4 &color,
-									 Ref<Texture>	  texture)
+	void BatchRenderer::DrawTriangle(const glm::vec3  &pos0,
+									 const glm::vec2  &uv0,
+									 const glm::vec3  &pos1,
+									 const glm::vec2  &uv1,
+									 const glm::vec3  &pos2,
+									 const glm::vec2  &uv2,
+									 const glm::vec4  &color,
+									 Ref<ITextureView> texture)
 	{
 		float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -992,15 +1069,15 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color)
 	{
-		DrawPolygonFill(polygon, color, m_BlankTexture);
+		DrawPolygonFill(polygon, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
-		DrawPolygonFill(polygon, color, m_BlankTexture, 1.0f);
+		DrawPolygonFill(polygon, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor)
 	{
 		const auto					  &boundingRectangle = polygon.GetBoundingRectangle();
 		const std::vector<Triangle2D> &tris				 = polygon.GetTriangles();
@@ -1042,17 +1119,17 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color)
 	{
-		DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTexture);
+		DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTextureView);
 	}
 
-	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
+	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<ITextureView> texture)
 	{
 		DrawRoundedRectangleFill(roundedRectangle, color, texture, 1.0f);
 	}
 
 	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle,
 												 const glm::vec4		&color,
-												 Ref<Texture>			 texture,
+												 Ref<ITextureView>		 texture,
 												 float					 tilingFactor)
 	{
 		const Polygon &poly = roundedRectangle.CreatePolygon();
@@ -1118,16 +1195,24 @@ namespace Nexus::Graphics
 
 		for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
 		{
-			std::string textureName = "texture" + std::to_string(i);
+			std::string textureName = "u_Texture" + std::to_string(i);
 			if (i < info.Textures.size())
 			{
-				info.ResourceSet->WriteCombinedImageSampler(info.Textures.at(i), m_Sampler, textureName);
+				Graphics::CombinedImageSampler ciSampler = {};
+				ciSampler.ImageTexture					 = info.Textures.at(i);
+				ciSampler.ImageSampler					 = m_Sampler;
+				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 			else
 			{
-				info.ResourceSet->WriteCombinedImageSampler(m_BlankTexture, m_Sampler, textureName);
+				Graphics::CombinedImageSampler ciSampler = {};
+				ciSampler.ImageTexture					 = m_BlankTextureView;
+				ciSampler.ImageSampler					 = m_Sampler;
+				info.ResourceSet->WriteCombinedImageSampler(ciSampler, textureName);
 			}
 		}
+
+		info.ResourceSet->Flush();
 
 		m_CommandList->Begin();
 
@@ -1153,10 +1238,14 @@ namespace Nexus::Graphics
 		}
 
 		m_CommandList->SetPipeline(info.Pipeline);
-		m_CommandList->SetRenderTarget(m_RenderTarget);
+		m_CommandList->SetFramebuffer(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
-		m_CommandList->SetResourceSet(info.ResourceSet);
+
+		Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+		resourceBindingDesc.TargetResourceSet							   = info.ResourceSet;
+		resourceBindingDesc.DynamicOffsets								   = {};
+		m_CommandList->SetResourceSet(resourceBindingDesc);
 
 		VertexBufferView vertexBufferView = {};
 		vertexBufferView.BufferHandle	  = info.VertexBuffer;
@@ -1182,6 +1271,6 @@ namespace Nexus::Graphics
 		m_CommandList->End();
 		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
-		FlushTextures(info, m_BlankTexture);
+		FlushTextures(info, m_BlankTextureView);
 	}
 }	 // namespace Nexus::Graphics

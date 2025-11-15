@@ -83,21 +83,13 @@ namespace Nexus::Graphics
 		output.OutputFormat = options.OutputFormat;
 
 		// compile to SPIR-V
-		shaderc::Compiler		   compiler;
-		auto					   shaderType = GetTypeOfShader(options.Stage);
-		shaderc::CompileOptions	   compileOptions = {};
+		shaderc::Compiler		compiler;
+		auto					shaderType	   = GetTypeOfShader(options.Stage);
+		shaderc::CompileOptions compileOptions = {};
 
-		// disables the generation of code using demote instead of discard
-		if (options.OutputFormat == Graphics::ShaderLanguage::GLSL || options.OutputFormat == Graphics::ShaderLanguage::GLSLES)
-		{
-			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0);
-			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
-		}
-		else
-		{
-			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
-		}
+		// this means the standard of GLSL used in the written shader, not the output
+		compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+		compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
 
 		compileOptions.SetGenerateDebugInfo();
 
@@ -181,6 +173,68 @@ namespace Nexus::Graphics
 
 		output.Successful = true;
 		return output;
+	}
+
+	static void GetShadercTargetEnvironment(TargetEnvironment env, shaderc_target_env &shaderc_env, shaderc_env_version &shaderc_env_version)
+	{
+		switch (env)
+		{
+			case TargetEnvironment::Vulkan_1_0:
+			{
+				shaderc_env			= shaderc_target_env_vulkan;
+				shaderc_env_version = shaderc_env_version_vulkan_1_0;
+				break;
+			}
+			case TargetEnvironment::Vulkan_1_1:
+			{
+				shaderc_env			= shaderc_target_env_vulkan;
+				shaderc_env_version = shaderc_env_version_vulkan_1_1;
+				break;
+			}
+			case TargetEnvironment::Vulkan_1_2:
+			{
+				shaderc_env			= shaderc_target_env_vulkan;
+				shaderc_env_version = shaderc_env_version_vulkan_1_2;
+				break;
+			}
+			case TargetEnvironment::Vulkan_1_3:
+			{
+				shaderc_env			= shaderc_target_env_vulkan;
+				shaderc_env_version = shaderc_env_version_vulkan_1_3;
+				break;
+			}
+			case TargetEnvironment::OpenGL:
+			{
+				shaderc_env			= shaderc_target_env_opengl;
+				shaderc_env_version = shaderc_env_version_opengl_4_5;
+				break;
+			}
+			default: throw std::runtime_error("Failed to find valid shaderc environment");
+		}
+	}
+
+	static shaderc_spirv_version GetShadercSpirvVersion(SPIRV_Version version)
+	{
+		switch (version)
+		{
+			case SPIRV_Version::Version_1_0: return shaderc_spirv_version_1_0;
+			case SPIRV_Version::Version_1_1: return shaderc_spirv_version_1_1;
+			case SPIRV_Version::Version_1_2: return shaderc_spirv_version_1_2;
+			case SPIRV_Version::Version_1_3: return shaderc_spirv_version_1_3;
+			case SPIRV_Version::Version_1_4: return shaderc_spirv_version_1_4;
+			case SPIRV_Version::Version_1_5: return shaderc_spirv_version_1_5;
+			case SPIRV_Version::Version_1_6: return shaderc_spirv_version_1_6;
+			default: throw std::runtime_error("Failed to find a valid SPIRV version");
+		}
+	}
+
+	std::vector<uint32_t> ShaderGenerator::GenerateSPIRV(const std::string &source,
+														 ShaderStage		stage,
+														 TargetEnvironment	env,
+														 SPIRV_Version		version,
+														 bool				debugInfo)
+	{
+		return std::vector<uint32_t>();
 	}
 
 	std::string ShaderLanguageToString(ShaderLanguage language)

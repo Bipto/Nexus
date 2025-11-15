@@ -10,17 +10,6 @@
 		#include <webgl/webgl2.h>
 	#endif
 
-/* #if defined(__EMSCRIPTEN__) || defined(ANDROID)
-	#include <GLES3/gl32.h>
-	#include <GLES2/gl2ext.h>
-#elif defined(__ANDROID__)
-	#include <GLES3/gl32.h>
-	#include <glad/glad_egl.h>
-#else
-	#include "Platform/Windows/WindowsInclude.hpp"
-	#include "glad/glad.h"
-#endif */
-
 	#include "OpenGLFunctionContext.hpp"
 
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
@@ -85,18 +74,17 @@ namespace Nexus::GL
 
 	GLenum GetAccessMask(Graphics::ShaderAccess access);
 	GLenum GetTextureType(const Graphics::TextureDescription &spec);
+	GLenum GetViewType(const Graphics::TextureViewDescription &desc);
 
 	GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion);
 
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec);
 	void					ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context);
-	void					AttachTexture(GLuint					   framebuffer,
-										  Ref<Graphics::TextureOpenGL> texture,
-										  uint32_t					   mipLevel,
-										  uint32_t					   arrayLayer,
-										  bool						   isDepth,
-										  uint32_t					   colourIndex,
-										  const GladGLContext		  &context);
+	void					AttachTexture(GLuint										 framebuffer,
+										  const Graphics::FramebufferTextureDescription &desc,
+										  bool											 isDepth,
+										  uint32_t										 colourIndex,
+										  const GladGLContext							&context);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
@@ -109,16 +97,13 @@ namespace Nexus::GL
 
 	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
 
-	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::IGraphicsDevice *device);
 
 	void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context);
 
 	void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context);
 
-	void CopyTextureToTexture(Ref<Graphics::TextureOpenGL>			  source,
-							  Ref<Graphics::TextureOpenGL>			  destination,
-							  const Graphics::TextureCopyDescription &copyDesc,
-							  const GladGLContext					 &context);
+	void CopyTextureToTexture(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context);
 
 	/// @brief Function that loads required OpenGL functions,
 	// this function should be called by IGraphicsAPI

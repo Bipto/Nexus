@@ -11,41 +11,40 @@
 
 namespace Nexus::Graphics
 {
-	void ICommandQueue::SubmitCommandList(Ref<CommandList> commandList)
+	void ICommandQueue::SubmitCommandList(Ref<ICommandList> commandList)
 	{
 		SubmitCommandList(commandList, nullptr);
 	}
 
-	void ICommandQueue::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
+	void ICommandQueue::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
 	{
 		SubmitCommandLists(&commandList, 1, fence);
 	}
 
-	void ICommandQueue::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists)
+	void ICommandQueue::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
 	{
 		SubmitCommandLists(commandLists, numCommandLists, nullptr);
 	}
 
-	void ICommandQueue::WriteToTexture(Ref<Texture> texture,
-									   uint32_t		arrayLayer,
-									   uint32_t		mipLevel,
-									   uint32_t		x,
-									   uint32_t		y,
-									   uint32_t		z,
-									   uint32_t		width,
-									   uint32_t		height,
-									   const void  *data,
-									   size_t		size)
+	void ICommandQueue::WriteToTexture(Ref<ITexture> texture,
+									   uint32_t		 mipLevel,
+									   uint32_t		 x,
+									   uint32_t		 y,
+									   uint32_t		 z,
+									   uint32_t		 width,
+									   uint32_t		 height,
+									   const void	*data,
+									   size_t		 size)
 	{
-		GraphicsDevice *device = GetGraphicsDevice();
+		IGraphicsDevice *device = GetGraphicsDevice();
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Upload;
-		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
+		bufferDesc.Usage				   = BufferUsage_None;
 		bufferDesc.SizeInBytes			   = size;
 		bufferDesc.StrideInBytes		   = size;
-		Ref<DeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList		   = CreateCommandList();
+		Ref<IDeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
+		Ref<ICommandList>  cmdList		   = CreateCommandList();
 
 		buffer->SetData(data, 0, size);
 
@@ -57,9 +56,9 @@ namespace Nexus::Graphics
 		copyDesc.BufferRowLength			  = 0;
 		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyBufferToTexture(copyDesc);
 
 		cmdList->End();
@@ -67,26 +66,25 @@ namespace Nexus::Graphics
 		WaitForIdle();
 	}
 
-	std::vector<char> ICommandQueue::ReadFromTexture(Ref<Texture> texture,
-													 uint32_t	  arrayLayer,
-													 uint32_t	  mipLevel,
-													 uint32_t	  x,
-													 uint32_t	  y,
-													 uint32_t	  z,
-													 uint32_t	  width,
-													 uint32_t	  height)
+	std::vector<char> ICommandQueue::ReadFromTexture(Ref<ITexture> texture,
+													 uint32_t	   mipLevel,
+													 uint32_t	   x,
+													 uint32_t	   y,
+													 uint32_t	   z,
+													 uint32_t	   width,
+													 uint32_t	   height)
 	{
-		GraphicsDevice *device	   = GetGraphicsDevice();
-		size_t			bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+		IGraphicsDevice *device		= GetGraphicsDevice();
+		size_t			 bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Readback;
-		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
+		bufferDesc.Usage				   = BufferUsage_None;
 		bufferDesc.SizeInBytes			   = bufferSize;
 		bufferDesc.StrideInBytes		   = bufferSize;
 
-		Ref<DeviceBuffer> buffer  = device->CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>  cmdList = CreateCommandList();
+		Ref<IDeviceBuffer> buffer  = device->CreateDeviceBuffer(bufferDesc);
+		Ref<ICommandList>  cmdList = CreateCommandList();
 
 		cmdList->Begin();
 
@@ -98,8 +96,7 @@ namespace Nexus::Graphics
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
-		copyDesc.TextureSubresource			  = {.MipLevel = mipLevel, .BaseArrayLayer = arrayLayer, .LayerCount = 1};
-
+		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyTextureToBuffer(copyDesc);
 
 		cmdList->End();

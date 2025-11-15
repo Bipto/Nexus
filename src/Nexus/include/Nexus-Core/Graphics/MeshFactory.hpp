@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 		/// @brief A constructor to create a new MeshFactory
 		/// @param device A graphics device to use to create resources
 		/// @param commandQueue A command queue to use to upload data to the GPU
-		explicit MeshFactory(GraphicsDevice *device, Ref<ICommandQueue> commandQueue) : m_Device(device), m_CommandQueue(commandQueue)
+		explicit MeshFactory(IGraphicsDevice *device, Ref<ICommandQueue> commandQueue) : m_Device(device), m_CommandQueue(commandQueue)
 		{
 		}
 
@@ -42,7 +42,7 @@ namespace Nexus::Graphics
 	  private:
 		/// @brief A pointer to a graphics device to use to create the vertex buffer
 		/// and index buffer
-		GraphicsDevice *m_Device = nullptr;
+		IGraphicsDevice *m_Device = nullptr;
 
 		/// @brief A pointer to a command queue to use for resource uploads
 		Ref<ICommandQueue> m_CommandQueue = nullptr;

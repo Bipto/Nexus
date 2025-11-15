@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 		virtual uint32_t GetShaderHandle() const = 0;
 	};
 
-	class GraphicsPipelineOpenGL : public GraphicsPipeline, public PipelineOpenGL
+	class GraphicsPipelineOpenGL : public IGraphicsPipeline, public PipelineOpenGL
 	{
 	  public:
 		GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description, GraphicsDeviceOpenGL *device);
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
 		uint32_t			  m_ShaderHandle = 0;
 	};
 
-	class ComputePipelineOpenGL : public ComputePipeline, public PipelineOpenGL
+	class ComputePipelineOpenGL : public IComputePipeline, public PipelineOpenGL
 	{
 	  public:
 		ComputePipelineOpenGL(const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device);

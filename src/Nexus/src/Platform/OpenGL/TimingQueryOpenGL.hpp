@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	class TimingQueryOpenGL : public TimingQuery
+	class TimingQueryOpenGL : public ITimingQuery
 	{
 	  public:
 		TimingQueryOpenGL();

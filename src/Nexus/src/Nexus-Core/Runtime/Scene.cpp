@@ -281,7 +281,7 @@ namespace Nexus
 	Scene *Scene::Deserialize(const SceneInfo			  &info,
 							  const std::string			  &sceneDirectory,
 							  Project					  *project,
-							  Graphics::GraphicsDevice	  *device,
+							  Graphics::IGraphicsDevice	  *device,
 							  Ref<Graphics::ICommandQueue> commandQueue)
 	{
 		std::string filepath = sceneDirectory + info.Name + std::string(".scene");

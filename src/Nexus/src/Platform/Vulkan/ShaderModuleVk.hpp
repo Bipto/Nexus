@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceVk;
 
-	class ShaderModuleVk : public ShaderModule
+	class ShaderModuleVk : public IShaderModule
 	{
 	  public:
 		ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceVk *device);

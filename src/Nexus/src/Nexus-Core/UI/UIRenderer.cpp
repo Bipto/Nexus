@@ -4,10 +4,10 @@
 
 namespace Nexus::UI
 {
-	UIRenderer::UIRenderer(Graphics::GraphicsDevice *device) : m_Device(device)
+	UIRenderer::UIRenderer(Graphics::IGraphicsDevice *device) : m_Device(device)
 	{
 		// TODO: Fix me
-		Ref<Nexus::Graphics::Swapchain> swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+		Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
 		m_BatchRenderer = std::make_unique<Graphics::BatchRenderer>(device, nullptr, false, swapchain->GetDescription().Samples);
 	}
 
@@ -33,7 +33,9 @@ namespace Nexus::UI
 		scissor.Width  = window->GetWindowSize().X;
 		scissor.Height = window->GetWindowSize().Y;
 
-		m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()), vp, scissor);
+		Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
+		Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+		m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
 		RenderControl(m_BatchRenderer.get(), root);
 

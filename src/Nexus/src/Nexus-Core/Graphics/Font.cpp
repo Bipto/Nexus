@@ -83,7 +83,7 @@ Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face										 &face,
 
 namespace Nexus::Graphics
 {
-	Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device)
+	Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, IGraphicsDevice *device)
 		: m_CharacterRanges(characterRanges),
 		  m_FontSize(size),
 		  m_Type(type)
@@ -117,12 +117,17 @@ namespace Nexus::Graphics
 		m_TextureWidth	= columnCount * m_MaxCharacterSize.X;
 		m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
 
-		Graphics::TextureDescription textureSpec;
-		textureSpec.Format = PixelFormat::R8_UNorm;
-		textureSpec.Width  = m_TextureWidth;
-		textureSpec.Height = m_TextureHeight;
+		Graphics::TextureDescription textureDesc;
+		textureDesc.Format	  = PixelFormat::R8_UNorm;
+		textureDesc.Width	  = m_TextureWidth;
+		textureDesc.Height	  = m_TextureHeight;
+		textureDesc.Usage	  = Graphics::TextureUsage_Sampled;
+		textureDesc.DebugName = "Font Texture";
+		m_Texture			  = device->CreateTexture(textureDesc);
 
-		FontData pixels(textureSpec.Width, textureSpec.Height);
+		throw std::runtime_error("Not implemented");
+
+		FontData pixels(textureDesc.Width, textureDesc.Height);
 		pixels.Clear(0);
 
 		uint32_t xPos = 0;
@@ -143,22 +148,34 @@ namespace Nexus::Graphics
 			}
 		}
 
-		m_Texture = Ref<Texture>(device->CreateTexture(textureSpec));
+		Graphics::TextureViewDescription viewDesc = {};
+		viewDesc.TargetTexture					  = m_Texture;
+		viewDesc.Format							  = m_Texture->GetPixelFormat();
+		viewDesc.Range							  = {.BaseMipLevel	 = 0,
+													 .LevelCount	 = m_Texture->GetMipLevels(),
+													 .BaseArrayLayer = 0,
+													 .LayerCount	 = m_Texture->GetDepthOrArrayLayers()};
+		viewDesc.DebugName						  = "Font Texture View";
 
-		DeviceBufferDescription bufferDesc	 = {};
-		bufferDesc.Access					 = BufferMemoryAccess::Upload;
-		bufferDesc.Usage					 = BUFFER_USAGE_NONE;
-		bufferDesc.SizeInBytes				 = pixels.GetSizeInBytes();
-		bufferDesc.StrideInBytes			 = pixels.GetSizeInBytes();
-		Ref<DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
+		DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access				   = BufferMemoryAccess::Upload;
+		bufferDesc.Usage				   = Graphics::BufferUsage_None;
+		bufferDesc.SizeInBytes			   = pixels.GetSizeInBytes();
+		bufferDesc.StrideInBytes		   = pixels.GetSizeInBytes();
+		Ref<IDeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
+	Nexus::Ref<Nexus::Graphics::ITexture> Font::GetTexture()
 	{
 		return m_Texture;
+	}
+
+	Nexus::Ref<Nexus::Graphics::ITextureView> Font::GetTextureView()
+	{
+		return m_TextureView;
 	}
 
 	const Character &Font::GetCharacter(char character)

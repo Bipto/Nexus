@@ -9,11 +9,11 @@
 namespace Nexus::Graphics
 {
 	ShaderModuleVk::ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceVk *device)
-		: ShaderModule(shaderModuleSpec),
+		: IShaderModule(shaderModuleSpec),
 		  m_GraphicsDevice(device)
 	{
 		CreateShaderModule();
-		Reflect();
+		device->SetObjectName(VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule, shaderModuleSpec.DebugName.c_str());
 	}
 
 	ShaderModuleVk::~ShaderModuleVk()
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 		return m_ShaderModule;
 	}
 
-	void ExtractAttribute(Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler)
+	static void ExtractAttribute(Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler)
 	{
 		attribute.Binding = compiler.get_decoration(spirvResource.id, spv::DecorationLocation);
 		attribute.Name	  = spirvResource.name;
@@ -341,17 +341,18 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ExtractResource(ReflectedResource			 &reflectedResource,
-						 const spirv_cross::Resource &spirvResource,
-						 spirv_cross::Compiler		 &compiler,
-						 ReflectedShaderDataType	  dataType)
+	static void ExtractResource(ReflectedResource			&reflectedResource,
+								const spirv_cross::Resource &spirvResource,
+								spirv_cross::Compiler		&compiler,
+								ReflectedShaderDataType		 dataType)
 	{
 		uint32_t					 set	 = compiler.get_decoration(spirvResource.id, spv::DecorationDescriptorSet);
 		uint32_t					 binding = compiler.get_decoration(spirvResource.id, spv::DecorationBinding);
 		const spirv_cross::SPIRType &type	 = compiler.get_type(spirvResource.type_id);
 
 		reflectedResource.Type			= dataType;
-		reflectedResource.Name			= spirvResource.name;
+		reflectedResource.BlockName		= compiler.get_name(spirvResource.base_type_id);
+		reflectedResource.InstanceName	= spirvResource.name;
 		reflectedResource.DescriptorSet = set;
 		reflectedResource.BindingPoint	= binding;
 
@@ -415,8 +416,8 @@ namespace Nexus::Graphics
 				}
 				case spv::Dim::DimBuffer:
 				{
-					reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
-					dataType								= ReflectedShaderDataType::UniformTextureBuffer;
+					reflectedResource.ResourceAccess = StorageResourceAccess::Read;
+					dataType						 = ReflectedShaderDataType::UniformTextureBuffer;
 					break;
 				}
 				case spv::Dim::DimCube:
@@ -460,34 +461,34 @@ namespace Nexus::Graphics
 
 			if (isReadonly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Read;
 			}
 			else if (isWriteOnly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Write;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Write;
 			}
 			else
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::ReadWrite;
+				reflectedResource.ResourceAccess = StorageResourceAccess::ReadWrite;
 			}
 		}
 		else if (dataType == ReflectedShaderDataType::StorageImage)
 		{
-			auto flags		 = compiler.get_decoration_bitset(spirvResource.id);
-			bool isReadonly	 = flags.get(spv::DecorationNonWritable);
-			bool isWriteOnly = flags.get(spv::DecorationNonReadable);
+			const auto &flags		= compiler.get_decoration_bitset(spirvResource.id);
+			bool		isReadonly	= flags.get(spv::DecorationNonWritable);
+			bool		isWriteOnly = flags.get(spv::DecorationNonReadable);
 
 			if (isReadonly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Read;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Read;
 			}
 			else if (isWriteOnly)
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::Write;
+				reflectedResource.ResourceAccess = StorageResourceAccess::Write;
 			}
 			else
 			{
-				reflectedResource.StorageResourceAccess = StorageResourceAccess::ReadWrite;
+				reflectedResource.ResourceAccess = StorageResourceAccess::ReadWrite;
 			}
 		}
 	}
@@ -556,7 +557,7 @@ namespace Nexus::Graphics
 		for (const auto &pushConstant : resources.push_constant_buffers)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-			ExtractResource(reflectedResource, pushConstant, compiler, ReflectedShaderDataType::PushConstant);
+			ExtractResource(reflectedResource, pushConstant, compiler, ReflectedShaderDataType::PushConstants);
 		}
 
 		for (const auto &separateImage : resources.separate_images)
@@ -565,7 +566,7 @@ namespace Nexus::Graphics
 			ExtractResource(reflectedResource, separateImage, compiler, ReflectedShaderDataType::Texture);
 		}
 
-		for (const auto &separateSampler : resources.acceleration_structures)
+		for (const auto &separateSampler : resources.separate_samplers)
 		{
 			ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
 			ExtractResource(reflectedResource, separateSampler, compiler, ReflectedShaderDataType::Sampler);

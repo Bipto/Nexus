@@ -12,9 +12,9 @@ namespace Nexus::Graphics
 		Utils::FlipPixelsVertically(Pixels.data(), Width, Height, Format);
 	}
 
-	Image Image::FromTexture(GraphicsDevice	   *device,
+	Image Image::FromTexture(IGraphicsDevice	   *device,
 							 Ref<ICommandQueue> commandQueue,
-							 Ref<Texture>		texture,
+							 Ref<ITexture>		texture,
 							 uint32_t			arrayLayer,
 							 uint32_t			mipLevel,
 							 uint32_t			x,
@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 							 uint32_t			width,
 							 uint32_t			height)
 	{
-		std::vector<char> pixels = device->ReadFromTexture(texture, commandQueue, arrayLayer, mipLevel, x, y, z, width, height);
+		std::vector<char> pixels = commandQueue->ReadFromTexture(texture, mipLevel, x, y, z, width, height);
 
 		Image image	 = {};
 		image.Width	 = width;

@@ -52,33 +52,32 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries)
-
     set(target_name ${PROJECT_NAME})
 
-    # Copy runtime DLLs (Windows-specific)
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                $<TARGET_RUNTIME_DLLS:${target_name}>
-                $<TARGET_FILE_DIR:${target_name}>
-        COMMAND_EXPAND_LISTS
-        COMMENT "Post-build: Copying runtime DLLs for ${target_name}"
-    )
+    if (WIN32)
 
-    # Copy PDB file if it exists (Windows/MSVC)
-    get_target_property(pdb_file ${target_name} PDB_OUTPUT_DIRECTORY)
-
-    if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
+        # Copy runtime DLLs (Windows-specific)
         add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    $<TARGET_PDB_FILE:Nexus>
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_RUNTIME_DLLS:${target_name}>
                     $<TARGET_FILE_DIR:${target_name}>
-            COMMENT "Post-build: Copying PDB file for ${target_name}"
+            COMMAND_EXPAND_LISTS
+            COMMENT "Post-build: Copying runtime DLLs for ${target_name}"
         )
+
+        if (MSVC)
+            # Copy PDB file if it exists (Windows/MSVC)
+            get_target_property(pdb_file Nexus PDB_OUTPUT_DIRECTORY)
+            if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
+                add_custom_command(TARGET ${target_name} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                            $<TARGET_PDB_FILE:Nexus>
+                            $<TARGET_FILE_DIR:${target_name}>
+                )
+            endif()
+        endif()
     endif()
-
 endmacro()
-
-
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})

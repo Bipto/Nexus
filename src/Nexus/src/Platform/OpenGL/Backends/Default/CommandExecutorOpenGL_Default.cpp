@@ -5,7 +5,7 @@
 
 namespace Nexus::Graphics
 {
-	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceOpenGL  *deviceGL			= (GraphicsDeviceOpenGL *)device;
 		GL::IOffscreenContext *offscreenContext = deviceGL->GetOffscreenContext();

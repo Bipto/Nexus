@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 		uint32_t		   MaximumAnisotropy		 = 1;
 		uint32_t		   MinimumLOD				 = 0;
 		uint32_t		   MaximumLOD				 = UINT32_MAX;
-		int32_t			   LODBias					 = 1;
+		int32_t			   LODBias					 = 0;
 		BorderColor		   TextureBorderColor		 = BorderColor::OpaqueBlack;
 		std::string		   DebugName				 = "Sampler";
 	};

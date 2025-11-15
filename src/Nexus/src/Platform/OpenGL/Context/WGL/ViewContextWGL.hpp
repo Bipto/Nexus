@@ -4,9 +4,10 @@
 
 	#include "Nexus-Core/nxpch.hpp"
 
-	#include "Platform/OpenGL/Context/IViewContext.hpp"
 	#include "OffscreenContextWGL.hpp"
+	#include "Platform/OpenGL/Context/IViewContext.hpp"
 
+	#include "Platform/OpenGL/FramebufferOpenGL.hpp"
 	#include "Platform/Windows/WindowsInclude.hpp"
 
 namespace Nexus::GL
@@ -16,9 +17,9 @@ namespace Nexus::GL
 	  public:
 		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextSpecification &spec);
 		virtual ~ViewContextWGL();
-		virtual bool						MakeCurrent() override;
-		virtual void						Swap() override;
-		virtual void						SetVSync(bool enabled) override;
+		virtual bool MakeCurrent() override;
+		virtual void Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc) override;
+		virtual void SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetDescription() const override;
 		virtual bool						Validate() override;
 		virtual const GladGLContext		   &GetContext() const override;
@@ -31,8 +32,8 @@ namespace Nexus::GL
 		HDC	  m_HDC	  = {};
 		HGLRC m_HGLRC = {};
 
-		OffscreenContextWGL *m_PBuffer		 = {};
-		ContextSpecification m_Description	 = {};
+		OffscreenContextWGL *m_PBuffer	   = {};
+		ContextSpecification m_Description = {};
 
 		OpenGLFunctionContext m_FunctionContext = {};
 	};

@@ -8,12 +8,15 @@
 
 namespace Nexus::Graphics
 {
-	FramebufferD3D12::FramebufferD3D12(const FramebufferSpecification &spec, GraphicsDeviceD3D12 *device) : Framebuffer(spec), m_Device(device)
+	FramebufferD3D12::FramebufferD3D12(const FramebufferTextureSetDescription &desc, GraphicsDeviceD3D12 *device)
+		: m_Device(device),
+		  m_Description(desc)
 	{
-		if (spec.Width != 0 && spec.Height != 0)
-		{
-			Recreate();
-		}
+		NX_VALIDATE(desc.ValidateSamples(), "Sample count must match across all textures in a framebuffer");
+		NX_VALIDATE(desc.ValidateDimensions(), "The dimensions of all textures in a framebuffer must match");
+		NX_VALIDATE(desc.ValidateUsageFlags(), "The usage flags of all textures must be correct for usage in a framebuffer");
+
+		Create();
 	}
 
 	FramebufferD3D12::~FramebufferD3D12()
@@ -21,34 +24,14 @@ namespace Nexus::Graphics
 		Flush();
 	}
 
-	void FramebufferD3D12::SetFramebufferSpecification(const FramebufferSpecification &spec)
+	const FramebufferTextureSetDescription FramebufferD3D12::GetTextureSetDescription() const
 	{
-		m_Description = spec;
-
-		m_ColorDescriptorHeap = nullptr;
-		m_DepthDescriptorHeap = nullptr;
-		m_ColorAttachmentCPUHandles.clear();
-		m_DepthAttachmentCPUHandle = {};
-		m_ColorAttachments.clear();
-		m_DepthAttachment = nullptr;
-
-		Flush();
-		Recreate();
+		return m_Description;
 	}
 
-	Ref<Texture> FramebufferD3D12::GetColorTexture(uint32_t index)
+	Ref<TextureD3D12> FramebufferD3D12::GetD3D12ColourTexture(uint32_t index)
 	{
-		return m_ColorAttachments.at(index);
-	}
-
-	Ref<Texture> FramebufferD3D12::GetDepthTexture()
-	{
-		return m_DepthAttachment;
-	}
-
-	Ref<TextureD3D12> FramebufferD3D12::GetD3D12ColorTexture(uint32_t index)
-	{
-		return m_ColorAttachments.at(index);
+		return m_ColourAttachments.at(index);
 	}
 
 	Ref<TextureD3D12> FramebufferD3D12::GetD3D12DepthTexture()
@@ -56,9 +39,9 @@ namespace Nexus::Graphics
 		return m_DepthAttachment;
 	}
 
-	const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &FramebufferD3D12::GetColorAttachmentCPUHandles()
+	const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &FramebufferD3D12::GetColourAttachmentCPUHandles()
 	{
-		return m_ColorAttachmentCPUHandles;
+		return m_ColourAttachmentCPUHandles;
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE FramebufferD3D12::GetDepthAttachmentCPUHandle()
@@ -66,91 +49,73 @@ namespace Nexus::Graphics
 		return m_DepthAttachmentCPUHandle;
 	}
 
-	void FramebufferD3D12::Recreate()
+	void FramebufferD3D12::Create()
 	{
 		auto d3d12Device = m_Device->GetD3D12Device();
-
-		CreateAttachments();
+		AttachTextures();
 		CreateRTVs();
 	}
 
 	void FramebufferD3D12::Flush()
 	{
 		for (int i = 0; i < BUFFER_COUNT; i++) { m_Device->WaitForIdle(); }
-	}
 
-	const FramebufferSpecification FramebufferD3D12::GetFramebufferSpecification()
-	{
-		return m_Description;
-	}
+		for (const auto &colourAttachment : m_ColourAttachments) { colourAttachment->ReleaseHandle(true); }
+		for (const auto &resolveAttachment : m_ResolveAttachments) { resolveAttachment->ReleaseHandle(true); }
 
-	void FramebufferD3D12::CreateAttachments()
-	{
-		for (int i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
+		if (m_DepthAttachment)
 		{
-			const auto &colorAttachmentSpec = m_Description.ColourAttachmentSpecification.Attachments.at(i);
-
-			NX_VALIDATE(GetPixelFormatType(colorAttachmentSpec.TextureFormat) == Graphics::PixelFormatType::Colour,
-						"Depth attachment must have a valid colour format");
-
-			Graphics::TextureDescription spec = {};
-			spec.Width						  = m_Description.Width;
-			spec.Height						  = m_Description.Height;
-			spec.Format						  = colorAttachmentSpec.TextureFormat;
-			spec.Samples					  = m_Description.Samples;
-			spec.Usage						  = Graphics::TextureUsage_Sampled | Graphics::TextureUsage_RenderTarget;
-
-			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
-			m_ColorAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(texture));
+			m_DepthAttachment->ReleaseHandle(true);
 		}
 
-		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
-		{
-			NX_VALIDATE(GetPixelFormatType(m_Description.DepthAttachmentSpecification.DepthFormat) == Graphics::PixelFormatType::DepthStencil,
-						"Depth attachment must have a depth format");
-
-			Graphics::TextureDescription spec = {};
-			spec.Width						  = m_Description.Width;
-			spec.Height						  = m_Description.Height;
-			spec.Format						  = m_Description.DepthAttachmentSpecification.DepthFormat;
-			spec.Usage						  = 0;
-			spec.Samples					  = m_Description.Samples;
-
-			Ref<Texture> texture = Ref<Texture>(m_Device->CreateTexture(spec));
-			m_DepthAttachment	 = std::dynamic_pointer_cast<TextureD3D12>(texture);
-		}
+		m_ColourAttachments	  = {};
+		m_DepthAttachment	  = {};
+		m_ColorDescriptorHeap = nullptr;
+		m_DepthDescriptorHeap = nullptr;
 	}
 
 	void FramebufferD3D12::CreateRTVs()
 	{
 		auto d3d12Device = m_Device->GetD3D12Device();
 
-		// create descriptor heaps
-		D3D12_DESCRIPTOR_HEAP_DESC colorDescriptorHeapDesc;
-		colorDescriptorHeapDesc.Type		   = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		colorDescriptorHeapDesc.NumDescriptors = m_Description.ColourAttachmentSpecification.Attachments.size();
-		colorDescriptorHeapDesc.NodeMask	   = 0;
-		colorDescriptorHeapDesc.Flags		   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		d3d12Device->CreateDescriptorHeap(&colorDescriptorHeapDesc, IID_PPV_ARGS(&m_ColorDescriptorHeap));
+		// create colour attachment descriptor heap if needed
+		if (m_Description.ColourAttachments.size() > 0)
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC colorDescriptorHeapDesc = {};
+			colorDescriptorHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			colorDescriptorHeapDesc.NumDescriptors			   = m_Description.ColourAttachments.size();
+			colorDescriptorHeapDesc.NodeMask				   = 0;
+			colorDescriptorHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			d3d12Device->CreateDescriptorHeap(&colorDescriptorHeapDesc, IID_PPV_ARGS(&m_ColorDescriptorHeap));
+		}
 
-		D3D12_DESCRIPTOR_HEAP_DESC depthDescriptorHeapDesc;
-		depthDescriptorHeapDesc.Type		   = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		depthDescriptorHeapDesc.NumDescriptors = 1;
-		depthDescriptorHeapDesc.NodeMask	   = 0;
-		depthDescriptorHeapDesc.Flags		   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		d3d12Device->CreateDescriptorHeap(&depthDescriptorHeapDesc, IID_PPV_ARGS(&m_DepthDescriptorHeap));
+		// create depth/stencil heap if needed
+		if (m_Description.DepthAttachment.has_value())
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC depthDescriptorHeapDesc = {};
+			depthDescriptorHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+			depthDescriptorHeapDesc.NumDescriptors			   = 1;
+			depthDescriptorHeapDesc.NodeMask				   = 0;
+			depthDescriptorHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			d3d12Device->CreateDescriptorHeap(&depthDescriptorHeapDesc, IID_PPV_ARGS(&m_DepthDescriptorHeap));
+		}
+
+		// retrieve sample count
+		uint32_t sampleCount = m_Description.GetSampleCount();
 
 		// retrieve descriptor handles
 		auto cpuHandle = m_ColorDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		for (uint32_t i = 0; i < m_Description.ColourAttachmentSpecification.Attachments.size(); i++)
+		for (uint32_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 		{
-			auto texture = m_ColorAttachments.at(i);
-			m_ColorAttachmentCPUHandles.push_back(cpuHandle);
+			Ref<TextureD3D12> textureD3D12 = m_ColourAttachments.at(i);
+			Ref<ITexture>	  texture	   = textureD3D12;
+			m_ColourAttachmentCPUHandles.push_back(cpuHandle);
 
-			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
-			rtvDesc.Format = D3D12::GetD3D12PixelFormat(m_Description.ColourAttachmentSpecification.Attachments[i].TextureFormat);
+			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 
-			if (m_Description.Samples > 1)
+			rtvDesc.Format = D3D12::GetD3D12PixelFormat(textureD3D12->GetPixelFormat());
+
+			if (sampleCount > 1)
 			{
 				rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
 			}
@@ -162,23 +127,23 @@ namespace Nexus::Graphics
 			rtvDesc.Texture2D.MipSlice	 = 0;
 			rtvDesc.Texture2D.PlaneSlice = 0;
 
-			auto resourceHandle = texture->GetHandle();
+			auto resourceHandle = textureD3D12->GetHandle();
 			d3d12Device->CreateRenderTargetView(resourceHandle.Get(), &rtvDesc, cpuHandle);
 
 			auto incrementSize = d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 			cpuHandle.ptr += incrementSize;
 		}
 
-		m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-		if (m_Description.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		if (m_Description.DepthAttachment.has_value())
 		{
-			auto texture = m_DepthAttachment;
+			m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-			D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-			dsvDesc.Format = D3D12::GetD3D12PixelFormat(m_Description.DepthAttachmentSpecification.DepthFormat);
+			auto &texture = m_DepthAttachment;
 
-			if (m_Description.Samples > 1)
+			D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+			dsvDesc.Format						  = D3D12::GetD3D12PixelFormat(texture->GetPixelFormat());
+
+			if (sampleCount > 1)
 			{
 				dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
 			}
@@ -194,6 +159,26 @@ namespace Nexus::Graphics
 			d3d12Device->CreateDepthStencilView(resourceHandle.Get(), &dsvDesc, m_DepthAttachmentCPUHandle);
 		}
 	}
-}	 // namespace Nexus::Graphics
 
+	void FramebufferD3D12::AttachTextures()
+	{
+		m_ColourAttachments.clear();
+		m_ColourAttachmentCPUHandles.clear();
+
+		for (const auto &colourAttachment : m_Description.ColourAttachments)
+		{
+			m_ColourAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ColourAttachment.TargetTexture));
+
+			if (colourAttachment.ResolveAttachment.has_value())
+			{
+				m_ResolveAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ResolveAttachment.value().TargetTexture));
+			}
+		}
+
+		if (m_Description.DepthAttachment.has_value())
+		{
+			m_DepthAttachment = std::dynamic_pointer_cast<TextureD3D12>(m_Description.DepthAttachment.value().TargetTexture);
+		}
+	}	 // namespace Nexus::Graphics
+}	 // namespace Nexus::Graphics
 #endif

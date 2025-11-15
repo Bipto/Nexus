@@ -16,7 +16,7 @@ namespace Nexus::UI
 	class UIManager : public Nexus::Application
 	{
 	  public:
-		UIManager(const Nexus::ApplicationSpecification &spec) : Application(spec)
+		UIManager(const Nexus::ApplicationDescription &spec) : Application(spec)
 		{
 		}
 
@@ -81,7 +81,7 @@ namespace Nexus::UI
 		}
 
 	  private:
-		Ref<Graphics::CommandList> m_CommandList = nullptr;
+		Ref<Graphics::ICommandList> m_CommandList = nullptr;
 		Form					  *m_MainForm	 = nullptr;
 
 		std::unique_ptr<Nexus::UI::GridSizer>  m_Sizer	  = nullptr;

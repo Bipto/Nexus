@@ -32,20 +32,20 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
 			vertexBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
-			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::Vertex;
+			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage_Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
 			std::vector<uint32_t> indices = {0, 1, 2};
 
 			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
 			indexBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
-			indexBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Index;
+			indexBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Index;
 			indexBufferDesc.StrideInBytes							 = sizeof(uint32_t);
 			indexBufferDesc.SizeInBytes								 = indices.size() * sizeof(uint32_t);
-			m_IndexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
+			m_IndexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 			m_IndexBuffer->SetData(indices.data(), 0, indices.size() * sizeof(uint32_t));
 
 			Nexus::Graphics::IndirectIndexedDrawArguments args = {};
@@ -57,10 +57,10 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription indirectBufferDesc = {};
 			indirectBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Indirect;
+			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Indirect;
 			indirectBufferDesc.StrideInBytes							= sizeof(Nexus::Graphics::IndirectIndexedDrawArguments);
 			indirectBufferDesc.SizeInBytes								= sizeof(Nexus::Graphics::IndirectIndexedDrawArguments);
-			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));
+			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));
 			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}
 
@@ -69,7 +69,10 @@ namespace Demos
 			m_CommandList->Begin();
 			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 			m_CommandList->SetPipeline(m_Pipeline);
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
+
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
@@ -127,28 +130,28 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.ColourTargetCount		= 1;
-			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+			pipelineDescription.ColourTargetCount = 1;
+			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+			pipelineDescription.Samples			  = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle/hello_triangle.vert.glsl",
 																	   Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle/hello_triangle.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_VertexBuffer;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_IndexBuffer;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>	  m_IndirectBuffer;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList;
+		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_VertexBuffer;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_IndexBuffer;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_IndirectBuffer;
+		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

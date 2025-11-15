@@ -18,9 +18,9 @@ namespace Nexus::GL
 	  public:
 		ViewContextEGL(EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextSpecification &spec);
 		virtual ~ViewContextEGL();
-		virtual bool						MakeCurrent() override;
-		virtual void						Swap() override;
-		virtual void						SetVSync(bool enabled) override;
+		virtual bool MakeCurrent() override;
+		virtual void Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc) override;
+		virtual void SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetDescription() const override;
 		virtual bool						Validate() override;
 		virtual const GladGLContext		   &GetContext() const override;
@@ -31,8 +31,8 @@ namespace Nexus::GL
 		EGLSurface			m_Surface	   = {};
 		EGLContext			m_Context	   = {};
 
-		OffscreenContextEGL *m_PBuffer		 = {};
-		ContextSpecification m_Description	 = {};
+		OffscreenContextEGL *m_PBuffer	   = {};
+		ContextSpecification m_Description = {};
 
 		GladGLContext m_GladContext = {};
 	};

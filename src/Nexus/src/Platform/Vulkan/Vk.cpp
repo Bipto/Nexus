@@ -4,6 +4,7 @@
 #include "GraphicsDeviceVk.hpp"
 #include "PipelineVk.hpp"
 #include "ResourceSetVk.hpp"
+#include "SamplerVk.hpp"
 #include "ShaderModuleVk.hpp"
 
 #if defined(NX_PLATFORM_VULKAN)
@@ -377,15 +378,13 @@ namespace Nexus::Vk
 	{
 		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-		Graphics::PixelFormatType pixelFormatType = Graphics::GetPixelFormatType(format);
-		if (pixelFormatType == Graphics::PixelFormatType::DepthStencil)
-		{
-			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-		}
-
-		if (usage & Nexus::Graphics::TextureUsage_RenderTarget)
+		if (usage & Nexus::Graphics::TextureUsage_ColourAttachment)
 		{
 			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		}
+		if (usage & Nexus::Graphics::TextureUsage_DepthStencilAttachment)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 		}
 
 		// this is required to be set to use an VkImageView
@@ -402,13 +401,19 @@ namespace Nexus::Vk
 		return flags;
 	}
 
-	VkImageCreateFlagBits GetVkImageCreateFlagBits(Graphics::TextureType textureType, uint8_t usage)
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(const Graphics::TextureDescription &description)
 	{
-		VkImageCreateFlagBits flags = VkImageCreateFlagBits();
+		VkImageCreateFlagBits flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
 
-		if (textureType == Graphics::TextureType::TextureCube)
+		if (description.Type == Graphics::TextureType::TextureCube)
 		{
 			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
+		}
+
+		if (description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
+		{
+			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT |
+										  VK_IMAGE_CREATE_SPARSE_ALIASED_BIT);
 		}
 
 		return flags;
@@ -472,7 +477,7 @@ namespace Nexus::Vk
 		throw std::runtime_error("Failed to find a valid image view type");
 	}
 
-	bool IsSingleShaderStage(Graphics::ShaderStage stage)
+	static bool IsSingleShaderStage(Graphics::ShaderStage stage)
 	{
 		uint16_t value = static_cast<uint16_t>(stage);
 		return value != 0 && (value & (value - 1)) == 0;
@@ -595,43 +600,43 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
+	static VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device)
 	{
 		VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-		if (desc.Usage & Graphics::BufferUsage::Vertex)
+		if (desc.Usage & Graphics::BufferUsage_Vertex)
 		{
 			flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Index)
+		if (desc.Usage & Graphics::BufferUsage_Index)
 		{
 			flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Uniform)
+		if (desc.Usage & Graphics::BufferUsage_Uniform)
 		{
 			flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Storage)
+		if (desc.Usage & Graphics::BufferUsage_Storage)
 		{
 			flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 		}
 
-		if (desc.Usage & Graphics::BufferUsage::Indirect)
+		if (desc.Usage & Graphics::BufferUsage_Indirect)
 		{
 			flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 		}
 
 		if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
 		{
-			if (desc.Usage & Graphics::BufferUsage::AccelerationStructureStorage)
+			if (desc.Usage & Graphics::BufferUsage_AccelerationStructureStorage)
 			{
 				flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
 			}
 
-			if (desc.Usage & Graphics::BufferUsage::AccelerationStructureBuildInputReadOnly)
+			if (desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly)
 			{
 				flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
 			}
@@ -640,6 +645,22 @@ namespace Nexus::Vk
 		if (device->IsVersionGreaterThan(VK_VERSION_1_2) || device->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+		}
+
+		if ((desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly) &&
+			device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+		{
+			flags |= VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage_TexelUniform)
+		{
+			flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage_TexelStorage)
+		{
+			flags |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
 		}
 
 		return flags;
@@ -952,82 +973,78 @@ namespace Nexus::Vk
 		return rangeInfo;
 	}
 
-	VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
+	static VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
-		std::vector<VkAttachmentDescription> attachments;
-		std::vector<VkAttachmentReference>	 colourAttachmentReferences;
-		VkAttachmentReference				 depthAttachmentReference;
-		VkAttachmentReference				 resolveAttachmentReference;
-		size_t								 attachmentIndex = 0;
+		std::vector<VkAttachmentDescription> attachments				 = {};
+		std::vector<VkAttachmentReference>	 colourAttachmentReferences	 = {};
+		std::vector<VkAttachmentReference>	 resolveAttachmentReferences = {};
+		VkAttachmentReference				 depthAttachmentReference	 = {};
+		size_t								 attachmentIndex			 = 0;
 
-		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
+		bool usingMultisampling = false;
+
+		for (const auto &[colourFormat, resolveFormat] : desc.ColourAttachments)
 		{
-			VkAttachmentDescription colourAttachment = {};
-			colourAttachment.format					 = colourAttachmentFormat;
-			colourAttachment.samples				 = desc.Samples;
-			colourAttachment.loadOp					 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.storeOp				 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.stencilLoadOp			 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.stencilStoreOp			 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.initialLayout			 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			VkAttachmentDescription &colourAttachment = attachments.emplace_back();
+			colourAttachment.format					  = colourFormat;
+			colourAttachment.samples				  = desc.Samples;
+			colourAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp				  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.stencilLoadOp			  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.stencilStoreOp			  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.initialLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachment.finalLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-			if (desc.IsSwapchain && desc.Samples != 1)
+			VkAttachmentReference &attachmentReference = colourAttachmentReferences.emplace_back();
+			attachmentReference.attachment			   = attachmentIndex;
+			attachmentReference.layout				   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachmentIndex++;
+
+			// we have a valid resolve attachment
+			if (resolveFormat.has_value())
 			{
-				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				VkAttachmentDescription &resolveAttachment = attachments.emplace_back();
+				resolveAttachment.format				   = resolveFormat.value();
+				resolveAttachment.samples				   = VK_SAMPLE_COUNT_1_BIT;
+				resolveAttachment.loadOp				   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.stencilLoadOp			   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.stencilStoreOp		   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.initialLayout			   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				resolveAttachment.finalLayout			   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+				VkAttachmentReference &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.attachment			  = attachmentIndex;
+				resolveAttachmentReference.layout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				attachmentIndex++;
+
+				usingMultisampling = true;
 			}
+			// otherwise, we do not have a valid resolve attachment for this colour image
 			else
 			{
-				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				VkAttachmentReference &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.attachment			  = VK_ATTACHMENT_UNUSED;
+				resolveAttachmentReference.layout				  = VK_IMAGE_LAYOUT_UNDEFINED;
 			}
-
-			attachments.push_back(colourAttachment);
-
-			VkAttachmentReference attachmentReference = {};
-			attachmentReference.attachment			  = attachmentIndex;
-			attachmentReference.layout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachmentReferences.push_back(attachmentReference);
-
-			attachmentIndex++;
 		}
 
 		if (desc.DepthFormat)
 		{
 			VkFormat depthFormatVal = desc.DepthFormat.value();
 
-			VkAttachmentDescription depthAttachment = {};
-			depthAttachment.format					= depthFormatVal;
-			depthAttachment.samples					= desc.Samples;
-			depthAttachment.loadOp					= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.storeOp					= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.stencilLoadOp			= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.stencilStoreOp			= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.initialLayout			= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			depthAttachment.finalLayout				= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachments.push_back(depthAttachment);
+			VkAttachmentDescription &depthAttachment = attachments.emplace_back();
+			depthAttachment.format					 = depthFormatVal;
+			depthAttachment.samples					 = desc.Samples;
+			depthAttachment.loadOp					 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp					 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.stencilLoadOp			 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.stencilStoreOp			 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.initialLayout			 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout				 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 			depthAttachmentReference.attachment = attachmentIndex;
 			depthAttachmentReference.layout		= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-			attachmentIndex++;
-		}
-
-		if (desc.ResolveFormat)
-		{
-			VkFormat resolveFormatVal = desc.ResolveFormat.value();
-
-			VkAttachmentDescription resolveAttachment = {};
-			resolveAttachment.format				  = resolveFormatVal;
-			resolveAttachment.samples				  = VK_SAMPLE_COUNT_1_BIT;
-			resolveAttachment.loadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.storeOp				  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.stencilLoadOp			  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.stencilStoreOp		  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.initialLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			resolveAttachment.finalLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachments.push_back(resolveAttachment);
-
-			resolveAttachmentReference.attachment = attachmentIndex;
-			resolveAttachmentReference.layout	  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			attachmentIndex++;
 		}
@@ -1050,9 +1067,9 @@ namespace Nexus::Vk
 		subpassDescription.pPreserveAttachments	   = nullptr;
 		subpassDescription.pResolveAttachments	   = nullptr;
 
-		if (desc.ResolveFormat)
+		if (usingMultisampling)
 		{
-			subpassDescription.pResolveAttachments = &resolveAttachmentReference;
+			subpassDescription.pResolveAttachments = resolveAttachmentReferences.data();
 		}
 
 		std::vector<VkSubpassDependency> dependencies(1);
@@ -1078,87 +1095,93 @@ namespace Nexus::Vk
 		return renderPass;
 	}
 
-	VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
+	static VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc)
 	{
-		std::vector<VkAttachmentDescription2KHR> attachments				= {};
-		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences = {};
-		VkAttachmentReference2KHR				 depthAttachmentReference;
-		VkAttachmentReference2KHR				 resolveAttachmentReference;
-		size_t									 attachmentIndex = 0;
+		std::vector<VkAttachmentDescription2KHR> attachments				 = {};
+		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences	 = {};
+		std::vector<VkAttachmentReference2KHR>	 resolveAttachmentReferences = {};
+		VkAttachmentReference2KHR				 depthAttachmentReference	 = {};
+		size_t									 attachmentIndex			 = 0;
 
-		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
+		bool usingMultisampling = false;
+
+		for (const auto &[colourFormat, resolveFormat] : desc.ColourAttachments)
 		{
-			VkAttachmentDescription2KHR colourAttachment = {};
-			colourAttachment.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
-			colourAttachment.pNext						 = nullptr;
-			colourAttachment.flags						 = 0;
-			colourAttachment.format						 = colourAttachmentFormat;
-			colourAttachment.samples					 = desc.Samples;
-			colourAttachment.loadOp						 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.storeOp					 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.stencilLoadOp				 = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.stencilStoreOp				 = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.initialLayout				 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachment.finalLayout				 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachments.push_back(colourAttachment);
+			VkAttachmentDescription2KHR &colourAttachment = attachments.emplace_back();
+			colourAttachment.sType						  = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			colourAttachment.pNext						  = nullptr;
+			colourAttachment.flags						  = 0;
+			colourAttachment.format						  = colourFormat;
+			colourAttachment.samples					  = desc.Samples;
+			colourAttachment.loadOp						  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.stencilLoadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.stencilStoreOp				  = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.initialLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachment.finalLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-			VkAttachmentReference2KHR attachmentReference = {};
-			attachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
-			attachmentReference.pNext					  = nullptr;
-			attachmentReference.attachment				  = attachmentIndex;
-			attachmentReference.layout					  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachmentReferences.push_back(attachmentReference);
+			VkAttachmentReference2KHR &colourAttachmentReference = colourAttachmentReferences.emplace_back();
+			colourAttachmentReference.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+			colourAttachmentReference.pNext						 = nullptr;
+			colourAttachmentReference.attachment				 = attachmentIndex;
+			colourAttachmentReference.layout					 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			attachmentIndex++;
+
+			if (resolveFormat.has_value())
+			{
+				VkAttachmentDescription2KHR &resolveAttachment = attachments.emplace_back();
+				resolveAttachment.sType						   = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+				resolveAttachment.pNext						   = nullptr;
+				resolveAttachment.flags						   = 0;
+				resolveAttachment.format					   = resolveFormat.value();
+				resolveAttachment.samples					   = VK_SAMPLE_COUNT_1_BIT;
+				resolveAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.storeOp					   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.stencilLoadOp				   = VK_ATTACHMENT_LOAD_OP_LOAD;
+				resolveAttachment.stencilStoreOp			   = VK_ATTACHMENT_STORE_OP_STORE;
+				resolveAttachment.initialLayout				   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				resolveAttachment.finalLayout				   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+				VkAttachmentReference2KHR &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+				resolveAttachmentReference.pNext					  = nullptr;
+				resolveAttachmentReference.attachment				  = attachmentIndex;
+				resolveAttachmentReference.layout					  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				attachmentIndex++;
+
+				usingMultisampling = true;
+			}
+			else
+			{
+				VkAttachmentReference2KHR &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+				resolveAttachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+				resolveAttachmentReference.pNext					  = nullptr;
+				resolveAttachmentReference.attachment				  = VK_ATTACHMENT_UNUSED;
+				resolveAttachmentReference.layout					  = VK_IMAGE_LAYOUT_UNDEFINED;
+			}
 		}
 
 		if (desc.DepthFormat)
 		{
 			VkFormat depthFormat = desc.DepthFormat.value();
 
-			VkAttachmentDescription2KHR depthAttachment = {};
-			depthAttachment.sType						= VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
-			depthAttachment.pNext						= nullptr;
-			depthAttachment.flags						= 0;
-			depthAttachment.format						= depthFormat;
-			depthAttachment.samples						= desc.Samples;
-			depthAttachment.loadOp						= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.storeOp						= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.stencilLoadOp				= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.stencilStoreOp				= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.initialLayout				= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			depthAttachment.finalLayout					= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachments.push_back(depthAttachment);
+			VkAttachmentDescription2KHR &depthAttachment = attachments.emplace_back();
+			depthAttachment.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			depthAttachment.pNext						 = nullptr;
+			depthAttachment.flags						 = 0;
+			depthAttachment.format						 = depthFormat;
+			depthAttachment.samples						 = desc.Samples;
+			depthAttachment.loadOp						 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp						 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.stencilLoadOp				 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.stencilStoreOp				 = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.initialLayout				 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout					 = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 			depthAttachmentReference.sType		= VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
 			depthAttachmentReference.pNext		= nullptr;
 			depthAttachmentReference.attachment = attachmentIndex;
 			depthAttachmentReference.layout		= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-			attachmentIndex++;
-		}
-
-		if (desc.ResolveFormat)
-		{
-			VkFormat resolveFormat = desc.ResolveFormat.value();
-
-			VkAttachmentDescription2KHR resolveAttachment = {};
-			resolveAttachment.sType						  = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
-			resolveAttachment.pNext						  = nullptr;
-			resolveAttachment.flags						  = 0;
-			resolveAttachment.format					  = resolveFormat;
-			resolveAttachment.samples					  = VK_SAMPLE_COUNT_1_BIT;
-			resolveAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.stencilLoadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
-			resolveAttachment.stencilStoreOp			  = VK_ATTACHMENT_STORE_OP_STORE;
-			resolveAttachment.initialLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			resolveAttachment.finalLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachments.push_back(resolveAttachment);
-
-			resolveAttachmentReference.sType	  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
-			resolveAttachmentReference.pNext	  = nullptr;
-			resolveAttachmentReference.attachment = attachmentIndex;
-			resolveAttachmentReference.layout	  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			attachmentIndex++;
 		}
@@ -1183,9 +1206,9 @@ namespace Nexus::Vk
 		subpassDescription.pPreserveAttachments	   = nullptr;
 		subpassDescription.pResolveAttachments	   = nullptr;
 
-		if (desc.ResolveFormat)
+		if (usingMultisampling)
 		{
-			subpassDescription.pResolveAttachments = &resolveAttachmentReference;
+			subpassDescription.pResolveAttachments = resolveAttachmentReferences.data();
 		}
 
 		std::vector<VkSubpassDependency2KHR> dependencies(1);
@@ -1235,16 +1258,19 @@ namespace Nexus::Vk
 	{
 		std::vector<VkImageView> attachments = {};
 
-		for (VkImageView colourView : desc.ColourImageViews) { attachments.push_back(colourView); }
+		for (const auto &[colourView, resolveView] : desc.ColourImageViews)
+		{
+			attachments.push_back(colourView);
+
+			if (resolveView.has_value())
+			{
+				attachments.push_back(resolveView.value());
+			}
+		}
 
 		if (desc.DepthImageView)
 		{
 			attachments.push_back(desc.DepthImageView);
-		}
-
-		if (desc.ResolveImageView)
-		{
-			attachments.push_back(desc.ResolveImageView);
 		}
 
 		VkFramebufferCreateInfo createInfo = {};
@@ -1284,7 +1310,8 @@ namespace Nexus::Vk
 		return info;
 	}
 
-	VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc)
+	VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc,
+																			  const Graphics::DepthStencilDescription	 &depthStencilDesc)
 	{
 		VkPolygonMode	polygonMode	 = Vk::GetPolygonMode(rasterizerDesc.TriangleFillMode);
 		VkCullModeFlags cullingFlags = Vk::GetCullMode(rasterizerDesc.TriangleCullMode);
@@ -1293,21 +1320,21 @@ namespace Nexus::Vk
 		VkPipelineRasterizationStateCreateInfo info = {};
 		info.sType									= VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		info.pNext									= nullptr;
-		info.depthClampEnable						= VK_FALSE;
-		info.rasterizerDiscardEnable				= VK_FALSE;
+		info.depthClampEnable						= rasterizerDesc.DepthClamp ? VK_TRUE : VK_FALSE;
+		info.rasterizerDiscardEnable				= rasterizerDesc.Discard ? VK_TRUE : VK_FALSE;
 		info.polygonMode							= polygonMode;
 		info.lineWidth								= 1.0f;
 		info.cullMode								= cullingFlags;
-		info.depthBiasEnable						= VK_FALSE;
-		info.depthBiasConstantFactor				= 0.0f;
-		info.depthBiasClamp							= 0.0f;
-		info.depthBiasSlopeFactor					= 0.0f;
 		info.frontFace								= frontFace;
+		info.depthBiasEnable						= rasterizerDesc.DepthBias != 0 ? VK_TRUE : VK_FALSE;
+		info.depthBiasConstantFactor				= rasterizerDesc.DepthBias;
+		info.depthBiasClamp							= rasterizerDesc.DepthBiasClamp;
+		info.depthBiasSlopeFactor					= rasterizerDesc.SlopeScaledDepthBias;
 
 		return info;
 	}
 
-	VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(uint32_t sampleCount)
+	VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(uint32_t sampleCount, uint32_t *sampleMask)
 	{
 		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(sampleCount);
 
@@ -1318,7 +1345,7 @@ namespace Nexus::Vk
 		info.minSampleShading					  = 0.0f;
 		info.rasterizationSamples				  = samples;
 		info.minSampleShading					  = 1.0f;
-		info.pSampleMask						  = nullptr;
+		info.pSampleMask						  = sampleMask;
 		info.alphaToCoverageEnable				  = VK_FALSE;
 		info.alphaToOneEnable					  = VK_FALSE;
 		return info;
@@ -1487,80 +1514,294 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	VkDescriptorType GetDescriptorType(Graphics::ShaderResource resource)
+	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device)
 	{
-		switch (resource.Type)
+		std::map<std::string, VkShaderStageFlags> pushConstants = {};
+
+		const Graphics::ResourceSetDescription		   &resourceSetDesc			 = pipeline->GetResourceSetDescription();
+		std::map<std::string, Graphics::ShaderResource> reflectedShaderResources = pipeline->GetRequiredShaderResources();
+
+		for (Graphics::ResourceDescriptor descriptor : resourceSetDesc.Descriptors)
 		{
-			case Graphics::ResourceType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			case Graphics::ResourceType::Texture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-			case Graphics::ResourceType::UniformTextureBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-			case Graphics::ResourceType::StorageTextureBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-			case Graphics::ResourceType::Sampler:
-			case Graphics::ResourceType::ComparisonSampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
-			case Graphics::ResourceType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			case Graphics::ResourceType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			case Graphics::ResourceType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			case Graphics::ResourceType::AccelerationStructure: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+			if (descriptor.Type == Graphics::ResourceDescriptorType::PushConstants)
+			{
+				if (reflectedShaderResources.contains(descriptor.Name))
+				{
+					const Graphics::ShaderResource &reflectedResource = reflectedShaderResources.at(descriptor.Name);
+					VkShaderStageFlags				shaderStageFlags  = Vk::GetVkShaderStageFlagsFromShaderStages(reflectedResource.Stage);
+					pushConstants[descriptor.Name]					  = shaderStageFlags;
+				}
+			}
+		}
+
+		return pushConstants;
+	}
+
+	static std::optional<VkDescriptorType> GetDescriptorType(Graphics::GraphicsDeviceVk		 *device,
+															 Graphics::ResourceDescriptorType resourceType,
+															 Graphics::ShaderResource		  shaderResource)
+	{
+		switch (resourceType)
+		{
+			case Graphics::ResourceDescriptorType::PushConstants:
+			{
+				return {};
+			}
+			case Graphics::ResourceDescriptorType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			case Graphics::ResourceDescriptorType::DynamicUniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+			case Graphics::ResourceDescriptorType::InlineUniformBlock:
+			{
+				if (device->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
+				{
+					return VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
+				}
+				else
+				{
+					return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				}
+			}
+			case Graphics::ResourceDescriptorType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			case Graphics::ResourceDescriptorType::DynamicStorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+			case Graphics::ResourceDescriptorType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			case Graphics::ResourceDescriptorType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			case Graphics::ResourceDescriptorType::SampledImage: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			case Graphics::ResourceDescriptorType::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
+			case Graphics::ResourceDescriptorType::AccelerationStructure: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+			case Graphics::ResourceDescriptorType::UniformTexelBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+			case Graphics::ResourceDescriptorType::StorageTexelBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
 			default: throw std::runtime_error("Could not find a valid descriptor type");
+		}
+	}	 // namespace Nexus::Vk
+
+	uint32_t GetMaxDescriptorSetIndex(const std::map<std::string, Graphics::ShaderResource> &resources)
+	{
+		uint32_t setIndex = 0;
+
+		for (const auto &[name, resource] : resources)
+		{
+			if (resource.Set > setIndex)
+			{
+				setIndex = resource.Set;
+			}
+		}
+
+		return setIndex;
+	}
+
+	static bool IsCompatibleResource(Graphics::ResourceDescriptorType descriptorType,
+									 Graphics::ResourceType			  reflectedType,
+									 uint32_t						  reflectedResourceCount,
+									 uint32_t						  requestedDescriptorCount)
+	{
+		switch (reflectedType)
+		{
+			case Graphics::ResourceType::PushConstants:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::PushConstants;
+			}
+			case Graphics::ResourceType::StorageImage:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::StorageImage && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::Texture:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::SampledImage && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::UniformTextureBuffer:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::UniformTexelBuffer && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::StorageTextureBuffer:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::StorageTexelBuffer && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::Sampler:
+			case Graphics::ResourceType::ComparisonSampler:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::Sampler && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::CombinedImageSampler:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::CombinedImageSampler && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::UniformBuffer:
+			{
+				if (descriptorType == Graphics::ResourceDescriptorType::InlineUniformBlock)
+				{
+					return true;
+				}
+				else
+				{
+					return descriptorType == Graphics::ResourceDescriptorType::UniformBuffer ||
+						   descriptorType == Graphics::ResourceDescriptorType::DynamicUniformBuffer &&
+							   reflectedResourceCount == requestedDescriptorCount;
+				}
+			}
+			case Graphics::ResourceType::StorageBuffer:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::StorageBuffer ||
+					   descriptorType == Graphics::ResourceDescriptorType::DynamicStorageBuffer && reflectedResourceCount == requestedDescriptorCount;
+			}
+			case Graphics::ResourceType::AccelerationStructure:
+			{
+				return descriptorType == Graphics::ResourceDescriptorType::AccelerationStructure &&
+					   reflectedResourceCount == requestedDescriptorCount;
+			}
+			default: throw std::runtime_error("Failed to find ResourceType");
 		}
 	}
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline				   *pipeline,
-										  Graphics::GraphicsDeviceVk		   *device,
-										  std::vector<VkDescriptorSetLayout>   &descriptorSetLayouts,
-										  std::map<VkDescriptorType, uint32_t> &descriptorCounts)
+	static void ValidateVulkanPipelineLayout(const Graphics::ResourceSetDescription				   &resourceSetDesc,
+											 const std::map<std::string, Graphics::ShaderResource> &reflectedResources)
+	{
+		for (const auto &[shaderResourceName, shaderResource] : reflectedResources)
+		{
+			bool found = false;
+
+			for (const auto &descriptor : resourceSetDesc.Descriptors)
+			{
+				if (descriptor.Name == shaderResource.Name)
+				{
+					NX_VALIDATE(
+						IsCompatibleResource(descriptor.Type, shaderResource.Type, shaderResource.ResourceCount, descriptor.CountOrSizeInBytes),
+						"Mismatch between reflected shader type and requested resource type");
+
+					found = true;
+				}
+			}
+
+			NX_VALIDATE(found, "Resource was specified in shader but was not included in pipeline description");
+		}
+	}
+
+	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
+										  Graphics::GraphicsDeviceVk				*device,
+										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
+										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts)
 	{
 		const GladVulkanContext &context = device->GetVulkanContext();
+
+		const Graphics::ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
 		// retrieve the resources that are referenced by the shaders
 		const auto &shaderResources = pipeline->GetRequiredShaderResources();
 
+		ValidateVulkanPipelineLayout(resourceSetDesc, shaderResources);
+
+		uint32_t maxSetIndex = GetMaxDescriptorSetIndex(shaderResources);
+
 		// create storage for descriptor set layout bindings
-		std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> sets;
+		std::vector<std::vector<VkDescriptorSetLayoutBinding>> layoutBindings(maxSetIndex + 1);
 
-		// iterate through all resources and convert them into Vulkan structures
-		for (const auto &[name, resourceInfo] : shaderResources)
+		// storage for immutable samplers
+		std::map<std::string, std::vector<VkSampler>> vulkanImmutableSamplers = {};
+
+		// iterate through all resources provided by the user
+		for (const auto &descriptor : resourceSetDesc.Descriptors)
 		{
-			VkDescriptorType descriptorType = GetDescriptorType(resourceInfo);
+			// if we can find a resource with this name in the shader, then we try and add it to the descriptor set layout
+			if (shaderResources.contains(descriptor.Name))
+			{
+				// retrieve the descriptor type from the resource
+				const Graphics::ShaderResource &resourceDesc	  = shaderResources.at(descriptor.Name);
+				std::optional<VkDescriptorType> descriptorTypeOpt = GetDescriptorType(device, descriptor.Type, resourceDesc);
 
-			VkDescriptorSetLayoutBinding &layoutBinding = sets[resourceInfo.Set].emplace_back();
-			layoutBinding.binding						= resourceInfo.Binding;
-			layoutBinding.descriptorCount				= resourceInfo.ResourceCount;
-			layoutBinding.descriptorType				= descriptorType;
-			layoutBinding.stageFlags					= Vk::GetVkShaderStageFlagsFromShaderStages(resourceInfo.Stage);
-			layoutBinding.pImmutableSamplers			= nullptr;
+				// if we are able to create a Vulkan descriptor from this type, then we do so
+				// some descriptors do not apply in Vulkan e.g. PushConstants
+				if (descriptorTypeOpt.has_value())
+				{
+					VkDescriptorType descriptorType = descriptorTypeOpt.value();
 
-			descriptorCounts[descriptorType] += resourceInfo.ResourceCount;
+					// create the Vulkan descriptor set layout binding
+					VkDescriptorSetLayoutBinding &layoutBinding = layoutBindings[resourceDesc.Set].emplace_back();
+					layoutBinding.binding						= resourceDesc.Binding;
+					layoutBinding.descriptorCount				= resourceDesc.ResourceCount;
+					layoutBinding.descriptorType				= descriptorType;
+					layoutBinding.stageFlags					= Vk::GetVkShaderStageFlagsFromShaderStages(resourceDesc.Stage);
+					layoutBinding.pImmutableSamplers			= nullptr;
+
+					// create immutable samplers if requested
+					if (resourceSetDesc.ImmutableSamplers.contains(descriptor.Name))
+					{
+						const std::vector<Ref<Graphics::ISampler>> &samplers = resourceSetDesc.ImmutableSamplers.at(descriptor.Name);
+
+						for (size_t i = 0; i < samplers.size(); i++)
+						{
+							Ref<Graphics::SamplerVk> vkSampler = std::dynamic_pointer_cast<Graphics::SamplerVk>(samplers.at(i));
+							vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
+						}
+
+						layoutBinding.pImmutableSamplers = vulkanImmutableSamplers[descriptor.Name].data();
+					}
+
+					descriptorCounts[descriptorType] += resourceDesc.ResourceCount;
+				}
+			}
+			// otherwise, we are trying to bind a resource to the descriptor set that doesn't exist in the shader
+			// this is incorrect and an error
+			else
+			{
+				std::string errorMessage =
+					std::format("Attempting to bind descriptor with name {} but no resource with this name exists in the shader", descriptor.Name);
+			}
 		}
 
-		// iterate through each vector of descriptor set layout bindings and create the layout
-		for (const auto &[setIndex, layoutBindings] : sets)
-		{
-			VkDescriptorSetLayoutCreateInfo createInfo = {};
-			createInfo.sType						   = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			createInfo.pNext						   = nullptr;
-			createInfo.flags						   = 0;
-			createInfo.pBindings					   = layoutBindings.data();
-			createInfo.bindingCount					   = layoutBindings.size();
+		std::vector<VkDescriptorSetLayout> layoutVector = {};
 
-			VkDescriptorSetLayout &layout = descriptorSetLayouts.emplace_back();
-			NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &createInfo, nullptr, &layout) == VK_SUCCESS,
+		// iterate through each vector of descriptor set layout bindings and create the layout
+		for (size_t setIndex = 0; setIndex < layoutBindings.size(); setIndex++)
+		{
+			const auto &set = layoutBindings.at(setIndex);
+
+			VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
+			layoutCreateInfo.sType							 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutCreateInfo.pNext							 = nullptr;
+			layoutCreateInfo.flags							 = 0;
+			layoutCreateInfo.pBindings						 = set.data();
+			layoutCreateInfo.bindingCount					 = set.size();
+
+			VkDescriptorSetLayout &layout = descriptorSetLayouts[setIndex];
+			NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &layoutCreateInfo, nullptr, &layout) == VK_SUCCESS,
 						"Failed to create descriptor set layout");
+
+			layoutVector.push_back(layout);
 		}
 
 		// create the actual VkPipelineLayout
-		VkPipelineLayout layout;
+		VkPipelineLayout layout = VK_NULL_HANDLE;
 
-		VkPipelineLayoutCreateInfo info = {};
-		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		info.pNext						= nullptr;
-		info.flags						= 0;
-		info.setLayoutCount				= descriptorSetLayouts.size();
-		info.pSetLayouts				= descriptorSetLayouts.data();
-		info.pushConstantRangeCount		= 0;
-		info.pPushConstantRanges		= nullptr;
+		std::vector<VkPushConstantRange> pushConstantRanges = {};
 
-		NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &info, nullptr, &layout) == VK_SUCCESS, "Failed to create pipeline layout");
+		// create push constant ranges
+		for (const auto &resource : resourceSetDesc.Descriptors)
+		{
+			if (resource.Type == Graphics::ResourceDescriptorType::PushConstants)
+			{
+				if (shaderResources.contains(resource.Name))
+				{
+					const Graphics::ShaderResource &reflectedResource = shaderResources.at(resource.Name);
+					VkShaderStageFlags				shaderStages	  = Vk::GetVkShaderStageFlagsFromShaderStages(reflectedResource.Stage);
+
+					VkPushConstantRange &range = pushConstantRanges.emplace_back();
+					range.stageFlags		   = shaderStages;
+					range.offset			   = 0;
+					range.size				   = resource.CountOrSizeInBytes;
+				}
+			}
+		}
+
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+		pipelineLayoutInfo.sType					  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.pNext					  = nullptr;
+		pipelineLayoutInfo.flags					  = 0;
+		pipelineLayoutInfo.setLayoutCount			  = layoutVector.size();
+		pipelineLayoutInfo.pSetLayouts				  = layoutVector.data();
+		pipelineLayoutInfo.pushConstantRangeCount	  = pushConstantRanges.size();
+		pipelineLayoutInfo.pPushConstantRanges		  = pushConstantRanges.data();
+
+		// validate whether the layout was able to be created
+		NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout) == VK_SUCCESS,
+					"Failed to create pipeline layout");
 
 		return layout;
 	}
@@ -1577,15 +1818,16 @@ namespace Nexus::Vk
 									  Graphics::PixelFormat									  depthFormat,
 									  VkPipelineLayout										  pipelineLayout,
 									  Graphics::Topology									  topology,
-									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts)
+									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
+									  uint32_t												 *pSampleMask)
 	{
 		const GladVulkanContext				 &context		 = device->GetVulkanContext();
 		const Graphics::VulkanDeviceFeatures &deviceFeatures = device->GetDeviceFeatures();
 
 		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo(depthStencilDesc);
-		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= Vk::CreateRasterizationStateCreateInfo(rasterizerDesc);
+		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= Vk::CreateRasterizationStateCreateInfo(rasterizerDesc, depthStencilDesc);
 
-		VkPipelineMultisampleStateCreateInfo multisampleInfo = CreateMultisampleStateCreateInfo(samples);
+		VkPipelineMultisampleStateCreateInfo multisampleInfo = CreateMultisampleStateCreateInfo(samples, pSampleMask);
 
 		VkPipelineViewportStateCreateInfo viewportState = {};
 		viewportState.sType								= VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -1831,7 +2073,7 @@ namespace Nexus::Vk
 		switch (access)
 		{
 			// equivalent of VK_ACCESS_NONE in VK_VERSION_1_3
-			case Graphics::BarrierAccess::None: return VkAccessFlagBits(0);
+			case Graphics::BarrierAccess::NoAccess: return VkAccessFlagBits(0);
 			case Graphics::BarrierAccess::IndirectCommandRead: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
 			case Graphics::BarrierAccess::IndexRead: return VK_ACCESS_INDEX_READ_BIT;
 			case Graphics::BarrierAccess::VertexAttributeRead: return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
@@ -1924,7 +2166,7 @@ namespace Nexus::Vk
 		switch (stage)
 		{
 			// equivalent of VK_PIPELINE_STAGE_NONE in VK_VERSION_1_3
-			case Graphics::BarrierPipelineStage::None: return VkPipelineStageFlagBits(0);
+			case Graphics::BarrierPipelineStage::NoStage: return VkPipelineStageFlagBits(0);
 			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
 			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
 			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
@@ -2015,7 +2257,7 @@ namespace Nexus::Vk
 	{
 		switch (access)
 		{
-			case Graphics::BarrierAccess::None: return VK_ACCESS_2_NONE;
+			case Graphics::BarrierAccess::NoAccess: return VK_ACCESS_2_NONE;
 			case Graphics::BarrierAccess::IndirectCommandRead: return VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
 			case Graphics::BarrierAccess::IndexRead: return VK_ACCESS_2_INDEX_READ_BIT;
 			case Graphics::BarrierAccess::VertexAttributeRead: return VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
@@ -2108,7 +2350,7 @@ namespace Nexus::Vk
 	{
 		switch (stage)
 		{
-			case Graphics::BarrierPipelineStage::None: return VK_PIPELINE_STAGE_2_NONE;
+			case Graphics::BarrierPipelineStage::NoStage: return VK_PIPELINE_STAGE_2_NONE;
 			case Graphics::BarrierPipelineStage::DrawIndirect: return VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
 			case Graphics::BarrierPipelineStage::VertexInput: return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
 			case Graphics::BarrierPipelineStage::VertexShader: return VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
@@ -2205,8 +2447,17 @@ namespace Nexus::Vk
 			case Graphics::TextureLayout::DepthStencilAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			case Graphics::TextureLayout::DepthStencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			case Graphics::TextureLayout::TransferSrcOptimal: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-			case Graphics::TextureLayout::TransferDstOptimal: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Graphics::TextureLayout::TransferSrcOptimal:
+			case Graphics::TextureLayout::ResolveSrc:
+			{
+				return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			}
+
+			case Graphics::TextureLayout::TransferDstOptimal:
+			case Graphics::TextureLayout::ResolveDest:
+			{
+				return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			}
 			case Graphics::TextureLayout::PresentSrc:
 			{
 				if (device->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
@@ -2262,6 +2513,93 @@ namespace Nexus::Vk
 					return VK_IMAGE_LAYOUT_GENERAL;
 				}
 			}
+			default: throw std::runtime_error("Failed to find a valid image layout");
+		}
+	}
+
+	VkImageViewType GetImageViewType(const Graphics::TextureViewDescription &desc)
+	{
+		Ref<Graphics::ITexture> texture = desc.TargetTexture;
+
+		switch (texture->GetType())
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (desc.Range.LayerCount > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (desc.Range.LayerCount > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_2D;
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return VK_IMAGE_VIEW_TYPE_3D;
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (desc.Range.LayerCount > 6)
+				{
+					return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_CUBE;
+				}
+			}
+			default: throw std::runtime_error("Failed to find a valid image view type");
+		}
+	}
+
+	void BindDescriptorSets(const GladVulkanContext &context,
+							VkCommandBuffer			 commandBuffer,
+							VkPipelineBindPoint		 bindPoint,
+							VkPipelineLayout		 pipelineLayout,
+							uint32_t				 setIndex,
+							uint32_t				 setCount,
+							const VkDescriptorSet	*descriptorSets,
+							VkShaderStageFlags		 stageFlags,
+							const uint32_t			*dynamicOffsets,
+							size_t					 dynamicOffsetCount)
+	{
+		if (context.CmdBindDescriptorSets2)
+		{
+			VkBindDescriptorSetsInfo info = {};
+			info.sType					  = VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO;
+			info.pNext					  = nullptr;
+			info.stageFlags				  = stageFlags;
+			info.layout					  = pipelineLayout;
+			info.firstSet				  = setIndex;
+			info.descriptorSetCount		  = setCount;
+			info.pDescriptorSets		  = descriptorSets;
+			info.dynamicOffsetCount		  = dynamicOffsetCount;
+			info.pDynamicOffsets		  = dynamicOffsets;
+
+			context.CmdBindDescriptorSets2(commandBuffer, &info);
+		}
+		else
+		{
+			context.CmdBindDescriptorSets(commandBuffer,
+										  bindPoint,
+										  pipelineLayout,
+										  setIndex,
+										  setCount,
+										  descriptorSets,
+										  dynamicOffsetCount,
+										  dynamicOffsets);
 		}
 	}
 
@@ -2272,19 +2610,19 @@ namespace Nexus::Vk
 		if (data->device != VK_NULL_HANDLE)
 		{
 			PFN_vkGetDeviceProcAddr getDeviceProcAddr = (PFN_vkGetDeviceProcAddr)Vk::GetNxDeviceProcAddr();
-			result									  = getDeviceProcAddr(data->device, pName);
+			result									  = (void *)getDeviceProcAddr(data->device, pName);
 		}
 
 		if (!result && data->instance != VK_NULL_HANDLE)
 		{
 			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
-			result										  = getInstanceProcAddr(data->instance, pName);
+			result										  = (void *)getInstanceProcAddr(data->instance, pName);
 		}
 
 		if (!result)
 		{
 			PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
-			result										  = getInstanceProcAddr(VK_NULL_HANDLE, pName);
+			result										  = (void *)getInstanceProcAddr(VK_NULL_HANDLE, pName);
 		}
 
 		return result;

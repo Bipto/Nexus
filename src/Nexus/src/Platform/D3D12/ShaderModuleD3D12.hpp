@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	class ShaderModuleD3D12 : public ShaderModule
+	class ShaderModuleD3D12 : public IShaderModule
 	{
 	  public:
 		ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec);

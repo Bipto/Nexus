@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		return GL::LoadAvailablePhysicalDevices(m_CreateInfo.Debug);
 	}
 
-	GraphicsDevice *GraphicsAPI_OpenGL::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
+	IGraphicsDevice *GraphicsAPI_OpenGL::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
 		return new GraphicsDeviceOpenGL(device, m_CreateInfo.Debug);
 	}

@@ -18,11 +18,23 @@ namespace Nexus::Graphics
 		TextureCube = 3
 	};
 
-	enum TextureUsageFlags : uint8_t
+	enum TextureUsageFlags : uint16_t
 	{
-		TextureUsage_RenderTarget = BIT(0),
-		TextureUsage_Sampled	  = BIT(1),
-		TextureUsage_Storage	  = BIT(2)
+		TextureUsage_None					= 0,
+		TextureUsage_TransferSrc			= BIT(0),
+		TextureUsage_TransferDst			= BIT(1),
+		TextureUsage_Sampled				= BIT(2),
+		TextureUsage_Storage				= BIT(3),
+		TextureUsage_ColourAttachment		= BIT(4),
+		TextureUsage_DepthStencilAttachment = BIT(5),
+		TextureUsage_VideoDecodeDst			= BIT(6),
+		TextureUsage_VideoEncodeSrc			= BIT(7),
+	};
+
+	enum TextureCreateFlags : uint8_t
+	{
+		TextureCreateFlags_None			 = 0,
+		TextureCreateFlags_SparseBinding = BIT(0)
 	};
 
 	enum class TextureLayout
@@ -35,6 +47,8 @@ namespace Nexus::Graphics
 		ShaderReadOnlyOptimal,
 		TransferSrcOptimal,
 		TransferDstOptimal,
+		ResolveSrc,
+		ResolveDest,
 		PresentSrc,
 		VideoEncodeDestination,
 		VideoEncodeSource,
@@ -45,24 +59,25 @@ namespace Nexus::Graphics
 	struct TextureDescription
 	{
 		TextureType Type			   = TextureType::Texture2D;
+		uint8_t		CreateFlags		   = TextureCreateFlags_None;
 		PixelFormat Format			   = PixelFormat::R8_G8_B8_A8_UNorm;
 		uint32_t	Width			   = 0;
 		uint32_t	Height			   = 0;
 		uint32_t	DepthOrArrayLayers = 1;
 		uint32_t	MipLevels		   = 1;
 		uint32_t	Samples			   = 1;
-		uint8_t		Usage			   = 0;
+		uint16_t	Usage			   = TextureUsage_None;
 		std::string DebugName		   = "Texture";
 	};
 
-	class NX_API Texture
+	class NX_API ITexture
 	{
 	  public:
-		Texture(const TextureDescription &spec) : m_Description(spec)
+		ITexture(const TextureDescription &spec) : m_Description(spec)
 		{
 		}
 
-		virtual ~Texture()
+		virtual ~ITexture()
 		{
 		}
 
@@ -79,6 +94,46 @@ namespace Nexus::Graphics
 		bool IsDepth() const
 		{
 			return GetPixelFormatType(m_Description.Format) == PixelFormatType::DepthStencil;
+		}
+
+		PixelFormat GetPixelFormat() const
+		{
+			return m_Description.Format;
+		}
+
+		uint32_t GetSampleCount() const
+		{
+			return m_Description.Samples;
+		}
+
+		uint32_t GetWidth() const
+		{
+			return m_Description.Width;
+		}
+
+		uint32_t GetHeight() const
+		{
+			return m_Description.Height;
+		}
+
+		uint16_t GetUsage() const
+		{
+			return m_Description.Usage;
+		}
+
+		TextureType GetType() const
+		{
+			return m_Description.Type;
+		}
+
+		uint32_t GetDepthOrArrayLayers() const
+		{
+			return m_Description.DepthOrArrayLayers;
+		}
+
+		uint32_t GetMipLevels() const
+		{
+			return m_Description.MipLevels;
 		}
 
 		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;

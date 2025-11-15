@@ -55,7 +55,7 @@ namespace Nexus::Graphics
 		context.DestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
 	}
 
-	const SamplerDescription &SamplerVk::GetSamplerSpecification()
+	const SamplerDescription &SamplerVk::GetSamplerDescription()
 	{
 		return m_Description;
 	}
