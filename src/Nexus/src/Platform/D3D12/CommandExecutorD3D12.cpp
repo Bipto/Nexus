@@ -422,33 +422,12 @@ namespace Nexus::Graphics
 		dstLocation.Type									  = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 		dstLocation.SubresourceIndex						  = subresourceIndex;
 
-		TextureLayout		  layout = texture->GetTextureLayout(command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.MipLevel);
-		D3D12_RESOURCE_STATES resourceState = D3D12::GetTextureResourceState(layout);
-
-		D3D12_RESOURCE_BARRIER toReadBarrier = {};
-		toReadBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		toReadBarrier.Flags					 = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		toReadBarrier.Transition.pResource	 = textureHandle.Get();
-		toReadBarrier.Transition.Subresource = subresourceIndex;
-		toReadBarrier.Transition.StateBefore = resourceState;
-		toReadBarrier.Transition.StateAfter	 = D3D12_RESOURCE_STATE_COPY_DEST;
-
-		D3D12_RESOURCE_BARRIER toDefaultBarrier = {};
-		toDefaultBarrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		toDefaultBarrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		toDefaultBarrier.Transition.pResource	= textureHandle.Get();
-		toDefaultBarrier.Transition.Subresource = subresourceIndex;
-		toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-		toDefaultBarrier.Transition.StateAfter	= resourceState;
-
-		m_CommandList->ResourceBarrier(1, &toReadBarrier);
 		m_CommandList->CopyTextureRegion(&dstLocation,
 										 command.BufferTextureCopy.TextureOffset.X,
 										 command.BufferTextureCopy.TextureOffset.Y,
 										 command.BufferTextureCopy.TextureOffset.Z,
 										 &srcLocation,
 										 &textureBounds);
-		m_CommandList->ResourceBarrier(1, &toDefaultBarrier);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
@@ -484,29 +463,8 @@ namespace Nexus::Graphics
 		dstLocation.PlacedFootprint.Footprint.Depth			 = command.TextureBufferCopy.TextureExtent.Depth;
 		dstLocation.PlacedFootprint.Footprint.RowPitch		 = rowPitch;
 
-		TextureLayout		  layout = texture->GetTextureLayout(command.TextureBufferCopy.TextureOffset.Z, command.TextureBufferCopy.MipLevel);
-		D3D12_RESOURCE_STATES resourceState = D3D12::GetTextureResourceState(layout);
-
-		D3D12_RESOURCE_BARRIER toDestBarrier = {};
-		toDestBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		toDestBarrier.Flags					 = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		toDestBarrier.Transition.pResource	 = textureHandle.Get();
-		toDestBarrier.Transition.Subresource = command.TextureBufferCopy.MipLevel;
-		toDestBarrier.Transition.StateBefore = resourceState;
-		toDestBarrier.Transition.StateAfter	 = D3D12_RESOURCE_STATE_COPY_SOURCE;
-
-		D3D12_RESOURCE_BARRIER toDefaultBarrier = {};
-		toDefaultBarrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		toDefaultBarrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		toDefaultBarrier.Transition.pResource	= textureHandle.Get();
-		toDefaultBarrier.Transition.Subresource = command.TextureBufferCopy.MipLevel;
-		toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		toDefaultBarrier.Transition.StateAfter	= resourceState;
-
 		// copy texture data into the buffer (the 0's are for the offset into the destination texture, which we do not need here)
-		m_CommandList->ResourceBarrier(1, &toDestBarrier);
 		m_CommandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
-		m_CommandList->ResourceBarrier(1, &toDefaultBarrier);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
@@ -534,64 +492,12 @@ namespace Nexus::Graphics
 		textureBounds.front		= command.TextureCopy.SourceOffset.Z;
 		textureBounds.back		= command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
 
-		// set up source
-		{
-			srcLocation.pResource		 = srcHandle.Get();
-			srcLocation.Type			 = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-			srcLocation.SubresourceIndex = command.TextureCopy.SourceMipLevel;
-
-			D3D12_RESOURCE_BARRIER barrier = {};
-			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.pResource   = srcHandle.Get();
-			barrier.Transition.Subresource = command.TextureCopy.SourceMipLevel;
-			barrier.Transition.StateBefore = srcResourceState;
-			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE;
-			m_CommandList->ResourceBarrier(1, &barrier);
-		}
-
-		// set up destination
-		{
-			dstLocation.pResource		 = dstHandle.Get();
-			dstLocation.Type			 = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-			dstLocation.SubresourceIndex = command.TextureCopy.DestinationMipLevel;
-
-			D3D12_RESOURCE_BARRIER barrier = {};
-			barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.pResource   = dstHandle.Get();
-			barrier.Transition.Subresource = command.TextureCopy.DestinationMipLevel;
-			barrier.Transition.StateBefore = srcResourceState;
-			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST;
-			m_CommandList->ResourceBarrier(1, &barrier);
-		}
-
 		m_CommandList->CopyTextureRegion(&dstLocation,
 										 command.TextureCopy.DestinationOffset.X,
 										 command.TextureCopy.DestinationOffset.Y,
 										 command.TextureCopy.DestinationOffset.Z,
 										 &srcLocation,
 										 &textureBounds);
-
-		// restore resource states
-		{
-			D3D12_RESOURCE_BARRIER barriers[2] = {};
-			barriers[0].Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barriers[0].Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barriers[0].Transition.pResource   = srcHandle.Get();
-			barriers[0].Transition.Subresource = command.TextureCopy.SourceMipLevel;
-			barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
-			barriers[0].Transition.StateAfter  = srcResourceState;
-
-			barriers[1].Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barriers[1].Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barriers[1].Transition.pResource   = dstHandle.Get();
-			barriers[1].Transition.Subresource = command.TextureCopy.DestinationMipLevel;
-			barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-			barriers[1].Transition.StateAfter  = dstResourceState;
-
-			m_CommandList->ResourceBarrier(2, barriers);
-		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
@@ -759,27 +665,97 @@ namespace Nexus::Graphics
 
 		if (framebuffer->GetSampleCount() > 1)
 		{
-			for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
+			for (size_t textureIndex = 0; textureIndex < framebuffer->GetColorTextureCount(); textureIndex++)
 			{
-				std::optional<FramebufferColourAttachmentDescription> colourAttachmentDescOpt = framebuffer->GetColorTextureBinding(i);
+				std::optional<FramebufferColourAttachmentDescription> colourAttachmentDescOpt = framebuffer->GetColorTextureBinding(textureIndex);
 				if (colourAttachmentDescOpt.has_value())
 				{
 					FramebufferColourAttachmentDescription colourAttachmentDesc = colourAttachmentDescOpt.value();
 					if (colourAttachmentDesc.ResolveAttachment.has_value())
 					{
-						for (uint32_t i = 0; i < colourAttachmentDesc.ColourAttachment.LayerCount; i++)
+						for (uint32_t layerIndex = 0; layerIndex < colourAttachmentDesc.ColourAttachment.LayerCount; layerIndex++)
 						{
 							FramebufferTextureDescription resolveAttachmentDesc = colourAttachmentDesc.ResolveAttachment.value();
 
-							ResolveTextureDescription resolveDesc = {};
-							resolveDesc.Source					  = colourAttachmentDesc.ColourAttachment.TargetTexture;
-							resolveDesc.SourceMipLevel			  = colourAttachmentDesc.ColourAttachment.MipLevel;
-							resolveDesc.SourceArrayLayer		  = colourAttachmentDesc.ColourAttachment.BaseArrayLayer + i;
-							resolveDesc.Destination				  = resolveAttachmentDesc.TargetTexture;
-							resolveDesc.DestinationMipLevel		  = resolveAttachmentDesc.MipLevel;
-							resolveDesc.DestinationArrayLayer	  = resolveAttachmentDesc.BaseArrayLayer + i;
+							uint32_t sourceArrayIndex = colourAttachmentDesc.ColourAttachment.BaseArrayLayer + layerIndex;
+							uint32_t destArrayIndex	  = resolveAttachmentDesc.BaseArrayLayer + layerIndex;
 
-							ExecuteCommand(resolveDesc, device);
+							TextureLayout sourceLayout =
+								colourAttachmentDesc.ColourAttachment.TargetTexture->GetTextureLayout(sourceArrayIndex,
+																									  colourAttachmentDesc.ColourAttachment.MipLevel);
+							TextureLayout destLayout =
+								resolveAttachmentDesc.TargetTexture->GetTextureLayout(destArrayIndex, resolveAttachmentDesc.MipLevel);
+
+							// to resolve compatible layouts
+							{
+								TextureBarrierDesc sourceBarrier = {};
+								sourceBarrier.ITexture			 = colourAttachmentDesc.ColourAttachment.TargetTexture;
+								sourceBarrier.BeforeAccess		 = BarrierAccess::ColourAttachmentWrite;
+								sourceBarrier.AfterAccess		 = BarrierAccess::ColourAttachmentRead;
+								sourceBarrier.BeforeStage		 = BarrierPipelineStage::ColourAttachmentOutput;
+								sourceBarrier.AfterStage		 = BarrierPipelineStage::Resolve;
+								sourceBarrier.Layout			 = TextureLayout::ResolveSrc;
+								sourceBarrier.SubresourceRange	 = {.BaseMipLevel	= colourAttachmentDesc.ColourAttachment.MipLevel,
+																	.LevelCount		= 1,
+																	.BaseArrayLayer = sourceArrayIndex,
+																	.LayerCount		= 1};
+								ExecuteCommand(sourceBarrier, device);
+
+								TextureBarrierDesc destBarrier = {};
+								destBarrier.ITexture		   = resolveAttachmentDesc.TargetTexture;
+								destBarrier.BeforeAccess	   = BarrierAccess::ColourAttachmentWrite;
+								destBarrier.AfterAccess		   = BarrierAccess::ColourAttachmentRead;
+								destBarrier.BeforeStage		   = BarrierPipelineStage::ColourAttachmentOutput;
+								destBarrier.AfterStage		   = BarrierPipelineStage::Resolve;
+								destBarrier.Layout			   = TextureLayout::ResolveDest;
+								destBarrier.SubresourceRange   = {.BaseMipLevel	  = resolveAttachmentDesc.MipLevel,
+																  .LevelCount	  = 1,
+																  .BaseArrayLayer = destArrayIndex,
+																  .LayerCount	  = 1};
+								ExecuteCommand(destBarrier, device);
+							}
+
+							// execute resolve
+							{
+								ResolveTextureDescription resolveDesc = {};
+								resolveDesc.Source					  = colourAttachmentDesc.ColourAttachment.TargetTexture;
+								resolveDesc.SourceMipLevel			  = colourAttachmentDesc.ColourAttachment.MipLevel;
+								resolveDesc.SourceArrayLayer		  = sourceArrayIndex;
+								resolveDesc.Destination				  = resolveAttachmentDesc.TargetTexture;
+								resolveDesc.DestinationMipLevel		  = resolveAttachmentDesc.MipLevel;
+								resolveDesc.DestinationArrayLayer	  = destArrayIndex;
+
+								ExecuteCommand(resolveDesc, device);
+							}
+
+							// to resolve compatible layouts
+							{
+								TextureBarrierDesc sourceBarrier = {};
+								sourceBarrier.ITexture			 = colourAttachmentDesc.ColourAttachment.TargetTexture;
+								sourceBarrier.BeforeAccess		 = BarrierAccess::TransferRead;
+								sourceBarrier.AfterAccess		 = BarrierAccess::None;
+								sourceBarrier.BeforeStage		 = BarrierPipelineStage::Resolve;
+								sourceBarrier.AfterStage		 = BarrierPipelineStage::None;
+								sourceBarrier.Layout			 = sourceLayout;
+								sourceBarrier.SubresourceRange	 = {.BaseMipLevel	= colourAttachmentDesc.ColourAttachment.MipLevel,
+																	.LevelCount		= 1,
+																	.BaseArrayLayer = sourceArrayIndex,
+																	.LayerCount		= 1};
+								ExecuteCommand(sourceBarrier, device);
+
+								TextureBarrierDesc destBarrier = {};
+								destBarrier.ITexture		   = resolveAttachmentDesc.TargetTexture;
+								destBarrier.BeforeAccess	   = BarrierAccess::TransferRead;
+								destBarrier.AfterAccess		   = BarrierAccess::None;
+								destBarrier.BeforeStage		   = BarrierPipelineStage::Resolve;
+								destBarrier.AfterStage		   = BarrierPipelineStage::None;
+								destBarrier.Layout			   = destLayout;
+								destBarrier.SubresourceRange   = {.BaseMipLevel	  = resolveAttachmentDesc.MipLevel,
+																  .LevelCount	  = 1,
+																  .BaseArrayLayer = destArrayIndex,
+																  .LayerCount	  = 1};
+								ExecuteCommand(destBarrier, device);
+							}
 						}
 					}
 				}
@@ -927,13 +903,16 @@ namespace Nexus::Graphics
 			D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(testLayout);
 			D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
 
-			D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
-			barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.pResource	= handle.Get();
-			barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-			barrier.Transition.StateBefore	= beforeState;
-			barrier.Transition.StateAfter	= afterState;
+			if (beforeState != afterState)
+			{
+				D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
+				barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+				barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				barrier.Transition.pResource	= handle.Get();
+				barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+				barrier.Transition.StateBefore	= beforeState;
+				barrier.Transition.StateAfter	= afterState;
+			}
 		}
 		else
 		{
@@ -948,18 +927,24 @@ namespace Nexus::Graphics
 					D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(texture->GetTextureLayout(arrayLayer, mipLevel));
 					D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(command.Layout);
 
-					uint32_t subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, texture->GetDescription().MipLevels);
+					if (beforeState != afterState)
+					{
+						uint32_t subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, texture->GetDescription().MipLevels);
 
-					D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
-					barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-					barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-					barrier.Transition.pResource	= handle.Get();
-					barrier.Transition.Subresource	= subresourceIndex;
-					barrier.Transition.StateBefore	= beforeState;
-					barrier.Transition.StateAfter	= afterState;
+						D3D12_RESOURCE_BARRIER &barrier = barriers.emplace_back();
+						barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+						barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+						barrier.Transition.pResource	= handle.Get();
+						barrier.Transition.Subresource	= subresourceIndex;
+						barrier.Transition.StateBefore	= beforeState;
+						barrier.Transition.StateAfter	= afterState;
+					}
 				}
 			}
+		}
 
+		if (barriers.size() > 0)
+		{
 			m_CommandList->ResourceBarrier(barriers.size(), barriers.data());
 		}
 	}
@@ -1004,10 +989,22 @@ namespace Nexus::Graphics
 			D3D12_BARRIER_LAYOUT beforeLayout = D3D12::GetBarrierLayout(testLayout);
 			D3D12_BARRIER_LAYOUT afterLayout  = D3D12::GetBarrierLayout(command.Layout);
 
+			// we do not need to try to insert a barrier if the layout is already correct
+			if (beforeLayout == afterLayout)
+			{
+				return;
+			}
+
 			D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(command.BeforeStage);
 			D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(command.AfterStage);
 			D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(command.BeforeAccess);
 			D3D12_BARRIER_ACCESS afterAccess  = D3D12::GetBarrierAccess(command.AfterAccess);
+
+			// if this is the first time using the resource, we need to hardcode the before access value
+			if (beforeLayout == D3D12_BARRIER_LAYOUT_UNDEFINED)
+			{
+				beforeAccess = D3D12_BARRIER_ACCESS_NO_ACCESS;
+			}
 
 			D3D12_TEXTURE_BARRIER &barrier			  = barriers.emplace_back();
 			barrier.SyncBefore						  = beforeSync;
@@ -1037,6 +1034,12 @@ namespace Nexus::Graphics
 					D3D12_BARRIER_LAYOUT beforeLayout = D3D12::GetBarrierLayout(testLayout);
 					D3D12_BARRIER_LAYOUT afterLayout  = D3D12::GetBarrierLayout(command.Layout);
 
+					// we do not need to try to insert a barrier if the layout is already correct
+					if (beforeLayout == afterLayout)
+					{
+						continue;
+					}
+
 					D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(command.BeforeStage);
 					D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(command.AfterStage);
 					D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(command.BeforeAccess);
@@ -1058,13 +1061,25 @@ namespace Nexus::Graphics
 					barrier.Subresources.NumPlanes			  = 1;
 				}
 			}
+		}
 
-			D3D12_BARRIER_GROUP barrierGroup = {};
-			barrierGroup.Type				 = D3D12_BARRIER_TYPE_TEXTURE;
-			barrierGroup.NumBarriers		 = barriers.size();
-			barrierGroup.pTextureBarriers	 = barriers.data();
+		D3D12_BARRIER_GROUP barrierGroup = {};
+		barrierGroup.Type				 = D3D12_BARRIER_TYPE_TEXTURE;
+		barrierGroup.NumBarriers		 = barriers.size();
+		barrierGroup.pTextureBarriers	 = barriers.data();
 
-			m_CommandList->Barrier(1, &barrierGroup);
+		m_CommandList->Barrier(1, &barrierGroup);
+
+		for (uint32_t arrayLayer = command.SubresourceRange.BaseArrayLayer;
+			 arrayLayer < command.SubresourceRange.BaseArrayLayer + command.SubresourceRange.LayerCount;
+			 arrayLayer++)
+		{
+			for (uint32_t mipLevel = command.SubresourceRange.BaseMipLevel;
+				 mipLevel < command.SubresourceRange.BaseMipLevel + command.SubresourceRange.LevelCount;
+				 mipLevel++)
+			{
+				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
+			}
 		}
 	}
 }	 // namespace Nexus::Graphics

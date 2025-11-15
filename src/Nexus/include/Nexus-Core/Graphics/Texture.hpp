@@ -47,6 +47,8 @@ namespace Nexus::Graphics
 		ShaderReadOnlyOptimal,
 		TransferSrcOptimal,
 		TransferDstOptimal,
+		ResolveSrc,
+		ResolveDest,
 		PresentSrc,
 		VideoEncodeDestination,
 		VideoEncodeSource,

@@ -22,7 +22,8 @@ namespace Nexus::Graphics
 								   m_RootSignatureBlob,
 								   m_RootSignature,
 								   m_DescriptorHandleInfo,
-								   m_RootSignatureBindingLocations);
+								   m_RootSignatureBindingLocations,
+								   m_Description.Layouts.size() > 0);
 
 		m_InputLayout		  = D3D12::CreateInputLayout(description.Layouts);
 		m_PipelineStateObject = D3D12::CreateGraphicsPipeline(device, description, m_RootSignature, m_InputLayout);
@@ -83,7 +84,8 @@ namespace Nexus::Graphics
 								   m_RootSignatureBlob,
 								   m_RootSignature,
 								   m_DescriptorHandleInfo,
-								   m_RootSignatureBindingLocations);
+								   m_RootSignatureBindingLocations,
+								   false);
 
 		m_PipelineStateObject = D3D12::CreateMeshletPipeline(device, description, m_RootSignature);
 		m_PrimitiveTopology	  = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
@@ -135,7 +137,8 @@ namespace Nexus::Graphics
 								   m_RootSignatureBlob,
 								   m_RootSignature,
 								   m_DescriptorHandleInfo,
-								   m_RootSignatureBindingLocations);
+								   m_RootSignatureBindingLocations,
+								   false);
 
 		m_PipelineStateObject = D3D12::CreateComputePipeline(device, description, m_RootSignature);
 	}

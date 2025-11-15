@@ -118,7 +118,8 @@ namespace Nexus::D3D12
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
 							 DescriptorHandleInfo								   &descriptorHandleInfo,
-							 RootSignatureBindingLocations						   &rootSignatureBindingLocation);
+							 RootSignatureBindingLocations						   &rootSignatureBindingLocation,
+							 bool													requiresInputAssembly);
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
 	D3D_PRIMITIVE_TOPOLOGY				  CreatePrimitiveTopology(Graphics::Topology topology);

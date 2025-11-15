@@ -3,7 +3,7 @@
 
 namespace Nexus::Graphics
 {
-	ICommandList::ICommandList(const CommandListDescription &spec) : m_Description(spec)
+	ICommandList::ICommandList(const CommandListDescription &spec) : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
 	{
 	}
 
@@ -18,8 +18,9 @@ namespace Nexus::Graphics
 		}
 
 		m_Commands.clear();
-		m_Started	  = true;
-		m_DebugGroups = 0;
+		m_Started				   = true;
+		m_DebugGroups			   = 0;
+		m_AutomaticBarrierTracking = m_Description.AutomaticBarrierTransitions;
 	}
 
 	void ICommandList::End()
@@ -42,6 +43,16 @@ namespace Nexus::Graphics
 
 		// end recording into the CommandList
 		m_Started = false;
+	}
+
+	void ICommandList::BeginAutomaticBarrierManagement()
+	{
+		m_AutomaticBarrierTracking = true;
+	}
+
+	void ICommandList::EndAutomaticBarrierManagement()
+	{
+		m_AutomaticBarrierTracking = false;
 	}
 
 	void ICommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
@@ -214,7 +225,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_Description.AutomaticBarrierTransitions)
+		if (m_AutomaticBarrierTracking)
 		{
 			const auto &boundResources = desc.TargetResourceSet->GetBoundResources();
 
@@ -356,7 +367,10 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void TransitionFramebufferLayouts(ICommandList *commandList, Ref<IFramebuffer> framebuffer, TextureLayout colourLayout, TextureLayout depthLayout)
+	static void TransitionFramebufferLayouts(ICommandList	  *commandList,
+											 Ref<IFramebuffer> framebuffer,
+											 TextureLayout	   colourLayout,
+											 TextureLayout	   depthLayout)
 	{
 		// transition colour attachment layouts
 		for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
@@ -386,10 +400,10 @@ namespace Nexus::Graphics
 
 					TextureBarrierDesc barrierDesc = {};
 					barrierDesc.ITexture		   = resolveAttachmentDesc.TargetTexture;
-					barrierDesc.BeforeAccess	   = BarrierAccess::None;
-					barrierDesc.AfterAccess		   = BarrierAccess::ColourAttachmentWrite;
-					barrierDesc.BeforeStage		   = BarrierPipelineStage::None;
-					barrierDesc.AfterStage		   = BarrierPipelineStage::ColourAttachmentOutput;
+					barrierDesc.BeforeAccess	   = BarrierAccess::ColourAttachmentWrite;
+					barrierDesc.AfterAccess		   = BarrierAccess::None;
+					barrierDesc.BeforeStage		   = BarrierPipelineStage::ColourAttachmentOutput;
+					barrierDesc.AfterStage		   = BarrierPipelineStage::AllGraphics;
 					barrierDesc.Layout			   = colourLayout;
 					barrierDesc.SubresourceRange   = {.BaseMipLevel	  = resolveAttachmentDesc.MipLevel,
 													  .LevelCount	  = 1,
@@ -480,6 +494,35 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		if (m_AutomaticBarrierTracking)
+		{
+			TextureBarrierDesc sourceBarrierDesc = {};
+			sourceBarrierDesc.ITexture			 = desc.Source;
+			sourceBarrierDesc.BeforeAccess		 = BarrierAccess::ColourAttachmentWrite;
+			sourceBarrierDesc.AfterAccess		 = BarrierAccess::TransferRead;
+			sourceBarrierDesc.BeforeStage		 = BarrierPipelineStage::ColourAttachmentOutput;
+			sourceBarrierDesc.AfterStage		 = BarrierPipelineStage::Resolve;
+			sourceBarrierDesc.Layout			 = TextureLayout::ResolveSrc;
+			sourceBarrierDesc.SubresourceRange	 = {.BaseMipLevel	= desc.SourceMipLevel,
+													.LevelCount		= 1,
+													.BaseArrayLayer = desc.SourceArrayLayer,
+													.LayerCount		= 1};
+			SubmitTextureBarrier(sourceBarrierDesc);
+
+			TextureBarrierDesc destBarrierDesc = {};
+			destBarrierDesc.ITexture		   = desc.Destination;
+			destBarrierDesc.BeforeAccess	   = BarrierAccess::None;
+			destBarrierDesc.AfterAccess		   = BarrierAccess::TransferWrite;
+			destBarrierDesc.BeforeStage		   = BarrierPipelineStage::None;
+			destBarrierDesc.AfterStage		   = BarrierPipelineStage::Resolve;
+			destBarrierDesc.Layout			   = TextureLayout::ResolveDest;
+			destBarrierDesc.SubresourceRange   = {.BaseMipLevel	  = desc.DestinationMipLevel,
+												  .LevelCount	  = 1,
+												  .BaseArrayLayer = desc.DestinationArrayLayer,
+												  .LayerCount	  = 1};
+			SubmitTextureBarrier(destBarrierDesc);
+		}
+
 		m_Commands.push_back(desc);
 	}
 
@@ -542,7 +585,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_Description.AutomaticBarrierTransitions)
+		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc barrierDesc = {};
 			barrierDesc.ITexture					 = bufferTextureCopy.TextureHandle;
@@ -574,7 +617,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_Description.AutomaticBarrierTransitions)
+		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc barrierDesc = {};
 			barrierDesc.ITexture					 = textureBufferCopy.TextureHandle;
@@ -606,7 +649,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_Description.AutomaticBarrierTransitions)
+		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc sourceBarrierDesc = {};
 			sourceBarrierDesc.ITexture					   = textureCopy.Source;
@@ -797,14 +840,14 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		EndRenderingCommand command = {};
+		command.TargetFramebuffer	= m_CurrentFramebuffer;
+		m_Commands.push_back(command);
+
 		if (m_CurrentFramebuffer->IsOwnedBySwapchain())
 		{
 			TransitionFramebufferLayouts(this, m_CurrentFramebuffer, TextureLayout::PresentSrc, TextureLayout::DepthStencilAttachmentOptimal);
 		}
-
-		EndRenderingCommand command = {};
-		command.TargetFramebuffer	= m_CurrentFramebuffer;
-		m_Commands.push_back(command);
 
 		m_CurrentFramebuffer = nullptr;
 	}

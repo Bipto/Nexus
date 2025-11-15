@@ -1455,7 +1455,8 @@ namespace Nexus::D3D12
 							 Microsoft::WRL::ComPtr<ID3DBlob>					   &inRootSignatureBlob,
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>		   &inRootSignature,
 							 DescriptorHandleInfo								   &descriptorHandleInfo,
-							 RootSignatureBindingLocations						   &rootSignatureBindingLocation)
+							 RootSignatureBindingLocations						   &rootSignatureBindingLocation,
+							 bool													requiresInputAssembly)
 	{
 		// create storage for descriptor ranges and root parameters
 		std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges		= {};
@@ -1466,12 +1467,53 @@ namespace Nexus::D3D12
 		FindCombinedImageSamplers(reflectedResources, descriptorHandleInfo);
 		CreateDescriptorRanges(descriptorRanges, descriptorHandleInfo, rootParameters, rootParameterIndexes, rootSignatureBindingLocation);
 
+		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+
+		if (requiresInputAssembly)
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_VERTEX))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_HULL))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_DOMAIN))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_GEOMETRY))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_PIXEL))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_AMPLIFICATION))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS;
+		}
+
+		if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_MESH))
+		{
+			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS;
+		}
+
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Flags =
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
-		rootSignatureDesc.pStaticSamplers = nullptr;
-		rootSignatureDesc.NumParameters	  = rootParameters.size();
-		rootSignatureDesc.pParameters	  = rootParameters.data();
+		rootSignatureDesc.Flags						= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		rootSignatureDesc.pStaticSamplers			= nullptr;
+		rootSignatureDesc.NumParameters				= rootParameters.size();
+		rootSignatureDesc.pParameters				= rootParameters.data();
 
 		// serialize the root signature and report any errors if they occur
 		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
@@ -1710,6 +1752,8 @@ namespace Nexus::D3D12
 			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 			case Graphics::TextureLayout::TransferSrcOptimal: return D3D12_RESOURCE_STATE_COPY_SOURCE;
 			case Graphics::TextureLayout::TransferDstOptimal: return D3D12_RESOURCE_STATE_COPY_DEST;
+			case Graphics::TextureLayout::ResolveSrc: return D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
+			case Graphics::TextureLayout::ResolveDest: return D3D12_RESOURCE_STATE_RESOLVE_DEST;
 			case Graphics::TextureLayout::PresentSrc: return D3D12_RESOURCE_STATE_PRESENT;
 			case Graphics::TextureLayout::VideoEncodeDestination: return D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE;
 			case Graphics::TextureLayout::VideoEncodeSource: return D3D12_RESOURCE_STATE_VIDEO_ENCODE_READ;
@@ -1730,9 +1774,9 @@ namespace Nexus::D3D12
 			case Graphics::BarrierPipelineStage::TessellationControlShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
 			case Graphics::BarrierPipelineStage::TessellationEvaluationShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
 			case Graphics::BarrierPipelineStage::GeometryShader: return D3D12_BARRIER_SYNC_ALL_SHADING;
-			case Graphics::BarrierPipelineStage::FragmentShader:
+			case Graphics::BarrierPipelineStage::FragmentShader: return D3D12_BARRIER_SYNC_PIXEL_SHADING;
 			case Graphics::BarrierPipelineStage::EarlyFragmentTests:
-			case Graphics::BarrierPipelineStage::LateFragmentTests: return D3D12_BARRIER_SYNC_PIXEL_SHADING;
+			case Graphics::BarrierPipelineStage::LateFragmentTests: return D3D12_BARRIER_SYNC_DEPTH_STENCIL;
 			case Graphics::BarrierPipelineStage::ColourAttachmentOutput: return D3D12_BARRIER_SYNC_RENDER_TARGET;
 			case Graphics::BarrierPipelineStage::ComputeShader: return D3D12_BARRIER_SYNC_COMPUTE_SHADING;
 			case Graphics::BarrierPipelineStage::AllTransfers:
@@ -1798,6 +1842,8 @@ namespace Nexus::D3D12
 			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
 			case Graphics::TextureLayout::TransferSrcOptimal: return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
 			case Graphics::TextureLayout::TransferDstOptimal: return D3D12_BARRIER_LAYOUT_COPY_DEST;
+			case Graphics::TextureLayout::ResolveSrc: return D3D12_BARRIER_LAYOUT_RESOLVE_SOURCE;
+			case Graphics::TextureLayout::ResolveDest: return D3D12_BARRIER_LAYOUT_RESOLVE_DEST;
 			case Graphics::TextureLayout::PresentSrc: return D3D12_BARRIER_LAYOUT_PRESENT;
 			case Graphics::TextureLayout::VideoEncodeDestination: return D3D12_BARRIER_LAYOUT_VIDEO_ENCODE_WRITE;
 			case Graphics::TextureLayout::VideoEncodeSource: return D3D12_BARRIER_LAYOUT_VIDEO_ENCODE_READ;

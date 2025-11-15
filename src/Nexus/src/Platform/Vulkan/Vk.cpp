@@ -2447,8 +2447,17 @@ namespace Nexus::Vk
 			case Graphics::TextureLayout::DepthStencilAttachmentOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			case Graphics::TextureLayout::DepthStencilReadOnlyOptimal: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 			case Graphics::TextureLayout::ShaderReadOnlyOptimal: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			case Graphics::TextureLayout::TransferSrcOptimal: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-			case Graphics::TextureLayout::TransferDstOptimal: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Graphics::TextureLayout::TransferSrcOptimal:
+			case Graphics::TextureLayout::ResolveSrc:
+			{
+				return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			}
+
+			case Graphics::TextureLayout::TransferDstOptimal:
+			case Graphics::TextureLayout::ResolveDest:
+			{
+				return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			}
 			case Graphics::TextureLayout::PresentSrc:
 			{
 				if (device->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME))

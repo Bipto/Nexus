@@ -1,8 +1,8 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "GraphicsAPI_D3D12.hpp"
-	#include "PhysicalDeviceD3D12.hpp"
 	#include "GraphicsDeviceD3D12.hpp"
+	#include "PhysicalDeviceD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -34,13 +34,10 @@ namespace Nexus::Graphics
 
 		typedef HRESULT(WINAPI * PFN_CreateDXGIFactory2)(UINT Flags, REFIID riid, void **ppFactory);
 
-		volatile HMODULE dxgi = LoadLibraryA("dxgi.dll");
-		volatile auto	 fn	  = (PFN_CreateDXGIFactory2)GetProcAddress(dxgi, "CreateDXGIFactory2");
-		printf("Manual load: %p\n", fn);
+		HMODULE dxgi = LoadLibraryA("dxgi.dll");
+		auto	fn	 = (PFN_CreateDXGIFactory2)GetProcAddress(dxgi, "CreateDXGIFactory2");
 
 		NX_VALIDATE(SUCCEEDED(fn(0, IID_PPV_ARGS(&m_DXGIFactory))), "Failed to create DXGI Factory");
-
-		// NX_VALIDATE(SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DXGIFactory))), "Failed to create DXGI Factory");
 	}
 
 	GraphicsAPI_D3D12::~GraphicsAPI_D3D12()

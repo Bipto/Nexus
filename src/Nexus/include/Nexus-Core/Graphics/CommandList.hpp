@@ -433,6 +433,10 @@ namespace Nexus::Graphics
 		/// @brief A method that ends a command list
 		void End();
 
+		void BeginAutomaticBarrierManagement();
+
+		void EndAutomaticBarrierManagement();
+
 		/// @brief A method that binds a vertex buffer to the pipeline
 		/// @param vertexBuffer A pointer to the vertex buffer to bind
 		void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
@@ -528,9 +532,10 @@ namespace Nexus::Graphics
 	  private:
 		CommandListDescription		   m_Description = {};
 		std::vector<RenderCommandData> m_Commands;
-		bool						   m_Started			= false;
-		uint32_t					   m_DebugGroups		= 0;
-		Ref<IFramebuffer>			   m_CurrentFramebuffer = nullptr;
+		bool						   m_Started				  = false;
+		uint32_t					   m_DebugGroups			  = 0;
+		Ref<IFramebuffer>			   m_CurrentFramebuffer		  = nullptr;
+		bool						   m_AutomaticBarrierTracking = false;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands
