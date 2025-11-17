@@ -1767,7 +1767,7 @@ namespace Nexus::D3D12
 	{
 		switch (stage)
 		{
-			case Graphics::BarrierPipelineStage::None: return D3D12_BARRIER_SYNC_NONE;
+			case Graphics::BarrierPipelineStage::NoStage: return D3D12_BARRIER_SYNC_NONE;
 			case Graphics::BarrierPipelineStage::DrawIndirect: return D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
 			case Graphics::BarrierPipelineStage::VertexInput: return D3D12_BARRIER_SYNC_INDEX_INPUT;
 			case Graphics::BarrierPipelineStage::VertexShader: return D3D12_BARRIER_SYNC_VERTEX_SHADING;
@@ -1803,7 +1803,7 @@ namespace Nexus::D3D12
 	{
 		switch (access)
 		{
-			case Graphics::BarrierAccess::None: return D3D12_BARRIER_ACCESS_NO_ACCESS;
+			case Graphics::BarrierAccess::NoAccess: return D3D12_BARRIER_ACCESS_NO_ACCESS;
 			case Graphics::BarrierAccess::IndirectCommandRead: return D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
 			case Graphics::BarrierAccess::IndexRead: return D3D12_BARRIER_ACCESS_INDEX_BUFFER;
 			case Graphics::BarrierAccess::VertexAttributeRead: return D3D12_BARRIER_ACCESS_VERTEX_BUFFER;

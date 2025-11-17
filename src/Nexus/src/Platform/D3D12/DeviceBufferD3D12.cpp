@@ -17,13 +17,13 @@ namespace Nexus::Graphics
 		m_BufferSize = desc.SizeInBytes;
 
 		// if the resource is a constant buffer, it needs to be aligned to 256 bytes
-		if (desc.Usage & Graphics::BufferUsage::Uniform)
+		if (desc.Usage & Graphics::BufferUsage_Uniform)
 		{
 			m_BufferSize = Utils::AlignTo<uint64_t>(desc.SizeInBytes, 256);
 		}
 
 		// structured/raw buffers are accessed using 4 byte alignment
-		if (desc.Usage & Graphics::BufferUsage::Storage)
+		if (desc.Usage & Graphics::BufferUsage_Storage)
 		{
 			m_BufferSize = Utils::AlignTo<uint64_t>(desc.SizeInBytes, 4);
 		}
@@ -41,7 +41,7 @@ namespace Nexus::Graphics
 		resourceDesc.Layout				  = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags				  = D3D12_RESOURCE_FLAG_NONE;
 
-		if (desc.Usage & BufferUsage::Storage)
+		if (desc.Usage & BufferUsage_Storage)
 		{
 			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
