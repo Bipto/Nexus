@@ -214,12 +214,12 @@ namespace Nexus::Graphics
 		ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
 		reflectedResource.Type				 = dataType;
 		// reflectedResource.BlockName				= resource.Name;
-		reflectedResource.StorageResourceAccess = storageAccess;
-		reflectedResource.Dimension				= ExtractDimension(resource.Dimension);
-		reflectedResource.BindingPoint			= resource.BindPoint;
-		reflectedResource.BindingCount			= resource.BindCount;
-		reflectedResource.RegisterSpace			= resource.Space;
-		reflectedResource.InstanceName			= resource.Name;
+		reflectedResource.ResourceAccess = storageAccess;
+		reflectedResource.Dimension		 = ExtractDimension(resource.Dimension);
+		reflectedResource.BindingPoint	 = resource.BindPoint;
+		reflectedResource.BindingCount	 = resource.BindCount;
+		reflectedResource.RegisterSpace	 = resource.Space;
+		reflectedResource.InstanceName	 = resource.Name;
 	}
 
 	void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult)
