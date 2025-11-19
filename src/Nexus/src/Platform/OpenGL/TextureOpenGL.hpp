@@ -16,14 +16,15 @@ namespace Nexus::Graphics
 	  public:
 		TextureOpenGL(const TextureDescription &spec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~TextureOpenGL();
-		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
-		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
+		TextureLayout		 GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
+		void				 SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
+		SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const final;
 
-		void	 Bind(uint32_t slot);
-		uint32_t GetHandle();
-		GLenum	 GetTextureType();
-		GLenum	 GetDataFormat();
-		GLenum	 GetBaseType();
+		void	 Bind(uint32_t slot) const;
+		uint32_t GetHandle() const;
+		GLenum	 GetTextureType() const;
+		GLenum	 GetDataFormat() const;
+		GLenum	 GetBaseType() const;
 
 		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 

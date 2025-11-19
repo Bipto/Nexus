@@ -85,15 +85,22 @@ class EditorApplication : public Nexus::Application
 
 	void CreateFramebuffer(ImVec2 size)
 	{
-		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
-		framebufferSpec.Width									  = (uint32_t)size.x;
-		framebufferSpec.Height									  = (uint32_t)size.y;
-		framebufferSpec.ColourAttachmentSpecification.Attachments = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm},
-																	 {Nexus::Graphics::PixelFormat::R32_G32_UInt}};
-		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
+		Nexus::Graphics::FramebufferTextureCreateDescription framebufferSpec = {};
+		framebufferSpec.Width												 = (uint32_t)size.x;
+		framebufferSpec.Height												 = (uint32_t)size.y;
+		framebufferSpec.ColourAttachmentFormats = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}, {Nexus::Graphics::PixelFormat::R32_G32_UInt}};
+		framebufferSpec.DepthAttachmentFormat	= {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
 
-		m_Framebuffer		   = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
-		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
+		m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
+		Nexus::Graphics::TextureViewDescription textureViewDesc = {};
+		textureViewDesc.TargetTexture							= m_Framebuffer->GetColorTextureHandle(0);
+		textureViewDesc.Format									= m_Framebuffer->GetColorTextureHandle(0)->GetDescription().Format;
+		textureViewDesc.Range									= {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
+
+		Nexus::Ref<Nexus::Graphics::ITextureView> textureView = m_GraphicsDevice->CreateTextureView(textureViewDesc);
+
+		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(textureView);
 	}
 
 	void CreateProject(const std::string &projectName, const std::string &projectDirectory)
@@ -323,8 +330,7 @@ class EditorApplication : public Nexus::Application
 
 	void ResizeFramebuffer(ImVec2 size)
 	{
-		m_Framebuffer->Resize((uint32_t)size.x, (uint32_t)size.y);
-		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
+		CreateFramebuffer(size);
 		m_PreviousViewportSize = size;
 	}
 
@@ -625,7 +631,7 @@ class EditorApplication : public Nexus::Application
 	ImTextureID m_FramebufferTextureID = {};
 
 	Nexus::Ref<Nexus::Graphics::ITexture> m_Cubemap = nullptr;
-	Nexus::Ref<Nexus::Graphics::Model>	 m_Model   = nullptr;
+	Nexus::Ref<Nexus::Graphics::Model>	  m_Model	= nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
 	bool   m_NewProjectWindowOpen = false;
