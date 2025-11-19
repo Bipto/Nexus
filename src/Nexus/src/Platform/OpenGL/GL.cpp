@@ -1207,6 +1207,8 @@ namespace Nexus::GL
 						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
+		bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
+
 		GLenum dataFormat = texture->GetDataFormat();
 		GLenum baseType	  = texture->GetBaseType();
 
@@ -1225,13 +1227,26 @@ namespace Nexus::GL
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TextureSubImage1D(texture->GetHandle(),
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTextureSubImage1D(texture->GetHandle(),
+															   command.BufferTextureCopy.MipLevel,
+															   command.BufferTextureCopy.TextureOffset.X,
+															   command.BufferTextureCopy.TextureExtent.Width,
+															   dataFormat,
+															   baseType,
+															   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+				else
+				{
+					glCall(context.TextureSubImage1D(texture->GetHandle(),
+													 command.BufferTextureCopy.MipLevel,
+													 command.BufferTextureCopy.TextureOffset.X,
+													 command.BufferTextureCopy.TextureExtent.Width,
+													 dataFormat,
+													 baseType,
+													 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
 				break;
 	#else
 				throw std::runtime_error("1D textures are not supported in WebGL");
@@ -1239,31 +1254,63 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				glCall(context.TextureSubImage2D(texture->GetHandle(),
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureOffset.Y,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 command.BufferTextureCopy.TextureExtent.Height,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTextureSubImage2D(texture->GetHandle(),
+															   command.BufferTextureCopy.MipLevel,
+															   command.BufferTextureCopy.TextureOffset.X,
+															   command.BufferTextureCopy.TextureOffset.Y,
+															   command.BufferTextureCopy.TextureExtent.Width,
+															   command.BufferTextureCopy.TextureExtent.Height,
+															   dataFormat,
+															   baseType,
+															   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+				else
+				{
+					glCall(context.TextureSubImage2D(texture->GetHandle(),
+													 command.BufferTextureCopy.MipLevel,
+													 command.BufferTextureCopy.TextureOffset.X,
+													 command.BufferTextureCopy.TextureOffset.Y,
+													 command.BufferTextureCopy.TextureExtent.Width,
+													 command.BufferTextureCopy.TextureExtent.Height,
+													 dataFormat,
+													 baseType,
+													 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
 			{
 				size_t offset = command.BufferTextureCopy.BufferOffset;
 
-				glCall(context.TextureSubImage3D(texture->GetHandle(),
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureOffset.Y,
-												 command.BufferTextureCopy.TextureOffset.Z,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 command.BufferTextureCopy.TextureExtent.Height,
-												 command.BufferTextureCopy.TextureExtent.Depth,
-												 dataFormat,
-												 baseType,
-												 (const void *)offset));
+				if (isCompressed)
+				{
+					glCall(context.TextureSubImage3D(texture->GetHandle(),
+													 command.BufferTextureCopy.MipLevel,
+													 command.BufferTextureCopy.TextureOffset.X,
+													 command.BufferTextureCopy.TextureOffset.Y,
+													 command.BufferTextureCopy.TextureOffset.Z,
+													 command.BufferTextureCopy.TextureExtent.Width,
+													 command.BufferTextureCopy.TextureExtent.Height,
+													 command.BufferTextureCopy.TextureExtent.Depth,
+													 dataFormat,
+													 baseType,
+													 (const void *)offset));
+				}
+				else
+				{
+					glCall(context.CompressedTextureSubImage3D(texture->GetHandle(),
+															   command.BufferTextureCopy.MipLevel,
+															   command.BufferTextureCopy.TextureOffset.X,
+															   command.BufferTextureCopy.TextureOffset.Y,
+															   command.BufferTextureCopy.TextureOffset.Z,
+															   command.BufferTextureCopy.TextureExtent.Width,
+															   command.BufferTextureCopy.TextureExtent.Height,
+															   command.BufferTextureCopy.TextureExtent.Depth,
+															   dataFormat,
+															   baseType,
+															   (const void *)offset));
+				}
 
 				break;
 			}
@@ -1274,17 +1321,35 @@ namespace Nexus::GL
 			{
 				size_t offset = command.BufferTextureCopy.BufferOffset;
 
-				glCall(context.TextureSubImage3D(texture->GetHandle(),
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureOffset.Y,
-												 command.BufferTextureCopy.TextureOffset.Z,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 command.BufferTextureCopy.TextureExtent.Height,
-												 command.BufferTextureCopy.TextureExtent.Depth,
-												 dataFormat,
-												 baseType,
-												 (const void *)offset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTextureSubImage3D(texture->GetHandle(),
+															   command.BufferTextureCopy.MipLevel,
+															   command.BufferTextureCopy.TextureOffset.X,
+															   command.BufferTextureCopy.TextureOffset.Y,
+															   command.BufferTextureCopy.TextureOffset.Z,
+															   command.BufferTextureCopy.TextureExtent.Width,
+															   command.BufferTextureCopy.TextureExtent.Height,
+															   command.BufferTextureCopy.TextureExtent.Depth,
+															   dataFormat,
+															   baseType,
+															   (const void *)offset));
+				}
+				else
+				{
+					glCall(context.TextureSubImage3D(texture->GetHandle(),
+													 command.BufferTextureCopy.MipLevel,
+													 command.BufferTextureCopy.TextureOffset.X,
+													 command.BufferTextureCopy.TextureOffset.Y,
+													 command.BufferTextureCopy.TextureOffset.Z,
+													 command.BufferTextureCopy.TextureExtent.Width,
+													 command.BufferTextureCopy.TextureExtent.Height,
+													 command.BufferTextureCopy.TextureExtent.Depth,
+													 dataFormat,
+													 baseType,
+													 (const void *)offset));
+				}
+
 				break;
 			}
 		}
@@ -1297,6 +1362,8 @@ namespace Nexus::GL
 		Ref<Graphics::TextureOpenGL>	  texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 		Ref<Graphics::DeviceBufferOpenGL> buffer  = std::dynamic_pointer_cast<Graphics::DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
+
+		bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
 
 		if (command.BufferTextureCopy.TextureOffset.Z > 1)
 		{
@@ -1325,13 +1392,27 @@ namespace Nexus::GL
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TexSubImage1D(textureType,
-											 command.BufferTextureCopy.MipLevel,
-											 command.BufferTextureCopy.TextureOffset.X,
-											 command.BufferTextureCopy.TextureExtent.Width,
-											 dataFormat,
-											 baseType,
-											 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTexSubImage1D(textureType,
+														   command.BufferTextureCopy.MipLevel,
+														   command.BufferTextureCopy.TextureOffset.X,
+														   command.BufferTextureCopy.TextureExtent.Width,
+														   dataFormat,
+														   (uint32_t)(bufferSize),
+														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+				else
+				{
+					glCall(context.TexSubImage1D(textureType,
+												 command.BufferTextureCopy.MipLevel,
+												 command.BufferTextureCopy.TextureOffset.X,
+												 command.BufferTextureCopy.TextureExtent.Width,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+
 				break;
 	#else
 				throw std::runtime_error("1D textures are not supported in WebGL");
@@ -1339,42 +1420,90 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				glCall(context.TexSubImage2D(textureType,
-											 command.BufferTextureCopy.MipLevel,
-											 command.BufferTextureCopy.TextureOffset.X,
-											 command.BufferTextureCopy.TextureOffset.Y,
-											 command.BufferTextureCopy.TextureExtent.Width,
-											 command.BufferTextureCopy.TextureExtent.Height,
-											 dataFormat,
-											 baseType,
-											 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTexSubImage2D(textureType,
+														   command.BufferTextureCopy.MipLevel,
+														   command.BufferTextureCopy.TextureOffset.X,
+														   command.BufferTextureCopy.TextureOffset.Y,
+														   command.BufferTextureCopy.TextureExtent.Width,
+														   command.BufferTextureCopy.TextureExtent.Height,
+														   dataFormat,
+														   baseType,
+														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+				else
+				{
+					glCall(context.TexSubImage2D(textureType,
+												 command.BufferTextureCopy.MipLevel,
+												 command.BufferTextureCopy.TextureOffset.X,
+												 command.BufferTextureCopy.TextureOffset.Y,
+												 command.BufferTextureCopy.TextureExtent.Width,
+												 command.BufferTextureCopy.TextureExtent.Height,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(context.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureOffset.Z,
-											 command.BufferTextureCopy.MipLevel,
-											 command.BufferTextureCopy.TextureOffset.X,
-											 command.BufferTextureCopy.TextureOffset.Y,
-											 command.BufferTextureCopy.TextureExtent.Width,
-											 command.BufferTextureCopy.TextureExtent.Height,
-											 dataFormat,
-											 baseType,
-											 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureOffset.Z,
+														   command.BufferTextureCopy.MipLevel,
+														   command.BufferTextureCopy.TextureOffset.X,
+														   command.BufferTextureCopy.TextureOffset.Y,
+														   command.BufferTextureCopy.TextureExtent.Width,
+														   command.BufferTextureCopy.TextureExtent.Height,
+														   dataFormat,
+														   baseType,
+														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+				else
+				{
+					glCall(context.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureOffset.Z,
+												 command.BufferTextureCopy.MipLevel,
+												 command.BufferTextureCopy.TextureOffset.X,
+												 command.BufferTextureCopy.TextureOffset.Y,
+												 command.BufferTextureCopy.TextureExtent.Width,
+												 command.BufferTextureCopy.TextureExtent.Height,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-				glCall(context.TexSubImage3D(textureType,
-											 command.BufferTextureCopy.MipLevel,
-											 command.BufferTextureCopy.TextureOffset.X,
-											 command.BufferTextureCopy.TextureOffset.Y,
-											 command.BufferTextureCopy.TextureOffset.Z,
-											 command.BufferTextureCopy.TextureExtent.Width,
-											 command.BufferTextureCopy.TextureExtent.Height,
-											 command.BufferTextureCopy.TextureExtent.Depth,
-											 dataFormat,
-											 baseType,
-											 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				if (isCompressed)
+				{
+					glCall(context.CompressedTexSubImage3D(textureType,
+														   command.BufferTextureCopy.MipLevel,
+														   command.BufferTextureCopy.TextureOffset.X,
+														   command.BufferTextureCopy.TextureOffset.Y,
+														   command.BufferTextureCopy.TextureOffset.Z,
+														   command.BufferTextureCopy.TextureExtent.Width,
+														   command.BufferTextureCopy.TextureExtent.Height,
+														   command.BufferTextureCopy.TextureExtent.Depth,
+														   dataFormat,
+														   baseType,
+														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+				else
+				{
+					glCall(context.TexSubImage3D(textureType,
+												 command.BufferTextureCopy.MipLevel,
+												 command.BufferTextureCopy.TextureOffset.X,
+												 command.BufferTextureCopy.TextureOffset.Y,
+												 command.BufferTextureCopy.TextureOffset.Z,
+												 command.BufferTextureCopy.TextureExtent.Width,
+												 command.BufferTextureCopy.TextureExtent.Height,
+												 command.BufferTextureCopy.TextureExtent.Depth,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
+
 				break;
 		}
 
