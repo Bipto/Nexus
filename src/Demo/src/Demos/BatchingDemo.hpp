@@ -50,7 +50,7 @@ namespace Demos
 			{
 				QuadInfo info;
 				info.Position = {random_x(rng), random_y(rng)};
-				info.Color	  = {random_color_channel(rng), random_color_channel(rng), random_color_channel(rng), 1.0f};
+				info.Colour	  = {random_color_channel(rng), random_color_channel(rng), random_color_channel(rng), 1.0f};
 				info.Size	  = {random_size(rng), random_size(rng)};
 				m_Quads.emplace_back(info);
 			}
@@ -91,7 +91,7 @@ namespace Demos
 			for (const auto &quad : m_Quads)
 			{
 				Nexus::Graphics::Rectangle rect(quad.Position.x, quad.Position.y, quad.Size.x, quad.Size.y);
-				m_BatchRenderer->DrawQuadFill(rect, quad.Color);
+				m_BatchRenderer->DrawQuadFill(rect, quad.Colour);
 			}
 
 			m_BatchRenderer->End();
@@ -131,14 +131,14 @@ namespace Demos
 		{
 			glm::vec2 Position;
 			glm::vec2 Size;
-			glm::vec4 Color;
+			glm::vec4 Colour;
 		};
 
 		struct CircleInfo
 		{
 			glm::vec2 Position;
 			float	  Radius;
-			glm::vec4 Color;
+			glm::vec4 Colour;
 		};
 
 	  private:

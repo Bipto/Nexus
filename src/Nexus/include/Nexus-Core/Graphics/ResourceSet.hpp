@@ -150,11 +150,7 @@ namespace Nexus::Graphics
 
 		virtual void Flush() = 0;
 
-		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
-		const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;
-		const std::map<std::string, StorageImageView>	  &GetBoundStorageImages() const;
-		const std::map<std::string, StorageBufferView>	  &GetBoundStorageBuffers() const;
-		const ResourceSetDescriptors					  &GetBoundResources() const;
+		const ResourceSetDescriptors &GetBoundResources() const;
 
 	  protected:
 		WeakRef<Pipeline> m_Pipeline = {};
@@ -163,10 +159,5 @@ namespace Nexus::Graphics
 
 		ResourceSetDescriptors m_BoundResources	 = {};
 		ResourceSetDescriptors m_QueuedResources = {};
-
-		std::map<std::string, UniformBufferView>	m_BoundUniformBuffers;
-		std::map<std::string, CombinedImageSampler> m_BoundCombinedImageSamplers;
-		std::map<std::string, StorageImageView>		m_BoundStorageImages;
-		std::map<std::string, StorageBufferView>	m_BoundStorageBuffers;
 	};
 }	 // namespace Nexus::Graphics

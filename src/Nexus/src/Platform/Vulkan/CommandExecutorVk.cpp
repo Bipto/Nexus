@@ -330,7 +330,7 @@ namespace Nexus::Graphics
 
 		VkClearAttachment clearAttachment {};
 		clearAttachment.aspectMask		 = VK_IMAGE_ASPECT_COLOR_BIT;
-		clearAttachment.clearValue.color = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+		clearAttachment.clearValue.color = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
 		clearAttachment.colorAttachment	 = command.Index;
 
 		VkClearRect clearRect;

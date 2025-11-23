@@ -210,7 +210,7 @@ namespace Nexus::Graphics
 		glm::vec2 TexCoords = {0, 0};
 
 		// @brief 4 floating point values representing the colour of the vertex
-		glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
+		glm::vec4 Colour = {1.0f, 1.0f, 1.0f, 1.0f};
 
 		VertexPositionTexCoordColor() = default;
 
@@ -225,7 +225,7 @@ namespace Nexus::Graphics
 		VertexPositionTexCoordColor(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color)
 			: Position(position),
 			  TexCoords(texCoords),
-			  Color(color)
+			  Colour(color)
 		{
 		}
 

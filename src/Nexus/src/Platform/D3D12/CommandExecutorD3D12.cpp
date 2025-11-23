@@ -267,7 +267,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		float clearColor[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+		float clearColor[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
 
 		if (command.Rect.has_value())
 		{
@@ -497,14 +497,36 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
 	{
+		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
+		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
+
 		Ref<TextureD3D12> srcTexture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureCopy.Source);
 		Ref<TextureD3D12> dstTexture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureCopy.Destination);
 
-		D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
-		D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
-
 		Microsoft::WRL::ComPtr<ID3D12Resource2> srcHandle = srcTexture->GetHandle();
 		Microsoft::WRL::ComPtr<ID3D12Resource2> dstHandle = dstTexture->GetHandle();
+
+		// retrieve source index
+		bool	 srcArrayedTexture	 = srcTexture->GetType() == TextureType::Texture3D || srcTexture->GetType() == TextureType::TextureCube;
+		uint32_t srcSubresourceIndex = Utils::CalculateSubresource(command.TextureCopy.SourceMipLevel,
+																   srcArrayedTexture ? command.TextureCopy.SourceOffset.Z : 0,
+																   command.TextureCopy.Source->GetMipLevels());
+
+		// retrieve destination footprint
+		bool	 dstArrayedTexture	 = dstTexture->GetType() == TextureType::Texture3D || dstTexture->GetType() == TextureType::TextureCube;
+		uint32_t dstSubresourceIndex = Utils::CalculateSubresource(command.TextureCopy.DestinationMipLevel,
+																   dstArrayedTexture ? command.TextureCopy.DestinationOffset.Z : 0,
+																   command.TextureCopy.Destination->GetMipLevels());
+
+		D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
+		srcLocation.pResource					= srcHandle.Get();
+		srcLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		srcLocation.SubresourceIndex			= srcSubresourceIndex;
+
+		D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
+		dstLocation.pResource					= dstHandle.Get();
+		dstLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		dstLocation.SubresourceIndex			= dstSubresourceIndex;
 
 		TextureLayout		  srcLayout		   = srcTexture->GetTextureLayout(command.TextureCopy.SourceOffset.Z, command.TextureCopy.SourceMipLevel);
 		D3D12_RESOURCE_STATES srcResourceState = D3D12::GetTextureResourceState(srcLayout);

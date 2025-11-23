@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 {
 	struct BatchVertex
 	{
-		glm::vec4		  Color		= {1.0f, 1.0f, 1.0f, 1.0f};
+		glm::vec4		  Colour		= {1.0f, 1.0f, 1.0f, 1.0f};
 		glm::vec3		  Position	= {0, 0, 0};
 		float			  TexIndex	= 0.0f;
 		glm::vec2		  TexCoords = {0, 0};
@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 		BatchVertex(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color, float texIndex, Point2D<uint32_t> id)
 			: Position(position),
 			  TexCoords(texCoords),
-			  Color(color),
+			  Colour(color),
 			  TexIndex(texIndex),
 			  Id(id)
 		{

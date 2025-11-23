@@ -363,13 +363,13 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkBorderColor GetVkBorderColor(Nexus::Graphics::BorderColor color)
+	VkBorderColor GetVkBorderColor(Nexus::Graphics::BorderColour color)
 	{
 		switch (color)
 		{
-			case Nexus::Graphics::BorderColor::TransparentBlack: return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
-			case Nexus::Graphics::BorderColor::OpaqueBlack: return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
-			case Nexus::Graphics::BorderColor::OpaqueWhite: return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+			case Nexus::Graphics::BorderColour::TransparentBlack: return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+			case Nexus::Graphics::BorderColour::OpaqueBlack: return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+			case Nexus::Graphics::BorderColour::OpaqueWhite: return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 			default: throw std::runtime_error("Failed to find a valid border color");
 		}
 	}

@@ -1509,9 +1509,45 @@ namespace Nexus::D3D12
 			rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS;
 		}
 
+		std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers = {};
+		for (const auto &[name, samplers] : requestedResources.ImmutableSamplers)
+		{
+			const auto &resourceInfo = reflectedResources.at(name);
+
+			for (size_t samplerIndex = 0; samplerIndex < samplers.size(); samplerIndex++)
+			{
+				const auto						   &sampler		= samplers[samplerIndex];
+				const Graphics::SamplerDescription &samplerDesc = sampler->GetSamplerDescription();
+
+				D3D12_STATIC_SAMPLER_DESC &staticSampler = staticSamplers.emplace_back();
+				staticSampler.Filter					 = D3D12::GetD3D12Filter(samplerDesc.SampleFilter);
+				staticSampler.AddressU					 = D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeU);
+				staticSampler.AddressV					 = D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeV);
+				staticSampler.AddressW					 = D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeW);
+				staticSampler.MipLODBias				 = samplerDesc.LODBias;
+				staticSampler.MaxAnisotropy				 = samplerDesc.MaximumAnisotropy;
+				staticSampler.ComparisonFunc			 = D3D12::GetComparisonFunction(samplerDesc.SamplerComparisonFunction);
+
+				switch (samplerDesc.TextureBorderColor)
+				{
+					case Graphics::BorderColour::TransparentBlack: staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK; break;
+					case Graphics::BorderColour::OpaqueBlack: staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK; break;
+					case Graphics::BorderColour::OpaqueWhite: staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE; break;
+					default: throw std::runtime_error("Failed to find a valid BorderColor");
+				}
+
+				staticSampler.MinLOD		   = samplerDesc.MinimumLOD;
+				staticSampler.MaxLOD		   = samplerDesc.MaximumLOD;
+				staticSampler.ShaderRegister   = resourceInfo.Binding + static_cast<UINT>(samplerIndex);
+				staticSampler.RegisterSpace	   = resourceInfo.RegisterSpace;
+				staticSampler.ShaderVisibility = GetShaderVisibility(resourceInfo.Stage);
+			}
+		}
+
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 		rootSignatureDesc.Flags						= rootSignatureFlags;
-		rootSignatureDesc.pStaticSamplers			= nullptr;
+		rootSignatureDesc.NumStaticSamplers			= staticSamplers.size();
+		rootSignatureDesc.pStaticSamplers			= staticSamplers.data();
 		rootSignatureDesc.NumParameters				= rootParameters.size();
 		rootSignatureDesc.pParameters				= rootParameters.data();
 

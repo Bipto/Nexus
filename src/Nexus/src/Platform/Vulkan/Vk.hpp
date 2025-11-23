@@ -44,7 +44,7 @@ namespace Nexus::Vk
 	VkStencilOp			  GetStencilOp(Nexus::Graphics::StencilOperation operation);
 	VkBlendOp			  GetVkBlendOp(Nexus::Graphics::BlendEquation function);
 	VkBlendFactor		  GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
-	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColor color);
+	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColour color);
 	VkImageUsageFlagBits  GetVkImageUsageFlags(Graphics::PixelFormat format, uint8_t usage);
 	VkImageCreateFlagBits GetVkImageCreateFlagBits(const Graphics::TextureDescription &description);
 	VkImageType			  GetVkImageType(Graphics::TextureType textureType);

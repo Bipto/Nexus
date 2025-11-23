@@ -53,6 +53,7 @@ namespace Nexus::Graphics
 
 			D3D12MA::ALLOCATION_DESC allocationDesc = {};
 			allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
+			allocationDesc.Flags					= D3D12MA::ALLOCATION_FLAG_COMMITTED;
 
 			Microsoft::WRL::ComPtr<D3D12MA::Allocator> allocator = device->GetAllocator();
 			hr													 = allocator
