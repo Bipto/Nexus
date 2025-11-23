@@ -74,14 +74,15 @@ namespace Nexus::Graphics
 													 uint32_t	   width,
 													 uint32_t	   height)
 	{
-		IGraphicsDevice *device		= GetGraphicsDevice();
-		size_t			 bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+		IGraphicsDevice *device = GetGraphicsDevice();
+
+		SubresourceFootprint footprint = texture->GetSubresourceFootprint(0, mipLevel);
 
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access				   = BufferMemoryAccess::Readback;
 		bufferDesc.Usage				   = BufferUsage_None;
-		bufferDesc.SizeInBytes			   = bufferSize;
-		bufferDesc.StrideInBytes		   = bufferSize;
+		bufferDesc.SizeInBytes			   = footprint.Size;
+		bufferDesc.StrideInBytes		   = footprint.Size;
 
 		Ref<IDeviceBuffer> buffer  = device->CreateDeviceBuffer(bufferDesc);
 		Ref<ICommandList>  cmdList = CreateCommandList();
@@ -103,6 +104,6 @@ namespace Nexus::Graphics
 		SubmitCommandLists(&cmdList, 1, nullptr);
 		WaitForIdle();
 
-		return buffer->GetData(0, bufferSize);
+		return buffer->GetData(0, footprint.Size);
 	}
 }	 // namespace Nexus::Graphics

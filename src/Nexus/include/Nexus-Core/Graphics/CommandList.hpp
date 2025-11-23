@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AccelerationStructure.hpp"
-#include "Color.hpp"
 #include "DeviceBuffer.hpp"
 #include "Framebuffer.hpp"
 #include "Nexus-Core/Types.hpp"
@@ -14,76 +13,141 @@
 
 namespace Nexus::Graphics
 {
+	/// @brief A structure representing parameters to set a clear rectangle
 	struct ClearRect
 	{
-		int32_t	 X		= 0;
-		int32_t	 Y		= 0;
-		uint32_t Width	= 0;
+		/// @brief The X coordinate of the rectangle
+		int32_t X = 0;
+
+		/// @brief The Y coordinate of the rectangle
+		int32_t Y = 0;
+
+		/// @brief The width of the rectangle
+		uint32_t Width = 0;
+
+		/// @brief The height of the rectangle
 		uint32_t Height = 0;
 	};
 
+	/// @brief A structure representing a copy operation between two buffers
 	struct BufferCopy
 	{
-		uint64_t ReadOffset	 = 0;
+		/// @brief An integer representing the offset into the buffer that is being read from
+		uint64_t ReadOffset = 0;
+
+		/// @brief An integer representing the offset into the buffer that is being written to
 		uint64_t WriteOffset = 0;
-		uint64_t Size		 = 0;
+
+		/// @brief The size in bytes of the copy operation
+		uint64_t Size = 0;
 	};
 
+	/// @brief A structure containing a set of buffer copy operations
 	struct BufferCopyDescription
 	{
-		Ref<IDeviceBuffer>		Source		= nullptr;
-		Ref<IDeviceBuffer>		Destination = nullptr;
-		std::vector<BufferCopy> Copies		= {};
+		/// @brief A pointer to the buffer to be used as a source
+		Ref<IDeviceBuffer> Source = nullptr;
+
+		/// @brief A pointer to the buffer to be used as the destination
+		Ref<IDeviceBuffer> Destination = nullptr;
+
+		/// @brief A vector of BufferCopy objects representing the areas of the buffers to be copied
+		std::vector<BufferCopy> Copies = {};
 	};
 
+	/// @brief A structure representing a copy operation between a buffer and a texture
 	struct BufferTextureCopyDescription
 	{
-		Ref<IDeviceBuffer> BufferHandle		 = nullptr;
-		uint64_t		   BufferOffset		 = 0;
-		uint64_t		   BufferRowLength	 = 0;
-		uint64_t		   BufferImageHeight = 0;
-		Ref<ITexture>	   TextureHandle	 = nullptr;
-		Offset3D		   TextureOffset	 = {};
-		Extent3D		   TextureExtent	 = {};
-		uint32_t		   MipLevel			 = 0;
+		/// @brief A pointer to the buffer to use in the copy operation
+		Ref<IDeviceBuffer> BufferHandle = nullptr;
+
+		/// @brief An integer representing the offset to read to/write from in the buffer
+		uint64_t BufferOffset = 0;
+
+		/// @brief An integer representing the row length of the data
+		uint64_t BufferRowLength = 0;
+
+		/// @brief An integer representing the number of rows in the data
+		uint64_t BufferImageHeight = 0;
+
+		/// @brief A pointer to the texture to use in the copy operation
+		Ref<ITexture> TextureHandle = nullptr;
+
+		/// @brief A structure containing parameters specifying the offset into the textures
+		Offset3D TextureOffset = {};
+
+		/// @brief A structure containing parameters specifying the size of the texture area to copy
+		Extent3D TextureExtent = {};
+
+		/// @brief An integer containing which mip level of the texture to copy to/from
+		uint32_t MipLevel = 0;
 	};
 
+	/// @brief A structure representing a copy operation between two textures
 	struct TextureCopyDescription
 	{
-		Ref<ITexture> Source			  = nullptr;
-		Ref<ITexture> Destination		  = nullptr;
-		Offset3D	  SourceOffset		  = {};
-		Offset3D	  DestinationOffset	  = {};
-		Extent3D	  Extent			  = {};
-		uint32_t	  SourceMipLevel	  = 0;
-		uint32_t	  DestinationMipLevel = 0;
+		/// @brief A pointer to the source texture for the copy operation
+		Ref<ITexture> Source = nullptr;
+
+		/// @brief A pointer to the destination texture for the copy operation
+		Ref<ITexture> Destination = nullptr;
+
+		/// @brief A set of parameters specifying the offset into the source texture
+		Offset3D SourceOffset = {};
+
+		/// @brief A set of parameters specifying the offset into the destination texture
+		Offset3D DestinationOffset = {};
+
+		/// @brief A set of parameters specifying the size of the texture area to be copied
+		Extent3D Extent = {};
+
+		/// @brief An integer representing which level of the source texture to copy to/from
+		uint32_t SourceMipLevel = 0;
+
+		/// @brief An integer representing which level of the destination texture to copy to/from
+		uint32_t DestinationMipLevel = 0;
 	};
 
+	/// @brief A structure representing a command binding a vertex buffer to a slot
 	struct SetVertexBufferCommand
 	{
-		uint32_t		 Slot = 0;
+		/// @brief An integer representing the slot that the vertex buffer should be bound to
+		uint32_t Slot = 0;
+
+		/// @brief A structure containing which sections of the buffer should be bound
 		VertexBufferView View = {};
 	};
 
+	/// @brief A structure representing a command binding an index buffer to a command list
 	struct SetIndexBufferCommand
 	{
+		/// @brief A structure containing how the index buffer should be bound
 		IndexBufferView View = {};
 	};
 
+	/// @brief A structure representing a command to mark a debug group in a command list
 	struct BeginDebugGroupCommand
 	{
+		/// @brief A string containing the debug group name
 		std::string GroupName = {};
-		glm::vec4	Colour	  = {};
+
+		/// @brief Four floats representing the colour of the displayed text
+		glm::vec4 Colour = {};
 	};
 
+	/// @brief A structure representing a command to mark the end of a debug group
 	struct EndDebugGroupCommand
 	{
 	};
 
+	/// @brief A structure representing a command to insert a debug marker into a command list
 	struct InsertDebugMarkerCommand
 	{
+		/// @brief A string containing the marker name
 		std::string MarkerName = {};
-		glm::vec4	Colour	   = {};
+
+		/// @brief Four floats representing the colour of the displayed text
+		glm::vec4 Colour = {};
 	};
 
 	/// @brief A struct representing a set of values to use  to clear the colour
@@ -120,11 +184,19 @@ namespace Nexus::Graphics
 		std::optional<ClearRect> Rect = {};
 	};
 
+	/// @brief A structure representing a set of floats to use when blending colours
 	struct BlendFactorDesc
 	{
-		float Red	= 0.0f;
+		/// @brief A value between 0.0 and 1.0 representing the blend factor in the red channel
+		float Red = 0.0f;
+
+		/// @brief A value between 0.0 and 1.0 representing the blend factor in the green channel
 		float Green = 0.0f;
-		float Blue	= 0.0f;
+
+		/// @brief A value between 0.0 and 1.0 representing the blend factor in the blue channel
+		float Blue = 0.0f;
+
+		/// @brief A value between 0.0 and 1.0 representing the blend factor in the alpha channel
 		float Alpha = 0.0f;
 	};
 
@@ -132,96 +204,182 @@ namespace Nexus::Graphics
 	/// buffer
 	struct DrawDescription
 	{
-		uint32_t VertexCount   = 0;
+		/// @brief An integer containing the vertex count used by the draw call
+		uint32_t VertexCount = 0;
+
+		/// @brief An integer containing the instance count used by the draw call
 		uint32_t InstanceCount = 0;
-		uint32_t VertexStart   = 0;
+
+		/// @brief An integer containing the vertex start index used by the draw call
+		uint32_t VertexStart = 0;
+
+		/// @brief An integer containing the instance start index used by the draw call
 		uint32_t InstanceStart = 0;
 	};
 
+	/// @brief A struct representing a draw command to be executed using a vertex
+	/// buffer and an index buffer
 	struct DrawIndexedDescription
 	{
-		uint32_t IndexCount	   = 0;
+		/// @brief An integer containing the index count used by the draw call
+		uint32_t IndexCount = 0;
+
+		/// @brief An integer containing the instance count used by the draw call
 		uint32_t InstanceCount = 0;
-		uint32_t VertexStart   = 0;
-		uint32_t IndexStart	   = 0;
+
+		/// @brief An integer containing the vertex start index used by the draw call
+		uint32_t VertexStart = 0;
+
+		/// @brief An integer containing the index start count used by the draw call
+		uint32_t IndexStart = 0;
+
+		/// @brief An integer containing the instance start count used by the draw call
 		uint32_t InstanceStart = 0;
 	};
 
+	/// @brief A structure representing a draw indirect command using a vertex buffer and an indirect buffer
 	struct DrawIndirectDescription
 	{
+		/// @brief A pointer to the indirect buffer to use for the draw call
 		Ref<IDeviceBuffer> IndirectBuffer = nullptr;
-		size_t			   Offset		  = 0;
-		size_t			   Stride		  = 0;
-		size_t			   DrawCount	  = 0;
+
+		/// @brief An integer representing the offset into the indirect buffer to read from
+		size_t Offset = 0;
+
+		/// @brief An integer representing the stride between successive draw commands in the indirect buffer
+		size_t Stride = 0;
+
+		/// @brief An integer representing the number of draw commands to execute
+		size_t DrawCount = 0;
 	};
 
+	/// @brief A structure representing a draw indirect command using a vertex buffer, index buffer and an indirect buffer
 	struct DrawIndirectIndexedDescription
 	{
+		/// @brief A pointer to the indirect buffer to use for the draw call
 		Ref<IDeviceBuffer> IndirectBuffer = nullptr;
-		size_t			   Offset		  = 0;
-		size_t			   Stride		  = 0;
-		size_t			   DrawCount	  = 0;
+
+		/// @brief An integer representing the offset into the indirect buffer to read from
+		size_t Offset = 0;
+
+		/// @brief An integer representing the stride between successive draw commands in the indirect buffer
+		size_t Stride = 0;
+
+		/// @brief An integer representing the number of draw commands to execute
+		size_t DrawCount = 0;
 	};
 
+	/// @brief A structure representing a dispatch command to be executed using a compute shader
 	struct DispatchDescription
 	{
+		/// @brief An integer representing the size of the workgroup in the X dimension
 		uint32_t WorkGroupCountX = 0;
+
+		/// @brief An integer representing the size of the workgroup in the Y dimension
 		uint32_t WorkGroupCountY = 0;
+
+		/// @brief An integer representing the size of the workgroup in the Z dimension
 		uint32_t WorkGroupCountZ = 0;
 	};
 
+	/// @brief A structure representing a dispatch indirect command using an indirect buffer
 	struct DispatchIndirectDescription
 	{
+		/// @brief A pointer to the indirect buffer to use
 		Ref<IDeviceBuffer> IndirectBuffer = {};
-		size_t			   Offset		  = 0;
-		size_t			   Stride		  = 0;
+
+		/// @brief An integer representing the offset into the indirect buffer to read from
+		size_t Offset = 0;
+
+		/// @brief An integer representing the stride between successive draw commands in the indirect buffer
+		size_t Stride = 0;
 	};
 
+	/// @brief A structure representing a mesh draw command to be executed using a mesh shader
 	struct DrawMeshDescription
 	{
+		/// @brief An integer representing the size of the workgroup in the X dimension
 		uint32_t WorkGroupCountX = 0;
+
+		/// @brief An integer representing the size of the workgroup in the Y dimension
 		uint32_t WorkGroupCountY = 0;
+
+		/// @brief An integer representing the size of the workgroup in the Z dimension
 		uint32_t WorkGroupCountZ = 0;
 	};
 
+	/// @brief A structure representing a mesh draw indirect command using an indirect buffer
 	struct DrawMeshIndirectDescription
 	{
+		/// @brief A pointer to the indirect buffer to use
 		Ref<IDeviceBuffer> IndirectBuffer = {};
-		size_t			   Offset		  = 0;
-		size_t			   Stride		  = 0;
-		size_t			   DrawCount	  = 0;
+
+		/// @brief An integer representing the offset into the indirect buffer to read from
+		size_t Offset = 0;
+
+		/// @brief An integer representing the stride between successive draw commands in the indirect buffer
+		size_t Stride = 0;
+
+		/// @brief An integer representing the number of draw commands to execute
+		size_t DrawCount = 0;
 	};
 
+	/// @brief A structure representing a command to clear a colour target
 	struct ClearColorTargetCommand
 	{
-		uint32_t				 Index = {};
-		ClearColourValue		 Color = {};
-		std::optional<ClearRect> Rect  = {};
+		/// @brief An integer representing the index of the colour attachment to clear
+		uint32_t Index = {};
+
+		/// @brief A structure containing the colour values to use when clearing the target
+		ClearColourValue Colour = {};
+
+		/// @brief An optional parameter controlling which area of the texture to clear
+		std::optional<ClearRect> Rect = {};
 	};
 
+	/// @brief A structure representing a command to clear a depth/stencil target
 	struct ClearDepthStencilTargetCommand
 	{
-		ClearDepthStencilValue	 Value = {};
-		std::optional<ClearRect> Rect  = {};
+		/// @brief A structure containing the depth/stencil values to use when clearing the target
+		ClearDepthStencilValue Value = {};
+
+		/// @brief An optional parameter controlling which area of the texture to clear
+		std::optional<ClearRect> Rect = {};
 	};
 
+	/// @brief A structure representing a command to resolve a multisampled texture
 	struct ResolveTextureDescription
 	{
-		Ref<ITexture> Source				= nullptr;
-		Ref<ITexture> Destination			= nullptr;
-		uint32_t	  SourceArrayLayer		= 0;
-		uint32_t	  SourceMipLevel		= 0;
-		uint32_t	  DestinationArrayLayer = 0;
-		uint32_t	  DestinationMipLevel	= 0;
+		/// @brief A pointer to the source texture for the resolve operation
+		Ref<ITexture> Source = nullptr;
+
+		/// @brief A pointer to the destination texture for the resolve operation
+		Ref<ITexture> Destination = nullptr;
+
+		/// @brief An integer representing which array layer of the source texture to resolve from
+		uint32_t SourceArrayLayer = 0;
+
+		/// @brief An integer representing which mip level of the source texture to resolve from
+		uint32_t SourceMipLevel = 0;
+
+		/// @brief An integer representing which array layer of the destination texture to resolve to
+		uint32_t DestinationArrayLayer = 0;
+
+		/// @brief An integer representing which mip level of the destination texture to resolve to
+		uint32_t DestinationMipLevel = 0;
 	};
 
+	/// @brief A structure representing a command to start a timing query
 	struct StartTimingQueryCommand
 	{
+		/// @brief A pointer to the timing query to start
 		Ref<ITimingQuery> Query = {};
 	};
 
+	/// @brief A structure representing a command to stop a timing query
 	struct StopTimingQueryCommand
 	{
+		/// @brief A pointer to the timing query to stop
 		Ref<ITimingQuery> Query = {};
 	};
 

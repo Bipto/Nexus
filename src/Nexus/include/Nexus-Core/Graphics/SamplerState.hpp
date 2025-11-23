@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 		PointWrap
 	};
 
-	enum class BorderColor
+	enum class BorderColour
 	{
 		TransparentBlack,
 		OpaqueBlack,
@@ -67,7 +67,7 @@ namespace Nexus::Graphics
 		uint32_t		   MinimumLOD				 = 0;
 		uint32_t		   MaximumLOD				 = UINT32_MAX;
 		int32_t			   LODBias					 = 0;
-		BorderColor		   TextureBorderColor		 = BorderColor::OpaqueBlack;
+		BorderColour		   TextureBorderColor		 = BorderColour::OpaqueBlack;
 		std::string		   DebugName				 = "Sampler";
 	};
 }	 // namespace Nexus::Graphics

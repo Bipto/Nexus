@@ -159,6 +159,82 @@ namespace Nexus::Graphics
 		}
 	}
 
+	static bool IsPixelFormatCompressed(PixelFormat format)
+	{
+		switch (format)
+		{
+			case PixelFormat::B8_G8_R8_A8_UNorm:
+			case PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+			case PixelFormat::R10_G10_B10_A2_UInt:
+			case PixelFormat::R10_G10_B10_A2_UNorm:
+			case PixelFormat::R11_G11_B10_Float:
+			case PixelFormat::R16_Float:
+			case PixelFormat::R16_G16_B16_A16_Float:
+			case PixelFormat::R16_G16_B16_A16_SInt:
+			case PixelFormat::R16_G16_B16_A16_SNorm:
+			case PixelFormat::R16_G16_B16_A16_UInt:
+			case PixelFormat::R16_G16_B16_A16_UNorm:
+			case PixelFormat::R16_G16_Float:
+			case PixelFormat::R16_G16_SInt:
+			case PixelFormat::R16_G16_SNorm:
+			case PixelFormat::R16_G16_UInt:
+			case PixelFormat::R16_G16_UNorm:
+			case PixelFormat::R16_SInt:
+			case PixelFormat::R16_SNorm:
+			case PixelFormat::R16_UInt:
+			case PixelFormat::R16_UNorm:
+			case PixelFormat::R32_Float:
+			case PixelFormat::R32_G32_B32_A32_Float:
+			case PixelFormat::R32_G32_B32_A32_SInt:
+			case PixelFormat::R32_G32_B32_A32_UInt:
+			case PixelFormat::R32_G32_Float:
+			case PixelFormat::R32_G32_SInt:
+			case PixelFormat::R32_G32_UInt:
+			case PixelFormat::R32_SInt:
+			case PixelFormat::R32_UInt:
+			case PixelFormat::R8_G8_B8_A8_SInt:
+			case PixelFormat::R8_G8_B8_A8_SNorm:
+			case PixelFormat::R8_G8_B8_A8_UInt:
+			case PixelFormat::R8_G8_B8_A8_UNorm:
+			case PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+			case PixelFormat::R8_G8_SInt:
+			case PixelFormat::R8_G8_SNorm:
+			case PixelFormat::S8_G8_UInt:
+			case PixelFormat::R8_G8_UInt:
+			case PixelFormat::R8_G8_UNorm:
+			case PixelFormat::R8_SInt:
+			case PixelFormat::R8_SNorm:
+			case PixelFormat::R8_UInt:
+			case PixelFormat::R8_UNorm: return false;
+			case PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+			case PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+			case PixelFormat::ETC2_R8_G8_B8_UNorm:
+			case PixelFormat::BC1_Rgb_UNorm:
+			case PixelFormat::BC1_Rgb_UNorm_SRgb:
+			case PixelFormat::BC1_Rgba_UNorm:
+			case PixelFormat::BC1_Rgba_UNorm_SRgb:
+			case PixelFormat::BC2_UNorm:
+			case PixelFormat::BC2_UNorm_SRgb:
+			case PixelFormat::BC3_UNorm:
+			case PixelFormat::BC3_UNorm_SRgb:
+			case PixelFormat::BC4_UNorm:
+			case PixelFormat::BC4_SNorm:
+			case PixelFormat::BC5_UNorm:
+			case PixelFormat::BC5_SNorm:
+			case PixelFormat::BC7_UNorm:
+			case PixelFormat::BC7_UNorm_SRgb:
+				return true;
+
+				// depth/stencil formats
+			case PixelFormat::D16_UNorm:
+			case PixelFormat::D24_UNorm_S8_UInt:
+			case PixelFormat::D32_SFloat:
+			case PixelFormat::D32_SFloat_S8_UInt: return false;
+
+			default: throw std::runtime_error("Failed to find a valid pixel type");
+		}
+	}
+
 	static size_t GetPixelFormatSizeInBits(PixelFormat format)
 	{
 		switch (format)

@@ -9,7 +9,7 @@
 
 #include "Nexus-Core/Timings/Profiler.hpp"
 
-std::string GetImGuiShaderVertexSource()
+static std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
 
@@ -34,7 +34,7 @@ std::string GetImGuiShaderVertexSource()
 	return shader;
 }
 
-std::string GetImGuiShaderFragmentSource()
+static std::string GetImGuiShaderFragmentSource()
 {
 	std::string shader = "#version 450 core\n"
 
@@ -56,7 +56,7 @@ static Nexus::ImGuiUtils::ImGuiGraphicsRenderer *s_ImGuiRenderer = nullptr;
 
 static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformImeData *data)
 {
-	Nexus::ImGuiUtils::ImGuiWindowInfo *info = (Nexus::ImGuiUtils::ImGuiWindowInfo *)vp->PlatformUserData;
+	Nexus::ImGuiUtils::ImGuiWindowInfo *info = static_cast<Nexus::ImGuiUtils::ImGuiWindowInfo *>(vp->PlatformUserData);
 	if (data->WantVisible)
 	{
 		Nexus::Graphics::Rectangle<int> rect = {(int)data->InputPos.x, (int)data->InputPos.y, 1, (int)data->InputLineHeight};
@@ -177,7 +177,8 @@ namespace Nexus::ImGuiUtils
 		int			   width, height, channels;
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &channels);
 
-		size_t bufferSize = width * height * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
+		size_t bufferSize =
+			static_cast<size_t>(width) * static_cast<size_t>(height) * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
 		Graphics::TextureDescription textureDesc = {};
 		textureDesc.Type						 = Graphics::TextureType::Texture2D;
@@ -187,6 +188,9 @@ namespace Nexus::ImGuiUtils
 		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
 		textureDesc.DebugName					 = "ImGui Font Texture";
 		m_FontTexture							 = m_GraphicsDevice->CreateTexture(textureDesc);
+
+		Graphics::SubresourceFootprint footprint = m_FontTexture->GetSubresourceFootprint(0, 0);
+
 		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		Graphics::TextureViewDescription viewDesc = {};
@@ -236,7 +240,7 @@ namespace Nexus::ImGuiUtils
 		io.DeltaTime = (float)gameTime.GetSeconds<float>();
 
 		auto windowSize			   = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
-		io.DisplaySize			   = {(float)windowSize.X, (float)windowSize.Y};
+		io.DisplaySize			   = {static_cast<float>(windowSize.X), static_cast<float>(windowSize.Y)};
 		io.DisplayFramebufferScale = {1, 1};
 
 		UpdateMonitors();
@@ -449,7 +453,7 @@ namespace Nexus::ImGuiUtils
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
 			vertexBufferDesc.DebugName								  = "ImGui Vertex Buffer";
-			m_VertexBuffer = Ref<Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
 		}
 
 		if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -462,7 +466,7 @@ namespace Nexus::ImGuiUtils
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
 			indexBufferDesc.DebugName								 = "ImGui Index Buffer";
-			m_IndexBuffer = Ref<Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
+			m_IndexBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
 		}
 
 		// update vertex buffer

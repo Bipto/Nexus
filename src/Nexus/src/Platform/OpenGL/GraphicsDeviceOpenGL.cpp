@@ -49,9 +49,13 @@ namespace Nexus::Graphics
 				{
 					context.Enable(GL_DEBUG_OUTPUT);
 					context.Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
 					context.DebugMessageCallback(glDebugCallback, nullptr);
 				}
 	#endif
+				// set pixel alignment to the default globally
+				context.PixelStorei(GL_PACK_ALIGNMENT, 4);
+				context.PixelStorei(GL_UNPACK_ALIGNMENT, 4);
 			});
 
 		GetFeatures();

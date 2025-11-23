@@ -310,7 +310,7 @@ namespace Nexus::Graphics
 
 		ClearColorTargetCommand command;
 		command.Index = index;
-		command.Color = color;
+		command.Colour = color;
 		command.Rect  = clearRect;
 		m_Commands.push_back(command);
 	}
@@ -328,7 +328,7 @@ namespace Nexus::Graphics
 
 		ClearColorTargetCommand command;
 		command.Index = index;
-		command.Color = color;
+		command.Colour = color;
 		command.Rect  = std::nullopt;
 		m_Commands.push_back(command);
 	}

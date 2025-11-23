@@ -114,6 +114,27 @@ namespace Nexus::Graphics
 						m_EmulatedInlineUniformBlocks[descriptor.Name] = CreateRef<DeviceBufferOpenGL>(bufferDesc, device);
 					}
 				}
+
+				// iterate through all immutable samplers and get their locations
+				for (const auto &[name, samplers] : resourceSetDesc.ImmutableSamplers)
+				{
+					if (samplers.size() == 1)
+					{
+						int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), name.c_str());
+						m_ImmutableSamplers[location] = std::dynamic_pointer_cast<SamplerOpenGL>(samplers[0]);
+					}
+					else
+					{
+						for (size_t i = 0; i < samplers.size(); i++)
+						{
+							std::stringstream ss;
+							ss << name << "[" << std::to_string(i) << "]";
+
+							int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
+							m_ImmutableSamplers[location] = std::dynamic_pointer_cast<SamplerOpenGL>(samplers[i]);
+						}
+					}
+				}
 			});
 	}
 
@@ -260,6 +281,9 @@ namespace Nexus::Graphics
 				}
 			}
 		}
+
+		// immutable samplers
+		for (const auto &[location, sampler] : m_ImmutableSamplers) { sampler->Bind(location); }
 
 		// reset the resource queue
 		m_QueuedResources.Reset();
@@ -518,6 +542,12 @@ namespace Nexus::Graphics
 					texelBufferGL->Bind(bindingIndex);
 				}
 			}
+		}
+
+		// set up iummutable samplers
+		if (Ref<Pipeline> pipeline = m_Pipeline.lock())
+		{
+			const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 		}
 	}
 

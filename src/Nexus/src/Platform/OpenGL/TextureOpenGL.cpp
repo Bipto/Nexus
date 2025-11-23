@@ -63,7 +63,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level out of bounds");
 
 		size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
-		return m_TextureLayout[index];
+		return m_TextureLayout.at(index);
 	}
 
 	void TextureOpenGL::SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout)
@@ -75,7 +75,33 @@ namespace Nexus::Graphics
 		m_TextureLayout[index] = layout;
 	}
 
-	void TextureOpenGL::Bind(uint32_t slot)
+	SubresourceFootprint TextureOpenGL::GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const
+	{
+		SubresourceFootprint footprint = {};
+		size_t				 pixelSize = GetPixelFormatSizeInBytes(m_Description.Format);
+
+		GLint readbackAlignment = 0;
+		GLint uploadAlignment	= 0;
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				context.GetIntegerv(GL_PACK_ALIGNMENT, &readbackAlignment);
+				context.GetIntegerv(GL_UNPACK_ALIGNMENT, &uploadAlignment);
+
+				NX_ASSERT(readbackAlignment == uploadAlignment, "Mismatch between upload and readback alignment");
+			});
+
+		size_t			  alignedPixelSize = Utils::AlignTo<size_t>(pixelSize, readbackAlignment);
+		Point2D<uint32_t> mipSize		   = Utils::GetMipSize(m_Description.Width, m_Description.Height, mipLevel);
+
+		footprint.Size	   = static_cast<size_t>(mipSize.X) * static_cast<size_t>(mipSize.Y) * alignedPixelSize;
+		footprint.RowPitch = static_cast<size_t>(mipSize.X) * alignedPixelSize;
+		footprint.RowCount = mipSize.Y;
+
+		return footprint;
+	}
+
+	void TextureOpenGL::Bind(uint32_t slot) const
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -92,22 +118,22 @@ namespace Nexus::Graphics
 			});
 	}
 
-	uint32_t TextureOpenGL::GetHandle()
+	uint32_t TextureOpenGL::GetHandle() const
 	{
 		return m_Handle;
 	}
 
-	GLenum TextureOpenGL::GetTextureType()
+	GLenum TextureOpenGL::GetTextureType() const
 	{
 		return m_TextureType;
 	}
 
-	GLenum TextureOpenGL::GetDataFormat()
+	GLenum TextureOpenGL::GetDataFormat() const
 	{
 		return m_DataFormat;
 	}
 
-	GLenum TextureOpenGL::GetBaseType()
+	GLenum TextureOpenGL::GetBaseType() const
 	{
 		return m_BaseType;
 	}
@@ -115,8 +141,6 @@ namespace Nexus::Graphics
 	void TextureOpenGL::CreateTextureFacesDSA(const GladGLContext &context)
 	{
 		context.CreateTextures(m_TextureType, 1, &m_Handle);
-		context.PixelStorei(GL_PACK_ALIGNMENT, 1);
-		context.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
 		{
@@ -180,8 +204,6 @@ namespace Nexus::Graphics
 	{
 		glCall(context.GenTextures(1, &m_Handle));
 		glCall(context.BindTexture(m_TextureType, m_Handle));
-		glCall(context.PixelStorei(GL_PACK_ALIGNMENT, 1));
-		glCall(context.PixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
 		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
 		{

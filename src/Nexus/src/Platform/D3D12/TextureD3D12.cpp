@@ -53,6 +53,7 @@ namespace Nexus::Graphics
 
 			D3D12MA::ALLOCATION_DESC allocationDesc = {};
 			allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
+			allocationDesc.Flags					= D3D12MA::ALLOCATION_FLAG_COMMITTED;
 
 			Microsoft::WRL::ComPtr<D3D12MA::Allocator> allocator = device->GetAllocator();
 			hr													 = allocator
@@ -98,6 +99,7 @@ namespace Nexus::Graphics
 
 	TextureD3D12::~TextureD3D12()
 	{
+		ReleaseHandle(true);
 	}
 
 	TextureLayout TextureD3D12::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
@@ -116,6 +118,27 @@ namespace Nexus::Graphics
 
 		size_t index		   = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
 		m_TextureLayout[index] = layout;
+	}
+
+	SubresourceFootprint TextureD3D12::GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const
+	{
+		Microsoft::WRL::ComPtr<ID3D12Device9> device		   = m_Device->GetD3D12Device();
+		uint32_t							  subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, m_Description.MipLevels);
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedFootprint = {};
+		UINT							   numRows		   = {};
+		UINT64							   rowSizeInBytes  = {};
+		UINT64							   totalBytes	   = {};
+
+		D3D12_RESOURCE_DESC resourceDesc = m_Texture->GetDesc();
+		device->GetCopyableFootprints(&resourceDesc, subresourceIndex, 1, 0, &placedFootprint, &numRows, &rowSizeInBytes, &totalBytes);
+
+		SubresourceFootprint footprint = {};
+		footprint.Size				   = totalBytes;
+		footprint.RowPitch			   = placedFootprint.Footprint.RowPitch;
+		footprint.RowCount			   = numRows;
+
+		return footprint;
 	}
 
 	DXGI_FORMAT TextureD3D12::GetFormat()
@@ -145,6 +168,7 @@ namespace Nexus::Graphics
 		{
 			m_Texture.Reset();
 		}
+
 		if (m_Allocation)
 		{
 			m_Allocation.Reset();

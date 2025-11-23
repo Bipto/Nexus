@@ -15,8 +15,9 @@ namespace Nexus::Graphics
 		TextureD3D12(Microsoft::WRL::ComPtr<ID3D12Resource2> handle, const TextureDescription &spec, GraphicsDeviceD3D12 *device);
 		virtual ~TextureD3D12();
 
-		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
-		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
+		TextureLayout		 GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
+		void				 SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
+		SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const final;
 
 		DXGI_FORMAT GetFormat();
 

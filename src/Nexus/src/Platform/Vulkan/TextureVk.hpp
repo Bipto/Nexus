@@ -35,6 +35,8 @@ namespace Nexus::Graphics
 		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
 		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
 
+		SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const final;
+
 	  private:
 		GraphicsDeviceVk *m_GraphicsDevice = nullptr;
 		VkImage			  m_Image		   = VK_NULL_HANDLE;

@@ -426,14 +426,14 @@ namespace Nexus::Graphics
 					float scissorY = m_CurrentRenderTarget->GetWidth() - m_CurrentRenderTarget->GetHeight() - rect.Y;
 					glCall(context.Scissor(rect.X, scissorY, rect.Width, rect.Height));
 
-					float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+					float color[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
 					glCall(context.ClearBufferfv(GL_COLOR, command.Index, color));
 
 					glCall(context.Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]));
 				}
 				else
 				{
-					float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+					float color[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
 					glCall(context.ClearBufferfv(GL_COLOR, command.Index, color));
 				}
 			});

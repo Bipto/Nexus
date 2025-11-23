@@ -56,6 +56,13 @@ namespace Nexus::Graphics
 		VideoDecodeSource
 	};
 
+	struct SubresourceFootprint
+	{
+		size_t Size		= 0;
+		size_t RowPitch = 0;
+		size_t RowCount = 0;
+	};
+
 	struct TextureDescription
 	{
 		TextureType Type			   = TextureType::Texture2D;
@@ -137,6 +144,8 @@ namespace Nexus::Graphics
 		}
 
 		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
+
+		virtual SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
 
 	  protected:
 		TextureDescription m_Description = {};

@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 namespace Nexus::Utils
 {
 	NX_API glm::vec4 ColourFromRGBA(float r, float g, float b, float a);
-	NX_API glm::vec4 ColourFromBorderColor(Nexus::Graphics::BorderColor color);
+	NX_API glm::vec4 ColourFromBorderColor(Nexus::Graphics::BorderColour color);
 	NX_API glm::vec4 GenerateRandomColour();
 	NX_API uint32_t	 PackColour(const glm::vec4 &colour);
 
@@ -111,7 +111,7 @@ namespace Nexus::Utils
 		return hasher(input);
 	}
 
-	inline Point2D<uint32_t> GetMipSize(uint32_t baseWidth, uint32_t baseHeight, uint32_t level)
+	[[nodiscard]] inline Point2D<uint32_t> GetMipSize(uint32_t baseWidth, uint32_t baseHeight, uint32_t level)
 	{
 		uint32_t width	= baseWidth;
 		uint32_t height = baseHeight;
@@ -134,29 +134,28 @@ namespace Nexus::Utils
 
 	Ref<Graphics::IDeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledVertexBuffer(const void					 *data,
-														 size_t						  sizeInBytes,
-														 size_t						  strideInBytes,
-														 Graphics::IGraphicsDevice	 *device,
-														 Ref<Graphics::ICommandQueue> commandQueue);
-
-	Ref<Graphics::IDeviceBuffer> CreateFilledIndexBuffer(const void					*data,
-														size_t						 sizeInBytes,
-														size_t						 strideInBytes,
-														Graphics::IGraphicsDevice	*devic,
-														Ref<Graphics::ICommandQueue> commandQueuee);
-
-	Ref<Graphics::IDeviceBuffer> CreateFilledUniformBuffer(const void				  *data,
+	Ref<Graphics::IDeviceBuffer> CreateFilledVertexBuffer(const void				  *data,
 														  size_t					   sizeInBytes,
 														  size_t					   strideInBytes,
 														  Graphics::IGraphicsDevice	  *device,
 														  Ref<Graphics::ICommandQueue> commandQueue);
 
+	Ref<Graphics::IDeviceBuffer> CreateFilledIndexBuffer(const void					 *data,
+														 size_t						  sizeInBytes,
+														 size_t						  strideInBytes,
+														 Graphics::IGraphicsDevice	 *devic,
+														 Ref<Graphics::ICommandQueue> commandQueuee);
+
+	Ref<Graphics::IDeviceBuffer> CreateFilledUniformBuffer(const void				   *data,
+														   size_t						sizeInBytes,
+														   size_t						strideInBytes,
+														   Graphics::IGraphicsDevice   *device,
+														   Ref<Graphics::ICommandQueue> commandQueue);
+
 	template<typename T>
-	T AlignTo(T value, T alignment)
+	[[nodiscard]] T AlignTo(T value, T alignment)
 	{
-		// return std::ceil(value / alignment) * alignment;
-		return (value + (alignment / 2) / alignment) * alignment;
+		return ((value + alignment / 2) / alignment) * alignment;
 	}
 
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);

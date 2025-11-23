@@ -537,28 +537,28 @@ namespace Nexus::Graphics
 		BatchVertex v0;
 		v0.Position	 = a;
 		v0.TexCoords = {0.0f, 0.0f};
-		v0.Color	 = color;
+		v0.Colour	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
 		BatchVertex v1;
 		v1.Position	 = b;
 		v1.TexCoords = {tilingFactor, 0.0f};
-		v1.Color	 = color;
+		v1.Colour	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
 		BatchVertex v2;
 		v2.Position	 = c;
 		v2.TexCoords = {tilingFactor, tilingFactor};
-		v2.Color	 = color;
+		v2.Colour	 = color;
 		v2.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
 		BatchVertex v3;
 		v3.Position	 = d;
 		v3.TexCoords = {0.0f, tilingFactor};
-		v3.Color	 = color;
+		v3.Colour	 = color;
 		v3.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v3);
 
@@ -628,7 +628,7 @@ namespace Nexus::Graphics
 		BatchVertex v0;
 		v0.Position	 = worldVertices[0];
 		v0.TexCoords = {0.0f, 0.0f};
-		v0.Color	 = color;
+		v0.Colour	 = color;
 		v0.TexIndex	 = texIndex;
 		v0.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v0);
@@ -636,7 +636,7 @@ namespace Nexus::Graphics
 		BatchVertex v1;
 		v1.Position	 = worldVertices[1];
 		v1.TexCoords = {tilingFactor, 0.0f};
-		v1.Color	 = color;
+		v1.Colour	 = color;
 		v1.TexIndex	 = texIndex;
 		v1.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v1);
@@ -644,7 +644,7 @@ namespace Nexus::Graphics
 		BatchVertex v2;
 		v2.Position	 = worldVertices[2];
 		v2.TexCoords = {tilingFactor, tilingFactor};
-		v2.Color	 = color;
+		v2.Colour	 = color;
 		v2.TexIndex	 = texIndex;
 		v2.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v2);
@@ -652,7 +652,7 @@ namespace Nexus::Graphics
 		BatchVertex v3;
 		v3.Position	 = worldVertices[3];
 		v3.TexCoords = {0.0f, tilingFactor};
-		v3.Color	 = color;
+		v3.Colour	 = color;
 		v3.TexIndex	 = texIndex;
 		v3.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v3);
@@ -715,28 +715,28 @@ namespace Nexus::Graphics
 		BatchVertex v0;
 		v0.Position	 = a;
 		v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
-		v0.Color	 = color;
+		v0.Colour	 = color;
 		v0.TexIndex	 = texIndex;
 		info->Vertices.push_back(v0);
 
 		BatchVertex v1;
 		v1.Position	 = b;
 		v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
-		v1.Color	 = color;
+		v1.Colour	 = color;
 		v1.TexIndex	 = texIndex;
 		info->Vertices.push_back(v1);
 
 		BatchVertex v2;
 		v2.Position	 = c;
 		v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
-		v2.Color	 = color;
+		v2.Colour	 = color;
 		v2.TexIndex	 = texIndex;
 		info->Vertices.push_back(v2);
 
 		BatchVertex v3;
 		v3.Position	 = d;
 		v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
-		v3.Color	 = color;
+		v3.Colour	 = color;
 		v3.TexIndex	 = texIndex;
 		info->Vertices.push_back(v3);
 
@@ -826,28 +826,28 @@ namespace Nexus::Graphics
 		BatchVertex v0;
 		v0.Position	 = glm::vec3(q1, 0.0f);
 		v0.TexCoords = {0.0f, 0.0f};
-		v0.Color	 = color;
+		v0.Colour	 = color;
 		v0.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
 		BatchVertex v1;
 		v1.Position	 = glm::vec3(q2, 0.0f);
 		v1.TexCoords = {1.0f, 0.0f};
-		v1.Color	 = color;
+		v1.Colour	 = color;
 		v1.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
 		BatchVertex v2;
 		v2.Position	 = glm::vec3(q3, 0.0f);
 		v2.TexCoords = {1.0f, 1.0f};
-		v2.Color	 = color;
+		v2.Colour	 = color;
 		v2.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
 		BatchVertex v3;
 		v3.Position	 = glm::vec3(q4, 0.0f);
 		v3.TexCoords = {0.0f, 1.0f};
-		v3.Color	 = color;
+		v3.Colour	 = color;
 		v3.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v3);
 
@@ -1040,21 +1040,21 @@ namespace Nexus::Graphics
 		BatchVertex v0;
 		v0.Position	 = pos0;
 		v0.TexCoords = uv0;
-		v0.Color	 = color;
+		v0.Colour	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
 		BatchVertex v1;
 		v1.Position	 = pos1;
 		v1.TexCoords = uv1;
-		v1.Color	 = color;
+		v1.Colour	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
 		BatchVertex v2;
 		v2.Position	 = pos2;
 		v2.TexCoords = uv2;
-		v2.Color	 = color;
+		v2.Colour	 = color;
 		v2.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
