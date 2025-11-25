@@ -2,7 +2,9 @@
 
 #include "Nexus-Core/Application.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/FileSystem/File.hpp"
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
+#include "Nexus-Core/FileSystem/Path.hpp"
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Input/Events.hpp"
 #include "Nexus-Core/Input/Gamepad.hpp"
@@ -78,8 +80,19 @@ namespace Nexus::Platform
 	NX_API MouseState GetFocussedMouseState();
 	NX_API MouseState GetGlobalMouseState();
 
+	// filesystem
 	NX_API const char *GetRootPath();
 	NX_API const char *GetApplicationPath(const char *org, const char *app);
+	NX_API std::string GetCurrentExecutableDirectory();
+	NX_API std::string GetCurrentUserFolder(IO::UserFolder folder);
+
+	NX_API std::string CopyFileTo(const char *source, const char *destination, bool overwriteIfExists);
+	NX_API std::string CreateDirectoryAt(const char *path);
+	NX_API IO::PathInfo GetPathInfo(const char *path);
+	NX_API std::string RemovePath(const char *path);
+	NX_API std::string RenamePath(const char *oldPath, const char *newPath);
+
+	NX_API std::vector<std::string> EnumerateDirectoryContents(const char *path);
 
 	enum class DelayAccuracy
 	{
@@ -95,6 +108,7 @@ namespace Nexus::Platform
 	NX_API Threading::ConditionBase *CreateConditionBase();
 	NX_API Threading::SemaphoreBase *CreateSemaphoreBase(uint32_t startingValue);
 	NX_API Threading::ReadWriteLockBase *CreateReadWriteLockBase();
+	NX_API IO::FileStreamImpl *CreateFileStreamImpl(const std::filesystem::path &path, IO::FileMode fileMode);
 
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;

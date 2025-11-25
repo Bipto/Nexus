@@ -37,6 +37,10 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
+#include "Nexus-Core/FileSystem/Directory.hpp"
+#include "Nexus-Core/FileSystem/File.hpp"
+#include "Nexus-Core/FileSystem/Path.hpp"
+
 struct DemoInfo
 {
 	std::string Name;
@@ -314,7 +318,8 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	desc.GraphicsCreateInfo.Debug = true;
-	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
+
+	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
 	desc.WindowProperties.Width			   = 1280;
 	desc.WindowProperties.Height		   = 720;

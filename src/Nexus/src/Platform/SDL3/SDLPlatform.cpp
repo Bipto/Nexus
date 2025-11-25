@@ -2,6 +2,7 @@
 
 #include "FileDialogsSDL3.hpp"
 #include "SDL3Condition.hpp"
+#include "SDL3FileStream.hpp"
 #include "SDL3Include.hpp"
 #include "SDL3MessageBox.hpp"
 #include "SDL3Mutex.hpp"
@@ -759,6 +760,125 @@ namespace Nexus::Platform
 		return SDL_GetPrefPath(org, app);
 	}
 
+	std::string GetCurrentExecutableDirectory()
+	{
+		char	   *path	  = SDL_GetCurrentDirectory();
+		std::string directory = path;
+		SDL_free(path);
+		return directory;
+	}
+
+	static SDL_Folder GetUserFolderType(IO::UserFolder folder)
+	{
+		switch (folder)
+		{
+			case IO::UserFolder::Home: return SDL_FOLDER_HOME;
+			case IO::UserFolder::Desktop: return SDL_FOLDER_DESKTOP;
+			case IO::UserFolder::Documents: return SDL_FOLDER_DOCUMENTS;
+			case IO::UserFolder::Downloads: return SDL_FOLDER_DOWNLOADS;
+			case IO::UserFolder::Music: return SDL_FOLDER_MUSIC;
+			case IO::UserFolder::Pictures: return SDL_FOLDER_PICTURES;
+			case IO::UserFolder::PublicShare: return SDL_FOLDER_PUBLICSHARE;
+			case IO::UserFolder::SavedGames: return SDL_FOLDER_SAVEDGAMES;
+			case IO::UserFolder::Screenshots: return SDL_FOLDER_SCREENSHOTS;
+			case IO::UserFolder::Teplates: return SDL_FOLDER_TEMPLATES;
+			case IO::UserFolder::Videos: return SDL_FOLDER_VIDEOS;
+			default: throw std::runtime_error("Failed to find a valid user folder type");
+		}
+	}
+
+	std::string GetCurrentUserFolder(IO::UserFolder folder)
+	{
+		SDL_Folder sdlFolder = GetUserFolderType(folder);
+		return SDL_GetUserFolder(sdlFolder);
+	}
+
+	std::string CopyFileTo(const char *source, const char *destination, bool overwriteIfExists)
+	{
+		if (!SDL_CopyFile(source, destination))
+		{
+			return std::string(SDL_GetError());
+		}
+
+		return {};
+	}
+
+	std::string CreateDirectoryAt(const char *path)
+	{
+		if (!SDL_CreateDirectory(path))
+		{
+			return std::string(SDL_GetError());
+		}
+
+		return {};
+	}
+
+	IO::PathType GetPathTypeFromSDLPathType(SDL_PathType sdlType)
+	{
+		switch (sdlType)
+		{
+			case SDL_PATHTYPE_NONE: return IO::PathType::Invalid;
+			case SDL_PATHTYPE_FILE: return IO::PathType::File;
+			case SDL_PATHTYPE_DIRECTORY: return IO::PathType::Directory;
+			case SDL_PATHTYPE_OTHER: return IO::PathType::Other;
+			default: return IO::PathType::Invalid;
+		}
+	}
+
+	IO::PathInfo GetPathInfo(const char *path)
+	{
+		IO::PathInfo info = {};
+
+		SDL_PathInfo sdlPathInfo;
+		if (SDL_GetPathInfo(path, &sdlPathInfo))
+		{
+			info.Type		 = GetPathTypeFromSDLPathType(sdlPathInfo.type);
+			info.SizeInBytes = sdlPathInfo.size;
+			info.CreatedAt	 = DateTime::FromNanoseconds(sdlPathInfo.create_time);
+			info.ModifiedAt	 = DateTime::FromNanoseconds(sdlPathInfo.modify_time);
+			info.AccessedAt	 = DateTime::FromNanoseconds(sdlPathInfo.access_time);
+		}
+
+		return info;
+	}
+
+	std::string RemovePath(const char *path)
+	{
+		if (!SDL_RemovePath(path))
+		{
+			return std::string(SDL_GetError());
+		}
+
+		return {};
+	}
+
+	std::string RenamePath(const char *oldPath, const char *newPath)
+	{
+		if (!SDL_RenamePath(oldPath, newPath))
+		{
+			return std::string(SDL_GetError());
+		}
+
+		return {};
+	}
+
+	static SDL_EnumerationResult IterateDirectory(void *userdata, const char *dirname, const char *fname)
+	{
+		auto files = static_cast<std::vector<std::string> *>(userdata);
+
+		std::string fullpath = std::string(dirname) + "/" + std::string(fname);
+		files->push_back(fullpath);
+
+		return SDL_ENUM_CONTINUE;
+	}
+
+	NX_API std::vector<std::string> EnumerateDirectoryContents(const char *path)
+	{
+		std::vector<std::string> contents = {};
+		SDL_EnumerateDirectory(path, IterateDirectory, &contents);
+		return contents;
+	}
+
 	NX_API void Delay(TimeSpan timespan, DelayAccuracy accuracy)
 	{
 		switch (accuracy)
@@ -805,6 +925,11 @@ namespace Nexus::Platform
 	NX_API Threading::ReadWriteLockBase *CreateReadWriteLockBase()
 	{
 		return new Threading::SDL3ReadWriteLock();
+	}
+
+	NX_API IO::FileStreamImpl *CreateFileStreamImpl(const std::filesystem::path &path, IO::FileMode fileMode)
+	{
+		return new IO::FileStreamSDL3(path, fileMode);
 	}
 
 	std::optional<IWindow *> GetKeyboardFocus()

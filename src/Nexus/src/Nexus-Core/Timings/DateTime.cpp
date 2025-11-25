@@ -34,7 +34,7 @@ namespace Nexus
 
 	DayOfWeek DateTime::GetDayOfWeek() const
 	{
-		return (DayOfWeek)m_Timestamp.tm_wday;
+		return static_cast<DayOfWeek>(m_Timestamp.tm_wday + 1);
 	}
 
 	uint8_t DateTime::GetDayOfMonth() const
@@ -42,23 +42,24 @@ namespace Nexus
 		return m_Timestamp.tm_mday;
 	}
 
-	uint8_t DateTime::GetDayOfYear() const
+	uint16_t DateTime::GetDayOfYear() const
 	{
 		return m_Timestamp.tm_yday;
 	}
 
 	Month DateTime::GetMonth() const
 	{
-		return (Month)m_Timestamp.tm_mon;
+		return static_cast<Month>(m_Timestamp.tm_mon + 1);
 	}
 
 	uint16_t DateTime::GetYear() const
 	{
-		return m_Timestamp.tm_year;
+		// offset from epoch
+		return m_Timestamp.tm_year + 1900;
 	}
 
 	bool DateTime::IsDaylightSavingsTime() const
 	{
-		return m_Timestamp.tm_isdst;
+		return m_Timestamp.tm_isdst > 0;
 	}
 }	 // namespace Nexus

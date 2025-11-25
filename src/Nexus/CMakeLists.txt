@@ -67,6 +67,7 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/tracy)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/expected)
 
 #platform specific configurations
 if (WIN32)
@@ -250,7 +251,8 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   glm::glm
   imgui
   imguizmo
-  glad2)
+  glad2
+  tl::expected)
 
 #precompiled header
 #target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)

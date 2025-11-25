@@ -398,9 +398,15 @@ namespace Nexus::Utils
 
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime)
 	{
-		std::time_t seconds	 = nanoseconds / 1'000'000'000;
-		std::tm	   *timeInfo = localtime(&seconds);
-		memcpy(&outTime, timeInfo, sizeof(std::tm));
+		std::time_t seconds = nanoseconds / 1'000'000'000;
+
+#if defined(_WIN32)
+		// Windows secure version
+		gmtime_s(&outTime, &seconds);
+#else
+		// POSIX thread-safe version
+		gmtime_r(&seconds, &outTime);
+#endif
 	}
 
 	void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
