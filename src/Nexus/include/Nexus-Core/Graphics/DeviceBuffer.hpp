@@ -3,6 +3,8 @@
 #include "Nexus-Core/Vertex.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "DeviceAddress.hpp"
+
 #include "Nexus-Core/Utils/Utils.hpp"
 
 namespace Nexus::Graphics
@@ -88,6 +90,7 @@ namespace Nexus::Graphics
 		}
 		virtual void			  SetData(const void *data, uint32_t offset, uint32_t size) = 0;
 		virtual std::vector<char> GetData(uint32_t offset, uint32_t size) const				= 0;
+		virtual DeviceAddress	  GetDeviceAddress(size_t offset) const						= 0;
 
 		virtual const DeviceBufferDescription &GetDescription() const = 0;
 

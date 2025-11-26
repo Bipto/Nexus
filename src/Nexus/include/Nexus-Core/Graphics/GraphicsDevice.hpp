@@ -26,6 +26,8 @@
 #include "TimingQuery.hpp"
 #include "Viewport.hpp"
 
+#include "DeviceAddress.hpp"
+
 #include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 
 namespace Nexus::Graphics

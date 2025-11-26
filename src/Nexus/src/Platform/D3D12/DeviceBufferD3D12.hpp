@@ -9,14 +9,15 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceD3D12;
 
-	class DeviceBufferD3D12 : public IDeviceBuffer
+	class DeviceBufferD3D12 final : public IDeviceBuffer
 	{
 	  public:
 		DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice);
 		virtual ~DeviceBufferD3D12();
-		virtual void						   SetData(const void *data, uint32_t offset, uint32_t size) final;
-		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
-		virtual const DeviceBufferDescription &GetDescription() const final;
+		void						   SetData(const void *data, uint32_t offset, uint32_t size) final;
+		std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
+		const DeviceBufferDescription &GetDescription() const final;
+		DeviceAddress				   GetDeviceAddress(size_t offset) const final;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
 		size_t									GetBufferSizeInBytes();

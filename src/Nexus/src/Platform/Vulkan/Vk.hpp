@@ -70,16 +70,16 @@ namespace Nexus::Vk
 	VkGeometryTypeKHR					   GetAccelerationStructureGeometryType(Graphics::GeometryType type);
 	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
 	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry);
-	VkDeviceOrHostAddressKHR			   GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address);
-	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address);
 	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
 	VkPresentModeKHR					   GetVulkanPresentMode(Graphics::PresentMode presentMode);
 
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
 		const Graphics::AccelerationStructureGeometryBuildDescription &description);
+
 	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
 																	 const std::vector<VkAccelerationStructureGeometryKHR>		   &geometry);
-	VkAccelerationStructureBuildRangeInfoKHR	GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range);
+
+	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range);
 
 	struct VulkanRenderPassDescription
 	{

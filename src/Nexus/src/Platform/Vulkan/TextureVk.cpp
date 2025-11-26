@@ -206,7 +206,7 @@ namespace Nexus::Graphics
 		VkImageSubresource subresourceInfo = {};
 		subresourceInfo.arrayLayer		   = arrayLayer;
 		subresourceInfo.mipLevel		   = mipLevel;
-		subresourceInfo.aspectMask		   = isDepth ? VK_IMAGE_ASPECT_COLOR_BIT : VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		subresourceInfo.aspectMask		   = isDepth ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 
 		VkSubresourceLayout subresourceLayout = {};
 

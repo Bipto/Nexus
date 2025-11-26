@@ -91,6 +91,11 @@ namespace Nexus::Graphics
 		return m_BufferDescription;
 	}
 
+	DeviceAddress DeviceBufferOpenGL::GetDeviceAddress(size_t offset) const
+	{
+		return 0 + offset;
+	}
+
 	uint32_t DeviceBufferOpenGL::GetHandle() const
 	{
 		return m_BufferHandle;

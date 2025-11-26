@@ -109,6 +109,13 @@ namespace Nexus::Graphics
 		return m_BufferDescription;
 	}
 
+	DeviceAddress DeviceBufferD3D12::GetDeviceAddress(size_t offset) const
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS address = m_BufferHandle->GetGPUVirtualAddress();
+		address += offset;
+		return address;
+	}
+
 	Microsoft::WRL::ComPtr<ID3D12Resource2> DeviceBufferD3D12::GetHandle()
 	{
 		return m_BufferHandle;

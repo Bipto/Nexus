@@ -1,28 +1,11 @@
 #pragma once
 
+#include "DeviceBuffer.hpp"
 #include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 
 namespace Nexus::Graphics
 {
 	class IAccelerationStructure;
-
-	struct DeviceBufferAddress
-	{
-		Ref<IDeviceBuffer> Buffer = nullptr;
-		size_t			  Offset = 0;
-	};
-
-	struct AccelerationStructureAddress
-	{
-		Ref<IAccelerationStructure> AccelerationStructure = nullptr;
-		size_t						Offset				  = 0;
-	};
-
-	enum class DeviceBufferOrHostAddressType
-	{
-		IDeviceBuffer,
-		HostAddress
-	};
 
 	enum class AccelerationStructureType
 	{
@@ -55,27 +38,46 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureTriangleGeometry
 	{
-		DeviceBufferAddress VertexBuffer;
-		VertexFormat		VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
-		size_t				VertexBufferStride = 0;
-		size_t				VertexCount		   = 0;
-		DeviceBufferAddress IndexBuffer;
-		IndexFormat			IndexBufferFormat = IndexFormat::UInt32;
-		DeviceBufferAddress TransformBuffer;
+		DeviceAddress VertexBuffer;
+		VertexFormat  VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
+		size_t		  VertexBufferStride = 0;
+		size_t		  VertexCount		 = 0;
+		DeviceAddress IndexBuffer;
+		IndexFormat	  IndexBufferFormat = IndexFormat::UInt32;
+		DeviceAddress TransformBuffer;
 	};
 
 	struct AccelerationStructureAABBGeometry
 	{
-		size_t				AABBCount = 0;
-		DeviceBufferAddress AABBs;
-		size_t				Stride = 0;
+		size_t		  AABBCount = 0;
+		DeviceAddress AABBs		= {};
+		size_t		  Stride	= 0;
+	};
+
+	enum AccelerationStructureGeometryInstanceFlags : uint8_t
+	{
+		NoFlags					  = 0,
+		TriangleFacingCullDisable = 0x00000001,
+		TriangleFlipFacing		  = 0x00000002,
+		ForceOpaque				  = 0x00000004,
+		ForceNoOpaque			  = 0x00000008
+	};
+
+	struct AccelerationStructureInstance
+	{
+		glm::mat3x4	  Transform								 = {};
+		uint32_t	  InstanceCustomIndex					 = 0;
+		uint32_t	  Mask									 = 0;
+		uint32_t	  InstanceShaderBindingTableRecordOffset = 0;
+		uint8_t		  Flags									 = AccelerationStructureGeometryInstanceFlags::NoFlags;
+		DeviceAddress AccelerationStructureReference		 = 0;
 	};
 
 	struct AccelerationStructureInstanceGeometry
 	{
-		DeviceBufferAddress InstanceBuffer;
-		size_t				Stride			= 0;
-		bool				ArrayOfPointers = false;
+		DeviceAddress InstanceBuffer;
+		size_t		  Stride		  = 0;
+		bool		  ArrayOfPointers = false;
 	};
 
 	enum AccelerationStructureGeometryFlags : uint8_t
@@ -143,7 +145,7 @@ namespace Nexus::Graphics
 		AccelerationStructureBuildMode						  Mode			  = AccelerationStructureBuildMode::Build;
 		Ref<IAccelerationStructure>							  Source;
 		Ref<IAccelerationStructure>							  Destination;
-		DeviceBufferAddress									  ScratchBuffer;
+		DeviceAddress										  ScratchBuffer;
 	};
 
 	struct AccelerationStructureBuildDescription
@@ -154,22 +156,22 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureCopyDescription
 	{
-		AccelerationStructureAddress  Source;
+		DeviceAddress				  Source;
 		AccelerationStructureCopyMode Mode = AccelerationStructureCopyMode::Clone;
 	};
 
 	struct AccelerationStructureDeviceBufferCopyDescription
 	{
-		AccelerationStructureAddress  Source;
-		DeviceBufferAddress			  Destination;
+		DeviceAddress				  Source;
+		DeviceAddress				  Destination;
 		size_t						  WriteOffset = 0;
 		AccelerationStructureCopyMode Mode		  = AccelerationStructureCopyMode::Clone;
 	};
 
 	struct DeviceBufferAccelerationStructureCopyDescription
 	{
-		DeviceBufferAddress			  Source	  = {};
-		AccelerationStructureAddress  Destination = {};
+		DeviceAddress				  Source	  = {};
+		DeviceAddress				  Destination = {};
 		size_t						  ReadOffset  = 0;
 		AccelerationStructureCopyMode Mode		  = AccelerationStructureCopyMode::Clone;
 	};
@@ -188,7 +190,8 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual const AccelerationStructureDescription &GetDescription() const = 0;
+		virtual const AccelerationStructureDescription &GetDescription() const				  = 0;
+		virtual DeviceAddress							GetDeviceAddress(size_t offset) const = 0;
 	};
 
 }	 // namespace Nexus::Graphics

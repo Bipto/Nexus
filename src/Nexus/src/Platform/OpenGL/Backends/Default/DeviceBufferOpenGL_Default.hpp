@@ -2,21 +2,22 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Platform/OpenGL/GL.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "Platform/OpenGL/GL.hpp"
 
 namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class DeviceBufferOpenGL : public IDeviceBuffer
+	class DeviceBufferOpenGL final : public IDeviceBuffer
 	{
 	  public:
 		DeviceBufferOpenGL(const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device);
 		virtual ~DeviceBufferOpenGL();
-		virtual void						   SetData(const void *data, uint32_t offset, uint32_t size) final;
-		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
-		virtual const DeviceBufferDescription &GetDescription() const final;
+		void						   SetData(const void *data, uint32_t offset, uint32_t size) final;
+		std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
+		const DeviceBufferDescription &GetDescription() const final;
+		DeviceAddress				   GetDeviceAddress(size_t offset) const final;
 
 		uint32_t GetHandle() const;
 

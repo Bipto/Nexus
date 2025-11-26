@@ -121,7 +121,6 @@ class DemoApplication : public Nexus::Application
 		}
 
 		RegisterDemo<Demos::RayTracingDemo>("Graphics", "Ray Tracing");
-
 		RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
 		RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
 		RegisterDemo<Demos::Splines>("Utils", "Splines");
@@ -316,7 +315,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationDescription desc;
 
-	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	desc.GraphicsCreateInfo.Debug = true;
 
 	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

@@ -1022,7 +1022,7 @@ namespace Nexus::Graphics
 		{
 			// validate that required members have been filled in correctly
 			NX_VALIDATE(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
-			NX_VALIDATE(buildGeometryInfo.ScratchBuffer.Buffer, "Acceleration structure build must have a scratch buffer");
+			NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
 
 			if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
 			{
@@ -1031,6 +1031,7 @@ namespace Nexus::Graphics
 
 			// create a new vector to hold the information for the individual build
 			std::vector<VkAccelerationStructureGeometryKHR> &accelerationStructureGeometry = accelerationStructureGeometries.emplace_back();
+			accelerationStructureGeometry = Vk::GetVulkanAccelerationStructureGeometries(buildGeometryInfo);
 
 			// create the new build description
 			buildGeometries.push_back(Vk::GetGeometryBuildInfo(buildGeometryInfo, accelerationStructureGeometry));
@@ -1042,11 +1043,12 @@ namespace Nexus::Graphics
 			for (const auto &buildRange : buildRangeInfos) { geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(buildRange)); }
 		}
 
+		std::vector<const VkAccelerationStructureBuildRangeInfoKHR *> buildRangePtrs;
+		buildRangePtrs.reserve(buildRanges.size());
+		for (const auto &range : buildRanges) { buildRangePtrs.push_back(range.data()); }
+
 		// execute the acceleration structure build
-		context.CmdBuildAccelerationStructuresKHR(m_CommandBuffer,
-												  command.BuildDescriptions.size(),
-												  buildGeometries.data(),
-												  (const VkAccelerationStructureBuildRangeInfoKHR *const *)buildRanges.data());
+		context.CmdBuildAccelerationStructuresKHR(m_CommandBuffer, command.BuildDescriptions.size(), buildGeometries.data(), buildRangePtrs.data());
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)

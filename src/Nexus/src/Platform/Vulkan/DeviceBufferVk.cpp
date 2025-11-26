@@ -1,5 +1,6 @@
 #include "DeviceBufferVk.hpp"
 
+#include "AccelerationStructureVk.hpp"
 #include "GraphicsDeviceVk.hpp"
 
 namespace Nexus::Graphics
@@ -65,12 +66,28 @@ namespace Nexus::Graphics
 		return m_BufferDescription;
 	}
 
+	DeviceAddress DeviceBufferVk::GetDeviceAddress(size_t offset) const
+	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		if (context.GetBufferDeviceAddressKHR)
+		{
+			VkBufferDeviceAddressInfo info = {};
+			info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+			info.pNext					   = nullptr;
+			info.buffer					   = m_Buffer.Buffer;
+
+			return context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info) + offset;
+		}
+
+		return {};
+	}
+
 	VkBuffer DeviceBufferVk::GetVkBuffer() const
 	{
 		return m_Buffer.Buffer;
 	}
 
-	VkDeviceAddress DeviceBufferVk::GetDeviceAddress() const
+	VkDeviceAddress DeviceBufferVk::GetVkDeviceAddress() const
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 		if (context.GetBufferDeviceAddressKHR)
@@ -85,4 +102,5 @@ namespace Nexus::Graphics
 
 		return {};
 	}
+
 }	 // namespace Nexus::Graphics
