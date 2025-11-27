@@ -479,9 +479,11 @@ namespace Nexus::Graphics
 			return PipelineType::RayTracing;
 		}
 
+		virtual std::vector<uint8_t> GetRayTracingShaderGroupHandles() const = 0;
+
 		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
-			return {};
+			return m_Description.Shaders;
 		}
 
 	  protected:

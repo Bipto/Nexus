@@ -759,6 +759,10 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
 	}

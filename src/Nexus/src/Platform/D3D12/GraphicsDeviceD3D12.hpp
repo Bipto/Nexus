@@ -85,6 +85,7 @@ namespace Nexus::Graphics
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
 		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
 																					const std::vector<uint32_t> &primitiveCounts) const final;
+		RayTracingDeviceDescription				  GetRayTracingDeviceDescription() const final;
 
 		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 

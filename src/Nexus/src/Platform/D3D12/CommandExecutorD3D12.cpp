@@ -706,6 +706,10 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
 		Ref<IFramebuffer> framebuffer = command.TargetFramebuffer;

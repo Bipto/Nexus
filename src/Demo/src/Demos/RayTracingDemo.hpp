@@ -211,6 +211,17 @@ namespace Demos
 				m_GraphicsDevice->WaitForIdle();
 			}
 
+			// storage texture
+			{
+				Nexus::Graphics::TextureDescription textureDesc = {};
+				textureDesc.Width								= 1920;
+				textureDesc.Height								= 1080;
+				textureDesc.DepthOrArrayLayers					= 1;
+				textureDesc.DebugName							= "Ray Tracing Output Image";
+				textureDesc.Usage								= Nexus::Graphics::TextureUsage_Storage;
+				m_StorageTexture								= m_GraphicsDevice->CreateTexture(textureDesc);
+			}
+
 			// Pipeline
 			{
 				Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
@@ -222,15 +233,30 @@ namespace Demos
 					m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/closesthit.rchit",
 																	  Nexus::Graphics::ShaderStage::RayClosestHit));
 
-				Nexus::Graphics::ShaderGroup shaderGroup = {};
-				shaderGroup.Type						 = Nexus::Graphics::ShaderGroupType::General;
-				shaderGroup.GeneralShader				 = 0;
-				shaderGroup.ClosestHitShader			 = 2;
-				shaderGroup.AnyHitShader				 = NX_SHADER_UNUSED;
-				shaderGroup.IntersectionShader			 = NX_SHADER_UNUSED;
-				pipelineDesc.ShaderGroups				 = {shaderGroup};
+				Nexus::Graphics::ShaderGroup rayGenGroup = {};
+				rayGenGroup.Type						 = Nexus::Graphics::ShaderGroupType::General;
+				rayGenGroup.GeneralShader				 = 0;
+				rayGenGroup.ClosestHitShader			 = NX_SHADER_UNUSED;
+				rayGenGroup.AnyHitShader				 = NX_SHADER_UNUSED;
+				rayGenGroup.IntersectionShader			 = NX_SHADER_UNUSED;
 
-				pipelineDesc.MaxRecursionDepth				 = 2;
+				Nexus::Graphics::ShaderGroup missGroup = {};
+				missGroup.Type						   = Nexus::Graphics::ShaderGroupType::General;
+				missGroup.GeneralShader				   = 1;
+				missGroup.ClosestHitShader			   = NX_SHADER_UNUSED;
+				missGroup.AnyHitShader				   = NX_SHADER_UNUSED;
+				missGroup.IntersectionShader		   = NX_SHADER_UNUSED;
+
+				Nexus::Graphics::ShaderGroup hitGroup = {};
+				hitGroup.Type						  = Nexus::Graphics::ShaderGroupType::Triangles;
+				hitGroup.GeneralShader				  = NX_SHADER_UNUSED;
+				hitGroup.ClosestHitShader			  = 2;
+				hitGroup.AnyHitShader				  = NX_SHADER_UNUSED;
+				hitGroup.IntersectionShader			  = NX_SHADER_UNUSED;
+
+				pipelineDesc.ShaderGroups = {rayGenGroup, missGroup, hitGroup};
+
+				pipelineDesc.MaxRecursionDepth				 = 1;
 				pipelineDesc.DebugName						 = "Ray Tracing Pipeline";
 				pipelineDesc.ResourceDescription.Descriptors = {
 					Nexus::Graphics::ResourceDescriptor {.Name				 = "outputImage",
@@ -241,6 +267,56 @@ namespace Demos
 														 .CountOrSizeInBytes = 1}};
 
 				m_Pipeline = m_GraphicsDevice->CreateRayTracingPipeline(pipelineDesc);
+
+				m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+				m_ResourceSet->WriteAccelerationStructure(m_TLAS, "topLevelAS");
+
+				Nexus::Graphics::StorageImageView storageImageView = {};
+				storageImageView.TextureHandle					   = m_StorageTexture;
+				storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
+				storageImageView.ArrayLayer						   = 0;
+				storageImageView.MipLevel						   = 0;
+				m_ResourceSet->WriteStorageImage(storageImageView, "outputImage");
+
+				m_ResourceSet->Flush();
+			}
+
+			// SBT
+			{
+				Nexus::Graphics::RayTracingDeviceDescription deviceRayTracingDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
+				uint32_t									 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;
+				uint32_t									 handleAlignment	  = deviceRayTracingDesc.ShaderGroupBaseAlignment;
+
+				std::vector<uint8_t> handles = m_Pipeline->GetRayTracingShaderGroupHandles();
+
+				Nexus::Graphics::DeviceBufferDescription sbtDesc = {};
+				// group count is 3: raygen, miss, hit. This is multiplied by handle alignment to ensure proper spacing
+				sbtDesc.SizeInBytes	  = 3 * handleAlignment;
+				sbtDesc.StrideInBytes = handleSize;
+				sbtDesc.Access		  = Nexus::Graphics::BufferMemoryAccess::Default;
+				sbtDesc.Flags		  = Nexus::Graphics::BufferCreateFlags_None;
+				sbtDesc.Usage		  = Nexus::Graphics::BufferUsage::BufferUsage_ShaderBindingTable;
+				sbtDesc.DebugName	  = "SBT";
+				m_SBT				  = m_GraphicsDevice->CreateDeviceBuffer(sbtDesc);
+
+				// ray gen
+				const size_t raygenIndex = 0;
+				m_CommandQueue->WriteToBuffer(m_SBT, handles.data() + (handleSize * raygenIndex), (handleAlignment * raygenIndex), handleAlignment);
+
+				// miss
+				const size_t missIndex = (1);
+				m_CommandQueue->WriteToBuffer(m_SBT, handles.data() + (handleSize * missIndex), (handleAlignment * missIndex), handleAlignment);
+
+				// closest hit
+				const size_t hitIndex = (2);
+				m_CommandQueue->WriteToBuffer(m_SBT, handles.data() + (handleSize * hitIndex), (handleAlignment * hitIndex), handleAlignment);
+
+				m_RaygenRegion = {.Address = m_SBT->GetDeviceAddress(handleAlignment * raygenIndex),
+								  .Stride  = handleAlignment,
+								  .Size	   = handleAlignment};
+				m_MissRegion = {.Address = m_SBT->GetDeviceAddress(handleAlignment * missIndex), .Stride = handleAlignment, .Size = handleAlignment};
+				m_HitRegion	 = {.Address = m_SBT->GetDeviceAddress(handleAlignment * hitIndex), .Stride = handleAlignment, .Size = handleAlignment};
+				m_CallableRegion = {.Address = 0, .Stride = 0, .Size = 0};
 			}
 		}
 
@@ -261,7 +337,24 @@ namespace Demos
 
 			{
 				NX_PROFILE_SCOPE("Command submission");
-				m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+				m_CommandList->Begin();
+				m_CommandList->SetPipeline(m_Pipeline);
+				m_CommandList->SetResourceSet({.TargetResourceSet = m_ResourceSet, .DynamicOffsets = {}});
+
+				Nexus::Graphics::TraceRaysDescription traceRaysDesc = {};
+				traceRaysDesc.RaygenRegion							= m_RaygenRegion;
+				traceRaysDesc.MissRegion							= m_MissRegion;
+				traceRaysDesc.HitRegion								= m_HitRegion;
+				traceRaysDesc.CallableRegion						= m_CallableRegion;
+				traceRaysDesc.Width									= m_StorageTexture->GetWidth();
+				traceRaysDesc.Height								= m_StorageTexture->GetHeight();
+				traceRaysDesc.Depth									= 1;
+				m_CommandList->TraceRays(traceRaysDesc);
+
+				m_CommandList->End();
+
+				m_CommandQueue->SubmitCommandList(m_CommandList);
 				m_GraphicsDevice->WaitForIdle();
 			}
 		}
@@ -290,7 +383,16 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>			m_TLASBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::IAccelerationStructure> m_TLAS		 = nullptr;
 
-		Nexus ::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline = nullptr;
+		Nexus::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>		 m_SBT		   = nullptr;
+		Nexus::Ref<Nexus::Graphics::IResourceSet>		 m_ResourceSet = nullptr;
+
+		Nexus::Graphics::StridedDeviceAddressRegion m_RaygenRegion	 = {};
+		Nexus::Graphics::StridedDeviceAddressRegion m_MissRegion	 = {};
+		Nexus::Graphics::StridedDeviceAddressRegion m_HitRegion		 = {};
+		Nexus::Graphics::StridedDeviceAddressRegion m_CallableRegion = {};
+
+		Nexus::Ref<Nexus::Graphics::ITexture> m_StorageTexture = nullptr;
 
 	};	  // namespace Demos
 }	 // namespace Demos

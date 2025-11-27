@@ -92,8 +92,9 @@ namespace Nexus::Graphics
 	  public:
 		RayTracingPipelineVk(const RayTracingPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		virtual ~RayTracingPipelineVk();
-		void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-		void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
+		void				 Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		void				 SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
+		std::vector<uint8_t> GetRayTracingShaderGroupHandles() const final;
 
 	  private:
 		VkPipeline		  m_Pipeline	   = {};

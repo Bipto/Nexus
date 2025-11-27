@@ -214,6 +214,20 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
+	void ICommandList::TraceRays(const TraceRaysDescription &desc)
+	{
+		NX_PROFILE_FUNCTION();
+
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		m_Commands.push_back(desc);
+	}
+
 	void ICommandList::SetResourceSet(const ResourceSetBindingDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
@@ -309,9 +323,9 @@ namespace Nexus::Graphics
 		}
 
 		ClearColorTargetCommand command;
-		command.Index = index;
+		command.Index  = index;
 		command.Colour = color;
-		command.Rect  = clearRect;
+		command.Rect   = clearRect;
 		m_Commands.push_back(command);
 	}
 
@@ -327,9 +341,9 @@ namespace Nexus::Graphics
 		}
 
 		ClearColorTargetCommand command;
-		command.Index = index;
+		command.Index  = index;
 		command.Colour = color;
-		command.Rect  = std::nullopt;
+		command.Rect   = std::nullopt;
 		m_Commands.push_back(command);
 	}
 

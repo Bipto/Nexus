@@ -642,6 +642,14 @@ namespace Nexus::Vk
 			}
 		}
 
+		if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+		{
+			if (desc.Usage & Graphics::BufferUsage_ShaderBindingTable)
+			{
+				flags |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+			}
+		}
+
 		if (device->IsVersionGreaterThan(VK_VERSION_1_2) || device->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;

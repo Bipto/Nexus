@@ -56,9 +56,10 @@ namespace Nexus::Graphics
 		BufferUsage_Indirect								= BIT(4),
 		BufferUsage_AccelerationStructureStorage			= BIT(5),
 		BufferUsage_AccelerationStructureBuildInputReadOnly = BIT(6),
-		BufferUsage_TransformFeedback						= BIT(7),
-		BufferUsage_TexelUniform							= BIT(8),
-		BufferUsage_TexelStorage							= BIT(9)
+		BufferUsage_ShaderBindingTable						= BIT(7),
+		BufferUsage_TransformFeedback						= BIT(8),
+		BufferUsage_TexelUniform							= BIT(9),
+		BufferUsage_TexelStorage							= BIT(10)
 	};
 
 	struct DeviceBufferDescription

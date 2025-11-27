@@ -713,6 +713,34 @@ namespace Nexus::Graphics
 														  .BuildScratchSize			 = buildSizes.buildScratchSize};
 	}
 
+	RayTracingDeviceDescription GraphicsDeviceVk::GetRayTracingDeviceDescription() const
+	{
+		RayTracingDeviceDescription description = {};
+
+		if (m_Context.GetPhysicalDeviceProperties2)
+		{
+			VkPhysicalDeviceRayTracingPipelinePropertiesKHR rayTracingProps = {};
+			rayTracingProps.sType											= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
+
+			VkPhysicalDeviceProperties2 props2 = {};
+			props2.sType					   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+			props2.pNext					   = &rayTracingProps;
+
+			m_Context.GetPhysicalDeviceProperties2(m_PhysicalDevice->GetVkPhysicalDevice(), &props2);
+
+			description.ShaderGroupHandleSize			   = rayTracingProps.shaderGroupHandleSize;
+			description.MaxRayRecursionDepth			   = rayTracingProps.maxRayRecursionDepth;
+			description.MaxShaderGroupStride			   = rayTracingProps.maxShaderGroupStride;
+			description.ShaderGroupBaseAlignment		   = rayTracingProps.shaderGroupBaseAlignment;
+			description.ShaderGroupHandleCaptureReplaySize = rayTracingProps.shaderGroupHandleCaptureReplaySize;
+			description.MaxRayDispatchInvocationCount	   = rayTracingProps.maxRayDispatchInvocationCount;
+			description.ShaderGroupHandleAlignment		   = rayTracingProps.shaderGroupHandleAlignment;
+			description.MaxRayHitAttributeSize			   = rayTracingProps.maxRayHitAttributeSize;
+		}
+
+		return description;
+	}
+
 	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const
 	{
 		return m_PhysicalDevice->IsExtensionSupported(extension);

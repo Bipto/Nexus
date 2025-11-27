@@ -354,6 +354,8 @@ namespace Nexus::Graphics
 																 &m_Pipeline) == VK_SUCCESS,
 							"Failed to create ray tracing pipeline");
 			}
+
+			graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, m_Description.DebugName.c_str());
 		}
 	}
 
@@ -386,6 +388,26 @@ namespace Nexus::Graphics
 		{
 			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, desc.DynamicOffsets);
 		}
+	}
+
+	std::vector<uint8_t> RayTracingPipelineVk::GetRayTracingShaderGroupHandles() const
+	{
+		RayTracingDeviceDescription rayTracingDeviceDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
+		std::vector<uint8_t>		handles(m_Description.ShaderGroups.size() * rayTracingDeviceDesc.ShaderGroupHandleSize);
+
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
+		if (context.GetRayTracingShaderGroupHandlesKHR)
+		{
+			context.GetRayTracingShaderGroupHandlesKHR(m_GraphicsDevice->GetVkDevice(),
+													   m_Pipeline,
+													   0,
+													   m_Description.ShaderGroups.size(),
+													   handles.size(),
+													   handles.data());
+		}
+
+		return handles;
 	}
 }	 // namespace Nexus::Graphics
 

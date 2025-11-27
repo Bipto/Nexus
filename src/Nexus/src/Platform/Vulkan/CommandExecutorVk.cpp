@@ -1375,6 +1375,32 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorVk::ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)
+	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+		if (context.CmdTraceRaysKHR)
+		{
+			VkStridedDeviceAddressRegionKHR raygenRegion = {.deviceAddress = desc.RaygenRegion.Address,
+															.stride		   = desc.RaygenRegion.Stride,
+															.size		   = desc.RaygenRegion.Size};
+
+			VkStridedDeviceAddressRegionKHR missRegion = {.deviceAddress = desc.MissRegion.Address,
+														  .stride		 = desc.MissRegion.Stride,
+														  .size			 = desc.MissRegion.Size};
+
+			VkStridedDeviceAddressRegionKHR hitRegion = {.deviceAddress = desc.HitRegion.Address,
+														 .stride		= desc.HitRegion.Stride,
+														 .size			= desc.HitRegion.Size};
+
+			VkStridedDeviceAddressRegionKHR callableRegion = {.deviceAddress = desc.CallableRegion.Address,
+															  .stride		 = desc.CallableRegion.Stride,
+															  .size			 = desc.CallableRegion.Size};
+
+			context.CmdTraceRaysKHR(m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, desc.Width, desc.Height, desc.Depth);
+		}
+	}
+
 	void CommandExecutorVk::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
 	}

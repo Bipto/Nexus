@@ -32,6 +32,18 @@
 
 namespace Nexus::Graphics
 {
+	struct RayTracingDeviceDescription
+	{
+		uint32_t ShaderGroupHandleSize				= 0;
+		uint32_t MaxRayRecursionDepth				= 0;
+		uint32_t MaxShaderGroupStride				= 0;
+		uint32_t ShaderGroupBaseAlignment			= 0;
+		uint32_t ShaderGroupHandleCaptureReplaySize = 0;
+		uint32_t MaxRayDispatchInvocationCount		= 0;
+		uint32_t ShaderGroupHandleAlignment			= 0;
+		uint32_t MaxRayHitAttributeSize				= 0;
+	};
+
 	/// @brief A class representing an abstraction over a graphics API
 	class NX_API IGraphicsDevice
 	{
@@ -159,6 +171,8 @@ namespace Nexus::Graphics
 		virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
 			const AccelerationStructureGeometryBuildDescription &description,
 			const std::vector<uint32_t>							&primitiveCount) const = 0;
+
+		virtual RayTracingDeviceDescription GetRayTracingDeviceDescription() const = 0;
 
 	  private:
 		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;

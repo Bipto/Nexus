@@ -418,6 +418,17 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
 	};
 
+	struct TraceRaysDescription
+	{
+		StridedDeviceAddressRegion RaygenRegion	  = {};
+		StridedDeviceAddressRegion MissRegion	  = {};
+		StridedDeviceAddressRegion HitRegion	  = {};
+		StridedDeviceAddressRegion CallableRegion = {};
+		uint32_t				   Width		  = 0;
+		uint32_t				   Height		  = 0;
+		uint32_t				   Depth		  = 0;
+	};
+
 	struct ResourceSetBindingDescription
 	{
 		Ref<IResourceSet>							 TargetResourceSet = nullptr;
@@ -561,6 +572,7 @@ namespace Nexus::Graphics
 						 MemoryBarrierDesc,
 						 TextureBarrierDesc,
 						 BufferBarrierDesc,
+						 TraceRaysDescription,
 						 EndRenderingCommand>
 		RenderCommandData;
 
@@ -622,6 +634,8 @@ namespace Nexus::Graphics
 		void DrawMesh(const DrawMeshDescription &desc);
 
 		void DrawMeshIndirect(const DrawMeshIndirectDescription &desc);
+
+		void TraceRays(const TraceRaysDescription &desc);
 
 		void SetResourceSet(const ResourceSetBindingDescription &desc);
 
