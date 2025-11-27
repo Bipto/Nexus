@@ -180,12 +180,13 @@ namespace Nexus::Vk
 
 	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description);
 
-	VkAccessFlagBits		 GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
-	VkPipelineStageFlagBits	 GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
-	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
-	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
-	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
-	VkImageViewType			 GetImageViewType(const Graphics::TextureViewDescription &desc);
+	VkAccessFlagBits			   GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
+	VkPipelineStageFlagBits		   GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkAccessFlagBits2			   GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
+	VkPipelineStageFlagBits2	   GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkImageLayout				   GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
+	VkImageViewType				   GetImageViewType(const Graphics::TextureViewDescription &desc);
+	VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(Graphics::ShaderGroupType type);
 
 	void BindDescriptorSets(const GladVulkanContext &context,
 							VkCommandBuffer			 commandBuffer,

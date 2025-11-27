@@ -2552,6 +2552,17 @@ namespace Nexus::Vk
 		}
 	}
 
+	VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(Graphics::ShaderGroupType type)
+	{
+		switch (type)
+		{
+			case Graphics::ShaderGroupType::General: return VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+			case Graphics::ShaderGroupType::Triangles: return VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+			case Graphics::ShaderGroupType::Procedural: return VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
+			default: throw std::runtime_error("Failed to find a valid shader group type");
+		}
+	}
+
 	void BindDescriptorSets(const GladVulkanContext &context,
 							VkCommandBuffer			 commandBuffer,
 							VkPipelineBindPoint		 bindPoint,

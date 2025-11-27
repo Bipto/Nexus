@@ -90,7 +90,7 @@ namespace Nexus::Graphics
 
 	Ref<IRayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return nullptr;
+		return CreateRef<RayTracingPipelineVk>(description, this);
 	}
 
 	Ref<IResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)

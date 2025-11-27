@@ -86,6 +86,19 @@ namespace Nexus::Graphics
 		VkPipeline		  m_Pipeline	   = {};
 		GraphicsDeviceVk *m_GraphicsDevice = {};
 	};
+
+	class RayTracingPipelineVk : public IRayTracingPipeline, public PipelineVk
+	{
+	  public:
+		RayTracingPipelineVk(const RayTracingPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
+		virtual ~RayTracingPipelineVk();
+		void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
+		void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
+
+	  private:
+		VkPipeline		  m_Pipeline	   = {};
+		GraphicsDeviceVk *m_GraphicsDevice = {};
+	};
 }	 // namespace Nexus::Graphics
 
 #endif

@@ -212,6 +212,36 @@ namespace Demos
 			}
 
 			// Pipeline
+			{
+				Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
+				pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/raygen.rgen",
+																								 Nexus::Graphics::ShaderStage::RayGeneration));
+				pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/miss.rmiss",
+																								 Nexus::Graphics::ShaderStage::RayMiss));
+				pipelineDesc.Shaders.push_back(
+					m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/closesthit.rchit",
+																	  Nexus::Graphics::ShaderStage::RayClosestHit));
+
+				Nexus::Graphics::ShaderGroup shaderGroup = {};
+				shaderGroup.Type						 = Nexus::Graphics::ShaderGroupType::General;
+				shaderGroup.GeneralShader				 = 0;
+				shaderGroup.ClosestHitShader			 = 2;
+				shaderGroup.AnyHitShader				 = NX_SHADER_UNUSED;
+				shaderGroup.IntersectionShader			 = NX_SHADER_UNUSED;
+				pipelineDesc.ShaderGroups				 = {shaderGroup};
+
+				pipelineDesc.MaxRecursionDepth				 = 2;
+				pipelineDesc.DebugName						 = "Ray Tracing Pipeline";
+				pipelineDesc.ResourceDescription.Descriptors = {
+					Nexus::Graphics::ResourceDescriptor {.Name				 = "outputImage",
+														 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
+														 .CountOrSizeInBytes = 1},
+					Nexus::Graphics::ResourceDescriptor {.Name				 = "topLevelAS",
+														 .Type				 = Nexus::Graphics::ResourceDescriptorType::AccelerationStructure,
+														 .CountOrSizeInBytes = 1}};
+
+				m_Pipeline = m_GraphicsDevice->CreateRayTracingPipeline(pipelineDesc);
+			}
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -259,6 +289,8 @@ namespace Demos
 
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>			m_TLASBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::IAccelerationStructure> m_TLAS		 = nullptr;
+
+		Nexus ::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline = nullptr;
 
 	};	  // namespace Demos
 }	 // namespace Demos
