@@ -655,8 +655,7 @@ namespace Nexus::Vk
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		}
 
-		if ((desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly) &&
-			device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+		if ((desc.Usage & Graphics::BufferUsage_TransformFeedback) && device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
 		}
@@ -799,7 +798,7 @@ namespace Nexus::Vk
 
 		if (flags & Graphics::AccelerationStructureGeometryFlags::NoDuplicateAnyhit)
 		{
-			geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
+			geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR);
 		}
 
 		return geometryFlags;
@@ -861,7 +860,7 @@ namespace Nexus::Vk
 				triangleGeometry.vertexFormat  = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
 				triangleGeometry.vertexData	   = vertexDataAddress;
 				triangleGeometry.vertexStride  = triangles.VertexBufferStride;
-				triangleGeometry.maxVertex	   = triangles.VertexCount - 1;
+				triangleGeometry.maxVertex	   = triangles.VertexCount;
 				triangleGeometry.indexType	   = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat);
 				triangleGeometry.indexData	   = indexDataAddress;
 				triangleGeometry.transformData = transformDataAddress;
@@ -954,7 +953,8 @@ namespace Nexus::Vk
 
 		VkDeviceOrHostAddressKHR deviceAddress = {};
 		deviceAddress.deviceAddress			   = description.ScratchBuffer;
-		buildInfo.scratchData				   = deviceAddress;
+
+		buildInfo.scratchData = deviceAddress;
 
 		return buildInfo;
 	}

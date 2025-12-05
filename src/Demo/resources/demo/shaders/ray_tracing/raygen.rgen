@@ -21,15 +21,15 @@ void main(){
 	payload = vec3(0.0);
 
 	traceRayEXT(
-	topLevelAS,
-	gl_RayFlagsOpaqueEXT,
-	0xFF,
-	0, 0, 0,
-	origin,
-	0.0,
-	dir,
-	10000.0,
-	0);
+		topLevelAS,
+		gl_RayFlagsOpaqueEXT,
+		0xFF,
+		0, 0, 0,
+		origin,
+		0.0,
+		dir,
+		10000.0,
+		0);
 
 	//write result
 	imageStore(outputImage, pixel, vec4(payload, 1.0));

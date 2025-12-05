@@ -229,7 +229,10 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UnbindTexture(ImTextureID id)
 	{
-		m_Descriptors.erase(id);
+		if (m_Descriptors.contains(id))
+		{
+			m_Descriptors.erase(id);
+		}
 	}
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)

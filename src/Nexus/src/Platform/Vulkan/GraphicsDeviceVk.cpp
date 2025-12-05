@@ -378,6 +378,15 @@ namespace Nexus::Graphics
 			builder.Add(accelerationStructureFeatures);
 		}
 
+		VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
+		rayTracingPipelineFeatures.sType			  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
+		rayTracingPipelineFeatures.pNext			  = nullptr;
+		rayTracingPipelineFeatures.rayTracingPipeline = VK_TRUE;
+		if (m_DeviceFeatures.SupportsRayTracing)
+		{
+			builder.Add(rayTracingPipelineFeatures);
+		}
+
 		VkPhysicalDeviceSynchronization2FeaturesKHR synchronizationFeatures = {};
 		synchronizationFeatures.sType										= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR;
 		synchronizationFeatures.pNext										= nullptr;
@@ -739,6 +748,30 @@ namespace Nexus::Graphics
 		}
 
 		return description;
+	}
+
+	AccelerationStructureProperties GraphicsDeviceVk::GetAccelerationStructureProperties() const
+	{
+		AccelerationStructureProperties properties {};
+
+		if (m_Context.GetPhysicalDeviceProperties2)
+		{
+			VkPhysicalDeviceAccelerationStructurePropertiesKHR accelStructProps = {};
+			accelStructProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
+
+			VkPhysicalDeviceProperties2 props2 = {};
+			props2.sType					   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+			props2.pNext					   = &accelStructProps;
+
+			m_Context.GetPhysicalDeviceProperties2(m_PhysicalDevice->GetVkPhysicalDevice(), &props2);
+
+			properties.MaxGeometryCount								  = accelStructProps.maxGeometryCount;
+			properties.MaxInstanceCount								  = accelStructProps.maxInstanceCount;
+			properties.MaxPrimitiveCount							  = accelStructProps.maxPrimitiveCount;
+			properties.MinAccelerationStructureScratchOffsetAlignment = accelStructProps.minAccelerationStructureScratchOffsetAlignment;
+		}
+
+		return properties;
 	}
 
 	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const

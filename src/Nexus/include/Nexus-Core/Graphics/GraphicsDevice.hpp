@@ -32,6 +32,14 @@
 
 namespace Nexus::Graphics
 {
+	struct AccelerationStructureProperties
+	{
+		uint64_t MaxGeometryCount								= 0;
+		uint64_t MaxInstanceCount								= 0;
+		uint64_t MaxPrimitiveCount								= 0;
+		uint32_t MinAccelerationStructureScratchOffsetAlignment = 0;
+	};
+
 	struct RayTracingDeviceDescription
 	{
 		uint32_t ShaderGroupHandleSize				= 0;
@@ -172,7 +180,8 @@ namespace Nexus::Graphics
 			const AccelerationStructureGeometryBuildDescription &description,
 			const std::vector<uint32_t>							&primitiveCount) const = 0;
 
-		virtual RayTracingDeviceDescription GetRayTracingDeviceDescription() const = 0;
+		virtual RayTracingDeviceDescription		GetRayTracingDeviceDescription() const	   = 0;
+		virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;
 
 	  private:
 		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;

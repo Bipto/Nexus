@@ -172,6 +172,12 @@ namespace Nexus::Graphics
 		return RayTracingDeviceDescription();
 	}
 
+	AccelerationStructureProperties GraphicsDeviceOpenGL::GetAccelerationStructureProperties() const
+	{
+		NX_VALIDATE(0, "Ray tracing not supported on OpenGL backend");
+		return AccelerationStructureProperties();
+	}
+
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()
 	{
 		return m_PhysicalDevice;

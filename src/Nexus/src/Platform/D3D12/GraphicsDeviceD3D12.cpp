@@ -305,6 +305,11 @@ namespace Nexus::Graphics
 		return RayTracingDeviceDescription();
 	}
 
+	AccelerationStructureProperties GraphicsDeviceD3D12::GetAccelerationStructureProperties() const
+	{
+		return AccelerationStructureProperties();
+	}
+
 	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
 	{
 		Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);

@@ -63,15 +63,22 @@ namespace Nexus::Graphics
 		ForceNoOpaque			  = 0x00000008
 	};
 
+	struct TransformMatrix
+	{
+		float matrix[3][4];
+	};
+
 	struct AccelerationStructureInstance
 	{
-		glm::mat3x4	  Transform								 = {};
-		uint32_t	  InstanceCustomIndex					 = 0;
-		uint32_t	  Mask									 = 0;
-		uint32_t	  InstanceShaderBindingTableRecordOffset = 0;
-		uint8_t		  Flags									 = AccelerationStructureGeometryInstanceFlags::NoFlags;
-		DeviceAddress AccelerationStructureReference		 = 0;
+		TransformMatrix Transform									= {};
+		uint32_t		InstanceCustomIndex : 24					= 0;
+		uint32_t		Mask : 8									= 0;
+		uint32_t		InstanceShaderBindingTableRecordOffset : 24 = 0;
+		uint32_t		Flags : 8									= AccelerationStructureGeometryInstanceFlags::NoFlags;
+		DeviceAddress	AccelerationStructureReference				= 0;
 	};
+
+	static_assert(sizeof(AccelerationStructureInstance) == 64, "AccelerationStructureInstance size must be 64 bytes");
 
 	struct AccelerationStructureInstanceGeometry
 	{

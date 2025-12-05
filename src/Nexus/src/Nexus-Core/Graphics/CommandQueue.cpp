@@ -133,6 +133,10 @@ namespace Nexus::Graphics
 		cmdList->Begin();
 		cmdList->CopyBufferToBuffer(bufferCopyDesc);
 		cmdList->End();
+
+		SubmitCommandList(cmdList);
+
+		device->WaitForIdle();
 	}
 
 	std::vector<char> ICommandQueue::ReadFromBuffer(Ref<IDeviceBuffer> buffer, size_t offset)
@@ -161,6 +165,10 @@ namespace Nexus::Graphics
 		cmdList->Begin();
 		cmdList->CopyBufferToBuffer(bufferCopyDesc);
 		cmdList->End();
+
+		SubmitCommandList(cmdList);
+
+		device->WaitForIdle();
 
 		return readbackBuffer->GetData(0, dataSize);
 	}

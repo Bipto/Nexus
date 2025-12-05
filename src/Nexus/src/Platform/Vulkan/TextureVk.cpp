@@ -200,32 +200,44 @@ namespace Nexus::Graphics
 		const GladVulkanContext &context   = m_GraphicsDevice->GetVulkanContext();
 		SubresourceFootprint	 footprint = {};
 
-		PixelFormatType pixelFormatType = GetPixelFormatType(m_Description.Format);
-		bool			isDepth			= pixelFormatType == PixelFormatType::DepthStencil;
-
-		VkImageSubresource subresourceInfo = {};
-		subresourceInfo.arrayLayer		   = arrayLayer;
-		subresourceInfo.mipLevel		   = mipLevel;
-		subresourceInfo.aspectMask		   = isDepth ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-
-		VkSubresourceLayout subresourceLayout = {};
-
-		context.GetImageSubresourceLayout(m_GraphicsDevice->GetVkDevice(), m_Image, &subresourceInfo, &subresourceLayout);
-
-		footprint.Size = static_cast<size_t>(subresourceLayout.size);
-
-		// this is most likely an image that was created with VK_IMAGE_TILING_OPTIMAL and therefore does not have a row pitch
-		if (subresourceLayout.rowPitch == 0)
+		// we only need to retrieve the subresource layout for sparse images
+		if (m_Description.CreateFlags & TextureCreateFlags_SparseBinding)
 		{
-			size_t pixelSize		= GetPixelFormatSizeInBytes(m_Description.Format);
-			size_t alignedPixelSize = Utils::AlignTo<size_t>(pixelSize, 4);	   // align to 4 bytes
-			footprint.RowPitch		= alignedPixelSize * m_Description.Width;
-			footprint.RowCount		= m_Description.Height;
+			PixelFormatType pixelFormatType = GetPixelFormatType(m_Description.Format);
+			bool			isDepth			= pixelFormatType == PixelFormatType::DepthStencil;
+
+			VkImageSubresource subresourceInfo = {};
+			subresourceInfo.arrayLayer		   = arrayLayer;
+			subresourceInfo.mipLevel		   = mipLevel;
+			subresourceInfo.aspectMask		   = isDepth ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+
+			VkSubresourceLayout subresourceLayout = {};
+
+			context.GetImageSubresourceLayout(m_GraphicsDevice->GetVkDevice(), m_Image, &subresourceInfo, &subresourceLayout);
+
+			footprint.Size = static_cast<size_t>(subresourceLayout.size);
+
+			// this is most likely an image that was created with VK_IMAGE_TILING_OPTIMAL and therefore does not have a row pitch
+			if (subresourceLayout.rowPitch == 0)
+			{
+				size_t pixelSize		= GetPixelFormatSizeInBytes(m_Description.Format);
+				size_t alignedPixelSize = Utils::AlignTo<size_t>(pixelSize, 4);	   // align to 4 bytes
+				footprint.RowPitch		= alignedPixelSize * m_Description.Width;
+				footprint.RowCount		= m_Description.Height;
+			}
+			else
+			{
+				footprint.RowPitch = static_cast<size_t>(subresourceLayout.rowPitch);
+				footprint.RowCount = static_cast<size_t>(subresourceLayout.size / subresourceLayout.rowPitch);
+			}
 		}
+		// otherwise, it will be tightly packed
 		else
 		{
-			footprint.RowPitch = static_cast<size_t>(subresourceLayout.rowPitch);
-			footprint.RowCount = static_cast<size_t>(subresourceLayout.size / subresourceLayout.rowPitch);
+			Point2D<uint32_t> mipSize = Utils::GetMipSize(m_Description.Width, m_Description.Height, mipLevel);
+			footprint.RowCount		  = mipSize.Y;
+			footprint.RowPitch		  = GetPixelFormatSizeInBytes(m_Description.Format) * mipSize.X;
+			footprint.Size			  = footprint.RowPitch * footprint.RowCount;
 		}
 
 		return footprint;

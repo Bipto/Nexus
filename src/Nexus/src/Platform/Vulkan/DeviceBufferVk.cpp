@@ -76,7 +76,8 @@ namespace Nexus::Graphics
 			info.pNext					   = nullptr;
 			info.buffer					   = m_Buffer.Buffer;
 
-			return context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info) + offset;
+			VkDeviceAddress address = context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info) + offset;
+			return address;
 		}
 
 		return {};
