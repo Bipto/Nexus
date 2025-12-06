@@ -49,7 +49,7 @@ namespace Nexus::Graphics
 		}
 		else
 		{
-			textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+			textureDesc.Layout = D3D12::GetTextureLayout(spec.Tiling);
 
 			D3D12MA::ALLOCATION_DESC allocationDesc = {};
 			allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;

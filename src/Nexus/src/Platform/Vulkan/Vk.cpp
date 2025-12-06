@@ -724,6 +724,16 @@ namespace Nexus::Vk
 			return VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
+	VkImageTiling GetImageTiling(Graphics::TextureTiling tiling)
+	{
+		switch (tiling)
+		{
+			case Graphics::TextureTiling::Optimal: return VK_IMAGE_TILING_OPTIMAL;
+			case Graphics::TextureTiling::Linear: return VK_IMAGE_TILING_LINEAR;
+			default: throw std::runtime_error("Failed to find a valid tiling type");
+		}
+	}
+
 	VkAccelerationStructureTypeKHR GetAccelerationStructureType(Graphics::AccelerationStructureType type)
 	{
 		switch (type)

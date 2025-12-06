@@ -90,6 +90,16 @@ namespace Nexus::D3D12
 		}
 	}
 
+	D3D12_TEXTURE_LAYOUT GetTextureLayout(Graphics::TextureTiling tiling)
+	{
+		switch (tiling)
+		{
+			case Graphics::TextureTiling::Optimal: return D3D12_TEXTURE_LAYOUT_UNKNOWN;
+			case Graphics::TextureTiling::Linear: return D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			default: throw std::runtime_error("Failed to find a valid texture tiling");
+		}
+	}
+
 	D3D12_CULL_MODE GetCullMode(Nexus::Graphics::CullMode cullMode)
 	{
 		switch (cullMode)

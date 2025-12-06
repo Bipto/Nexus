@@ -63,6 +63,7 @@ namespace Nexus::Vk
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
 	VkImageAspectFlagBits GetAspectFlags(bool isDepth);
+	VkImageTiling		  GetImageTiling(Graphics::TextureTiling tiling);
 
 	VkAccelerationStructureTypeKHR		   GetAccelerationStructureType(Graphics::AccelerationStructureType type);
 	VkBuildAccelerationStructureFlagsKHR   GetAccelerationStructureFlags(uint8_t flags);

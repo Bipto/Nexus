@@ -45,6 +45,7 @@ namespace Nexus::D3D12
 
 	DXGI_FORMAT
 	GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
+	D3D12_TEXTURE_LAYOUT GetTextureLayout(Graphics::TextureTiling tiling);
 
 	DXGI_FORMAT
 	GetD3D12BaseType(const Nexus::Graphics::VertexBufferElement &element);

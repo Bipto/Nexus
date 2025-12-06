@@ -64,7 +64,7 @@ namespace Nexus::Graphics
 		}
 
 		imageInfo.samples = samples;
-		imageInfo.tiling  = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.tiling  = Vk::GetImageTiling(spec.Tiling);
 		imageInfo.usage	  = usage;
 
 		// we only need to commit memory for this texture if it was not requested to bound sparsely
