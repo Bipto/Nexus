@@ -1048,7 +1048,7 @@ namespace Nexus::Graphics
 		for (const auto &range : buildRanges) { buildRangePtrs.push_back(range.data()); }
 
 		// execute the acceleration structure build
-		context.CmdBuildAccelerationStructuresKHR(m_CommandBuffer, command.BuildDescriptions.size(), buildGeometries.data(), buildRangePtrs.data());
+		context.CmdBuildAccelerationStructuresKHR(m_CommandBuffer, buildGeometries.size(), buildGeometries.data(), buildRangePtrs.data());
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)

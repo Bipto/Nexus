@@ -29,9 +29,9 @@ namespace Demos
 			// set up buffers
 			{
 				std::vector<Nexus::Graphics::VertexPosition> vertices = {
-					{{-0.5f, -0.5f, -1.0f}},	// bottom left
-					{{0.0f, 0.5f, -1.0f}},		// top left
-					{{0.5f, -0.5f, -1.0f}},		// bottom right
+					{{-0.5f, -0.5f, 1.0f}},	   // bottom left
+					{{0.0f, 0.5f, 1.0f}},	   // top left
+					{{0.5f, -0.5f, 1.0f}},	   // bottom right
 				};
 
 				Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
@@ -155,8 +155,10 @@ namespace Demos
 				instance.Transform.matrix[2][2]							= 1.f;
 				instance.Transform.matrix[2][3]							= 0.f;
 
-				instance.Flags							= Nexus::Graphics::AccelerationStructureGeometryInstanceFlags::ForceOpaque;
-				instance.AccelerationStructureReference = m_BLAS->GetDeviceAddress(0);
+				instance.Flags									= Nexus::Graphics::AccelerationStructureGeometryInstanceFlags::ForceOpaque;
+				instance.AccelerationStructureReference			= m_BLAS->GetDeviceAddress(0);
+				instance.Mask									= 0xFF;
+				instance.InstanceShaderBindingTableRecordOffset = 0;
 
 				Nexus::Graphics::DeviceBufferDescription transformBufferDesc = {};
 				transformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Default;
@@ -263,7 +265,7 @@ namespace Demos
 				m_BoundImGuiTextureID = m_ImGuiRenderer->BindTexture(m_StorageTextureView);
 			}
 
-			//// Pipeline
+			// Pipeline
 			{
 				Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
 				pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/raygen.rgen",
@@ -325,38 +327,41 @@ namespace Demos
 			// SBT
 			{
 				Nexus::Graphics::RayTracingDeviceDescription deviceRayTracingDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
-				uint32_t									 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;
-				uint32_t									 handleAlignment	  = deviceRayTracingDesc.ShaderGroupBaseAlignment;
+				const uint32_t								 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;	   // e.g., 32
+				const uint32_t								 recordStride = deviceRayTracingDesc.ShaderGroupBaseAlignment;		   // e.g., 32 or 64
+				const uint32_t								 groupCount	  = 3;	  // raygen, miss, hit
+				const uint32_t								 sbtSize	  = groupCount * recordStride;
 
-				std::vector<uint8_t> handles = m_Pipeline->GetRayTracingShaderGroupHandles();
+				std::vector<uint8_t> handles = m_Pipeline->GetRayTracingShaderGroupHandles();	 // size == groupCount * handleSize
 
 				Nexus::Graphics::DeviceBufferDescription sbtDesc = {};
-				// group count is 3: raygen, miss, hit. This is multiplied by handle alignment to ensure proper spacing
-				sbtDesc.SizeInBytes	  = 3 * handleAlignment;
-				sbtDesc.StrideInBytes = handleSize;
-				sbtDesc.Access		  = Nexus::Graphics::BufferMemoryAccess::Default;
-				sbtDesc.Flags		  = Nexus::Graphics::BufferCreateFlags_None;
-				sbtDesc.Usage		  = Nexus::Graphics::BufferUsage::BufferUsage_ShaderBindingTable;
-				sbtDesc.DebugName	  = "SBT";
-				m_SBT				  = m_GraphicsDevice->CreateDeviceBuffer(sbtDesc);
+				sbtDesc.SizeInBytes								 = sbtSize;
+				sbtDesc.StrideInBytes							 = recordStride;	// per-record stride, not sbtSize
+				sbtDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Default;
+				sbtDesc.Flags									 = Nexus::Graphics::BufferCreateFlags_None;
+				sbtDesc.Usage									 = Nexus::Graphics::BufferUsage::BufferUsage_ShaderBindingTable;
+				sbtDesc.DebugName								 = "SBT";
+				m_SBT											 = m_GraphicsDevice->CreateDeviceBuffer(sbtDesc);
 
-				// ray gen
-				const size_t raygenIndex = 0;
-				m_CommandQueue->WriteToBuffer(m_SBT, handles.data() + (handleSize * raygenIndex), (handleAlignment * raygenIndex), handleAlignment);
+				std::vector<uint8_t> sbtData(sbtSize);
+				for (uint32_t i = 0; i < groupCount; ++i)
+				{
+					uint8_t		  *dst = sbtData.data() + i * recordStride;
+					const uint8_t *src = handles.data() + i * handleSize;
 
-				// miss
-				const size_t missIndex = (1);
-				m_CommandQueue->WriteToBuffer(m_SBT, handles.data() + (handleSize * missIndex), (handleAlignment * missIndex), handleAlignment);
+					// Copy handle
+					memcpy(dst, src, handleSize);
 
-				// closest hit
-				const size_t hitIndex = (2);
-				m_CommandQueue->WriteToBuffer(m_SBT, handles.data() + (handleSize * hitIndex), (handleAlignment * hitIndex), handleAlignment);
+					// Zero pad remainder
+					memset(dst + handleSize, 0, recordStride - handleSize);
+				}
 
-				m_RaygenRegion = {.Address = m_SBT->GetDeviceAddress(handleAlignment * raygenIndex),
-								  .Stride  = handleAlignment,
-								  .Size	   = handleAlignment};
-				m_MissRegion = {.Address = m_SBT->GetDeviceAddress(handleAlignment * missIndex), .Stride = handleAlignment, .Size = handleAlignment};
-				m_HitRegion	 = {.Address = m_SBT->GetDeviceAddress(handleAlignment * hitIndex), .Stride = handleAlignment, .Size = handleAlignment};
+				m_CommandQueue->WriteToBuffer(m_SBT, sbtData.data(), 0, sbtData.size());
+
+				// Regions
+				m_RaygenRegion	 = {.Address = m_SBT->GetDeviceAddress(0 * recordStride), .Stride = recordStride, .Size = recordStride};
+				m_MissRegion	 = {.Address = m_SBT->GetDeviceAddress(1 * recordStride), .Stride = recordStride, .Size = recordStride};
+				m_HitRegion		 = {.Address = m_SBT->GetDeviceAddress(2 * recordStride), .Stride = recordStride, .Size = recordStride};
 				m_CallableRegion = {.Address = 0, .Stride = 0, .Size = 0};
 			}
 		}
@@ -406,12 +411,12 @@ namespace Demos
 		virtual void RenderUI() override
 		{
 			ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColour));
-			ImGui::Image(m_BoundImGuiTextureID, ImVec2(500, 500));
+			ImGui::Image(m_BoundImGuiTextureID, ImVec2(500, 500), ImVec2(0, 1), ImVec2(1, 0));
 		}
 
 		virtual std::string GetInfo() const override
 		{
-			return "Clearing the screen using a pickable colour";
+			return "Tracing rays against a triangle";
 		}
 
 	  private:

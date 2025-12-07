@@ -399,12 +399,13 @@ namespace Nexus::Graphics
 
 		if (context.GetRayTracingShaderGroupHandlesKHR)
 		{
-			context.GetRayTracingShaderGroupHandlesKHR(m_GraphicsDevice->GetVkDevice(),
-													   m_Pipeline,
-													   0,
-													   m_Description.ShaderGroups.size(),
-													   handles.size(),
-													   handles.data());
+			VkResult result = context.GetRayTracingShaderGroupHandlesKHR(m_GraphicsDevice->GetVkDevice(),
+																		 m_Pipeline,
+																		 0,
+																		 m_Description.ShaderGroups.size(),
+																		 handles.size(),
+																		 handles.data());
+			NX_VALIDATE(result == VK_SUCCESS, "Failed to retrieve shader group handles");
 		}
 
 		return handles;

@@ -944,6 +944,7 @@ namespace Nexus::Vk
 		buildInfo.mode										  = Vk::GetAccelerationStructureBuildMode(description.Mode);
 		buildInfo.geometryCount								  = geometry.size();
 		buildInfo.pGeometries								  = geometry.data();
+		buildInfo.ppGeometries								  = nullptr;
 		buildInfo.srcAccelerationStructure					  = VK_NULL_HANDLE;
 		buildInfo.dstAccelerationStructure					  = VK_NULL_HANDLE;
 
@@ -961,8 +962,7 @@ namespace Nexus::Vk
 			buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
 		}
 
-		VkDeviceOrHostAddressKHR deviceAddress = {};
-		deviceAddress.deviceAddress			   = description.ScratchBuffer;
+		VkDeviceOrHostAddressKHR deviceAddress = {.deviceAddress = description.ScratchBuffer};
 
 		buildInfo.scratchData = deviceAddress;
 
