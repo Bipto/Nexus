@@ -307,7 +307,9 @@ namespace Nexus::Graphics
 
 	AccelerationStructureProperties GraphicsDeviceD3D12::GetAccelerationStructureProperties() const
 	{
-		return AccelerationStructureProperties();
+		AccelerationStructureProperties properties				  = {};
+		properties.MinAccelerationStructureScratchOffsetAlignment = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT;
+		return properties;
 	}
 
 	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)

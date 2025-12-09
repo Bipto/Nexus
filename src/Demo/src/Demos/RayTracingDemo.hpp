@@ -29,9 +29,9 @@ namespace Demos
 			// set up buffers
 			{
 				std::vector<Nexus::Graphics::VertexPosition> vertices = {
-					{{-0.5f, -0.5f, 1.0f}},	   // bottom left
-					{{0.0f, 0.5f, 1.0f}},	   // top left
-					{{0.5f, -0.5f, 1.0f}},	   // bottom right
+					{{-0.5f, 0.5f, 1.0f}},	  // bottom left
+					{{0.0f, -0.5f, 1.0f}},	  // top left
+					{{0.5f, 0.5f, 1.0f}},	  // bottom right
 				};
 
 				Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
@@ -359,7 +359,7 @@ namespace Demos
 				m_CommandQueue->WriteToBuffer(m_SBT, sbtData.data(), 0, sbtData.size());
 
 				// Regions
-				m_RaygenRegion	 = {.Address = m_SBT->GetDeviceAddress(0 * recordStride), .Stride = recordStride, .Size = recordStride};
+				m_RaygenRegion	 = {.Address = m_SBT->GetDeviceAddress(0 * recordStride), .Size = recordStride};
 				m_MissRegion	 = {.Address = m_SBT->GetDeviceAddress(1 * recordStride), .Stride = recordStride, .Size = recordStride};
 				m_HitRegion		 = {.Address = m_SBT->GetDeviceAddress(2 * recordStride), .Stride = recordStride, .Size = recordStride};
 				m_CallableRegion = {.Address = 0, .Stride = 0, .Size = 0};
@@ -411,7 +411,7 @@ namespace Demos
 		virtual void RenderUI() override
 		{
 			ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColour));
-			ImGui::Image(m_BoundImGuiTextureID, ImVec2(500, 500), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image(m_BoundImGuiTextureID, ImVec2(500, 500));
 		}
 
 		virtual std::string GetInfo() const override
@@ -437,7 +437,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>		 m_SBT		   = nullptr;
 		Nexus::Ref<Nexus::Graphics::IResourceSet>		 m_ResourceSet = nullptr;
 
-		Nexus::Graphics::StridedDeviceAddressRegion m_RaygenRegion	 = {};
+		Nexus::Graphics::DeviceAddressRegion		m_RaygenRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_MissRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_HitRegion		 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_CallableRegion = {};

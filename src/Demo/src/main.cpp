@@ -315,7 +315,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationDescription desc;
 
-	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
 	desc.GraphicsCreateInfo.Debug = true;
 	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 

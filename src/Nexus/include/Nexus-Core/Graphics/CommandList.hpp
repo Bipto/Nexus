@@ -420,7 +420,7 @@ namespace Nexus::Graphics
 
 	struct TraceRaysDescription
 	{
-		StridedDeviceAddressRegion RaygenRegion	  = {};
+		DeviceAddressRegion		   RaygenRegion	  = {};
 		StridedDeviceAddressRegion MissRegion	  = {};
 		StridedDeviceAddressRegion HitRegion	  = {};
 		StridedDeviceAddressRegion CallableRegion = {};

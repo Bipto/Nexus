@@ -1382,7 +1382,7 @@ namespace Nexus::Graphics
 		if (context.CmdTraceRaysKHR)
 		{
 			VkStridedDeviceAddressRegionKHR raygenRegion = {.deviceAddress = desc.RaygenRegion.Address,
-															.stride		   = desc.RaygenRegion.Stride,
+															.stride		   = desc.RaygenRegion.Size,
 															.size		   = desc.RaygenRegion.Size};
 
 			VkStridedDeviceAddressRegionKHR missRegion = {.deviceAddress = desc.MissRegion.Address,
