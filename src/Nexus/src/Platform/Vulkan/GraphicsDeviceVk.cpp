@@ -698,11 +698,11 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
-		const AccelerationStructureGeometryBuildDescription &description,
-		const std::vector<uint32_t>							&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description) const
 	{
-		std::vector<VkAccelerationStructureGeometryKHR> geometries = Vk::GetVulkanAccelerationStructureGeometries(description);
-		VkAccelerationStructureBuildGeometryInfoKHR		buildInfo  = Vk::GetGeometryBuildInfo(description, geometries);
+		std::vector<uint32_t>							primitiveCounts = {};
+		std::vector<VkAccelerationStructureGeometryKHR> geometries		= Vk::GetVulkanAccelerationStructureGeometries(description, primitiveCounts);
+		VkAccelerationStructureBuildGeometryInfoKHR		buildInfo		= Vk::GetGeometryBuildInfo(description, geometries);
 
 		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
 		buildSizes.sType									= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
@@ -713,7 +713,7 @@ namespace Nexus::Graphics
 			m_Context.GetAccelerationStructureBuildSizesKHR(m_Device,
 															VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
 															&buildInfo,
-															primitiveCount.data(),
+															primitiveCounts.data(),
 															&buildSizes);
 		}
 

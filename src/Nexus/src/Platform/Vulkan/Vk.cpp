@@ -814,7 +814,8 @@ namespace Nexus::Vk
 		return geometryFlags;
 	}
 
-	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry)
+	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry,
+																				uint32_t &primitiveCount)
 	{
 		switch (geometry.Type)
 		{
@@ -830,6 +831,7 @@ namespace Nexus::Vk
 				outAabbs.pNext										 = nullptr;
 				outAabbs.stride										 = aabbs.Stride;
 				outAabbs.data										 = dataAddress;
+				primitiveCount										 = aabbs.Count;
 
 				return VkAccelerationStructureGeometryDataKHR {.aabbs = outAabbs};
 			}
@@ -847,6 +849,7 @@ namespace Nexus::Vk
 				instanceGeometry.pNext			 = nullptr;
 				instanceGeometry.arrayOfPointers = instances.ArrayOfPointers;
 				instanceGeometry.data			 = dataAddress;
+				primitiveCount					 = instances.Count;
 
 				return VkAccelerationStructureGeometryDataKHR {.instances = instanceGeometry};
 			}
@@ -865,13 +868,24 @@ namespace Nexus::Vk
 				transformDataAddress.deviceAddress				   = triangles.TransformBuffer;
 
 				VkAccelerationStructureGeometryTrianglesDataKHR triangleGeometry = {};
-				triangleGeometry.sType		   = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
-				triangleGeometry.pNext		   = nullptr;
-				triangleGeometry.vertexFormat  = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
-				triangleGeometry.vertexData	   = vertexDataAddress;
-				triangleGeometry.vertexStride  = triangles.VertexBufferStride;
-				triangleGeometry.maxVertex	   = triangles.VertexCount;
-				triangleGeometry.indexType	   = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat);
+				triangleGeometry.sType		  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+				triangleGeometry.pNext		  = nullptr;
+				triangleGeometry.vertexFormat = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
+				triangleGeometry.vertexData	  = vertexDataAddress;
+				triangleGeometry.vertexStride = triangles.VertexBufferStride;
+				triangleGeometry.maxVertex	  = triangles.VertexCount;
+
+				if (triangles.IndexBufferFormat.has_value())
+				{
+					triangleGeometry.indexType = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat.value());
+					primitiveCount			   = triangles.IndexCount / 3;
+				}
+				else
+				{
+					triangleGeometry.indexType = VK_INDEX_TYPE_NONE_KHR;
+					primitiveCount			   = triangles.VertexCount / 3;
+				}
+
 				triangleGeometry.indexData	   = indexDataAddress;
 				triangleGeometry.transformData = transformDataAddress;
 
@@ -914,19 +928,22 @@ namespace Nexus::Vk
 	}
 
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
-		const Graphics::AccelerationStructureGeometryBuildDescription &description)
+		const Graphics::AccelerationStructureGeometryBuildDescription &description,
+		std::vector<uint32_t>										  &primitiveCounts)
 	{
 		std::vector<VkAccelerationStructureGeometryKHR> geometries;
 		geometries.reserve(description.Geometry.size());
 
 		for (const auto &geometry : description.Geometry)
 		{
+			uint32_t &primitiveCount = primitiveCounts.emplace_back();
+
 			VkAccelerationStructureGeometryKHR asGeometry = {};
 			asGeometry.sType							  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 			asGeometry.pNext							  = nullptr;
 			asGeometry.flags							  = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
 			asGeometry.geometryType						  = Vk::GetAccelerationStructureGeometryType(geometry.Type);
-			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry);
+			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry, primitiveCount);
 			geometries.push_back(asGeometry);
 		}
 
@@ -969,13 +986,13 @@ namespace Nexus::Vk
 		return buildInfo;
 	}
 
-	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range)
+	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(uint32_t primitiveCount)
 	{
 		VkAccelerationStructureBuildRangeInfoKHR rangeInfo = {};
-		rangeInfo.primitiveCount						   = range.PrimitiveCount;
-		rangeInfo.primitiveOffset						   = range.PrimitiveOffset;
-		rangeInfo.firstVertex							   = range.FirstVertex;
-		rangeInfo.transformOffset						   = range.TransformOffset;
+		rangeInfo.primitiveCount						   = primitiveCount;
+		rangeInfo.primitiveOffset						   = 0;
+		rangeInfo.firstVertex							   = 0;
+		rangeInfo.transformOffset						   = 0;
 		return rangeInfo;
 	}
 

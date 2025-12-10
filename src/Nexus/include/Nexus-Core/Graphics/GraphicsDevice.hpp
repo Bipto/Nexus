@@ -177,8 +177,7 @@ namespace Nexus::Graphics
 		virtual const DeviceLimits						 &GetPhysicalDeviceLimits() const						 = 0;
 		virtual bool									  IsIndexBufferFormatSupported(IndexFormat format) const = 0;
 		virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
-			const AccelerationStructureGeometryBuildDescription &description,
-			const std::vector<uint32_t>							&primitiveCount) const = 0;
+			const AccelerationStructureGeometryBuildDescription &description) const = 0;
 
 		virtual RayTracingDeviceDescription		GetRayTracingDeviceDescription() const	   = 0;
 		virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;

@@ -590,6 +590,35 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device)
 	{
+		for (const auto &accelerationStructureBuildDesc : command.BuildDescriptions)
+		{
+			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS  inputs	   = {};
+			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
+			std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>			  geometry	   = {};
+
+			D3D12::GetD3D12AccelerationStructureInputs(accelerationStructureBuildDesc, inputs, geometry);
+
+			D3D12_GPU_VIRTUAL_ADDRESS srcAddress	 = 0;
+			D3D12_GPU_VIRTUAL_ADDRESS destAddress	 = 0;
+			D3D12_GPU_VIRTUAL_ADDRESS scratchAddress = accelerationStructureBuildDesc.ScratchBuffer;
+
+			if (accelerationStructureBuildDesc.Source)
+			{
+				srcAddress = accelerationStructureBuildDesc.Source->GetDeviceAddress(0);
+			}
+
+			if (accelerationStructureBuildDesc.Destination)
+			{
+				destAddress = accelerationStructureBuildDesc.Destination->GetDeviceAddress(0);
+			}
+
+			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
+			buildDesc.SourceAccelerationStructureData					 = srcAddress;
+			buildDesc.DestAccelerationStructureData						 = destAddress;
+			buildDesc.ScratchAccelerationStructureData					 = scratchAddress;
+			buildDesc.Inputs											 = inputs;
+			m_CommandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)

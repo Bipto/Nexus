@@ -415,7 +415,7 @@ namespace Nexus::Graphics
 
 	struct BuildAccelerationStructuresCommand
 	{
-		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
+		std::vector<AccelerationStructureGeometryBuildDescription> BuildDescriptions = {};
 	};
 
 	struct TraceRaysDescription
@@ -677,7 +677,7 @@ namespace Nexus::Graphics
 
 		void SetStencilReference(uint32_t stencilReference);
 
-		void BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description);
+		void BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
 
 		void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
 

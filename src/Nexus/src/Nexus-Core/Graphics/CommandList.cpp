@@ -766,7 +766,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void ICommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
+	void ICommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description)
 	{
 		NX_PROFILE_FUNCTION();
 

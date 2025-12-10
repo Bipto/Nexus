@@ -38,20 +38,21 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureTriangleGeometry
 	{
-		DeviceAddress VertexBuffer;
-		VertexFormat  VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
-		size_t		  VertexBufferStride = 0;
-		size_t		  VertexCount		 = 0;
-		DeviceAddress IndexBuffer;
-		IndexFormat	  IndexBufferFormat = IndexFormat::UInt32;
-		DeviceAddress TransformBuffer;
+		DeviceAddress			   VertexBuffer;
+		VertexFormat			   VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
+		size_t					   VertexBufferStride = 0;
+		size_t					   VertexCount		  = 0;
+		DeviceAddress			   IndexBuffer;
+		std::optional<IndexFormat> IndexBufferFormat = {};
+		DeviceAddress			   TransformBuffer;
+		size_t					   IndexCount = 0;
 	};
 
 	struct AccelerationStructureAABBGeometry
 	{
-		size_t		  AABBCount = 0;
-		DeviceAddress AABBs		= {};
-		size_t		  Stride	= 0;
+		size_t		  Count	 = 0;
+		DeviceAddress AABBs	 = {};
+		size_t		  Stride = 0;
 	};
 
 	enum AccelerationStructureGeometryInstanceFlags : uint8_t
@@ -85,6 +86,7 @@ namespace Nexus::Graphics
 		DeviceAddress InstanceBuffer;
 		size_t		  Stride		  = 0;
 		bool		  ArrayOfPointers = false;
+		size_t		  Count			  = 0;
 	};
 
 	enum AccelerationStructureGeometryFlags : uint8_t
@@ -153,12 +155,6 @@ namespace Nexus::Graphics
 		Ref<IAccelerationStructure>							  Source;
 		Ref<IAccelerationStructure>							  Destination;
 		DeviceAddress										  ScratchBuffer;
-	};
-
-	struct AccelerationStructureBuildDescription
-	{
-		AccelerationStructureGeometryBuildDescription Geometry	 = {};
-		std::vector<AccelerationStructureBuildRange>  BuildRange = {};
 	};
 
 	struct AccelerationStructureCopyDescription

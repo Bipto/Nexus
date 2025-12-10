@@ -1018,7 +1018,7 @@ namespace Nexus::Graphics
 		std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>> buildRanges					   = {};
 
 		// loop through all requested builds
-		for (const auto &[buildGeometryInfo, buildRangeInfos] : command.BuildDescriptions)
+		for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : command.BuildDescriptions)
 		{
 			// validate that required members have been filled in correctly
 			NX_VALIDATE(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
@@ -1030,8 +1030,9 @@ namespace Nexus::Graphics
 			}
 
 			// create a new vector to hold the information for the individual build
+			std::vector<uint32_t>							 primitiveCounts;
 			std::vector<VkAccelerationStructureGeometryKHR> &accelerationStructureGeometry = accelerationStructureGeometries.emplace_back();
-			accelerationStructureGeometry = Vk::GetVulkanAccelerationStructureGeometries(buildGeometryInfo);
+			accelerationStructureGeometry = Vk::GetVulkanAccelerationStructureGeometries(buildGeometryInfo, primitiveCounts);
 
 			// create the new build description
 			buildGeometries.push_back(Vk::GetGeometryBuildInfo(buildGeometryInfo, accelerationStructureGeometry));
@@ -1040,7 +1041,7 @@ namespace Nexus::Graphics
 			std::vector<VkAccelerationStructureBuildRangeInfoKHR> &geometryBuildRange = buildRanges.emplace_back();
 
 			// iterate through each build range and convert them to Vulkan types
-			for (const auto &buildRange : buildRangeInfos) { geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(buildRange)); }
+			for (uint32_t primitiveCount : primitiveCounts) { geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(primitiveCount)); }
 		}
 
 		std::vector<const VkAccelerationStructureBuildRangeInfoKHR *> buildRangePtrs;

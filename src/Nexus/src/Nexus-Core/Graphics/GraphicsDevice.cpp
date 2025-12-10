@@ -144,8 +144,9 @@ namespace Nexus::Graphics
 			spec.MipLevels	  = mipCount;
 		}
 
-		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 		auto   texture	  = Ref<ITexture>(CreateTexture(spec));
+		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
+
 		commandQueue->WriteToTexture(texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 
 		stbi_image_free(data);

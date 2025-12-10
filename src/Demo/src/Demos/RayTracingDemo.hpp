@@ -64,6 +64,7 @@ namespace Demos
 				triangleDesc.VertexCount											= 3;
 				triangleDesc.IndexBuffer											= m_IndexBuffer->GetDeviceAddress(0);
 				triangleDesc.IndexBufferFormat										= Nexus::Graphics::IndexFormat::UInt32;
+				triangleDesc.IndexCount												= 3;
 				triangleDesc.TransformBuffer										= {};
 
 				Nexus::Graphics::AccelerationStructureGeometryDescription geometryDesc = {};
@@ -71,20 +72,17 @@ namespace Demos
 				geometryDesc.Flags													   = 0;
 				geometryDesc.Geometry												   = triangleDesc;
 
-				std::vector<uint32_t> primitiveCounts = {1};
-
 				Nexus::Graphics::AccelerationStructureGeometryBuildDescription geometryBuildDesc = {};
-				geometryBuildDesc.Type			  = Nexus::Graphics::AccelerationStructureType::BottomLevel;
-				geometryBuildDesc.Flags			  = 0;
-				geometryBuildDesc.Geometry		  = {geometryDesc};
-				geometryBuildDesc.PrimitiveCounts = primitiveCounts;
-				geometryBuildDesc.Mode			  = Nexus::Graphics::AccelerationStructureBuildMode::Build;
-				geometryBuildDesc.Source		  = nullptr;
-				geometryBuildDesc.Destination	  = nullptr;
-				geometryBuildDesc.ScratchBuffer	  = {};
+				geometryBuildDesc.Type			= Nexus::Graphics::AccelerationStructureType::BottomLevel;
+				geometryBuildDesc.Flags			= 0;
+				geometryBuildDesc.Geometry		= {geometryDesc};
+				geometryBuildDesc.Mode			= Nexus::Graphics::AccelerationStructureBuildMode::Build;
+				geometryBuildDesc.Source		= nullptr;
+				geometryBuildDesc.Destination	= nullptr;
+				geometryBuildDesc.ScratchBuffer = {};
 
 				Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
-					m_GraphicsDevice->GetAccelerationStructureBuildSize(geometryBuildDesc, primitiveCounts);
+					m_GraphicsDevice->GetAccelerationStructureBuildSize(geometryBuildDesc);
 
 				size_t scratchBufferSize =
 					buildSize.BuildScratchSize + (accelerationStructureProperties.MinAccelerationStructureScratchOffsetAlignment - 1);
@@ -122,15 +120,8 @@ namespace Demos
 				const uint64_t alignedOffset	= alignedAddr - baseAddr;
 				geometryBuildDesc.ScratchBuffer = alignedAddr;
 
-				Nexus::Graphics::AccelerationStructureBuildDescription accelerationStructureBuildDesc = {};
-				accelerationStructureBuildDesc.Geometry												  = geometryBuildDesc;
-				accelerationStructureBuildDesc.BuildRange = {Nexus::Graphics::AccelerationStructureBuildRange {.PrimitiveCount	= 1,
-																											   .PrimitiveOffset = 0,
-																											   .FirstVertex		= 0,
-																											   .TransformOffset = 0}};
-
 				m_CommandList->Begin();
-				m_CommandList->BuildAccelerationStructures({accelerationStructureBuildDesc});
+				m_CommandList->BuildAccelerationStructures({geometryBuildDesc});
 				m_CommandList->End();
 
 				m_CommandQueue->SubmitCommandList(m_CommandList);
@@ -172,6 +163,7 @@ namespace Demos
 				instanceDesc.InstanceBuffer											= m_TransformBuffer->GetDeviceAddress(0);
 				instanceDesc.Stride													= m_TransformBuffer->GetStrideInBytes();
 				instanceDesc.ArrayOfPointers										= false;
+				instanceDesc.Count													= 1;
 
 				Nexus::Graphics::AccelerationStructureGeometryDescription geometryDesc = {};
 				geometryDesc.Type													   = Nexus::Graphics::GeometryType::Instance;
@@ -188,10 +180,8 @@ namespace Demos
 				geometryBuildDesc.Destination	  = nullptr;
 				geometryBuildDesc.ScratchBuffer	  = {};
 
-				std::vector<uint32_t> primitiveCounts = {1};
-
 				Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
-					m_GraphicsDevice->GetAccelerationStructureBuildSize(geometryBuildDesc, primitiveCounts);
+					m_GraphicsDevice->GetAccelerationStructureBuildSize(geometryBuildDesc);
 
 				size_t scratchBufferSize =
 					buildSize.BuildScratchSize + (accelerationStructureProperties.MinAccelerationStructureScratchOffsetAlignment - 1);
@@ -229,15 +219,8 @@ namespace Demos
 				const uint64_t alignedOffset	= alignedAddr - baseAddr;
 				geometryBuildDesc.ScratchBuffer = alignedAddr;
 
-				Nexus::Graphics::AccelerationStructureBuildDescription accelerationStructureBuildDesc = {};
-				accelerationStructureBuildDesc.Geometry												  = geometryBuildDesc;
-				accelerationStructureBuildDesc.BuildRange = {Nexus::Graphics::AccelerationStructureBuildRange {.PrimitiveCount	= 1,
-																											   .PrimitiveOffset = 0,
-																											   .FirstVertex		= 0,
-																											   .TransformOffset = 0}};
-
 				m_CommandList->Begin();
-				m_CommandList->BuildAccelerationStructures({accelerationStructureBuildDesc});
+				m_CommandList->BuildAccelerationStructures({geometryBuildDesc});
 				m_CommandList->End();
 
 				m_CommandQueue->SubmitCommandList(m_CommandList);
@@ -267,64 +250,70 @@ namespace Demos
 
 			// Pipeline
 			{
-				Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
-				pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/raygen.rgen",
-																								 Nexus::Graphics::ShaderStage::RayGeneration));
-				pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/miss.rmiss",
-																								 Nexus::Graphics::ShaderStage::RayMiss));
-				pipelineDesc.Shaders.push_back(
-					m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/closesthit.rchit",
-																	  Nexus::Graphics::ShaderStage::RayClosestHit));
+				// ray tracing shaders can only be compiled to SPIRV atm, HLSL is not supported
+				if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
+				{
+					Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
+					pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/raygen.rgen",
+																									 Nexus::Graphics::ShaderStage::RayGeneration));
+					pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/miss.rmiss",
+																									 Nexus::Graphics::ShaderStage::RayMiss));
+					pipelineDesc.Shaders.push_back(
+						m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/closesthit.rchit",
+																		  Nexus::Graphics::ShaderStage::RayClosestHit));
 
-				Nexus::Graphics::ShaderGroup rayGenGroup = {};
-				rayGenGroup.Type						 = Nexus::Graphics::ShaderGroupType::General;
-				rayGenGroup.GeneralShader				 = 0;
-				rayGenGroup.ClosestHitShader			 = NX_SHADER_UNUSED;
-				rayGenGroup.AnyHitShader				 = NX_SHADER_UNUSED;
-				rayGenGroup.IntersectionShader			 = NX_SHADER_UNUSED;
+					Nexus::Graphics::ShaderGroup rayGenGroup = {};
+					rayGenGroup.Type						 = Nexus::Graphics::ShaderGroupType::General;
+					rayGenGroup.GeneralShader				 = 0;
+					rayGenGroup.ClosestHitShader			 = NX_SHADER_UNUSED;
+					rayGenGroup.AnyHitShader				 = NX_SHADER_UNUSED;
+					rayGenGroup.IntersectionShader			 = NX_SHADER_UNUSED;
 
-				Nexus::Graphics::ShaderGroup missGroup = {};
-				missGroup.Type						   = Nexus::Graphics::ShaderGroupType::General;
-				missGroup.GeneralShader				   = 1;
-				missGroup.ClosestHitShader			   = NX_SHADER_UNUSED;
-				missGroup.AnyHitShader				   = NX_SHADER_UNUSED;
-				missGroup.IntersectionShader		   = NX_SHADER_UNUSED;
+					Nexus::Graphics::ShaderGroup missGroup = {};
+					missGroup.Type						   = Nexus::Graphics::ShaderGroupType::General;
+					missGroup.GeneralShader				   = 1;
+					missGroup.ClosestHitShader			   = NX_SHADER_UNUSED;
+					missGroup.AnyHitShader				   = NX_SHADER_UNUSED;
+					missGroup.IntersectionShader		   = NX_SHADER_UNUSED;
 
-				Nexus::Graphics::ShaderGroup hitGroup = {};
-				hitGroup.Type						  = Nexus::Graphics::ShaderGroupType::Triangles;
-				hitGroup.GeneralShader				  = NX_SHADER_UNUSED;
-				hitGroup.ClosestHitShader			  = 2;
-				hitGroup.AnyHitShader				  = NX_SHADER_UNUSED;
-				hitGroup.IntersectionShader			  = NX_SHADER_UNUSED;
+					Nexus::Graphics::ShaderGroup hitGroup = {};
+					hitGroup.Type						  = Nexus::Graphics::ShaderGroupType::Triangles;
+					hitGroup.GeneralShader				  = NX_SHADER_UNUSED;
+					hitGroup.ClosestHitShader			  = 2;
+					hitGroup.AnyHitShader				  = NX_SHADER_UNUSED;
+					hitGroup.IntersectionShader			  = NX_SHADER_UNUSED;
 
-				pipelineDesc.ShaderGroups = {rayGenGroup, missGroup, hitGroup};
+					pipelineDesc.ShaderGroups = {rayGenGroup, missGroup, hitGroup};
 
-				pipelineDesc.MaxRecursionDepth				 = 1;
-				pipelineDesc.DebugName						 = "Ray Tracing Pipeline";
-				pipelineDesc.ResourceDescription.Descriptors = {
-					Nexus::Graphics::ResourceDescriptor {.Name				 = "outputImage",
-														 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
-														 .CountOrSizeInBytes = 1},
-					Nexus::Graphics::ResourceDescriptor {.Name				 = "topLevelAS",
-														 .Type				 = Nexus::Graphics::ResourceDescriptorType::AccelerationStructure,
-														 .CountOrSizeInBytes = 1}};
+					pipelineDesc.MaxRecursionDepth				 = 1;
+					pipelineDesc.DebugName						 = "Ray Tracing Pipeline";
+					pipelineDesc.ResourceDescription.Descriptors = {
+						Nexus::Graphics::ResourceDescriptor {.Name				 = "outputImage",
+															 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
+															 .CountOrSizeInBytes = 1},
+						Nexus::Graphics::ResourceDescriptor {.Name				 = "topLevelAS",
+															 .Type				 = Nexus::Graphics::ResourceDescriptorType::AccelerationStructure,
+															 .CountOrSizeInBytes = 1}};
 
-				m_Pipeline = m_GraphicsDevice->CreateRayTracingPipeline(pipelineDesc);
+					m_Pipeline = m_GraphicsDevice->CreateRayTracingPipeline(pipelineDesc);
 
-				m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
-				m_ResourceSet->WriteAccelerationStructure(m_TLAS, "topLevelAS");
+					m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+					m_ResourceSet->WriteAccelerationStructure(m_TLAS, "topLevelAS");
 
-				Nexus::Graphics::StorageImageView storageImageView = {};
-				storageImageView.TextureHandle					   = m_StorageTexture;
-				storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
-				storageImageView.ArrayLayer						   = 0;
-				storageImageView.MipLevel						   = 0;
-				m_ResourceSet->WriteStorageImage(storageImageView, "outputImage");
+					Nexus::Graphics::StorageImageView storageImageView = {};
+					storageImageView.TextureHandle					   = m_StorageTexture;
+					storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
+					storageImageView.ArrayLayer						   = 0;
+					storageImageView.MipLevel						   = 0;
+					m_ResourceSet->WriteStorageImage(storageImageView, "outputImage");
 
-				m_ResourceSet->Flush();
+					m_ResourceSet->Flush();
+				}
 			}
 
 			// SBT
+			// ray tracing shaders can only be compiled to SPIRV atm, HLSL is not supported
+			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
 			{
 				Nexus::Graphics::RayTracingDeviceDescription deviceRayTracingDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
 				const uint32_t								 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;	   // e.g., 32
@@ -384,6 +373,7 @@ namespace Demos
 				m_GraphicsDevice->WaitForIdle();
 			}
 
+			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
 			{
 				NX_PROFILE_SCOPE("Command submission");
 
@@ -442,9 +432,10 @@ namespace Demos
 		Nexus::Graphics::StridedDeviceAddressRegion m_HitRegion		 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_CallableRegion = {};
 
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_StorageTexture		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_StorageTextureView	= nullptr;
-		ImTextureID								  m_BoundImGuiTextureID = 0;
+		Nexus::Ref<Nexus::Graphics::ITexture>	  m_StorageTexture	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITextureView> m_StorageTextureView = nullptr;
+
+		ImTextureID m_BoundImGuiTextureID = 0;
 
 	};	  // namespace Demos
 }	 // namespace Demos

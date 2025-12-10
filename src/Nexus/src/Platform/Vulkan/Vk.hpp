@@ -70,17 +70,19 @@ namespace Nexus::Vk
 	VkBuildAccelerationStructureModeKHR	   GetAccelerationStructureBuildMode(Graphics::AccelerationStructureBuildMode mode);
 	VkGeometryTypeKHR					   GetAccelerationStructureGeometryType(Graphics::GeometryType type);
 	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
-	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry);
+	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry,
+																				uint32_t &primitiveCount);
 	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
 	VkPresentModeKHR					   GetVulkanPresentMode(Graphics::PresentMode presentMode);
 
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
-		const Graphics::AccelerationStructureGeometryBuildDescription &description);
+		const Graphics::AccelerationStructureGeometryBuildDescription &description,
+		std::vector<uint32_t>										  &primitiveCounts);
 
 	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
 																	 const std::vector<VkAccelerationStructureGeometryKHR>		   &geometry);
 
-	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range);
+	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(uint32_t primitiveCount);
 
 	struct VulkanRenderPassDescription
 	{

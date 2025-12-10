@@ -159,8 +159,7 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::GetAccelerationStructureBuildSize(
-		const AccelerationStructureGeometryBuildDescription &description,
-		const std::vector<uint32_t>							&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description) const
 	{
 		NX_VALIDATE(0, "Ray tracing not supported on OpenGL backend");
 		return AccelerationStructureBuildSizeDescription();

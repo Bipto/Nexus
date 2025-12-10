@@ -1896,5 +1896,219 @@ namespace Nexus::D3D12
 			default: throw std::runtime_error("Failed to find a valid barrier layout");
 		}
 	}
+
+	D3D12_RESOURCE_FLAGS GetResourceFlags(uint8_t usage)
+	{
+		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+
+		if (usage & Graphics::BufferUsage_Storage)
+		{
+			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
+
+		if (usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly || usage & Graphics::BufferUsage_AccelerationStructureStorage)
+		{
+			flags |= D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
+		}
+
+		return flags;
+	}
+
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE GetAccelerationStructureType(Graphics::AccelerationStructureType type)
+	{
+		switch (type)
+		{
+			case Graphics::AccelerationStructureType::BottomLevel: return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+			case Graphics::AccelerationStructureType::TopLevel: return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+			default: throw std::runtime_error("Failed to find a valid acceleration structure type");
+		}
+	}
+
+	static D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS GetAccelerationStructureBuildFlags(uint8_t flags, bool performUpdate)
+	{
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::AllowUpdate)
+		{
+			buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::AllowCompaction)
+		{
+			buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION;
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastTrace)
+		{
+			buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+		}
+
+		if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastBuild)
+		{
+			buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+		}
+		if (flags & Graphics::AccelerationStructureBuildFlags::MinimizeMemory)
+		{
+			buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY;
+		}
+
+		if (performUpdate)
+		{
+			buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+		}
+
+		return buildFlags;
+	}
+
+	static D3D12_RAYTRACING_GEOMETRY_TYPE GetRayTracingGeometryType(Graphics::GeometryType type)
+	{
+		switch (type)
+		{
+			case Graphics::GeometryType::AxisAlignedBoundingBoxes: return D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+			case Graphics::GeometryType::Triangles: return D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+			default: throw std::runtime_error("Failed to find a valid geometry type");
+		}
+	}
+
+	static D3D12_RAYTRACING_GEOMETRY_FLAGS GetRayTracingGeometryFlags(uint8_t flags)
+	{
+		D3D12_RAYTRACING_GEOMETRY_FLAGS outputFlags = D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
+
+		if (flags & Graphics::AccelerationStructureGeometryFlags::Opaque)
+		{
+			outputFlags |= D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+		}
+
+		if (flags & Graphics::AccelerationStructureGeometryFlags::NoDuplicateAnyhit)
+		{
+			outputFlags |= D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION;
+		}
+
+		return outputFlags;
+	}
+
+	static DXGI_FORMAT GetVertexFormat(Graphics::VertexFormat format)
+	{
+		switch (format)
+		{
+			case Graphics::VertexFormat::R32G32_SFloat: return DXGI_FORMAT_R32G32_FLOAT;
+			case Graphics::VertexFormat::R32G32B32_SFloat: return DXGI_FORMAT_R32G32B32_FLOAT;
+			case Graphics::VertexFormat::R16G16_SFloat: return DXGI_FORMAT_R16G16_FLOAT;
+			case Graphics::VertexFormat::R16G16B16A16_SFloat: return DXGI_FORMAT_R16G16B16A16_FLOAT;
+			case Graphics::VertexFormat::R16G16_SNorm: return DXGI_FORMAT_R16G16_SNORM;
+			case Graphics::VertexFormat::R16G16B16A16_SNorm: return DXGI_FORMAT_R16G16B16A16_SNORM;
+			case Graphics::VertexFormat::R16G16B16A16_UNorm: return DXGI_FORMAT_R16G16B16A16_UNORM;
+			case Graphics::VertexFormat::R16G16_UNorm: return DXGI_FORMAT_R16G16_UNORM;
+			case Graphics::VertexFormat::R10G10B10A2_UNorm: return DXGI_FORMAT_R10G10B10A2_UNORM;
+			case Graphics::VertexFormat::R8G8_UNorm: return DXGI_FORMAT_R8G8_UNORM;
+			case Graphics::VertexFormat::R8G8B8A8_UNorm: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case Graphics::VertexFormat::R8G8_SNorm: return DXGI_FORMAT_R8G8_SNORM;
+			default: throw std::runtime_error("Failed to find a valid vertex format");
+		}
+	}
+
+	static void GetAccelerationStructureBuildGeometry(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+													  std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>					&outputGeometry,
+													  bool															&isInstance,
+													  D3D12_GPU_VIRTUAL_ADDRESS										&instanceAddress,
+													  uint32_t														&instanceCount)
+	{
+		isInstance = false;
+
+		for (const auto &buildGeometry : description.Geometry)
+		{
+			if (buildGeometry.Type != Graphics::GeometryType::Instance) {}
+
+			switch (buildGeometry.Type)
+			{
+				case Graphics::GeometryType::AxisAlignedBoundingBoxes:
+				{
+					Graphics::AccelerationStructureAABBGeometry aabbs = std::get<Graphics::AccelerationStructureAABBGeometry>(buildGeometry.Geometry);
+
+					D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE address = {.StartAddress = aabbs.AABBs, .StrideInBytes = aabbs.Stride};
+
+					D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc = outputGeometry.emplace_back();
+					geometryDesc.Type							 = GetRayTracingGeometryType(buildGeometry.Type);
+					geometryDesc.Flags							 = GetRayTracingGeometryFlags(buildGeometry.Flags);
+					geometryDesc.AABBs.AABBs					 = address;
+					geometryDesc.AABBs.AABBCount				 = aabbs.Count;
+					break;
+				}
+				case Graphics::GeometryType::Triangles:
+				{
+					Graphics::AccelerationStructureTriangleGeometry triangles =
+						std::get<Graphics::AccelerationStructureTriangleGeometry>(buildGeometry.Geometry);
+
+					D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE vertexDataAddress	  = {.StartAddress	= triangles.VertexBuffer,
+																				 .StrideInBytes = triangles.VertexBufferStride};
+					D3D12_GPU_VIRTUAL_ADDRESS			 indexDataAddress	  = triangles.IndexBuffer;
+					D3D12_GPU_VIRTUAL_ADDRESS			 transformDataAddress = triangles.TransformBuffer;
+
+					D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc = outputGeometry.emplace_back();
+					geometryDesc.Type							 = GetRayTracingGeometryType(buildGeometry.Type);
+					geometryDesc.Flags							 = GetRayTracingGeometryFlags(buildGeometry.Flags);
+					geometryDesc.Triangles.VertexFormat			 = GetVertexFormat(triangles.VertexBufferFormat);
+					geometryDesc.Triangles.VertexBuffer			 = vertexDataAddress;
+					geometryDesc.Triangles.VertexCount			 = triangles.VertexCount;
+
+					if (triangles.IndexBufferFormat.has_value())
+					{
+						size_t indexSize = Graphics::GetIndexFormatSizeInBytes(triangles.IndexBufferFormat.value());
+
+						geometryDesc.Triangles.IndexBuffer = 0;
+						geometryDesc.Triangles.IndexFormat = GetD3D12IndexBufferFormat(triangles.IndexBufferFormat.value());
+						geometryDesc.Triangles.IndexCount  = triangles.IndexCount;
+					}
+					else
+					{
+						geometryDesc.Triangles.IndexBuffer = indexDataAddress;
+						geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
+						geometryDesc.Triangles.IndexCount  = 0;
+					}
+
+					break;
+				}
+
+				case Graphics::GeometryType::Instance:
+				{
+					Graphics::AccelerationStructureInstanceGeometry instances =
+						std::get<Graphics::AccelerationStructureInstanceGeometry>(buildGeometry.Geometry);
+
+					isInstance	  = true;
+					instanceCount = instances.Count;
+					break;
+				}
+				default: throw std::runtime_error("Failed to find a valid geometry type");
+			}
+		}
+	}
+
+	void GetD3D12AccelerationStructureInputs(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+											 D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS		   &inputs,
+											 std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>				   &geometry)
+	{
+		bool performUpdate = description.Mode == Graphics::AccelerationStructureBuildMode::Update;
+
+		bool										isInstance		= false;
+		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometryDesc	= {};
+		D3D12_GPU_VIRTUAL_ADDRESS					instanceAddress = {};
+		uint32_t									instanceCount	= 0;
+		GetAccelerationStructureBuildGeometry(description, geometryDesc, isInstance, instanceAddress, instanceCount);
+
+		inputs.Type		   = GetAccelerationStructureType(description.Type);
+		inputs.Flags	   = GetAccelerationStructureBuildFlags(description.Flags, performUpdate);
+		inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+
+		if (isInstance)
+		{
+			inputs.NumDescs		 = instanceCount;
+			inputs.InstanceDescs = instanceAddress;
+		}
+		else
+		{
+			inputs.NumDescs		  = geometryDesc.size();
+			inputs.pGeometryDescs = geometryDesc.data();
+		}
+	}
 }	 // namespace Nexus::D3D12
 #endif
