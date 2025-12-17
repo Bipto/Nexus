@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
-		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.TextureExtent				  = {.Width = width, .Height = height};
 		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyBufferToTexture(copyDesc);
 
@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
-		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.TextureExtent				  = {.Width = width, .Height = height};
 		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyTextureToBuffer(copyDesc);
 

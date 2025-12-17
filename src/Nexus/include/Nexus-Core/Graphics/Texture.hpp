@@ -154,6 +154,11 @@ namespace Nexus::Graphics
 			return m_Description.MipLevels;
 		}
 
+		bool IsLayeredTexture() const
+		{
+			return m_Description.Type != TextureType::Texture3D && m_Description.DepthOrArrayLayers > 1;
+		}
+
 		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
 
 		virtual SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const = 0;

@@ -38,6 +38,13 @@ namespace Demos
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
+			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
+			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
+			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Storage;
+			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
+			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
+			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+
 			Nexus::Graphics::StorageBufferView storageBufferView = {};
 			storageBufferView.BufferHandle						 = m_StorageBuffer;
 			storageBufferView.Offset							 = 0;
@@ -56,7 +63,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_StorageBuffer->SetData(&transform, 0, sizeof(transform));
+			m_CommandQueue->WriteToBuffer(m_StorageBuffer, &transform, 0, sizeof(transform));
 
 			m_CommandList->Begin();
 
@@ -135,13 +142,6 @@ namespace Demos
 			pipelineDescription.FragmentModule =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/storage_buffers/storage_buffers.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
-
-			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Storage;
-			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
-			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
-			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			pipelineDescription.ColourTargetCount = 1;
 			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();

@@ -624,6 +624,8 @@ namespace Nexus::Graphics
 		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.BufferTextureCopy.TextureHandle);
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
+		const bool copyDepth = 1;
+
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
 		// perform copy
@@ -639,7 +641,7 @@ namespace Nexus::Graphics
 			if (texture->GetType() != TextureType::Texture3D)
 			{
 				imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureOffset.Z;
-				imageSubresource.layerCount		= command.BufferTextureCopy.TextureExtent.Depth;
+				imageSubresource.layerCount		= copyDepth;
 			}
 
 			VkOffset3D imageOffset = {};
@@ -655,7 +657,7 @@ namespace Nexus::Graphics
 			VkExtent3D imageExtent = {};
 			imageExtent.width	   = command.BufferTextureCopy.TextureExtent.Width;
 			imageExtent.height	   = command.BufferTextureCopy.TextureExtent.Height;
-			imageExtent.depth	   = command.BufferTextureCopy.TextureExtent.Depth;
+			imageExtent.depth	   = copyDepth;
 
 			if (context.CmdCopyBufferToImage2KHR)
 			{
@@ -709,6 +711,8 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
+		const bool copyDepth = 1;
+
 		// perform copy
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -722,7 +726,7 @@ namespace Nexus::Graphics
 			if (texture->GetType() != TextureType::Texture3D)
 			{
 				imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureOffset.Z;
-				imageSubresource.layerCount		= command.TextureBufferCopy.TextureExtent.Depth;
+				imageSubresource.layerCount		= copyDepth;
 			}
 
 			VkOffset3D imageOffset = {};
@@ -738,7 +742,7 @@ namespace Nexus::Graphics
 			VkExtent3D imageExtent = {};
 			imageExtent.width	   = command.TextureBufferCopy.TextureExtent.Width;
 			imageExtent.height	   = command.TextureBufferCopy.TextureExtent.Height;
-			imageExtent.depth	   = command.TextureBufferCopy.TextureExtent.Depth;
+			imageExtent.depth	   = copyDepth;
 
 			if (context.CmdCopyImageToBuffer2KHR)
 			{
@@ -795,57 +799,59 @@ namespace Nexus::Graphics
 		std::map<uint32_t, VkImageLayout> srcLayouts;
 		std::map<uint32_t, VkImageLayout> dstLayouts;
 
+		const bool copyDepth = 1;
+
 		// copy image
 		{
-			VkImageSubresourceLayers srcSubresource;
-			srcSubresource.aspectMask	  = srcAspect;
-			srcSubresource.mipLevel		  = command.TextureCopy.SourceMipLevel;
-			srcSubresource.baseArrayLayer = 0;
-			srcSubresource.layerCount	  = 1;
+			VkImageSubresourceLayers srcSubresource = {};
+			srcSubresource.aspectMask				= srcAspect;
+			srcSubresource.mipLevel					= command.TextureCopy.SourceMipLevel;
+			srcSubresource.baseArrayLayer			= 0;
+			srcSubresource.layerCount				= 1;
 
 			if (srcTexture->GetType() != TextureType::Texture3D)
 			{
 				srcSubresource.baseArrayLayer = command.TextureCopy.SourceOffset.Z;
-				srcSubresource.layerCount	  = command.TextureCopy.Extent.Depth;
+				srcSubresource.layerCount	  = copyDepth;
 			}
 
-			VkOffset3D srcOffset;
-			srcOffset.x = command.TextureCopy.SourceOffset.X;
-			srcOffset.y = command.TextureCopy.SourceOffset.Y;
-			srcOffset.z = 0;
+			VkOffset3D srcOffset = {};
+			srcOffset.x			 = command.TextureCopy.SourceOffset.X;
+			srcOffset.y			 = command.TextureCopy.SourceOffset.Y;
+			srcOffset.z			 = 0;
 
 			if (srcTexture->GetType() != TextureType::Texture2D)
 			{
 				srcOffset.z = command.TextureCopy.SourceOffset.Z;
 			}
 
-			VkImageSubresourceLayers dstSubresource;
-			dstSubresource.aspectMask	  = dstAspect;
-			dstSubresource.mipLevel		  = command.TextureCopy.DestinationMipLevel;
-			dstSubresource.baseArrayLayer = 0;
-			dstSubresource.layerCount	  = 1;
+			VkImageSubresourceLayers dstSubresource = {};
+			dstSubresource.aspectMask				= dstAspect;
+			dstSubresource.mipLevel					= command.TextureCopy.DestinationMipLevel;
+			dstSubresource.baseArrayLayer			= 0;
+			dstSubresource.layerCount				= 1;
 
 			// we can only set these parameters for array textures, i.e. not 3D textures
 			if (dstTexture->GetType() != TextureType::Texture3D)
 			{
 				dstSubresource.baseArrayLayer = command.TextureCopy.DestinationOffset.Z;
-				dstSubresource.layerCount	  = command.TextureCopy.Extent.Depth;
+				dstSubresource.layerCount	  = copyDepth;
 			}
 
-			VkOffset3D dstOffset;
-			dstOffset.x = command.TextureCopy.DestinationOffset.X;
-			dstOffset.y = command.TextureCopy.DestinationOffset.Y;
-			dstOffset.z = 0;
+			VkOffset3D dstOffset = {};
+			dstOffset.x			 = command.TextureCopy.DestinationOffset.X;
+			dstOffset.y			 = command.TextureCopy.DestinationOffset.Y;
+			dstOffset.z			 = 0;
 
 			if (dstTexture->GetType() != TextureType::Texture2D)
 			{
 				dstOffset.z = command.TextureCopy.DestinationOffset.Z;
 			}
 
-			VkExtent3D copyExtent;
-			copyExtent.width  = command.TextureCopy.Extent.Width;
-			copyExtent.height = command.TextureCopy.Extent.Height;
-			copyExtent.depth  = command.TextureCopy.Extent.Depth;
+			VkExtent3D copyExtent = {};
+			copyExtent.width	  = command.TextureCopy.Extent.Width;
+			copyExtent.height	  = command.TextureCopy.Extent.Height;
+			copyExtent.depth	  = copyDepth;
 
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 

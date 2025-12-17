@@ -107,7 +107,7 @@ namespace Nexus::GL
 						copyDesc.DestinationMipLevel = 0;
 						copyDesc.DestinationOffset	 = {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
 
-						copyDesc.Extent = {rect.GetWidth(), rect.GetHeight(), 1};
+						copyDesc.Extent = {rect.GetWidth(), rect.GetHeight()};
 						GL::CopyTextureToTexture(copyDesc, context);
 					}
 				}
@@ -125,7 +125,7 @@ namespace Nexus::GL
 					copyDesc.Destination		 = nullptr;
 					copyDesc.DestinationMipLevel = 0;
 					copyDesc.DestinationOffset	 = {0, 0, 0};
-					copyDesc.Extent				 = {texture->GetWidth(), texture->GetHeight(), 1};
+					copyDesc.Extent				 = {texture->GetWidth(), texture->GetHeight()};
 					GL::CopyTextureToTexture(copyDesc, context);
 				}
 			});

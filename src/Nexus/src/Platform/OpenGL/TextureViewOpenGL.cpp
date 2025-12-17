@@ -155,21 +155,27 @@ namespace Nexus::Graphics
 	{
 		Ref<TextureOpenGL> source = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
 
-		for (uint32_t mip = m_Description.Range.BaseMipLevel; mip < m_Description.Range.BaseMipLevel + m_Description.Range.LevelCount; mip++)
+		for (uint32_t arrayLayer = m_Description.Range.BaseArrayLayer;
+			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount++;
+			 arrayLayer++)
 		{
-			auto [mipWidth, mipHeight] =
-				Utils::GetMipSize(m_Description.TargetTexture->GetDescription().Width, m_Description.TargetTexture->GetDescription().Height, mip);
+			for (uint32_t mip = m_Description.Range.BaseMipLevel; mip < m_Description.Range.BaseMipLevel + m_Description.Range.LevelCount; mip++)
+			{
+				auto [mipWidth, mipHeight] =
+					Utils::GetMipSize(m_Description.TargetTexture->GetDescription().Width, m_Description.TargetTexture->GetDescription().Height, mip);
 
-			Graphics::TextureCopyDescription copyDesc = {};
-			copyDesc.Source							  = m_Description.TargetTexture;
-			copyDesc.SourceOffset					  = {0, 0, (int32_t)m_Description.Range.BaseArrayLayer};
-			copyDesc.SourceMipLevel					  = mip;
-			copyDesc.Destination					  = m_EmulatedTextureView;
-			copyDesc.DestinationOffset				  = {0, 0, (int32_t)m_Description.Range.BaseArrayLayer};
-			copyDesc.DestinationMipLevel			  = mip - m_Description.Range.BaseMipLevel;
-			copyDesc.Extent							  = {mipWidth, mipHeight, m_Description.Range.LayerCount};
+				Graphics::TextureCopyDescription copyDesc = {};
+				copyDesc.Source							  = m_Description.TargetTexture;
+				copyDesc.SourceOffset					  = {0, 0, (int32_t)arrayLayer};
+				copyDesc.SourceMipLevel					  = mip;
+				copyDesc.Destination					  = m_EmulatedTextureView;
+				copyDesc.DestinationOffset				  = {0, 0, (int32_t)arrayLayer};
+				copyDesc.DestinationMipLevel			  = mip - m_Description.Range.BaseMipLevel;
+				copyDesc.Extent							  = {mipWidth, mipHeight};
 
-			GL::CopyTextureToTexture(copyDesc, context);
+				GL::CopyTextureToTexture(copyDesc, context);
+			}
 		}
 	}
+
 }	 // namespace Nexus::Graphics

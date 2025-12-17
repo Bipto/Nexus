@@ -155,14 +155,34 @@ namespace Nexus::Utils
 	template<typename T>
 	[[nodiscard]] T AlignTo(T value, T alignment)
 	{
-		T returnValue = ((value + alignment / 2) / alignment) * alignment;
-
-		if (returnValue == 0)
+		static_assert(std::is_integral_v<T>, "AlignTo requires an integral type");
+		if (alignment <= 0)
 		{
-			returnValue = alignment;
+			throw std::invalid_argument("Alignment must be positive");
 		}
+		return ((value + alignment / 2) / alignment) * alignment;
+	}
 
-		return returnValue;
+	template<typename T>
+	[[nodiscard]] T AlignDown(T value, T alignment)
+	{
+		static_assert(std::is_integral_v<T>, "AlignDown requires an integral type");
+		if (alignment <= 0)
+		{
+			throw std::invalid_argument("Alignment must be positive");
+		}
+		return (value / alignment) * alignment;
+	}
+
+	template<typename T>
+	[[nodiscard]] T AlignUp(T value, T alignment)
+	{
+		static_assert(std::is_integral_v<T>, "AlignUp requires an integral type");
+		if (alignment <= 0)
+		{
+			throw std::invalid_argument("Alignment must be positive");
+		}
+		return ((value + alignment - 1) / alignment) * alignment;
 	}
 
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);

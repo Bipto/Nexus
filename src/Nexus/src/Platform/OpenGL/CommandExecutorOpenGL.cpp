@@ -523,7 +523,7 @@ namespace Nexus::Graphics
 				copyDesc.DestinationOffset				  = {0, 0, (int32_t)command.DestinationArrayLayer};
 				copyDesc.SourceMipLevel					  = command.SourceMipLevel;
 				copyDesc.DestinationMipLevel			  = command.DestinationMipLevel;
-				copyDesc.Extent							  = {size.X, size.Y, 1};
+				copyDesc.Extent							  = {size.X, size.Y};
 
 				GL::CopyTextureToTexture(copyDesc, context);
 
@@ -605,6 +605,8 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>			  destTexture	= std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
 		const TextureCopyDescription &copyDesc		= command.TextureCopy;
 
+		const bool copyDepth = 1;
+
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
@@ -624,7 +626,7 @@ namespace Nexus::Graphics
 											 copyDesc.DestinationOffset.Z,
 											 copyDesc.Extent.Width,
 											 copyDesc.Extent.Height,
-											 copyDesc.Extent.Depth);
+											 copyDepth);
 				}
 				else
 				{

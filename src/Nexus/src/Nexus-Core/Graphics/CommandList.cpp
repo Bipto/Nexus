@@ -611,7 +611,7 @@ namespace Nexus::Graphics
 			barrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= bufferTextureCopy.MipLevel,
 														.LevelCount		= 1,
 														.BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
-														.LayerCount		= bufferTextureCopy.TextureExtent.Depth};
+														.LayerCount		= 1};
 			SubmitTextureBarrier(barrierDesc);
 		}
 
@@ -643,7 +643,7 @@ namespace Nexus::Graphics
 			barrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= textureBufferCopy.MipLevel,
 														.LevelCount		= 1,
 														.BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
-														.LayerCount		= textureBufferCopy.TextureExtent.Depth};
+														.LayerCount		= 1};
 			SubmitTextureBarrier(barrierDesc);
 		}
 
@@ -675,7 +675,7 @@ namespace Nexus::Graphics
 			sourceBarrierDesc.TextureSubresourceRange	   = {.BaseMipLevel	  = textureCopy.SourceMipLevel,
 															  .LevelCount	  = 1,
 															  .BaseArrayLayer = (uint32_t)textureCopy.SourceOffset.Z,
-															  .LayerCount	  = textureCopy.Extent.Depth};
+															  .LayerCount	  = 1};
 			SubmitTextureBarrier(sourceBarrierDesc);
 
 			Graphics::TextureBarrierDesc destBarrierDesc = {};
@@ -688,7 +688,7 @@ namespace Nexus::Graphics
 			destBarrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= textureCopy.DestinationMipLevel,
 															.LevelCount		= 1,
 															.BaseArrayLayer = (uint32_t)textureCopy.DestinationOffset.Z,
-															.LayerCount		= textureCopy.Extent.Depth};
+															.LayerCount		= 1};
 			SubmitTextureBarrier(destBarrierDesc);
 		}
 

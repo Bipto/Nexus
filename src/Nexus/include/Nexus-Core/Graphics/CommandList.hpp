@@ -77,7 +77,7 @@ namespace Nexus::Graphics
 		Offset3D TextureOffset = {};
 
 		/// @brief A structure containing parameters specifying the size of the texture area to copy
-		Extent3D TextureExtent = {};
+		Extent2D TextureExtent = {};
 
 		/// @brief An integer containing which mip level of the texture to copy to/from
 		uint32_t MipLevel = 0;
@@ -99,7 +99,7 @@ namespace Nexus::Graphics
 		Offset3D DestinationOffset = {};
 
 		/// @brief A set of parameters specifying the size of the texture area to be copied
-		Extent3D Extent = {};
+		Extent2D Extent = {};
 
 		/// @brief An integer representing which level of the source texture to copy to/from
 		uint32_t SourceMipLevel = 0;

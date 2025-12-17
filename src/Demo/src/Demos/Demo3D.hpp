@@ -206,8 +206,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::ISampler>		   m_Sampler	 = nullptr;
 		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::IResourceSet> m_ResourceSet = nullptr;
-
+		Nexus::Ref<Nexus::Graphics::IResourceSet>  m_ResourceSet		 = nullptr;
 		VB_UNIFORM_CAMERA_DEMO_3D				   m_CameraUniforms		 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
 

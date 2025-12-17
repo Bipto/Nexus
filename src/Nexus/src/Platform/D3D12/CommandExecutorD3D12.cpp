@@ -281,11 +281,6 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
-		{
-			return;
-		}
-
 		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
 
 		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(desc.TargetResourceSet);
@@ -435,19 +430,27 @@ namespace Nexus::Graphics
 		Ref<TextureD3D12>					   texture		 = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
-		bool arrayedTexture = command.BufferTextureCopy.TextureHandle->GetType() == TextureType::Texture3D ||
-							  command.BufferTextureCopy.TextureHandle->GetType() == TextureType::TextureCube;
-		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
-																arrayedTexture ? command.BufferTextureCopy.TextureOffset.Z : 0,
-																command.BufferTextureCopy.TextureHandle->GetMipLevels());
+		const bool layeredTexture	= texture->IsLayeredTexture();
+		uint32_t   subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
+																  layeredTexture ? command.BufferTextureCopy.TextureOffset.Z : 0,
+																  command.BufferTextureCopy.TextureHandle->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureOffset.X;
 		textureBounds.right		= command.BufferTextureCopy.TextureOffset.X + command.BufferTextureCopy.TextureExtent.Width;
 		textureBounds.top		= command.BufferTextureCopy.TextureOffset.Y;
 		textureBounds.bottom	= command.BufferTextureCopy.TextureOffset.Y + command.BufferTextureCopy.TextureExtent.Height;
-		textureBounds.front		= command.BufferTextureCopy.TextureOffset.Z;
-		textureBounds.back		= command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
+
+		if (texture->GetType() == TextureType::Texture3D)
+		{
+			textureBounds.front = command.BufferTextureCopy.TextureOffset.Z;
+			textureBounds.back	= command.BufferTextureCopy.TextureOffset.Z + 1;
+		}
+		else
+		{
+			textureBounds.front = 0;
+			textureBounds.back	= 1;
+		}
 
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint	  = {};
 		UINT							   numRows		  = {};
@@ -506,10 +509,12 @@ namespace Nexus::Graphics
 		dstLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 		dstLocation.SubresourceIndex			= subresourceIndex;
 
+		const uint32_t zOffset = texture->GetType() == TextureType::Texture3D ? command.BufferTextureCopy.TextureOffset.Z : 0;
+
 		m_CommandList->CopyTextureRegion(&dstLocation,
 										 command.BufferTextureCopy.TextureOffset.X,
 										 command.BufferTextureCopy.TextureOffset.Y,
-										 command.BufferTextureCopy.TextureOffset.Z,
+										 zOffset,
 										 &srcLocation,
 										 &textureBounds);
 	}
@@ -536,7 +541,7 @@ namespace Nexus::Graphics
 		textureBounds.top		= command.TextureBufferCopy.TextureOffset.Y;
 		textureBounds.bottom	= command.TextureBufferCopy.TextureOffset.Y + command.TextureBufferCopy.TextureExtent.Height;
 		textureBounds.front		= command.TextureBufferCopy.TextureOffset.Z;
-		textureBounds.back		= command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
+		textureBounds.back		= command.TextureBufferCopy.TextureOffset.Z + 1;
 
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint	  = {};
 		UINT							   numRows		  = {};
@@ -623,7 +628,7 @@ namespace Nexus::Graphics
 		textureBounds.top		= command.TextureCopy.SourceOffset.Y;
 		textureBounds.bottom	= command.TextureCopy.SourceOffset.Y + command.TextureCopy.Extent.Height;
 		textureBounds.front		= command.TextureCopy.SourceOffset.Z;
-		textureBounds.back		= command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
+		textureBounds.back		= command.TextureCopy.SourceOffset.Z + 1;
 
 		m_CommandList->CopyTextureRegion(&dstLocation,
 										 command.TextureCopy.DestinationOffset.X,
