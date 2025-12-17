@@ -126,7 +126,8 @@ namespace Nexus
 		std::string idSelector = "#" + windowProps.CanvasId;
 		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
 		uint32_t flags = GetSDl3WindowFlags(windowProps.Flags);
-		m_Window	   = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
+
+		m_Window = {SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags), SDL_DestroyWindow};
 
 		if (m_Window == nullptr)
 		{
@@ -134,13 +135,12 @@ namespace Nexus
 			NX_ERROR(errorCode);
 		}
 
-		m_WindowID = SDL_GetWindowID(m_Window);
+		m_WindowID = SDL_GetWindowID(m_Window.get());
 		SetupTimer();
 	}
 
 	SDL3Window::~SDL3Window()
 	{
-		SDL_DestroyWindow(m_Window);
 	}
 
 	void SDL3Window::Update()
@@ -152,12 +152,12 @@ namespace Nexus
 
 	void SDL3Window::SetResizable(bool isResizable)
 	{
-		SDL_SetWindowResizable(this->m_Window, isResizable);
+		SDL_SetWindowResizable(m_Window.get(), isResizable);
 	}
 
 	void SDL3Window::SetTitle(const std::string &title)
 	{
-		SDL_SetWindowTitle(this->m_Window, title.c_str());
+		SDL_SetWindowTitle(m_Window.get(), title.c_str());
 	}
 
 	void SDL3Window::SetSize(Point2D<uint32_t> size)
@@ -168,7 +168,7 @@ namespace Nexus
 				SDL_SetWindowSize(m_Window, size.X * GetDisplayScale(), size.Y * GetDisplayScale());
 		#endif */
 
-		SDL_SetWindowSize(m_Window, size.X, size.Y);
+		SDL_SetWindowSize(m_Window.get(), size.X, size.Y);
 	}
 
 	void SDL3Window::Close()
@@ -183,13 +183,13 @@ namespace Nexus
 
 	SDL_Window *SDL3Window::GetSDLWindowHandle()
 	{
-		return m_Window;
+		return m_Window.get();
 	}
 
 	Point2D<uint32_t> SDL3Window::GetWindowSize()
 	{
 		int x, y;
-		SDL_GetWindowSize(m_Window, &x, &y);
+		SDL_GetWindowSize(m_Window.get(), &x, &y);
 
 		Point2D<uint32_t> size {};
 		size.X = x;
@@ -206,20 +206,20 @@ namespace Nexus
 	Point2D<uint32_t> SDL3Window::GetWindowSizeInPixels()
 	{
 		int w, h;
-		SDL_GetWindowSizeInPixels(m_Window, &w, &h);
+		SDL_GetWindowSizeInPixels(m_Window.get(), &w, &h);
 		return {(uint32_t)w, (uint32_t)h};
 	}
 
 	Point2D<int> SDL3Window::GetWindowPosition()
 	{
 		Point2D<int> position {};
-		SDL_GetWindowPosition(m_Window, &position.X, &position.Y);
+		SDL_GetWindowPosition(m_Window.get(), &position.X, &position.Y);
 		return position;
 	}
 
 	WindowState SDL3Window::GetCurrentWindowState()
 	{
-		Uint32 flags = SDL_GetWindowFlags(m_Window);
+		Uint32 flags = SDL_GetWindowFlags(m_Window.get());
 
 		if (flags & SDL_WINDOW_MAXIMIZED)
 		{
@@ -251,37 +251,37 @@ namespace Nexus
 
 	bool SDL3Window::IsFocussed()
 	{
-		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
+		return SDL_GetWindowFlags(m_Window.get()) & SDL_WINDOW_INPUT_FOCUS;
 	}
 
 	bool SDL3Window::IsMinimized()
 	{
-		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MINIMIZED;
+		return SDL_GetWindowFlags(m_Window.get()) & SDL_WINDOW_MINIMIZED;
 	}
 
 	bool SDL3Window::IsMaximized()
 	{
-		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MAXIMIZED;
+		return SDL_GetWindowFlags(m_Window.get()) & SDL_WINDOW_MAXIMIZED;
 	}
 
 	bool SDL3Window::IsFullscreen()
 	{
-		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
+		return SDL_GetWindowFlags(m_Window.get()) & SDL_WINDOW_FULLSCREEN;
 	}
 
 	void SDL3Window::Maximize()
 	{
-		SDL_MaximizeWindow(m_Window);
+		SDL_MaximizeWindow(m_Window.get());
 	}
 
 	void SDL3Window::Minimize()
 	{
-		SDL_MinimizeWindow(m_Window);
+		SDL_MinimizeWindow(m_Window.get());
 	}
 
 	void SDL3Window::Restore()
 	{
-		SDL_RestoreWindow(m_Window);
+		SDL_RestoreWindow(m_Window.get());
 	}
 
 	void SDL3Window::ToggleFullscreen()
@@ -298,32 +298,32 @@ namespace Nexus
 
 	void SDL3Window::SetFullscreen()
 	{
-		SDL_SetWindowFullscreen(m_Window, true);
+		SDL_SetWindowFullscreen(m_Window.get(), true);
 	}
 
 	void SDL3Window::UnsetFullscreen()
 	{
-		SDL_SetWindowFullscreen(m_Window, false);
+		SDL_SetWindowFullscreen(m_Window.get(), false);
 	}
 
 	void SDL3Window::Show()
 	{
-		SDL_ShowWindow(m_Window);
+		SDL_ShowWindow(m_Window.get());
 	}
 
 	void SDL3Window::Hide()
 	{
-		SDL_HideWindow(m_Window);
+		SDL_HideWindow(m_Window.get());
 	}
 
 	void SDL3Window::SetWindowPosition(int32_t x, int32_t y)
 	{
-		SDL_SetWindowPosition(m_Window, x, y);
+		SDL_SetWindowPosition(m_Window.get(), x, y);
 	}
 
 	void SDL3Window::Focus()
 	{
-		SDL_RaiseWindow(m_Window);
+		SDL_RaiseWindow(m_Window.get());
 	}
 
 	uint32_t SDL3Window::GetID()
@@ -333,7 +333,7 @@ namespace Nexus
 
 	float SDL3Window::GetDisplayScale()
 	{
-		return SDL_GetWindowDisplayScale(m_Window);
+		return SDL_GetWindowDisplayScale(m_Window.get());
 	}
 
 	void SDL3Window::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
@@ -343,17 +343,17 @@ namespace Nexus
 		r.y = rect.GetTop();
 		r.w = rect.GetWidth();
 		r.h = rect.GetHeight();
-		SDL_SetTextInputArea(m_Window, &r, 0);
+		SDL_SetTextInputArea(m_Window.get(), &r, 0);
 	}
 
 	void SDL3Window::StartTextInput()
 	{
-		SDL_StartTextInput(m_Window);
+		SDL_StartTextInput(m_Window.get());
 	}
 
 	void SDL3Window::StopTextInput()
 	{
-		SDL_StopTextInput(m_Window);
+		SDL_StopTextInput(m_Window.get());
 	}
 
 	void SDL3Window::SetRendersPerSecond(std::optional<uint32_t> amount)
@@ -391,14 +391,14 @@ namespace Nexus
 
 	void SDL3Window::SetRelativeMouseMode(bool enabled)
 	{
-		SDL_SetWindowRelativeMouseMode(m_Window, enabled);
+		SDL_SetWindowRelativeMouseMode(m_Window.get(), enabled);
 	}
 
 	NativeWindowInfo SDL3Window::GetNativeWindowInfo()
 	{
 		NativeWindowInfo info = {};
 
-		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window);
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
 #if defined(NX_PLATFORM_WINDOWS)
 		info.hwnd	  = (HWND)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);

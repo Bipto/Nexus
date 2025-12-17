@@ -12,6 +12,8 @@ namespace Nexus::Graphics
 	{
 		GLenum bufferUsage = GL::GetBufferUsage(desc);
 
+		const GLbitfield createFlags = mapFlags | GL_DYNAMIC_STORAGE_BIT;
+
 		// create buffer (try to use BufferStorage functions if available, otherwise fall back to using BufferData and a vector of CPU data for
 		// mapping)
 		GL::ExecuteGLCommands(
@@ -20,14 +22,14 @@ namespace Nexus::Graphics
 				if (context.ARB_buffer_storage && (context.ARB_direct_state_access || context.EXT_direct_state_access))
 				{
 					glCall(context.CreateBuffers(1, &m_BufferHandle));
-					glCall(context.NamedBufferStorageEXT(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, mapFlags));
+					glCall(context.NamedBufferStorageEXT(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, createFlags));
 					m_PersistentMapping = true;
 				}
 				else if (context.ARB_buffer_storage)
 				{
 					glCall(context.CreateBuffers(1, &m_BufferHandle));
 					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-					glCall(context.BufferStorageEXT(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, mapFlags));
+					glCall(context.BufferStorageEXT(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, createFlags));
 					m_PersistentMapping = true;
 				}
 				else if (context.ARB_direct_state_access || context.EXT_direct_state_access)

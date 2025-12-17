@@ -59,7 +59,10 @@ namespace Nexus
 		data->dialogFinished = true;
 	}
 
-	OpenFileDialogSDL3::OpenFileDialogSDL3(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany)
+	OpenFileDialogSDL3::OpenFileDialogSDL3(IWindow							   *window,
+										   const std::vector<FileDialogFilter> &filters,
+										   std::string_view						defaultLocation,
+										   bool									allowMany)
 		: m_Window(window),
 		  m_DefaultLocation(defaultLocation),
 		  m_AllowMany(allowMany)
@@ -92,7 +95,7 @@ namespace Nexus
 		SDL_SetPointerProperty(properties, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, wrapper->GetSDLWindowHandle());
 
 		// set up a default path for the dialog
-		SDL_SetStringProperty(properties, SDL_PROP_FILE_DIALOG_LOCATION_STRING, m_DefaultLocation);
+		SDL_SetStringProperty(properties, SDL_PROP_FILE_DIALOG_LOCATION_STRING, m_DefaultLocation.c_str());
 
 		// set up whether the dialog can accept multiple files
 		SDL_SetBooleanProperty(properties, SDL_PROP_FILE_DIALOG_MANY_BOOLEAN, m_AllowMany);
@@ -107,7 +110,7 @@ namespace Nexus
 		return data.dialogResult;
 	}
 
-	SaveFileDialogSDL3::SaveFileDialogSDL3(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation)
+	SaveFileDialogSDL3::SaveFileDialogSDL3(IWindow *window, const std::vector<FileDialogFilter> &filters, std::string_view defaultLocation)
 		: m_Window(window),
 		  m_DefaultLocation(defaultLocation)
 	{
@@ -139,7 +142,7 @@ namespace Nexus
 		SDL_SetPointerProperty(properties, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, wrapper->GetSDLWindowHandle());
 
 		// set up a default path for the dialog
-		SDL_SetStringProperty(properties, SDL_PROP_FILE_DIALOG_LOCATION_STRING, m_DefaultLocation);
+		SDL_SetStringProperty(properties, SDL_PROP_FILE_DIALOG_LOCATION_STRING, m_DefaultLocation.c_str());
 
 		// display the dialog using the callback
 		SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_SAVEFILE, sdl_file_selected_callback, &data, properties);
@@ -151,7 +154,7 @@ namespace Nexus
 		return data.dialogResult;
 	}
 
-	OpenFolderDialogSDL3::OpenFolderDialogSDL3(IWindow *window, const char *defaultLocation, bool allowMany)
+	OpenFolderDialogSDL3::OpenFolderDialogSDL3(IWindow *window, std::string_view defaultLocation, bool allowMany)
 		: m_Window(window),
 		  m_DefaultLocation(defaultLocation),
 		  m_AllowMany(allowMany)
@@ -177,7 +180,7 @@ namespace Nexus
 		SDL_SetPointerProperty(properties, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, wrapper->GetSDLWindowHandle());
 
 		// set up a default path for the dialog
-		SDL_SetStringProperty(properties, SDL_PROP_FILE_DIALOG_LOCATION_STRING, m_DefaultLocation);
+		SDL_SetStringProperty(properties, SDL_PROP_FILE_DIALOG_LOCATION_STRING, m_DefaultLocation.c_str());
 
 		// set up whether the dialog can accept multiple files
 		SDL_SetBooleanProperty(properties, SDL_PROP_FILE_DIALOG_MANY_BOOLEAN, m_AllowMany);

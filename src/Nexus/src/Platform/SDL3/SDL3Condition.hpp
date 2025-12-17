@@ -5,17 +5,17 @@
 
 namespace Nexus::Threading
 {
-	class SDL3Condition : public ConditionBase
+	class SDL3Condition final : public ConditionBase
 	{
 	  public:
 		SDL3Condition();
-		virtual ~SDL3Condition();
-		virtual void Signal() final;
-		virtual void BroadCast() final;
-		virtual void Wait(Mutex &mutex) final;
-		virtual bool Wait(Mutex &mutex, TimeSpan timeout) final;
+		virtual ~SDL3Condition() = default;
+		virtual void Signal() const final;
+		virtual void BroadCast() const final;
+		virtual void Wait(const Mutex &mutex) const final;
+		virtual bool Wait(const Mutex &mutex, TimeSpan timeout) const final;
 
 	  private:
-		SDL_Condition *m_Condition = nullptr;
+		std::unique_ptr<SDL_Condition, std::function<void(SDL_Condition *)>> m_Condition = {};
 	};
 }	 // namespace Nexus::Threading

@@ -4,12 +4,7 @@ namespace Nexus::Threading
 {
 	SDL3ReadWriteLock::SDL3ReadWriteLock()
 	{
-		m_Lock = SDL_CreateRWLock();
-	}
-
-	SDL3ReadWriteLock::~SDL3ReadWriteLock()
-	{
-		SDL_DestroyRWLock(m_Lock);
+		m_Lock = {SDL_CreateRWLock(), SDL_DestroyRWLock};
 	}
 
 	void SDL3ReadWriteLock::Lock(LockMode mode)
@@ -18,12 +13,12 @@ namespace Nexus::Threading
 		{
 			case LockMode::Read:
 			{
-				SDL_LockRWLockForReading(m_Lock);
+				SDL_LockRWLockForReading(m_Lock.get());
 				break;
 			}
 			case LockMode::Write:
 			{
-				SDL_LockRWLockForReading(m_Lock);
+				SDL_LockRWLockForReading(m_Lock.get());
 				break;
 			}
 			default: throw std::runtime_error("Failed to find a valid lock mode");
@@ -36,11 +31,11 @@ namespace Nexus::Threading
 		{
 			case LockMode::Read:
 			{
-				return SDL_TryLockRWLockForReading(m_Lock);
+				return SDL_TryLockRWLockForReading(m_Lock.get());
 			}
 			case LockMode::Write:
 			{
-				return SDL_TryLockRWLockForWriting(m_Lock);
+				return SDL_TryLockRWLockForWriting(m_Lock.get());
 			}
 			default: throw std::runtime_error("Failed to find a valid lock mode");
 		}
@@ -48,6 +43,6 @@ namespace Nexus::Threading
 
 	void SDL3ReadWriteLock::Unlock()
 	{
-		SDL_UnlockRWLock(m_Lock);
+		SDL_UnlockRWLock(m_Lock.get());
 	}
 }	 // namespace Nexus::Threading

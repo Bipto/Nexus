@@ -18,10 +18,10 @@ namespace Nexus::Threading
 		void					 Detach() const final;
 
 	  private:
-		ThreadDescription	  m_Description;
-		SDL_Thread			 *m_Thread;
-		std::function<void()> m_Function;
+		std::unique_ptr<SDL_Thread, std::function<void(SDL_Thread *)>> m_Thread		 = {};
+		ThreadDescription											   m_Description = {};
+		std::function<void()>										   m_Function	 = {};
 
 		static int ThreadEntry(void *data);
 	};
-}	 // namespace Nexus
+}	 // namespace Nexus::Threading

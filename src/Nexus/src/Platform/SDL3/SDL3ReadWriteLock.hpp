@@ -9,12 +9,12 @@ namespace Nexus::Threading
 	{
 	  public:
 		SDL3ReadWriteLock();
-		virtual ~SDL3ReadWriteLock();
+		virtual ~SDL3ReadWriteLock() = default;
 		void Lock(LockMode mode) final;
 		bool TryLock(LockMode mode) final;
 		void Unlock() final;
 
 	  private:
-		SDL_RWLock *m_Lock = nullptr;
+		std::unique_ptr<SDL_RWLock, std::function<void(SDL_RWLock *)>> m_Lock = {};
 	};
 }	 // namespace Nexus::Threading

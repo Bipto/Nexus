@@ -5,35 +5,30 @@ namespace Nexus::Threading
 {
 	Nexus::Threading::SDL3Condition::SDL3Condition()
 	{
-		m_Condition = SDL_CreateCondition();
+		m_Condition = {SDL_CreateCondition(), SDL_DestroyCondition};
 	}
 
-	SDL3Condition::~SDL3Condition()
+	void SDL3Condition::Signal() const
 	{
-		SDL_DestroyCondition(m_Condition);
+		SDL_SignalCondition(m_Condition.get());
 	}
 
-	void SDL3Condition::Signal()
+	void SDL3Condition::BroadCast() const
 	{
-		SDL_SignalCondition(m_Condition);
+		SDL_BroadcastCondition(m_Condition.get());
 	}
 
-	void SDL3Condition::BroadCast()
-	{
-		SDL_BroadcastCondition(m_Condition);
-	}
-
-	void SDL3Condition::Wait(Mutex &mutex)
+	void SDL3Condition::Wait(const Mutex &mutex) const
 	{
 		MutexBase *base		= mutex.GetBase();
 		SDL3Mutex *sdlMutex = (SDL3Mutex *)base;
-		SDL_WaitCondition(m_Condition, sdlMutex->GetHandle());
+		SDL_WaitCondition(m_Condition.get(), sdlMutex->GetHandle());
 	}
 
-	bool SDL3Condition::Wait(Mutex &mutex, TimeSpan timeout)
+	bool SDL3Condition::Wait(const Mutex &mutex, TimeSpan timeout) const
 	{
 		MutexBase *base		= mutex.GetBase();
 		SDL3Mutex *sdlMutex = (SDL3Mutex *)base;
-		return SDL_WaitConditionTimeout(m_Condition, sdlMutex->GetHandle(), timeout.GetMilliseconds<int32_t>());
+		return SDL_WaitConditionTimeout(m_Condition.get(), sdlMutex->GetHandle(), timeout.GetMilliseconds<int32_t>());
 	}
 }	 // namespace Nexus::Threading

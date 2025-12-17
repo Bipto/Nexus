@@ -2,7 +2,7 @@
 
 namespace Nexus::Threading
 {
-	SDL_ThreadPriority GetSDLThreadPriority(ThreadPriority priority)
+	static SDL_ThreadPriority GetSDLThreadPriority(ThreadPriority priority)
 	{
 		switch (priority)
 		{
@@ -15,7 +15,7 @@ namespace Nexus::Threading
 		}
 	}
 
-	ThreadState GetNXThreadState(SDL_ThreadState state)
+	static ThreadState GetNXThreadState(SDL_ThreadState state)
 	{
 		switch (state)
 		{
@@ -37,7 +37,8 @@ namespace Nexus::Threading
 		SDL_SetPointerProperty(properties, SDL_PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, (void *)ThreadEntry);
 		SDL_SetPointerProperty(properties, SDL_PROP_THREAD_CREATE_USERDATA_POINTER, this);
 
-		m_Thread = SDL_CreateThreadWithProperties(properties);
+		auto threadDeleter = [](SDL_Thread *thread) { SDL_WaitThread(thread, nullptr); };
+		m_Thread		   = {SDL_CreateThreadWithProperties(properties), threadDeleter};
 		SDL_DestroyProperties(properties);
 	}
 
@@ -45,7 +46,7 @@ namespace Nexus::Threading
 	{
 		if (m_Thread)
 		{
-			SDL_WaitThread(m_Thread, nullptr);
+			SDL_WaitThread(m_Thread.get(), nullptr);
 		}
 	}
 
@@ -53,7 +54,7 @@ namespace Nexus::Threading
 	{
 		if (m_Thread)
 		{
-			SDL_WaitThread(m_Thread, nullptr);
+			SDL_WaitThread(m_Thread.get(), nullptr);
 			m_Thread = nullptr;
 		}
 	}
@@ -65,18 +66,18 @@ namespace Nexus::Threading
 
 	ThreadState SDL3Thread::GetThreadState() const
 	{
-		SDL_ThreadState threadState = SDL_GetThreadState(m_Thread);
+		SDL_ThreadState threadState = SDL_GetThreadState(m_Thread.get());
 		return GetNXThreadState(threadState);
 	}
 
 	void SDL3Thread::Wait() const
 	{
-		SDL_WaitThread(m_Thread, nullptr);
+		SDL_WaitThread(m_Thread.get(), nullptr);
 	}
 
 	void SDL3Thread::Detach() const
 	{
-		SDL_DetachThread(m_Thread);
+		SDL_DetachThread(m_Thread.get());
 	}
 
 	// this is the entry point for all SDL3 threads

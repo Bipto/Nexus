@@ -13,10 +13,10 @@ namespace Nexus::Threading
 		{
 		}
 
-		virtual void Signal()							  = 0;
-		virtual void BroadCast()						  = 0;
-		virtual void Wait(Mutex &mutex)					  = 0;
-		virtual bool Wait(Mutex &mutex, TimeSpan timeout) = 0;
+		virtual void Signal() const									  = 0;
+		virtual void BroadCast() const								  = 0;
+		virtual void Wait(const Mutex &mutex) const					  = 0;
+		virtual bool Wait(const Mutex &mutex, TimeSpan timeout) const = 0;
 	};
 
 	class NX_API Condition final

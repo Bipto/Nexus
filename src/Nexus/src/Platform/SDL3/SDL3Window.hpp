@@ -6,7 +6,7 @@
 
 namespace Nexus
 {
-	class SDL3Window : public IWindow
+	class SDL3Window final : public IWindow
 	{
 	  public:
 		SDL3Window(const WindowDescription &windowProps);
@@ -195,7 +195,7 @@ namespace Nexus
 		WindowDescription m_Description = {};
 
 		/// @brief A pointer to the underlying SDL window
-		SDL_Window *m_Window;
+		std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>> m_Window;
 
 		/// @brief A boolean representing whether the window should close
 		bool m_Closing = false;
@@ -209,8 +209,6 @@ namespace Nexus
 		Nexus::Timings::ExecutionTimer m_RenderTimer = {};
 		Nexus::Timings::ExecutionTimer m_UpdateTimer = {};
 		Nexus::Timings::ExecutionTimer m_TickTimer	 = {};
-
-		bool m_Minimized = false;
 
 		Utils::FrameRateMonitor m_RenderFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};

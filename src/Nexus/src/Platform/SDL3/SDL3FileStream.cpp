@@ -36,7 +36,7 @@ namespace Nexus::IO
 	FileStreamSDL3::FileStreamSDL3(const std::filesystem::path &path, FileMode fileMode)
 	{
 		const char *fileAccess = GetFileAccess(fileMode);
-		m_File				   = SDL_IOFromFile(path.string().c_str(), fileAccess);
+		m_File				   = {SDL_IOFromFile(path.string().c_str(), fileAccess), SDL_CloseIO};
 
 		if (!m_File)
 		{
@@ -44,19 +44,10 @@ namespace Nexus::IO
 		}
 	}
 
-	FileStreamSDL3::~FileStreamSDL3()
-	{
-		if (m_File)
-		{
-			SDL_CloseIO(m_File);
-			m_File = nullptr;
-		}
-	}
-
 	tl::expected<std::vector<uint8_t>, std::string> FileStreamSDL3::Read(size_t count)
 	{
 		std::vector<uint8_t> buffer(count);
-		size_t				 bytesRead = SDL_ReadIO(m_File, buffer.data(), count);
+		size_t				 bytesRead = SDL_ReadIO(m_File.get(), buffer.data(), count);
 
 		if (bytesRead == 0 && SDL_GetError()[0] != '\0')
 		{
@@ -69,7 +60,7 @@ namespace Nexus::IO
 
 	tl::expected<size_t, std::string> FileStreamSDL3::Write(const uint8_t *data, size_t count)
 	{
-		size_t bytesWritten = SDL_WriteIO(m_File, (void *)data, count);
+		size_t bytesWritten = SDL_WriteIO(m_File.get(), (void *)data, count);
 		if (bytesWritten == 0 && SDL_GetError()[0] != '\0')
 		{
 			return tl::unexpected(std::string("Failed to write to file: ") + SDL_GetError());
@@ -81,7 +72,7 @@ namespace Nexus::IO
 	{
 		SDL_IOWhence whence = GetSeekOrigin(origin);
 
-		if (SDL_SeekIO(m_File, offset, whence) == -1)
+		if (SDL_SeekIO(m_File.get(), offset, whence) == -1)
 		{
 			return tl::unexpected(std::string("Failed to seek in file: ") + SDL_GetError());
 		}
@@ -91,7 +82,7 @@ namespace Nexus::IO
 
 	tl::expected<int64_t, std::string> FileStreamSDL3::GetSize()
 	{
-		int64_t size = SDL_GetIOSize(m_File);
+		int64_t size = SDL_GetIOSize(m_File.get());
 		if (size < 0)
 		{
 			return tl::unexpected(std::string(SDL_GetError()));
@@ -101,7 +92,7 @@ namespace Nexus::IO
 
 	tl::expected<int64_t, std::string> FileStreamSDL3::GetCursorPosition()
 	{
-		int64_t position = SDL_TellIO(m_File);
+		int64_t position = SDL_TellIO(m_File.get());
 		if (position < 0)
 		{
 			return tl::unexpected(std::string(SDL_GetError()));

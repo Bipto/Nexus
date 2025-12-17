@@ -5,7 +5,7 @@
 
 namespace Nexus
 {
-	Uint32 GetMessageBoxButtonFlags(DefaultKey key)
+	static Uint32 GetMessageBoxButtonFlags(DefaultKey key)
 	{
 		switch (key)
 		{
@@ -16,7 +16,7 @@ namespace Nexus
 		}
 	}
 
-	Uint32 GetMessageBoxFlags(const MessageBoxDescription &desc)
+	static Uint32 GetMessageBoxFlags(const MessageBoxDescription &desc)
 	{
 		Uint32 flags = 0;
 
@@ -62,7 +62,7 @@ namespace Nexus
 		return flags;
 	}
 
-	void GetSDLMessageBoxColourScheme(const MessageBoxColourScheme &colourScheme, SDL_MessageBoxColorScheme &sdlScheme)
+	static void GetSDLMessageBoxColourScheme(const MessageBoxColourScheme &colourScheme, SDL_MessageBoxColorScheme &sdlScheme)
 	{
 		sdlScheme.colors[0] = {colourScheme.Background.R, colourScheme.Background.G, colourScheme.Background.B};
 		sdlScheme.colors[1] = {colourScheme.Text.R, colourScheme.Text.G, colourScheme.Text.B};
@@ -103,6 +103,8 @@ namespace Nexus
 		messageBoxData.flags			  = GetMessageBoxFlags(m_Description);
 		messageBoxData.buttons			  = buttons.data();
 		messageBoxData.numbuttons		  = buttons.size();
+		messageBoxData.window			  = nullptr;
+		messageBoxData.colorScheme		  = nullptr;
 
 		if (m_Description.ParentWindow)
 		{
