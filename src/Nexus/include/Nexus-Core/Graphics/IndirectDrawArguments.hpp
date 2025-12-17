@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		uint32_t IndexCount	   = 0;
 		uint32_t InstanceCount = 0;
 		uint32_t FirstIndex	   = 0;
-		uint32_t VertexOffset  = 0;
+		int32_t	 VertexOffset  = 0;
 		uint32_t FirstInstance = 0;
 	};
 

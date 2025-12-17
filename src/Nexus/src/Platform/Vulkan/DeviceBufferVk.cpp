@@ -44,7 +44,7 @@ namespace Nexus::Graphics
 		vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
 	}
 
-	std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size) const
+	std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size)
 	{
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
 
@@ -81,6 +81,19 @@ namespace Nexus::Graphics
 		}
 
 		return {};
+	}
+
+	[[nodiscard]] uint8_t *DeviceBufferVk::Map()
+	{
+		return nullptr;
+	}
+
+	void DeviceBufferVk::Unmap()
+	{
+	}
+
+	void DeviceBufferVk::FlushRange(BufferRange range)
+	{
 	}
 
 	VkBuffer DeviceBufferVk::GetVkBuffer() const

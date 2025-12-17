@@ -62,8 +62,8 @@ namespace Nexus::Graphics
 		cmdList->CopyBufferToTexture(copyDesc);
 
 		cmdList->End();
-		SubmitCommandLists(&cmdList, 1, nullptr);
-		WaitForIdle();
+		SubmitCommandList(cmdList);
+		device->WaitForIdle();
 	}
 
 	std::vector<char> ICommandQueue::ReadFromTexture(Ref<ITexture> texture,
@@ -101,8 +101,8 @@ namespace Nexus::Graphics
 		cmdList->CopyTextureToBuffer(copyDesc);
 
 		cmdList->End();
-		SubmitCommandLists(&cmdList, 1, nullptr);
-		WaitForIdle();
+		SubmitCommandList(cmdList);
+		device->WaitForIdle();
 
 		return buffer->GetData(0, footprint.Size);
 	}
@@ -135,7 +135,6 @@ namespace Nexus::Graphics
 		cmdList->End();
 
 		SubmitCommandList(cmdList);
-
 		device->WaitForIdle();
 	}
 

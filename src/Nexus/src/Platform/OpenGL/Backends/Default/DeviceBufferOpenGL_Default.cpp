@@ -4,16 +4,33 @@
 
 namespace Nexus::Graphics
 {
+	const GLbitfield mapFlags = GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
 	DeviceBufferOpenGL::DeviceBufferOpenGL(const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device)
 		: m_Device(device),
 		  m_BufferDescription(desc)
 	{
 		GLenum bufferUsage = GL::GetBufferUsage(desc);
 
+		// create buffer (try to use BufferStorage functions if available, otherwise fall back to using BufferData and a vector of CPU data for
+		// mapping)
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+				if (context.ARB_buffer_storage && (context.ARB_direct_state_access || context.EXT_direct_state_access))
+				{
+					glCall(context.CreateBuffers(1, &m_BufferHandle));
+					glCall(context.NamedBufferStorageEXT(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, mapFlags));
+					m_PersistentMapping = true;
+				}
+				else if (context.ARB_buffer_storage)
+				{
+					glCall(context.CreateBuffers(1, &m_BufferHandle));
+					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
+					glCall(context.BufferStorageEXT(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, mapFlags));
+					m_PersistentMapping = true;
+				}
+				else if (context.ARB_direct_state_access || context.EXT_direct_state_access)
 				{
 					glCall(context.CreateBuffers(1, &m_BufferHandle));
 					glCall(context.NamedBufferData(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
@@ -56,7 +73,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size) const
+	std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size)
 	{
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
 
@@ -94,6 +111,38 @@ namespace Nexus::Graphics
 	DeviceAddress DeviceBufferOpenGL::GetDeviceAddress(size_t offset) const
 	{
 		return 0 + offset;
+	}
+
+	uint8_t *DeviceBufferOpenGL::Map()
+	{
+		if (m_PersistentMapping)
+		{
+			GL::ExecuteGLCommands(
+				[&](const GladGLContext &context)
+				{
+					if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+					{
+						return context.MapNamedBufferRange(m_BufferHandle, 0, m_BufferDescription.SizeInBytes, mapFlags);
+					}
+					else
+					{
+						glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
+						return context.MapBufferRange(GL_COPY_READ_BUFFER, 0, m_BufferDescription.SizeInBytes, mapFlags);
+					}
+				});
+		}
+		else
+		{
+			return m_BufferStorage.data();
+		}
+	}
+
+	void DeviceBufferOpenGL::Unmap()
+	{
+	}
+
+	void DeviceBufferOpenGL::FlushRange(BufferRange range)
+	{
 	}
 
 	uint32_t DeviceBufferOpenGL::GetHandle() const

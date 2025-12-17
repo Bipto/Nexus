@@ -83,6 +83,12 @@ namespace Nexus::Graphics
 		std::string DebugName = "DeviceBuffer";
 	};
 
+	struct BufferRange
+	{
+		size_t Offset = 0;
+		size_t Size	  = 0;
+	};
+
 	class IDeviceBuffer
 	{
 	  public:
@@ -90,10 +96,14 @@ namespace Nexus::Graphics
 		{
 		}
 		virtual void			  SetData(const void *data, uint32_t offset, uint32_t size) = 0;
-		virtual std::vector<char> GetData(uint32_t offset, uint32_t size) const				= 0;
+		virtual std::vector<char> GetData(uint32_t offset, uint32_t size)					= 0;
 		virtual DeviceAddress	  GetDeviceAddress(size_t offset) const						= 0;
 
-		virtual const DeviceBufferDescription &GetDescription() const = 0;
+		[[nodiscard]] virtual const DeviceBufferDescription &GetDescription() const = 0;
+
+		[[nodiscard]] virtual uint8_t *Map()						 = 0;
+		virtual void				   Unmap()						 = 0;
+		virtual void				   FlushRange(BufferRange range) = 0;
 
 		uint32_t GetCount() const
 		{

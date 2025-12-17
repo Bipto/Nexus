@@ -155,7 +155,14 @@ namespace Nexus::Utils
 	template<typename T>
 	[[nodiscard]] T AlignTo(T value, T alignment)
 	{
-		return ((value + alignment / 2) / alignment) * alignment;
+		T returnValue = ((value + alignment / 2) / alignment) * alignment;
+
+		if (returnValue == 0)
+		{
+			returnValue = alignment;
+		}
+
+		return returnValue;
 	}
 
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);

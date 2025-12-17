@@ -64,6 +64,46 @@ namespace Nexus::Graphics
 		m_CommandList = commandList;
 	}
 
+	void CommandExecutorD3D12::SetCommandQueue(CommandQueueD3D12 *commandQueue)
+	{
+		m_CommandQueue = commandQueue;
+	}
+
+	void CommandExecutorD3D12::FlushReadbacks(IGraphicsDevice *device)
+	{
+		if (m_ReadbackCopies.size() == 0)
+		{
+			return;
+		}
+
+		std::vector<D3D12ReadbackBufferCopyOperation> readbackCopies = m_ReadbackCopies;
+		m_ReadbackCopies.clear();
+
+		device->WaitForIdle();
+
+		for (const D3D12ReadbackBufferCopyOperation &readbackCopy : readbackCopies)
+		{
+			const uint32_t copyPerRow = std::min(readbackCopy.SourceRowPitch, readbackCopy.DestinationRowPitch);
+
+			uint8_t *srcData = readbackCopy.ReadbackBuffer->Map();
+
+			std::vector<uint8_t> pixels(readbackCopy.NumRows * readbackCopy.DestinationRowPitch, 0);
+
+			for (uint32_t y = 0; y < readbackCopy.NumRows; y++)
+			{
+				const uint8_t *srcRow = srcData + y * readbackCopy.SourceRowPitch;
+				uint8_t		  *dstRow = pixels.data() + y * readbackCopy.DestinationRowPitch;
+				memcpy(dstRow, srcRow, readbackCopy.DestinationRowPitch);
+			}
+
+			memcpy(srcData, pixels.data(), pixels.size());
+
+			readbackCopy.ReadbackBuffer->Unmap();
+		}
+
+		device->WaitForIdle();
+	}
+
 	void CommandExecutorD3D12::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
@@ -392,15 +432,14 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
-		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
-
-		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle	 = buffer->GetHandle();
+		Ref<TextureD3D12>					   texture		 = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
+		bool arrayedTexture = command.BufferTextureCopy.TextureHandle->GetType() == TextureType::Texture3D ||
+							  command.BufferTextureCopy.TextureHandle->GetType() == TextureType::TextureCube;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
-																command.BufferTextureCopy.TextureOffset.Z,
-																command.BufferTextureCopy.TextureHandle->GetDescription().MipLevels);
+																arrayedTexture ? command.BufferTextureCopy.TextureOffset.Z : 0,
+																command.BufferTextureCopy.TextureHandle->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureOffset.X;
@@ -424,6 +463,38 @@ namespace Nexus::Graphics
 											&numRows,
 											&rowSizeInBytes,
 											&totalBytes);
+
+		Ref<IDeviceBuffer>	   stagingBuffer				= CreateStagingBuffer(totalBytes, true, device);
+		Ref<DeviceBufferD3D12> sourceBufferD3D12			= std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
+		Ref<DeviceBufferD3D12> stagingBufferD3D12			= std::dynamic_pointer_cast<DeviceBufferD3D12>(stagingBuffer);
+		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle = stagingBufferD3D12->GetHandle();
+
+		uint8_t *sourceData	 = sourceBufferD3D12->Map();
+		uint8_t *stagingData = stagingBuffer->Map();
+
+		if (!texture || !sourceBufferD3D12 || !stagingBufferD3D12)
+		{
+			throw std::runtime_error("Invalid cast in ExecuteCommand");
+		}
+
+		uint32_t rowSize = command.BufferTextureCopy.TextureExtent.Width * GetPixelFormatSizeInBytes(texture->GetPixelFormat());
+
+		for (uint32_t y = 0; y < command.BufferTextureCopy.TextureExtent.Height; y++)
+		{
+			uint8_t *dstRow = stagingData + y * footprint.Footprint.RowPitch;
+			uint8_t *srcRow = sourceData + y * rowSize;
+
+			memcpy(dstRow, srcRow, rowSize);
+
+			// Optional: clear padding to avoid garbage
+			if (rowSize < footprint.Footprint.RowPitch)
+			{
+				memset(dstRow + rowSize, 0, footprint.Footprint.RowPitch - rowSize);
+			}
+		}
+
+		sourceBufferD3D12->Unmap();
+		stagingBuffer->Unmap();
 
 		D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
 		srcLocation.pResource					= bufferHandle.Get();
@@ -451,12 +522,13 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle	 = buffer->GetHandle();
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
+		bool arrayedTexture = command.TextureBufferCopy.TextureHandle->GetType() == TextureType::Texture3D ||
+							  command.TextureBufferCopy.TextureHandle->GetType() == TextureType::TextureCube;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.TextureBufferCopy.MipLevel,
-																command.TextureBufferCopy.TextureOffset.Z,
-																command.TextureBufferCopy.TextureHandle->GetDescription().MipLevels);
+																arrayedTexture ? command.TextureBufferCopy.TextureOffset.Z : 0,
+																command.TextureBufferCopy.TextureHandle->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.TextureBufferCopy.TextureOffset.X;
@@ -481,6 +553,8 @@ namespace Nexus::Graphics
 											&rowSizeInBytes,
 											&totalBytes);
 
+		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle = buffer->GetHandle();
+
 		D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
 		srcLocation.pResource					= textureHandle.Get();
 		srcLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
@@ -493,6 +567,15 @@ namespace Nexus::Graphics
 
 		// copy texture data into the buffer (the 0's are for the offset into the destination texture, which we do not need here)
 		m_CommandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
+
+		size_t tightPitch = command.TextureBufferCopy.TextureExtent.Width * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+
+		D3D12ReadbackBufferCopyOperation &readbackOperation = m_ReadbackCopies.emplace_back();
+		readbackOperation.ReadbackBuffer					= buffer;
+		readbackOperation.SourceRowPitch					= footprint.Footprint.RowPitch;
+		readbackOperation.DestinationRowPitch				= tightPitch;
+		readbackOperation.Height							= command.TextureBufferCopy.TextureExtent.Height;
+		readbackOperation.NumRows							= numRows;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
@@ -1127,6 +1210,20 @@ namespace Nexus::Graphics
 				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
 			}
 		}
+	}
+
+	Ref<IDeviceBuffer> CommandExecutorD3D12::CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device)
+	{
+		Ref<IDeviceBuffer> &buffer = m_UploadBuffers.emplace_back();
+
+		DeviceBufferDescription description = {};
+		upload ? description.Access = BufferMemoryAccess::Upload : description.Access = BufferMemoryAccess::Readback;
+		description.SizeInBytes	  = size;
+		description.StrideInBytes = size;
+		description.DebugName	  = "Staging Buffer";
+		buffer					  = device->CreateDeviceBuffer(description);
+
+		return buffer;
 	}
 }	 // namespace Nexus::Graphics
 
