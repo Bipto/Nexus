@@ -24,10 +24,22 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
-			m_AudioBuffer = Nexus::Audio::AudioLoader::LoadWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")},
-																   m_AudioDevice);
-			m_AudioSource = m_AudioDevice->CreateAudioSource();
-			m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
+
+			Nexus::Audio::AudioLoader::LoadWavFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice)
+				.transform(
+					[this](auto buffer)
+					{
+						m_AudioBuffer = buffer;
+						m_AudioSource = m_AudioDevice->CreateAudioSource();
+						m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
+						return buffer;
+					})
+				.or_else(
+					[](const std::string &error)
+					{
+						std::cerr << "Failed to load audio file: " << error << std::endl;
+						return std::expected<std::shared_ptr<Nexus::Audio::AudioBuffer>, std::string>(nullptr);
+					});
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -48,7 +60,7 @@ namespace Demos
 		virtual void RenderUI() override
 		{
 			ImGui::Text("Press button to play a sound effect");
-			if (ImGui::Button("Play"))
+			if (ImGui::Button("Play") && m_AudioSource)
 			{
 				m_AudioDevice->Play(m_AudioSource);
 			}

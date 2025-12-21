@@ -2,12 +2,12 @@
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
-NX_API tl::expected<std::string, std::string> Nexus::FileSystem::ReadFileNew(const std::filesystem::path &filepath)
+NX_API std::expected<std::string, std::string> Nexus::FileSystem::ReadFileNew(const std::filesystem::path &filepath)
 {
 	std::ifstream file(filepath);
 	if (!file.is_open())
 	{
-		return tl::unexpected("Failed to open file: " + filepath.string());
+		return std::unexpected("Failed to open file: " + filepath.string());
 	}
 
 	std::ostringstream buffer;
@@ -15,7 +15,7 @@ NX_API tl::expected<std::string, std::string> Nexus::FileSystem::ReadFileNew(con
 
 	if (file.fail() && !file.eof())
 	{
-		return tl::unexpected("Error while reading file: " + filepath.string());
+		return std::unexpected("Error while reading file: " + filepath.string());
 	}
 
 	return buffer.str();

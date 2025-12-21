@@ -55,6 +55,3 @@
 [submodule "src/Nexus/external/tracy"]
 	path = src/Nexus/external/tracy
 	url = https://github.com/wolfpld/tracy.git
-[submodule "src/Nexus/external/expected"]
-	path = src/Nexus/external/expected
-	url = https://github.com/TartanLlama/expected.git

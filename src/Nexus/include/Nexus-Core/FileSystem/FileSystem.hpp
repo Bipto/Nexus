@@ -2,11 +2,12 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
+#include <expected>
 #include <filesystem>
 
 namespace Nexus::FileSystem
 {
-	NX_API tl::expected<std::string, std::string> ReadFileNew(const std::filesystem::path &filepath);
+	NX_API std::expected<std::string, std::string> ReadFileNew(const std::filesystem::path &filepath);
 
 	/// @brief A method to read the contents of a file into a string
 	/// @param filepath An absolute path to the file to read

@@ -58,8 +58,6 @@
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/Types.hpp"
 
-#include <tl/expected.hpp>
-
 #if defined(NX_BUILD_DLL)
 	#if defined(WIN32)
 		#if defined(NX_EXPORT_API)

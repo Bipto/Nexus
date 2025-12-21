@@ -1,23 +1,18 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.30)
 
 project ("Nexus-Audio")
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 include (FetchContent)
 
 set(AUDIO_SOURCES 
-	"include/Audio/Audio-Core.hpp"
 	"include/Audio/AudioBuffer.hpp"
+	"include/Audio/Audio-Core.hpp"
 	"include/Audio/AudioDevice.hpp" 
 	"include/Audio/AudioLoader.hpp" 
 	"include/Audio/AudioSource.hpp" 
 	"include/Audio/AudioTypes.hpp"
-	"src/AudioLoader.cpp"
 	"include/OpenAL/OpenAL-API.hpp"
+	"src/AudioLoader.cpp"
 	"src/OpenAL-API.cpp")
 
 set(PUBLIC_LIBRARY_INCLUDES
@@ -60,18 +55,26 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBARIES ${OPENAL_LIBRARY})
 	else()
+		set(AL_SOFT_WARNINGS OFF CACHE BOOL "" FORCE)
+		set(ALSOFT_WERROR OFF CACHE BOOL "" FORCE)
 		FetchContent_Declare(
 			openal-soft
 			GIT_REPOSITORY https://github.com/kcat/openal-soft.git
 			GIT_TAG bb2c413
 		)
 		FetchContent_MakeAvailable(openal-soft)
-
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)
 	endif()
 endif()
 
+
 add_library(Nexus-Audio ${AUDIO_SOURCES})
+
+target_compile_features(Nexus-Audio PUBLIC cxx_std_23)
+set_target_properties(Nexus-Audio PROPERTIES
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+	COMPILE_WARNING_AS_ERROR ON)
 
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})

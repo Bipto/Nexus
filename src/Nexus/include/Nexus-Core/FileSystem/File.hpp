@@ -2,6 +2,12 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
+#include <cstdint>
+#include <expected>
+#include <filesystem>
+#include <string>
+#include <vector>
+
 namespace Nexus::IO
 {
 	/// @brief An enumeration representing different file modes for opening files
@@ -61,12 +67,12 @@ namespace Nexus::IO
 	class FileStreamImpl
 	{
 	  public:
-		virtual ~FileStreamImpl()																		 = default;
-		virtual tl::expected<std::vector<uint8_t>, std::string> Read(size_t count)						 = 0;
-		virtual tl::expected<size_t, std::string>				Write(const uint8_t *data, size_t count) = 0;
-		virtual tl::expected<void, std::string>					Seek(int64_t offset, SeekOrigin origin)	 = 0;
-		virtual tl::expected<int64_t, std::string>				GetSize()								 = 0;
-		virtual tl::expected<int64_t, std::string>				GetCursorPosition()						 = 0;
+		virtual ~FileStreamImpl()																		  = default;
+		virtual std::expected<std::vector<uint8_t>, std::string> Read(size_t count)						  = 0;
+		virtual std::expected<size_t, std::string>				 Write(const uint8_t *data, size_t count) = 0;
+		virtual std::expected<void, std::string>				 Seek(int64_t offset, SeekOrigin origin)  = 0;
+		virtual std::expected<int64_t, std::string>				 GetSize()								  = 0;
+		virtual std::expected<int64_t, std::string>				 GetCursorPosition()					  = 0;
 	};
 
 	class NX_API FileStream
@@ -74,11 +80,11 @@ namespace Nexus::IO
 	  public:
 		FileStream(const std::filesystem::path &path, FileMode fileMode);
 		virtual ~FileStream() = default;
-		tl::expected<std::vector<uint8_t>, std::string> Read(size_t count);
-		tl::expected<size_t, std::string>				Write(const uint8_t *data, size_t count);
-		tl::expected<void, std::string>					Seek(int64_t offset, SeekOrigin origin);
-		tl::expected<int64_t, std::string>				GetSize();
-		tl::expected<int64_t, std::string>				GetCursorPosition();
+		std::expected<std::vector<uint8_t>, std::string> Read(size_t count);
+		std::expected<size_t, std::string>				 Write(const uint8_t *data, size_t count);
+		std::expected<void, std::string>				 Seek(int64_t offset, SeekOrigin origin);
+		std::expected<int64_t, std::string>				 GetSize();
+		std::expected<int64_t, std::string>				 GetCursorPosition();
 
 	  private:
 		std::unique_ptr<FileStreamImpl> m_Impl = nullptr;
@@ -87,9 +93,9 @@ namespace Nexus::IO
 	class NX_API File
 	{
 	  public:
-		static tl::expected<std::vector<uint8_t>, std::string> ReadAllBytes(const std::filesystem::path &path);
-		static tl::expected<std::string, std::string>		   ReadAllText(const std::filesystem::path &path);
-		static tl::expected<size_t, std::string>			   WriteAllBytes(const std::filesystem::path &path, const uint8_t *data, size_t size);
-		static tl::expected<size_t, std::string>			   WriteAllText(const std::filesystem::path &path, const std::string &text);
+		static std::expected<std::vector<uint8_t>, std::string> ReadAllBytes(const std::filesystem::path &path);
+		static std::expected<std::string, std::string>			ReadAllText(const std::filesystem::path &path);
+		static std::expected<size_t, std::string>				WriteAllBytes(const std::filesystem::path &path, const uint8_t *data, size_t size);
+		static std::expected<size_t, std::string>				WriteAllText(const std::filesystem::path &path, const std::string &text);
 	};
 }	 // namespace Nexus::IO

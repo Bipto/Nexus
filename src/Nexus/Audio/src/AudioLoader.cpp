@@ -54,12 +54,29 @@ namespace Nexus::Audio
 		}
 	}
 
-	std::shared_ptr<AudioBuffer> LoadAudioFileToBuffer(const std::string &filepath, AudioDevice *device, nqr::BaseDecoder *decoder)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBuffer(const std::string &filepath,
+																				   AudioDevice		 *device,
+																				   nqr::BaseDecoder	 *decoder)
 	{
+		if (!device)
+		{
+			return std::unexpected("Audio device was invalid");
+		}
+
 		std::shared_ptr<AudioBuffer> buffer = device->CreateAudioBuffer();
+
+		if (!buffer)
+		{
+			return std::unexpected("Failed to create buffer");
+		}
 
 		nqr::AudioData data;
 		decoder->LoadFromPath(&data, filepath);
+
+		if (data.samples.empty())
+		{
+			return std::unexpected("Failed to load audio data from file: " + filepath);
+		}
 
 		int				   bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
 		size_t			   fileSize		 = data.samples.size() * sizeof(float);
@@ -72,13 +89,13 @@ namespace Nexus::Audio
 		return buffer;
 	}
 
-	std::shared_ptr<AudioBuffer> AudioLoader::LoadWavFile(const std::string &filepath, AudioDevice *device)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadWavFile(const std::string &filepath, AudioDevice *device)
 	{
 		nqr::WavDecoder decoder;
 		return LoadAudioFileToBuffer(filepath, device, &decoder);
 	}
 
-	std::shared_ptr<AudioBuffer> AudioLoader::LoadMp3File(const std::string &filepath, AudioDevice *device)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadMp3File(const std::string &filepath, AudioDevice *device)
 	{
 		nqr::Mp3Decoder decoder;
 		return LoadAudioFileToBuffer(filepath, device, &decoder);

@@ -16,7 +16,7 @@ namespace Nexus
 	  private:
 		IWindow							 *m_Window			= nullptr;
 		std::vector<SDL_DialogFileFilter> m_Filters			= {};
-		std::string						  m_DefaultLocation = nullptr;
+		std::string						  m_DefaultLocation = {};
 		bool							  m_AllowMany		= false;
 	};
 
@@ -30,7 +30,7 @@ namespace Nexus
 	  private:
 		IWindow							 *m_Window			= nullptr;
 		std::vector<SDL_DialogFileFilter> m_Filters			= {};
-		std::string						  m_DefaultLocation = nullptr;
+		std::string						  m_DefaultLocation = {};
 	};
 
 	class OpenFolderDialogSDL3 final : public OpenFolderDialog
@@ -42,7 +42,7 @@ namespace Nexus
 
 	  private:
 		IWindow	   *m_Window		  = nullptr;
-		std::string m_DefaultLocation = nullptr;
+		std::string m_DefaultLocation = {};
 		bool		m_AllowMany		  = false;
 	};
 }	 // namespace Nexus
