@@ -1,6 +1,6 @@
 #include "OpenAL.hpp"
 
-#include "Nexus-Core/nxpch.hpp"
+#include <stdexcept>
 
 namespace Nexus::AL
 {

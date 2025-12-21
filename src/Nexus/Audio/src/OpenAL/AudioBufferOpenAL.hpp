@@ -1,9 +1,7 @@
 #pragma once
 
-#if defined(NX_PLATFORM_OPENAL)
-
-	#include "Nexus-Core/Audio/AudioBuffer.hpp"
-	#include "OpenAL.hpp"
+#include "Audio/AudioBuffer.hpp"
+#include "OpenAL.hpp"
 
 namespace Nexus::Audio
 {
@@ -26,4 +24,3 @@ namespace Nexus::Audio
 		ALuint			   m_Buffer = 0;
 	};
 }	 // namespace Nexus::Audio
-#endif

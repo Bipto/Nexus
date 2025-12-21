@@ -1,13 +1,10 @@
 #pragma once
 
-#if defined(NX_PLATFORM_OPENAL)
-#endif
-
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
 
-#include "Nexus-Core/Audio/AudioTypes.hpp"
+#include "Audio/AudioTypes.hpp"
 
 #if defined(__EMSCRIPTEN__)
 	#define AL_FORMAT_MONO_FLOAT32	 0x10010

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Nexus-Core/nxpch.hpp"
-
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
 #include "Graphics/IGraphicsAPI.hpp"
 #include "IWindow.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
@@ -18,12 +17,6 @@
 
 namespace Nexus
 {
-	/// @brief A static method to create a new audio device from a selected audio
-	/// API
-	/// @param api The audio API to use to manage audio resources
-	/// @return A pointer to an audio device
-	static Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api);
-
 	struct CommandQueueGroup
 	{
 		Ref<Graphics::ICommandQueue> GraphicsQueue = nullptr;
@@ -142,7 +135,7 @@ namespace Nexus
 		CommandQueueGroup m_CommandQueueGroup = {};
 
 		/// @brief A pointer to an audio device
-		std::unique_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
+		std::shared_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
 
 	  private:
 		/// @brief The specification that the application was created with

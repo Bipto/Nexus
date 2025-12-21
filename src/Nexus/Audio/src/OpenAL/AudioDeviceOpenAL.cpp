@@ -1,12 +1,10 @@
 #include "AudioDeviceOpenAL.hpp"
 
-#if defined(NX_PLATFORM_OPENAL)
-
-	#include "AudioBufferOpenAL.hpp"
-	#include "AudioSourceOpenAL.hpp"
-	#include "OpenAL.hpp"
-	#include "libnyquist/Common.h"
-	#include "libnyquist/Decoders.h"
+#include "AudioBufferOpenAL.hpp"
+#include "AudioSourceOpenAL.hpp"
+#include "OpenAL.hpp"
+#include "libnyquist/Common.h"
+#include "libnyquist/Decoders.h"
 
 namespace Nexus::Audio
 {
@@ -77,39 +75,37 @@ namespace Nexus::Audio
 		}
 	}
 
-	Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBuffer()
+	std::shared_ptr<AudioBuffer> AudioDeviceOpenAL::CreateAudioBuffer()
 	{
-		return CreateRef<AudioBufferOpenAL>(this);
+		return std::make_shared<AudioBufferOpenAL>(this);
 	}
 
-	Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource()
+	std::shared_ptr<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource()
 	{
-		return CreateRef<AudioSourceOpenAL>();
+		return std::make_shared<AudioSourceOpenAL>();
 	}
 
-	void AudioDeviceOpenAL::Play(Ref<AudioSource> source)
+	void AudioDeviceOpenAL::Play(std::shared_ptr<AudioSource> source)
 	{
-		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
 		alSourcePlay(alSource->GetSource());
 	}
 
-	void AudioDeviceOpenAL::Pause(Ref<AudioSource> source)
+	void AudioDeviceOpenAL::Pause(std::shared_ptr<AudioSource> source)
 	{
-		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
 		alSourcePause(alSource->GetSource());
 	}
 
-	void AudioDeviceOpenAL::Stop(Ref<AudioSource> source)
+	void AudioDeviceOpenAL::Stop(std::shared_ptr<AudioSource> source)
 	{
-		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
 		alSourceStop(alSource->GetSource());
 	}
 
-	void AudioDeviceOpenAL::Rewind(Ref<AudioSource> source)
+	void AudioDeviceOpenAL::Rewind(std::shared_ptr<AudioSource> source)
 	{
-		Ref<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
 		alSourceRewind(alSource->GetSource());
 	}
 }	 // namespace Nexus::Audio
-
-#endif

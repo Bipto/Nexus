@@ -1,8 +1,6 @@
 #include "AudioBufferOpenAL.hpp"
 
-#if defined(NX_PLATFORM_OPENAL)
-
-	#include "Nexus-Core/nxpch.hpp"
+#include <iostream>
 
 void CheckError()
 {
@@ -67,5 +65,3 @@ namespace Nexus::Audio
 		return static_cast<size_t>(size);
 	}
 }	 // namespace Nexus::Audio
-
-#endif

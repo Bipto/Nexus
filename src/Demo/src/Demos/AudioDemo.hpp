@@ -2,7 +2,7 @@
 
 #include "Demo.hpp"
 
-#include "Nexus-Core/Audio/AudioLoader.hpp"
+#include "Audio/AudioLoader.hpp"
 
 namespace Demos
 {
@@ -34,7 +34,7 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -71,7 +71,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;
 		Nexus::Ref<Nexus::Audio::AudioSource> m_AudioSource;

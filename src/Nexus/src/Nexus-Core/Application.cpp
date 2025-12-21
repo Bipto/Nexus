@@ -1,9 +1,6 @@
 #include "Nexus-Core/Application.hpp"
 
-// audio headers
-#if defined(NX_PLATFORM_OPENAL)
-	#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
-#endif
+#include "OpenAL/OpenAL-API.hpp"
 
 #include "Nexus-Core/Timings/Profiler.hpp"
 
@@ -50,7 +47,7 @@ namespace Nexus
 
 		m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Window, spec.SwapchainDescription);
 
-		m_AudioDevice = std::unique_ptr<Audio::AudioDevice>(Nexus::CreateAudioDevice(spec.AudioAPI));
+		m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
 
 		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { Render(time); });
 		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { Update(time); });
@@ -152,17 +149,5 @@ namespace Nexus
 	const char *Application::GetApplicationPath()
 	{
 		return Platform::GetApplicationPath(m_Description.Organization.c_str(), m_Description.App.c_str());
-	}
-
-	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)
-	{
-		switch (api)
-		{
-#if defined(NX_PLATFORM_OPENAL)
-			case Audio::AudioAPI::OpenAL: return new Audio::AudioDeviceOpenAL();
-#endif
-
-			default: throw std::runtime_error("Attempting to run application with unsupported audio API"); return nullptr;
-		}
 	}
 }	 // namespace Nexus

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Audio/AudioDevice.hpp"
 #include "Nexus-Core/Application.hpp"
-#include "Nexus-Core/Audio/AudioDevice.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"

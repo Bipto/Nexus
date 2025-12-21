@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 project ("Nexus")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -16,6 +17,7 @@ if (NX_BUILD_TYPE STREQUAL "SHARED")
 endif()
 
 add_subdirectory(cmake)
+add_subdirectory(Audio)
 
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -57,7 +59,6 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SDL)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/libnyquist)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/assimp)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/imgui)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Cross)
@@ -137,20 +138,6 @@ if (DEFINED NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
 
-if (DEFINED NX_PLATFORM_OPENAL)
-    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENAL=1)
-
-    if (EMSCRIPTEN)
-      find_package(OpenAL REQUIRED)
-      list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-      list (APPEND NEXUS_LINKED_LIBARIES ${OPENAL_LIBRARY})
-    else()
-      add_subdirectory(external/openal-soft)
-      list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
-    endif()
-    
-endif()
-
 #external dependencies
 
 set(ENGINE_SOURCES "include/Nexus.hpp" "src/Nexus.cpp")
@@ -160,11 +147,6 @@ list (APPEND ENGINE_SOURCES ${NEXUS_SOURCES})
 if (DEFINED NX_PLATFORM_D3D12)
   file (GLOB_RECURSE NEXUS_D3D12_SOURCES "src/Platform/D3D12/*.cpp" "src/Platform/D3D12/*.hpp")
   list (APPEND ENGINE_SOURCES ${NEXUS_D3D12_SOURCES})
-endif()
-
-if (DEFINED NX_PLATFORM_OPENAL)
-  file (GLOB_RECURSE NEXUS_OPENAL_SOURCES "src/Platform/OpenAL/*.cpp" "src/Platform/OpenAL/*.hpp")
-  list (APPEND ENGINE_SOURCES ${NEXUS_OPENAL_SOURCES})
 endif()
 
 if (DEFINED NX_PLATFORM_OPENGL)
@@ -239,9 +221,9 @@ list (APPEND NEXUS_INCLUDE_DIRS
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
+  Nexus-Audio
   SDL3::SDL3
   assimp
-  libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
   glslang

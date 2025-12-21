@@ -1,9 +1,8 @@
-#include "Nexus-Core/Audio/AudioLoader.hpp"
+#include "Audio/AudioLoader.hpp"
+#include "Audio/AudioTypes.hpp"
 
 #include "libnyquist/Common.h"
 #include "libnyquist/Decoders.h"
-
-#include "Nexus-Core/Audio/AudioTypes.hpp"
 
 namespace Nexus::Audio
 {
@@ -55,9 +54,9 @@ namespace Nexus::Audio
 		}
 	}
 
-	Ref<AudioBuffer> LoadAudioFileToBuffer(const std::string &filepath, AudioDevice *device, nqr::BaseDecoder *decoder)
+	std::shared_ptr<AudioBuffer> LoadAudioFileToBuffer(const std::string &filepath, AudioDevice *device, nqr::BaseDecoder *decoder)
 	{
-		Ref<AudioBuffer> buffer = device->CreateAudioBuffer();
+		std::shared_ptr<AudioBuffer> buffer = device->CreateAudioBuffer();
 
 		nqr::AudioData data;
 		decoder->LoadFromPath(&data, filepath);
@@ -73,13 +72,13 @@ namespace Nexus::Audio
 		return buffer;
 	}
 
-	Ref<AudioBuffer> AudioLoader::LoadWavFile(const std::string &filepath, AudioDevice *device)
+	std::shared_ptr<AudioBuffer> AudioLoader::LoadWavFile(const std::string &filepath, AudioDevice *device)
 	{
 		nqr::WavDecoder decoder;
 		return LoadAudioFileToBuffer(filepath, device, &decoder);
 	}
 
-	Ref<AudioBuffer> AudioLoader::LoadMp3File(const std::string &filepath, AudioDevice *device)
+	std::shared_ptr<AudioBuffer> AudioLoader::LoadMp3File(const std::string &filepath, AudioDevice *device)
 	{
 		nqr::Mp3Decoder decoder;
 		return LoadAudioFileToBuffer(filepath, device, &decoder);
