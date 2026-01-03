@@ -1,10 +1,9 @@
 #include "Nexus-Core/Runtime.hpp"
 
-#include "Nexus-Core/Platform.hpp"
-#include "Nexus-Core/nxpch.hpp"
-
 #include "Nexus-Core/ECS/Components.hpp"
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "Platform/Platform.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
 Nexus::Application *appPtr = nullptr;
 

@@ -1,6 +1,6 @@
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
 
 namespace Nexus::Utils
 {

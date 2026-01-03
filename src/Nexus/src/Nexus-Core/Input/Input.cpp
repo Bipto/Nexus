@@ -1,7 +1,6 @@
-#include "Nexus-Core/Input/Input.hpp"
-
-#include "Nexus-Core/Platform.hpp"
-#include "Nexus-Core/Runtime.hpp"
+#include "Platform/Input/Input.hpp"
+#include "Platform/IWindow.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus
 {
@@ -45,7 +44,7 @@ namespace Nexus
 		return !s_InputContext->IsKeyDown(id, scancode);
 	}
 
-	Point2D<float> Input::GetMousePosition(uint32_t id)
+	std::pair<float, float> Input::GetMousePosition(uint32_t id)
 	{
 		if (!s_InputContext)
 		{
@@ -55,7 +54,7 @@ namespace Nexus
 		return s_InputContext->GetMousePosition(id);
 	}
 
-	Point2D<float> Input::GetScroll(uint32_t id)
+	std::pair<float, float> Input::GetScroll(uint32_t id)
 	{
 		if (!s_InputContext)
 		{
@@ -105,37 +104,37 @@ namespace Nexus
 		return !s_InputContext->IsKeyDown(scancode);
 	}
 
-	Point2D<float> Input::GetMousePosition()
+	std::optional<std::pair<float, float>> Input::GetMousePosition()
 	{
 		if (!s_InputContext)
 		{
-			return {};
+			return std::nullopt;
 		}
 
 		return s_InputContext->GetMousePosition();
 	}
 
-	Point2D<float> Input::GetScroll()
+	std::optional<std::pair<float, float>> Input::GetScroll()
 	{
 		if (!s_InputContext)
 		{
-			return {};
+			return std::nullopt;
 		}
 
 		return s_InputContext->GetMouseScroll();
 	}
 
-	Point2D<float> Input::GetCursorPosition()
+	std::optional<std::pair<float, float>> Input::GetCursorPosition()
 	{
 		if (!s_InputContext)
 		{
-			return {};
+			return std::nullopt;
 		}
 
 		return s_InputContext->GetMousePosition();
 	}
 
-	Point2D<float> Input::GetGlobalCursorPosition()
+	std::pair<float, float> Input::GetGlobalCursorPosition()
 	{
 		MouseState state = Platform::GetGlobalMouseState();
 		return state.MousePosition;

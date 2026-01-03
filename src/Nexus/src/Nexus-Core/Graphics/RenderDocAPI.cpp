@@ -1,6 +1,6 @@
-#if !defined(__EMSCRIPTEN__)
+#include "Nexus-Core/Graphics/RenderDocAPI.hpp"
 
-	#include "Nexus-Core/Graphics/RenderDocAPI.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::Graphics
 {
@@ -75,5 +75,3 @@ namespace Nexus::Graphics
 		m_API->SetCaptureFilePathTemplate(path.c_str());
 	}
 }	 // namespace Nexus::Graphics
-
-#endif

@@ -9,7 +9,7 @@
 	#include "TextureViewOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 
-	#include "Nexus-Core/Timings/Profiler.hpp"
+	#include "Platform/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {

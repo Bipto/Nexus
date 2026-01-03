@@ -1,6 +1,6 @@
 #include "Platform/Windows/WindowsInclude.hpp"
 
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Platform.hpp"
 #include "SharedLibraryWindows.hpp"
 
 namespace Nexus::Platform

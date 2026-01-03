@@ -2,12 +2,12 @@
 
 #include "OpenAL/OpenAL-API.hpp"
 
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
-#include "Nexus-Core/Input/Input.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
+#include "Platform/Input/Input.hpp"
+#include "Platform/Logging/Log.hpp"
 
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus
 {
@@ -70,12 +70,17 @@ namespace Nexus
 		if (m_Description.EventDriven)
 		{
 			NX_PROFILE_SCOPE("Platform::WaitEvent");
-			Platform::WaitEvent(this);
+			Platform::WaitEvent();
 		}
 		else
 		{
 			NX_PROFILE_SCOPE("Platform::PollEvents");
-			Platform::PollEvents(this);
+			Platform::PollEvents();
+		}
+
+		if (!Platform::AreAnyWindowsOpen())
+		{
+			m_Running = false;
 		}
 
 		NX_MARK_FRAME_END();
@@ -89,16 +94,6 @@ namespace Nexus
 	Ref<Nexus::Graphics::ISwapchain> Application::GetPrimarySwapchain()
 	{
 		return m_Swapchain;
-	}
-
-	Point2D<uint32_t> Application::GetWindowSize()
-	{
-		return this->m_Window->GetWindowSize();
-	}
-
-	Point2D<int> Application::GetWindowPosition()
-	{
-		return this->m_Window->GetWindowPosition();
 	}
 
 	bool Application::IsWindowFocussed()
@@ -136,7 +131,7 @@ namespace Nexus
 		return m_AudioDevice.get();
 	}
 
-	bool Application::IsRunning()
+	bool Application::IsRunning() const
 	{
 		return m_Running;
 	}

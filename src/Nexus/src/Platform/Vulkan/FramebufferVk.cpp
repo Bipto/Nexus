@@ -1,7 +1,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "FramebufferVk.hpp"
-	#include "Nexus-Core/Logging/Log.hpp"
+	#include "Platform/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
@@ -79,7 +79,7 @@ namespace Nexus::Graphics
 		if (m_Description.DepthAttachment.has_value())
 		{
 			Ref<ITexture> texture = m_Description.DepthAttachment.value().TargetTexture;
-			m_DepthAttachment	 = std::dynamic_pointer_cast<TextureVk>(texture);
+			m_DepthAttachment	  = std::dynamic_pointer_cast<TextureVk>(texture);
 		}
 	}
 
@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 			if (colourAttachment.ResolveAttachment.has_value())
 			{
 				Ref<ITexture> resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture;
-				desc.ResolveFormat			= Vk::GetVkPixelDataFormat(resolveTexture->GetPixelFormat());
+				desc.ResolveFormat			 = Vk::GetVkPixelDataFormat(resolveTexture->GetPixelFormat());
 			}
 		}
 

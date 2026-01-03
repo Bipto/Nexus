@@ -28,7 +28,6 @@
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
@@ -37,9 +36,10 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
-#include "Nexus-Core/FileSystem/Directory.hpp"
-#include "Nexus-Core/FileSystem/File.hpp"
-#include "Nexus-Core/FileSystem/Path.hpp"
+#include "Platform/FileSystem/Directory.hpp"
+#include "Platform/FileSystem/File.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
+#include "Platform/FileSystem/Path.hpp"
 
 struct DemoInfo
 {

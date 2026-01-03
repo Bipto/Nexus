@@ -13,6 +13,7 @@ endif()
 
 add_subdirectory(cmake)
 add_subdirectory(Audio)
+add_subdirectory(Platform)
 
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -47,10 +48,7 @@ set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
 set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
-set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(SDL_TEST OFF CACHE BOOL "" FORCE)
 
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SDL)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
@@ -62,7 +60,6 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Tools)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/tracy)
 
 #platform specific configurations
 if (WIN32)
@@ -216,7 +213,7 @@ list (APPEND NEXUS_INCLUDE_DIRS
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
   Nexus-Audio
-  SDL3::SDL3
+  Nexus-Platform
   assimp
   spirv-cross-cpp
   spirv-cross-hlsl
@@ -259,13 +256,6 @@ target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
-
-add_library(tracy SHARED external/tracy/public/TracyClient.cpp)
-target_include_directories(Nexus PUBLIC external/tracy/public)
-set_target_properties(tracy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-
-target_link_libraries(Nexus PUBLIC tracy)
-target_compile_definitions(Nexus PUBLIC TRACY_IMPORTS)
 
 set_target_properties(SPIRV-Tools-opt PROPERTIES CXX_STANDARD 17)
 set_target_properties(SPIRV-Tools-static PROPERTIES CXX_STANDARD 17)

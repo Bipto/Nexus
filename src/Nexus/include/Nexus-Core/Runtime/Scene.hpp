@@ -11,7 +11,7 @@
 
 #include "Nexus-Core/Graphics/Sampler.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
-#include "Nexus-Core/Timings/Timespan.hpp"
+#include "Platform/Timings/Timespan.hpp"
 
 #include "Nexus-Core/Renderer/BatchRenderer.hpp"
 
@@ -33,10 +33,10 @@ namespace Nexus
 
 	struct Environment
 	{
-		std::string			   CubemapPath		  = {};
+		std::string				CubemapPath		   = {};
 		Ref<Graphics::ITexture> EnvironmentCubemap = nullptr;
-		Ref<Graphics::ISampler> CubemapSampler	  = nullptr;
-		glm::vec4			   ClearColour		  = {1.0f, 1.0f, 1.0f, 1.0f};
+		Ref<Graphics::ISampler> CubemapSampler	   = nullptr;
+		glm::vec4				ClearColour		   = {1.0f, 1.0f, 1.0f, 1.0f};
 	};
 
 	// forward declaration

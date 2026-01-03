@@ -24,11 +24,11 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList									   = m_CommandQueue->CreateCommandList();
-			m_BatchRenderer									   = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				   new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
+			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
+			uint32_t								sampleCount = swapchain->GetDescription().Samples;
+			m_CommandList										= m_CommandQueue->CreateCommandList();
+			m_BatchRenderer										= Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
 
 			m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
 			m_Spline.SetLooped(true);
@@ -83,8 +83,10 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			auto [width, height] = m_Window->GetWindowSize();
+
 			m_CommandList->Begin();
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -98,16 +100,16 @@ namespace Demos
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= windowSize.X;
-			vp.Height	= windowSize.Y;
+			vp.Width	= width;
+			vp.Height	= height;
 			vp.MinDepth = 0;
 			vp.MaxDepth = 1;
 
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = windowSize.X;
-			scissor.Height = windowSize.Y;
+			scissor.Width  = width;
+			scissor.Height = height;
 
 			m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
@@ -158,7 +160,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 		Nexus::Graphics::CatmullRom<float>			 m_Spline;

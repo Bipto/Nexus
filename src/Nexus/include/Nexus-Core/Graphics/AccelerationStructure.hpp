@@ -38,14 +38,14 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureTriangleGeometry
 	{
-		DeviceAddress			   VertexBuffer;
+		DeviceAddress			   VertexBuffer		  = {};
 		VertexFormat			   VertexBufferFormat = VertexFormat::R32G32B32_SFloat;
 		size_t					   VertexBufferStride = 0;
 		size_t					   VertexCount		  = 0;
-		DeviceAddress			   IndexBuffer;
-		std::optional<IndexFormat> IndexBufferFormat = {};
-		DeviceAddress			   TransformBuffer;
-		size_t					   IndexCount = 0;
+		DeviceAddress			   IndexBuffer		  = {};
+		std::optional<IndexFormat> IndexBufferFormat  = {};
+		DeviceAddress			   TransformBuffer	  = {};
+		size_t					   IndexCount		  = 0;
 	};
 
 	struct AccelerationStructureAABBGeometry
@@ -83,7 +83,7 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureInstanceGeometry
 	{
-		DeviceAddress InstanceBuffer;
+		DeviceAddress InstanceBuffer  = {};
 		size_t		  Stride		  = 0;
 		bool		  ArrayOfPointers = false;
 		size_t		  Count			  = 0;
@@ -100,9 +100,9 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureGeometryDescription
 	{
-		GeometryType				  Type	= GeometryType::Triangles;
-		uint8_t						  Flags = 0;
-		AccelerationStructureGeometry Geometry;
+		GeometryType				  Type	   = GeometryType::Triangles;
+		uint8_t						  Flags	   = 0;
+		AccelerationStructureGeometry Geometry = {};
 	};
 
 	enum AccelerationStructureBuildFlags
@@ -152,21 +152,21 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureGeometryDescription> Geometry		  = {};
 		std::vector<uint32_t>								  PrimitiveCounts = {};
 		AccelerationStructureBuildMode						  Mode			  = AccelerationStructureBuildMode::Build;
-		Ref<IAccelerationStructure>							  Source;
-		Ref<IAccelerationStructure>							  Destination;
-		DeviceAddress										  ScratchBuffer;
+		Ref<IAccelerationStructure>							  Source		  = {};
+		Ref<IAccelerationStructure>							  Destination	  = {};
+		DeviceAddress										  ScratchBuffer	  = {};
 	};
 
 	struct AccelerationStructureCopyDescription
 	{
-		DeviceAddress				  Source;
-		AccelerationStructureCopyMode Mode = AccelerationStructureCopyMode::Clone;
+		DeviceAddress				  Source = {};
+		AccelerationStructureCopyMode Mode	 = AccelerationStructureCopyMode::Clone;
 	};
 
 	struct AccelerationStructureDeviceBufferCopyDescription
 	{
-		DeviceAddress				  Source;
-		DeviceAddress				  Destination;
+		DeviceAddress				  Source	  = {};
+		DeviceAddress				  Destination = {};
 		size_t						  WriteOffset = 0;
 		AccelerationStructureCopyMode Mode		  = AccelerationStructureCopyMode::Clone;
 	};

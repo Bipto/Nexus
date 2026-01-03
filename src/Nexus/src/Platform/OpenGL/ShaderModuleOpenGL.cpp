@@ -1,11 +1,11 @@
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "ShaderModuleOpenGL.hpp"
-	#include "GraphicsDeviceOpenGL.hpp"
-	#include "Nexus-Core/Logging/Log.hpp"
-	#include "OpenGLShaderParser.hpp"
-
 	#include <regex>
+
+	#include "GraphicsDeviceOpenGL.hpp"
+	#include "OpenGLShaderParser.hpp"
+	#include "Platform/Logging/Log.hpp"
+	#include "ShaderModuleOpenGL.hpp"
 
 namespace Nexus::Graphics
 {

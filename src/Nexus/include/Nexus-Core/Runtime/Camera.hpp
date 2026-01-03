@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-#include "Nexus-Core/Input/Input.hpp"
-#include "Nexus-Core/Platform.hpp"
-#include "Nexus-Core/Utils/FramerateMonitor.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/Input/Input.hpp"
+#include "Platform/Platform.hpp"
+#include "Platform/Utils/FramerateMonitor.hpp"
 
 #include "Nexus-Core/Runtime.hpp"
 
@@ -24,11 +24,15 @@ namespace Nexus
 		FirstPersonCamera(Graphics::IGraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
 			: m_Device(device)
 		{
-			this->Resize(width, height);
-			this->m_Position = position;
+			Resize(width, height);
+			m_Position = position;
 
-			Nexus::GetApplication()->GetPrimaryWindow()->AddMouseMovedCallback([&](const MouseMovedEventArgs &event)
-																			   { Rotate(event.Movement.X, event.Movement.Y); });
+			Nexus::GetApplication()->GetPrimaryWindow()->AddMouseMovedCallback(
+				[&](const MouseMovedEventArgs &event)
+				{
+					auto [x, y] = event.Movement;
+					Rotate(x, y);
+				});
 
 			Nexus::GetApplication()->GetPrimaryWindow()->AddMousePressedCallback(
 				[&](const MouseButtonPressedEventArgs &event)
@@ -44,21 +48,21 @@ namespace Nexus
 					}
 				});
 
-			 Nexus::GetApplication()->GetPrimaryWindow()->AddKeyPressedCallback(
-				 [&](const KeyPressedEventArgs &event)
-				 {
-					 if (event.ScanCode == ScanCode::Escape)
-					 {
-						 IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
-						 if (window)
-						 {
-							 window->SetRelativeMouseMode(false);
-						 }
-						 m_RotationActive = false;
-					 }
-				 });
+			Nexus::GetApplication()->GetPrimaryWindow()->AddKeyPressedCallback(
+				[&](const KeyPressedEventArgs &event)
+				{
+					if (event.ScanCode == ScanCode::Escape)
+					{
+						IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
+						if (window)
+						{
+							window->SetRelativeMouseMode(false);
+						}
+						m_RotationActive = false;
+					}
+				});
 
-			 RecalculateProjection();
+			RecalculateProjection();
 		}
 
 		void Resize(int width, int height)
@@ -251,9 +255,9 @@ namespace Nexus
 
 	  private:
 		Graphics::IGraphicsDevice *m_Device = nullptr;
-		glm::vec3 m_Position {0.0f, 0.0f, 5.0f};
-		glm::vec3				  m_Front {0.0f, 0.0f, -1.0f};
-		glm::vec3 m_Up {0.0f, 1.0f, 0.0f};
+		glm::vec3				   m_Position {0.0f, 0.0f, 5.0f};
+		glm::vec3				   m_Front {0.0f, 0.0f, -1.0f};
+		glm::vec3				   m_Up {0.0f, 1.0f, 0.0f};
 
 		glm::mat4 m_Projection;
 		glm::mat4 m_View;

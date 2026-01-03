@@ -450,12 +450,6 @@ namespace Nexus::Graphics
 		m_Sampler				 = m_Device->CreateSampler(samplerSpec);
 	}
 
-	void BatchRenderer::Resize()
-	{
-		m_Width	 = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
-	}
-
 	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor)
 	{
 		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);

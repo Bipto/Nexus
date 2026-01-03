@@ -6,8 +6,8 @@
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
-#include "Nexus-Core/Utils/SharedLibrary.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/Utils/SharedLibrary.hpp"
 #include "Scene.hpp"
 
 namespace Nexus

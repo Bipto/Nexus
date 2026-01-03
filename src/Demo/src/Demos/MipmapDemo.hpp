@@ -42,6 +42,8 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			auto [width, height] = m_Window->GetWindowSize();
+
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			samplerSpec.MinimumLOD						  = m_SelectedMip;
 			samplerSpec.MaximumLOD						  = m_SelectedMip;
@@ -63,8 +65,8 @@ namespace Demos
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			vp.Height	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			vp.Width	= width;
+			vp.Height	= height;
 			vp.MinDepth = 0.0f;
 			vp.MaxDepth = 1.0f;
 			m_CommandList->SetViewport(vp);
@@ -72,8 +74,8 @@ namespace Demos
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			scissor.Width  = width;
+			scissor.Height = height;
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});

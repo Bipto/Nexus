@@ -21,7 +21,7 @@
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 
-	#include "Nexus-Core/Timings/Profiler.hpp"
+	#include "Platform/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {

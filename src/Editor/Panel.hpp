@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/Events/EventHandler.hpp"
 
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 
@@ -55,8 +55,8 @@ class Panel
 	}
 
   protected:
-	std::string				   m_Name	 = {};
-	Nexus::Ref<Nexus::Project> m_Project = nullptr;
-	bool					   m_Open	 = false;
+	std::string				   m_Name			= {};
+	Nexus::Ref<Nexus::Project> m_Project		= nullptr;
+	bool					   m_Open			= false;
 	std::optional<Nexus::GUID> m_SelectedEntity = {};
 };

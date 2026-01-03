@@ -2,12 +2,12 @@
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 #include "Nexus-Core/Graphics/ShaderUtils.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Runtime.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
+#include "Platform/Logging/Log.hpp"
 #include "stb_image.h"
 
 #include "Nexus-Core/Caching/CachedShader.hpp"

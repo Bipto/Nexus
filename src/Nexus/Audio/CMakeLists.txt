@@ -27,6 +27,7 @@ FetchContent_Declare(
 	libnyquist
 	GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
 	GIT_TAG 767efd9
+	GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(libnyquist)
 
@@ -53,14 +54,16 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	if (EMSCRIPTEN)
 	  find_package(OpenAL REQUIRED)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-	  list (APPEND NEXUS_LINKED_LIBARIES ${OPENAL_LIBRARY})
+	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
 		set(AL_SOFT_WARNINGS OFF CACHE BOOL "" FORCE)
 		set(ALSOFT_WERROR OFF CACHE BOOL "" FORCE)
 		FetchContent_Declare(
 			openal-soft
 			GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-			GIT_TAG bb2c413
+			GIT_TAG 1.25.0
+			GIT_SHALLOW TRUE
+			GIT_PROGRESS TRUE
 		)
 		FetchContent_MakeAvailable(openal-soft)
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)

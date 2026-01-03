@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 {
 	struct BatchVertex
 	{
-		glm::vec4		  Colour		= {1.0f, 1.0f, 1.0f, 1.0f};
+		glm::vec4		  Colour	= {1.0f, 1.0f, 1.0f, 1.0f};
 		glm::vec3		  Position	= {0, 0, 0};
 		float			  TexIndex	= 0.0f;
 		glm::vec2		  TexCoords = {0, 0};
@@ -67,8 +67,6 @@ namespace Nexus::Graphics
 	{
 	  public:
 		BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount);
-
-		void Resize();
 
 		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor);
 		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
@@ -172,8 +170,6 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformUploadBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformBuffer		 = nullptr;
 
-		uint32_t		  m_Width  = 0;
-		uint32_t		  m_Height = 0;
 		Ref<IFramebuffer> m_RenderTarget;
 
 		Nexus::Graphics::Viewport m_Viewport;

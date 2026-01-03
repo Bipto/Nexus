@@ -7,7 +7,6 @@
 #endif
 
 #include "Application.hpp"
-#include "Logging/Log.hpp"
 
 //-----------------------------------------------------------------------------
 // CORE ENGINE FUNCTIONS

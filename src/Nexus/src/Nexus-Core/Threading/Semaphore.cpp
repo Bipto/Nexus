@@ -1,5 +1,5 @@
-#include "Nexus-Core/Threading/Semaphore.hpp"
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Threading/Semaphore.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::Threading
 {
@@ -18,9 +18,9 @@ namespace Nexus::Threading
 		m_BaseSemaphore->Wait();
 	}
 
-	bool Semaphore::Wait(TimeSpan timeout)
+	bool Semaphore::Wait(uint32_t timeoutMS)
 	{
-		return m_BaseSemaphore->Wait(timeout);
+		return m_BaseSemaphore->Wait(timeoutMS);
 	}
 
 	uint32_t Semaphore::GetValue() const

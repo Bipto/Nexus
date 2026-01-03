@@ -23,9 +23,9 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList									   = m_CommandQueue->CreateCommandList();
+			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
+			uint32_t								sampleCount = swapchain->GetDescription().Samples;
+			m_CommandList										= m_CommandQueue->CreateCommandList();
 			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount);
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
@@ -99,9 +99,11 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			auto [width, height] = m_Window->GetWindowSize();
+
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -116,16 +118,16 @@ namespace Demos
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= windowSize.X;
-			vp.Height	= windowSize.Y;
+			vp.Width	= width;
+			vp.Height	= height;
 			vp.MinDepth = 0;
 			vp.MaxDepth = 1;
 
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = windowSize.X;
-			scissor.Height = windowSize.Y;
+			scissor.Width  = width;
+			scissor.Height = height;
 
 			m_BatchRenderer->Begin(framebuffer, vp, scissor);
 			m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
@@ -154,7 +156,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 

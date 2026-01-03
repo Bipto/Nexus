@@ -5,7 +5,7 @@
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Nexus-Core/IWindow.hpp"
+	#include "Platform/IWindow.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
@@ -20,12 +20,12 @@ namespace Nexus::Graphics
 	  public:
 		SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~SwapchainOpenGL();
-		void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>		 GetCurrentFramebuffer() final;
-		void					 SetPresentMode(PresentMode presentMode) final;
-		Nexus::Point2D<uint32_t> GetSize() final;
-		PixelFormat				 GetColourFormat() final;
-		PixelFormat				 GetDepthFormat() final;
+		void						  SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>			  GetCurrentFramebuffer() final;
+		void						  SetPresentMode(PresentMode presentMode) final;
+		std::pair<uint32_t, uint32_t> GetSize() final;
+		PixelFormat					  GetColourFormat() final;
+		PixelFormat					  GetDepthFormat() final;
 
 		void ResizeIfNecessary();
 		void BindAsDrawTarget();

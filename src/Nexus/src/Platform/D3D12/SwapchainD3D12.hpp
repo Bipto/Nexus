@@ -5,8 +5,8 @@
 	#include "D3D12Include.hpp"
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Nexus-Core/IWindow.hpp"
 	#include "Nexus-Core/nxpch.hpp"
+	#include "Platform/IWindow.hpp"
 
 namespace Nexus::Graphics
 {
@@ -26,9 +26,9 @@ namespace Nexus::Graphics
 		{
 			return m_Window;
 		}
-		Nexus::Point2D<uint32_t> GetSize() final;
-		PixelFormat				 GetColourFormat() final;
-		PixelFormat				 GetDepthFormat() final;
+		std::pair<uint32_t, uint32_t> GetSize() final;
+		PixelFormat					  GetColourFormat() final;
+		PixelFormat					  GetDepthFormat() final;
 
 		uint32_t GetCurrentBufferIndex();
 

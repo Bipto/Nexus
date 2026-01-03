@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/Graphics/ResourceSet.hpp"
 #include "Nexus-Core/Graphics/ShaderDataType.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
+#include "Platform/Logging/Log.hpp"
 #include "shaderc/shaderc.hpp"
 #include "spirv_glsl.hpp"
 #include "spirv_hlsl.hpp"

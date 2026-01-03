@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/Fence.hpp"
-#include "Nexus-Core/Timings/Timespan.hpp"
 #include "Platform/OpenGL/GL.hpp"
+#include "Platform/Timings/Timespan.hpp"
 
 namespace Nexus::Graphics
 {

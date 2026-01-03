@@ -1,6 +1,5 @@
-#include "Nexus-Core/Threading/Thread.hpp"
-
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Threading/Thread.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::Threading
 {
@@ -28,4 +27,4 @@ namespace Nexus::Threading
 	{
 		return m_ThreadBase->Detach();
 	}
-}	 // namespace Nexus
+}	 // namespace Nexus::Threading

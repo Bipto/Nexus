@@ -1,12 +1,10 @@
 #include "Nexus-Core/Runtime/Project.hpp"
-
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
-#include "Nexus-Core/nxpch.hpp"
-#include "yaml-cpp/yaml.h"
-
-#include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Scripting/NativeScript.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
+#include "Platform/Platform.hpp"
+#include "yaml-cpp/yaml.h"
 
 #include "Nexus-Core/Graphics/CommandQueue.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
@@ -224,7 +222,7 @@ namespace Nexus
 
 		if (m_Library)
 		{
-			typedef void		  (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc);
+			typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc);
 			SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
 			if (func)
 			{
@@ -336,7 +334,7 @@ namespace Nexus
 	void Project::LoadAvailableAssetProcessors()
 	{
 		typedef std::map<std::string, Processors::ProcessorInfo> &(*GetAssetProcessorRegistryFunc)();
-		std::map<std::string, Processors::ProcessorInfo>		  processors = Nexus::Processors::GetAssetProcessorRegistry();
+		std::map<std::string, Processors::ProcessorInfo> processors = Nexus::Processors::GetAssetProcessorRegistry();
 
 		if (m_Library)
 		{

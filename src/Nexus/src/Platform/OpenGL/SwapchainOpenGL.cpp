@@ -13,8 +13,9 @@ namespace Nexus::Graphics
 		  m_Window(window),
 		  m_Device(graphicsDevice)
 	{
-		m_SwapchainWidth  = m_Window->GetWindowSize().X;
-		m_SwapchainHeight = m_Window->GetWindowSize().Y;
+		auto [width, height] = m_Window->GetWindowSizeInPixels();
+		m_SwapchainWidth	 = width;
+		m_SwapchainHeight	 = height;
 
 		m_ViewContext = GL::CreateViewContext(window, graphicsDevice);
 		m_ViewContext->MakeCurrent();
@@ -78,7 +79,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Nexus::Point2D<uint32_t> SwapchainOpenGL::GetSize()
+	std::pair<uint32_t, uint32_t> SwapchainOpenGL::GetSize()
 	{
 		return {m_SwapchainWidth, m_SwapchainHeight};
 	}
@@ -95,12 +96,12 @@ namespace Nexus::Graphics
 
 	void SwapchainOpenGL::ResizeIfNecessary()
 	{
-		Nexus::Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
+		auto [width, height] = m_Window->GetWindowSizeInPixels();
 
-		if (windowSize.X != m_SwapchainWidth || windowSize.Y != m_SwapchainHeight)
+		if (width != m_SwapchainWidth || height != m_SwapchainHeight)
 		{
-			m_SwapchainWidth  = windowSize.X;
-			m_SwapchainHeight = windowSize.Y;
+			m_SwapchainWidth  = width;
+			m_SwapchainHeight = height;
 
 			CreateFramebuffer();
 		}

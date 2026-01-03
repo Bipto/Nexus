@@ -3,7 +3,7 @@
 
 #include "Nexus-Core/Renderer/BatchRenderer.hpp"
 
-#include "Nexus-Core/Audio/AudioDevice.hpp"
+#include "Audio/AudioDevice.hpp"
 
 int main()
 {

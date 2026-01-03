@@ -90,9 +90,10 @@ namespace Demos
 				glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds<float>() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
-			m_CameraUniforms.View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));
-			m_CameraUniforms.Projection =
-				glm::perspectiveFov<float>(glm::radians(60.0f), m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, 0.1f, 100.0f);
+			auto [width, height] = m_Window->GetWindowSize();
+
+			m_CameraUniforms.View		= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));
+			m_CameraUniforms.Projection = glm::perspectiveFov<float>(glm::radians(60.0f), width, height, 0.1f, 100.0f);
 			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
 			m_CommandList->Begin();
@@ -105,8 +106,8 @@ namespace Demos
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			vp.Height	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			vp.Width	= width;
+			vp.Height	= height;
 			vp.MinDepth = 0.0f;
 			vp.MaxDepth = 1.0f;
 			m_CommandList->SetViewport(vp);
@@ -114,8 +115,8 @@ namespace Demos
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			scissor.Width  = width;
+			scissor.Height = height;
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});

@@ -2,10 +2,10 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/ResourceSet.hpp"
 #include "Nexus-Core/Graphics/ShaderModule.hpp"
 #include "Nexus-Core/Types.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
 
 #include "yaml-cpp/yaml.h"
 

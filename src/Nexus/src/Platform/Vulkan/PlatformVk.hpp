@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/IWindow.hpp"
 #include "Vk.hpp"
 
 namespace PlatformVk

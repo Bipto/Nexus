@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/Graphics/CommandList.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

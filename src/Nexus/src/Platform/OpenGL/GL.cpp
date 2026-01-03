@@ -2,7 +2,7 @@
 
 	#include "GL.hpp"
 
-	#include "Nexus-Core/Logging/Log.hpp"
+	#include "Platform/Logging/Log.hpp"
 
 	#if defined(NX_PLATFORM_WGL)
 		#include "Context/WGL/OffscreenContextWGL.hpp"
@@ -20,8 +20,8 @@
 	#endif
 
 	#include "DeviceBufferOpenGL.hpp"
-	#include "Nexus-Core/Platform.hpp"
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+	#include "Platform/Platform.hpp"
 	#include "TextureOpenGL.hpp"
 
 namespace Nexus::GL
