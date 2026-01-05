@@ -1,0 +1,88 @@
+﻿
+name: Build and Test (Multi‑Platform)
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checkout:
+    name: Checkout repository once
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Upload source as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source
+          path: .
+          retention-days: 1
+
+  build-test-windows:
+    name: Windows (MSVC)
+    runs-on: windows-latest
+    needs: checkout
+
+    steps:
+      - name: Download source
+        uses: actions/download-artifact@v4
+        with:
+          name: source
+
+      - name: Configure (MSVC)
+        run: cmake -B build -S . -G "Visual Studio 17 2022"
+
+      - name: Build (MSVC)
+        run: cmake --build build --config Debug
+
+      #- name: Test (MSVC)
+      #  run: ctest --test-dir build -C Debug --output-on-failure
+
+  build-test-ubuntu-gcc:
+    name: Ubuntu (GCC)
+    runs-on: ubuntu-latest
+    needs: checkout
+
+    steps:
+      - name: Download source
+        uses: actions/download-artifact@v4
+        with:
+          name: source
+
+      - name: Install GCC
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Configure (GCC)
+        run: CC=gcc CXX=g++ cmake -B build -S .
+
+      - name: Build (GCC)
+        run: cmake --build build --config Debug
+
+      #- name: Test (GCC)
+      #  run: ctest --test-dir build --output-on-failure
+
+  build-test-ubuntu-clang:
+    name: Ubuntu (Clang)
+    runs-on: ubuntu-latest
+    needs: checkout
+
+    steps:
+      - name: Download source
+        uses: actions/download-artifact@v4
+        with:
+          name: source
+
+      - name: Install Clang
+        run: sudo apt-get update && sudo apt-get install -y clang
+
+      - name: Configure (Clang)
+        run: CC=clang CXX=clang++ cmake -B build -S .
+
+      - name: Build (Clang)
+        run: cmake --build build --config Debug
+
+      #- name: Test (Clang)
+      #  run: ctest --test-dir build --output-on-failure
