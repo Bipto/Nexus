@@ -2,7 +2,7 @@
 
 #include "Demo.hpp"
 
-#include "Nexus-Core/Audio/AudioLoader.hpp"
+#include "Audio/AudioLoader.hpp"
 
 namespace Demos
 {
@@ -24,17 +24,29 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
-			m_AudioBuffer = Nexus::Audio::AudioLoader::LoadWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")},
-																   m_AudioDevice);
-			m_AudioSource = m_AudioDevice->CreateAudioSource();
-			m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
+
+			Nexus::Audio::AudioLoader::LoadWavFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice)
+				.transform(
+					[this](auto buffer)
+					{
+						m_AudioBuffer = buffer;
+						m_AudioSource = m_AudioDevice->CreateAudioSource();
+						m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
+						return buffer;
+					})
+				.or_else(
+					[](const std::string &error)
+					{
+						std::cerr << "Failed to load audio file: " << error << std::endl;
+						return std::expected<std::shared_ptr<Nexus::Audio::AudioBuffer>, std::string>(nullptr);
+					});
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -48,7 +60,7 @@ namespace Demos
 		virtual void RenderUI() override
 		{
 			ImGui::Text("Press button to play a sound effect");
-			if (ImGui::Button("Play"))
+			if (ImGui::Button("Play") && m_AudioSource)
 			{
 				m_AudioDevice->Play(m_AudioSource);
 			}
@@ -71,7 +83,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;
 		Nexus::Ref<Nexus::Audio::AudioSource> m_AudioSource;

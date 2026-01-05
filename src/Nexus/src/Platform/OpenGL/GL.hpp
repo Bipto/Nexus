@@ -12,17 +12,15 @@
 
 	#include "OpenGLFunctionContext.hpp"
 
+	#include "Context/IOffscreenContext.hpp"
+	#include "Context/IViewContext.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
-	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
-
-	#include "Nexus-Core/Graphics/CommandList.hpp"
-	#include "Nexus-Core/IWindow.hpp"
-
-	#include "Context/IOffscreenContext.hpp"
-	#include "Context/IViewContext.hpp"
+	#include "Platform/IWindow.hpp"
+	#include "Platform/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {

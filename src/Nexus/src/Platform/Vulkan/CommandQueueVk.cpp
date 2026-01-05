@@ -1,6 +1,6 @@
 #include "CommandQueueVk.hpp"
 
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
 #include "CommandListVk.hpp"
 #include "FenceVk.hpp"

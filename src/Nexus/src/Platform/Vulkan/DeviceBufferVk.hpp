@@ -14,12 +14,17 @@ namespace Nexus::Graphics
 	  public:
 		DeviceBufferVk(const DeviceBufferDescription &desc, GraphicsDeviceVk *device);
 		virtual ~DeviceBufferVk();
-		virtual void						   SetData(const void *data, uint32_t offset, uint32_t size) final;
-		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
-		virtual const DeviceBufferDescription &GetDescription() const final;
+		void						   SetData(const void *data, uint32_t offset, uint32_t size) final;
+		std::vector<char>			   GetData(uint32_t offset, uint32_t size) final;
+		const DeviceBufferDescription &GetDescription() const final;
+		DeviceAddress				   GetDeviceAddress(size_t offset) const final;
 
-		VkBuffer GetVkBuffer() const;
-		VkDeviceAddress GetDeviceAddress() const;
+		[[nodiscard]] uint8_t *Map() final;
+		void				   Unmap() final;
+		void				   FlushRange(BufferRange range) final;
+
+		VkBuffer		GetVkBuffer() const;
+		VkDeviceAddress GetVkDeviceAddress() const;
 
 	  private:
 		DeviceBufferDescription m_BufferDescription = {};

@@ -268,6 +268,8 @@ namespace Nexus::Graphics
 		{
 			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
 		}
+
+		context.DestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
 	}
 
 	void ComputePipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
@@ -285,6 +287,128 @@ namespace Nexus::Graphics
 		{
 			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_GRAPHICS, desc.DynamicOffsets);
 		}
+	}
+
+	RayTracingPipelineVk::RayTracingPipelineVk(const RayTracingPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
+		: IRayTracingPipeline(description),
+		  m_GraphicsDevice(graphicsDevice)
+	{
+		// pipeline layout
+		{
+			m_PipelineLayout	  = Vk::CreatePipelineLayout(this, graphicsDevice, m_DescriptorSetLayouts, m_DescriptorCounts);
+			std::string debugName = description.DebugName + " - Pipeline Layout";
+			graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
+		}
+
+		// pipeline
+		{
+			std::vector<VkPipelineShaderStageCreateInfo>	  shaderStages = {};
+			std::vector<VkRayTracingShaderGroupCreateInfoKHR> shaderGroups = {};
+
+			for (const Ref<IShaderModule> &shaderModule : description.Shaders)
+			{
+				Ref<ShaderModuleVk> vulkanShader = std::dynamic_pointer_cast<ShaderModuleVk>(shaderModule);
+
+				VkPipelineShaderStageCreateInfo &shaderInfo = shaderStages.emplace_back();
+				shaderInfo									= Vk::CreateShaderStageCreateInfo(vulkanShader);
+			}
+
+			for (const ShaderGroup &shaderGroup : description.ShaderGroups)
+			{
+				VkRayTracingShaderGroupCreateInfoKHR &vkShaderGroup = shaderGroups.emplace_back();
+				vkShaderGroup.sType									= VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR;
+				vkShaderGroup.pNext									= nullptr;
+				vkShaderGroup.type									= Vk::GetRayTracingShaderGroupType(shaderGroup.Type);
+				vkShaderGroup.generalShader							= shaderGroup.GeneralShader;
+				vkShaderGroup.closestHitShader						= shaderGroup.ClosestHitShader;
+				vkShaderGroup.anyHitShader							= shaderGroup.AnyHitShader;
+				vkShaderGroup.intersectionShader					= shaderGroup.IntersectionShader;
+				vkShaderGroup.pShaderGroupCaptureReplayHandle		= nullptr;
+			}
+
+			VkRayTracingPipelineCreateInfoKHR pipelineInfo = {};
+			pipelineInfo.sType							   = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR;
+			pipelineInfo.pNext							   = nullptr;
+			pipelineInfo.flags							   = 0;
+			pipelineInfo.stageCount						   = shaderStages.size();
+			pipelineInfo.pStages						   = shaderStages.data();
+			pipelineInfo.groupCount						   = shaderGroups.size();
+			pipelineInfo.pGroups						   = shaderGroups.data();
+			pipelineInfo.maxPipelineRayRecursionDepth	   = description.MaxRecursionDepth;
+			pipelineInfo.pLibraryInfo					   = nullptr;
+			pipelineInfo.pLibraryInterface				   = nullptr;
+			pipelineInfo.pDynamicState					   = nullptr;
+			pipelineInfo.layout							   = m_PipelineLayout;
+			pipelineInfo.basePipelineHandle				   = VK_NULL_HANDLE;
+			pipelineInfo.basePipelineIndex				   = 0;
+
+			const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+			if (context.CreateRayTracingPipelinesKHR != nullptr)
+			{
+				NX_VALIDATE(context.CreateRayTracingPipelinesKHR(m_GraphicsDevice->GetVkDevice(),
+																 VK_NULL_HANDLE,
+																 VK_NULL_HANDLE,
+																 1,
+																 &pipelineInfo,
+																 nullptr,
+																 &m_Pipeline) == VK_SUCCESS,
+							"Failed to create ray tracing pipeline");
+			}
+
+			graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, m_Description.DebugName.c_str());
+		}
+	}
+
+	RayTracingPipelineVk::~RayTracingPipelineVk()
+	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
+		context.DestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
+
+		for (const auto &[setIndex, descriptorSetLayout] : m_DescriptorSetLayouts)
+		{
+			context.DestroyDescriptorSetLayout(m_GraphicsDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+		}
+
+		context.DestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
+	}
+
+	void RayTracingPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
+	{
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+		context.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, m_Pipeline);
+	}
+
+	void RayTracingPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
+	{
+		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
+		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+
+		if (resourceSet)
+		{
+			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, desc.DynamicOffsets);
+		}
+	}
+
+	std::vector<uint8_t> RayTracingPipelineVk::GetRayTracingShaderGroupHandles() const
+	{
+		RayTracingDeviceDescription rayTracingDeviceDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
+		std::vector<uint8_t>		handles(m_Description.ShaderGroups.size() * rayTracingDeviceDesc.ShaderGroupHandleSize);
+
+		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
+
+		if (context.GetRayTracingShaderGroupHandlesKHR)
+		{
+			VkResult result = context.GetRayTracingShaderGroupHandlesKHR(m_GraphicsDevice->GetVkDevice(),
+																		 m_Pipeline,
+																		 0,
+																		 m_Description.ShaderGroups.size(),
+																		 handles.size(),
+																		 handles.data());
+			NX_VALIDATE(result == VK_SUCCESS, "Failed to retrieve shader group handles");
+		}
+
+		return handles;
 	}
 }	 // namespace Nexus::Graphics
 

@@ -88,8 +88,11 @@ namespace Nexus::Graphics
 		const DeviceFeatures					 &GetPhysicalDeviceFeatures() const final;
 		const DeviceLimits						 &GetPhysicalDeviceLimits() const final;
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
-		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
-																					const std::vector<uint32_t> &primitiveCount) const final;
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
+			const AccelerationStructureGeometryBuildDescription &description) const final;
+
+		RayTracingDeviceDescription		GetRayTracingDeviceDescription() const final;
+		AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
 		bool IsExtensionSupported(const char *extension) const;
 		bool IsVersionGreaterThan(uint32_t version) const;

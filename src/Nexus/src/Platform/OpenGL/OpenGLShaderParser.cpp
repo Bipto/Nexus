@@ -179,9 +179,9 @@ namespace Nexus::OpenGL
 				{
 					reflectionData.Buffers.push_back(buffer);
 				}
-
-				return reflectionData;
 			}
 		}
+
+		return reflectionData;
 	}
 }	 // namespace Nexus::OpenGL

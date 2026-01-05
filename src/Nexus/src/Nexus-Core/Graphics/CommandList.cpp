@@ -1,5 +1,5 @@
 #include "Nexus-Core/Graphics/CommandList.hpp"
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -214,6 +214,20 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
+	void ICommandList::TraceRays(const TraceRaysDescription &desc)
+	{
+		NX_PROFILE_FUNCTION();
+
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		m_Commands.push_back(desc);
+	}
+
 	void ICommandList::SetResourceSet(const ResourceSetBindingDescription &desc)
 	{
 		NX_PROFILE_FUNCTION();
@@ -309,9 +323,9 @@ namespace Nexus::Graphics
 		}
 
 		ClearColorTargetCommand command;
-		command.Index = index;
+		command.Index  = index;
 		command.Colour = color;
-		command.Rect  = clearRect;
+		command.Rect   = clearRect;
 		m_Commands.push_back(command);
 	}
 
@@ -327,9 +341,9 @@ namespace Nexus::Graphics
 		}
 
 		ClearColorTargetCommand command;
-		command.Index = index;
+		command.Index  = index;
 		command.Colour = color;
-		command.Rect  = std::nullopt;
+		command.Rect   = std::nullopt;
 		m_Commands.push_back(command);
 	}
 
@@ -597,7 +611,7 @@ namespace Nexus::Graphics
 			barrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= bufferTextureCopy.MipLevel,
 														.LevelCount		= 1,
 														.BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
-														.LayerCount		= bufferTextureCopy.TextureExtent.Depth};
+														.LayerCount		= 1};
 			SubmitTextureBarrier(barrierDesc);
 		}
 
@@ -629,7 +643,7 @@ namespace Nexus::Graphics
 			barrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= textureBufferCopy.MipLevel,
 														.LevelCount		= 1,
 														.BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
-														.LayerCount		= textureBufferCopy.TextureExtent.Depth};
+														.LayerCount		= 1};
 			SubmitTextureBarrier(barrierDesc);
 		}
 
@@ -661,7 +675,7 @@ namespace Nexus::Graphics
 			sourceBarrierDesc.TextureSubresourceRange	   = {.BaseMipLevel	  = textureCopy.SourceMipLevel,
 															  .LevelCount	  = 1,
 															  .BaseArrayLayer = (uint32_t)textureCopy.SourceOffset.Z,
-															  .LayerCount	  = textureCopy.Extent.Depth};
+															  .LayerCount	  = 1};
 			SubmitTextureBarrier(sourceBarrierDesc);
 
 			Graphics::TextureBarrierDesc destBarrierDesc = {};
@@ -674,7 +688,7 @@ namespace Nexus::Graphics
 			destBarrierDesc.TextureSubresourceRange		 = {.BaseMipLevel	= textureCopy.DestinationMipLevel,
 															.LevelCount		= 1,
 															.BaseArrayLayer = (uint32_t)textureCopy.DestinationOffset.Z,
-															.LayerCount		= textureCopy.Extent.Depth};
+															.LayerCount		= 1};
 			SubmitTextureBarrier(destBarrierDesc);
 		}
 
@@ -752,7 +766,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void ICommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description)
+	void ICommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description)
 	{
 		NX_PROFILE_FUNCTION();
 

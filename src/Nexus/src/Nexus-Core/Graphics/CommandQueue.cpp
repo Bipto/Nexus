@@ -57,13 +57,13 @@ namespace Nexus::Graphics
 		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
-		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.TextureExtent				  = {.Width = width, .Height = height};
 		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyBufferToTexture(copyDesc);
 
 		cmdList->End();
-		SubmitCommandLists(&cmdList, 1, nullptr);
-		WaitForIdle();
+		SubmitCommandList(cmdList);
+		device->WaitForIdle();
 	}
 
 	std::vector<char> ICommandQueue::ReadFromTexture(Ref<ITexture> texture,
@@ -96,14 +96,79 @@ namespace Nexus::Graphics
 		copyDesc.BufferImageHeight			  = 0;
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureOffset				  = {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
-		copyDesc.TextureExtent				  = {.Width = width, .Height = height, .Depth = 1};
+		copyDesc.TextureExtent				  = {.Width = width, .Height = height};
 		copyDesc.MipLevel					  = mipLevel;
 		cmdList->CopyTextureToBuffer(copyDesc);
 
 		cmdList->End();
-		SubmitCommandLists(&cmdList, 1, nullptr);
-		WaitForIdle();
+		SubmitCommandList(cmdList);
+		device->WaitForIdle();
 
 		return buffer->GetData(0, footprint.Size);
+	}
+
+	void ICommandQueue::WriteToBuffer(Ref<IDeviceBuffer> buffer, const void *data, size_t offset, size_t size)
+	{
+		IGraphicsDevice *device = GetGraphicsDevice();
+
+		DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access				   = Nexus::Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.SizeInBytes			   = size;
+		bufferDesc.StrideInBytes		   = size;
+		Ref<IDeviceBuffer> uploadBuffer	   = device->CreateDeviceBuffer(bufferDesc);
+
+		uploadBuffer->SetData(data, 0, size);
+
+		BufferCopy bufferCopy  = {};
+		bufferCopy.Size		   = size;
+		bufferCopy.ReadOffset  = 0;
+		bufferCopy.WriteOffset = offset;
+
+		BufferCopyDescription bufferCopyDesc = {};
+		bufferCopyDesc.Source				 = uploadBuffer;
+		bufferCopyDesc.Destination			 = buffer;
+		bufferCopyDesc.Copies				 = {bufferCopy};
+
+		Ref<ICommandList> cmdList = CreateCommandList();
+		cmdList->Begin();
+		cmdList->CopyBufferToBuffer(bufferCopyDesc);
+		cmdList->End();
+
+		SubmitCommandList(cmdList);
+		device->WaitForIdle();
+	}
+
+	std::vector<char> ICommandQueue::ReadFromBuffer(Ref<IDeviceBuffer> buffer, size_t offset)
+	{
+		size_t dataSize = buffer->GetSizeInBytes() - offset;
+
+		IGraphicsDevice *device = GetGraphicsDevice();
+
+		DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access				   = Nexus::Graphics::BufferMemoryAccess::Readback;
+		bufferDesc.SizeInBytes			   = dataSize;
+		bufferDesc.StrideInBytes		   = dataSize;
+		Ref<IDeviceBuffer> readbackBuffer  = device->CreateDeviceBuffer(bufferDesc);
+
+		BufferCopy bufferCopy  = {};
+		bufferCopy.Size		   = dataSize;
+		bufferCopy.ReadOffset  = offset;
+		bufferCopy.WriteOffset = 0;
+
+		BufferCopyDescription bufferCopyDesc = {};
+		bufferCopyDesc.Source				 = buffer;
+		bufferCopyDesc.Destination			 = readbackBuffer;
+		bufferCopyDesc.Copies				 = {bufferCopy};
+
+		Ref<ICommandList> cmdList = CreateCommandList();
+		cmdList->Begin();
+		cmdList->CopyBufferToBuffer(bufferCopyDesc);
+		cmdList->End();
+
+		SubmitCommandList(cmdList);
+
+		device->WaitForIdle();
+
+		return readbackBuffer->GetData(0, dataSize);
 	}
 }	 // namespace Nexus::Graphics

@@ -203,7 +203,7 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	uploadCopyDesc.TextureHandle								 = sourceTexture;
 	uploadCopyDesc.BufferOffset									 = 0;
 	uploadCopyDesc.TextureOffset								 = {0, 0, 0};
-	uploadCopyDesc.TextureExtent								 = {1, 1, 1};
+	uploadCopyDesc.TextureExtent								 = {1, 1};
 	uploadCopyDesc.MipLevel										 = 0;
 	cmdList->CopyBufferToTexture(uploadCopyDesc);
 
@@ -214,7 +214,7 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	textureCopyDesc.SourceMipLevel							= 0;
 	textureCopyDesc.DestinationOffset						= {0, 0, 0};
 	textureCopyDesc.DestinationMipLevel						= 0;
-	textureCopyDesc.Extent									= {1, 1, 1};
+	textureCopyDesc.Extent									= {1, 1};
 	cmdList->CopyTextureToTexture(textureCopyDesc);
 
 	Nexus::Graphics::BufferTextureCopyDescription readbackCopyDesc = {};
@@ -223,7 +223,7 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	readbackCopyDesc.BufferOffset								   = 0;
 	readbackCopyDesc.MipLevel									   = 0;
 	readbackCopyDesc.TextureOffset								   = {0, 0, 0};
-	readbackCopyDesc.TextureExtent								   = {1, 1, 1};
+	readbackCopyDesc.TextureExtent								   = {1, 1};
 	readbackCopyDesc.MipLevel									   = 0;
 	cmdList->CopyTextureToBuffer(readbackCopyDesc);
 

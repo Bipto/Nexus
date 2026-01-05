@@ -18,3 +18,4 @@ docs/latex
 out
 _deps
 .idea
+.deps

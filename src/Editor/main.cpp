@@ -4,14 +4,13 @@
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Nexus-Core/Renderer/SceneRenderer.hpp"
 
-#include "Nexus-Core/FileSystem/FileDialogs.hpp"
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
-#include "Nexus-Core/Graphics/HdriProcessor.hpp"
-
 #include "EditorProperties.hpp"
 #include "ImportAssetPanel.hpp"
 #include "ImporterPanel.hpp"
 #include "InspectorPanel.hpp"
+#include "Nexus-Core/Graphics/HdriProcessor.hpp"
+#include "Platform/FileSystem/FileDialogs.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
 #include "ProjectViewPanel.hpp"
 #include "SceneViewPanel.hpp"
 

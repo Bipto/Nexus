@@ -11,8 +11,8 @@
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Scripting/NativeScript.hpp"
 
-#include "Nexus-Core/FileSystem/FileDialogs.hpp"
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/FileSystem/FileDialogs.hpp"
+#include "Platform/Platform.hpp"
 
 #include "ComponentRegistry.hpp"
 
@@ -217,11 +217,11 @@ namespace Nexus
 
 	struct SpriteRendererComponent
 	{
-		std::string			   TexturePath	 = {};
-		GUID				   TextureID	 = GUID(0);
+		std::string				TexturePath	  = {};
+		GUID					TextureID	  = GUID(0);
 		Ref<Graphics::ITexture> SpriteTexture = nullptr;
-		glm::vec4			   SpriteColour	 = {1.0f, 1.0f, 1.0f, 1.0f};
-		float				   Tiling		 = 1.0f;
+		glm::vec4				SpriteColour  = {1.0f, 1.0f, 1.0f, 1.0f};
+		float					Tiling		  = 1.0f;
 
 		friend std::ostream &operator<<(std::ostream &os, const SpriteRendererComponent &component)
 		{
@@ -244,7 +244,7 @@ namespace Nexus
 			if (!TexturePath.empty())
 			{
 				Nexus::Graphics::IGraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
-				SpriteTexture							= device->CreateTexture2D(nullptr, TexturePath, true, false);
+				SpriteTexture							 = device->CreateTexture2D(nullptr, TexturePath, true, false);
 			}
 		}
 	};

@@ -1,16 +1,13 @@
 #include "Nexus-Core/Application.hpp"
 
-// audio headers
-#if defined(NX_PLATFORM_OPENAL)
-	#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
-#endif
+#include "OpenAL/OpenAL-API.hpp"
 
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
-#include "Nexus-Core/Input/Input.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
+#include "Platform/Input/Input.hpp"
+#include "Platform/Logging/Log.hpp"
 
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus
 {
@@ -50,7 +47,7 @@ namespace Nexus
 
 		m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Window, spec.SwapchainDescription);
 
-		m_AudioDevice = std::unique_ptr<Audio::AudioDevice>(Nexus::CreateAudioDevice(spec.AudioAPI));
+		m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
 
 		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { Render(time); });
 		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { Update(time); });
@@ -73,12 +70,17 @@ namespace Nexus
 		if (m_Description.EventDriven)
 		{
 			NX_PROFILE_SCOPE("Platform::WaitEvent");
-			Platform::WaitEvent(this);
+			Platform::WaitEvent();
 		}
 		else
 		{
 			NX_PROFILE_SCOPE("Platform::PollEvents");
-			Platform::PollEvents(this);
+			Platform::PollEvents();
+		}
+
+		if (!Platform::AreAnyWindowsOpen())
+		{
+			m_Running = false;
 		}
 
 		NX_MARK_FRAME_END();
@@ -92,16 +94,6 @@ namespace Nexus
 	Ref<Nexus::Graphics::ISwapchain> Application::GetPrimarySwapchain()
 	{
 		return m_Swapchain;
-	}
-
-	Point2D<uint32_t> Application::GetWindowSize()
-	{
-		return this->m_Window->GetWindowSize();
-	}
-
-	Point2D<int> Application::GetWindowPosition()
-	{
-		return this->m_Window->GetWindowPosition();
 	}
 
 	bool Application::IsWindowFocussed()
@@ -139,7 +131,7 @@ namespace Nexus
 		return m_AudioDevice.get();
 	}
 
-	bool Application::IsRunning()
+	bool Application::IsRunning() const
 	{
 		return m_Running;
 	}
@@ -152,17 +144,5 @@ namespace Nexus
 	const char *Application::GetApplicationPath()
 	{
 		return Platform::GetApplicationPath(m_Description.Organization.c_str(), m_Description.App.c_str());
-	}
-
-	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)
-	{
-		switch (api)
-		{
-#if defined(NX_PLATFORM_OPENAL)
-			case Audio::AudioAPI::OpenAL: return new Audio::AudioDeviceOpenAL();
-#endif
-
-			default: throw std::runtime_error("Attempting to run application with unsupported audio API"); return nullptr;
-		}
 	}
 }	 // namespace Nexus

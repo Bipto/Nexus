@@ -60,8 +60,10 @@ namespace Nexus::Graphics
 
 			commandList->Reset();
 			m_CommandExecutor->SetCommandList(cmdList);
+			m_CommandExecutor->SetCommandQueue(this);
 			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
 			commandList->Close();
+
 			m_CommandExecutor->Reset();
 
 			d3d12CommandLists[i] = cmdList.Get();
@@ -76,6 +78,8 @@ namespace Nexus::Graphics
 			m_CommandQueue->Signal(fenceHandle.Get(), 1);
 			NX_VALIDATE(SUCCEEDED(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent())), "Failed to set event on completion");
 		}
+
+		m_CommandExecutor->FlushReadbacks(m_Device);
 	}
 
 	IGraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()

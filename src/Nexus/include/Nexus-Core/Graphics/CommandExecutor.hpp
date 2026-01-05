@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/Graphics/CommandList.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Graphics
 {
@@ -58,6 +59,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)								  = 0;
 		virtual void ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)								  = 0;
 		virtual void ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)								  = 0;
+		virtual void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)								  = 0;
 		virtual void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)							  = 0;
 	};
 };	  // namespace Nexus::Graphics

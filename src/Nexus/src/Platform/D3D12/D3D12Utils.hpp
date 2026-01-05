@@ -45,6 +45,7 @@ namespace Nexus::D3D12
 
 	DXGI_FORMAT
 	GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format);
+	D3D12_TEXTURE_LAYOUT GetTextureLayout(Graphics::TextureTiling tiling);
 
 	DXGI_FORMAT
 	GetD3D12BaseType(const Nexus::Graphics::VertexBufferElement &element);
@@ -134,6 +135,12 @@ namespace Nexus::D3D12
 	D3D12_BARRIER_SYNC	  GetBarrierSync(Graphics::BarrierPipelineStage stage);
 	D3D12_BARRIER_ACCESS  GetBarrierAccess(Graphics::BarrierAccess access);
 	D3D12_BARRIER_LAYOUT  GetBarrierLayout(Graphics::TextureLayout layout);
+
+	D3D12_RESOURCE_FLAGS GetResourceFlags(uint8_t usage);
+
+	void GetD3D12AccelerationStructureInputs(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+											 D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS		   &inputs,
+											 std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>				   &geometry);
 
 }	 // namespace Nexus::D3D12
 

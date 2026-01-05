@@ -1,29 +1,22 @@
 #pragma once
 
-#include "Nexus-Core/nxpch.hpp"
-
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
 #include "Graphics/IGraphicsAPI.hpp"
-#include "IWindow.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "Platform/IWindow.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
 #endif
 
 #include "ApplicationDescription.hpp"
-#include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
+#include "Platform/Timings/Timespan.hpp"
 #include "Point.hpp"
 
 namespace Nexus
 {
-	/// @brief A static method to create a new audio device from a selected audio
-	/// API
-	/// @param api The audio API to use to manage audio resources
-	/// @return A pointer to an audio device
-	static Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api);
-
 	struct CommandQueueGroup
 	{
 		Ref<Graphics::ICommandQueue> GraphicsQueue = nullptr;
@@ -89,17 +82,6 @@ namespace Nexus
 
 		Ref<Nexus::Graphics::ISwapchain> GetPrimarySwapchain();
 
-		/// @brief A method that is used to retrieve the size of an application's
-		/// window
-		/// @return A Nexus::Point containing two integers representing the size of
-		/// the window
-		Point2D<uint32_t> GetWindowSize();
-
-		/// @brief A method that is used to retrieve the location of a window
-		/// @return A Nexus::Point containing two integers representing the position
-		/// of the window
-		Point2D<int> GetWindowPosition();
-
 		/// @brief A method that returns whether the application's window has focus
 		/// @return A boolean value representing whether the window is focussed
 		bool IsWindowFocussed();
@@ -127,7 +109,7 @@ namespace Nexus
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
 
-		bool IsRunning();
+		bool IsRunning() const;
 
 		void Stop();
 
@@ -142,7 +124,7 @@ namespace Nexus
 		CommandQueueGroup m_CommandQueueGroup = {};
 
 		/// @brief A pointer to an audio device
-		std::unique_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
+		std::shared_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
 
 	  private:
 		/// @brief The specification that the application was created with

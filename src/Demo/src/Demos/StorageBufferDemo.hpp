@@ -38,6 +38,13 @@ namespace Demos
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
+			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
+			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
+			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Storage;
+			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
+			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
+			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+
 			Nexus::Graphics::StorageBufferView storageBufferView = {};
 			storageBufferView.BufferHandle						 = m_StorageBuffer;
 			storageBufferView.Offset							 = 0;
@@ -55,8 +62,10 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			auto [width, height] = m_Window->GetWindowSize();
+
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_StorageBuffer->SetData(&transform, 0, sizeof(transform));
+			m_CommandQueue->WriteToBuffer(m_StorageBuffer, &transform, 0, sizeof(transform));
 
 			m_CommandList->Begin();
 
@@ -68,8 +77,8 @@ namespace Demos
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			vp.Height	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			vp.Width	= width;
+			vp.Height	= height;
 			vp.MinDepth = 0.0f;
 			vp.MaxDepth = 1.0f;
 			m_CommandList->SetViewport(vp);
@@ -77,8 +86,8 @@ namespace Demos
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			scissor.Width  = width;
+			scissor.Height = height;
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -135,13 +144,6 @@ namespace Demos
 			pipelineDescription.FragmentModule =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/storage_buffers/storage_buffers.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
-
-			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Storage;
-			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
-			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
-			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			pipelineDescription.ColourTargetCount = 1;
 			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();

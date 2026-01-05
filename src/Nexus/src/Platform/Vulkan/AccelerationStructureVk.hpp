@@ -13,7 +13,8 @@ namespace Nexus::Graphics
 
 		const AccelerationStructureDescription &GetDescription() const final;
 		VkAccelerationStructureKHR				GetHandle() const;
-		VkDeviceAddress							GetDeviceAddress() const;
+		VkDeviceAddress							GetVkDeviceAddress() const;
+		DeviceAddress							GetDeviceAddress(size_t offset) const final;
 
 	  private:
 		AccelerationStructureDescription m_Description = {};

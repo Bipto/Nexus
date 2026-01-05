@@ -1,0 +1,56 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
+#include <tracy/Tracy.hpp>
+
+#include "Platform/Platform-Core.hpp"
+#include "Platform/Timings/Profiler.hpp"
+#include "Platform/Timings/Timespan.hpp"
+
+namespace Nexus::Timings
+{
+	struct ProfileResult
+	{
+		std::string Name = {};
+		TimeSpan	Time = {};
+	};
+
+	class NX_PLATFORM_API Profiler
+	{
+	  public:
+		void							  AddResult(const std::string &name, TimeSpan timespan);
+		const std::vector<ProfileResult> &GetResults() const;
+		void							  Reset();
+
+		static Profiler &Get();
+
+	  private:
+		std::vector<ProfileResult> m_Results = {};
+		Profiler()							 = default;
+	};
+}	 // namespace Nexus::Timings
+
+// #define NX_PROFILING_ENABLE
+
+#if defined(NX_PROFILING_ENABLE)
+	#define NX_PROFILE_FUNCTION()                                                                                                                    \
+		do {                                                                                                                                         \
+			Nexus::Timings::ProfilingTimer timer("Function");                                                                                        \
+			timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });         \
+			ZoneScoped;                                                                                                                              \
+		} while (0)
+
+	#define NX_PROFILE_SCOPE(name)                                                                                                                   \
+		Nexus::Timings::ProfilingTimer timer(name);                                                                                                  \
+		timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });             \
+		ZoneScopedN(name)
+
+	#define NX_MARK_FRAME_END() FrameMark
+
+#else
+	#define NX_PROFILE_FUNCTION()
+	#define NX_PROFILE_SCOPE(name)
+	#define NX_MARK_FRAME_END()
+#endif

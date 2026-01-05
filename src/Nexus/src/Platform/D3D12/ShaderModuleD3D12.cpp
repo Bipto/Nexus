@@ -5,7 +5,6 @@
 	#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 
 	#include <d3d12shader.h>
-	#include <dxc/dxcapi.h>
 	#include <dxcapi.h>
 
 std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)

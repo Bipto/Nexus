@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/Graphics/ResourceSet.hpp"
 #include "Nexus-Core/Graphics/ShaderDataType.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
+#include "Platform/Logging/Log.hpp"
 #include "shaderc/shaderc.hpp"
 #include "spirv_glsl.hpp"
 #include "spirv_hlsl.hpp"
@@ -261,6 +261,11 @@ namespace Nexus::Graphics
 			case Nexus::Graphics::ShaderStage::TessellationControl: return "tcs_main";
 			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return "tes_main";
 			case Nexus::Graphics::ShaderStage::Vertex: return "vs_main";
+			case Nexus::Graphics::ShaderStage::RayGeneration: return "rg_main";
+			case Nexus::Graphics::ShaderStage::RayMiss: return "rm_main";
+			case Nexus::Graphics::ShaderStage::RayClosestHit: return "rch_main";
+			case Nexus::Graphics::ShaderStage::RayAnyHit: return "rah_main";
+			case Nexus::Graphics::ShaderStage::RayIntersection: return "ri_main";
 			case Nexus::Graphics::ShaderStage::Mesh: return "ms_main";
 			case Nexus::Graphics::ShaderStage::Task: return "ts_main";
 			default: throw std::runtime_error("Failed to find a valid shader stage");

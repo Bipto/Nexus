@@ -20,9 +20,9 @@ namespace Nexus::Graphics
 		m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
 
 		// set up size of swapchain
-		Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
-		m_SwapchainWidth			 = windowSize.X;
-		m_SwapchainHeight			 = windowSize.Y;
+		auto [width, height] = m_Window->GetWindowSizeInPixels();
+		m_SwapchainWidth	 = width;
+		m_SwapchainHeight	 = height;
 
 		// setup framebuffers for swapchain images
 		CreateFramebuffers();
@@ -88,7 +88,7 @@ namespace Nexus::Graphics
 		m_SyncInterval				   = D3D12::GetSyncIntervalFromPresentMode(presentMode);
 	}
 
-	Nexus::Point2D<uint32_t> SwapchainD3D12::GetSize()
+	std::pair<uint32_t, uint32_t> SwapchainD3D12::GetSize()
 	{
 		return {m_SwapchainWidth, m_SwapchainHeight};
 	}
@@ -254,12 +254,12 @@ namespace Nexus::Graphics
 		HWND			 hwnd = info.hwnd;
 
 		// create the swapchain
-		auto windowSize = m_Window->GetWindowSizeInPixels();
+		auto [width, height] = m_Window->GetWindowSizeInPixels();
 
 		// set up properties for the swapchain
 		DXGI_SWAP_CHAIN_DESC1 swapchainDesc {};
-		swapchainDesc.Width				 = windowSize.X;
-		swapchainDesc.Height			 = windowSize.Y;
+		swapchainDesc.Width				 = width;
+		swapchainDesc.Height			 = height;
 		swapchainDesc.Format			 = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapchainDesc.Stereo			 = false;
 		swapchainDesc.SampleDesc.Count	 = 1;

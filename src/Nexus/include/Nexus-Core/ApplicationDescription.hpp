@@ -1,10 +1,12 @@
 #pragma once
 
+#include <inttypes.h>
+
 #include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/IWindow.hpp"
 
 #include "Nexus-Core/Utils/Utils.hpp"
-#include <inttypes.h>
 
 namespace Nexus::Audio
 {
@@ -46,66 +48,6 @@ namespace Nexus::Graphics
 
 namespace Nexus
 {
-	/// @brief An enum representing the current window state
-	enum class WindowState
-	{
-		/// @brief A value representing the window is in a default state
-		Normal,
-
-		/// @brief A value representing that the window has been minimized
-		Minimized,
-
-		/// @brief A value representing that the window has been maximized
-		Maximized
-	};
-
-	enum WindowFlags : uint32_t
-	{
-		WindowFlags_None			  = 0,
-		WindowFlags_Fullscreen		  = BIT(0),
-		WindowFlags_Occluded		  = BIT(1),
-		WindowFlags_Hidden			  = BIT(2),
-		WindowFlags_Borderless		  = BIT(3),
-		WindowFlags_Resizable		  = BIT(4),
-		WindowFlags_Minimized		  = BIT(5),
-		WindowFlags_Maximized		  = BIT(6),
-		WindowFlags_MouseGrabbed	  = BIT(7),
-		WindowFlags_InputFocus		  = BIT(8),
-		WindowFlags_MouseFocus		  = BIT(9),
-		WindowFlags_Modal			  = BIT(10),
-		WindowFlags_HighPixelDensity  = BIT(11),
-		WindowFlags_MouseCapture	  = BIT(12),
-		WindowFlags_MouseRelativeMode = BIT(13),
-		WindowFlags_AlwaysOnTop		  = BIT(14),
-		WindowFlags_Utility			  = BIT(15),
-		WindowFlags_Tooltip			  = BIT(16),
-		WindowFlags_PopupMenu		  = BIT(17),
-		WindowFlags_KeyboardGrabbed	  = BIT(18),
-		WindowFlags_Transparent		  = BIT(19),
-		WindowFlags_NotFocusable	  = BIT(20)
-	};
-
-	/// @brief A struct that represents a set of options for a window
-	struct WindowDescription
-	{
-		/// @brief A string containing the title of the window
-		std::string Title = "My Window";
-
-		/// @brief An integer containing the width of the window
-		uint32_t Width = 1280;
-
-		/// @brief An integer containing the height of the window
-		uint32_t Height = 720;
-
-		uint32_t Flags = WindowFlags_None;
-
-		std::optional<uint32_t> RendersPerSecond = {};
-		std::optional<uint32_t> UpdatesPerSecond = {};
-		std::optional<uint32_t> TicksPerSecond	 = {};
-
-		std::string CanvasId = "canvas";
-	};
-
 	/// @brief A struct representing options to use when creating an application
 	struct ApplicationDescription
 	{

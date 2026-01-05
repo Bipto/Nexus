@@ -1,5 +1,5 @@
-#include "Nexus-Core/Threading/Condition.hpp"
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Threading/Condition.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::Threading
 {

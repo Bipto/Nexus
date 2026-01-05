@@ -1,6 +1,6 @@
 #include "Nexus-Core/Runtime/Scene.hpp"
 
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
 #include "yaml-cpp/yaml.h"
 
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"

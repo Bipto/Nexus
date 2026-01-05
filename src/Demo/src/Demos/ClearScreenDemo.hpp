@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Demo.hpp"
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
 namespace Demos
 {
@@ -33,7 +33,7 @@ namespace Demos
 				NX_PROFILE_SCOPE("Command recording");
 				m_CommandList->Begin();
 
-				Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 				Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 				m_CommandList->SetFramebuffer(framebuffer);
 
@@ -60,6 +60,6 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

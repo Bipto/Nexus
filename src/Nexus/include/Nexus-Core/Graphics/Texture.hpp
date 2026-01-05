@@ -63,18 +63,29 @@ namespace Nexus::Graphics
 		size_t RowCount = 0;
 	};
 
+	/// @brief An enum representing the tiling mode of a texture
+	enum class TextureTiling
+	{
+		/// @brief The layout of texels is implementation specific
+		Optimal,
+
+		/// @brief The texels are laid out in row-major order, potentially with padding
+		Linear
+	};
+
 	struct TextureDescription
 	{
-		TextureType Type			   = TextureType::Texture2D;
-		uint8_t		CreateFlags		   = TextureCreateFlags_None;
-		PixelFormat Format			   = PixelFormat::R8_G8_B8_A8_UNorm;
-		uint32_t	Width			   = 0;
-		uint32_t	Height			   = 0;
-		uint32_t	DepthOrArrayLayers = 1;
-		uint32_t	MipLevels		   = 1;
-		uint32_t	Samples			   = 1;
-		uint16_t	Usage			   = TextureUsage_None;
-		std::string DebugName		   = "Texture";
+		TextureTiling Tiling			 = TextureTiling::Optimal;
+		TextureType	  Type				 = TextureType::Texture2D;
+		uint8_t		  CreateFlags		 = TextureCreateFlags_None;
+		PixelFormat	  Format			 = PixelFormat::R8_G8_B8_A8_UNorm;
+		uint32_t	  Width				 = 0;
+		uint32_t	  Height			 = 0;
+		uint32_t	  DepthOrArrayLayers = 1;
+		uint32_t	  MipLevels			 = 1;
+		uint32_t	  Samples			 = 1;
+		uint16_t	  Usage				 = TextureUsage_None;
+		std::string	  DebugName			 = "Texture";
 	};
 
 	class NX_API ITexture
@@ -141,6 +152,11 @@ namespace Nexus::Graphics
 		uint32_t GetMipLevels() const
 		{
 			return m_Description.MipLevels;
+		}
+
+		bool IsLayeredTexture() const
+		{
+			return m_Description.Type != TextureType::Texture3D && m_Description.DepthOrArrayLayers > 1;
 		}
 
 		virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;

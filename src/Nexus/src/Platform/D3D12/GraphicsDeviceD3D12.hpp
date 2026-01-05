@@ -83,8 +83,10 @@ namespace Nexus::Graphics
 		const D3D12DeviceFeatures &GetD3D12DeviceFeatures() const;
 
 		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
-		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(const AccelerationStructureGeometryBuildDescription &description,
-																					const std::vector<uint32_t> &primitiveCounts) const final;
+		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
+			const AccelerationStructureGeometryBuildDescription &description) const final;
+		RayTracingDeviceDescription		GetRayTracingDeviceDescription() const final;
+		AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
 		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 

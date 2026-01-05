@@ -19,13 +19,13 @@ namespace Nexus::Graphics
 		// if the resource is a constant buffer, it needs to be aligned to 256 bytes
 		if (desc.Usage & Graphics::BufferUsage_Uniform)
 		{
-			m_BufferSize = Utils::AlignTo<uint64_t>(desc.SizeInBytes, 256);
+			m_BufferSize = Utils::AlignUp<uint64_t>(desc.SizeInBytes, 256);
 		}
 
 		// structured/raw buffers are accessed using 4 byte alignment
 		if (desc.Usage & Graphics::BufferUsage_Storage)
 		{
-			m_BufferSize = Utils::AlignTo<uint64_t>(desc.SizeInBytes, 4);
+			m_BufferSize = Utils::AlignUp<uint64_t>(desc.SizeInBytes, 4);
 		}
 
 		D3D12_RESOURCE_DESC1 resourceDesc = {};
@@ -40,11 +40,7 @@ namespace Nexus::Graphics
 		resourceDesc.SampleDesc.Quality	  = 0;
 		resourceDesc.Layout				  = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags				  = D3D12_RESOURCE_FLAG_NONE;
-
-		if (desc.Usage & BufferUsage_Storage)
-		{
-			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		}
+		resourceDesc.Flags				  = D3D12::GetResourceFlags(desc.Usage);
 
 		HRESULT hr = allocator->CreateResource2(&allocationDesc,
 												&resourceDesc,
@@ -71,35 +67,41 @@ namespace Nexus::Graphics
 	{
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must be created on with Upload access.");
 
-		D3D12_RANGE range = {};
-		range.Begin		  = 0;
-		range.End		  = m_BufferDescription.SizeInBytes;
+		bool	 alreadyMapped = m_MappedHandle != nullptr;
+		uint8_t *dst		   = m_MappedHandle;
 
-		void *buffer;
-		m_BufferHandle->Map(0, &range, &buffer);
+		if (!alreadyMapped)
+		{
+			dst = Map();
+		}
 
-		void *offsetIntoBuffer = (void *)(((const char *)buffer) + offset);
-		memcpy((void *)offsetIntoBuffer, data, size);
+		memcpy(dst + offset, data, size);
 
-		m_BufferHandle->Unmap(0, &range);
+		if (!alreadyMapped)
+		{
+			Unmap();
+		}
 	}
 
-	std::vector<char> DeviceBufferD3D12::GetData(uint32_t offset, uint32_t size) const
+	std::vector<char> DeviceBufferD3D12::GetData(uint32_t offset, uint32_t size)
 	{
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must be created on with Readnack access.");
 		std::vector<char> data(size);
 
-		D3D12_RANGE range = {};
-		range.Begin		  = 0;
-		range.End		  = m_BufferDescription.SizeInBytes;
+		bool	 alreadyMapped = m_MappedHandle != nullptr;
+		uint8_t *dst		   = m_MappedHandle;
 
-		void *buffer;
-		m_BufferHandle->Map(0, &range, &buffer);
+		if (!alreadyMapped)
+		{
+			dst = Map();
+		}
 
-		void *offsetIntoBuffer = (void *)(((const char *)buffer) + offset);
-		memcpy(data.data(), offsetIntoBuffer, size);
+		memcpy(data.data(), dst + offset, size);
 
-		m_BufferHandle->Unmap(0, nullptr);
+		if (!alreadyMapped)
+		{
+			Unmap();
+		}
 
 		return data;
 	}
@@ -107,6 +109,55 @@ namespace Nexus::Graphics
 	const DeviceBufferDescription &DeviceBufferD3D12::GetDescription() const
 	{
 		return m_BufferDescription;
+	}
+
+	DeviceAddress DeviceBufferD3D12::GetDeviceAddress(size_t offset) const
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS address = m_BufferHandle->GetGPUVirtualAddress();
+		address += offset;
+		return address;
+	}
+
+	[[nodiscard]] uint8_t *DeviceBufferD3D12::Map()
+	{
+		// we can only map an upload or readback buffer
+		if (m_BufferDescription.Access == BufferMemoryAccess::Default)
+		{
+			return nullptr;
+		}
+
+		// if the buffer is already mapped, we can directly return this pointer
+		if (m_MappedHandle)
+		{
+			return m_MappedHandle;
+		}
+
+		D3D12_RANGE range = {};
+		range.Begin		  = 0;
+		range.End		  = m_BufferDescription.SizeInBytes;
+
+		void *buffer;
+		m_BufferHandle->Map(0, &range, &buffer);
+		m_MappedHandle = reinterpret_cast<uint8_t *>(buffer);
+
+		return m_MappedHandle;
+	}
+
+	void DeviceBufferD3D12::Unmap()
+	{
+		if (m_BufferHandle)
+		{
+			D3D12_RANGE range = {};
+			range.Begin		  = 0;
+			range.End		  = m_BufferDescription.SizeInBytes;
+
+			m_BufferHandle->Unmap(0, &range);
+			m_MappedHandle = nullptr;
+		}
+	}
+
+	void DeviceBufferD3D12::FlushRange(BufferRange range)
+	{
 	}
 
 	Microsoft::WRL::ComPtr<ID3D12Resource2> DeviceBufferD3D12::GetHandle()

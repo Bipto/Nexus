@@ -62,6 +62,8 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+
 			m_CameraUniforms.View		 = m_Camera.GetView();
 			m_CameraUniforms.Projection	 = m_Camera.GetProjection();
 			m_CameraUniforms.CamPosition = m_Camera.GetPosition();
@@ -81,8 +83,8 @@ namespace Demos
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			vp.Height	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			vp.Width	= width;
+			vp.Height	= height;
 			vp.MinDepth = 0.0f;
 			vp.MaxDepth = 1.0f;
 			m_CommandList->SetViewport(vp);
@@ -90,8 +92,8 @@ namespace Demos
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
-			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
+			scissor.Width  = width;
+			scissor.Height = height;
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -168,7 +170,8 @@ namespace Demos
 
 		virtual void Update(Nexus::TimeSpan time) override
 		{
-			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
+			auto [width, height] = m_Window->GetWindowSize();
+			m_Camera.Update(width, height, time);
 		}
 
 		virtual std::string GetInfo() const override

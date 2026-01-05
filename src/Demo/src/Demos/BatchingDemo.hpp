@@ -23,23 +23,24 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t							   sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList									   = m_CommandQueue->CreateCommandList();
-			m_BatchRenderer									   = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				   new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
+			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
+			uint32_t								sampleCount = swapchain->GetDescription().Samples;
+			m_CommandList										= m_CommandQueue->CreateCommandList();
+			m_BatchRenderer										= Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
 			GenerateShapes();
 		}
 
 		void GenerateShapes()
 		{
-			auto size = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+			auto [x, y] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 			m_Quads.clear();
 
-			std::random_device					  dev;
-			std::mt19937						  rng(dev());
-			std::uniform_real_distribution<float> random_x(0, size.X - (m_MaxQuadSize / 2));
-			std::uniform_real_distribution<float> random_y(0, size.Y - (m_MaxQuadSize / 2));
+			std::random_device dev;
+			std::mt19937	   rng(dev());
+
+			std::uniform_real_distribution<float> random_x(0, x - (m_MaxQuadSize / 2));
+			std::uniform_real_distribution<float> random_y(0, y - (m_MaxQuadSize / 2));
 			std::uniform_real_distribution<float> random_color_channel(0.0f, 1.0f);
 
 			// for quads
@@ -60,7 +61,7 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	 swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
 			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
@@ -70,21 +71,21 @@ namespace Demos
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 			m_GraphicsDevice->WaitForIdle();
 
-			auto size = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+			auto [x, y] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= size.X;
-			vp.Height	= size.Y;
+			vp.Width	= x;
+			vp.Height	= y;
 			vp.MinDepth = 0.0f;
 			vp.MaxDepth = 1.0f;
 
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = size.X;
-			scissor.Height = size.Y;
+			scissor.Width  = x;
+			scissor.Height = y;
 
 			m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
@@ -143,7 +144,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Nexus-Core/Runtime/Project.hpp"
-#include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/Timings/Timespan.hpp"
 
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Nexus-Core/Runtime.hpp"

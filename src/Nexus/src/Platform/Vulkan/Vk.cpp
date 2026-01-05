@@ -642,13 +642,20 @@ namespace Nexus::Vk
 			}
 		}
 
+		if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
+		{
+			if (desc.Usage & Graphics::BufferUsage_ShaderBindingTable)
+			{
+				flags |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+			}
+		}
+
 		if (device->IsVersionGreaterThan(VK_VERSION_1_2) || device->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		}
 
-		if ((desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly) &&
-			device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
+		if ((desc.Usage & Graphics::BufferUsage_TransformFeedback) && device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
 		{
 			flags |= VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
 		}
@@ -715,6 +722,16 @@ namespace Nexus::Vk
 			return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 		else
 			return VK_IMAGE_ASPECT_COLOR_BIT;
+	}
+
+	VkImageTiling GetImageTiling(Graphics::TextureTiling tiling)
+	{
+		switch (tiling)
+		{
+			case Graphics::TextureTiling::Optimal: return VK_IMAGE_TILING_OPTIMAL;
+			case Graphics::TextureTiling::Linear: return VK_IMAGE_TILING_LINEAR;
+			default: throw std::runtime_error("Failed to find a valid tiling type");
+		}
 	}
 
 	VkAccelerationStructureTypeKHR GetAccelerationStructureType(Graphics::AccelerationStructureType type)
@@ -791,13 +808,14 @@ namespace Nexus::Vk
 
 		if (flags & Graphics::AccelerationStructureGeometryFlags::NoDuplicateAnyhit)
 		{
-			geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
+			geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR);
 		}
 
 		return geometryFlags;
 	}
 
-	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry)
+	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry,
+																				uint32_t &primitiveCount)
 	{
 		switch (geometry.Type)
 		{
@@ -805,11 +823,15 @@ namespace Nexus::Vk
 			{
 				Graphics::AccelerationStructureAABBGeometry aabbs = std::get<Graphics::AccelerationStructureAABBGeometry>(geometry.Geometry);
 
+				VkDeviceOrHostAddressConstKHR dataAddress = {};
+				dataAddress.deviceAddress				  = aabbs.AABBs;
+
 				VkAccelerationStructureGeometryAabbsDataKHR outAabbs = {};
 				outAabbs.sType										 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
 				outAabbs.pNext										 = nullptr;
 				outAabbs.stride										 = aabbs.Stride;
-				outAabbs.data										 = Vk::GetDeviceOrHostAddressConst(aabbs.AABBs);
+				outAabbs.data										 = dataAddress;
+				primitiveCount										 = aabbs.Count;
 
 				return VkAccelerationStructureGeometryDataKHR {.aabbs = outAabbs};
 			}
@@ -819,11 +841,15 @@ namespace Nexus::Vk
 				Graphics::AccelerationStructureInstanceGeometry instances =
 					std::get<Graphics::AccelerationStructureInstanceGeometry>(geometry.Geometry);
 
+				VkDeviceOrHostAddressConstKHR dataAddress = {};
+				dataAddress.deviceAddress				  = instances.InstanceBuffer;
+
 				VkAccelerationStructureGeometryInstancesDataKHR instanceGeometry = {};
 				instanceGeometry.sType			 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
 				instanceGeometry.pNext			 = nullptr;
 				instanceGeometry.arrayOfPointers = instances.ArrayOfPointers;
-				instanceGeometry.data			 = Vk::GetDeviceOrHostAddressConst(instances.InstanceBuffer);
+				instanceGeometry.data			 = dataAddress;
+				primitiveCount					 = instances.Count;
 
 				return VkAccelerationStructureGeometryDataKHR {.instances = instanceGeometry};
 			}
@@ -832,48 +858,40 @@ namespace Nexus::Vk
 				Graphics::AccelerationStructureTriangleGeometry triangles =
 					std::get<Graphics::AccelerationStructureTriangleGeometry>(geometry.Geometry);
 
+				VkDeviceOrHostAddressConstKHR vertexDataAddress = {};
+				vertexDataAddress.deviceAddress					= triangles.VertexBuffer;
+
+				VkDeviceOrHostAddressConstKHR indexDataAddress = {};
+				indexDataAddress.deviceAddress				   = triangles.IndexBuffer;
+
+				VkDeviceOrHostAddressConstKHR transformDataAddress = {};
+				transformDataAddress.deviceAddress				   = triangles.TransformBuffer;
+
 				VkAccelerationStructureGeometryTrianglesDataKHR triangleGeometry = {};
-				triangleGeometry.sType		   = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
-				triangleGeometry.pNext		   = nullptr;
-				triangleGeometry.vertexFormat  = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
-				triangleGeometry.vertexData	   = Vk::GetDeviceOrHostAddressConst(triangles.VertexBuffer);
-				triangleGeometry.vertexStride  = triangles.VertexBufferStride;
-				triangleGeometry.maxVertex	   = triangles.VertexCount - 1;
-				triangleGeometry.indexType	   = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat);
-				triangleGeometry.indexData	   = Vk::GetDeviceOrHostAddressConst(triangles.IndexBuffer);
-				triangleGeometry.transformData = Vk::GetDeviceOrHostAddressConst(triangles.TransformBuffer);
+				triangleGeometry.sType		  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+				triangleGeometry.pNext		  = nullptr;
+				triangleGeometry.vertexFormat = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
+				triangleGeometry.vertexData	  = vertexDataAddress;
+				triangleGeometry.vertexStride = triangles.VertexBufferStride;
+				triangleGeometry.maxVertex	  = triangles.VertexCount;
+
+				if (triangles.IndexBufferFormat.has_value())
+				{
+					triangleGeometry.indexType = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat.value());
+					primitiveCount			   = triangles.IndexCount / 3;
+				}
+				else
+				{
+					triangleGeometry.indexType = VK_INDEX_TYPE_NONE_KHR;
+					primitiveCount			   = triangles.VertexCount / 3;
+				}
+
+				triangleGeometry.indexData	   = indexDataAddress;
+				triangleGeometry.transformData = transformDataAddress;
 
 				return VkAccelerationStructureGeometryDataKHR {.triangles = triangleGeometry};
 			}
 			default: throw std::runtime_error("Failed to get geometry");
-		}
-	}
-
-	VkDeviceOrHostAddressKHR GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address)
-	{
-		if (address.Buffer)
-		{
-			Ref<Graphics::DeviceBufferVk> vulkanBuffer	= std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(address.Buffer);
-			VkDeviceAddress				  deviceAddress = vulkanBuffer->GetDeviceAddress() + address.Offset;
-			return VkDeviceOrHostAddressKHR {.deviceAddress = deviceAddress};
-		}
-		else
-		{
-			return VkDeviceOrHostAddressKHR {.deviceAddress = 0};
-		}
-	}
-
-	VkDeviceOrHostAddressConstKHR GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address)
-	{
-		if (address.Buffer)
-		{
-			Ref<Graphics::DeviceBufferVk> vulkanBuffer	= std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(address.Buffer);
-			VkDeviceAddress				  deviceAddress = vulkanBuffer->GetDeviceAddress() + address.Offset;
-			return VkDeviceOrHostAddressConstKHR {.deviceAddress = deviceAddress};
-		}
-		else
-		{
-			return VkDeviceOrHostAddressConstKHR {.deviceAddress = 0};
 		}
 	}
 
@@ -910,19 +928,22 @@ namespace Nexus::Vk
 	}
 
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
-		const Graphics::AccelerationStructureGeometryBuildDescription &description)
+		const Graphics::AccelerationStructureGeometryBuildDescription &description,
+		std::vector<uint32_t>										  &primitiveCounts)
 	{
 		std::vector<VkAccelerationStructureGeometryKHR> geometries;
 		geometries.reserve(description.Geometry.size());
 
 		for (const auto &geometry : description.Geometry)
 		{
+			uint32_t &primitiveCount = primitiveCounts.emplace_back();
+
 			VkAccelerationStructureGeometryKHR asGeometry = {};
 			asGeometry.sType							  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 			asGeometry.pNext							  = nullptr;
 			asGeometry.flags							  = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
 			asGeometry.geometryType						  = Vk::GetAccelerationStructureGeometryType(geometry.Type);
-			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry);
+			asGeometry.geometry							  = Vk::GetAccelerationStructureGeometryData(geometry, primitiveCount);
 			geometries.push_back(asGeometry);
 		}
 
@@ -940,9 +961,9 @@ namespace Nexus::Vk
 		buildInfo.mode										  = Vk::GetAccelerationStructureBuildMode(description.Mode);
 		buildInfo.geometryCount								  = geometry.size();
 		buildInfo.pGeometries								  = geometry.data();
+		buildInfo.ppGeometries								  = nullptr;
 		buildInfo.srcAccelerationStructure					  = VK_NULL_HANDLE;
 		buildInfo.dstAccelerationStructure					  = VK_NULL_HANDLE;
-		buildInfo.scratchData.deviceAddress					  = 0;
 
 		if (description.Source)
 		{
@@ -958,18 +979,20 @@ namespace Nexus::Vk
 			buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
 		}
 
-		buildInfo.scratchData = Vk::GetDeviceOrHostAddress(description.ScratchBuffer);
+		VkDeviceOrHostAddressKHR deviceAddress = {.deviceAddress = description.ScratchBuffer};
+
+		buildInfo.scratchData = deviceAddress;
 
 		return buildInfo;
 	}
 
-	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range)
+	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(uint32_t primitiveCount)
 	{
 		VkAccelerationStructureBuildRangeInfoKHR rangeInfo = {};
-		rangeInfo.primitiveCount						   = range.PrimitiveCount;
-		rangeInfo.primitiveOffset						   = range.PrimitiveOffset;
-		rangeInfo.firstVertex							   = range.FirstVertex;
-		rangeInfo.transformOffset						   = range.TransformOffset;
+		rangeInfo.primitiveCount						   = primitiveCount;
+		rangeInfo.primitiveOffset						   = 0;
+		rangeInfo.firstVertex							   = 0;
+		rangeInfo.transformOffset						   = 0;
 		return rangeInfo;
 	}
 
@@ -2561,6 +2584,17 @@ namespace Nexus::Vk
 				}
 			}
 			default: throw std::runtime_error("Failed to find a valid image view type");
+		}
+	}
+
+	VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(Graphics::ShaderGroupType type)
+	{
+		switch (type)
+		{
+			case Graphics::ShaderGroupType::General: return VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+			case Graphics::ShaderGroupType::Triangles: return VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+			case Graphics::ShaderGroupType::Procedural: return VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
+			default: throw std::runtime_error("Failed to find a valid shader group type");
 		}
 	}
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#if !defined(__EMSCRIPTEN__)
+#include <memory>
 
-	#include "Nexus-Core/Platform.hpp"
-	#include "Nexus-Core/nxpch.hpp"
+#include <renderdoc_app.h>
 
-	#include <renderdoc_app.h>
+#include "Nexus-Core/nxpch.hpp"
+#include "Platform/Utils/SharedLibrary.hpp"
 
 namespace Nexus::Graphics
 {
@@ -28,5 +28,3 @@ namespace Nexus::Graphics
 		bool								  m_Loaded		  = false;
 	};
 }	 // namespace Nexus::Graphics
-
-#endif

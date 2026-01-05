@@ -64,6 +64,46 @@ namespace Nexus::Graphics
 		m_CommandList = commandList;
 	}
 
+	void CommandExecutorD3D12::SetCommandQueue(CommandQueueD3D12 *commandQueue)
+	{
+		m_CommandQueue = commandQueue;
+	}
+
+	void CommandExecutorD3D12::FlushReadbacks(IGraphicsDevice *device)
+	{
+		if (m_ReadbackCopies.size() == 0)
+		{
+			return;
+		}
+
+		std::vector<D3D12ReadbackBufferCopyOperation> readbackCopies = m_ReadbackCopies;
+		m_ReadbackCopies.clear();
+
+		device->WaitForIdle();
+
+		for (const D3D12ReadbackBufferCopyOperation &readbackCopy : readbackCopies)
+		{
+			const uint32_t copyPerRow = std::min(readbackCopy.SourceRowPitch, readbackCopy.DestinationRowPitch);
+
+			uint8_t *srcData = readbackCopy.ReadbackBuffer->Map();
+
+			std::vector<uint8_t> pixels(readbackCopy.NumRows * readbackCopy.DestinationRowPitch, 0);
+
+			for (uint32_t y = 0; y < readbackCopy.NumRows; y++)
+			{
+				const uint8_t *srcRow = srcData + y * readbackCopy.SourceRowPitch;
+				uint8_t		  *dstRow = pixels.data() + y * readbackCopy.DestinationRowPitch;
+				memcpy(dstRow, srcRow, readbackCopy.DestinationRowPitch);
+			}
+
+			memcpy(srcData, pixels.data(), pixels.size());
+
+			readbackCopy.ReadbackBuffer->Unmap();
+		}
+
+		device->WaitForIdle();
+	}
+
 	void CommandExecutorD3D12::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
@@ -241,11 +281,6 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentFramebuffer))
-		{
-			return;
-		}
-
 		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
 
 		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(desc.TargetResourceSet);
@@ -392,23 +427,30 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
-		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
-
-		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle	 = buffer->GetHandle();
+		Ref<TextureD3D12>					   texture		 = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
-		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
-																command.BufferTextureCopy.TextureOffset.Z,
-																command.BufferTextureCopy.TextureHandle->GetDescription().MipLevels);
+		const bool layeredTexture	= texture->IsLayeredTexture();
+		uint32_t   subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
+																  layeredTexture ? command.BufferTextureCopy.TextureOffset.Z : 0,
+																  command.BufferTextureCopy.TextureHandle->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureOffset.X;
 		textureBounds.right		= command.BufferTextureCopy.TextureOffset.X + command.BufferTextureCopy.TextureExtent.Width;
 		textureBounds.top		= command.BufferTextureCopy.TextureOffset.Y;
 		textureBounds.bottom	= command.BufferTextureCopy.TextureOffset.Y + command.BufferTextureCopy.TextureExtent.Height;
-		textureBounds.front		= command.BufferTextureCopy.TextureOffset.Z;
-		textureBounds.back		= command.BufferTextureCopy.TextureOffset.Z + command.BufferTextureCopy.TextureExtent.Depth;
+
+		if (texture->GetType() == TextureType::Texture3D)
+		{
+			textureBounds.front = command.BufferTextureCopy.TextureOffset.Z;
+			textureBounds.back	= command.BufferTextureCopy.TextureOffset.Z + 1;
+		}
+		else
+		{
+			textureBounds.front = 0;
+			textureBounds.back	= 1;
+		}
 
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint	  = {};
 		UINT							   numRows		  = {};
@@ -425,6 +467,38 @@ namespace Nexus::Graphics
 											&rowSizeInBytes,
 											&totalBytes);
 
+		Ref<IDeviceBuffer>	   stagingBuffer				= CreateStagingBuffer(totalBytes, true, device);
+		Ref<DeviceBufferD3D12> sourceBufferD3D12			= std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
+		Ref<DeviceBufferD3D12> stagingBufferD3D12			= std::dynamic_pointer_cast<DeviceBufferD3D12>(stagingBuffer);
+		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle = stagingBufferD3D12->GetHandle();
+
+		uint8_t *sourceData	 = sourceBufferD3D12->Map();
+		uint8_t *stagingData = stagingBuffer->Map();
+
+		if (!texture || !sourceBufferD3D12 || !stagingBufferD3D12)
+		{
+			throw std::runtime_error("Invalid cast in ExecuteCommand");
+		}
+
+		uint32_t rowSize = command.BufferTextureCopy.TextureExtent.Width * GetPixelFormatSizeInBytes(texture->GetPixelFormat());
+
+		for (uint32_t y = 0; y < command.BufferTextureCopy.TextureExtent.Height; y++)
+		{
+			uint8_t *dstRow = stagingData + y * footprint.Footprint.RowPitch;
+			uint8_t *srcRow = sourceData + y * rowSize;
+
+			memcpy(dstRow, srcRow, rowSize);
+
+			// Optional: clear padding to avoid garbage
+			if (rowSize < footprint.Footprint.RowPitch)
+			{
+				memset(dstRow + rowSize, 0, footprint.Footprint.RowPitch - rowSize);
+			}
+		}
+
+		sourceBufferD3D12->Unmap();
+		stagingBuffer->Unmap();
+
 		D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
 		srcLocation.pResource					= bufferHandle.Get();
 		srcLocation.Type						= D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
@@ -435,10 +509,12 @@ namespace Nexus::Graphics
 		dstLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 		dstLocation.SubresourceIndex			= subresourceIndex;
 
+		const uint32_t zOffset = texture->GetType() == TextureType::Texture3D ? command.BufferTextureCopy.TextureOffset.Z : 0;
+
 		m_CommandList->CopyTextureRegion(&dstLocation,
 										 command.BufferTextureCopy.TextureOffset.X,
 										 command.BufferTextureCopy.TextureOffset.Y,
-										 command.BufferTextureCopy.TextureOffset.Z,
+										 zOffset,
 										 &srcLocation,
 										 &textureBounds);
 	}
@@ -451,12 +527,13 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle	 = buffer->GetHandle();
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
+		bool arrayedTexture = command.TextureBufferCopy.TextureHandle->GetType() == TextureType::Texture3D ||
+							  command.TextureBufferCopy.TextureHandle->GetType() == TextureType::TextureCube;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.TextureBufferCopy.MipLevel,
-																command.TextureBufferCopy.TextureOffset.Z,
-																command.TextureBufferCopy.TextureHandle->GetDescription().MipLevels);
+																arrayedTexture ? command.TextureBufferCopy.TextureOffset.Z : 0,
+																command.TextureBufferCopy.TextureHandle->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.TextureBufferCopy.TextureOffset.X;
@@ -464,7 +541,7 @@ namespace Nexus::Graphics
 		textureBounds.top		= command.TextureBufferCopy.TextureOffset.Y;
 		textureBounds.bottom	= command.TextureBufferCopy.TextureOffset.Y + command.TextureBufferCopy.TextureExtent.Height;
 		textureBounds.front		= command.TextureBufferCopy.TextureOffset.Z;
-		textureBounds.back		= command.TextureBufferCopy.TextureOffset.Z + command.TextureBufferCopy.TextureExtent.Depth;
+		textureBounds.back		= command.TextureBufferCopy.TextureOffset.Z + 1;
 
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint	  = {};
 		UINT							   numRows		  = {};
@@ -481,6 +558,8 @@ namespace Nexus::Graphics
 											&rowSizeInBytes,
 											&totalBytes);
 
+		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle = buffer->GetHandle();
+
 		D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
 		srcLocation.pResource					= textureHandle.Get();
 		srcLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
@@ -493,6 +572,15 @@ namespace Nexus::Graphics
 
 		// copy texture data into the buffer (the 0's are for the offset into the destination texture, which we do not need here)
 		m_CommandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
+
+		size_t tightPitch = command.TextureBufferCopy.TextureExtent.Width * GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+
+		D3D12ReadbackBufferCopyOperation &readbackOperation = m_ReadbackCopies.emplace_back();
+		readbackOperation.ReadbackBuffer					= buffer;
+		readbackOperation.SourceRowPitch					= footprint.Footprint.RowPitch;
+		readbackOperation.DestinationRowPitch				= tightPitch;
+		readbackOperation.Height							= command.TextureBufferCopy.TextureExtent.Height;
+		readbackOperation.NumRows							= numRows;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
@@ -540,7 +628,7 @@ namespace Nexus::Graphics
 		textureBounds.top		= command.TextureCopy.SourceOffset.Y;
 		textureBounds.bottom	= command.TextureCopy.SourceOffset.Y + command.TextureCopy.Extent.Height;
 		textureBounds.front		= command.TextureCopy.SourceOffset.Z;
-		textureBounds.back		= command.TextureCopy.SourceOffset.Z + command.TextureCopy.Extent.Depth;
+		textureBounds.back		= command.TextureCopy.SourceOffset.Z + 1;
 
 		m_CommandList->CopyTextureRegion(&dstLocation,
 										 command.TextureCopy.DestinationOffset.X,
@@ -590,6 +678,35 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device)
 	{
+		for (const auto &accelerationStructureBuildDesc : command.BuildDescriptions)
+		{
+			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS  inputs	   = {};
+			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
+			std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>			  geometry	   = {};
+
+			D3D12::GetD3D12AccelerationStructureInputs(accelerationStructureBuildDesc, inputs, geometry);
+
+			D3D12_GPU_VIRTUAL_ADDRESS srcAddress	 = 0;
+			D3D12_GPU_VIRTUAL_ADDRESS destAddress	 = 0;
+			D3D12_GPU_VIRTUAL_ADDRESS scratchAddress = accelerationStructureBuildDesc.ScratchBuffer;
+
+			if (accelerationStructureBuildDesc.Source)
+			{
+				srcAddress = accelerationStructureBuildDesc.Source->GetDeviceAddress(0);
+			}
+
+			if (accelerationStructureBuildDesc.Destination)
+			{
+				destAddress = accelerationStructureBuildDesc.Destination->GetDeviceAddress(0);
+			}
+
+			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
+			buildDesc.SourceAccelerationStructureData					 = srcAddress;
+			buildDesc.DestAccelerationStructureData						 = destAddress;
+			buildDesc.ScratchAccelerationStructureData					 = scratchAddress;
+			buildDesc.Inputs											 = inputs;
+			m_CommandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)
@@ -704,6 +821,10 @@ namespace Nexus::Graphics
 				m_CommandList->ResourceBarrier(1, &barrier);
 			}
 		}
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)
+	{
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
@@ -1094,6 +1215,20 @@ namespace Nexus::Graphics
 				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
 			}
 		}
+	}
+
+	Ref<IDeviceBuffer> CommandExecutorD3D12::CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device)
+	{
+		Ref<IDeviceBuffer> &buffer = m_UploadBuffers.emplace_back();
+
+		DeviceBufferDescription description = {};
+		upload ? description.Access = BufferMemoryAccess::Upload : description.Access = BufferMemoryAccess::Readback;
+		description.SizeInBytes	  = size;
+		description.StrideInBytes = size;
+		description.DebugName	  = "Staging Buffer";
+		buffer					  = device->CreateDeviceBuffer(description);
+
+		return buffer;
 	}
 }	 // namespace Nexus::Graphics
 

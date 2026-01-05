@@ -21,7 +21,7 @@
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 
-	#include "Nexus-Core/Timings/Profiler.hpp"
+	#include "Platform/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -90,7 +90,7 @@ namespace Nexus::Graphics
 
 	Ref<IRayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return nullptr;
+		return CreateRef<RayTracingPipelineVk>(description, this);
 	}
 
 	Ref<IResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
@@ -376,6 +376,15 @@ namespace Nexus::Graphics
 		if (m_DeviceFeatures.SupportsRayTracing)
 		{
 			builder.Add(accelerationStructureFeatures);
+		}
+
+		VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
+		rayTracingPipelineFeatures.sType			  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
+		rayTracingPipelineFeatures.pNext			  = nullptr;
+		rayTracingPipelineFeatures.rayTracingPipeline = VK_TRUE;
+		if (m_DeviceFeatures.SupportsRayTracing)
+		{
+			builder.Add(rayTracingPipelineFeatures);
 		}
 
 		VkPhysicalDeviceSynchronization2FeaturesKHR synchronizationFeatures = {};
@@ -689,11 +698,11 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
-		const AccelerationStructureGeometryBuildDescription &description,
-		const std::vector<uint32_t>							&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description) const
 	{
-		std::vector<VkAccelerationStructureGeometryKHR> geometries = Vk::GetVulkanAccelerationStructureGeometries(description);
-		VkAccelerationStructureBuildGeometryInfoKHR		buildInfo  = Vk::GetGeometryBuildInfo(description, geometries);
+		std::vector<uint32_t>							primitiveCounts = {};
+		std::vector<VkAccelerationStructureGeometryKHR> geometries		= Vk::GetVulkanAccelerationStructureGeometries(description, primitiveCounts);
+		VkAccelerationStructureBuildGeometryInfoKHR		buildInfo		= Vk::GetGeometryBuildInfo(description, geometries);
 
 		VkAccelerationStructureBuildSizesInfoKHR buildSizes = {};
 		buildSizes.sType									= VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
@@ -704,13 +713,65 @@ namespace Nexus::Graphics
 			m_Context.GetAccelerationStructureBuildSizesKHR(m_Device,
 															VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
 															&buildInfo,
-															primitiveCount.data(),
+															primitiveCounts.data(),
 															&buildSizes);
 		}
 
 		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = buildSizes.accelerationStructureSize,
 														  .UpdateScratchSize		 = buildSizes.updateScratchSize,
 														  .BuildScratchSize			 = buildSizes.buildScratchSize};
+	}
+
+	RayTracingDeviceDescription GraphicsDeviceVk::GetRayTracingDeviceDescription() const
+	{
+		RayTracingDeviceDescription description = {};
+
+		if (m_Context.GetPhysicalDeviceProperties2)
+		{
+			VkPhysicalDeviceRayTracingPipelinePropertiesKHR rayTracingProps = {};
+			rayTracingProps.sType											= VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
+
+			VkPhysicalDeviceProperties2 props2 = {};
+			props2.sType					   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+			props2.pNext					   = &rayTracingProps;
+
+			m_Context.GetPhysicalDeviceProperties2(m_PhysicalDevice->GetVkPhysicalDevice(), &props2);
+
+			description.ShaderGroupHandleSize			   = rayTracingProps.shaderGroupHandleSize;
+			description.MaxRayRecursionDepth			   = rayTracingProps.maxRayRecursionDepth;
+			description.MaxShaderGroupStride			   = rayTracingProps.maxShaderGroupStride;
+			description.ShaderGroupBaseAlignment		   = rayTracingProps.shaderGroupBaseAlignment;
+			description.ShaderGroupHandleCaptureReplaySize = rayTracingProps.shaderGroupHandleCaptureReplaySize;
+			description.MaxRayDispatchInvocationCount	   = rayTracingProps.maxRayDispatchInvocationCount;
+			description.ShaderGroupHandleAlignment		   = rayTracingProps.shaderGroupHandleAlignment;
+			description.MaxRayHitAttributeSize			   = rayTracingProps.maxRayHitAttributeSize;
+		}
+
+		return description;
+	}
+
+	AccelerationStructureProperties GraphicsDeviceVk::GetAccelerationStructureProperties() const
+	{
+		AccelerationStructureProperties properties {};
+
+		if (m_Context.GetPhysicalDeviceProperties2)
+		{
+			VkPhysicalDeviceAccelerationStructurePropertiesKHR accelStructProps = {};
+			accelStructProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
+
+			VkPhysicalDeviceProperties2 props2 = {};
+			props2.sType					   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+			props2.pNext					   = &accelStructProps;
+
+			m_Context.GetPhysicalDeviceProperties2(m_PhysicalDevice->GetVkPhysicalDevice(), &props2);
+
+			properties.MaxGeometryCount								  = accelStructProps.maxGeometryCount;
+			properties.MaxInstanceCount								  = accelStructProps.maxInstanceCount;
+			properties.MaxPrimitiveCount							  = accelStructProps.maxPrimitiveCount;
+			properties.MinAccelerationStructureScratchOffsetAlignment = accelStructProps.minAccelerationStructureScratchOffsetAlignment;
+		}
+
+		return properties;
 	}
 
 	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const

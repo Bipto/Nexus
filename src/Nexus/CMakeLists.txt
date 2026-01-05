@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
 project ("Nexus")
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)
@@ -16,6 +12,8 @@ if (NX_BUILD_TYPE STREQUAL "SHARED")
 endif()
 
 add_subdirectory(cmake)
+add_subdirectory(Audio)
+add_subdirectory(Platform)
 
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -50,14 +48,10 @@ set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
 set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
-set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(SDL_TEST OFF CACHE BOOL "" FORCE)
 
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SDL)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/libnyquist)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/assimp)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/imgui)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Cross)
@@ -66,7 +60,6 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Tools)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/tracy)
 
 #platform specific configurations
 if (WIN32)
@@ -84,36 +77,36 @@ endif()
 
 if (DEFINED NX_PLATFORM_OPENGL)
   if (NOT ANDROID)
-    find_package(OpenGL REQUIRED)
-    list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
+	find_package(OpenGL REQUIRED)
+	list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
   endif()
   
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENGL=1)
 
   if (WIN32)
-      list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WGL=1)
-      list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_DESKTOP=1)
+	  list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WGL=1)
+	  list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_DESKTOP=1)
 
   elseif(LINUX OR ANDROID OR __ANDROID__)
-    if (LINUX)
-      list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_DESKTOP=1)
-      find_package(PkgConfig REQUIRED)
-      pkg_check_modules(EGL REQUIRED egl)
-    endif()
+	if (LINUX)
+	  list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_DESKTOP=1)
+	  find_package(PkgConfig REQUIRED)
+	  pkg_check_modules(EGL REQUIRED egl)
+	endif()
 
-    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENGLES)
-    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_EGL=1)
-    list (APPEND NEXUS_INCLUDE_DIRS ${EGL_INCLUDE_DIRS})
-    list(APPEND NEXUS_LINKED_LIBRARIES ${EGL_LIBRARIES})
+	list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENGLES)
+	list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_EGL=1)
+	list (APPEND NEXUS_INCLUDE_DIRS ${EGL_INCLUDE_DIRS})
+	list(APPEND NEXUS_LINKED_LIBRARIES ${EGL_LIBRARIES})
 
-    if (ANDROID)
-      find_library(GLES3_LIB GLESv3)
-      list (APPEND NEXUS_LINKED_LIBARIES EGL GLESv2 GLESv3)
-    endif()
+	if (ANDROID)
+	  find_library(GLES3_LIB GLESv3)
+	  list (APPEND NEXUS_LINKED_LIBARIES EGL GLESv2 GLESv3)
+	endif()
 
   elseif (EMSCRIPTEN)
   
-    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WEBGL=1)
+	list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WEBGL=1)
   endif()
 
 endif()
@@ -136,20 +129,6 @@ if (DEFINED NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
 
-if (DEFINED NX_PLATFORM_OPENAL)
-    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENAL=1)
-
-    if (EMSCRIPTEN)
-      find_package(OpenAL REQUIRED)
-      list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-      list (APPEND NEXUS_LINKED_LIBARIES ${OPENAL_LIBRARY})
-    else()
-      add_subdirectory(external/openal-soft)
-      list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
-    endif()
-    
-endif()
-
 #external dependencies
 
 set(ENGINE_SOURCES "include/Nexus.hpp" "src/Nexus.cpp")
@@ -161,20 +140,15 @@ if (DEFINED NX_PLATFORM_D3D12)
   list (APPEND ENGINE_SOURCES ${NEXUS_D3D12_SOURCES})
 endif()
 
-if (DEFINED NX_PLATFORM_OPENAL)
-  file (GLOB_RECURSE NEXUS_OPENAL_SOURCES "src/Platform/OpenAL/*.cpp" "src/Platform/OpenAL/*.hpp")
-  list (APPEND ENGINE_SOURCES ${NEXUS_OPENAL_SOURCES})
-endif()
-
 if (DEFINED NX_PLATFORM_OPENGL)
   file (GLOB NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp")
 
   if (EMSCRIPTEN)
-    file (GLOB_RECURSE NEXUS_OPENGL_WEBGL_SOURCES "src/Platform/OpenGL/Backends/WebGL/*.cpp" "src/Platform/OpenGL/Backends/WebGL/*.hpp")
-    list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_WEBGL_SOURCES})
+	file (GLOB_RECURSE NEXUS_OPENGL_WEBGL_SOURCES "src/Platform/OpenGL/Backends/WebGL/*.cpp" "src/Platform/OpenGL/Backends/WebGL/*.hpp")
+	list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_WEBGL_SOURCES})
   else()
-    file (GLOB_RECURSE NEXUS_OPENGL_DEFAULT_SOURCES "src/Platform/OpenGL/Backends/Default/*.cpp" "src/Platform/OpenGL/Backends/Default/*.hpp")
-    list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_DEFAULT_SOURCES})
+	file (GLOB_RECURSE NEXUS_OPENGL_DEFAULT_SOURCES "src/Platform/OpenGL/Backends/Default/*.cpp" "src/Platform/OpenGL/Backends/Default/*.hpp")
+	list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_DEFAULT_SOURCES})
   endif()
 
   list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_SOURCES})
@@ -194,27 +168,27 @@ if (DEFINED NX_PLATFORM_WEBGL)
 endif()
 
 if (DEFINED NX_PLATFORM_WGL)
-    file (GLOB_RECURSE NEXUS_WGL_SOURCES "src/Platform/OpenGL/Context/WGL/*.cpp" "src/Platform/OpenGL/Context/WGL/*.hpp")
-    list (APPEND ENGINE_SOURCES ${NEXUS_WGL_SOURCES})
+	file (GLOB_RECURSE NEXUS_WGL_SOURCES "src/Platform/OpenGL/Context/WGL/*.cpp" "src/Platform/OpenGL/Context/WGL/*.hpp")
+	list (APPEND ENGINE_SOURCES ${NEXUS_WGL_SOURCES})
 endif()
 
 file (GLOB_RECURSE NEXUS_SDL_SOURCES "src/Platform/SDL3/*.cpp" "src/Platform/SDL3/*.hpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_SDL_SOURCES})
 
 if (DEFINED NX_PLATFORM_VULKAN)
-    file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp")
-    list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
+	file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp")
+	list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
 
-    if (WIN32)
-      list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Windows/PlatformVkWindows.cpp)
-      list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_WIN32_KHR=1)
-    elseif (LINUX)
-      list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Xlib/PlatformVkXlib.cpp)
-      list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_XLIB_KHR=1)
-    elseif(ANDROID)
-      list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Android/PlatformVkAndroid.cpp)
-      list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_ANDROID_KHR=1)
-      endif()
+	if (WIN32)
+	  list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Windows/PlatformVkWindows.cpp)
+	  list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_WIN32_KHR=1)
+	elseif (LINUX)
+	  list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Xlib/PlatformVkXlib.cpp)
+	  list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_XLIB_KHR=1)
+	elseif(ANDROID)
+	  list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Android/PlatformVkAndroid.cpp)
+	  list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_ANDROID_KHR=1)
+	  endif()
 endif()
 
 if (WIN32)
@@ -238,9 +212,9 @@ list (APPEND NEXUS_INCLUDE_DIRS
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
-  SDL3::SDL3
+  Nexus-Audio
+  Nexus-Platform
   assimp
-  libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
   glslang
@@ -257,14 +231,14 @@ list (APPEND NEXUS_LINKED_LIBRARIES
 
 #flags required for emscripten
 if (EMSCRIPTEN)
-    set_target_properties(
-      Nexus
-        PROPERTIES
-        LINK_FLAGS
-        "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
-    )
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lidbfs.js")
-    target_link_options(Nexus PRIVATE -lidbfs.js)
+	set_target_properties(
+	  Nexus
+		PROPERTIES
+		LINK_FLAGS
+		"--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
+	)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lidbfs.js")
+	target_link_options(Nexus PRIVATE -lidbfs.js)
 endif()
 
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
@@ -283,12 +257,11 @@ target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COM
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 
-add_library(tracy SHARED external/tracy/public/TracyClient.cpp)
-target_include_directories(Nexus PUBLIC external/tracy/public)
-set_target_properties(tracy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-
-target_link_libraries(Nexus PUBLIC tracy)
-target_compile_definitions(Nexus PUBLIC TRACY_IMPORTS)
-
 set_target_properties(SPIRV-Tools-opt PROPERTIES CXX_STANDARD 17)
 set_target_properties(SPIRV-Tools-static PROPERTIES CXX_STANDARD 17)
+
+target_compile_features(Nexus PUBLIC cxx_std_23)
+set_target_properties(Nexus PROPERTIES
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+	COMPILE_WARNING_AS_ERROR OFF)

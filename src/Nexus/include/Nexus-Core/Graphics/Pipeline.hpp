@@ -128,13 +128,15 @@ namespace Nexus::Graphics
 		Procedural
 	};
 
+#define NX_SHADER_UNUSED (~0U)
+
 	struct ShaderGroup
 	{
 		ShaderGroupType Type			   = ShaderGroupType::General;
-		uint32_t		GeneralShader	   = ~0U;
-		uint32_t		ClosestHitShader   = ~0U;
-		uint32_t		AnyHitShader	   = ~0U;
-		uint32_t		IntersectionShader = ~0U;
+		uint32_t		GeneralShader	   = NX_SHADER_UNUSED;
+		uint32_t		ClosestHitShader   = NX_SHADER_UNUSED;
+		uint32_t		AnyHitShader	   = NX_SHADER_UNUSED;
+		uint32_t		IntersectionShader = NX_SHADER_UNUSED;
 	};
 
 	struct RayTracingPipelineDescription
@@ -477,9 +479,11 @@ namespace Nexus::Graphics
 			return PipelineType::RayTracing;
 		}
 
+		virtual std::vector<uint8_t> GetRayTracingShaderGroupHandles() const = 0;
+
 		std::vector<Ref<IShaderModule>> GetShaderStages() const final
 		{
-			return {};
+			return m_Description.Shaders;
 		}
 
 	  protected:

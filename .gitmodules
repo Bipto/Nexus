@@ -1,6 +1,3 @@
-[submodule "src/Nexus/external/SDL"]
-	path = src/Nexus/external/SDL
-	url = https://github.com/libsdl-org/SDL.git
 [submodule "src/Nexus/external/glm"]
 	path = src/Nexus/external/glm
 	url = https://github.com/g-truc/glm.git
@@ -52,6 +49,3 @@
 [submodule "src/Nexus/external/SPIRV-Reflect"]
 	path = src/Nexus/external/SPIRV-Reflect
 	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
-[submodule "src/Nexus/external/tracy"]
-	path = src/Nexus/external/tracy
-	url = https://github.com/wolfpld/tracy.git

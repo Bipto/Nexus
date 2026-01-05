@@ -128,7 +128,7 @@ namespace Nexus::Graphics
 		desc.BufferLocation					 = bufferHandle->GetGPUVirtualAddress() + offset;
 
 		// constant buffers are accessed in 256 byte chunks
-		size_t bufferViewSize = Utils::AlignTo<size_t>(sizeInBytes, 256);
+		size_t bufferViewSize = Utils::AlignUp<size_t>(sizeInBytes, 256);
 		desc.SizeInBytes	  = bufferViewSize;
 
 		device->CreateConstantBufferView(&desc, cpuHandle);
@@ -149,7 +149,7 @@ namespace Nexus::Graphics
 		if (byteAddress)
 		{
 			srvDesc.Format					   = format;
-			srvDesc.Buffer.FirstElement		   = Utils::AlignTo<size_t>(offset, 4);
+			srvDesc.Buffer.FirstElement		   = Utils::AlignDown<size_t>(offset, 4);
 			srvDesc.Buffer.NumElements		   = sizeInBytes / 4;
 			srvDesc.Buffer.StructureByteStride = 0;
 			srvDesc.Buffer.Flags			   = D3D12_BUFFER_SRV_FLAG_RAW;
@@ -181,8 +181,8 @@ namespace Nexus::Graphics
 
 		if (byteAddress)
 		{
-			uavDesc.Format					   = format;
-			uavDesc.Buffer.FirstElement		   = Utils::AlignTo<size_t>(offset, 4);
+			uavDesc.Format					   = DXGI_FORMAT_R32_TYPELESS;
+			uavDesc.Buffer.FirstElement		   = Utils::AlignDown<size_t>(offset, 4);
 			uavDesc.Buffer.NumElements		   = sizeInBytes / 4;
 			uavDesc.Buffer.StructureByteStride = 0;
 			uavDesc.Buffer.Flags			   = D3D12_BUFFER_UAV_FLAG_RAW;

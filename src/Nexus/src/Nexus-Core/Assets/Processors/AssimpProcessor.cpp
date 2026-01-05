@@ -343,7 +343,7 @@ namespace Nexus::Processors
 		{
 			std::string errorMessage = "Assimp Error:";
 			errorMessage += importer.GetErrorString();
-			NX_ERROR(errorMessage.c_str());
+			throw std::runtime_error(errorMessage.c_str());
 			return {};
 		}
 

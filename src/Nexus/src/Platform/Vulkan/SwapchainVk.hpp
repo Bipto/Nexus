@@ -3,9 +3,9 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Nexus-Core/IWindow.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PhysicalDeviceVk.hpp"
+	#include "Platform/IWindow.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -21,10 +21,10 @@ namespace Nexus::Graphics
 		SwapchainVk(IWindow *window, IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainVk();
 
-		void					 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>		 GetCurrentFramebuffer() final;
-		void					 SetPresentMode(PresentMode presentMode) final;
-		Nexus::Point2D<uint32_t> GetSize() final;
+		void						  SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>			  GetCurrentFramebuffer() final;
+		void						  SetPresentMode(PresentMode presentMode) final;
+		std::pair<uint32_t, uint32_t> GetSize() final;
 
 		PixelFormat GetColourFormat() final;
 		PixelFormat GetDepthFormat() final;

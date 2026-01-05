@@ -1,5 +1,5 @@
-#include "Nexus-Core/Threading/Mutex.hpp"
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Threading/Mutex.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::Threading
 {

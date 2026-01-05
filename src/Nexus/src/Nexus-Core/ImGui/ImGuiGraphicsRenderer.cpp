@@ -1,13 +1,13 @@
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 
 #include "Nexus-Core/Graphics/Swapchain.hpp"
-#include "Nexus-Core/Input/Input.hpp"
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Input/Input.hpp"
+#include "Platform/Platform.hpp"
 
 #include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
-#include "Nexus-Core/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
 static std::string GetImGuiShaderVertexSource()
 {
@@ -59,9 +59,7 @@ static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformI
 	Nexus::ImGuiUtils::ImGuiWindowInfo *info = static_cast<Nexus::ImGuiUtils::ImGuiWindowInfo *>(vp->PlatformUserData);
 	if (data->WantVisible)
 	{
-		Nexus::Graphics::Rectangle<int> rect = {(int)data->InputPos.x, (int)data->InputPos.y, 1, (int)data->InputLineHeight};
-
-		info->Window->SetTextInputRect(rect);
+		info->Window->SetTextInputRect(data->InputPos.x, data->InputPos.y, 1, data->InputLineHeight);
 		info->Window->StartTextInput();
 	}
 	else
@@ -229,7 +227,10 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UnbindTexture(ImTextureID id)
 	{
-		m_Descriptors.erase(id);
+		if (m_Descriptors.contains(id))
+		{
+			m_Descriptors.erase(id);
+		}
 	}
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
@@ -239,8 +240,8 @@ namespace Nexus::ImGuiUtils
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds<float>();
 
-		auto windowSize			   = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
-		io.DisplaySize			   = {static_cast<float>(windowSize.X), static_cast<float>(windowSize.Y)};
+		auto [width, height]	   = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+		io.DisplaySize			   = {static_cast<float>(width), static_cast<float>(height)};
 		io.DisplayFramebufferScale = {1, 1};
 
 		UpdateMonitors();
@@ -346,14 +347,8 @@ namespace Nexus::ImGuiUtils
 			[&](const MouseScrolledEventArgs &args)
 			{
 				ImGuiIO &io = ImGui::GetIO();
-				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
-			});
-
-		window->AddMouseScrollCallback(
-			[&](const Nexus::MouseScrolledEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
+				auto [x, y] = args.Scroll;
+				io.AddMouseWheelEvent(x, y);
 			});
 	}
 
@@ -414,12 +409,16 @@ namespace Nexus::ImGuiUtils
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			state	   = Platform::GetGlobalMouseState();
-			mousePos.X = state.MousePosition.X;
-			mousePos.Y = state.MousePosition.Y;
+			state	 = Platform::GetGlobalMouseState();
+			mousePos = state.MousePosition;
 		}
 
-		io.AddMousePosEvent(mousePos.X, mousePos.Y);
+		if (mousePos)
+		{
+			auto [mouseX, mouseY] = mousePos.value();
+			io.AddMousePosEvent(mouseX, mouseY);
+		}
+
 		io.AddMouseButtonEvent(0, state.LeftButton == MouseButtonState::Pressed);
 		io.AddMouseButtonEvent(1, state.RightButton == MouseButtonState::Pressed);
 		io.AddMouseButtonEvent(2, state.MiddleButton == MouseButtonState::Pressed);
@@ -664,12 +663,17 @@ namespace Nexus::ImGuiUtils
 
 		for (const auto &monitor : monitors)
 		{
+			auto [monitorX, monitorY]				   = monitor.Position;
+			auto [monitorWidth, monitorHeight]		   = monitor.Size;
+			auto [monitorWorkX, monitorWorkY]		   = monitor.WorkPosition;
+			auto [monitorWorkWidth, monitorWorkHeight] = monitor.WorkSize;
+
 			ImGuiPlatformMonitor m;
 			m.DpiScale = monitor.DPI;
-			m.MainPos  = {(float)monitor.Position.X, (float)monitor.Position.Y};
-			m.MainSize = {(float)monitor.Size.X, (float)monitor.Size.Y};
-			m.WorkPos  = {(float)monitor.WorkPosition.X, (float)monitor.WorkPosition.Y};
-			m.WorkSize = {(float)monitor.WorkSize.X, (float)monitor.WorkSize.Y};
+			m.MainPos  = {static_cast<float>(monitorX), static_cast<float>(monitorY)};
+			m.MainSize = {static_cast<float>(monitorWidth), static_cast<float>(monitorHeight)};
+			m.WorkPos  = {static_cast<float>(monitorWorkX), static_cast<float>(monitorWorkY)};
+			m.WorkSize = {static_cast<float>(monitorWorkWidth), static_cast<float>(monitorWorkHeight)};
 
 			platformIo.Monitors.push_back(m);
 		}
@@ -758,7 +762,7 @@ namespace Nexus::ImGuiUtils
 
 				if (!info->Window->IsClosing())
 				{
-					info->Window->SetSize({(uint32_t)size.x, (uint32_t)size.y});
+					info->Window->SetSize(static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
 				}
 			}
 		};
@@ -836,8 +840,8 @@ namespace Nexus::ImGuiUtils
 
 				if (!info->Window->IsClosing())
 				{
-					auto pos = info->Window->GetWindowPosition();
-					return {(float)pos.X, (float)pos.Y};
+					auto [x, y] = info->Window->GetWindowPosition();
+					return {static_cast<float>(x), static_cast<float>(y)};
 				}
 			}
 			return {0, 0};
@@ -851,8 +855,8 @@ namespace Nexus::ImGuiUtils
 
 				if (!info->Window->IsClosing())
 				{
-					auto size = info->Window->GetWindowSize();
-					return {(float)size.X, (float)size.Y};
+					auto [width, height] = info->Window->GetWindowSize();
+					return {static_cast<float>(width), static_cast<float>(height)};
 				}
 			}
 			return {0, 0};

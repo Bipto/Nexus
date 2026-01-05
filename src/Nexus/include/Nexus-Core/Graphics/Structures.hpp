@@ -331,11 +331,10 @@ namespace Nexus::Graphics
 		int32_t Z = 0;
 	};
 
-	struct Extent3D
+	struct Extent2D
 	{
 		uint32_t Width	= 0;
 		uint32_t Height = 0;
-		uint32_t Depth	= 0;
 	};
 
 	struct SubresourceRange

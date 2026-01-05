@@ -1,5 +1,5 @@
-#include "Nexus-Core/Threading/ReadWriteLock.hpp"
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Threading/ReadWriteLock.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::Threading
 {

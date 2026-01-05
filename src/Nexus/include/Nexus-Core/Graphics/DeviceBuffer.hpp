@@ -3,6 +3,8 @@
 #include "Nexus-Core/Vertex.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "DeviceAddress.hpp"
+
 #include "Nexus-Core/Utils/Utils.hpp"
 
 namespace Nexus::Graphics
@@ -54,9 +56,10 @@ namespace Nexus::Graphics
 		BufferUsage_Indirect								= BIT(4),
 		BufferUsage_AccelerationStructureStorage			= BIT(5),
 		BufferUsage_AccelerationStructureBuildInputReadOnly = BIT(6),
-		BufferUsage_TransformFeedback						= BIT(7),
-		BufferUsage_TexelUniform							= BIT(8),
-		BufferUsage_TexelStorage							= BIT(9)
+		BufferUsage_ShaderBindingTable						= BIT(7),
+		BufferUsage_TransformFeedback						= BIT(8),
+		BufferUsage_TexelUniform							= BIT(9),
+		BufferUsage_TexelStorage							= BIT(10)
 	};
 
 	struct DeviceBufferDescription
@@ -80,6 +83,12 @@ namespace Nexus::Graphics
 		std::string DebugName = "DeviceBuffer";
 	};
 
+	struct BufferRange
+	{
+		size_t Offset = 0;
+		size_t Size	  = 0;
+	};
+
 	class IDeviceBuffer
 	{
 	  public:
@@ -87,9 +96,14 @@ namespace Nexus::Graphics
 		{
 		}
 		virtual void			  SetData(const void *data, uint32_t offset, uint32_t size) = 0;
-		virtual std::vector<char> GetData(uint32_t offset, uint32_t size) const				= 0;
+		virtual std::vector<char> GetData(uint32_t offset, uint32_t size)					= 0;
+		virtual DeviceAddress	  GetDeviceAddress(size_t offset) const						= 0;
 
-		virtual const DeviceBufferDescription &GetDescription() const = 0;
+		[[nodiscard]] virtual const DeviceBufferDescription &GetDescription() const = 0;
+
+		[[nodiscard]] virtual uint8_t *Map()						 = 0;
+		virtual void				   Unmap()						 = 0;
+		virtual void				   FlushRange(BufferRange range) = 0;
 
 		uint32_t GetCount() const
 		{

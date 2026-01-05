@@ -18,6 +18,18 @@ namespace Nexus::Graphics
 	class GraphicsDeviceD3D12;
 	class GraphicsPipelineD3D12;
 	class ResourceSetD3D12;
+	class DeviceBufferD3D12;
+	class CommandQueueD3D12;
+
+	struct D3D12ReadbackBufferCopyOperation
+	{
+		Ref<DeviceBufferD3D12> ReadbackBuffer	   = nullptr;
+		Ref<DeviceBufferD3D12> TargetBuffer		   = nullptr;
+		uint32_t			   Height			   = 0;
+		uint32_t			   SourceRowPitch	   = 0;
+		uint32_t			   DestinationRowPitch = 0;
+		uint32_t			   NumRows			   = 0;
+	};
 
 	class CommandExecutorD3D12 : public CommandExecutor
 	{
@@ -28,6 +40,9 @@ namespace Nexus::Graphics
 		void Reset() final;
 
 		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);
+		void SetCommandQueue(CommandQueueD3D12 *commandQueue);
+
+		void FlushReadbacks(IGraphicsDevice *device);
 
 	  private:
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
@@ -67,6 +82,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
 		void SetFramebuffer(WeakRef<IFramebuffer> framebuffer, IGraphicsDevice *device);
@@ -79,12 +95,15 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
 
 	  private:
-		void InsertResourceBarrier(const TextureBarrierDesc &command);
-		void InsertTextureBarrier(const TextureBarrierDesc &command);
+		void			   InsertResourceBarrier(const TextureBarrierDesc &command);
+		void			   InsertTextureBarrier(const TextureBarrierDesc &command);
+		Ref<IDeviceBuffer> CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
+
+		CommandQueueD3D12 *m_CommandQueue = nullptr;
 
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle		 = {};
@@ -104,6 +123,9 @@ namespace Nexus::Graphics
 		PIXBeginEventFn m_PIXBeginEvent = NULL;
 		PIXEndEventFn	m_PIXEndEvent	= NULL;
 		PIXSetMarkerFn	m_PIXSetMarker	= NULL;
+
+		std::vector<Ref<IDeviceBuffer>>				  m_UploadBuffers  = {};
+		std::vector<D3D12ReadbackBufferCopyOperation> m_ReadbackCopies = {};
 	};
 }	 // namespace Nexus::Graphics
 

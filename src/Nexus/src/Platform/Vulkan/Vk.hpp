@@ -63,23 +63,26 @@ namespace Nexus::Vk
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
 	VkImageAspectFlagBits GetAspectFlags(bool isDepth);
+	VkImageTiling		  GetImageTiling(Graphics::TextureTiling tiling);
 
 	VkAccelerationStructureTypeKHR		   GetAccelerationStructureType(Graphics::AccelerationStructureType type);
 	VkBuildAccelerationStructureFlagsKHR   GetAccelerationStructureFlags(uint8_t flags);
 	VkBuildAccelerationStructureModeKHR	   GetAccelerationStructureBuildMode(Graphics::AccelerationStructureBuildMode mode);
 	VkGeometryTypeKHR					   GetAccelerationStructureGeometryType(Graphics::GeometryType type);
 	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
-	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry);
-	VkDeviceOrHostAddressKHR			   GetDeviceOrHostAddress(Graphics::DeviceBufferAddress address);
-	VkDeviceOrHostAddressConstKHR		   GetDeviceOrHostAddressConst(Graphics::DeviceBufferAddress address);
+	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry,
+																				uint32_t &primitiveCount);
 	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
 	VkPresentModeKHR					   GetVulkanPresentMode(Graphics::PresentMode presentMode);
 
 	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
-		const Graphics::AccelerationStructureGeometryBuildDescription &description);
+		const Graphics::AccelerationStructureGeometryBuildDescription &description,
+		std::vector<uint32_t>										  &primitiveCounts);
+
 	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
 																	 const std::vector<VkAccelerationStructureGeometryKHR>		   &geometry);
-	VkAccelerationStructureBuildRangeInfoKHR	GetAccelerationStructureBuildRange(Graphics::AccelerationStructureBuildRange range);
+
+	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(uint32_t primitiveCount);
 
 	struct VulkanRenderPassDescription
 	{
@@ -180,12 +183,13 @@ namespace Nexus::Vk
 
 	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description);
 
-	VkAccessFlagBits		 GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
-	VkPipelineStageFlagBits	 GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
-	VkAccessFlagBits2		 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
-	VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
-	VkImageLayout			 GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
-	VkImageViewType			 GetImageViewType(const Graphics::TextureViewDescription &desc);
+	VkAccessFlagBits			   GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
+	VkPipelineStageFlagBits		   GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkAccessFlagBits2			   GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
+	VkPipelineStageFlagBits2	   GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
+	VkImageLayout				   GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
+	VkImageViewType				   GetImageViewType(const Graphics::TextureViewDescription &desc);
+	VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(Graphics::ShaderGroupType type);
 
 	void BindDescriptorSets(const GladVulkanContext &context,
 							VkCommandBuffer			 commandBuffer,

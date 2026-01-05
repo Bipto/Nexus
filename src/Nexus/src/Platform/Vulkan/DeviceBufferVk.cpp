@@ -1,5 +1,6 @@
 #include "DeviceBufferVk.hpp"
 
+#include "AccelerationStructureVk.hpp"
 #include "GraphicsDeviceVk.hpp"
 
 namespace Nexus::Graphics
@@ -43,7 +44,7 @@ namespace Nexus::Graphics
 		vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
 	}
 
-	std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size) const
+	std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size)
 	{
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
 
@@ -65,12 +66,42 @@ namespace Nexus::Graphics
 		return m_BufferDescription;
 	}
 
+	DeviceAddress DeviceBufferVk::GetDeviceAddress(size_t offset) const
+	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+		if (context.GetBufferDeviceAddressKHR)
+		{
+			VkBufferDeviceAddressInfo info = {};
+			info.sType					   = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+			info.pNext					   = nullptr;
+			info.buffer					   = m_Buffer.Buffer;
+
+			VkDeviceAddress address = context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info) + offset;
+			return address;
+		}
+
+		return {};
+	}
+
+	[[nodiscard]] uint8_t *DeviceBufferVk::Map()
+	{
+		return nullptr;
+	}
+
+	void DeviceBufferVk::Unmap()
+	{
+	}
+
+	void DeviceBufferVk::FlushRange(BufferRange range)
+	{
+	}
+
 	VkBuffer DeviceBufferVk::GetVkBuffer() const
 	{
 		return m_Buffer.Buffer;
 	}
 
-	VkDeviceAddress DeviceBufferVk::GetDeviceAddress() const
+	VkDeviceAddress DeviceBufferVk::GetVkDeviceAddress() const
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 		if (context.GetBufferDeviceAddressKHR)
@@ -85,4 +116,5 @@ namespace Nexus::Graphics
 
 		return {};
 	}
+
 }	 // namespace Nexus::Graphics

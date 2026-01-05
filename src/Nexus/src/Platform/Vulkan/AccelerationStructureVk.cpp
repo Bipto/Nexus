@@ -48,7 +48,24 @@ namespace Nexus::Graphics
 		return m_Handle;
 	}
 
-	VkDeviceAddress AccelerationStructureVk::GetDeviceAddress() const
+	VkDeviceAddress AccelerationStructureVk::GetVkDeviceAddress() const
+	{
+		const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+		if (context.GetAccelerationStructureDeviceAddressKHR)
+		{
+			VkAccelerationStructureDeviceAddressInfoKHR info = {};
+			info.sType										 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+			info.pNext										 = nullptr;
+			info.accelerationStructure						 = m_Handle;
+
+			return context.GetAccelerationStructureDeviceAddressKHR(m_Device->GetVkDevice(), &info);
+		}
+
+		return 0;
+	}
+
+	DeviceAddress AccelerationStructureVk::GetDeviceAddress(size_t offset) const
 	{
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 

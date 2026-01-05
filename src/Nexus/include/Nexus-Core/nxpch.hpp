@@ -41,6 +41,8 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_ENABLE_EXPERIMENTAL
+#include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/Types.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/bitfield.hpp>
 #include <glm/gtc/constants.hpp>
@@ -54,15 +56,13 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/trigonometric.hpp>
 
-#include "Nexus-Core/Logging/Log.hpp"
-#include "Nexus-Core/Point.hpp"
-#include "Nexus-Core/Types.hpp"
+#include "Platform/Logging/Log.hpp"
 
 #if defined(NX_BUILD_DLL)
 	#if defined(WIN32)
 		#if defined(NX_EXPORT_API)
 			#define NX_API __declspec(dllexport)
-		#else if defined(NX_IMPORT_API)
+		#elif defined(NX_IMPORT_API)
 			#define NX_API __declspec(dllimport)
 		#endif
 	#else

@@ -75,5 +75,9 @@ namespace Nexus::Graphics
 										  uint32_t		z,
 										  uint32_t		width,
 										  uint32_t		height);
+
+		void WriteToBuffer(Ref<IDeviceBuffer> buffer, const void *data, size_t offset, size_t size);
+
+		std::vector<char> ReadFromBuffer(Ref<IDeviceBuffer> buffer, size_t offset);
 	};
 }	 // namespace Nexus::Graphics

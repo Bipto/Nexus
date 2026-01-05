@@ -2,6 +2,7 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
+	#include "AccelerationStructureD3D12.hpp"
 	#include "CommandListD3D12.hpp"
 	#include "CommandQueueD3D12.hpp"
 	#include "DeviceBufferD3D12.hpp"
@@ -118,7 +119,7 @@ namespace Nexus::Graphics
 
 	Ref<IAccelerationStructure> GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return Ref<IAccelerationStructure>();
+		return CreateRef<AccelerationStructureD3D12>(desc, this);
 	}
 
 	Ref<ITexelBuffer> GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
@@ -294,10 +295,31 @@ namespace Nexus::Graphics
 	}
 
 	AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
-		const AccelerationStructureGeometryBuildDescription &description,
-		const std::vector<uint32_t>							&primitiveCount) const
+		const AccelerationStructureGeometryBuildDescription &description) const
 	{
-		return AccelerationStructureBuildSizeDescription();
+		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS  inputs	   = {};
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
+		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>			  geometry	   = {};
+
+		D3D12::GetD3D12AccelerationStructureInputs(description, inputs, geometry);
+
+		m_Device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
+
+		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = prebuildInfo.ResultDataMaxSizeInBytes,
+														  .UpdateScratchSize		 = prebuildInfo.UpdateScratchDataSizeInBytes,
+														  .BuildScratchSize			 = prebuildInfo.ScratchDataSizeInBytes};
+	}
+
+	RayTracingDeviceDescription GraphicsDeviceD3D12::GetRayTracingDeviceDescription() const
+	{
+		return RayTracingDeviceDescription();
+	}
+
+	AccelerationStructureProperties GraphicsDeviceD3D12::GetAccelerationStructureProperties() const
+	{
+		AccelerationStructureProperties properties				  = {};
+		properties.MinAccelerationStructureScratchOffsetAlignment = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT;
+		return properties;
 	}
 
 	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)

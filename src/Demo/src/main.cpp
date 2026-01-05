@@ -28,7 +28,6 @@
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
@@ -36,6 +35,11 @@
 #include "Nexus.hpp"
 
 #include "Nexus-Core/EntryPoint.hpp"
+
+#include "Platform/FileSystem/Directory.hpp"
+#include "Platform/FileSystem/File.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
+#include "Platform/FileSystem/Path.hpp"
 
 struct DemoInfo
 {
@@ -117,7 +121,6 @@ class DemoApplication : public Nexus::Application
 		}
 
 		RegisterDemo<Demos::RayTracingDemo>("Graphics", "Ray Tracing");
-
 		RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
 		RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
 		RegisterDemo<Demos::Splines>("Utils", "Splines");

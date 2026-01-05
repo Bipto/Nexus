@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "Nexus-Core/Input/Events.hpp"
 #include "Nexus.hpp"
+#include "Platform/FileSystem/FileSystem.hpp"
+#include "Platform/Input/Events.hpp"
 
 #include "Nexus-Core/Utils/Utils.hpp"
 
@@ -60,7 +60,7 @@ namespace Demos
 
 	  protected:
 		std::string								   m_Name;
-		Nexus::Graphics::IGraphicsDevice			  *m_GraphicsDevice = nullptr;
+		Nexus::Graphics::IGraphicsDevice		  *m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue	= nullptr;
 		Nexus::Audio::AudioDevice				  *m_AudioDevice	= nullptr;
 		Nexus::IWindow							  *m_Window			= nullptr;

@@ -77,7 +77,7 @@ namespace Nexus::Graphics
 		Offset3D TextureOffset = {};
 
 		/// @brief A structure containing parameters specifying the size of the texture area to copy
-		Extent3D TextureExtent = {};
+		Extent2D TextureExtent = {};
 
 		/// @brief An integer containing which mip level of the texture to copy to/from
 		uint32_t MipLevel = 0;
@@ -99,7 +99,7 @@ namespace Nexus::Graphics
 		Offset3D DestinationOffset = {};
 
 		/// @brief A set of parameters specifying the size of the texture area to be copied
-		Extent3D Extent = {};
+		Extent2D Extent = {};
 
 		/// @brief An integer representing which level of the source texture to copy to/from
 		uint32_t SourceMipLevel = 0;
@@ -415,7 +415,18 @@ namespace Nexus::Graphics
 
 	struct BuildAccelerationStructuresCommand
 	{
-		std::vector<AccelerationStructureBuildDescription> BuildDescriptions = {};
+		std::vector<AccelerationStructureGeometryBuildDescription> BuildDescriptions = {};
+	};
+
+	struct TraceRaysDescription
+	{
+		DeviceAddressRegion		   RaygenRegion	  = {};
+		StridedDeviceAddressRegion MissRegion	  = {};
+		StridedDeviceAddressRegion HitRegion	  = {};
+		StridedDeviceAddressRegion CallableRegion = {};
+		uint32_t				   Width		  = 0;
+		uint32_t				   Height		  = 0;
+		uint32_t				   Depth		  = 0;
 	};
 
 	struct ResourceSetBindingDescription
@@ -561,6 +572,7 @@ namespace Nexus::Graphics
 						 MemoryBarrierDesc,
 						 TextureBarrierDesc,
 						 BufferBarrierDesc,
+						 TraceRaysDescription,
 						 EndRenderingCommand>
 		RenderCommandData;
 
@@ -623,6 +635,8 @@ namespace Nexus::Graphics
 
 		void DrawMeshIndirect(const DrawMeshIndirectDescription &desc);
 
+		void TraceRays(const TraceRaysDescription &desc);
+
 		void SetResourceSet(const ResourceSetBindingDescription &desc);
 
 		void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
@@ -663,7 +677,7 @@ namespace Nexus::Graphics
 
 		void SetStencilReference(uint32_t stencilReference);
 
-		void BuildAccelerationStructures(const std::vector<AccelerationStructureBuildDescription> &description);
+		void BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
 
 		void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
 
