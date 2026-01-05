@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+         submodules: recursive
+         fetch-depth: 0
 
       - name: Upload source as artifact
         uses: actions/upload-artifact@v4
