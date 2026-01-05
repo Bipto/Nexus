@@ -112,8 +112,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://github.com/mozilla/sccache/releases/latest/download/sccache.exe -OutFile sccache.exe
-          Move-Item sccache.exe "C:\Windows\System32\sccache.exe"
+          $tools = "$env:LOCALAPPDATA\Tools"
+          New-Item -ItemType Directory -Force -Path $tools | Out-Null
+          Invoke-WebRequest -Uri https://github.com/mozilla/sccache/releases/latest/download/sccache.exe -OutFile "$tools\sccache.exe"
+          echo "$tools" | Out-File -FilePath $env:GITHUB_PATH -Append
 
       - name: Setup sccache cache
         if: runner.os == 'Windows'
@@ -123,6 +125,7 @@ jobs:
           key: ${{ runner.os }}-sccache-${{ hashFiles('**/CMakeLists.txt') }}
           restore-keys: |
             ${{ runner.os }}-sccache-
+
 
       # -------------------------
       # Configure CMake
