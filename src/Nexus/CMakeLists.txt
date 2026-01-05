@@ -75,7 +75,7 @@ elseif(ANDROID)
   set(NX_PLATFORM_EGL ON CACHE BOOL "")
 endif()
 
-if (DEFINED NX_PLATFORM_OPENGL)
+if (NX_PLATFORM_OPENGL)
   if (NOT ANDROID)
 	find_package(OpenGL REQUIRED)
 	list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
@@ -111,14 +111,14 @@ if (DEFINED NX_PLATFORM_OPENGL)
 
 endif()
 
-if (DEFINED NX_PLATFORM_D3D12)
+if (NX_PLATFORM_D3D12)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_D3D12=1)
   list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/D3D12MemoryAllocator)
   list (APPEND NEXUS_LINKED_LIBRARIES D3D12MemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS external/winpixeventruntime.1.0.240308001/include)
 endif()
 
-if (DEFINED NX_PLATFORM_VULKAN)
+if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
@@ -135,12 +135,12 @@ set(ENGINE_SOURCES "include/Nexus.hpp" "src/Nexus.cpp")
 file (GLOB_RECURSE NEXUS_SOURCES "include/*.hpp" "src/Nexus-Core/*.cpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_SOURCES})
 
-if (DEFINED NX_PLATFORM_D3D12)
+if (NX_PLATFORM_D3D12)
   file (GLOB_RECURSE NEXUS_D3D12_SOURCES "src/Platform/D3D12/*.cpp" "src/Platform/D3D12/*.hpp")
   list (APPEND ENGINE_SOURCES ${NEXUS_D3D12_SOURCES})
 endif()
 
-if (DEFINED NX_PLATFORM_OPENGL)
+if (NX_PLATFORM_OPENGL)
   file (GLOB NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp")
 
   if (EMSCRIPTEN)
@@ -157,17 +157,17 @@ endif()
 file (GLOB NEXUS_OPENGL_CONTEXT_HEADERS "src/Platform/OpenGL/Context/*.hpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_CONTEXT_HEADERS})
 
-if (DEFINED NX_PLATFORM_EGL)
+if (NX_PLATFORM_EGL)
   file (GLOB_RECURSE NEXUS_EGL_SOURCES "src/Platform/OpenGL/Context/EGL/*.cpp" "src/Platform/OpenGL/Context/EGL/*.hpp")
   list (APPEND ENGINE_SOURCES ${NEXUS_EGL_SOURCES})
 endif()
 
-if (DEFINED NX_PLATFORM_WEBGL)
+if (NX_PLATFORM_WEBGL)
   file (GLOB_RECURSE NEXUS_WEBGL_SOURCES "src/Platform/OpenGL/Context/WebGL/*.cpp" "src/Platform/OpenGL/Context/WebGL/*.hpp")
   list (APPEND ENGINE_SOURCES ${NEXUS_WEBGL_SOURCES})
 endif()
 
-if (DEFINED NX_PLATFORM_WGL)
+if (NX_PLATFORM_WGL)
 	file (GLOB_RECURSE NEXUS_WGL_SOURCES "src/Platform/OpenGL/Context/WGL/*.cpp" "src/Platform/OpenGL/Context/WGL/*.hpp")
 	list (APPEND ENGINE_SOURCES ${NEXUS_WGL_SOURCES})
 endif()
@@ -175,7 +175,7 @@ endif()
 file (GLOB_RECURSE NEXUS_SDL_SOURCES "src/Platform/SDL3/*.cpp" "src/Platform/SDL3/*.hpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_SDL_SOURCES})
 
-if (DEFINED NX_PLATFORM_VULKAN)
+if (NX_PLATFORM_VULKAN)
 	file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp")
 	list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
 
@@ -243,7 +243,7 @@ endif()
 
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 
-if (DEFINED NX_PLATFORM_VULKAN)
+if (NX_PLATFORM_VULKAN)
   set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 17)
 endif()
 

@@ -112,8 +112,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://github.com/mozilla/sccache/releases/latest/download/sccache.exe -OutFile sccache.exe
-          Move-Item sccache.exe "C:\Windows\System32\sccache.exe"
+          $tools = "$env:LOCALAPPDATA\Tools"
+          New-Item -ItemType Directory -Force -Path $tools | Out-Null
+          Invoke-WebRequest -Uri https://github.com/mozilla/sccache/releases/latest/download/sccache.exe -OutFile "$tools\sccache.exe"
+          echo "$tools" | Out-File -FilePath $env:GITHUB_PATH -Append
 
       - name: Setup sccache cache
         if: runner.os == 'Windows'
@@ -124,25 +126,32 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sccache-
 
-      # -------------------------
-      # Configure CMake
-      # -------------------------
+
       - name: Configure CMake
         shell: bash
-        run: >
-          cmake -B build
-          -G Ninja
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER_LAUNCHER=$([[ $RUNNER_OS == "Windows" ]] && echo sccache || echo ccache)
-          -DCMAKE_CXX_COMPILER_LAUNCHER=$([[ $RUNNER_OS == "Windows" ]] && echo sccache || echo ccache)
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DNX_PLATFORM_OPENGL=1
-          -DNX_PLATFORM_VULKAN=1
-          -DNX_PLATFORM_OPENAL=1
-          -DNX_PLATFORM_D3D12=$([[ $RUNNER_OS == "Windows" ]] && echo 1 || echo 0)
-          -DNX_BUILD_TESTS=1
-          -S .
+        run: |
+            if [[ "$RUNNER_OS" == "Windows" ]]; then
+                D3D12=ON
+                LAUNCHER=sccache
+            else
+                D3D12=OFF
+                LAUNCHER=ccache
+            fi
+
+            cmake -B build \
+                -G Ninja \
+                -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+                -DCMAKE_C_COMPILER_LAUNCHER=$LAUNCHER \
+                -DCMAKE_CXX_COMPILER_LAUNCHER=$LAUNCHER \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DNX_PLATFORM_OPENGL=1 \
+                -DNX_PLATFORM_VULKAN=1 \
+                -DNX_PLATFORM_OPENAL=1 \
+                -DNX_PLATFORM_D3D12=$D3D12 \
+                -DNX_BUILD_TESTS=1 \
+                -S .
+
 
       # -------------------------
       # Build
