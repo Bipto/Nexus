@@ -32,14 +32,49 @@ jobs:
         with:
           name: source
 
+      - name : Install Windows SDK
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+        with:
+          sdk-version: 26100
+      
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+  
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Setup MSVC on Windows
+        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
+        with:
+          arch: x64
+
       - name: Configure (MSVC)
         run: cmake -B build -S . -G "Visual Studio 17 2022"
 
-      - name: Build (MSVC)
-        run: cmake --build build --config Debug
+      - name: Configure CMake MSVC
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir}}
+          -G "Ninja"
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler}}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DNX_PLATFORM_OPENGL=1
+          -DNX_PLATFORM_VULKAN=1
+          -DNX_PLATFORM_D3D12=1
+          -DNX_PLATFORM_OPENAL=1
+          -DNX_BUILD_TESTS=1
+          -S ${{ github.workspace }}         
 
-      #- name: Test (MSVC)
-      #  run: ctest --test-dir build -C Debug --output-on-failure
+
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target TestRunner
+
+      #- name: Test
+      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
 
   build-test-ubuntu-gcc:
     name: Ubuntu (GCC)
@@ -52,17 +87,51 @@ jobs:
         with:
           name: source
 
+      - name: Update packages
+        run: sudo apt-get update && sudo apt-get upgrade
+
+      - name: Install packages
+        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev libx11-dev xserver-xorg-dev xorg-dev
+    
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+          
+      - name: actions-setup-cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: '3.30'
+
       - name: Install GCC
         run: sudo apt-get update && sudo apt-get install -y build-essential
 
       - name: Configure (GCC)
         run: CC=gcc CXX=g++ cmake -B build -S .
 
-      - name: Build (GCC)
-        run: cmake --build build --config Debug
+      - name: Configure CMake GCC
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -G "Ninja"
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DNX_PLATFORM_OPENGL=1
+          -DNX_PLATFORM_VULKAN=1
+          -DNX_PLATFORM_OPENAL=1
+          -DNX_BUILD_TESTS=1
+          -S ${{ github.workspace }}
 
-      #- name: Test (GCC)
-      #  run: ctest --test-dir build --output-on-failure
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target TestRunner
+
+      #- name: Test
+      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
 
   build-test-ubuntu-clang:
     name: Ubuntu (Clang)
@@ -75,14 +144,55 @@ jobs:
         with:
           name: source
 
-      - name: Install Clang
-        run: sudo apt-get update && sudo apt-get install -y clang
+      - name: Update packages
+        run: sudo apt-get update && sudo apt-get upgrade
+
+      - name: Install latest Clang
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh all
+
+      - name: Install packages
+        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev libx11-dev xserver-xorg-dev xorg-dev
+    
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+          
+      - name: actions-setup-cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: '3.30'
 
       - name: Configure (Clang)
         run: CC=clang CXX=clang++ cmake -B build -S .
 
-      - name: Build (Clang)
-        run: cmake --build build --config Debug
+      - name: Configure CMake Clang
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -G "Ninja"
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_LINKER_FLAGS="-fuse-ld=lld"
+          -DCMAKE_C_LINKER_FLAGS="-fuse-ld=lld"
+          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld"
+          -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld"
+          -DNX_PLATFORM_OPENGL=1
+          -DNX_PLATFORM_VULKAN=1
+          -DNX_PLATFORM_OPENAL=1
+          -DNX_BUILD_TESTS=1
+          -S ${{ github.workspace }}
 
-      #- name: Test (Clang)
-      #  run: ctest --test-dir build --output-on-failure
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target TestRunner
+
+      #- name: Test
+      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
