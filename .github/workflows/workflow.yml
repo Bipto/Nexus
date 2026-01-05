@@ -1,201 +1,169 @@
-﻿
-name: Build and Test (Multi‑Platform)
+﻿name: Build and Test (Multi‑Platform)
 
 on:
   push:
   pull_request:
 
 jobs:
-  checkout:
-    name: Checkout repository once
-    runs-on: ubuntu-latest
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows (MSVC)
+            os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+            build_type: Release
+
+          - name: Ubuntu (GCC)
+            os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Release
+
+          - name: Ubuntu (Clang)
+            os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Release
 
     steps:
+      # -------------------------
+      # Checkout
+      # -------------------------
       - name: Checkout source
         uses: actions/checkout@v4
         with:
-         submodules: recursive
-         fetch-depth: 0
+          submodules: recursive
+          fetch-depth: 0
 
-      - name: Upload source as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: source
-          path: .
-          retention-days: 1
-
-  build-test-windows:
-    name: Windows (MSVC)
-    runs-on: windows-latest
-    needs: checkout
-
-    steps:
-      - name: Download source
-        uses: actions/download-artifact@v4
-        with:
-          name: source
-
-      - name : Install Windows SDK
-        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-        with:
-          sdk-version: 26100
-      
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
-        with:
-          version: 1.4.309.0
-          cache: true
-  
+      # -------------------------
+      # Ninja
+      # -------------------------
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
-      - name: Setup MSVC on Windows
-        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
-        with:
-          arch: x64
-
-      - name: Configure (MSVC)
-        run: cmake -B build -S . -G "Visual Studio 17 2022"
-
-      - name: Configure CMake MSVC
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir}}
-          -G "Ninja"
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler}}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DNX_PLATFORM_OPENGL=1
-          -DNX_PLATFORM_VULKAN=1
-          -DNX_PLATFORM_D3D12=1
-          -DNX_PLATFORM_OPENAL=1
-          -DNX_BUILD_TESTS=1
-          -S ${{ github.workspace }}         
-
-
-      - name: Build
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target TestRunner
-
-      #- name: Test
-      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
-
-  build-test-ubuntu-gcc:
-    name: Ubuntu (GCC)
-    runs-on: ubuntu-latest
-    needs: checkout
-
-    steps:
-      - name: Download source
-        uses: actions/download-artifact@v4
-        with:
-          name: source
-
-      - name: Update packages
-        run: sudo apt-get update && sudo apt-get upgrade
-
-      - name: Install packages
-        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev libx11-dev xserver-xorg-dev xorg-dev
-    
+      # -------------------------
+      # Vulkan SDK
+      # -------------------------
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
-          
-      - name: actions-setup-cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: '3.30'
+      # -------------------------
+      # Linux dependencies
+      # -------------------------
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev mesa-utils mesa-common-dev \
+            libx11-dev xserver-xorg-dev xorg-dev \
+            build-essential ccache
 
-      - name: Install GCC
-        run: sudo apt-get update && sudo apt-get install -y build-essential
-
-      - name: Configure (GCC)
-        run: CC=gcc CXX=g++ cmake -B build -S .
-
-      - name: Configure CMake GCC
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -G "Ninja"
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DNX_PLATFORM_OPENGL=1
-          -DNX_PLATFORM_VULKAN=1
-          -DNX_PLATFORM_OPENAL=1
-          -DNX_BUILD_TESTS=1
-          -S ${{ github.workspace }}
-
-      - name: Build
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target TestRunner
-
-      #- name: Test
-      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
-
-  build-test-ubuntu-clang:
-    name: Ubuntu (Clang)
-    runs-on: ubuntu-latest
-    needs: checkout
-
-    steps:
-      - name: Download source
-        uses: actions/download-artifact@v4
-        with:
-          name: source
-
-      - name: Update packages
-        run: sudo apt-get update && sudo apt-get upgrade
-
-      - name: Install latest Clang
+      # -------------------------
+      # Clang installation
+      # -------------------------
+      - name: Install Clang
+        if: matrix.c_compiler == 'clang'
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh all
 
-      - name: Install packages
-        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev libx11-dev xserver-xorg-dev xorg-dev
-    
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+      # -------------------------
+      # Windows SDK + MSVC
+      # -------------------------
+      - name: Install Windows SDK
+        if: runner.os == 'Windows'
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
         with:
-          version: 1.4.309.0
-          cache: true
+          sdk-version: 26100
 
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
-          
-      - name: actions-setup-cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
-          cmake-version: '3.30'
+          arch: x64
 
-      - name: Configure (Clang)
-        run: CC=clang CXX=clang++ cmake -B build -S .
+      # -------------------------
+      # ccache (Linux)
+      # -------------------------
+      - name: Setup ccache cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
 
-      - name: Configure CMake Clang
+      # -------------------------
+      # sccache (Windows)
+      # -------------------------
+      - name: Install sccache
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/mozilla/sccache/releases/latest/download/sccache.exe -OutFile sccache.exe
+          Move-Item sccache.exe "C:\Windows\System32\sccache.exe"
+
+      - name: Setup sccache cache
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+
+      # -------------------------
+      # Configure CMake
+      # -------------------------
+      - name: Configure CMake
+        shell: bash
         run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -G "Ninja"
+          cmake -B build
+          -G Ninja
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER_LAUNCHER=$([[ $RUNNER_OS == "Windows" ]] && echo sccache || echo ccache)
+          -DCMAKE_CXX_COMPILER_LAUNCHER=$([[ $RUNNER_OS == "Windows" ]] && echo sccache || echo ccache)
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_LINKER_FLAGS="-fuse-ld=lld"
-          -DCMAKE_C_LINKER_FLAGS="-fuse-ld=lld"
-          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld"
-          -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld"
           -DNX_PLATFORM_OPENGL=1
           -DNX_PLATFORM_VULKAN=1
           -DNX_PLATFORM_OPENAL=1
+          -DNX_PLATFORM_D3D12=$([[ $RUNNER_OS == "Windows" ]] && echo 1 || echo 0)
           -DNX_BUILD_TESTS=1
-          -S ${{ github.workspace }}
+          -S .
 
+      # -------------------------
+      # Build
+      # -------------------------
       - name: Build
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target TestRunner
+        run: cmake --build build --target TestRunner
 
+      # -------------------------
+      # Test
+      # -------------------------
       #- name: Test
-      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
+      #  working-directory: build
+      #  run: ctest --output-on-failure
+
+      # -------------------------
+      # Cache stats
+      # -------------------------
+      - name: ccache stats
+        if: runner.os == 'Linux'
+        run: ccache -s
+
+      - name: sccache stats
+        if: runner.os == 'Windows'
+        run: sccache --show-stats
