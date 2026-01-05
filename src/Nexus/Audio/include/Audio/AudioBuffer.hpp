@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "Audio-Core.hpp"
 #include "AudioBuffer.hpp"
 #include "AudioTypes.hpp"
