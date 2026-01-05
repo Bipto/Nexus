@@ -131,10 +131,10 @@ jobs:
         shell: bash
         run: |
             if [[ "$RUNNER_OS" == "Windows" ]]; then
-                D3D12=1
+                D3D12=ON
                 LAUNCHER=sccache
             else
-                D3D12=0
+                D3D12=OFF
                 LAUNCHER=ccache
             fi
 
