@@ -3,7 +3,7 @@
 #include "Nexus-Core/Graphics/Circle.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 
-#include "Nexus-Core/Events/EventHandler.hpp"
+#include "Platform/Events/EventHandler.hpp"
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
