@@ -69,7 +69,7 @@ jobs:
             build-essential ccache
 
       # -------------------------
-      # Clang installation
+      # Clang installation (Linux)
       # -------------------------
       - name: Install Clang
         if: matrix.c_compiler == 'clang'
@@ -114,8 +114,18 @@ jobs:
         run: |
           $tools = "$env:LOCALAPPDATA\Tools"
           New-Item -ItemType Directory -Force -Path $tools | Out-Null
-          Invoke-WebRequest -Uri https://github.com/mozilla/sccache/releases/latest/download/sccache.exe -OutFile "$tools\sccache.exe"
+
+          $url = "https://github.com/mozilla/sccache/releases/latest/download/sccache-x86_64-pc-windows-msvc.zip"
+          $zip = "$tools\sccache.zip"
+
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive $zip -DestinationPath $tools -Force
+
           echo "$tools" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Ensure sccache cache directory exists
+        if: runner.os == 'Windows'
+        run: mkdir ~/.cache/sccache -Force
 
       - name: Setup sccache cache
         if: runner.os == 'Windows'
@@ -126,32 +136,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sccache-
 
+      - name: Start sccache server
+        if: runner.os == 'Windows'
+        run: sccache --start-server
 
+      # -------------------------
+      # Configure CMake
+      # -------------------------
       - name: Configure CMake
         shell: bash
         run: |
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-                D3D12=ON
-                LAUNCHER=sccache
-            else
-                D3D12=OFF
-                LAUNCHER=ccache
-            fi
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              D3D12=ON
+              LAUNCHER=sccache
+          else
+              D3D12=OFF
+              LAUNCHER=ccache
+          fi
 
-            cmake -B build \
-                -G Ninja \
-                -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-                -DCMAKE_C_COMPILER_LAUNCHER=$LAUNCHER \
-                -DCMAKE_CXX_COMPILER_LAUNCHER=$LAUNCHER \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -DNX_PLATFORM_OPENGL=1 \
-                -DNX_PLATFORM_VULKAN=1 \
-                -DNX_PLATFORM_OPENAL=1 \
-                -DNX_PLATFORM_D3D12=$D3D12 \
-                -DNX_BUILD_TESTS=1 \
-                -S .
-
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=$LAUNCHER \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=$LAUNCHER \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_PLATFORM_D3D12=$D3D12 \
+            -DNX_BUILD_TESTS=1 \
+            -S .
 
       # -------------------------
       # Build
@@ -160,11 +175,11 @@ jobs:
         run: cmake --build build --target TestRunner
 
       # -------------------------
-      # Test
+      # Test (optional)
       # -------------------------
-      #- name: Test
-      #  working-directory: build
-      #  run: ctest --output-on-failure
+      # - name: Test
+      #   working-directory: build
+      #   run: ctest --output-on-failure
 
       # -------------------------
       # Cache stats
