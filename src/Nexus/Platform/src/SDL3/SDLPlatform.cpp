@@ -9,6 +9,7 @@
 #include "SDL3FileStream.hpp"
 #include "SDL3Include.hpp"
 #include "SDL3MessageBox.hpp"
+#include "SDL3SharedLibrary.hpp"
 #include "SDL3Window.hpp"
 
 #include "Platform/Events/EventHandler.hpp"
@@ -44,6 +45,11 @@ namespace Nexus::Platform
 	void SetCursor(Cursor cursor)
 	{
 		SDL_SetCursor(m_Cursors[cursor]);
+	}
+
+	Utils::SharedLibrary *LoadSharedLibrary(const std::string &filename)
+	{
+		return new Utils::SharedLibrarySDL3(filename);
 	}
 
 	std::vector<Keyboard> GetKeyboards()
@@ -904,31 +910,6 @@ namespace Nexus::Platform
 			}
 			default: throw std::runtime_error("Failed to find a valid delay accuracy");
 		}
-	}
-
-	Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function)
-	{
-		return nullptr;
-	}
-
-	Threading::MutexBase *CreateMutexBase()
-	{
-		return nullptr;
-	}
-
-	Threading::ConditionBase *CreateConditionBase()
-	{
-		return nullptr;
-	}
-
-	Threading::SemaphoreBase *CreateSemaphoreBase(uint32_t startingValue)
-	{
-		return nullptr;
-	}
-
-	Threading::ReadWriteLockBase *CreateReadWriteLockBase()
-	{
-		return nullptr;
 	}
 
 	IO::FileStreamImpl *CreateFileStreamImpl(const std::filesystem::path &path, IO::FileMode fileMode)
