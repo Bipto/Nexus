@@ -1,6 +1,6 @@
 #include "Platform/Unix/UnixInclude.hpp"
 
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Platform.hpp"
 #include "SharedLibraryUnix.hpp"
 
 namespace Nexus::Platform

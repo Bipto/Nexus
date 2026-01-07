@@ -41,6 +41,7 @@ set(PLATFORM_SOURCES
 	"src/Platform/FileSystem/File.cpp"
 	"src/Platform/FileSystem/FileSystem.cpp"
 	"src/Platform/FileSystem/Path.cpp"
+	"src/Platform/Input/Input.cpp"
 	"src/Platform/Logging/Log.cpp"
 	"src/Platform/Timings/DateTime.cpp"
 	"src/Platform/Timings/Profiler.cpp"
