@@ -65,28 +65,51 @@ jobs:
           fetch-depth: 0
 
       # -------------------------
-      # Cache: sccache (Linux + Windows)
+      # Install libc++ for Clang (Linux)
+      # -------------------------
+      - name: Install libc++ for Clang
+        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libc++-dev libc++abi-dev
+
+      # -------------------------
+      # Cache: sccache (Linux only)
       # -------------------------
       - name: Cache sccache
+        if: runner.os == 'Linux'
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/sccache
-            C:\Users\runneradmin\AppData\Local\sccache
+          path: ~/.cache/sccache
           key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
 
       # -------------------------
-      # Install sccache
+      # Cache: Windows build directory
+      # -------------------------
+      - name: Cache Windows build directory
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: msvc-build-${{ matrix.build_type }}-${{ hashFiles('**/*.cpp', '**/*.h', 'CMakeLists.txt') }}
+          restore-keys: |
+            msvc-build-${{ matrix.build_type }}-
+
+      # -------------------------
+      # Install sccache (Linux)
       # -------------------------
       - name: Install sccache (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y sccache
 
-      - name: Install sccache (Windows)
+      # -------------------------
+      # Skip sccache on Windows
+      # -------------------------
+      - name: Skip sccache on Windows
         if: runner.os == 'Windows'
-        run: choco install sccache
+        run: echo "sccache disabled on Windows due to MSVC PDB conflicts"
 
       # -------------------------
       # Ninja
@@ -118,7 +141,7 @@ jobs:
       # Clang installation (Linux)
       # -------------------------
       - name: Install Clang
-        if: matrix.c_compiler == 'clang'
+        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
@@ -145,22 +168,38 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
+          # Enable D3D12 only on Windows
           if [[ "$RUNNER_OS" == "Windows" ]]; then
               D3D12=ON
+              USE_SCCACHE=OFF
           else
               D3D12=OFF
+              USE_SCCACHE=ON
           fi
 
-          export SCCACHE_DIR="$HOME/.cache/sccache"
-          export SCCACHE_CACHE_SIZE="5G"
-          export RUST_LOG="sccache=info"
+          # Linux: enable sccache
+          if [[ "$USE_SCCACHE" == "ON" ]]; then
+              export SCCACHE_DIR="$HOME/.cache/sccache"
+              export SCCACHE_CACHE_SIZE="5G"
+              export RUST_LOG="sccache=info"
+              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          else
+              LAUNCHER_OPTS=""
+          fi
+
+          # Extra flags for Clang on Linux: use libc++
+          if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.c_compiler }}" == "clang" ]]; then
+              EXTRA_CXX_FLAGS="-stdlib=libc++"
+          else
+              EXTRA_CXX_FLAGS=""
+          fi
 
           cmake -B build \
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
+            $LAUNCHER_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
@@ -176,14 +215,8 @@ jobs:
         run: cmake --build build --target TestRunner
 
       # -------------------------
-      # Print sccache stats
+      # Print sccache stats (Linux only)
       # -------------------------
       - name: sccache stats
+        if: runner.os == 'Linux'
         run: sccache --show-stats || true
-
-      # -------------------------
-      # Test (optional)
-      # -------------------------
-      #- name: Test
-      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
