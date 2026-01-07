@@ -3,8 +3,12 @@ cmake_policy(SET CMP0135 NEW)
 
 project("Nexus")
 
+#allow flexible page sizes on Android devices
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
-set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/.deps")
+
+#required to make shared and static libs be compatible on some platform
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 
 if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
