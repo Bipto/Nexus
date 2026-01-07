@@ -30,26 +30,26 @@ jobs:
 
           # Ubuntu GCC
           - name: Ubuntu (GCC)
-            os: ubuntu-latest
+            os: ubuntu-24.04
             c_compiler: gcc
             cpp_compiler: g++
             build_type: Release
 
           - name: Ubuntu (GCC)
-            os: ubuntu-latest
+            os: ubuntu-24.04
             c_compiler: gcc
             cpp_compiler: g++
             build_type: Debug
 
           # Ubuntu Clang
           - name: Ubuntu (Clang)
-            os: ubuntu-latest
+            os: ubuntu-24.04
             c_compiler: clang
             cpp_compiler: clang++
             build_type: Release
 
           - name: Ubuntu (Clang)
-            os: ubuntu-latest
+            os: ubuntu-24.04
             c_compiler: clang
             cpp_compiler: clang++
             build_type: Debug
@@ -63,6 +63,30 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+
+      # -------------------------
+      # Cache: sccache (Linux + Windows)
+      # -------------------------
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/sccache
+            C:\Users\runneradmin\AppData\Local\sccache
+          key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          restore-keys: |
+            sccache-${{ runner.os }}-${{ matrix.c_compiler }}
+
+      # -------------------------
+      # Install sccache
+      # -------------------------
+      - name: Install sccache (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y sccache
+
+      - name: Install sccache (Windows)
+        if: runner.os == 'Windows'
+        run: choco install sccache
 
       # -------------------------
       # Ninja
@@ -85,7 +109,6 @@ jobs:
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
           sudo apt-get install -y \
             libgl1-mesa-dev mesa-utils mesa-common-dev \
             libx11-dev xserver-xorg-dev xorg-dev \
@@ -128,10 +151,16 @@ jobs:
               D3D12=OFF
           fi
 
+          export SCCACHE_DIR="$HOME/.cache/sccache"
+          export SCCACHE_CACHE_SIZE="5G"
+          export RUST_LOG="sccache=info"
+
           cmake -B build \
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
@@ -147,8 +176,14 @@ jobs:
         run: cmake --build build --target TestRunner
 
       # -------------------------
+      # Print sccache stats
+      # -------------------------
+      - name: sccache stats
+        run: sccache --show-stats || true
+
+      # -------------------------
       # Test (optional)
       # -------------------------
-      # - name: Test
-      #   working-directory: build
-      #   run: ctest --output-on-failure
+      #- name: Test
+      #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      #  run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
