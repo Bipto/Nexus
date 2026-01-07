@@ -12,7 +12,7 @@
 
 	#include "Platform/OpenGL/GL.hpp"
 
-	#include "Nexus-Core/Platform.hpp"
+	#include "Platform/Platform.hpp"
 
 namespace Nexus::GL
 {
@@ -143,29 +143,26 @@ namespace Nexus::GL
 			std::cout << errorMessage << std::endl;
 		}
 
-        if (spec.GLVersion == OpenGLVersion::OpenGL)
-        {
-            if (!gladLoaderLoadGLContext(&m_GladContext))
-            {
-                std::cout << "Failed to load OpenGL function pointers" << std::endl;
-            }
-        }
-        else
-        {
-            if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
-            {
-                std::cout << "Failed to load OpenGLES function pointers" << std::endl;
-            }
-        }
-
-
-
+		if (spec.GLVersion == OpenGLVersion::OpenGL)
+		{
+			if (!gladLoaderLoadGLContext(&m_GladContext))
+			{
+				std::cout << "Failed to load OpenGL function pointers" << std::endl;
+			}
+		}
+		else
+		{
+			if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
+			{
+				std::cout << "Failed to load OpenGLES function pointers" << std::endl;
+			}
+		}
 	}
 
 	OffscreenContextEGL::~OffscreenContextEGL()
 	{
 		GL::ClearCurrentContext();
-        gladLoaderUnloadGLContext(&m_GladContext);
+		gladLoaderUnloadGLContext(&m_GladContext);
 		eglDestroyContext(m_EGLDisplay, m_Context);
 		eglTerminate(m_EGLDisplay);
 	}

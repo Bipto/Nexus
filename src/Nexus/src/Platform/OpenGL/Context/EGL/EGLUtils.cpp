@@ -5,7 +5,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "Nexus-Core/Platform.hpp"
+#include "Platform/Platform.hpp"
 
 #include "EGLUtils.hpp"
 

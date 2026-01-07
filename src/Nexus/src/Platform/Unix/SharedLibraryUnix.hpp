@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/Utils/SharedLibrary.hpp"
 #include "Platform/Unix/UnixInclude.hpp"
+#include "Platform/Utils/SharedLibrary.hpp"
 
 namespace Nexus::Utils
 {
