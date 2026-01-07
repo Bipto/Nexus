@@ -2,18 +2,15 @@
 
 #include <string>
 
+#include "Platform/Platform-Core.hpp"
+
 namespace Nexus::Utils
 {
-	class SharedLibrary
+	class NX_PLATFORM_API SharedLibrary
 	{
 	  public:
-		SharedLibrary(const std::string &filepath) : m_LibraryPath(filepath)
-		{
-		}
-		virtual ~SharedLibrary()						  = default;
-		virtual void *LoadSymbol(const std::string &name) = 0;
-
-	  protected:
-		std::string m_LibraryPath = {};
+		virtual ~SharedLibrary()												   = default;
+		virtual void			  *LoadSymbol(const std::string &symbolName) const = 0;
+		virtual const std::string &GetPath() const								   = 0;
 	};
 }	 // namespace Nexus::Utils

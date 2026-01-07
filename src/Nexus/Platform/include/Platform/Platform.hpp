@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Platform/Platform-Core.hpp"
-
 #include "Platform/Events/EventHandler.hpp"
 #include "Platform/FileSystem/File.hpp"
 #include "Platform/FileSystem/FileDialogs.hpp"
@@ -14,11 +12,7 @@
 #include "Platform/Input/Mouse.hpp"
 #include "Platform/MessageBox.hpp"
 #include "Platform/Monitor.hpp"
-#include "Platform/Threading/Condition.hpp"
-#include "Platform/Threading/Mutex.hpp"
-#include "Platform/Threading/ReadWriteLock.hpp"
-#include "Platform/Threading/Semaphore.hpp"
-#include "Platform/Threading/Thread.hpp"
+#include "Platform/Platform-Core.hpp"
 #include "Platform/Utils/SharedLibrary.hpp"
 
 namespace Nexus::Platform
@@ -106,11 +100,6 @@ namespace Nexus::Platform
 
 	NX_PLATFORM_API void Delay(TimeSpan timespan, DelayAccuracy accuracy);
 
-	NX_PLATFORM_API Threading::ThreadBase *CreateThreadBase(const Threading::ThreadDescription &description, std::function<void()> function);
-	NX_PLATFORM_API Threading::MutexBase *CreateMutexBase();
-	NX_PLATFORM_API Threading::ConditionBase *CreateConditionBase();
-	NX_PLATFORM_API Threading::SemaphoreBase *CreateSemaphoreBase(uint32_t startingValue);
-	NX_PLATFORM_API Threading::ReadWriteLockBase *CreateReadWriteLockBase();
 	NX_PLATFORM_API IO::FileStreamImpl *CreateFileStreamImpl(const std::filesystem::path &path, IO::FileMode fileMode);
 
 	inline EventHandler<uint32_t> OnKeyboardAdded;
