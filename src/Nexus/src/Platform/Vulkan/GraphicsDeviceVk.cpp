@@ -774,6 +774,31 @@ namespace Nexus::Graphics
 		return properties;
 	}
 
+	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromHTML(const std::string &canvasId) const
+	{
+		return nullptr;
+	}
+
 	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const
 	{
 		return m_PhysicalDevice->IsExtensionSupported(extension);

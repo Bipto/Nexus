@@ -322,6 +322,28 @@ namespace Nexus::Graphics
 		return properties;
 	}
 
+	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	{
+		return nullptr;
+	}
+	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	{
+		return nullptr;
+	}
+	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	{
+		return nullptr;
+	}
+	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId) const
+	{
+		return nullptr;
+	}
+
 	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
 	{
 		Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);

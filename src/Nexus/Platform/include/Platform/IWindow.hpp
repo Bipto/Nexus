@@ -73,6 +73,78 @@ namespace Nexus
 		std::string CanvasId = "canvas";
 	};
 
+	struct Win32Info
+	{
+		uintptr_t hWND		= 0;
+		uintptr_t hDC		= 0;
+		uintptr_t hINSTANCE = 0;
+	};
+
+	struct X11Info
+	{
+		uintptr_t display = 0;
+		uint32_t  screen  = 0;
+		uint32_t  window  = 0;
+	};
+
+	struct WaylandInfo
+	{
+		uintptr_t	display					= 0;
+		uintptr_t	surface					= 0;
+		uintptr_t	viewport				= 0;
+		uintptr_t	eglWindow				= 0;
+		uintptr_t	xdgSurface				= 0;
+		uintptr_t	xdgToplevel				= 0;
+		std::string xdgTopLevelExportHandle = {};
+		uintptr_t	xdgPopup				= 0;
+		uintptr_t	xdgPositioner			= 0;
+	};
+
+	struct AndroidInfo
+	{
+		uintptr_t window  = 0;
+		uintptr_t surface = 0;
+	};
+
+	struct iOSInfo
+	{
+		uintptr_t window						 = 0;
+		uint32_t  metalViewTagNumber			 = 0;
+		uint32_t  openglFramebufferHandle		 = 0;
+		uint32_t  openglRenderbufferHandle		 = 0;
+		uint32_t  openglResolveFramebufferHandle = 0;
+	};
+
+	struct KMSDRMInfo
+	{
+		uint32_t  deviceIndex = 0;
+		uint32_t  drmFd		  = 0;
+		uintptr_t gbmDevice	  = 0;
+	};
+
+	struct MacOSInfo
+	{
+		uintptr_t window	   = 0;
+		uint32_t  metalViewTag = 0;
+	};
+
+	struct OpenVRInfo
+	{
+		uint32_t overlayIdNumber = 0;
+	};
+
+	struct VivanteInfo
+	{
+		uint32_t display = 0;
+		uint32_t window	 = 0;
+		uint32_t surface = 0;
+	};
+
+	struct EmscriptenInfo
+	{
+		std::string canvasId = {};
+	};
+
 	/// @brief A class representing a window
 	class NX_PLATFORM_API IWindow
 	{
@@ -263,6 +335,17 @@ namespace Nexus
 		virtual void AddMouseLeaveCallback(std::function<void()> func)										  = 0;
 
 		virtual void AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func) = 0;
+
+		virtual Win32Info	   GetWin32Info() const		 = 0;
+		virtual X11Info		   GetX11Info() const		 = 0;
+		virtual WaylandInfo	   GetWaylandInfo() const	 = 0;
+		virtual AndroidInfo	   GetAndroidInfo() const	 = 0;
+		virtual iOSInfo		   GetiOSInfo() const		 = 0;
+		virtual KMSDRMInfo	   GetKMSDRMInfo() const	 = 0;
+		virtual MacOSInfo	   GetMacOSInfo() const		 = 0;
+		virtual OpenVRInfo	   GetOpenVRInfo() const	 = 0;
+		virtual VivanteInfo	   GetVivanteInfo() const	 = 0;
+		virtual EmscriptenInfo GetEmscriptenInfo() const = 0;
 
 		virtual bool								   IsKeyDown(uint32_t keyboardId, ScanCode scancode)		 = 0;
 		virtual bool								   IsKeyDown(ScanCode scancode)								 = 0;

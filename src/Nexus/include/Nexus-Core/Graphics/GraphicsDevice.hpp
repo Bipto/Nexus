@@ -10,6 +10,7 @@
 #include "Framebuffer.hpp"
 #include "GraphicsCapabilities.hpp"
 #include "IPhysicalDevice.hpp"
+#include "ISurface.hpp"
 #include "IndirectDrawArguments.hpp"
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 #include "Nexus-Core/Types.hpp"
@@ -181,6 +182,12 @@ namespace Nexus::Graphics
 
 		virtual RayTracingDeviceDescription		GetRayTracingDeviceDescription() const	   = 0;
 		virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;
+
+		virtual Ref<ISurface> CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const = 0;
+		virtual Ref<ISurface> CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const  = 0;
+		virtual Ref<ISurface> CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const			   = 0;
+		virtual Ref<ISurface> CreateSurfaceFromAndroid(uintptr_t nativeWindow) const						   = 0;
+		virtual Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const						   = 0;
 
 	  private:
 		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;

@@ -177,6 +177,31 @@ namespace Nexus::Graphics
 		return AccelerationStructureProperties();
 	}
 
+	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	{
+		return nullptr;
+	}
+
+	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromHTML(const std::string &canvasId) const
+	{
+		return nullptr;
+	}
+
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()
 	{
 		return m_PhysicalDevice;

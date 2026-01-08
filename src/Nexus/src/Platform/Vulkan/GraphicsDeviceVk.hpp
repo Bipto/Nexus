@@ -94,6 +94,12 @@ namespace Nexus::Graphics
 		RayTracingDeviceDescription		GetRayTracingDeviceDescription() const final;
 		AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
+		Ref<ISurface> CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const final;
+		Ref<ISurface> CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const final;
+		Ref<ISurface> CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const final;
+		Ref<ISurface> CreateSurfaceFromAndroid(uintptr_t nativeWindow) const final;
+		Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const final;
+
 		bool IsExtensionSupported(const char *extension) const;
 		bool IsVersionGreaterThan(uint32_t version) const;
 

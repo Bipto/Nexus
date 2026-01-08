@@ -520,6 +520,129 @@ namespace Nexus
 		m_OnFileDropCallbacks.push_back(func);
 	}
 
+	Win32Info SDL3Window::GetWin32Info() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		Win32Info info = {};
+		info.hWND	   = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+		info.hDC	   = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr));
+		info.hINSTANCE = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr));
+
+		return info;
+	}
+
+	X11Info SDL3Window::GetX11Info() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		X11Info info = {};
+		info.display = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr));
+		info.screen	 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0));
+		info.window	 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0));
+
+		return info;
+	}
+
+	WaylandInfo SDL3Window::GetWaylandInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		WaylandInfo info = {};
+		info.display	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr));
+		info.surface	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr));
+		info.viewport	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_VIEWPORT_POINTER, nullptr));
+		info.eglWindow	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER, nullptr));
+		info.xdgSurface	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER, nullptr));
+		info.xdgToplevel = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER, nullptr));
+		info.xdgTopLevelExportHandle = SDL_GetStringProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING, "invalid");
+		info.xdgPopup	   = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER, nullptr));
+		info.xdgPositioner = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER, nullptr));
+
+		return info;
+	}
+
+	AndroidInfo SDL3Window::GetAndroidInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		AndroidInfo info = {};
+		info.window		 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr));
+		info.surface	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER, nullptr));
+
+		return info;
+	}
+
+	iOSInfo SDL3Window::GetiOSInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		iOSInfo info				 = {};
+		info.window					 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr));
+		info.metalViewTagNumber		 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER, 0));
+		info.openglFramebufferHandle = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER, 0));
+		info.openglRenderbufferHandle = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER, 0));
+		info.openglResolveFramebufferHandle =
+			static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER, 0));
+
+		return info;
+	}
+
+	KMSDRMInfo SDL3Window::GetKMSDRMInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		KMSDRMInfo info	 = {};
+		info.deviceIndex = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER, 0));
+		info.drmFd		 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_KMSDRM_DRM_FD_NUMBER, 0));
+		info.gbmDevice	 = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER, nullptr));
+
+		return info;
+	}
+
+	MacOSInfo SDL3Window::GetMacOSInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		MacOSInfo info	  = {};
+		info.window		  = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr));
+		info.metalViewTag = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER, 0));
+
+		return info;
+	}
+
+	OpenVRInfo SDL3Window::GetOpenVRInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		OpenVRInfo info		 = {};
+		info.overlayIdNumber = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_OPENVR_OVERLAY_ID, 0));
+
+		return info;
+	}
+
+	VivanteInfo SDL3Window::GetVivanteInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		VivanteInfo info = {};
+		info.display	 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_VIVANTE_DISPLAY_POINTER, 0));
+		info.window		 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_VIVANTE_WINDOW_POINTER, 0));
+		info.surface	 = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_VIVANTE_SURFACE_POINTER, 0));
+
+		return info;
+	}
+
+	EmscriptenInfo SDL3Window::GetEmscriptenInfo() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
+
+		EmscriptenInfo info = {};
+		info.canvasId		= m_Description.CanvasId;
+
+		return info;
+	}
+
 	void SDL3Window::InvokeResizeCallback(const WindowResizedEventArgs &args)
 	{
 		for (auto &func : m_OnResizeCallbacks) { func(args); }
