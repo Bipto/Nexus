@@ -199,6 +199,7 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS}" \
+            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF 
             $LAUNCHER_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
