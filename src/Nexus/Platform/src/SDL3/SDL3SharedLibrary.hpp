@@ -11,7 +11,7 @@ namespace Nexus::Utils
 	  public:
 		SharedLibrarySDL3(const std::string &filename);
 		~SharedLibrarySDL3() override;
-		void					  *LoadSymbol(const std::string &symbolName) const final;
+		FunctionPointer			   LoadSymbol(const std::string &symbolName) const final;
 		virtual const std::string &GetPath() const final;
 
 	  private:
