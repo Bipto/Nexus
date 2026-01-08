@@ -2,6 +2,7 @@
 #include "Platform/Logging/Log.hpp"
 
 #include <fstream>
+#include <sstream>
 
 std::expected<std::string, std::string> Nexus::FileSystem::ReadFileNew(const std::filesystem::path &filepath)
 {
