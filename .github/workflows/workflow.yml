@@ -1,4 +1,4 @@
-﻿name: Build and Test (Multi‑Platform)
+﻿﻿name: Build and Test (Multi‑Platform)
 
 on:
   push:
@@ -15,7 +15,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # -------------------------
           # Windows (MSVC)
+          # -------------------------
           - name: Windows (MSVC)
             os: windows-latest
             c_compiler: cl
@@ -28,7 +30,24 @@ jobs:
             cpp_compiler: cl
             build_type: Debug
 
+          # -------------------------
+          # Windows (Clang-CL + ccache)
+          # -------------------------
+          - name: Windows (Clang-CL)
+            os: windows-latest
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+            build_type: Release
+
+          - name: Windows (Clang-CL)
+            os: windows-latest
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+            build_type: Debug
+
+          # -------------------------
           # Ubuntu GCC
+          # -------------------------
           - name: Ubuntu (GCC)
             os: ubuntu-24.04
             c_compiler: gcc
@@ -41,7 +60,9 @@ jobs:
             cpp_compiler: g++
             build_type: Debug
 
+          # -------------------------
           # Ubuntu Clang
+          # -------------------------
           - name: Ubuntu (Clang)
             os: ubuntu-24.04
             c_compiler: clang
@@ -74,7 +95,7 @@ jobs:
           sudo apt-get install -y libc++-dev libc++abi-dev
 
       # -------------------------
-      # Cache: sccache (Linux only)
+      # Cache: sccache (Linux)
       # -------------------------
       - name: Cache sccache
         if: runner.os == 'Linux'
@@ -86,10 +107,10 @@ jobs:
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
 
       # -------------------------
-      # Cache: Windows build directory
+      # Cache: Windows build directory (MSVC only)
       # -------------------------
       - name: Cache Windows build directory
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && matrix.c_compiler == 'cl'
         uses: actions/cache@v4
         with:
           path: build
@@ -105,10 +126,29 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y sccache
 
       # -------------------------
-      # Skip sccache on Windows
+      # Install ccache (Windows clang-cl)
+      # -------------------------
+      - name: Install ccache (Windows)
+        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
+        run: choco install ccache
+
+      # -------------------------
+      # Cache: ccache (Windows clang-cl)
+      # -------------------------
+      - name: Cache ccache (Windows)
+        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
+        uses: actions/cache@v4
+        with:
+          path: C:\Users\runneradmin\AppData\Local\ccache
+          key: ccache-windows-${{ matrix.build_type }}
+          restore-keys: |
+            ccache-windows-
+
+      # -------------------------
+      # Skip sccache on Windows MSVC
       # -------------------------
       - name: Skip sccache on Windows
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && matrix.c_compiler == 'cl'
         run: echo "sccache disabled on Windows due to MSVC PDB conflicts"
 
       # -------------------------
@@ -138,7 +178,7 @@ jobs:
             build-essential
 
       # -------------------------
-      # Clang installation (Linux)
+      # Install Clang (Linux)
       # -------------------------
       - name: Install Clang
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
@@ -168,26 +208,21 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          # Enable D3D12 only on Windows
           if [[ "$RUNNER_OS" == "Windows" ]]; then
+              if [[ "${{ matrix.c_compiler }}" == "clang-cl" ]]; then
+                  echo "Using clang-cl with ccache"
+                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+              else
+                  echo "Using MSVC (no caching)"
+                  LAUNCHER_OPTS=""
+              fi
               D3D12=ON
-              USE_SCCACHE=OFF
           else
               D3D12=OFF
-              USE_SCCACHE=ON
-          fi
-
-          # Linux: enable sccache
-          if [[ "$USE_SCCACHE" == "ON" ]]; then
-              export SCCACHE_DIR="$HOME/.cache/sccache"
-              export SCCACHE_CACHE_SIZE="5G"
-              export RUST_LOG="sccache=info"
               LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-          else
-              LAUNCHER_OPTS=""
           fi
 
-          # Extra flags for Clang on Linux: use libc++
+          # Extra flags for Clang on Linux
           if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.c_compiler }}" == "clang" ]]; then
               EXTRA_CXX_FLAGS="-stdlib=libc++"
           else
@@ -198,8 +233,8 @@ jobs:
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS}" \
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF 
+            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
+            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
             $LAUNCHER_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
