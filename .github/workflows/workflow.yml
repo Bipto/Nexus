@@ -212,7 +212,7 @@ jobs:
       # Build
       # -------------------------
       - name: Build
-        run: cmake --build build --target TestRunner
+        run: cmake --build build --target TestRunner --parallel
 
       # -------------------------
       # Print sccache stats (Linux only)
