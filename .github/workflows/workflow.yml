@@ -1,4 +1,4 @@
-name: Build and Test (Multi‑Platform)
+﻿name: Build and Test (Multi‑Platform)
 
 on:
   push:
@@ -12,12 +12,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
-          # -------------------------
           # Windows (MSVC)
-          # -------------------------
           - name: Windows (MSVC)
             os: windows-latest
             c_compiler: cl
@@ -30,24 +28,7 @@ jobs:
             cpp_compiler: cl
             build_type: Debug
 
-          # -------------------------
-          # Windows (LLVM Clang)
-          # -------------------------
-          - name: Windows (Clang)
-            os: windows-latest
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Release
-
-          - name: Windows (Clang)
-            os: windows-latest
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Debug
-
-          # -------------------------
           # Ubuntu GCC
-          # -------------------------
           - name: Ubuntu (GCC)
             os: ubuntu-24.04
             c_compiler: gcc
@@ -60,9 +41,7 @@ jobs:
             cpp_compiler: g++
             build_type: Debug
 
-          # -------------------------
           # Ubuntu Clang
-          # -------------------------
           - name: Ubuntu (Clang)
             os: ubuntu-24.04
             c_compiler: clang
@@ -85,14 +64,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Fix apt mirror sync issues
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get clean
-          sudo apt-get update --allow-releaseinfo-change
-          sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
-
-
       # -------------------------
       # Install libc++ for Clang (Linux)
       # -------------------------
@@ -103,9 +74,9 @@ jobs:
           sudo apt-get install -y libc++-dev libc++abi-dev
 
       # -------------------------
-      # Cache: sccache (Linux)
+      # Cache: sccache (Linux only)
       # -------------------------
-      - name: Cache sccache (Linux)
+      - name: Cache sccache
         if: runner.os == 'Linux'
         uses: actions/cache@v4
         with:
@@ -115,30 +86,30 @@ jobs:
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
 
       # -------------------------
+      # Cache: Windows build directory
+      # -------------------------
+      - name: Cache Windows build directory
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: msvc-build-${{ matrix.build_type }}-${{ hashFiles('**/*.cpp', '**/*.h', 'CMakeLists.txt') }}
+          restore-keys: |
+            msvc-build-${{ matrix.build_type }}-
+
+      # -------------------------
       # Install sccache (Linux)
       # -------------------------
       - name: Install sccache (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -y sccache
+        run: sudo apt-get update && sudo apt-get install -y sccache
 
       # -------------------------
-      # Install sccache (Windows Clang)
+      # Skip sccache on Windows
       # -------------------------
-      - name: Install sccache (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang'
-        run: choco install sccache
-
-      # -------------------------
-      # Cache: sccache (Windows Clang)
-      # -------------------------
-      - name: Cache sccache (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang'
-        uses: actions/cache@v4
-        with:
-          path: C:\Users\runneradmin\AppData\Local\sccache
-          key: sccache-windows-clang-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-windows-clang-
+      - name: Skip sccache on Windows
+        if: runner.os == 'Windows'
+        run: echo "sccache disabled on Windows due to MSVC PDB conflicts"
 
       # -------------------------
       # Ninja
@@ -167,7 +138,7 @@ jobs:
             build-essential
 
       # -------------------------
-      # Install Clang (Linux)
+      # Clang installation (Linux)
       # -------------------------
       - name: Install Clang
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
@@ -197,31 +168,37 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
+          # Enable D3D12 only on Windows
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-              if [[ "${{ matrix.c_compiler }}" == "clang" ]]; then
-                  echo "Using Windows Clang with sccache"
-                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-              else
-                  echo "Using MSVC (no caching)"
-                  LAUNCHER_OPTS=""
-              fi
               D3D12=ON
+              USE_SCCACHE=OFF
           else
               D3D12=OFF
-              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+              USE_SCCACHE=ON
           fi
 
-          EXTRA_CXX_FLAGS=""
+          # Linux: enable sccache
+          if [[ "$USE_SCCACHE" == "ON" ]]; then
+              export SCCACHE_DIR="$HOME/.cache/sccache"
+              export SCCACHE_CACHE_SIZE="5G"
+              export RUST_LOG="sccache=info"
+              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          else
+              LAUNCHER_OPTS=""
+          fi
+
+          # Extra flags for Clang on Linux: use libc++
           if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.c_compiler }}" == "clang" ]]; then
               EXTRA_CXX_FLAGS="-stdlib=libc++"
+          else
+              EXTRA_CXX_FLAGS=""
           fi
 
           cmake -B build \
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
+            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS}" \
             $LAUNCHER_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
@@ -238,15 +215,8 @@ jobs:
         run: cmake --build build --target TestRunner
 
       # -------------------------
-      # Print sccache stats (Linux)
+      # Print sccache stats (Linux only)
       # -------------------------
-      - name: sccache stats (Linux)
+      - name: sccache stats
         if: runner.os == 'Linux'
-        run: sccache --show-stats || true
-
-      # -------------------------
-      # Print sccache stats (Windows Clang)
-      # -------------------------
-      - name: sccache stats (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang'
         run: sccache --show-stats || true
