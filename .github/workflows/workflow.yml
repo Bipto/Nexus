@@ -1,4 +1,4 @@
-﻿﻿name: Build and Test (Multi‑Platform)
+﻿name: Build and Test (Multi‑Platform)
 
 on:
   push:
