@@ -208,7 +208,13 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
               D3D12=ON
-              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+
+              # Disable sccache for MSVC (cl)
+              if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
+                  LAUNCHER_OPTS=""
+              else
+                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+              fi
           else
               D3D12=OFF
               LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
