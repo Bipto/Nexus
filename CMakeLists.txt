@@ -20,6 +20,12 @@ if (MSVC)
 
     #enable profiling support
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
+
+    #disable shared PDB files for each .obj file, instead the information is embedded directly into the .obj
+    set(CMAKE_C_FLAGS_DEBUG "/Z7" CACHE STRING "" FORCE)
+    set(CMAKE_CXX_FLAGS_DEBUG "/Z7" CACHE STRING "" FORCE)
+endif()
+
 endif()
 
 
