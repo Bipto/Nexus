@@ -30,6 +30,7 @@ FetchContent_Declare(
 	GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(libnyquist)
+target_compile_definitions(libnyquist PRIVATE _CRT_SECURE_NO_WARNINGS)
 
 list (APPEND NEXUS_LINKED_LIBRARIES libnyquist)
 
