@@ -26,8 +26,6 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "/Z7" CACHE STRING "" FORCE)
 endif()
 
-endif()
-
 
 add_definitions(-DTRACY_ENABLE)
 
