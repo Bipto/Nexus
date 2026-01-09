@@ -19,6 +19,10 @@
 	#include "TextureViewD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 
+	#if defined(WIN32)
+		#include "Surface/SurfaceWin32_D3D12.hpp"
+	#endif
+
 namespace Nexus::Graphics
 {
 	GraphicsDeviceD3D12::GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory)
@@ -324,7 +328,12 @@ namespace Nexus::Graphics
 
 	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
 	{
+	#if defined(WIN32)
+		return CreateRef<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
+	#else
+		throw std::runtime_error("Unsupported platform");
 		return nullptr;
+	#endif
 	}
 
 	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const

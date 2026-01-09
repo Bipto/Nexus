@@ -4,10 +4,38 @@
 
 	#include "FramebufferD3D12.hpp"
 	#include "GraphicsDeviceD3D12.hpp"
+	#include "Surface/SurfaceD3D12.hpp"
 	#include "TextureD3D12.hpp"
 
 namespace Nexus::Graphics
 {
+	static std::expected<Ref<SurfaceD3D12>, std::string> GetD3D12Surface(Ref<ISurface> surface)
+	{
+		if (auto d3d12Surface = std::dynamic_pointer_cast<SurfaceD3D12>(surface))
+		{
+			return d3d12Surface;
+		}
+		else
+		{
+			return std::unexpected("Failed to create D3D12 swapchain: Surface is not a D3D12 surface");
+		}
+	}
+
+	static std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain3>, std::string> QuerySwapchainComInterface(
+		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain)
+	{
+		Microsoft::WRL::ComPtr<IDXGISwapChain3> outputSC;
+
+		HRESULT hr = swapchain->QueryInterface(IID_PPV_ARGS(&outputSC));
+		if (FAILED(hr))
+		{
+			_com_error err(hr);
+			return std::unexpected(err.ErrorMessage());
+		}
+
+		return outputSC;
+	}
+
 	SwapchainD3D12::SwapchainD3D12(IWindow *window, IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
 		: ISwapchain(swapchainSpec),
 		  m_CommandQueue(queue),
@@ -18,6 +46,9 @@ namespace Nexus::Graphics
 
 		// get the sync interval for the swapchain
 		m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
+
+		// assign the surface
+		m_Surface = std::dynamic_pointer_cast<SurfaceD3D12>(m_Description.Surface);
 
 		// set up size of swapchain
 		auto [width, height] = m_Window->GetWindowSizeInPixels();
@@ -249,46 +280,26 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::CreateFramebuffers()
 	{
-		// retrieve the window's native handle
-		NativeWindowInfo info = m_Window->GetNativeWindowInfo();
-		HWND			 hwnd = info.hwnd;
-
-		// create the swapchain
-		auto [width, height] = m_Window->GetWindowSizeInPixels();
-
-		// set up properties for the swapchain
-		DXGI_SWAP_CHAIN_DESC1 swapchainDesc {};
-		swapchainDesc.Width				 = width;
-		swapchainDesc.Height			 = height;
-		swapchainDesc.Format			 = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapchainDesc.Stereo			 = false;
-		swapchainDesc.SampleDesc.Count	 = 1;
-		swapchainDesc.SampleDesc.Quality = 0;
-		swapchainDesc.BufferUsage		 = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapchainDesc.BufferCount		 = BUFFER_COUNT;
-		swapchainDesc.Scaling			 = DXGI_SCALING_STRETCH;
-		swapchainDesc.SwapEffect		 = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapchainDesc.AlphaMode			 = DXGI_ALPHA_MODE_IGNORE;
-		swapchainDesc.Flags				 = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-
-		// create a fullscreen description, we will not use exclusive fullscreen so we
-		// don't need this
-		DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreenDesc {};
-		fullscreenDesc.Windowed = true;
-
 		// retrieve the graphics device's DXGI factory
 		auto factory = m_Device->GetDXGIFactory();
 
-		CommandQueueD3D12 *commandQueueD3D12 = (CommandQueueD3D12 *)m_CommandQueue;
+		// retrieve the underlying D3D12 command queue
+		CommandQueueD3D12						  *commandQueueD3D12 = (CommandQueueD3D12 *)m_CommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue		 = commandQueueD3D12->GetHandle();
 
-		// create the swapchain and query for the correct swapchain type
-		Microsoft::WRL::ComPtr<IDXGISwapChain1>	   sc1;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = commandQueueD3D12->GetHandle();
-		factory->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
-		if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain)))) {}
+		auto value =
+			GetD3D12Surface(m_Description.Surface)
+				.and_then([&](Ref<SurfaceD3D12> surface) { return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get()); })
+				.and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) { return QuerySwapchainComInterface(swapchain); });
 
-		// retrieve the ID3D12Device
-		const auto d3d12Device = m_Device->GetD3D12Device();
+		if (value.has_value())
+		{
+			m_Swapchain = value.value();
+		}
+		else
+		{
+			throw std::runtime_error(value.error());
+		}
 
 		// get the buffers from the swapchain
 		GetBuffers();

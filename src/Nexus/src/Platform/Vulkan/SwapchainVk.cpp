@@ -180,7 +180,18 @@ namespace Nexus::Graphics
 		Ref<PhysicalDeviceVk>	 physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_GraphicsDevice->GetPhysicalDevice());
 		const GladVulkanContext &context		= m_GraphicsDevice->GetVulkanContext();
 
-		m_Surface = PlatformVk::CreateSurface(context, instance, m_Window);
+		if (auto vulkanSurface = std::dynamic_pointer_cast<SurfaceVk>(m_Description.Surface))
+		{
+			auto result = vulkanSurface->CreateVkSurface(m_Description, instance, context);
+			if (result.has_value())
+			{
+				m_Surface = result.value();
+			}
+			else
+			{
+				throw std::runtime_error("Failed to create Vulkan surface");
+			}
+		}
 
 		context.GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface, &m_SurfaceCapabilities);
 

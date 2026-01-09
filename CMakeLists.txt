@@ -6,7 +6,7 @@ project("Nexus")
 #allow flexible page sizes on Android devices
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
 
-#required to make shared and static libs be compatible on some platform
+#required to make shared and static libs be compatible on some platforms
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
@@ -20,10 +20,6 @@ if (MSVC)
 
     #enable profiling support
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
-
-    #disable shared PDB files for each .obj file, instead the information is embedded directly into the .obj
-    set(CMAKE_C_FLAGS_DEBUG "/Z7" CACHE STRING "" FORCE)
-    set(CMAKE_CXX_FLAGS_DEBUG "/Z7" CACHE STRING "" FORCE)
 endif()
 
 

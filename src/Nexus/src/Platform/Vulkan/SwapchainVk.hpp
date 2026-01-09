@@ -6,6 +6,7 @@
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PhysicalDeviceVk.hpp"
 	#include "Platform/IWindow.hpp"
+	#include "Surface/SurfaceVk.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

@@ -136,7 +136,7 @@ file (GLOB_RECURSE NEXUS_SOURCES "include/*.hpp" "src/Nexus-Core/*.cpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_SOURCES})
 
 if (NX_PLATFORM_D3D12)
-  file (GLOB_RECURSE NEXUS_D3D12_SOURCES "src/Platform/D3D12/*.cpp" "src/Platform/D3D12/*.hpp")
+  file (GLOB_RECURSE NEXUS_D3D12_SOURCES "src/Platform/D3D12/*.cpp" "src/Platform/D3D12/*.hpp" "src/Platform/D3D12/Surface/*.cpp" "src/Platform/D3D12/Surface/*.hpp")
   list (APPEND ENGINE_SOURCES ${NEXUS_D3D12_SOURCES})
 endif()
 
@@ -176,7 +176,7 @@ file (GLOB_RECURSE NEXUS_SDL_SOURCES "src/Platform/SDL3/*.cpp" "src/Platform/SDL
 list (APPEND ENGINE_SOURCES ${NEXUS_SDL_SOURCES})
 
 if (NX_PLATFORM_VULKAN)
-	file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp")
+	file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp" "src/Platform/Vulkan/Surface/*.cpp" "src/Platform/Vulkan/Surface/*.hpp")
 	list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
 
 	if (WIN32)

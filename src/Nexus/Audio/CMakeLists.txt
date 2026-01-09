@@ -60,13 +60,6 @@ if (DEFINED NX_PLATFORM_OPENAL)
 		set(AL_SOFT_WARNINGS OFF CACHE BOOL "" FORCE)
 		set(ALSOFT_WERROR OFF CACHE BOOL "" FORCE)
 
-		#OpenAL Soft tries to use modules, if available. This causes issues with some compilers, so I have disabled it by limiting the project to C++17.
-		set(CMAKE_CXX_STANDARD 17)
-		set(CMAKE_CXX_STANDARD_REQUIRED ON)
-		set(CMAKE_CXX_EXTENSIONS OFF)
-		set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
-		set(ALSOFT_ENABLE_MODULES OFF CACHE BOOL "" FORCE)
-
 		FetchContent_Declare(
 			openal-soft
 			GIT_REPOSITORY https://github.com/kcat/openal-soft.git

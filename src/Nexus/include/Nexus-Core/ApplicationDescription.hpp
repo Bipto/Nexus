@@ -6,7 +6,8 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/IWindow.hpp"
 
-#include "Nexus-Core/Utils/Utils.hpp"
+#include "Nexus-Core/Graphics/ISurface.hpp"
+#include "Nexus-Core/Graphics/SwapchainDescription.hpp"
 
 namespace Nexus::Audio
 {
@@ -16,35 +17,6 @@ namespace Nexus::Audio
 		OpenAL
 	};
 }	 // namespace Nexus::Audio
-
-namespace Nexus::Graphics
-{
-	/// @brief An enum class that describes how a swapchain will present the image onto the window
-	enum class PresentMode
-	{
-		/// @brief The image will be presented immediately without waiting for the vertical blank, may result in tearing
-		Immediate,
-
-		/// @brief Presenting waits until the next vertical blank, tearing will not be observed. A single-entry queue is used to store the next image.
-		Mailbox,
-
-		/// @brief Presenting waits until the next vertical blank, tearing will not be observed. A multi-entry queue is used to store the next image.
-		Fifo,
-
-		/// @brief Presenting will wait until the next vertical blank, unless the vsync period has already elapsed, in which case the image will be
-		/// presented immediately. May result in tearing
-		FifoRelaxed
-	};
-
-	struct SwapchainDescription
-	{
-		/// @brief Whether the application should use VSync
-		PresentMode ImagePresentMode = PresentMode::Fifo;
-
-		/// @brief How many samples should be used by the swapchain
-		uint32_t Samples = 0;
-	};
-}	 // namespace Nexus::Graphics
 
 namespace Nexus
 {

@@ -21,6 +21,10 @@
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 
+	#if defined(WIN32)
+		#include "Surface/SurfaceWin32_Vk.hpp"
+	#endif
+
 	#include "Platform/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
@@ -776,7 +780,7 @@ namespace Nexus::Graphics
 
 	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
 	{
-		return nullptr;
+		return CreateRef<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
 	}
 
 	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const

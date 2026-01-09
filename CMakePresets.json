@@ -10,6 +10,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_DOWNLOAD_DIRECTORY": ".cache/cmake-downloads",
         "NX_PLATFORM_OPENGL": "1",
         "NX_PLATFORM_D3D12": "1",
         "NX_PLATFORM_VULKAN": "1",
@@ -84,6 +85,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_DOWNLOAD_DIRECTORY": ".cache/cmake-downloads",
         "NX_PLATFORM_OPENGL": "1",
         "NX_PLATFORM_VULKAN": "1",
         "NX_PLATFORM_OPENAL": "1",
