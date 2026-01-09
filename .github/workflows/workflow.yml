@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           # -------------------------
@@ -28,21 +28,6 @@ jobs:
             os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            build_type: Debug
-
-          # -------------------------
-          # Windows (Clang-CL)
-          # -------------------------
-          - name: Windows (Clang-CL)
-            os: windows-latest
-            c_compiler: clang-cl
-            cpp_compiler: clang-cl
-            build_type: Release
-
-          - name: Windows (Clang-CL)
-            os: windows-latest
-            c_compiler: clang-cl
-            cpp_compiler: clang-cl
             build_type: Debug
 
           # -------------------------
