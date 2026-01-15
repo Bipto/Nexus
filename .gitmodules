@@ -22,21 +22,6 @@
 [submodule "src/Nexus/external/imgui/ImGuizmo"]
 	path = src/Nexus/external/imgui/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
-[submodule "src/Nexus/external/SPIRV-Cross"]
-	path = src/Nexus/external/SPIRV-Cross
-	url = https://github.com/KhronosGroup/SPIRV-Cross.git
-[submodule "src/Nexus/external/SPIRV-Headers"]
-	path = src/Nexus/external/SPIRV-Headers
-	url = https://github.com/KhronosGroup/SPIRV-Headers.git
-[submodule "src/Nexus/external/SPIRV-Tools"]
-	path = src/Nexus/external/SPIRV-Tools
-	url = https://github.com/KhronosGroup/SPIRV-Tools.git
-[submodule "src/Nexus/external/glslang"]
-	path = src/Nexus/external/glslang
-	url = https://github.com/KhronosGroup/glslang.git
-[submodule "src/Nexus/external/shaderc"]
-	path = src/Nexus/external/shaderc
-	url = https://github.com/google/shaderc.git
 [submodule "src/Nexus/external/VulkanMemoryAllocator"]
 	path = src/Nexus/external/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
@@ -46,6 +31,3 @@
 [submodule "src/Nexus/external/D3D12MemoryAllocator"]
 	path = src/Nexus/external/D3D12MemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
-[submodule "src/Nexus/external/SPIRV-Reflect"]
-	path = src/Nexus/external/SPIRV-Reflect
-	url = https://github.com/KhronosGroup/SPIRV-Reflect.git

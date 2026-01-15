@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    "assimp",
+    "openal-soft",
+    "sdl3",
+    "shaderc",
+    "spirv-cross",
+    "spirv-headers",
+    "spirv-reflect",
+    "glslang"
+  ]
+}

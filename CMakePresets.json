@@ -8,7 +8,7 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_DOWNLOAD_DIRECTORY": ".cache/cmake-downloads",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
 
         "NX_PLATFORM_OPENGL": "1",
         "NX_PLATFORM_VULKAN": "1",
@@ -18,7 +18,10 @@
         "NX_BUILD_EDITOR": "1",
         "NX_BUILD_TESTS": "1",
         "NX_BUILD_UI_TESTS": "1",
-        "NX_BUILD_SANDBOX": "1"
+        "NX_BUILD_SANDBOX": "1",
+
+        "SPIRV_SKIP_TESTS": "ON",
+        "SPIRV_SKIP_EXECUTABLES": "ON"
       }
     },
 

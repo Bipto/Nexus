@@ -22,12 +22,14 @@ jobs:
             os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            vcpkg_triplet: x64-windows
             build_type: Release
 
           - name: Windows (MSVC)
             os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            vcpkg_triplet: x64-windows
             build_type: Debug
 
           # -------------------------
@@ -37,12 +39,14 @@ jobs:
             os: ubuntu-24.04
             c_compiler: gcc
             cpp_compiler: g++
+            vcpkg_triplet: x64-linux
             build_type: Release
 
           - name: Ubuntu (GCC)
             os: ubuntu-24.04
             c_compiler: gcc
             cpp_compiler: g++
+            vcpkg_triplet: x64-linux
             build_type: Debug
 
           # -------------------------
@@ -52,12 +56,14 @@ jobs:
             os: ubuntu-24.04
             c_compiler: clang
             cpp_compiler: clang++
+            vcpkg_triplet: x64-linux
             build_type: Release
 
           - name: Ubuntu (Clang)
             os: ubuntu-24.04
             c_compiler: clang
             cpp_compiler: clang++
+            vcpkg_triplet: x64-linux
             build_type: Debug
 
     steps:
@@ -109,7 +115,7 @@ jobs:
         run: sudo apt-get install -y sccache
 
       # -------------------------
-      # Install LLVM (Windows) — needed for clang-cl
+      # Install LLVM (Windows)
       # -------------------------
       - name: Install LLVM (Windows)
         if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
@@ -186,6 +192,25 @@ jobs:
           arch: x64
 
       # -------------------------
+      # Install vcpkg
+      # -------------------------
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics || ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
+
+      # -------------------------
+      # Cache vcpkg installed directory
+      # -------------------------
+      - name: Cache vcpkg artifacts
+        uses: actions/cache@v4
+        with:
+          path: build/vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.vcpkg_triplet }}
+
+      # -------------------------
       # Configure CMake
       # -------------------------
       - name: Configure CMake
@@ -193,8 +218,6 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
               D3D12=ON
-
-              # Disable sccache for MSVC (cl)
               if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
                   LAUNCHER_OPTS=""
               else
@@ -212,6 +235,9 @@ jobs:
 
           cmake -B build \
             -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_INSTALLED_DIR=$PWD/build/vcpkg_installed \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
@@ -233,15 +259,12 @@ jobs:
         run: cmake --build build --target TestRunner
 
       # -------------------------
-      # Print sccache stats (Linux)
+      # Print sccache stats
       # -------------------------
       - name: sccache stats (Linux)
         if: runner.os == 'Linux'
         run: sccache --show-stats || true
 
-      # -------------------------
-      # Print sccache stats (Windows)
-      # -------------------------
       - name: sccache stats (Windows)
         if: runner.os == 'Windows'
         run: sccache --show-stats || true

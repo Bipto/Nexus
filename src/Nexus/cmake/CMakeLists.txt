@@ -51,33 +51,48 @@ macro(nexus_structure_folders)
   endforeach()
 endmacro()
 
-macro(nexus_copy_required_runtime_libraries)
-    set(target_name ${PROJECT_NAME})
-
-    if (WIN32)
-
-        # Copy runtime DLLs (Windows-specific)
-        add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    $<TARGET_RUNTIME_DLLS:${target_name}>
-                    $<TARGET_FILE_DIR:${target_name}>
-            COMMAND_EXPAND_LISTS
-            COMMENT "Post-build: Copying runtime DLLs for ${target_name}"
-        )
-
-        if (MSVC)
-            # Copy PDB file if it exists (Windows/MSVC)
-            get_target_property(pdb_file Nexus PDB_OUTPUT_DIRECTORY)
-            if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
-                add_custom_command(TARGET ${target_name} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                            $<TARGET_PDB_FILE:Nexus>
-                            $<TARGET_FILE_DIR:${target_name}>
-                )
-            endif()
-        endif()
+macro(nexus_collect_runtime_dlls out_var target_name)
+    if (DEFINED _NEXUS_VISITED_${target_name})
+        return()
     endif()
+    set(_NEXUS_VISITED_${target_name} TRUE)
+
+    get_target_property(deps ${target_name} LINK_LIBRARIES)
+
+    foreach(dep IN LISTS deps)
+        if (TARGET ${dep})
+            get_target_property(dep_type ${dep} TYPE)
+
+            # vcpkg imported DLLs appear as UNKNOWN_LIBRARY
+            if (dep_type STREQUAL "SHARED_LIBRARY"
+             OR dep_type STREQUAL "MODULE_LIBRARY"
+             OR dep_type STREQUAL "UNKNOWN_LIBRARY")
+                list(APPEND ${out_var} "$<TARGET_FILE:${dep}>")
+            endif()
+
+            nexus_collect_runtime_dlls(${out_var} ${dep})
+        endif()
+    endforeach()
+
+    set(${out_var} "${${out_var}}" PARENT_SCOPE)
 endmacro()
+
+
+
+macro(nexus_copy_required_runtime_libraries target_name)
+    # Collect DLLs recursively
+    nexus_collect_runtime_dlls(_NEXUS_DLLS ${target_name})
+
+    # Copy them in one shot
+    add_custom_command(TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${_NEXUS_DLLS}
+            "$<TARGET_FILE_DIR:${target_name}>"
+        COMMAND_EXPAND_LISTS
+    )
+endmacro()
+
+
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})

@@ -49,16 +49,16 @@ set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
 set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
 
+find_package(assimp CONFIG REQUIRED)
+find_package(unofficial-shaderc CONFIG REQUIRED)
+find_package(spirv_cross_core CONFIG REQUIRED)
+find_package(spirv_cross_glsl CONFIG REQUIRED)
+find_package(spirv_cross_hlsl CONFIG REQUIRED)
+
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/assimp)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/imgui)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Cross)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Headers)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Tools)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
 
 #platform specific configurations
@@ -211,14 +211,14 @@ list (APPEND NEXUS_INCLUDE_DIRS
   external/stb
 )
 
-list (APPEND NEXUS_LINKED_LIBRARIES 
+list (APPEND NEXUS_LINKED_LIBRARIES
+  assimp::assimp
   Nexus-Audio
   Nexus-Platform
-  assimp
-  spirv-cross-cpp
+  unofficial::shaderc::shaderc
+  spirv-cross-core
+  spirv-cross-glsl
   spirv-cross-hlsl
-  glslang
-  shaderc
   freetype
   yaml-cpp::yaml-cpp
   glm::glm
