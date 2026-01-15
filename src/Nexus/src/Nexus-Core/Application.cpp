@@ -64,6 +64,12 @@ namespace Nexus
 		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { Render(time); });
 		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { Update(time); });
 		m_Window->SetTickFunction([&](Nexus::TimeSpan time) { Tick(time); });
+		m_Window->AddResizeCallback(
+			[&](const Nexus::WindowResizedEventArgs &args)
+			{
+				auto [width, height] = args.Size;
+				m_Swapchain->Resize(width, height);
+			});
 	}
 
 	Application::~Application()

@@ -142,6 +142,8 @@ namespace Nexus::Graphics
 		// resize the swapchain
 		ResizeBuffers();
 
+		AcquireBackbufferIndex();
+
 		return {};
 	}
 
