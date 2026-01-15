@@ -72,7 +72,7 @@ class DemoApplication : public Nexus::Application
 		ImGui::GetStyle().ScrollbarSize = 20.0f;
 
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		int size = 20;
 
@@ -126,10 +126,6 @@ class DemoApplication : public Nexus::Application
 		RegisterDemo<Demos::Splines>("Utils", "Splines");
 
 		m_CommandList = m_CommandQueue->CreateCommandList();
-
-		auto window	   = GetPrimaryWindow();
-		auto win32Info = window->GetWin32Info();
-		auto surface   = m_GraphicsDevice->CreateSurfaceFromWin32(win32Info.hWND, win32Info.hDC, win32Info.hINSTANCE);
 	}
 
 	template<typename T>
@@ -321,8 +317,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	desc.GraphicsCreateInfo.Debug = true;
-
-	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
 	desc.WindowProperties.Width			   = 1280;
 	desc.WindowProperties.Height		   = 720;

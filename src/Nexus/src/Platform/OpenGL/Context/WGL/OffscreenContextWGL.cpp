@@ -7,7 +7,7 @@
 
 namespace Nexus::GL
 {
-	OffscreenContextWGL::OffscreenContextWGL(const ContextSpecification &spec, Graphics::IPhysicalDevice *device)
+	OffscreenContextWGL::OffscreenContextWGL(const ContextDescription &spec, Graphics::IPhysicalDevice *device)
 	{
 		Graphics::PhysicalDeviceWGL *deviceWGL = (Graphics::PhysicalDeviceWGL *)device;
 
@@ -49,7 +49,7 @@ namespace Nexus::GL
 		return m_HGLRC;
 	}
 
-	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextSpecification &spec)
+	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextDescription &spec)
 	{
 		int	 pixelFormat;
 		UINT numFormats;

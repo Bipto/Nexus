@@ -1,17 +1,13 @@
 #pragma once
 
+#include <expected>
+
 #include "Framebuffer.hpp"
 #include "Nexus-Core/ApplicationDescription.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Structures.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "PixelFormat.hpp"
-
-namespace Nexus
-{
-	// forward declaration
-	class IWindow;
-}	 // namespace Nexus
 
 namespace Nexus::Graphics
 {
@@ -26,13 +22,13 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void						  SetPresentMode(PresentMode presentMode)					  = 0;
-		virtual IWindow						 *GetWindow()												  = 0;
-		virtual std::pair<uint32_t, uint32_t> GetSize()													  = 0;
-		virtual PixelFormat					  GetColourFormat()											  = 0;
-		virtual PixelFormat					  GetDepthFormat()											  = 0;
-		virtual void						  SwapBuffers(const SwapchainPresentDescription &presentDesc) = 0;
-		virtual Ref<IFramebuffer>			  GetCurrentFramebuffer()									  = 0;
+		virtual void							 SetPresentMode(PresentMode presentMode)					 = 0;
+		virtual std::pair<uint32_t, uint32_t>	 GetSize()													 = 0;
+		virtual PixelFormat						 GetColourFormat()											 = 0;
+		virtual PixelFormat						 GetDepthFormat()											 = 0;
+		virtual void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) = 0;
+		virtual Ref<IFramebuffer>				 GetCurrentFramebuffer()									 = 0;
+		virtual std::expected<void, std::string> Resize(uint32_t width, uint32_t height)					 = 0;
 
 		const SwapchainDescription &GetDescription()
 		{

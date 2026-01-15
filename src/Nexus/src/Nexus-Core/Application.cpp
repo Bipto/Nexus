@@ -11,11 +11,11 @@
 
 namespace Nexus
 {
-	static Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsAPI, Nexus::IWindow *window)
+	static Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
 	{
 #if defined(WIN32)
 		auto win32Info = window->GetWin32Info();
-		return graphicsAPI->CreateSurfaceFromWin32(win32Info.hWND, win32Info.hDC, win32Info.hINSTANCE);
+		return graphicsDevice->CreateSurfaceFromWin32(win32Info.hWND, win32Info.hDC, win32Info.hINSTANCE);
 #endif
 
 		throw std::runtime_error("Failed to create surface for window: Unsupported platform");
@@ -54,7 +54,10 @@ namespace Nexus
 		Ref<Graphics::ISurface> surface			   = CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
 		m_Description.SwapchainDescription.Surface = surface;
 
-		m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Window, m_Description.SwapchainDescription);
+		// hack, this probably needs removing at some point
+		m_Description.SwapchainDescription.Width  = m_Description.WindowProperties.Width;
+		m_Description.SwapchainDescription.Height = m_Description.WindowProperties.Height;
+		m_Swapchain								  = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Description.SwapchainDescription);
 
 		m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
 

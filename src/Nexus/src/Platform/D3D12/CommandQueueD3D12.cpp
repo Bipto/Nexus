@@ -43,9 +43,9 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<ISwapchain> CommandQueueD3D12::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	Ref<ISwapchain> CommandQueueD3D12::CreateSwapchain(const SwapchainDescription &spec)
 	{
-		return CreateRef<SwapchainD3D12>(window, m_Device, this, spec);
+		return CreateRef<SwapchainD3D12>(m_Device, this, spec);
 	}
 
 	void CommandQueueD3D12::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)

@@ -1157,10 +1157,10 @@ namespace Nexus::GL
 
 	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::IGraphicsDevice *device)
 	{
-		GL::ContextSpecification spec = {};
-		spec.Debug					  = true;
-		spec.Samples				  = 8;
-		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
+		GL::ContextDescription spec = {};
+		spec.Debug					= true;
+		spec.Samples				= 8;
+		spec.GLVersion				= GL::OpenGLVersion::OpenGL;
 
 		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;
 		NativeWindowInfo				windowInfo	 = window->GetNativeWindowInfo();

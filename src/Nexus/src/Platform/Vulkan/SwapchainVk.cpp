@@ -11,9 +11,9 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainVk::SwapchainVk(IWindow *window, IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec)
+	SwapchainVk::SwapchainVk(IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec)
 		: ISwapchain(swapchainSpec),
-		  m_Window(window)
+		  m_SwapchainSize {swapchainSpec.Width, swapchainSpec.Height}
 	{
 		m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 		m_CommandQueue	 = (CommandQueueVk *)commandQueue;
@@ -23,8 +23,6 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceVk *graphicsDeviceVk = (GraphicsDeviceVk *)graphicsDevice;
 		CreateAll();
-
-		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
 
 	SwapchainVk::~SwapchainVk()
@@ -46,13 +44,6 @@ namespace Nexus::Graphics
 		VkQueue vkQueue = m_CommandQueue->GetVkQueue();
 
 		if (!m_SwapchainValid)
-		{
-			return;
-		}
-
-		// prevents the swapchain being presented on the first frame that the window
-		// is minimized
-		if (m_Window->GetCurrentWindowState() == WindowState::Minimized)
 		{
 			return;
 		}
@@ -126,7 +117,7 @@ namespace Nexus::Graphics
 
 	std::pair<uint32_t, uint32_t> SwapchainVk::GetSize()
 	{
-		return m_Window->GetWindowSize();
+		return {m_SwapchainSize.width, m_SwapchainSize.height};
 	}
 
 	PixelFormat SwapchainVk::GetColourFormat()
@@ -137,6 +128,13 @@ namespace Nexus::Graphics
 	PixelFormat SwapchainVk::GetDepthFormat()
 	{
 		return m_DepthFormat;
+	}
+
+	std::expected<void, std::string> SwapchainVk::Resize(uint32_t width, uint32_t height)
+	{
+		m_SwapchainSize = {width, height};
+		RecreateSwapchain();
+		return std::expected<void, std::string>();
 	}
 
 	VkSurfaceKHR SwapchainVk::GetSurface()
@@ -211,9 +209,9 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-		auto [width, height] = m_Window->GetWindowSizeInPixels();
-		width				 = std::clamp(width, m_SurfaceCapabilities.minImageExtent.width, m_SurfaceCapabilities.maxImageExtent.width);
-		height				 = std::clamp(height, m_SurfaceCapabilities.minImageExtent.height, m_SurfaceCapabilities.maxImageExtent.height);
+		uint32_t width = std::clamp(m_SwapchainSize.width, m_SurfaceCapabilities.minImageExtent.width, m_SurfaceCapabilities.maxImageExtent.width);
+		uint32_t height =
+			std::clamp(m_SwapchainSize.height, m_SurfaceCapabilities.minImageExtent.height, m_SurfaceCapabilities.maxImageExtent.height);
 
 		if (width == 0 || height == 0)
 		{

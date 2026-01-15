@@ -6,7 +6,6 @@
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/nxpch.hpp"
-	#include "Platform/IWindow.hpp"
 	#include "Surface/SurfaceD3D12.hpp"
 
 namespace Nexus::Graphics
@@ -17,19 +16,15 @@ namespace Nexus::Graphics
 	class SwapchainD3D12 : public ISwapchain
 	{
 	  public:
-		SwapchainD3D12(IWindow *window, IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
+		SwapchainD3D12(IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
-		void			  SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer> GetCurrentFramebuffer();
-		void			  SetPresentMode(PresentMode presentMode) final;
-
-		IWindow *GetWindow() final
-		{
-			return m_Window;
-		}
-		std::pair<uint32_t, uint32_t> GetSize() final;
-		PixelFormat					  GetColourFormat() final;
-		PixelFormat					  GetDepthFormat() final;
+		void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>				 GetCurrentFramebuffer();
+		void							 SetPresentMode(PresentMode presentMode) final;
+		std::pair<uint32_t, uint32_t>	 GetSize() final;
+		PixelFormat						 GetColourFormat() final;
+		PixelFormat						 GetDepthFormat() final;
+		std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
 		uint32_t GetCurrentBufferIndex();
 
@@ -39,7 +34,6 @@ namespace Nexus::Graphics
 
 	  private:
 		void Flush();
-		void RecreateSwapchainIfNecessary();
 		void ResizeBuffers();
 		void GetBuffers();
 
@@ -47,7 +41,6 @@ namespace Nexus::Graphics
 		void CreateFramebuffers();
 
 	  private:
-		IWindow								   *m_Window	   = nullptr;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_Swapchain	   = nullptr;
 		GraphicsDeviceD3D12					   *m_Device	   = nullptr;
 		ICommandQueue						   *m_CommandQueue = nullptr;

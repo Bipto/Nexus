@@ -28,9 +28,9 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<ISwapchain> CommandQueueVk::CreateSwapchain(IWindow *window, const SwapchainDescription &spec)
+	Ref<ISwapchain> CommandQueueVk::CreateSwapchain(const SwapchainDescription &spec)
 	{
-		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(window, m_Device, this, spec);
+		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(m_Device, this, spec);
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();

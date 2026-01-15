@@ -141,7 +141,7 @@ if (NX_PLATFORM_D3D12)
 endif()
 
 if (NX_PLATFORM_OPENGL)
-  file (GLOB NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp")
+  file (GLOB NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp" "src/Platform/OpenGL/Surface/*.cpp" "src/Platform/OpenGL/Surface/*.hpp")
 
   if (EMSCRIPTEN)
 	file (GLOB_RECURSE NEXUS_OPENGL_WEBGL_SOURCES "src/Platform/OpenGL/Backends/WebGL/*.cpp" "src/Platform/OpenGL/Backends/WebGL/*.hpp")
@@ -168,7 +168,7 @@ if (NX_PLATFORM_WEBGL)
 endif()
 
 if (NX_PLATFORM_WGL)
-	file (GLOB_RECURSE NEXUS_WGL_SOURCES "src/Platform/OpenGL/Context/WGL/*.cpp" "src/Platform/OpenGL/Context/WGL/*.hpp")
+	file (GLOB_RECURSE NEXUS_WGL_SOURCES "src/Platform/OpenGL/Context/WGL/*.cpp" "src/Platform/OpenGL/Context/WGL/*.hpp" "src/Platform/OpenGL/Surface/WGL/*.cpp" "src/Platform/OpenGL/Surface/WGL/*.hpp")
 	list (APPEND ENGINE_SOURCES ${NEXUS_WGL_SOURCES})
 endif()
 

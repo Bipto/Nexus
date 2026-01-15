@@ -699,7 +699,7 @@ namespace Nexus::ImGuiUtils
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
-			Ref<Nexus::Graphics::ISwapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(window, swapchainSpec);
+			Ref<Nexus::Graphics::ISwapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(swapchainSpec);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;

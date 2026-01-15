@@ -36,10 +36,9 @@ namespace Nexus::Graphics
 		return outputSC;
 	}
 
-	SwapchainD3D12::SwapchainD3D12(IWindow *window, IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
+	SwapchainD3D12::SwapchainD3D12(IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec)
 		: ISwapchain(swapchainSpec),
-		  m_CommandQueue(queue),
-		  m_Window(window)
+		  m_CommandQueue(queue)
 	{
 		// assign the graphics device
 		m_Device = (GraphicsDeviceD3D12 *)device;
@@ -51,9 +50,8 @@ namespace Nexus::Graphics
 		m_Surface = std::dynamic_pointer_cast<SurfaceD3D12>(m_Description.Surface);
 
 		// set up size of swapchain
-		auto [width, height] = m_Window->GetWindowSizeInPixels();
-		m_SwapchainWidth	 = width;
-		m_SwapchainHeight	 = height;
+		m_SwapchainWidth  = swapchainSpec.Width;
+		m_SwapchainHeight = swapchainSpec.Height;
 
 		// setup framebuffers for swapchain images
 		CreateFramebuffers();
@@ -102,9 +100,6 @@ namespace Nexus::Graphics
 			m_Swapchain->Present(m_SyncInterval, presentFlags);
 		}
 
-		// recreate the swapchain if the window's size has changed
-		RecreateSwapchainIfNecessary();
-
 		AcquireBackbufferIndex();
 	}
 
@@ -132,6 +127,22 @@ namespace Nexus::Graphics
 	PixelFormat SwapchainD3D12::GetDepthFormat()
 	{
 		return PixelFormat::D24_UNorm_S8_UInt;
+	}
+
+	std::expected<void, std::string> SwapchainD3D12::Resize(uint32_t width, uint32_t height)
+	{
+		// if the size of the window is the same, we do not need to do anything and
+		// can return
+		if (m_SwapchainWidth == width && m_SwapchainHeight == height)
+			return {};
+
+		m_SwapchainWidth  = width;
+		m_SwapchainHeight = height;
+
+		// resize the swapchain
+		ResizeBuffers();
+
+		return {};
 	}
 
 	uint32_t SwapchainD3D12::GetCurrentBufferIndex()
@@ -162,22 +173,6 @@ namespace Nexus::Graphics
 		}
 
 		m_SwapchainFramebuffers.clear();
-	}
-
-	void SwapchainD3D12::RecreateSwapchainIfNecessary()
-	{
-		const auto &[windowWidth, windowHeight] = m_Window->GetWindowSizeInPixels();
-
-		// if the size of the window is the same, we do not need to do anything and
-		// can return
-		if (m_SwapchainWidth == windowWidth && m_SwapchainHeight == windowHeight)
-			return;
-
-		m_SwapchainWidth  = windowWidth;
-		m_SwapchainHeight = windowHeight;
-
-		// resize the swapchain
-		ResizeBuffers();
 	}
 
 	void SwapchainD3D12::ResizeBuffers()

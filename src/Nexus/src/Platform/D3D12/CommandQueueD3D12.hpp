@@ -18,10 +18,10 @@ namespace Nexus::Graphics
 		virtual ~CommandQueueD3D12();
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetHandle();
 		const CommandQueueDescription			  &GetDescription() const final;
-		Ref<ISwapchain>							   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) final;
-		void			 SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
-		IGraphicsDevice	*GetGraphicsDevice() final;
-		bool			 WaitForIdle() final;
+		Ref<ISwapchain>							   CreateSwapchain(const SwapchainDescription &spec) final;
+		void			  SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
+		IGraphicsDevice	 *GetGraphicsDevice() final;
+		bool			  WaitForIdle() final;
 		Ref<ICommandList> CreateCommandList(const CommandListDescription &spec = {}) final;
 
 	  private:

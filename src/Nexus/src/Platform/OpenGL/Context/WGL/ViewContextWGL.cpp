@@ -9,7 +9,7 @@
 
 namespace Nexus::GL
 {
-	ViewContextWGL::ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *context, const ContextSpecification &spec)
+	ViewContextWGL::ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *context, const ContextDescription &spec)
 		: m_HWND(hwnd),
 		  m_HDC(hdc),
 		  m_Description(spec),
@@ -149,12 +149,12 @@ namespace Nexus::GL
 		wglSwapIntervalEXT(enabled);
 	}
 
-	const ContextSpecification &ViewContextWGL::GetDescription() const
+	const ContextDescription &ViewContextWGL::GetDescription() const
 	{
 		return m_Description;
 	}
 
-	HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec)
+	HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec)
 	{
 		PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
 									 1,

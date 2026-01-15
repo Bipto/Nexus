@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 			std::cout << "HDC created successfully\n";
 		}
 
-		GL::ContextSpecification spec;
+		GL::ContextDescription spec;
 		spec.GLVersion = GL::OpenGLVersion::OpenGL;
 		spec.Debug	   = debug;
 

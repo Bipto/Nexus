@@ -16,6 +16,10 @@
 	#include "TextureViewOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 
+	#if defined(WIN32)
+		#include "Surface/WGL/SurfaceWGL.hpp"
+	#endif
+
 	#include "glad/gl.h"
 
 namespace Nexus::Graphics
@@ -179,7 +183,11 @@ namespace Nexus::Graphics
 
 	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
 	{
+	#if defined(WIN32)
+		return CreateRef<SurfaceWGL>(hwnd, hdc, hinstance, this);
+	#else
 		return nullptr;
+	#endif
 	}
 
 	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const

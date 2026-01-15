@@ -5,10 +5,10 @@
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Platform/IWindow.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
+	#include "Surface/SurfaceOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -18,25 +18,23 @@ namespace Nexus::Graphics
 	class SwapchainOpenGL : public ISwapchain
 	{
 	  public:
-		SwapchainOpenGL(IWindow *window, const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice);
+		SwapchainOpenGL(const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~SwapchainOpenGL();
-		void						  SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>			  GetCurrentFramebuffer() final;
-		void						  SetPresentMode(PresentMode presentMode) final;
-		std::pair<uint32_t, uint32_t> GetSize() final;
-		PixelFormat					  GetColourFormat() final;
-		PixelFormat					  GetDepthFormat() final;
+		void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>				 GetCurrentFramebuffer() final;
+		void							 SetPresentMode(PresentMode presentMode) final;
+		std::pair<uint32_t, uint32_t>	 GetSize() final;
+		PixelFormat						 GetColourFormat() final;
+		PixelFormat						 GetDepthFormat() final;
+		std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
-		void ResizeIfNecessary();
 		void BindAsDrawTarget();
 
 		GL::IViewContext *GetViewContext();
-		IWindow			 *GetWindow() final;
 		Ref<IFramebuffer> GetFramebuffer();
 		void			  CreateFramebuffer();
 
 	  private:
-		IWindow				 *m_Window = nullptr;
 		GraphicsDeviceOpenGL *m_Device = nullptr;
 
 		Ref<FramebufferOpenGL> m_Framebuffer = nullptr;

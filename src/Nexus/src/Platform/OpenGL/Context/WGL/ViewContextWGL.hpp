@@ -15,17 +15,17 @@ namespace Nexus::GL
 	class ViewContextWGL : public IViewContext
 	{
 	  public:
-		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextSpecification &spec);
+		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextDescription &spec);
 		virtual ~ViewContextWGL();
 		virtual bool MakeCurrent() override;
 		virtual void Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc) override;
 		virtual void SetVSync(bool enabled) override;
-		virtual const ContextSpecification &GetDescription() const override;
-		virtual bool						Validate() override;
-		virtual const GladGLContext		   &GetContext() const override;
+		virtual const ContextDescription &GetDescription() const override;
+		virtual bool					  Validate() override;
+		virtual const GladGLContext		 &GetContext() const override;
 
 	  private:
-		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec);
+		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec);
 
 	  private:
 		HWND  m_HWND  = {};
@@ -33,7 +33,7 @@ namespace Nexus::GL
 		HGLRC m_HGLRC = {};
 
 		OffscreenContextWGL *m_PBuffer	   = {};
-		ContextSpecification m_Description = {};
+		ContextDescription	 m_Description = {};
 
 		OpenGLFunctionContext m_FunctionContext = {};
 	};

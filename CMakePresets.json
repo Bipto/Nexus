@@ -1,26 +1,37 @@
 {
   "version": 6,
+
   "configurePresets": [
     {
-      "name": "windows-base",
+      "name": "base",
       "hidden": true,
-      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe",
         "CMAKE_DOWNLOAD_DIRECTORY": ".cache/cmake-downloads",
+
         "NX_PLATFORM_OPENGL": "1",
-        "NX_PLATFORM_D3D12": "1",
         "NX_PLATFORM_VULKAN": "1",
         "NX_PLATFORM_OPENAL": "1",
+
         "NX_BUILD_DEMO": "1",
         "NX_BUILD_EDITOR": "1",
         "NX_BUILD_TESTS": "1",
         "NX_BUILD_UI_TESTS": "1",
-        "NX_BUILD_TYPE": "SHARED",
         "NX_BUILD_SANDBOX": "1"
+      }
+    },
+
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "NX_PLATFORM_D3D12": "1",
+        "NX_BUILD_TYPE": "SHARED"
       },
       "condition": {
         "type": "equals",
@@ -28,73 +39,16 @@
         "rhs": "Windows"
       }
     },
-    {
-      "name": "x64-debug-windows",
-      "displayName": "x64 Debug - Windows",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "x64-relwithdebinfo-windows",
-      "displayName": "x64 Release With Debug Info - Windows",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      }
-    },
-    {
-      "name": "x64-minsizerel-windows",
-      "displayName": "x64 Min Size Release - Windows",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "MinSizeRel"
-      }
-    },
-    {
-      "name": "x64-release-windows",
-      "displayName": "x64 Release - Windows",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
+
     {
       "name": "linux-base",
       "hidden": true,
+      "inherits": "base",
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/${presetName}",
-      "installDir": "${sourceDir}/install/${presetName}",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
-        "CMAKE_DOWNLOAD_DIRECTORY": ".cache/cmake-downloads",
-        "NX_PLATFORM_OPENGL": "1",
-        "NX_PLATFORM_VULKAN": "1",
-        "NX_PLATFORM_OPENAL": "1",
-        "NX_BUILD_DEMO": "1",
-        "NX_BUILD_EDITOR": "1",
-        "NX_BUILD_TESTS": "1",
-        "NX_BUILD_UI_TESTS": "1",
-        "NX_BUILD_TYPE": "STATIC",
-        "NX_BUILD_SANDBOX": "1"
+        "NX_BUILD_TYPE": "STATIC"
       },
       "condition": {
         "type": "equals",
@@ -102,53 +56,93 @@
         "rhs": "Linux"
       }
     },
+
     {
-      "name": "x64-debug-linux",
-      "displayName": "x64 Debug - Linux",
-      "inherits": "linux-base",
+      "name": "windows-x64-debug",
+      "displayName": "Windows x64 Debug",
+      "inherits": "windows-base",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
+
     {
-      "name": "x64-release-linux",
-      "displayName": "x64 Release - Linux",
-      "inherits": "linux-base",
+      "name": "windows-x64-release",
+      "displayName": "Windows x64 Release",
+      "inherits": "windows-base",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
+
     {
-      "name": "x64-relwithdebinfo-linux",
-      "displayName": "x64 Release With Debug Info - Linux",
-      "inherits": "linux-base",
+      "name": "windows-x64-relwithdebinfo",
+      "displayName": "Windows x64 RelWithDebInfo",
+      "inherits": "windows-base",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
+
     {
-      "name": "x64-minsizerel-linux",
-      "displayName": "x64 Min Size Release - Linux",
+      "name": "windows-x64-minsizerel",
+      "displayName": "Windows x64 MinSizeRel",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
+    },
+
+    {
+      "name": "linux-x64-debug",
+      "displayName": "Linux x64 Debug",
       "inherits": "linux-base",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "MinSizeRel"
-      }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+
+    {
+      "name": "linux-x64-release",
+      "displayName": "Linux x64 Release",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+
+    {
+      "name": "linux-x64-relwithdebinfo",
+      "displayName": "Linux x64 RelWithDebInfo",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+
+    {
+      "name": "linux-x64-minsizerel",
+      "displayName": "Linux x64 MinSizeRel",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
     }
   ]
 }

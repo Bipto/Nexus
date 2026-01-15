@@ -44,9 +44,9 @@ namespace Nexus::Graphics
 	class NX_API ICommandQueue
 	{
 	  public:
-		virtual ~ICommandQueue()																				  = default;
-		virtual const CommandQueueDescription &GetDescription() const											  = 0;
-		virtual Ref<ISwapchain>				   CreateSwapchain(IWindow *window, const SwapchainDescription &spec) = 0;
+		virtual ~ICommandQueue()																 = default;
+		virtual const CommandQueueDescription &GetDescription() const							 = 0;
+		virtual Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec) = 0;
 		void								   SubmitCommandList(Ref<ICommandList> commandList);
 		void								   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence);
 		void								   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists);
