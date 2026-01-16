@@ -15,9 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # -------------------------
           # Windows (MSVC)
-          # -------------------------
           - name: Windows (MSVC)
             os: windows-latest
             c_compiler: cl
@@ -32,9 +30,7 @@ jobs:
             vcpkg_triplet: x64-windows
             build_type: Debug
 
-          # -------------------------
           # Ubuntu GCC
-          # -------------------------
           - name: Ubuntu (GCC)
             os: ubuntu-24.04
             c_compiler: gcc
@@ -49,9 +45,7 @@ jobs:
             vcpkg_triplet: x64-linux
             build_type: Debug
 
-          # -------------------------
           # Ubuntu Clang
-          # -------------------------
           - name: Ubuntu (Clang)
             os: ubuntu-24.04
             c_compiler: clang
@@ -67,18 +61,14 @@ jobs:
             build_type: Debug
 
     steps:
-      # -------------------------
       # Checkout
-      # -------------------------
       - name: Checkout source
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      # -------------------------
       # Fix apt mirror sync issues
-      # -------------------------
       - name: Fix apt mirror sync issues
         if: runner.os == 'Linux'
         run: |
@@ -86,18 +76,12 @@ jobs:
           sudo apt-get update --allow-releaseinfo-change
           sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
 
-      # -------------------------
-      # Install libc++ for Clang (Linux)
-      # -------------------------
+      # Install libc++ for Clang
       - name: Install libc++ for Clang
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libc++-dev libc++abi-dev
+        run: sudo apt-get install -y libc++-dev libc++abi-dev
 
-      # -------------------------
-      # Cache: sccache (Linux)
-      # -------------------------
+      # Cache sccache (Linux)
       - name: Cache sccache (Linux)
         if: runner.os == 'Linux'
         uses: actions/cache@v4
@@ -107,30 +91,17 @@ jobs:
           restore-keys: |
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
 
-      # -------------------------
       # Install sccache (Linux)
-      # -------------------------
       - name: Install sccache (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -y sccache
 
-      # -------------------------
-      # Install LLVM (Windows)
-      # -------------------------
-      - name: Install LLVM (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
-        run: choco install llvm
-
-      # -------------------------
       # Install sccache (Windows)
-      # -------------------------
       - name: Install sccache (Windows)
         if: runner.os == 'Windows'
         run: choco install sccache
 
-      # -------------------------
-      # Cache: sccache (Windows)
-      # -------------------------
+      # Cache sccache (Windows)
       - name: Cache sccache (Windows)
         if: runner.os == 'Windows'
         uses: actions/cache@v4
@@ -140,24 +111,18 @@ jobs:
           restore-keys: |
             sccache-windows-${{ matrix.c_compiler }}
 
-      # -------------------------
       # Ninja
-      # -------------------------
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
-      # -------------------------
       # Vulkan SDK
-      # -------------------------
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
-      # -------------------------
       # Linux dependencies
-      # -------------------------
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
@@ -166,9 +131,7 @@ jobs:
             libx11-dev xserver-xorg-dev xorg-dev \
             build-essential
 
-      # -------------------------
       # Install Clang (Linux)
-      # -------------------------
       - name: Install Clang
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
         run: |
@@ -176,14 +139,7 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh all
 
-      - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          version: 1.13.2
-
-      # -------------------------
       # Windows SDK + MSVC
-      # -------------------------
       - name: Install Windows SDK
         if: runner.os == 'Windows'
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
@@ -196,38 +152,20 @@ jobs:
         with:
           arch: x64
 
-      # -------------------------
-      # Install vcpkg
-      # -------------------------
-      - name: Install vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics || ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
-
-      # -------------------------
-      # Cache vcpkg installed directory
-      # -------------------------
-      - name: Cache vcpkg artifacts
-        uses: actions/cache@v4
+      # vcpkg (modern)
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v11
         with:
-          path: build/vcpkg_installed
-          key: vcpkg-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
-          restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.vcpkg_triplet }}
+          vcpkgGitCommitId: 2024.01.12
+          vcpkgTriplet: ${{ matrix.vcpkg_triplet }}
 
-      # -------------------------
       # Configure CMake
-      # -------------------------
       - name: Configure CMake
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
               D3D12=ON
-              if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
-                  LAUNCHER_OPTS=""
-              else
-                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-              fi
+              LAUNCHER_OPTS=""
           else
               D3D12=OFF
               LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
@@ -240,9 +178,7 @@ jobs:
 
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_INSTALLED_DIR=$PWD/build/vcpkg_installed \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
@@ -257,15 +193,11 @@ jobs:
             -DNX_BUILD_TESTS=1 \
             -S .
 
-      # -------------------------
       # Build
-      # -------------------------
       - name: Build
         run: cmake --build build --target TestRunner
 
-      # -------------------------
-      # Print sccache stats
-      # -------------------------
+      # sccache stats
       - name: sccache stats (Linux)
         if: runner.os == 'Linux'
         run: sccache --show-stats || true
