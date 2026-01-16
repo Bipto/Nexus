@@ -1,12 +1,17 @@
 {
   "dependencies": [
     "assimp",
+    "freetype",
+    "glm",
+    "glslang",
     "openal-soft",
     "sdl3",
     "shaderc",
     "spirv-cross",
     "spirv-headers",
     "spirv-reflect",
-    "glslang"
+    "stb",
+    "yaml-cpp",
+    "gtest"
   ]
 }

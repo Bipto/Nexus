@@ -176,6 +176,11 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh all
 
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.13.2
+
       # -------------------------
       # Windows SDK + MSVC
       # -------------------------

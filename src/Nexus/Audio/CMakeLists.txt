@@ -57,17 +57,7 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
-		set(AL_SOFT_WARNINGS OFF CACHE BOOL "" FORCE)
-		set(ALSOFT_WERROR OFF CACHE BOOL "" FORCE)
-
-		FetchContent_Declare(
-			openal-soft
-			GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-			GIT_TAG 1.25.0
-			GIT_SHALLOW TRUE
-			GIT_PROGRESS TRUE
-		)
-		FetchContent_MakeAvailable(openal-soft)
+	  find_package(OpenAL CONFIG REQUIRED)
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)
 	endif()
 endif()

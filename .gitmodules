@@ -1,21 +1,6 @@
-[submodule "src/Nexus/external/glm"]
-	path = src/Nexus/external/glm
-	url = https://github.com/g-truc/glm.git
-[submodule "src/Nexus/external/freetype"]
-	path = src/Nexus/external/freetype
-	url = https://github.com/freetype/freetype.git
-[submodule "src/Nexus/external/stb"]
-	path = src/Nexus/external/stb
-	url = https://github.com/nothings/stb.git
-[submodule "src/Nexus/external/yaml-cpp"]
-	path = src/Nexus/external/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp.git
 [submodule "src/Nexus/external/libnyquist"]
 	path = src/Nexus/external/libnyquist
 	url = https://github.com/ddiakopoulos/libnyquist.git
-[submodule "src/Nexus/external/openal-soft"]
-	path = src/Nexus/external/openal-soft
-	url = https://github.com/kcat/openal-soft.git
 [submodule "src/Nexus/external/imgui/imgui"]
 	path = src/Nexus/external/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
@@ -25,9 +10,6 @@
 [submodule "src/Nexus/external/VulkanMemoryAllocator"]
 	path = src/Nexus/external/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-[submodule "src/Nexus/external/assimp"]
-	path = src/Nexus/external/assimp
-	url = https://github.com/assimp/assimp.git
 [submodule "src/Nexus/external/D3D12MemoryAllocator"]
 	path = src/Nexus/external/D3D12MemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git

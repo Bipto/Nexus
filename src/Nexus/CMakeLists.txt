@@ -54,10 +54,10 @@ find_package(unofficial-shaderc CONFIG REQUIRED)
 find_package(spirv_cross_core CONFIG REQUIRED)
 find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(spirv_cross_hlsl CONFIG REQUIRED)
+find_package(yaml-cpp CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(freetype CONFIG REQUIRED)
 
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/imgui)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
 
@@ -208,7 +208,6 @@ nexus_setup_filters(${ENGINE_SOURCES})
 list (APPEND NEXUS_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  external/stb
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES

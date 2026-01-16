@@ -615,8 +615,12 @@ namespace Nexus
 	{
 		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
-		OpenVRInfo info		 = {};
+		OpenVRInfo info = {};
+#ifdef SDL_PROP_WINDOW_OPENVR_OVERLAY_ID
 		info.overlayIdNumber = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_OPENVR_OVERLAY_ID, 0));
+#else
+		throw std::runtime_error("OpenVR is currently unsupported");
+#endif
 
 		return info;
 	}
