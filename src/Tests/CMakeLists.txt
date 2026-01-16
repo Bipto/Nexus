@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 3.28)
 
 project("TestRunner")
 
-find_package(GTest CONFIG REQUIRED)
+include(FetchContent)
+
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG 6986c2b
+)
+FetchContent_MakeAvailable(googletest)
+
 
 add_executable(TestRunner src/main.cpp)
 
@@ -14,8 +22,8 @@ add_test(
 target_link_libraries(TestRunner 
     PRIVATE 
     Nexus 
-    GTest::gtest 
-    GTest::gtest_main)
+    gtest 
+    gtest_main)
 
 nexus_copy_required_binaries(TestRunner)
 nexus_copy_required_runtime_libraries(TestRunner)

@@ -27,7 +27,7 @@ FetchContent_Declare(
 	libnyquist
 	GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
 	GIT_TAG 767efd9
-	GIT_PROGRESS TRUE
+	GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(libnyquist)
 target_compile_definitions(libnyquist PRIVATE _CRT_SECURE_NO_WARNINGS)

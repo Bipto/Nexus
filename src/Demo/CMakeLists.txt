@@ -60,7 +60,6 @@ set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_
 
 nexus_copy_required_binaries(Demo)
 nexus_copy_required_runtime_libraries(Demo)
-nexus_copy_required_runtime_libraries(Nexus)
 
 if (ANDROID)
     set_target_properties(Demo PROPERTIES

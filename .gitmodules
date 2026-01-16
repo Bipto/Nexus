@@ -7,9 +7,3 @@
 [submodule "src/Nexus/external/imgui/ImGuizmo"]
 	path = src/Nexus/external/imgui/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
-[submodule "src/Nexus/external/VulkanMemoryAllocator"]
-	path = src/Nexus/external/VulkanMemoryAllocator
-	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-[submodule "src/Nexus/external/D3D12MemoryAllocator"]
-	path = src/Nexus/external/D3D12MemoryAllocator
-	url = https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git

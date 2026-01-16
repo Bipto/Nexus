@@ -11,7 +11,6 @@
     "spirv-headers",
     "spirv-reflect",
     "stb",
-    "yaml-cpp",
-    "gtest"
+    "yaml-cpp"
   ]
 }

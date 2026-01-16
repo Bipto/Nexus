@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project ("Nexus")
 
+include(FetchContent)
+
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)
 endif()
@@ -112,9 +114,18 @@ if (NX_PLATFORM_OPENGL)
 endif()
 
 if (NX_PLATFORM_D3D12)
+	
+  FetchContent_Declare(
+	  D3D12MemoryAllocator
+	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
+	  GIT_TAG c06cd9a
+	  GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(D3D12MemoryAllocator)
+
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_D3D12=1)
-  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/D3D12MemoryAllocator)
   list (APPEND NEXUS_LINKED_LIBRARIES D3D12MemoryAllocator)
+  list (APPEND NEXUS_INCLUDE_DIRS ${D3D12MemoryAllocator_SOURCE_DIR}/include)
   list (APPEND NEXUS_INCLUDE_DIRS external/winpixeventruntime.1.0.240308001/include)
 endif()
 
@@ -122,9 +133,16 @@ if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
+  FetchContent_Declare(
+	  VulkanMemoryAllocator
+	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+	  GIT_TAG e722e57
+	  GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
-  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
   list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
@@ -188,7 +206,7 @@ if (NX_PLATFORM_VULKAN)
 	elseif(ANDROID)
 	  list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Android/PlatformVkAndroid.cpp)
 	  list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_ANDROID_KHR=1)
-	  endif()
+	endif()
 endif()
 
 if (WIN32)
@@ -241,10 +259,6 @@ if (EMSCRIPTEN)
 endif()
 
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
-
-if (NX_PLATFORM_VULKAN)
-  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 17)
-endif()
 
 set(NX_INCLUDE_VISIBILITY PUBLIC)
 set(NX_LINK_VISIBILITY PUBLIC)
