@@ -76,15 +76,22 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # -------------------------
-      # Fix apt mirror sync issues
-      # -------------------------
       - name: Fix apt mirror sync issues
         if: runner.os == 'Linux'
         run: |
           sudo apt-get clean
           sudo apt-get update --allow-releaseinfo-change
           sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
+      
+      - name: Install Ninja (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Verify Ninja
+        if: runner.os == 'Linux'
+        run: which ninja && ninja --version
 
       # -------------------------
       # Install libc++ for Clang (Linux)
@@ -139,11 +146,7 @@ jobs:
           key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-windows-${{ matrix.c_compiler }}
-
-      - name: Install Ninja (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -y ninja-build
-
+            
       # -------------------------
       # Vulkan SDK
       # -------------------------
@@ -196,8 +199,9 @@ jobs:
       - name: Install vcpkg
         run: |
           git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
-
+          cd vcpkg
+          git checkout 2025.12.12  # example stable tag
+          ./bootstrap-vcpkg.sh -disableMetrics
 
       # -------------------------
       # Cache vcpkg installed directory
