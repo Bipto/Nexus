@@ -76,110 +76,40 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      # -------------------------
+      # Linux: System Prep
+      # -------------------------
       - name: Fix apt mirror sync issues
         if: runner.os == 'Linux'
         run: |
           sudo apt-get clean
           sudo apt-get update --allow-releaseinfo-change
           sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
-      
-      - name: Install Ninja (Linux)
+
+      - name: Install Linux build dependencies
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
+          sudo apt-get install -y \
+            ninja-build \
+            build-essential \
+            autoconf autoconf-archive automake libtool \
+            libgl1-mesa-dev mesa-utils mesa-common-dev \
+            libx11-dev xserver-xorg-dev xorg-dev
+
+      - name: Install Clang + libc++ (Linux)
+        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
+        run: |
+          sudo apt-get install -y libc++-dev libc++abi-dev
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh all
 
       - name: Verify Ninja
         if: runner.os == 'Linux'
         run: which ninja && ninja --version
 
       # -------------------------
-      # Install libc++ for Clang (Linux)
-      # -------------------------
-      - name: Install libc++ for Clang
-        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libc++-dev libc++abi-dev
-
-      # -------------------------
-      # Cache: sccache (Linux)
-      # -------------------------
-      - name: Cache sccache (Linux)
-        if: runner.os == 'Linux'
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/sccache
-          key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-${{ runner.os }}-${{ matrix.c_compiler }}
-
-      # -------------------------
-      # Install sccache (Linux)
-      # -------------------------
-      - name: Install sccache (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -y sccache
-
-      # -------------------------
-      # Install LLVM (Windows)
-      # -------------------------
-      - name: Install LLVM (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
-        run: choco install llvm
-
-      # -------------------------
-      # Install sccache (Windows)
-      # -------------------------
-      - name: Install sccache (Windows)
-        if: runner.os == 'Windows'
-        run: choco install sccache
-
-      # -------------------------
-      # Cache: sccache (Windows)
-      # -------------------------
-      - name: Cache sccache (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
-        with:
-          path: C:\Users\runneradmin\AppData\Local\sccache
-          key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-windows-${{ matrix.c_compiler }}
-            
-      # -------------------------
-      # Vulkan SDK
-      # -------------------------
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
-        with:
-          version: 1.4.309.0
-          cache: true
-
-      # -------------------------
-      # Linux dependencies
-      # -------------------------
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get install -y \
-            libgl1-mesa-dev mesa-utils mesa-common-dev \
-            libx11-dev xserver-xorg-dev xorg-dev \
-            build-essential \
-            autoconf autoconf-archive automake libtool
-
-      # -------------------------
-      # Install Clang (Linux)
-      # -------------------------
-      - name: Install Clang
-        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh all
-
-      # -------------------------
-      # Windows SDK + MSVC
+      # Windows: Toolchain Setup
       # -------------------------
       - name: Install Windows SDK
         if: runner.os == 'Windows'
@@ -193,19 +123,50 @@ jobs:
         with:
           arch: x64
 
+      - name: Install LLVM (Windows)
+        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
+        run: choco install llvm
+
       # -------------------------
-      # Install vcpkg
+      # sccache (Linux + Windows)
+      # -------------------------
+      - name: Install sccache (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y sccache
+
+      - name: Install sccache (Windows)
+        if: runner.os == 'Windows'
+        run: choco install sccache
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/sccache
+            C:\Users\runneradmin\AppData\Local\sccache
+          key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          restore-keys: |
+            sccache-${{ runner.os }}-${{ matrix.c_compiler }}
+
+      # -------------------------
+      # Vulkan SDK
+      # -------------------------
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      # -------------------------
+      # vcpkg
       # -------------------------
       - name: Install vcpkg
         run: |
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
-          git checkout 2025.12.12  # example stable tag
+          git checkout master
           ./bootstrap-vcpkg.sh -disableMetrics
 
-      # -------------------------
-      # Cache vcpkg installed directory
-      # -------------------------
       - name: Cache vcpkg artifacts
         uses: actions/cache@v4
         with:
@@ -263,12 +224,7 @@ jobs:
         run: cmake --build build --target TestRunner
 
       # -------------------------
-      # Print sccache stats
+      # sccache stats
       # -------------------------
-      - name: sccache stats (Linux)
-        if: runner.os == 'Linux'
-        run: sccache --show-stats || true
-
-      - name: sccache stats (Windows)
-        if: runner.os == 'Windows'
+      - name: sccache stats
         run: sccache --show-stats || true
