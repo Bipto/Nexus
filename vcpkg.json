@@ -1,7 +1,10 @@
 {
   "dependencies": [
     "assimp",
-    "directx-dxc",
+    {
+      "name": "directx-dxc",
+      "platform": "(windows & !arm32 & !uwp & !xbox) | (linux & x64)"
+    },
     "freetype",
     "glm",
     "glslang",
@@ -12,7 +15,10 @@
     "spirv-headers",
     "spirv-reflect",
     "stb",
-    "winpixevent",
+    {
+      "name": "winpixevent",
+      "platform": "windows & (x64 | arm64) & !staticcrt & !xbox"
+    },
     "yaml-cpp"
   ]
 }
