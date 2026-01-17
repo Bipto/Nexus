@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "assimp",
+    "directx-dxc",
     "freetype",
     "glm",
     "glslang",
@@ -12,7 +13,6 @@
     "spirv-reflect",
     "stb",
     "winpixevent",
-    "yaml-cpp",
-    "directx-dxc"
+    "yaml-cpp"
   ]
 }
