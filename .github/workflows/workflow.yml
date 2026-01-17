@@ -94,7 +94,7 @@ jobs:
             build-essential \
             autoconf autoconf-archive automake libtool \
             libgl1-mesa-dev mesa-utils mesa-common-dev \
-            libx11-dev xserver-xorg-dev xorg-dev
+            libx11-dev xserver-xorg-dev xorg-dev libltdl-dev
 
       - name: Install Clang + libc++ (Linux)
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
