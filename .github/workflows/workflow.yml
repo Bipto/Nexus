@@ -153,8 +153,13 @@ jobs:
           arch: x64
 
       # vcpkg (modern)
-      - name: Run vcpkg
+      - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 2024.01.12
+          useGitHubCache: true
+          vcpkgJsonGlob: '**/vcpkg.json'
+ 
 
       # Configure CMake
       - name: Configure CMake
