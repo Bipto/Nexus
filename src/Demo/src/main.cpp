@@ -41,13 +41,15 @@
 #include "Platform/FileSystem/FileSystem.hpp"
 #include "Platform/FileSystem/Path.hpp"
 
+#include "Platform/Timings/Timer.hpp"
+
 struct DemoInfo
 {
-	std::string Name;
+	std::string Name																		  = {};
 	Demos::Demo *(*CreationFunction)(Nexus::Application *,
 									 const std::string						   &name,
 									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) = nullptr;
 };
 
 class DemoApplication : public Nexus::Application

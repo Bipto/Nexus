@@ -7,6 +7,7 @@
 
 #include "Platform/Platform-Core.hpp"
 #include "Platform/Timings/Profiler.hpp"
+#include "Platform/Timings/Timer.hpp"
 #include "Platform/Timings/Timespan.hpp"
 
 namespace Nexus::Timings
