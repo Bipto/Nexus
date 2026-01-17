@@ -22,17 +22,14 @@ namespace Nexus::GL
 
 	ViewContextWGL::~ViewContextWGL()
 	{
-		GL::ClearCurrentContext();
-
-		// wglMakeCurrent(NULL, NULL);
-
-		// TODO: Why does this crash sometimes???
-		// wglDeleteContext(m_HGLRC);
-
+		// we don't want to override the current context, so we only need to clear the current context if it is this context
 		if (GL::GetCurrentContext() == this)
 		{
 			m_PBuffer->MakeCurrent();
 		}
+
+		// delete the context
+		wglDeleteContext(m_HGLRC);
 	}
 
 	static void PrintErrorMessage(DWORD error)

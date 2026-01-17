@@ -72,7 +72,7 @@ class DemoApplication : public Nexus::Application
 		ImGui::GetStyle().ScrollbarSize = 20.0f;
 
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
-		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		int size = 20;
 
@@ -315,7 +315,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationDescription desc;
 
-	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	desc.GraphicsCreateInfo.Debug = true;
 
 	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

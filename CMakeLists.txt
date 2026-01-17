@@ -12,6 +12,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #disable Python (some vcpkg dependencies use it)
 set(PythonInterp_FIND_REQUIRED OFF)
 
+#disable app local dependencies as this is classic vpkg, not manifest mode
+set(VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
+
+
 if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
 endif()

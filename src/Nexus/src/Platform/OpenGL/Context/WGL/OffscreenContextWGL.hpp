@@ -23,8 +23,6 @@ namespace Nexus::GL
 		HGLRC GetHGLRC();
 
 	  private:
-		inline static void					LoadGLFunctionsIfNeeded(HDC hdc);
-		std::tuple<HWND, HGLRC, HDC>		CreateTemporaryWindow();
 		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextDescription &spec);
 
 	  private:

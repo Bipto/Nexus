@@ -19,9 +19,6 @@
         "NX_BUILD_TESTS": "1",
         "NX_BUILD_UI_TESTS": "1",
         "NX_BUILD_SANDBOX": "1",
-
-        "SPIRV_SKIP_TESTS": "ON",
-        "SPIRV_SKIP_EXECUTABLES": "ON"
       }
     },
 

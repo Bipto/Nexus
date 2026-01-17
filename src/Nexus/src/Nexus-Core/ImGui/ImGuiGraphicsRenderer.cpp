@@ -7,6 +7,7 @@
 #include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Platform/Timings/Profiler.hpp"
 
 static std::string GetImGuiShaderVertexSource()
@@ -270,7 +271,7 @@ namespace Nexus::ImGuiUtils
 				{
 					ImGuiWindowInfo					*info	   = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
 					Nexus::IWindow					*window	   = info->Window;
-					Ref<Nexus::Graphics::ISwapchain> swapchain = info->ISwapchain;
+					Ref<Nexus::Graphics::ISwapchain> swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())
 					{
@@ -530,7 +531,7 @@ namespace Nexus::ImGuiUtils
 				{
 					m_CommandList->SetPipeline(m_Pipeline);
 
-					Ref<Graphics::ISwapchain> swapchain = info->ISwapchain;
+					Ref<Graphics::ISwapchain> swapchain = info->Swapchain;
 					m_CommandList->SetFramebuffer(swapchain->GetCurrentFramebuffer());
 
 					Graphics::VertexBufferView vertexBufferView = {};
@@ -699,11 +700,15 @@ namespace Nexus::ImGuiUtils
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
+			swapchainSpec.Width	  = windowSpec.Width;
+			swapchainSpec.Height  = windowSpec.Height;
+			swapchainSpec.Surface = Utils::CreateSurfaceForWindow(Nexus::GetApplication()->GetGraphicsDevice(), window);
+
 			Ref<Nexus::Graphics::ISwapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(swapchainSpec);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
-			info->ISwapchain	  = swapchain;
+			info->Swapchain		  = swapchain;
 
 			Nexus::ImGuiUtils::ImGuiGraphicsRenderer::SetupInput(window);
 
@@ -762,7 +767,11 @@ namespace Nexus::ImGuiUtils
 
 				if (!info->Window->IsClosing())
 				{
-					info->Window->SetSize(static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
+					uint32_t width	= static_cast<uint32_t>(size.x);
+					uint32_t height = static_cast<uint32_t>(size.y);
+
+					info->Window->SetSize(width, height);
+					info->Swapchain->Resize(width, height);
 				}
 			}
 		};
@@ -866,7 +875,7 @@ namespace Nexus::ImGuiUtils
 
 		ImGuiWindowInfo *info = new ImGuiWindowInfo();
 		info->Window		  = m_Application->GetPrimaryWindow();
-		info->ISwapchain	  = m_Application->GetPrimarySwapchain();
+		info->Swapchain		  = m_Application->GetPrimarySwapchain();
 		vp->PlatformUserData  = info;
 		vp->RendererUserData  = info;
 	}

@@ -23,8 +23,8 @@ namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
 	{
-		Nexus::IWindow					*Window		= nullptr;
-		Ref<Nexus::Graphics::ISwapchain> ISwapchain = nullptr;
+		Nexus::IWindow					*Window	   = nullptr;
+		Ref<Nexus::Graphics::ISwapchain> Swapchain = nullptr;
 	};
 
 	struct ImGuiDescriptorInfo

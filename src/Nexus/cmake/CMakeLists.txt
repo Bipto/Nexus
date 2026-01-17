@@ -1,22 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
 
-macro(nexus_copy_required_binaries)
-  if (WIN32)
-    add_custom_command(
-        TARGET ${PROJECT_NAME} PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E copy
-              ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_07_14/bin/x64/dxcompiler.dll
-              $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-    add_custom_command(
-      TARGET ${PROJECT_NAME} PRE_LINK
-      COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/src/Nexus/external/winpixeventruntime.1.0.240308001/bin/x64/WinPixEventRuntime.dll
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-  endif()
-endmacro()
-
 macro(nexus_setup_filters source_files)
   foreach(_source IN ITEMS ${source_files})
     get_filename_component(_source_path "${_source}" PATH)
@@ -72,11 +55,18 @@ macro(nexus_copy_required_runtime_libraries target_name)
         endif()
     endif()
 
-    #copy vcpkg dependencies
-    add_custom_command(
-        TARGET ${target_name}
-        POST_BUILD COMMAND ${CMAKE_COMMAND} 
-            -E copy_directory "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/bin" $<TARGET_FILE_DIR:${target_name}>)
+   #copy vcpkg dependencies
+   set(VCPKG_BIN_DIR
+       "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<IF:$<CONFIG:Debug>,debug/bin,bin>"
+   )
+
+   add_custom_command(
+       TARGET ${target_name}
+       POST_BUILD
+       COMMAND ${CMAKE_COMMAND} -E copy_directory
+               "${VCPKG_BIN_DIR}"
+               $<TARGET_FILE_DIR:${target_name}>
+   )
 
 endmacro()
 

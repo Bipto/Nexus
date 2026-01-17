@@ -11,6 +11,8 @@
     "spirv-headers",
     "spirv-reflect",
     "stb",
-    "yaml-cpp"
+    "winpixevent",
+    "yaml-cpp",
+    "directx-dxc"
   ]
 }

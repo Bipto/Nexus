@@ -7,20 +7,11 @@
 #include "Platform/Input/Input.hpp"
 #include "Platform/Logging/Log.hpp"
 
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Platform/Platform.hpp"
 
 namespace Nexus
 {
-	static Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
-	{
-#if defined(WIN32)
-		auto win32Info = window->GetWin32Info();
-		return graphicsDevice->CreateSurfaceFromWin32(win32Info.hWND, win32Info.hDC, win32Info.hINSTANCE);
-#endif
-
-		throw std::runtime_error("Failed to create surface for window: Unsupported platform");
-	}
-
 	Application::Application(const ApplicationDescription &spec)
 	{
 		m_Description = spec;
@@ -51,7 +42,7 @@ namespace Nexus
 			}
 		}
 
-		Ref<Graphics::ISurface> surface			   = CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
+		Ref<Graphics::ISurface> surface			   = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
 		m_Description.SwapchainDescription.Surface = surface;
 
 		// hack, this probably needs removing at some point
