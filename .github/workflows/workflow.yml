@@ -32,6 +32,22 @@ jobs:
             vcpkg_triplet: x64-windows
             build_type: Debug
 
+          # Windows (Clang-CL)
+          # -------------------------
+          - name: Windows (Clang-CL)
+            os: windows-latest
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+            vcpkg_triplet: x64-windows
+            build_type: Release
+
+          - name: Windows (Clang-CL)
+            os: windows-latest
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+            vcpkg_triplet: x64-windows
+            build_type: Debug
+
           # -------------------------
           # Ubuntu GCC
           # -------------------------
@@ -133,6 +149,13 @@ jobs:
       - name: Install sccache (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -y sccache
+
+      # -------------------------
+      # Install LLVM (Windows) — needed for clang-cl
+      # -------------------------
+      - name: Install LLVM (Windows)
+        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
+        run: choco install llvm
 
       - name: Install sccache (Windows)
         if: runner.os == 'Windows'
