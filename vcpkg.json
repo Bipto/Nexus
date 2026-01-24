@@ -19,6 +19,7 @@
       "name": "winpixevent",
       "platform": "windows & (x64 | arm64) & !staticcrt & !xbox"
     },
-    "yaml-cpp"
+    "yaml-cpp",
+    "ffmpeg"
   ]
 }

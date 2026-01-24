@@ -1,103 +1,160 @@
-#include "Audio/AudioLoader.hpp"
+﻿#include "Audio/AudioLoader.hpp"
 #include "Audio/AudioTypes.hpp"
 
-#include "libnyquist/Common.h"
-#include "libnyquist/Decoders.h"
+#include <vector>
+
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/opt.h>
+#include <libavutil/samplefmt.h>
+#include <libswresample/swresample.h>
+}
 
 namespace Nexus::Audio
 {
-	Audio::AudioFormat GetAudioFormat(nqr::PCMFormat format, int channelCount)
+	Audio::AudioFormat GetAudioFormatFFmpeg(int channelCount)
 	{
-		bool stereo = channelCount > 1;
-		switch (format)
-		{
-			case nqr::PCMFormat::PCM_U8:
-			case nqr::PCMFormat::PCM_S8:
-			{
-				if (stereo)
-				{
-					return Audio::AudioFormat::Stereo8;
-				}
-				else
-				{
-					return Audio::AudioFormat::Mono8;
-				}
-			}
-			case nqr::PCMFormat::PCM_16:
-			case nqr::PCMFormat::PCM_24:
-			{
-				if (stereo)
-				{
-					return Audio::AudioFormat::Stereo16;
-				}
-				else
-				{
-					return Audio::AudioFormat::Mono16;
-				}
-			}
-			case nqr::PCMFormat::PCM_32:
-			case nqr::PCMFormat::PCM_64:
-			case nqr::PCMFormat::PCM_FLT:
-			case nqr::PCMFormat::PCM_DBL:
-			{
-				if (stereo)
-				{
-					return Audio::AudioFormat::StereoFloat32;
-				}
-				else
-				{
-					return Audio::AudioFormat::MonoFloat32;
-				}
-			}
-			case nqr::PCMFormat::PCM_END: throw std::runtime_error("Invalid audio format");
-			default: throw std::runtime_error("Failed to find a valid audio format");
-		}
+		if (channelCount > 1)
+			return Audio::AudioFormat::StereoFloat32;
+		else
+			return Audio::AudioFormat::MonoFloat32;
 	}
 
-	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBuffer(const std::string &filepath,
-																				   AudioDevice		 *device,
-																				   nqr::BaseDecoder	 *decoder)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBufferFFmpeg(const std::string &filepath, AudioDevice *device)
 	{
 		if (!device)
-		{
 			return std::unexpected("Audio device was invalid");
-		}
 
-		std::shared_ptr<AudioBuffer> buffer = device->CreateAudioBuffer();
-
+		auto buffer = device->CreateAudioBuffer();
 		if (!buffer)
-		{
 			return std::unexpected("Failed to create buffer");
-		}
 
-		nqr::AudioData data;
-		decoder->LoadFromPath(&data, filepath);
+		AVFormatContext *formatCtx = nullptr;
+		if (avformat_open_input(&formatCtx, filepath.c_str(), nullptr, nullptr) < 0)
+			return std::unexpected("Failed to open audio file");
 
-		if (data.samples.empty())
+		if (avformat_find_stream_info(formatCtx, nullptr) < 0)
+			return std::unexpected("Failed to read stream info");
+
+		int audioStreamIndex = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+
+		if (audioStreamIndex < 0)
+			return std::unexpected("No audio stream found");
+
+		AVStream		  *stream	   = formatCtx->streams[audioStreamIndex];
+		AVCodecParameters *codecParams = stream->codecpar;
+
+		const AVCodec *codec = avcodec_find_decoder(codecParams->codec_id);
+		if (!codec)
+			return std::unexpected("Unsupported audio codec");
+
+		AVCodecContext *codecCtx = avcodec_alloc_context3(codec);
+		if (!codecCtx)
+			return std::unexpected("Failed to allocate codec context");
+
+		if (avcodec_parameters_to_context(codecCtx, codecParams) < 0)
+			return std::unexpected("Failed to copy codec parameters");
+
+		if (avcodec_open2(codecCtx, codec, nullptr) < 0)
+			return std::unexpected("Failed to open codec");
+
+		// -----------------------------
+		// Resampler (to interleaved float)
+		// -----------------------------
+		SwrContext *swr = nullptr;
+
+		AVChannelLayout outLayout;
+		av_channel_layout_default(&outLayout, codecCtx->ch_layout.nb_channels);
+
+		if (swr_alloc_set_opts2(&swr,
+								&outLayout,
+								AV_SAMPLE_FMT_FLT,
+								codecCtx->sample_rate,
+								&codecCtx->ch_layout,
+								codecCtx->sample_fmt,
+								codecCtx->sample_rate,
+								0,
+								nullptr) < 0)
 		{
-			return std::unexpected("Failed to load audio data from file: " + filepath);
+			return std::unexpected("Failed to create resampler");
 		}
 
-		int				   bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
-		size_t			   fileSize		 = data.samples.size() * sizeof(float);
-		int				   sampleRate	 = data.sampleRate;
-		Audio::AudioFormat format		 = GetAudioFormat(data.sourceFormat, data.channelCount);
-		const void *const  dataPtr		 = data.samples.data();
+		if (swr_init(swr) < 0)
+			return std::unexpected("Failed to initialize resampler");
 
-		buffer->SetData(dataPtr, fileSize, format, sampleRate);
+		std::vector<float> samples;
+
+		AVPacket *packet = av_packet_alloc();
+		AVFrame	 *frame	 = av_frame_alloc();
+
+		if (!packet || !frame)
+			return std::unexpected("Failed to allocate packet/frame");
+
+		// -----------------------------
+		// Decode loop
+		// -----------------------------
+		while (av_read_frame(formatCtx, packet) >= 0)
+		{
+			if (packet->stream_index == audioStreamIndex)
+			{
+				if (avcodec_send_packet(codecCtx, packet) >= 0)
+				{
+					while (avcodec_receive_frame(codecCtx, frame) == 0)
+					{
+						int outSamples = av_rescale_rnd(swr_get_delay(swr, codecCtx->sample_rate) + frame->nb_samples,
+														codecCtx->sample_rate,
+														codecCtx->sample_rate,
+														AV_ROUND_UP);
+
+						uint8_t *outData	 = nullptr;
+						int		 outLineSize = 0;
+
+						av_samples_alloc(&outData, &outLineSize, outLayout.nb_channels, outSamples, AV_SAMPLE_FMT_FLT, 0);
+
+						int converted = swr_convert(swr, &outData, outSamples, (const uint8_t **)frame->data, frame->nb_samples);
+
+						float *floatData = reinterpret_cast<float *>(outData);
+
+						samples.insert(samples.end(), floatData, floatData + converted * outLayout.nb_channels);
+
+						av_freep(&outData);
+					}
+				}
+			}
+			av_packet_unref(packet);
+		}
+
+		int sampleRate = codecCtx->sample_rate;
+
+		// -----------------------------
+		// Cleanup
+		// -----------------------------
+		av_frame_free(&frame);
+		av_packet_free(&packet);
+		swr_free(&swr);
+		avcodec_free_context(&codecCtx);
+		avformat_close_input(&formatCtx);
+
+		if (samples.empty())
+			return std::unexpected("Decoded audio was empty");
+
+		// -----------------------------
+		// Fill AudioBuffer
+		// -----------------------------
+		size_t fileSize = samples.size() * sizeof(float);
+
+		Audio::AudioFormat format = GetAudioFormatFFmpeg(outLayout.nb_channels);
+
+		buffer->SetData(samples.data(), fileSize, format, sampleRate);
 
 		return buffer;
 	}
 
-	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadWavFile(const std::string &filepath, AudioDevice *device)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadAudioFile(const std::string &filepath, AudioDevice *device)
 	{
-		nqr::WavDecoder decoder;
-		return LoadAudioFileToBuffer(filepath, device, &decoder);
-	}
-
-	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadMp3File(const std::string &filepath, AudioDevice *device)
-	{
-		nqr::Mp3Decoder decoder;
-		return LoadAudioFileToBuffer(filepath, device, &decoder);
+		return LoadAudioFileToBufferFFmpeg(filepath, device);
 	}
 }	 // namespace Nexus::Audio

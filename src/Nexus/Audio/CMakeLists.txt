@@ -23,17 +23,6 @@ set(PRIVATE_LIBRARY_INCLUDES "")
 
 set(LIBRARY_COMPILE_DEFINITIONS "NX_AUDIO_EXPORT=1")
 
-FetchContent_Declare(
-	libnyquist
-	GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
-	GIT_TAG 767efd9
-	GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(libnyquist)
-target_compile_definitions(libnyquist PRIVATE _CRT_SECURE_NO_WARNINGS)
-
-list (APPEND NEXUS_LINKED_LIBRARIES libnyquist)
-
 if (DEFINED NX_PLATFORM_OPENAL)
 	list (APPEND LIBRARY_COMPILE_DEFINITIONS "NX_PLATFORM_OPENAL=1")
 
@@ -75,3 +64,9 @@ target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
 target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
 target_link_libraries(Nexus-Audio PUBLIC ${NEXUS_LINKED_LIBRARIES})
+
+#ffmpeg
+find_package(FFMPEG REQUIRED)
+target_include_directories(Nexus-Audio PRIVATE ${FFMPEG_INCLUDE_DIRS})
+target_link_directories(Nexus-Audio PRIVATE ${FFMPEG_LIBRARY_DIRS})
+target_link_libraries(Nexus-Audio PRIVATE ${FFMPEG_LIBRARIES})

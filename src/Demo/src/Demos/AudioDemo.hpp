@@ -25,7 +25,7 @@ namespace Demos
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
 
-			Nexus::Audio::AudioLoader::LoadWavFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice)
+			Nexus::Audio::AudioLoader::LoadAudioFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice)
 				.transform(
 					[this](auto buffer)
 					{
