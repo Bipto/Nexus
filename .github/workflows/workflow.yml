@@ -117,6 +117,13 @@ jobs:
           echo "C:\ProgramData\chocolatey\bin" >> $env:GITHUB_PATH
 
       # -------------------------
+      # Install Ninja
+      # -------------------------
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+
+      # -------------------------
       # sccache cache
       # -------------------------
       - name: Cache sccache
@@ -130,14 +137,12 @@ jobs:
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
 
       - name: Set SCCACHE_DIR
-        shell: bash
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
             echo "SCCACHE_DIR=C:/Users/runneradmin/AppData/Local/sccache" >> $GITHUB_ENV
           else
             echo "SCCACHE_DIR=${{ github.workspace }}/.sccache" >> $GITHUB_ENV
           fi
-
 
       # -------------------------
       # Vulkan SDK
@@ -154,7 +159,7 @@ jobs:
       - name: Enable vcpkg binary caching
         shell: bash
         run: |
-          echo "VCPKG_BINARY_SOURCES=clear;x-github,readwrite;filesystem,vcpkg_cache" >> $GITHUB_ENV
+          echo "VCPKG_BINARY_SOURCES=clear;files,vcpkg_cache" >> $GITHUB_ENV
       
       - name: Cache vcpkg binaries
         uses: actions/cache@v4
@@ -176,6 +181,8 @@ jobs:
       
       - name: Set VCPKG_ROOT
         run: echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg" >> $GITHUB_ENV
+
+
 
       # -------------------------
       # Configure CMake
@@ -202,7 +209,7 @@ jobs:
 
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
