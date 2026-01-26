@@ -9,11 +9,12 @@ on:
 env:
   SCCACHE_CACHE_SIZE: "5G"
   SCCACHE_LOG: "info"
+  VCPKG_COMMIT: "2026.01.11"
 
+jobs:
 # ============================================================
 # LINUX JOB
 # ============================================================
-jobs:
   linux:
     name: Linux (${{ matrix.c_compiler }} - ${{ matrix.build_type }})
     runs-on: ubuntu-24.04
@@ -22,102 +23,74 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - c_compiler: gcc
-            cpp_compiler: g++
-            vcpkg_triplet: x64-linux
-            build_type: Release
-
-          - c_compiler: gcc
-            cpp_compiler: g++
-            vcpkg_triplet: x64-linux
-            build_type: Debug
-
-          - c_compiler: clang
-            cpp_compiler: clang++
-            vcpkg_triplet: x64-linux
-            build_type: Release
-
-          - c_compiler: clang
-            cpp_compiler: clang++
-            vcpkg_triplet: x64-linux
-            build_type: Debug
+          - { c_compiler: gcc,   cpp_compiler: g++,      vcpkg_triplet: x64-linux, build_type: Release }
+          - { c_compiler: gcc,   cpp_compiler: g++,      vcpkg_triplet: x64-linux, build_type: Debug }
+          - { c_compiler: clang, cpp_compiler: clang++,  vcpkg_triplet: x64-linux, build_type: Release }
+          - { c_compiler: clang, cpp_compiler: clang++,  vcpkg_triplet: x64-linux, build_type: Debug }
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Install Linux dependencies
-        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             ninja-build build-essential \
             autoconf autoconf-archive automake libtool \
             libgl1-mesa-dev libx11-dev libltdl-dev \
-            sccache nasm
-
-      - name: Install Clang + libc++ (Linux)
-        if: matrix.c_compiler == 'clang'
-        shell: bash
-        run: |
-          sudo apt-get install -y clang libc++-dev libc++abi-dev
-
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v3
+            sccache nasm clang libc++-dev libc++abi-dev
 
       - name: Cache sccache
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.sccache
           key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-linux-${{ matrix.c_compiler }}
 
       - name: Set SCCACHE_DIR
-        shell: bash
         run: echo "SCCACHE_DIR=${{ github.workspace }}/.sccache" >> $GITHUB_ENV
 
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+      - uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
       - name: Enable vcpkg binary caching
-        shell: bash
         run: |
-          mkdir -p "${{ github.workspace }}/vcpkg_cache"
+          mkdir -p vcpkg_cache
           echo "VCPKG_BINARY_SOURCES=clear;files,${{ github.workspace }}/vcpkg_cache" >> $GITHUB_ENV
 
       - name: Cache vcpkg binaries
         uses: actions/cache@v4
         with:
           path: vcpkg_cache
-          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg-lock.json') }}
-          restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg-lock.json') }}
+          key: vcpkg-bin-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg-lock.json') }}
 
-      - name: Install vcpkg
-        shell: bash
+      - name: Cache vcpkg installation
+        uses: actions/cache@v4
+        with:
+          path: vcpkg
+          key: vcpkg-install-${{ runner.os }}-${{ env.VCPKG_COMMIT }}
+
+      - name: Install vcpkg (if missing)
         run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          git checkout master
-          ./bootstrap-vcpkg.sh -disableMetrics
+          if [ ! -d "vcpkg" ]; then
+            git clone https://github.com/microsoft/vcpkg.git
+            cd vcpkg
+            git checkout $VCPKG_COMMIT
+            ./bootstrap-vcpkg.sh -disableMetrics
+          fi
 
       - name: Set VCPKG_ROOT
-        shell: bash
         run: echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg" >> $GITHUB_ENV
 
       - name: Configure CMake (Linux)
-        shell: bash
         run: |
           EXTRA_CXX_FLAGS=""
           if [[ "${{ matrix.c_compiler }}" == "clang" ]]; then
-            EXTRA_CXX_FLAGS="-stdlib=libc++"
+            EXTRA_CXX_FLAGS="-stdlib=libc++ -Wno-unused-command-line-argument"
           fi
 
           cmake -B build \
@@ -138,17 +111,15 @@ jobs:
             -S .
 
       - name: Build
-        shell: bash
-        run: |
-          cmake --build build --target TestRunner
+        run: cmake --build build --target TestRunner --parallel
 
       - name: Run tests
-        shell: bash
-        run: ./build/TestRunner || true
+        run: |
+          cd build
+          ctest --output-on-failure --parallel 2
 
       - name: sccache stats
-        shell: bash
-        run: sccache --show-stats || true
+        run: sccache --show-stats
 
 
 # ============================================================
@@ -162,29 +133,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - c_compiler: cl
-            cpp_compiler: cl
-            vcpkg_triplet: x64-windows
-            build_type: Release
-
-          - c_compiler: cl
-            cpp_compiler: cl
-            vcpkg_triplet: x64-windows
-            build_type: Debug
-
-          - c_compiler: clang-cl
-            cpp_compiler: clang-cl
-            vcpkg_triplet: x64-windows
-            build_type: Release
-
-          - c_compiler: clang-cl
-            cpp_compiler: clang-cl
-            vcpkg_triplet: x64-windows
-            build_type: Debug
+          - { c_compiler: cl,       cpp_compiler: cl,       vcpkg_triplet: x64-windows, build_type: Release }
+          - { c_compiler: cl,       cpp_compiler: cl,       vcpkg_triplet: x64-windows, build_type: Debug }
+          - { c_compiler: clang-cl, cpp_compiler: clang-cl, vcpkg_triplet: x64-windows, build_type: Release }
+          - { c_compiler: clang-cl, cpp_compiler: clang-cl, vcpkg_triplet: x64-windows, build_type: Debug }
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -197,38 +152,30 @@ jobs:
 
       - name: Install LLVM (Windows)
         if: matrix.c_compiler == 'clang-cl'
-        shell: pwsh
-        run: choco install llvm
+        run: |
+          choco install llvm
+          Add-Content $env:GITHUB_PATH "C:\Program Files\LLVM\bin"
 
       - name: Install sccache (Windows)
-        shell: pwsh
         run: |
           choco install sccache
           Add-Content $env:GITHUB_PATH "C:\ProgramData\chocolatey\bin"
 
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v3
-
       - name: Cache sccache
         uses: actions/cache@v4
         with:
-          path: C:\Users\runneradmin\AppData\Local\sccache
+          path: C:\Users\runneradmin\AppData\Local\Mozilla\sccache
           key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-windows-${{ matrix.c_compiler }}
 
       - name: Set SCCACHE_DIR
-        shell: pwsh
-        run: echo "SCCACHE_DIR=C:/Users/runneradmin/AppData/Local/Mozilla/sccache" >> $env:GITHUB_ENV
+        run: Add-Content $env:GITHUB_ENV "SCCACHE_DIR=C:/Users/runneradmin/AppData/Local/Mozilla/sccache"
 
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+      - uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
       - name: Enable vcpkg binary caching
-        shell: pwsh
         run: |
           mkdir vcpkg_cache -ea 0
           Add-Content $env:GITHUB_ENV "VCPKG_BINARY_SOURCES=clear;files,$pwd/vcpkg_cache"
@@ -237,30 +184,33 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vcpkg_cache
-          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-          restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          key: vcpkg-bin-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg-lock.json') }}
 
-      - name: Install vcpkg
-        shell: pwsh
+      - name: Cache vcpkg installation
+        uses: actions/cache@v4
+        with:
+          path: vcpkg
+          key: vcpkg-install-${{ runner.os }}-${{ env.VCPKG_COMMIT }}
+
+      - name: Install vcpkg (if missing)
         run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          git checkout master
-          .\bootstrap-vcpkg.bat -disableMetrics
+          if (!(Test-Path "vcpkg")) {
+            git clone https://github.com/microsoft/vcpkg.git
+            cd vcpkg
+            git checkout $env:VCPKG_COMMIT
+            .\bootstrap-vcpkg.bat -disableMetrics
+          }
 
       - name: Set VCPKG_ROOT
-        shell: pwsh
         run: Add-Content $env:GITHUB_ENV "VCPKG_ROOT=$pwd/vcpkg"
 
       - name: Configure CMake (Windows)
-        shell: pwsh
         run: |
           $toolchain = "$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake"
 
-          $launcher = ""
-          if ("${{ matrix.c_compiler }}" -ne "cl") {
-            $launcher = "-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          $extraFlags = ""
+          if ("${{ matrix.c_compiler }}" -eq "clang-cl") {
+            $extraFlags = "-DCMAKE_CXX_FLAGS=--driver-mode=cl -DCMAKE_C_FLAGS=--driver-mode=cl"
           }
 
           cmake -B build `
@@ -269,7 +219,9 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} `
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
-            $launcher `
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache `
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
+            $extraFlags `
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
             -DNX_PLATFORM_OPENGL=1 `
             -DNX_PLATFORM_VULKAN=1 `
@@ -279,14 +231,13 @@ jobs:
             -S .
 
       - name: Build
-        shell: pwsh
-        run: |
-          cmake --build build --target TestRunner
+        run: cmake --build build --target TestRunner --parallel
 
       - name: Run tests
-        shell: pwsh
-        run: .\build\TestRunner.exe || exit 0
+        shell: bash
+        run: |
+          cd build
+          ctest --output-on-failure --parallel 2
 
       - name: sccache stats
-        shell: pwsh
         run: sccache --show-stats
