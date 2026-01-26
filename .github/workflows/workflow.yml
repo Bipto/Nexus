@@ -101,7 +101,7 @@ jobs:
       # Windows Setup
       # -------------------------
       - name: Setup MSVC
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && matrix.c_compiler == "cl"
         uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
           arch: x64
@@ -160,7 +160,10 @@ jobs:
       - name: Enable vcpkg binary caching
         shell: bash
         run: |
-          echo "VCPKG_BINARY_SOURCES=clear;files,vcpkg_cache" >> $GITHUB_ENV
+          mkdir -p "${{ github.workspace }}/vcpkg_cache"
+          echo "VCPKG_BINARY_SOURCES=clear;files,${{ github.workspace }}/vcpkg_cache" >> $GITHUB_ENV
+
+
       
       - name: Cache vcpkg binaries
         uses: actions/cache@v4
