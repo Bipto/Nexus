@@ -9,7 +9,7 @@ on:
 env:
   SCCACHE_CACHE_SIZE: "5G"
   SCCACHE_LOG: "info"
-  VCPKG_COMMIT: "2026.01.11"
+  VCPKG_COMMIT: "2026.01.16"
 
 jobs:
 # ============================================================
