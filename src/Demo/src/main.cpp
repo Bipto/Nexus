@@ -43,6 +43,8 @@
 
 #include "Platform/Timings/Timer.hpp"
 
+#include "Nexus-Core/Graphics/ResourcePool.hpp"
+
 struct DemoInfo
 {
 	std::string Name																		  = {};

@@ -70,7 +70,17 @@ namespace Nexus
 		std::time_t time = std::time(nullptr);
 		struct tm	tstruct;
 		char		buff[80];
-		tstruct = *std::localtime(&time);
+
+		std::time_t now = std::time(nullptr);
+
+#if defined(_MSC_VER) || defined(__STDC_LIB_EXT1__)
+		localtime_s(&tstruct, &now);
+#elif defined(__unix__) || defined(__APPLE__)
+		localtime_r(&now, &tstruct);
+#else
+		tstruct = *std::localtime(&now);
+#endif
+
 		strftime(buff, sizeof(buff), "%d-%m-%Y %X", &tstruct);
 
 		std::string text = buff;

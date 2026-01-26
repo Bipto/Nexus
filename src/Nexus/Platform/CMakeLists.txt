@@ -85,8 +85,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
 FetchContent_Declare(
 	tracy-lib
 	GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-	GIT_TAG cf001a3
-	GIT_SHALLOW TRUE
+	GIT_TAG cf001a38df23e1b67211c01d2429e783fd431ebc
 	GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(tracy-lib)

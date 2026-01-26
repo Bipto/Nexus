@@ -223,7 +223,7 @@ namespace Nexus::GL
 
 		wglChoosePixelFormatARB(hdc, iAttributes.data(), fAttributes, 1, &pixelFormat, &numFormats);
 		BOOL pixelFormatSet = SetPixelFormat(hdc, pixelFormat, &pfd);
-		assert(pixelFormatSet, "Failed to set pixel format");
+		assert(pixelFormatSet && "Failed to set pixel format");
 
 		std::vector<int> attributes = {};
 		attributes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
