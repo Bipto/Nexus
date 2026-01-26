@@ -137,6 +137,7 @@ jobs:
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
 
       - name: Set SCCACHE_DIR
+        shell: bash
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
             echo "SCCACHE_DIR=C:/Users/runneradmin/AppData/Local/sccache" >> $GITHUB_ENV
