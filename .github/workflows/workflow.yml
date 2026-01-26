@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  SCCACHE_DIR: ${{ github.workspace }}/.sccache
+  SCCACHE_CACHE_SIZE: "5G"
+  SCCACHE_LOG: "info"
+
 jobs:
   build:
     name: Build (${{ matrix.name }} - ${{ matrix.build_type }})
@@ -15,9 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # -------------------------
-          # Windows (MSVC)
-          # -------------------------
           - name: Windows (MSVC)
             os: windows-latest
             c_compiler: cl
@@ -32,8 +34,6 @@ jobs:
             vcpkg_triplet: x64-windows
             build_type: Debug
 
-          # Windows (Clang-CL)
-          # -------------------------
           - name: Windows (Clang-CL)
             os: windows-latest
             c_compiler: clang-cl
@@ -48,9 +48,6 @@ jobs:
             vcpkg_triplet: x64-windows
             build_type: Debug
 
-          # -------------------------
-          # Ubuntu GCC
-          # -------------------------
           - name: Ubuntu (GCC)
             os: ubuntu-24.04
             c_compiler: gcc
@@ -65,9 +62,6 @@ jobs:
             vcpkg_triplet: x64-linux
             build_type: Debug
 
-          # -------------------------
-          # Ubuntu Clang
-          # -------------------------
           - name: Ubuntu (Clang)
             os: ubuntu-24.04
             c_compiler: clang
@@ -83,9 +77,6 @@ jobs:
             build_type: Debug
 
     steps:
-      # -------------------------
-      # Checkout
-      # -------------------------
       - name: Checkout source
         uses: actions/checkout@v4
         with:
@@ -93,24 +84,18 @@ jobs:
           fetch-depth: 0
 
       # -------------------------
-      # Linux: System Prep
+      # Linux Setup
       # -------------------------
-      - name: Fix apt mirror sync issues
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get clean
-          sudo apt-get update --allow-releaseinfo-change
-          sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
-
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
-            ninja-build \
-            build-essential \
+            ninja-build build-essential \
             autoconf autoconf-archive automake libtool \
             libgl1-mesa-dev mesa-utils mesa-common-dev \
-            libx11-dev xserver-xorg-dev xorg-dev libltdl-dev
+            libx11-dev xserver-xorg-dev xorg-dev libltdl-dev \
+            sccache nasm
 
       - name: Install Clang + libc++ (Linux)
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
@@ -120,12 +105,8 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh all
 
-      - name: Verify Ninja
-        if: runner.os == 'Linux'
-        run: which ninja && ninja --version
-
       # -------------------------
-      # Windows: Toolchain Setup
+      # Windows Setup
       # -------------------------
       - name: Install Windows SDK
         if: runner.os == 'Windows'
@@ -143,30 +124,22 @@ jobs:
         if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
         run: choco install llvm
 
-      # -------------------------
-      # sccache (Linux + Windows)
-      # -------------------------
-      - name: Install sccache (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -y sccache
-
-      # -------------------------
-      # Install LLVM (Windows) — needed for clang-cl
-      # -------------------------
-      - name: Install LLVM (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
-        run: choco install llvm
-
       - name: Install sccache (Windows)
         if: runner.os == 'Windows'
-        run: choco install sccache
+        run: |
+          choco install sccache
+          echo "C:\ProgramData\chocolatey\bin" >> $env:GITHUB_PATH
 
+      # -------------------------
+      # sccache cache
+      # -------------------------
       - name: Cache sccache
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/sccache
             C:\Users\runneradmin\AppData\Local\sccache
+            .sccache
           key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
@@ -181,22 +154,25 @@ jobs:
           cache: true
 
       # -------------------------
-      # vcpkg
+      # vcpkg binary caching
       # -------------------------
-      - name: Install vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          git checkout master
-          ./bootstrap-vcpkg.sh -disableMetrics
+      - name: Enable vcpkg binary caching
+        shell: bash
+        run: echo "VCPKG_BINARY_SOURCES=clear;filesystem,vcpkg_cache" >> $GITHUB_ENV
 
-      - name: Cache vcpkg artifacts
+      - name: Cache vcpkg binaries
         uses: actions/cache@v4
         with:
-          path: build/vcpkg_installed
-          key: vcpkg-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          path: vcpkg_cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
           restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.vcpkg_triplet }}
+            vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
+
+      - name: Setup vcpkg
+        uses: microsoft/setup-vcpkg@v1
+        with:
+          vcpkgCommitId: 66c0373dc7fca549e5803087b9487edfe3aca0a1
+          cache: true
 
       # -------------------------
       # Configure CMake
@@ -223,8 +199,7 @@ jobs:
 
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_INSTALLED_DIR=$PWD/build/vcpkg_installed \
+            -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
@@ -244,7 +219,10 @@ jobs:
       # Build
       # -------------------------
       - name: Build
-        run: cmake --build build --target TestRunner
+        run: |
+          sccache --start-server || true
+          cmake --build build --target TestRunner
+          sccache --stop-server || true
 
       # -------------------------
       # sccache stats
