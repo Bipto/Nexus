@@ -7,70 +7,66 @@ on:
     branches: [ main ]
 
 env:
-  SCCACHE_DIR: ${{ github.workspace }}/.sccache
   SCCACHE_CACHE_SIZE: "5G"
   SCCACHE_LOG: "info"
 
 jobs:
   build:
-    name: Build (${{ matrix.name }} - ${{ matrix.build_type }})
+    name: Build (${{ matrix.os }} - ${{
+      matrix.c_compiler }} - ${{ matrix.build_type }})
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: Windows (MSVC)
-            os: windows-latest
+          # Windows MSVC
+          - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
             vcpkg_triplet: x64-windows
             build_type: Release
 
-          - name: Windows (MSVC)
-            os: windows-latest
+          - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
             vcpkg_triplet: x64-windows
             build_type: Debug
 
-          - name: Windows (Clang-CL)
-            os: windows-latest
+          # Windows Clang-CL
+          - os: windows-latest
             c_compiler: clang-cl
             cpp_compiler: clang-cl
             vcpkg_triplet: x64-windows
             build_type: Release
 
-          - name: Windows (Clang-CL)
-            os: windows-latest
+          - os: windows-latest
             c_compiler: clang-cl
             cpp_compiler: clang-cl
             vcpkg_triplet: x64-windows
             build_type: Debug
 
-          - name: Ubuntu (GCC)
-            os: ubuntu-24.04
+          # Linux GCC
+          - os: ubuntu-24.04
             c_compiler: gcc
             cpp_compiler: g++
             vcpkg_triplet: x64-linux
             build_type: Release
 
-          - name: Ubuntu (GCC)
-            os: ubuntu-24.04
+          - os: ubuntu-24.04
             c_compiler: gcc
             cpp_compiler: g++
             vcpkg_triplet: x64-linux
             build_type: Debug
 
-          - name: Ubuntu (Clang)
-            os: ubuntu-24.04
+          # Linux Clang
+          - os: ubuntu-24.04
             c_compiler: clang
             cpp_compiler: clang++
             vcpkg_triplet: x64-linux
             build_type: Release
 
-          - name: Ubuntu (Clang)
-            os: ubuntu-24.04
+          - os: ubuntu-24.04
             c_compiler: clang
             cpp_compiler: clang++
             vcpkg_triplet: x64-linux
@@ -93,27 +89,17 @@ jobs:
           sudo apt-get install -y \
             ninja-build build-essential \
             autoconf autoconf-archive automake libtool \
-            libgl1-mesa-dev mesa-utils mesa-common-dev \
-            libx11-dev xserver-xorg-dev xorg-dev libltdl-dev \
+            libgl1-mesa-dev libx11-dev libltdl-dev \
             sccache nasm
 
       - name: Install Clang + libc++ (Linux)
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
         run: |
-          sudo apt-get install -y libc++-dev libc++abi-dev
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh all
+          sudo apt-get install -y clang libc++-dev libc++abi-dev
 
       # -------------------------
       # Windows Setup
       # -------------------------
-      - name: Install Windows SDK
-        if: runner.os == 'Windows'
-        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-        with:
-          sdk-version: 26100
-
       - name: Setup MSVC
         if: runner.os == 'Windows'
         uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
@@ -137,12 +123,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cache/sccache
+            ${{ github.workspace }}/.sccache
             C:\Users\runneradmin\AppData\Local\sccache
-            .sccache
           key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-${{ runner.os }}-${{ matrix.c_compiler }}
+
+      - name: Set SCCACHE_DIR
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "SCCACHE_DIR=C:/Users/runneradmin/AppData/Local/sccache" >> $GITHUB_ENV
+          else
+            echo "SCCACHE_DIR=${{ github.workspace }}/.sccache" >> $GITHUB_ENV
+          fi
 
       # -------------------------
       # Vulkan SDK
@@ -158,8 +151,9 @@ jobs:
       # -------------------------
       - name: Enable vcpkg binary caching
         shell: bash
-        run: echo "VCPKG_BINARY_SOURCES=clear;filesystem,vcpkg_cache" >> $GITHUB_ENV
-
+        run: |
+          echo "VCPKG_BINARY_SOURCES=clear;x-github,readwrite;filesystem,vcpkg_cache" >> $GITHUB_ENV
+      
       - name: Cache vcpkg binaries
         uses: actions/cache@v4
         with:
@@ -167,12 +161,19 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
-
-      - name: Setup vcpkg
-        uses: microsoft/setup-vcpkg@v1
-        with:
-          vcpkgCommitId: 66c0373dc7fca549e5803087b9487edfe3aca0a1
-          cache: true
+      
+      # -------------------------
+      # vcpkg
+      # -------------------------
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          git checkout master
+          ./bootstrap-vcpkg.sh -disableMetrics
+      
+      - name: Set VCPKG_ROOT
+        run: echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg" >> $GITHUB_ENV
 
       # -------------------------
       # Configure CMake
@@ -223,6 +224,12 @@ jobs:
           sccache --start-server || true
           cmake --build build --target TestRunner
           sccache --stop-server || true
+
+      # -------------------------
+      # Run tests (optional)
+      # -------------------------
+      - name: Run tests
+        run: ./build/TestRunner || true
 
       # -------------------------
       # sccache stats
