@@ -12,8 +12,7 @@ env:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }} - ${{
-      matrix.c_compiler }} - ${{ matrix.build_type }})
+    name: Build (${{ matrix.os }} - ${{ matrix.c_compiler }} - ${{ matrix.build_type }})
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -84,6 +83,7 @@ jobs:
       # -------------------------
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -94,6 +94,7 @@ jobs:
 
       - name: Install Clang + libc++ (Linux)
         if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
+        shell: bash
         run: |
           sudo apt-get install -y clang libc++-dev libc++abi-dev
 
@@ -108,20 +109,21 @@ jobs:
 
       - name: Install LLVM (Windows)
         if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
+        shell: pwsh
         run: choco install llvm
 
       - name: Install sccache (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           choco install sccache
-          echo "C:\ProgramData\chocolatey\bin" >> $env:GITHUB_PATH
+          Add-Content $env:GITHUB_PATH "C:\ProgramData\chocolatey\bin"
 
       # -------------------------
-      # Install Ninja
+      # Ninja
       # -------------------------
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
-
 
       # -------------------------
       # sccache cache
@@ -163,8 +165,6 @@ jobs:
           mkdir -p "${{ github.workspace }}/vcpkg_cache"
           echo "VCPKG_BINARY_SOURCES=clear;files,${{ github.workspace }}/vcpkg_cache" >> $GITHUB_ENV
 
-
-      
       - name: Cache vcpkg binaries
         uses: actions/cache@v4
         with:
@@ -172,43 +172,32 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
-      
+
       # -------------------------
       # vcpkg
       # -------------------------
       - name: Install vcpkg
+        shell: bash
         run: |
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
           git checkout master
           ./bootstrap-vcpkg.sh -disableMetrics
-      
+
       - name: Set VCPKG_ROOT
+        shell: bash
         run: echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg" >> $GITHUB_ENV
 
-
-
       # -------------------------
-      # Configure CMake
+      # Configure CMake (Linux)
       # -------------------------
-      - name: Configure CMake
+      - name: Configure CMake (Linux)
+        if: runner.os == 'Linux'
         shell: bash
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-              D3D12=ON
-              if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
-                  LAUNCHER_OPTS=""
-              else
-                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-              fi
-          else
-              D3D12=OFF
-              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-          fi
-
           EXTRA_CXX_FLAGS=""
-          if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.c_compiler }}" == "clang" ]]; then
-              EXTRA_CXX_FLAGS="-stdlib=libc++"
+          if [[ "${{ matrix.c_compiler }}" == "clang" ]]; then
+            EXTRA_CXX_FLAGS="-stdlib=libc++"
           fi
 
           cmake -B build \
@@ -218,34 +207,65 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
-            -DALSOFT_BUILD_MODULES=OFF \
-            $LAUNCHER_OPTS \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
-            -DNX_PLATFORM_D3D12=$D3D12 \
+            -DNX_PLATFORM_D3D12=OFF \
             -DNX_BUILD_TESTS=1 \
+            -S .
+
+      # -------------------------
+      # Configure CMake (Windows)
+      # -------------------------
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $toolchain = Join-Path $env:VCPKG_ROOT "scripts/buildsystems/vcpkg.cmake"
+
+          $launcher = ""
+          if ("${{ matrix.c_compiler }}" -ne "cl") {
+            $launcher = "-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          }
+
+          cmake -B build `
+            -G Ninja `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} `
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
+            $launcher `
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
+            -DNX_PLATFORM_OPENGL=1 `
+            -DNX_PLATFORM_VULKAN=1 `
+            -DNX_PLATFORM_OPENAL=1 `
+            -DNX_PLATFORM_D3D12=ON `
+            -DNX_BUILD_TESTS=1 `
             -S .
 
       # -------------------------
       # Build
       # -------------------------
       - name: Build
+        shell: bash
         run: |
           sccache --start-server || true
           cmake --build build --target TestRunner
           sccache --stop-server || true
 
       # -------------------------
-      # Run tests (optional)
+      # Run tests
       # -------------------------
       - name: Run tests
+        shell: bash
         run: ./build/TestRunner || true
 
       # -------------------------
       # sccache stats
       # -------------------------
       - name: sccache stats
+        shell: bash
         run: sccache --show-stats || true
