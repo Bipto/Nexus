@@ -7,149 +7,55 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    name: Build (${{ matrix.name }} - ${{ matrix.build_type }})
-    runs-on: ${{ matrix.os }}
+  # ============================================================
+  # WINDOWS JOB
+  # ============================================================
+  build-windows:
+    name: Build (Windows - ${{ matrix.name }} - ${{ matrix.build_type }})
+    runs-on: windows-latest
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          # -------------------------
-          # Windows (MSVC)
-          # -------------------------
-          - name: Windows (MSVC)
-            os: windows-latest
+          - name: MSVC
             c_compiler: cl
             cpp_compiler: cl
             build_type: Release
             vcpkg_triplet: x64-windows
 
-          - name: Windows (MSVC)
-            os: windows-latest
+          - name: MSVC
             c_compiler: cl
             cpp_compiler: cl
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          # -------------------------
-          # Windows (Clang-CL)
-          # -------------------------
-          - name: Windows (Clang-CL)
-            os: windows-latest
+          - name: Clang-CL
             c_compiler: clang-cl
             cpp_compiler: clang-cl
             build_type: Release
             vcpkg_triplet: x64-windows
 
-          - name: Windows (Clang-CL)
-            os: windows-latest
+          - name: Clang-CL
             c_compiler: clang-cl
             cpp_compiler: clang-cl
             build_type: Debug
             vcpkg_triplet: x64-windows
-
-          # -------------------------
-          # Ubuntu GCC
-          # -------------------------
-          - name: Ubuntu (GCC)
-            os: ubuntu-24.04
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Release
-            vcpkg_triplet: x64-linux
-
-          - name: Ubuntu (GCC)
-            os: ubuntu-24.04
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Debug
-            vcpkg_triplet: x64-linux
-
-          # -------------------------
-          # Ubuntu Clang
-          # -------------------------
-          - name: Ubuntu (Clang)
-            os: ubuntu-24.04
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Release
-            vcpkg_triplet: x64-linux
-
-          - name: Ubuntu (Clang)
-            os: ubuntu-24.04
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Debug
-            vcpkg_triplet: x64-linux
 
     steps:
-      # -------------------------
-      # Checkout
-      # -------------------------
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      # -------------------------
-      # Fix apt mirror sync issues
-      # -------------------------
-      - name: Fix apt mirror sync issues
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get clean
-          sudo apt-get update --allow-releaseinfo-change
-          sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
-
-      # -------------------------
-      # Install libc++ for Clang (Linux)
-      # -------------------------
-      - name: Install libc++ for Clang
-        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libc++-dev libc++abi-dev
-
-      # -------------------------
-      # Cache: sccache (Linux)
-      # -------------------------
-      - name: Cache sccache (Linux)
-        if: runner.os == 'Linux'
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/sccache
-          key: sccache-${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-${{ runner.os }}-${{ matrix.c_compiler }}
-
-      # -------------------------
-      # Install sccache (Linux)
-      # -------------------------
-      - name: Install sccache (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -y sccache
-
-      # -------------------------
-      # Install LLVM (Windows) — needed for clang-cl
-      # -------------------------
-      - name: Install LLVM (Windows)
-        if: runner.os == 'Windows' && matrix.c_compiler == 'clang-cl'
+      - name: Install LLVM (Clang-CL)
+        if: matrix.c_compiler == 'clang-cl'
         run: choco install llvm
 
-      # -------------------------
-      # Install sccache (Windows)
-      # -------------------------
-      - name: Install sccache (Windows)
-        if: runner.os == 'Windows'
+      - name: Install sccache
         run: choco install sccache
 
-      # -------------------------
-      # Cache: sccache (Windows)
-      # -------------------------
-      - name: Cache sccache (Windows)
-        if: runner.os == 'Windows'
+      - name: Cache sccache
         uses: actions/cache@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\sccache
@@ -157,60 +63,25 @@ jobs:
           restore-keys: |
             sccache-windows-${{ matrix.c_compiler }}
 
-      # -------------------------
-      # Ninja
-      # -------------------------
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
-      # -------------------------
-      # Vulkan SDK
-      # -------------------------
+      - name: Install Windows SDK
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+        with:
+          sdk-version: 26100
+
+      - name: Setup MSVC
+        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
+        with:
+          arch: x64
+
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
-      # -------------------------
-      # Linux dependencies
-      # -------------------------
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get install -y \
-            libgl1-mesa-dev mesa-utils mesa-common-dev \
-            libx11-dev xserver-xorg-dev xorg-dev \
-            build-essential nasm
-
-      # -------------------------
-      # Install Clang (Linux)
-      # -------------------------
-      - name: Install Clang
-        if: runner.os == 'Linux' && matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh all
-
-      # -------------------------
-      # Windows SDK + MSVC
-      # -------------------------
-      - name: Install Windows SDK
-        if: runner.os == 'Windows'
-        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-        with:
-          sdk-version: 26100
-
-      - name: Setup MSVC
-        if: runner.os == 'Windows'
-        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
-        with:
-          arch: x64
-
-      # -------------------------
-      # VCPKG
-      # -------------------------
       - name: vcpkg build
         id: vcpkg
         uses: johnwason/vcpkg-action@v7
@@ -220,78 +91,160 @@ jobs:
           token: ${{ github.token }}
           cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
 
-      # -------------------------
-      # Configure CMake
-      # -------------------------
       - name: Configure CMake
         shell: bash
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-              D3D12=ON
-
-              # Disable sccache for MSVC (cl)
-              if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
-                  LAUNCHER_OPTS=""
-              else
-                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-              fi
+          D3D12=ON
+          if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
+              LAUNCHER_OPTS=""
           else
-              D3D12=OFF
               LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
           fi
 
-          EXTRA_CXX_FLAGS=""
-          if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.c_compiler }}" == "clang" ]]; then
-              EXTRA_CXX_FLAGS="-stdlib=libc++"
-          fi
-          
-          TOOLCHAIN_PATH="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-              TOOLCHAIN_PATH=$(cygpath -m "$TOOLCHAIN_PATH")
-          fi
+          TOOLCHAIN_PATH=$(cygpath -m "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DVCPKG_MANIFEST_MODE=ON \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
-            -DALSOFT_BUILD_MODULES=OFF \
-            $LAUNCHER_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_PLATFORM_D3D12=$D3D12 \
             -DNX_BUILD_TESTS=1 \
+            $LAUNCHER_OPTS \
             -S .
 
-      # -------------------------
-      # Build
-      # -------------------------
       - name: Build
         run: cmake --build build --target TestRunner
 
-      #- name: Run tests
-      #  shell: bash
-      #  run: |
-      #    cd build
-      #    ctest --output-on-failure
-
-      # -------------------------
-      # Print sccache stats (Linux)
-      # -------------------------
-      - name: sccache stats (Linux)
-        if: runner.os == 'Linux'
+      - name: sccache stats
         run: sccache --show-stats || true
 
-      # -------------------------
-      # Print sccache stats (Windows)
-      # -------------------------
-      - name: sccache stats (Windows)
-        if: runner.os == 'Windows'
+  # ============================================================
+  # LINUX JOB
+  # ============================================================
+  build-linux:
+    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.build_type }})
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Release
+            vcpkg_triplet: x64-linux
+
+          - name: GCC
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Debug
+            vcpkg_triplet: x64-linux
+
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Release
+            vcpkg_triplet: x64-linux
+
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Debug
+            vcpkg_triplet: x64-linux
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Fix apt mirror sync issues
+        run: |
+          sudo apt-get clean
+          sudo apt-get update --allow-releaseinfo-change
+          sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get install -y \
+            libgl1-mesa-dev mesa-utils mesa-common-dev \
+            libx11-dev xserver-xorg-dev xorg-dev \
+            build-essential nasm
+
+      - name: Install libc++ for Clang
+        if: matrix.c_compiler == 'clang'
+        run: |
+          sudo apt-get install -y libc++-dev libc++abi-dev
+
+      - name: Install Clang (latest)
+        if: matrix.c_compiler == 'clang'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh all
+
+      - name: Install sccache
+        run: sudo apt-get install -y sccache
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/sccache
+          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          restore-keys: |
+            sccache-linux-${{ matrix.c_compiler }}
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: vcpkg build
+        id: vcpkg
+        uses: johnwason/vcpkg-action@v7
+        with:
+          manifest-dir: ${{ github.workspace }}
+          triplet: ${{ matrix.vcpkg_triplet }}
+          token: ${{ github.token }}
+          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+
+      - name: Configure CMake
+        run: |
+          EXTRA_CXX_FLAGS=""
+          if [[ "${{ matrix.c_compiler }}" == "clang" ]]; then
+              EXTRA_CXX_FLAGS="-stdlib=libc++"
+          fi
+
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_PLATFORM_D3D12=OFF \
+            -DNX_BUILD_TESTS=1 \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -S .
+
+      - name: Build
+        run: cmake --build build --target TestRunner
+
+      - name: sccache stats
         run: sccache --show-stats || true
