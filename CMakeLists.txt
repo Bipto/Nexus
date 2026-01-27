@@ -15,7 +15,6 @@ set(PythonInterp_FIND_REQUIRED OFF)
 #disable app local dependencies as this is classic vpkg, not manifest mode
 set(VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
 
-
 if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
 endif()
@@ -53,4 +52,10 @@ endif()
 
 if (DEFINED NX_BUILD_EDITOR)
     add_subdirectory(src/Editor)
+endif()
+
+#force synchronous pdb writes
+if (MSVC)
+    string(REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    add_compile_options(/FS /Z7)
 endif()

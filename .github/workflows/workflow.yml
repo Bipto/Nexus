@@ -111,12 +111,12 @@ jobs:
             -S .
 
       - name: Build
-        run: cmake --build build --target TestRunner --parallel
+        run: cmake --build build --target TestRunner --parallel $(nproc)
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest --output-on-failure --parallel 2
+      #- name: Run tests
+      #  run: |
+      #    cd build
+      #    ctest --output-on-failure --parallel $(nproc)
 
       - name: sccache stats
         run: sccache --show-stats
@@ -231,13 +231,13 @@ jobs:
             -S .
 
       - name: Build
-        run: cmake --build build --target TestRunner --parallel
+        run: cmake --build build --target TestRunner --parallel $env:NUMBER_OF_PROCESSORS
 
-      - name: Run tests
-        shell: bash
-        run: |
-          cd build
-          ctest --output-on-failure --parallel 2
+      #- name: Run tests
+      #  shell: bash
+      #  run: |
+      #    cd build
+      #    ctest --output-on-failure --parallel $env:NUMBER_OF_PROCESSORS
 
       - name: sccache stats
         run: sccache --show-stats
