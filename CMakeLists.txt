@@ -54,10 +54,3 @@ endif()
 if (DEFINED NX_BUILD_EDITOR)
     add_subdirectory(src/Editor)
 endif()
-
-#force synchronous pdb writes
-if (MSVC)
-    string(REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /FS ${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "" FORCE)
-    set(CMAKE_C_FLAGS_DEBUG "/Z7 /FS ${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "" FORCE)
-endif()

@@ -181,7 +181,7 @@ jobs:
           sudo apt-get install -y \
             libgl1-mesa-dev mesa-utils mesa-common-dev \
             libx11-dev xserver-xorg-dev xorg-dev \
-            build-essential
+            build-essential nasm
 
       # -------------------------
       # Install Clang (Linux)
@@ -219,9 +219,6 @@ jobs:
           triplet: ${{ matrix.vcpkg_triplet }}
           token: ${{ github.token }}
           cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
-          cache-restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}
-
 
       # -------------------------
       # Configure CMake
@@ -250,6 +247,9 @@ jobs:
 
           cmake -B build \
             -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
+            -DVCPKG_MANIFEST_MODE=ON
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
@@ -274,7 +274,7 @@ jobs:
       #  shell: bash
       #  run: |
       #    cd build
-      #    ctest --output-on-failure --parallel $env:NUMBER_OF_PROCESSORS
+      #    ctest --output-on-failure
 
       # -------------------------
       # Print sccache stats (Linux)
