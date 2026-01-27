@@ -26,11 +26,6 @@ if (MSVC)
 
     #enable profiling support
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
-
-    #force synchronous pdb writes
-    string(REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /FS ${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "" FORCE)
-    set(CMAKE_C_FLAGS_DEBUG "/Z7 /FS ${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "" FORCE)
 endif()
 
 add_definitions(-DTRACY_ENABLE)
