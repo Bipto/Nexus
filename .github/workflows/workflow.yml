@@ -231,7 +231,7 @@ jobs:
             -S .
 
       - name: Build
-        run: cmake --build build --target TestRunner --parallel
+        run: cmake --build build --target TestRunner
 
       - name: Run tests
         shell: bash
