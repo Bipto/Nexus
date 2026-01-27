@@ -19,12 +19,18 @@ if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
 endif()
 
+
 if (MSVC)
     #enable exceptions for all targets (MSVC only)
     add_compile_options(/EHsc)
 
     #enable profiling support
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
+
+    #force synchronous pdb writes
+    string(REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /FS ${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "" FORCE)
+    set(CMAKE_C_FLAGS_DEBUG "/Z7 /FS ${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "" FORCE)
 endif()
 
 add_definitions(-DTRACY_ENABLE)
@@ -57,5 +63,6 @@ endif()
 #force synchronous pdb writes
 if (MSVC)
     string(REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    add_compile_options(/FS /Z7)
+    set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /FS ${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "" FORCE)
+    set(CMAKE_C_FLAGS_DEBUG "/Z7 /FS ${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "" FORCE)
 endif()
