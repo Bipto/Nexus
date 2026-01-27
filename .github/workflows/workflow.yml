@@ -42,6 +42,19 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
+          - name: MinGW
+            c_compiler: x86_64-w64-mingw32-gcc
+            cpp_compiler: x86_64-w64-mingw32-g++
+            build_type: Release
+            vcpkg_triplet: x64-mingw-static
+
+          - name: MinGW
+            c_compiler: x86_64-w64-mingw32-gcc
+            cpp_compiler: x86_64-w64-mingw32-g++
+            build_type: Debug
+            vcpkg_triplet: x64-mingw-static
+
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,9 +85,24 @@ jobs:
           sdk-version: 26100
 
       - name: Setup MSVC
+        if: matrix.name != 'MinGW'
         uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
           arch: x64
+
+
+      - name: Install MinGW (MSYS2)
+        if: matrix.name == 'MinGW'
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-g++
+
+
+      - name: Add MinGW to PATH
+        if: matrix.name == 'MinGW'
+        run: echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
+
 
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
@@ -94,11 +122,16 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          D3D12=ON
-          if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
+          if [[ "${{ matrix.name }}" == "MinGW" ]]; then
+              D3D12=OFF
               LAUNCHER_OPTS=""
           else
-              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+              D3D12=ON
+              if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
+                  LAUNCHER_OPTS=""
+              else
+                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+              fi
           fi
 
           TOOLCHAIN_PATH=$(cygpath -m "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake")
@@ -117,6 +150,7 @@ jobs:
             -DNX_BUILD_TESTS=1 \
             $LAUNCHER_OPTS \
             -S .
+
 
       - name: Build
         run: cmake --build build --target TestRunner

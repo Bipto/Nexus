@@ -56,6 +56,24 @@
       }
     },
     {
+      "name": "windows-mingw-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc.exe",
+        "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++.exe",
+
+        "NX_PLATFORM_D3D12": "0",
+        "NX_BUILD_TYPE": "STATIC"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
       "name": "linux-gcc-base",
       "hidden": true,
       "inherits": "base",
@@ -174,7 +192,54 @@
       },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
     },
-
+    {
+      "name": "windows-x64-mingw-debug",
+      "displayName": "Windows x64 MinGW Debug",
+      "inherits": "windows-mingw-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-x64-mingw-release",
+      "displayName": "Windows x64 MinGW Release",
+      "inherits": "windows-mingw-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows-x64-mingw-relwithdebinfo",
+      "displayName": "Windows x64 MinGW RelWithDebInfo",
+      "inherits": "windows-mingw-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "windows-x64-mingw-minsizerel",
+      "displayName": "Windows x64 MinGW MinSizeRel",
+      "inherits": "windows-mingw-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
     {
       "name": "linux-x64-gcc-debug",
       "displayName": "Linux x64 GCC Debug",
