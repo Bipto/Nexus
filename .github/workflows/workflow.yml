@@ -35,14 +35,14 @@ jobs:
           # -------------------------
           # Windows (Clang-CL)
           # -------------------------
-          - name: Windows (MSVC)
+          - name: Windows (Clang-CL)
             os: windows-latest
             c_compiler: clang-cl
             cpp_compiler: clang-cl
             build_type: Release
             vcpkg_triplet: x64-windows
 
-          - name: Windows (MSVC)
+          - name: Windows (Clang-CL)
             os: windows-latest
             c_compiler: clang-cl
             cpp_compiler: clang-cl
@@ -244,12 +244,18 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.c_compiler }}" == "clang" ]]; then
               EXTRA_CXX_FLAGS="-stdlib=libc++"
           fi
+          
+          TOOLCHAIN_PATH="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              TOOLCHAIN_PATH=$(cygpath -m "$TOOLCHAIN_PATH")
+          fi
 
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
-            -DVCPKG_MANIFEST_MODE=ON
+            -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DVCPKG_MANIFEST_MODE=ON \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
