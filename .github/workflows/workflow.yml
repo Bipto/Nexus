@@ -282,14 +282,3 @@ jobs:
 
       - name: sccache stats
         run: sccache --show-stats || true
-
-- name: Print FFmpeg logs
-  if: failure()
-  run: |
-    echo "=== CONFIG LOG ==="
-    cat ${{ github.workspace }}/vcpkg/buildtrees/ffmpeg/*config.log || true
-    echo "=== OUT LOG ==="
-    cat ${{ github.workspace }}/vcpkg/buildtrees/ffmpeg/*out.log || true
-    echo "=== ERR LOG ==="
-    cat ${{ github.workspace }}/vcpkg/buildtrees/ffmpeg/*err.log || true
-
