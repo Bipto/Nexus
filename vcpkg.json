@@ -20,6 +20,15 @@
       "platform": "windows & (x64 | arm64) & !staticcrt & !xbox"
     },
     "yaml-cpp",
-    "ffmpeg"
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "avcodec",
+        "avformat",
+        "swresample",
+        "swscale"
+      ]
+    }
   ]
 }
