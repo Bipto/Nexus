@@ -30,5 +30,6 @@
         "swscale"
       ]
     }
-  ]
+  ],
+"overrides": [ { "name": "ffmpeg", "version-string": "6.1" }
 }
