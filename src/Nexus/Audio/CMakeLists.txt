@@ -66,7 +66,8 @@ target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
 target_link_libraries(Nexus-Audio PUBLIC ${NEXUS_LINKED_LIBRARIES})
 
 #ffmpeg
-find_package(FFMPEG REQUIRED)
-target_include_directories(Nexus-Audio PRIVATE ${FFMPEG_INCLUDE_DIRS})
-target_link_directories(Nexus-Audio PRIVATE ${FFMPEG_LIBRARY_DIRS})
-target_link_libraries(Nexus-Audio PRIVATE ${FFMPEG_LIBRARIES})
+find_package(FFmpeg REQUIRED COMPONENTS AVCODEC AVFORMAT AVUTIL SWSCALE)
+#target_include_directories(Nexus-Audio PRIVATE ${FFMPEG_INCLUDE_DIRS})
+#target_link_directories(Nexus-Audio PRIVATE ${FFMPEG_LIBRARY_DIRS})
+#target_link_libraries(Nexus-Audio PRIVATE ${FFMPEG_LIBRARIES})
+target_link_libraries(Nexus-Audio PRIVATE FFmpeg::AVCODEC FFmpeg::AVFORMAT FFmpeg::AVUTIL FFmpeg::SWSCALE )

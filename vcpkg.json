@@ -27,8 +27,16 @@
         "avcodec",
         "avformat",
         "swresample",
-        "swscale"
+        "swscale",
+        "avdevice"
       ]
+    }
+
+  ],
+  "overrides": [
+    {
+      "name": "ffmpeg",
+      "version": "7.1.2"
     }
   ]
 }
