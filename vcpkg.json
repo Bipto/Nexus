@@ -3,7 +3,7 @@
     "assimp",
     {
       "name": "directx-dxc",
-      "platform": "(windows & !arm32 & !uwp & !xbox) | (linux & x64)"
+      "platform": "(windows & !arm32 & !uwp & !xbox) | (!windows & x64)"
     },
     "freetype",
     "glm",
@@ -22,7 +22,6 @@
     "yaml-cpp",
     {
       "name": "ffmpeg",
-      "version-semver": "6.1.0",
       "default-features": false,
       "features": [
         "avcodec",
