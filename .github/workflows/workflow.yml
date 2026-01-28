@@ -46,13 +46,13 @@ jobs:
             c_compiler: x86_64-w64-mingw32-gcc
             cpp_compiler: x86_64-w64-mingw32-g++
             build_type: Release
-            vcpkg_triplet: x64-mingw-static
+            vcpkg_triplet: x64-mingw-dynamic
 
           - name: MinGW
             c_compiler: x86_64-w64-mingw32-gcc
             cpp_compiler: x86_64-w64-mingw32-g++
             build_type: Debug
-            vcpkg_triplet: x64-mingw-static
+            vcpkg_triplet: x64-mingw-dynamic
 
 
     steps:
