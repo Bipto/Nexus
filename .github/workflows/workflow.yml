@@ -18,6 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # MSVC
           - name: MSVC
             c_compiler: cl
             cpp_compiler: cl
@@ -30,6 +31,7 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
+          # Clang-CL
           - name: Clang-CL
             c_compiler: clang-cl
             cpp_compiler: clang-cl
@@ -42,20 +44,18 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          # -------------------------------
-          # UCRT MinGW builds
-          # -------------------------------
+          # MinGW-UCRT (MSYS2)
           - name: MinGW-UCRT
             c_compiler: ucrt64-w64-mingw32-gcc
             cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Release
-            vcpkg_triplet: x64-mingw-dynamic
+            vcpkg_triplet: x64-mingw-dynamic-ucrt
 
           - name: MinGW-UCRT
             c_compiler: ucrt64-w64-mingw32-gcc
             cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Debug
-            vcpkg_triplet: x64-mingw-dynamic
+            vcpkg_triplet: x64-mingw-dynamic-ucrt
 
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +63,9 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      # -------------------------------
+      # MSVC / Clang-CL setup
+      # -------------------------------
       - name: Install LLVM (Clang-CL)
         if: matrix.c_compiler == 'clang-cl'
         run: choco install llvm
@@ -93,22 +96,23 @@ jobs:
           arch: x64
 
       # ------------------------------------------------------------
-      # Install UCRT MinGW + FFmpeg
+      # MSYS2 MinGW-UCRT setup
       # ------------------------------------------------------------
       - name: Install MinGW-UCRT (MSYS2)
         if: matrix.name == 'MinGW-UCRT'
         uses: msys2/setup-msys2@v2
         with:
+          msystem: UCRT64
           update: true
           install: >
             base-devel
             mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
 
-      - name: Add UCRT MinGW to PATH
-        if: matrix.name == 'MinGW-UCRT'
-        run: echo "C:\msys64\ucrt64\bin" >> $env:GITHUB_PATH
       # ------------------------------------------------------------
-
+      # Vulkan SDK + vcpkg
+      # ------------------------------------------------------------
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
@@ -124,19 +128,17 @@ jobs:
           token: ${{ github.token }}
           cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
 
-      - name: Configure CMake
+      # ------------------------------------------------------------
+      # CMake configure (MSVC / Clang-CL)
+      # ------------------------------------------------------------
+      - name: Configure CMake (MSVC/Clang-CL)
+        if: matrix.name != 'MinGW-UCRT'
         shell: bash
         run: |
-          if [[ "${{ matrix.name }}" == "MinGW-UCRT" ]]; then
-              D3D12=OFF
+          if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
               LAUNCHER_OPTS=""
           else
-              D3D12=ON
-              if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
-                  LAUNCHER_OPTS=""
-              else
-                  LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-              fi
+              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
           fi
 
           TOOLCHAIN_PATH=$(cygpath -m "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake")
@@ -151,12 +153,42 @@ jobs:
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
-            -DNX_PLATFORM_D3D12=$D3D12 \
+            -DNX_PLATFORM_D3D12=ON \
             -DNX_BUILD_TESTS=1 \
             $LAUNCHER_OPTS \
             -S .
 
-      - name: Build
+      # ------------------------------------------------------------
+      # CMake configure (MSYS2 MinGW-UCRT)
+      # ------------------------------------------------------------
+      - name: Configure CMake (MSYS2 MinGW-UCRT)
+        if: matrix.name == 'MinGW-UCRT'
+        shell: msys2 {0}
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_PLATFORM_D3D12=OFF \
+            -DNX_BUILD_TESTS=1 \
+            -S .
+
+      # ------------------------------------------------------------
+      # Build
+      # ------------------------------------------------------------
+      - name: Build (MSVC/Clang-CL)
+        if: matrix.name != 'MinGW-UCRT'
+        run: cmake --build build --target TestRunner
+
+      - name: Build (MSYS2 MinGW-UCRT)
+        if: matrix.name == 'MinGW-UCRT'
+        shell: msys2 {0}
         run: cmake --build build --target TestRunner
 
       - name: sccache stats
