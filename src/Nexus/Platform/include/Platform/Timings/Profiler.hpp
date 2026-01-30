@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-#include <tracy/Tracy.hpp>
-
 #include "Platform/Platform-Core.hpp"
 #include "Platform/Timings/Profiler.hpp"
 #include "Platform/Timings/Timer.hpp"
@@ -37,18 +35,18 @@ namespace Nexus::Timings
 
 #if defined(NX_PROFILING_ENABLE)
 	#define NX_PROFILE_FUNCTION()                                                                                                                    \
-		do {                                                                                                                                         \
+		do                                                                                                                                           \
+		{                                                                                                                                            \
 			Nexus::Timings::ProfilingTimer timer("Function");                                                                                        \
 			timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });         \
-			ZoneScoped;                                                                                                                              \
+			\                                                                                                                                        \
 		} while (0)
 
 	#define NX_PROFILE_SCOPE(name)                                                                                                                   \
 		Nexus::Timings::ProfilingTimer timer(name);                                                                                                  \
-		timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });             \
-		ZoneScopedN(name)
+		timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });
 
-	#define NX_MARK_FRAME_END() FrameMark
+	#define NX_MARK_FRAME_END()
 
 #else
 	#define NX_PROFILE_FUNCTION()

@@ -19,6 +19,10 @@ if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
 endif()
 
+if (MINGW)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+endif()
+
 
 if (MSVC)
     #enable exceptions for all targets (MSVC only)

@@ -30,7 +30,8 @@
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
         "NX_PLATFORM_D3D12": "1",
-        "NX_BUILD_TYPE": "SHARED"
+        "NX_BUILD_TYPE": "SHARED",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
       },
       "condition": {
         "type": "equals",
@@ -47,7 +48,8 @@
         "CMAKE_C_COMPILER": "clang-cl.exe",
         "CMAKE_CXX_COMPILER": "clang-cl.exe",
         "NX_PLATFORM_D3D12": "1",
-        "NX_BUILD_TYPE": "SHARED"
+        "NX_BUILD_TYPE": "SHARED",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
       },
       "condition": {
         "type": "equals",
@@ -63,9 +65,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc.exe",
         "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++.exe",
-
-        "NX_PLATFORM_D3D12": "0",
-        "NX_BUILD_TYPE": "STATIC"
+        "NX_BUILD_TYPE": "STATIC",
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic"
       },
       "condition": {
         "type": "equals",
@@ -81,7 +82,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
-        "NX_BUILD_TYPE": "STATIC"
+        "NX_BUILD_TYPE": "STATIC",
+        "VCPKG_TARGET_TRIPLET": "x64-linux"
       },
       "condition": {
         "type": "equals",
@@ -97,7 +99,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "NX_BUILD_TYPE": "STATIC"
+        "NX_BUILD_TYPE": "STATIC",
+        "VCPKG_TARGET_TRIPLET": "x64-linux"
       },
       "condition": {
         "type": "equals",

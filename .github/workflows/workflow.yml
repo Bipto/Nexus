@@ -42,18 +42,20 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          - name: MinGW
-            c_compiler: x86_64-w64-mingw32-gcc
-            cpp_compiler: x86_64-w64-mingw32-g++
+          # -------------------------------
+          # UCRT MinGW builds
+          # -------------------------------
+          - name: MinGW-UCRT
+            c_compiler: ucrt64-w64-mingw32-gcc
+            cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Release
-            vcpkg_triplet: x64-mingw-dynamic
+            vcpkg_triplet: x64-mingw-dynamic-ucrt
 
-          - name: MinGW
-            c_compiler: x86_64-w64-mingw32-gcc
-            cpp_compiler: x86_64-w64-mingw32-g++
+          - name: MinGW-UCRT
+            c_compiler: ucrt64-w64-mingw32-gcc
+            cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Debug
-            vcpkg_triplet: x64-mingw-dynamic
-
+            vcpkg_triplet: x64-mingw-dynamic-ucrt
 
     steps:
       - uses: actions/checkout@v4
@@ -85,24 +87,27 @@ jobs:
           sdk-version: 26100
 
       - name: Setup MSVC
-        if: matrix.name != 'MinGW'
+        if: matrix.name != 'MinGW-UCRT'
         uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
           arch: x64
 
-
-      - name: Install MinGW (MSYS2)
-        if: matrix.name == 'MinGW'
+      # ------------------------------------------------------------
+      # Install UCRT MinGW + FFmpeg
+      # ------------------------------------------------------------
+      - name: Install MinGW-UCRT (MSYS2)
+        if: matrix.name == 'MinGW-UCRT'
         uses: msys2/setup-msys2@v2
         with:
           update: true
-          install: mingw-w64-x86_64-gcc
+          install: >
+            base-devel
+            mingw-w64-ucrt-x86_64-toolchain
 
-
-      - name: Add MinGW to PATH
-        if: matrix.name == 'MinGW'
-        run: echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
-
+      - name: Add UCRT MinGW to PATH
+        if: matrix.name == 'MinGW-UCRT'
+        run: echo "C:\msys64\ucrt64\bin" >> $env:GITHUB_PATH
+      # ------------------------------------------------------------
 
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
@@ -122,7 +127,7 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          if [[ "${{ matrix.name }}" == "MinGW" ]]; then
+          if [[ "${{ matrix.name }}" == "MinGW-UCRT" ]]; then
               D3D12=OFF
               LAUNCHER_OPTS=""
           else
@@ -150,7 +155,6 @@ jobs:
             -DNX_BUILD_TESTS=1 \
             $LAUNCHER_OPTS \
             -S .
-
 
       - name: Build
         run: cmake --build build --target TestRunner

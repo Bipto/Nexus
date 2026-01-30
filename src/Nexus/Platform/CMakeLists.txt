@@ -82,20 +82,6 @@ add_library(Nexus-Platform ${PLATFORM_SOURCES})
 find_package(SDL3 CONFIG REQUIRED)
 list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
 
-FetchContent_Declare(
-	tracy-lib
-	GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-	GIT_TAG cf001a38df23e1b67211c01d2429e783fd431ebc
-	GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(tracy-lib)
-add_library(tracy SHARED ${tracy-lib_SOURCE_DIR}/public/TracyClient.cpp)
-set_target_properties(tracy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-
-target_include_directories(Nexus-Platform PUBLIC ${tracy-lib_SOURCE_DIR}/public)
-target_link_libraries(Nexus-Platform PUBLIC tracy)
-target_compile_definitions(Nexus-Platform PUBLIC TRACY_IMPORTS)
-
 target_compile_features(Nexus-Platform PRIVATE cxx_std_23)
 set_target_properties(Nexus-Platform PROPERTIES
 	CXX_STANDARD_REQUIRED ON
