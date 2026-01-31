@@ -49,13 +49,13 @@ jobs:
             c_compiler: ucrt64-w64-mingw32-gcc
             cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Release
-            vcpkg_triplet: x64-mingw-dynamic
+            vcpkg_triplet: x64-mingw-static
 
           - name: MinGW-UCRT
             c_compiler: ucrt64-w64-mingw32-gcc
             cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Debug
-            vcpkg_triplet: x64-mingw-dynamic
+            vcpkg_triplet: x64-mingw-static
 
     steps:
       - uses: actions/checkout@v4
