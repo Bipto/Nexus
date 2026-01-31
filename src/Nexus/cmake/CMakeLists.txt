@@ -35,38 +35,46 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries target_name)
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${target_name}>
-                $<TARGET_FILE_DIR:${target_name}>
-        COMMAND_EXPAND_LISTS
-        COMMENT "Post-build: Copying runtime DLLs for ${target_name}"
-    )
 
-    if (MSVC)
-        # Copy PDB file if it exists (Windows/MSVC)
-        get_target_property(pdb_file Nexus PDB_OUTPUT_DIRECTORY)
-        if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
-            add_custom_command(TARGET ${target_name} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        $<TARGET_PDB_FILE:Nexus>
-                        $<TARGET_FILE_DIR:${target_name}>
-            )
-        endif()
+  # Copy runtime DLLs for the target (Windows)
+  if(TARGET ${target_name})
+    get_target_property(runtime_dlls ${target_name} RUNTIME_DLLS)
+
+    if(runtime_dlls)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_RUNTIME_DLLS:${target_name}>
+                    $<TARGET_FILE_DIR:${target_name}>
+            COMMAND_EXPAND_LISTS
+            COMMENT "Post-build: Copying runtime DLLs for ${target_name}"
+        )
     endif()
+  endif()
 
-   #copy vcpkg dependencies
-   set(VCPKG_BIN_DIR
-       "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<IF:$<CONFIG:Debug>,debug/bin,bin>"
-   )
+  if (MSVC)
+      # Copy PDB file if it exists (Windows/MSVC)
+      get_target_property(pdb_file Nexus PDB_OUTPUT_DIRECTORY)
+      if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
+          add_custom_command(TARGET ${target_name} POST_BUILD
+              COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                      $<TARGET_PDB_FILE:Nexus>
+                      $<TARGET_FILE_DIR:${target_name}>
+          )
+      endif()
+  endif()
 
-   add_custom_command(
-       TARGET ${target_name}
-       POST_BUILD
-       COMMAND ${CMAKE_COMMAND} -E copy_directory
-               "${VCPKG_BIN_DIR}"
-               $<TARGET_FILE_DIR:${target_name}>
-   )
+  #copy vcpkg dependencies
+  set(VCPKG_BIN_DIR
+      "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<IF:$<CONFIG:Debug>,debug/bin,bin>"
+  )
+
+  add_custom_command(
+      TARGET ${target_name}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+              "${VCPKG_BIN_DIR}"
+              $<TARGET_FILE_DIR:${target_name}>
+  )
 
 endmacro()
 
