@@ -78,7 +78,7 @@
       "name": "linux-gcc-base",
       "hidden": true,
       "inherits": "base",
-      "generator": "Unix Makefiles",
+      "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
@@ -95,7 +95,7 @@
       "name": "linux-clang-base",
       "hidden": true,
       "inherits": "base",
-      "generator": "Unix Makefiles",
+      "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
@@ -112,10 +112,6 @@
       "name": "windows-x64-msvc-debug",
       "displayName": "Windows x64 MSVC Debug",
       "inherits": "windows-msvc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
 
@@ -123,10 +119,6 @@
       "name": "windows-x64-msvc-release",
       "displayName": "Windows x64 MSVC  Release",
       "inherits": "windows-msvc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
 
@@ -134,10 +126,6 @@
       "name": "windows-x64-msvc-relwithdebinfo",
       "displayName": "Windows x64 MSVC RelWithDebInfo",
       "inherits": "windows-msvc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
 
@@ -145,10 +133,6 @@
       "name": "windows-x64-msvc-minsizerel",
       "displayName": "Windows x64 MSVC MinSizeRel",
       "inherits": "windows-msvc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
     },
 
@@ -156,10 +140,6 @@
       "name": "windows-x64-clang-debug",
       "displayName": "Windows x64 Clang Debug",
       "inherits": "windows-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
 
@@ -167,10 +147,6 @@
       "name": "windows-x64-clang-release",
       "displayName": "Windows x64 Clang  Release",
       "inherits": "windows-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
 
@@ -178,10 +154,6 @@
       "name": "windows-x64-clang-relwithdebinfo",
       "displayName": "Windows x64 Clang RelWithDebInfo",
       "inherits": "windows-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
 
@@ -189,20 +161,12 @@
       "name": "windows-x64-clang-minsizerel",
       "displayName": "Windows x64 Clang MinSizeRel",
       "inherits": "windows-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
     },
     {
       "name": "windows-x64-mingw-debug",
       "displayName": "Windows x64 MinGW Debug",
       "inherits": "windows-mingw-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -211,10 +175,6 @@
       "name": "windows-x64-mingw-release",
       "displayName": "Windows x64 MinGW Release",
       "inherits": "windows-mingw-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
@@ -223,10 +183,6 @@
       "name": "windows-x64-mingw-relwithdebinfo",
       "displayName": "Windows x64 MinGW RelWithDebInfo",
       "inherits": "windows-mingw-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
@@ -235,10 +191,6 @@
       "name": "windows-x64-mingw-minsizerel",
       "displayName": "Windows x64 MinGW MinSizeRel",
       "inherits": "windows-mingw-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "MinSizeRel"
       }
@@ -247,10 +199,6 @@
       "name": "linux-x64-gcc-debug",
       "displayName": "Linux x64 GCC Debug",
       "inherits": "linux-gcc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
 
@@ -258,10 +206,6 @@
       "name": "linux-x64-gcc-release",
       "displayName": "Linux x64 GCC Release",
       "inherits": "linux-gcc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
 
@@ -269,10 +213,6 @@
       "name": "linux-x64-gcc-relwithdebinfo",
       "displayName": "Linux x64 GCC RelWithDebInfo",
       "inherits": "linux-gcc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
 
@@ -280,10 +220,6 @@
       "name": "linux-x64-gcc-minsizerel",
       "displayName": "Linux x64 GCC MinSizeRel",
       "inherits": "linux-gcc-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
     },
 
@@ -291,10 +227,6 @@
       "name": "linux-x64-clang-debug",
       "displayName": "Linux x64 Clang Debug",
       "inherits": "linux-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
 
@@ -302,10 +234,6 @@
       "name": "linux-x64-clang-release",
       "displayName": "Linux x64 Clang Release",
       "inherits": "linux-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
 
@@ -313,10 +241,6 @@
       "name": "linux-x64-clang-relwithdebinfo",
       "displayName": "Linux x64 Clang RelWithDebInfo",
       "inherits": "linux-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
 
@@ -324,10 +248,6 @@
       "name": "linux-x64-clang-minsizerel",
       "displayName": "Linux x64 Clang MinSizeRel",
       "inherits": "linux-clang-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
     }
   ]

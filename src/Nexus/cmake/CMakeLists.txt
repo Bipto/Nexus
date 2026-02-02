@@ -38,6 +38,13 @@ macro(nexus_copy_required_runtime_libraries target_name)
 
   # Copy runtime DLLs for the target (Windows)
   if(TARGET ${target_name})
+
+    add_custom_command(TARGET ${target_name} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:Nexus>
+        $<TARGET_FILE_DIR:${target_name}>
+    )
+
     get_target_property(runtime_dlls ${target_name} RUNTIME_DLLS)
 
     if(runtime_dlls)
