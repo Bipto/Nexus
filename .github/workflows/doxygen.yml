@@ -28,12 +28,13 @@ jobs:
           make
           ls -l refman.pdf
 
-      - name: Upload HTML docs
-        uses: actions/upload-artifact@v4
+      # Upload HTML output for GitHub Pages
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: doxygen-html
           path: docs/html
 
+      # Optional: upload PDF separately as a normal artifact
       - name: Upload PDF docs
         uses: actions/upload-artifact@v4
         with:
@@ -43,17 +44,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
 
     steps:
-      - name: Download HTML artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: doxygen-html
-          path: docs/html
-
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/html
+        uses: actions/deploy-pages@v4
