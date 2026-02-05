@@ -1,0 +1,7 @@
+<map id="Nexus::Graphics::AccelerationStructureD3D12" name="Nexus::Graphics::AccelerationStructureD3D12">
+<area shape="rect" id="Node000001" title=" " alt="" coords="373,37,591,77"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1IAccelerationStructure.html" title=" " alt="" coords="5,5,227,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,34,373,45,373,51,240,39"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1AccelerationStructureDescription.html" title=" " alt="" coords="7,69,225,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,76,373,64,373,69,238,81"/>
+</map>

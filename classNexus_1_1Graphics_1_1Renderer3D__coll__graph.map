@@ -1,0 +1,23 @@
+<map id="Nexus::Graphics::Renderer3D" name="Nexus::Graphics::Renderer3D">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1161,71,1375,97"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1IGraphicsDevice.html" title="A class representing an abstraction over a graphics API." alt="" coords="380,27,577,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="591,30,601,29,752,20,871,17,988,24,1138,47,1226,69,1225,74,1137,52,988,29,871,22,753,25,602,35,592,35"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1Graphics_1_1FullscreenQuad.html" title=" " alt="" coords="752,47,988,73"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="592,48,752,53,752,59,591,53"/>
+<area shape="rect" id="Node000010" href="$classNexus_1_1FirstPersonCamera.html" title=" " alt="" coords="773,97,967,122"/>
+<area shape="poly" id="edge11_Node000010_Node000002" title=" " alt="" coords="571,67,602,73,773,97,772,103,601,79,570,72"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1002,65,1161,75,1161,80,1002,71"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1Scene.html" title=" " alt="" coords="815,171,925,197"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="938,168,1137,121,1228,94,1229,99,1138,127,939,173"/>
+<area shape="rect" id="Node000005" href="$structNexus_1_1GUID.html" title=" " alt="" coords="426,122,531,147"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="545,140,815,174,814,180,545,146"/>
+<area shape="rect" id="Node000006" href="$structNexus_1_1Environment.html" title=" " alt="" coords="401,171,556,197"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="570,181,814,181,814,187,570,187"/>
+<area shape="rect" id="Node000007" href="$classNexus_1_1ECS_1_1Registry.html" title=" " alt="" coords="399,221,558,246"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="571,220,728,201,814,189,815,195,728,207,572,226"/>
+<area shape="rect" id="Node000008" href="$classNexus_1_1Project.html" title=" " alt="" coords="421,270,537,295"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="550,272,635,258,727,237,789,216,841,194,843,199,791,221,729,243,636,264,551,277"/>
+<area shape="rect" id="Node000009" href="$classNexus_1_1Assets_1_1AssetRegistry.html" title=" " alt="" coords="5,270,217,295"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="231,280,421,280,421,285,231,285"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="981,102,1137,93,1161,92,1161,97,1138,99,982,108"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="Nexus::GL::ViewContextWGL" name="Nexus::GL::ViewContextWGL">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1052,100,1261,125"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1GL_1_1IViewContext.html" title=" " alt="" coords="460,5,643,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="656,24,831,43,1029,75,1114,97,1113,103,1027,81,830,48,656,29"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1GL_1_1IGLContext.html" title=" " alt="" coords="5,27,173,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="187,31,197,30,460,19,460,24,197,35,187,36"/>
+<area shape="rect" id="Node000005" href="$classNexus_1_1GL_1_1IOffscreenContext.html" title=" " alt="" coords="223,52,436,77"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="187,47,223,51,222,56,187,52"/>
+<area shape="rect" id="Node000004" href="$classNexus_1_1GL_1_1OffscreenContextWGL.html" title=" " alt="" coords="667,73,905,99"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="919,93,1052,103,1052,108,919,98"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="450,67,643,75,667,77,666,82,643,81,449,72"/>
+<area shape="rect" id="Node000006" href="$classNexus_1_1GL_1_1OpenGLFunctionContext.html" title=" " alt="" coords="228,103,431,143"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="444,123,658,124,905,122,1052,116,1052,121,905,127,658,130,444,128"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="444,111,666,93,667,98,444,117"/>
+<area shape="rect" id="Node000007" href="$structNexus_1_1GL_1_1ContextDescription.html" title=" " alt="" coords="675,187,897,212"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="910,190,969,182,1027,169,1085,147,1132,123,1134,128,1087,152,1029,174,970,187,911,195"/>
+</map>

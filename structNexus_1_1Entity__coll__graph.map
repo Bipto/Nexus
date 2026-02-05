@@ -1,0 +1,5 @@
+<map id="Nexus::Entity" name="Nexus::Entity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,93,115,119"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1GUID.html" title=" " alt="" coords="7,5,113,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,45,63,93,57,93,57,45"/>
+</map>

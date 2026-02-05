@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['version_5f1_5f0_0',['Version_1_0',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2ae9914d03abe9cb6381eba59283eb96e7',1,'Nexus::Graphics']]],
+  ['version_5f1_5f1_1',['Version_1_1',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2af54b79d05609d8eaca32c34874d779b5',1,'Nexus::Graphics']]],
+  ['version_5f1_5f2_2',['Version_1_2',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2ad69c602db1d034985274629f8ecd33b3',1,'Nexus::Graphics']]],
+  ['version_5f1_5f3_3',['Version_1_3',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2adb92f5d098dfdec2e40e7e8d820e034f',1,'Nexus::Graphics']]],
+  ['version_5f1_5f4_4',['Version_1_4',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2aa1f81f726abf250458bb1da8b3d4fab7',1,'Nexus::Graphics']]],
+  ['version_5f1_5f5_5',['Version_1_5',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2ae81f4b9052232f193aa124c0e963ca57',1,'Nexus::Graphics']]],
+  ['version_5f1_5f6_6',['Version_1_6',['../namespaceNexus_1_1Graphics.html#a025f84fa57678067c389bd1ae6cee4e2ae70eebc6378884b1465d529945aed1b5',1,'Nexus::Graphics']]],
+  ['vertex_7',['vertex',['../namespaceNexus_1_1Graphics.html#a641c248a7556210ca6694db62d180fffab22b929ba52471a02d18bb3a4e4472e6',1,'Nexus::Graphics::Vertex'],['../namespaceNexus_1_1Graphics.html#a6e3a7447136d168f7fa2a0c3dc823f70ab22b929ba52471a02d18bb3a4e4472e6',1,'Nexus::Graphics::Vertex']]],
+  ['vertexattributeinput_8',['VertexAttributeInput',['../namespaceNexus_1_1Graphics.html#afe4197cdadfd1c9da67d1c033f8fb96da25ae6c09e36c60e235111e40c7c33b73',1,'Nexus::Graphics']]],
+  ['vertexattributeread_9',['VertexAttributeRead',['../namespaceNexus_1_1Graphics.html#a81999734771f54982c8accc647db0b71a58fc4f995c9acd340c304aaf8b8be52a',1,'Nexus::Graphics']]],
+  ['vertexinput_10',['VertexInput',['../namespaceNexus_1_1Graphics.html#afe4197cdadfd1c9da67d1c033f8fb96da9cd8956bef976d28daf75c3ef327137d',1,'Nexus::Graphics']]],
+  ['vertexshader_11',['VertexShader',['../namespaceNexus_1_1Graphics.html#afe4197cdadfd1c9da67d1c033f8fb96daeb3ca4dac3e206977e0b7d998eefcc33',1,'Nexus::Graphics']]],
+  ['videodecode_12',['videodecode',['../namespaceNexus_1_1Graphics.html#a0024b5ef595821a2144737bf49ac7808a36e15a3da33dd78dfe0e486dbd1c2354',1,'Nexus::Graphics::VideoDecode'],['../namespaceNexus_1_1Graphics.html#a81999734771f54982c8accc647db0b71a3a6ccf4a3eccd2684093d7a28a781fea',1,'Nexus::Graphics::VideoDecode']]],
+  ['videodecodedestination_13',['VideoDecodeDestination',['../namespaceNexus_1_1Graphics.html#a8d19adb3963f130361b65148475e2304ab01b513271228e61404b8b053c3d3f15',1,'Nexus::Graphics']]],
+  ['videodecodesource_14',['VideoDecodeSource',['../namespaceNexus_1_1Graphics.html#a8d19adb3963f130361b65148475e2304a078fa94ae1d521a2369e2da7d0887f6f',1,'Nexus::Graphics']]],
+  ['videoencode_15',['videoencode',['../namespaceNexus_1_1Graphics.html#a0024b5ef595821a2144737bf49ac7808a37ae6981e2d602ce17f491373957ad27',1,'Nexus::Graphics::VideoEncode'],['../namespaceNexus_1_1Graphics.html#a81999734771f54982c8accc647db0b71ad2c790ad1aafbd506acc66c10fc90217',1,'Nexus::Graphics::VideoEncode']]],
+  ['videoencodedestination_16',['VideoEncodeDestination',['../namespaceNexus_1_1Graphics.html#a8d19adb3963f130361b65148475e2304a922564fad17916792bac749ecdab82f9',1,'Nexus::Graphics']]],
+  ['videoencodesource_17',['VideoEncodeSource',['../namespaceNexus_1_1Graphics.html#a8d19adb3963f130361b65148475e2304a111220b6917e1e58d16d0fda4731d280',1,'Nexus::Graphics']]],
+  ['vulkan_18',['Vulkan',['../namespaceNexus_1_1Graphics.html#aea3d10156a15067d2b3668b61324b8daa38625270231b647116c80bcbc4f9d1d8',1,'Nexus::Graphics']]],
+  ['vulkan_5f1_5f0_19',['Vulkan_1_0',['../namespaceNexus_1_1Graphics.html#a6babe4f5e6641e146faaeb87a1ded6f2a520aa3d4f99359ecd196077eaccfb21c',1,'Nexus::Graphics']]],
+  ['vulkan_5f1_5f1_20',['Vulkan_1_1',['../namespaceNexus_1_1Graphics.html#a6babe4f5e6641e146faaeb87a1ded6f2a10cd8c5826c295e5516a6efd947f97df',1,'Nexus::Graphics']]],
+  ['vulkan_5f1_5f2_21',['Vulkan_1_2',['../namespaceNexus_1_1Graphics.html#a6babe4f5e6641e146faaeb87a1ded6f2a145f5a801b837389aabb1ee675602dba',1,'Nexus::Graphics']]],
+  ['vulkan_5f1_5f3_22',['Vulkan_1_3',['../namespaceNexus_1_1Graphics.html#a6babe4f5e6641e146faaeb87a1ded6f2a3b508f352855bbdfda69523aa224ed96',1,'Nexus::Graphics']]]
+];

@@ -1,0 +1,9 @@
+<map id="Nexus::Scripting::NativeScript" name="Nexus::Scripting::NativeScript">
+<area shape="rect" id="Node000001" title=" " alt="" coords="106,181,285,221"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Project.html" title=" " alt="" coords="53,93,169,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,129,145,156,171,179,167,183,141,159,122,132"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1Assets_1_1AssetRegistry.html" title=" " alt="" coords="5,5,217,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="114,45,114,93,109,93,109,45"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1GUID.html" title=" " alt="" coords="193,93,299,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="236,132,208,182,203,180,231,129"/>
+</map>

@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['rasterizerstatedescription_0',['RasterizerStateDescription',['../structNexus_1_1Graphics_1_1RasterizerStateDescription.html',1,'Nexus::Graphics']]],
+  ['raytracingdevicedescription_1',['RayTracingDeviceDescription',['../structNexus_1_1Graphics_1_1RayTracingDeviceDescription.html',1,'Nexus::Graphics']]],
+  ['raytracingpipelinedescription_2',['RayTracingPipelineDescription',['../structNexus_1_1Graphics_1_1RayTracingPipelineDescription.html',1,'Nexus::Graphics']]],
+  ['rectangle_3',['Rectangle',['../structNexus_1_1Graphics_1_1Rectangle.html',1,'Nexus::Graphics']]],
+  ['reflectedbuffermember_4',['reflectedbuffermember',['../structNexus_1_1Graphics_1_1ReflectedBufferMember.html',1,'Nexus::Graphics::ReflectedBufferMember'],['../structNexus_1_1OpenGL_1_1ReflectedBufferMember.html',1,'Nexus::OpenGL::ReflectedBufferMember']]],
+  ['reflectedcustomstructs_5',['ReflectedCustomStructs',['../structNexus_1_1OpenGL_1_1ReflectedCustomStructs.html',1,'Nexus::OpenGL']]],
+  ['reflectedresource_6',['ReflectedResource',['../structNexus_1_1Graphics_1_1ReflectedResource.html',1,'Nexus::Graphics']]],
+  ['reflectedshaderbuffer_7',['ReflectedShaderBuffer',['../structNexus_1_1OpenGL_1_1ReflectedShaderBuffer.html',1,'Nexus::OpenGL']]],
+  ['reflectedshaderresource_8',['ReflectedShaderResource',['../structNexus_1_1OpenGL_1_1ReflectedShaderResource.html',1,'Nexus::OpenGL']]],
+  ['reflectedshaderresources_9',['ReflectedShaderResources',['../structNexus_1_1OpenGL_1_1ReflectedShaderResources.html',1,'Nexus::OpenGL']]],
+  ['reflectedstoragebuffer_10',['ReflectedStorageBuffer',['../structNexus_1_1Graphics_1_1ReflectedStorageBuffer.html',1,'Nexus::Graphics']]],
+  ['reflecteduniformbuffer_11',['ReflectedUniformBuffer',['../structNexus_1_1Graphics_1_1ReflectedUniformBuffer.html',1,'Nexus::Graphics']]],
+  ['registry_12',['Registry',['../classNexus_1_1ECS_1_1Registry.html',1,'Nexus::ECS']]],
+  ['renderdocapi_13',['RenderDocAPI',['../classNexus_1_1Graphics_1_1RenderDocAPI.html',1,'Nexus::Graphics']]],
+  ['renderer3d_14',['Renderer3D',['../classNexus_1_1Graphics_1_1Renderer3D.html',1,'Nexus::Graphics']]],
+  ['resolvetexturedescription_15',['ResolveTextureDescription',['../structNexus_1_1Graphics_1_1ResolveTextureDescription.html',1,'Nexus::Graphics']]],
+  ['resourcedescriptor_16',['ResourceDescriptor',['../structNexus_1_1Graphics_1_1ResourceDescriptor.html',1,'Nexus::Graphics']]],
+  ['resourcepool_17',['ResourcePool',['../classNexus_1_1Graphics_1_1ResourcePool.html',1,'Nexus::Graphics']]],
+  ['resourcesetbindingdescription_18',['ResourceSetBindingDescription',['../structNexus_1_1Graphics_1_1ResourceSetBindingDescription.html',1,'Nexus::Graphics']]],
+  ['resourcesetdescription_19',['ResourceSetDescription',['../structNexus_1_1Graphics_1_1ResourceSetDescription.html',1,'Nexus::Graphics']]],
+  ['resourcesetdescriptors_20',['ResourceSetDescriptors',['../structNexus_1_1Graphics_1_1ResourceSetDescriptors.html',1,'Nexus::Graphics']]],
+  ['resourcesettag_21',['ResourceSetTag',['../structNexus_1_1Graphics_1_1ResourceSetTag.html',1,'Nexus::Graphics']]],
+  ['roundedrectangle_22',['RoundedRectangle',['../structNexus_1_1Graphics_1_1RoundedRectangle.html',1,'Nexus::Graphics']]]
+];

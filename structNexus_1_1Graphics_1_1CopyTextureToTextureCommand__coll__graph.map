@@ -1,0 +1,9 @@
+<map id="Nexus::Graphics::CopyTextureToTextureCommand" name="Nexus::Graphics::CopyTextureToTextureCommand">
+<area shape="rect" id="Node000001" title=" " alt="" coords="103,211,320,251"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1TextureCopyDescription.html" title="A structure representing a copy operation between two textures." alt="" coords="119,108,303,148"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,162,214,211,209,211,209,162"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1Offset3D.html" title=" " alt="" coords="5,5,199,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="126,39,194,106,190,110,122,43"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1Graphics_1_1Extent2D.html" title=" " alt="" coords="223,5,419,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="316,45,307,66,293,86,260,110,257,106,289,82,302,63,311,43"/>
+</map>

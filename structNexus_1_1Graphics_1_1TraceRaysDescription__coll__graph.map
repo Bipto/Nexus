@@ -1,0 +1,7 @@
+<map id="Nexus::Graphics::TraceRaysDescription" name="Nexus::Graphics::TraceRaysDescription">
+<area shape="rect" id="Node000001" title=" " alt="" coords="137,137,339,177"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1DeviceAddressRegion.html" title=" " alt="" coords="5,5,239,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,54,223,135,219,139,146,58"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1StridedDeviceAddressRegion.html" title=" " alt="" coords="263,5,445,45"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="342,59,326,87,304,115,274,139,270,135,300,111,321,84,337,56"/>
+</map>

@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['s8_5fg8_5fuint_0',['S8_G8_UInt',['../namespaceNexus_1_1Graphics.html#abd395a8e1595e95eba9c7429ce484128a181b0889c99b512184b1289d90981867',1,'Nexus::Graphics']]],
+  ['sampledimage_1',['SampledImage',['../namespaceNexus_1_1Graphics.html#a5a7101671aa12a33c9c40f09413a37c3a4520c597ce328c250d1ca5192047d71d',1,'Nexus::Graphics']]],
+  ['sampler_2',['sampler',['../namespaceNexus_1_1Graphics.html#a5a7101671aa12a33c9c40f09413a37c3a5bca2f066df1fe641b2b779db2a63c0a',1,'Nexus::Graphics::Sampler'],['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6a5bca2f066df1fe641b2b779db2a63c0a',1,'Nexus::Graphics::Sampler'],['../namespaceNexus_1_1Graphics.html#ae5e62b78cc7c8335d373a44c5ee23f53a5bca2f066df1fe641b2b779db2a63c0a',1,'Nexus::Graphics::Sampler']]],
+  ['sdf_3',['SDF',['../namespaceNexus_1_1Graphics.html#a427feb8624f8b1e008ecc67646cedca3a9c0a2523f776c96bce27eeb5671371e0',1,'Nexus::Graphics']]],
+  ['serialize_4',['Serialize',['../namespaceNexus_1_1Graphics.html#a1208bc72c1060d77396610393c75e584a32a7aaf47c67e07f529ea3feea00dec9',1,'Nexus::Graphics']]],
+  ['shaderread_5',['ShaderRead',['../namespaceNexus_1_1Graphics.html#a81999734771f54982c8accc647db0b71a4ff313558b22c62a981845a543dd9c0c',1,'Nexus::Graphics']]],
+  ['shaderreadonlyoptimal_6',['ShaderReadOnlyOptimal',['../namespaceNexus_1_1Graphics.html#a8d19adb3963f130361b65148475e2304aaa685dcd1d3c34e89e5084bb711b452f',1,'Nexus::Graphics']]],
+  ['shaderrecord_7',['ShaderRecord',['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6a10f813591d53d85309a01ae826a80a59',1,'Nexus::Graphics']]],
+  ['shaderwrite_8',['ShaderWrite',['../namespaceNexus_1_1Graphics.html#a81999734771f54982c8accc647db0b71aca9438a8d82d1dc278fd9d44f13ed225',1,'Nexus::Graphics']]],
+  ['shared_9',['Shared',['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6aa6156ea9d66fef24e87e841fbabf7cca',1,'Nexus::Graphics']]],
+  ['signalled_10',['Signalled',['../namespaceNexus_1_1Graphics.html#ad9cebab7eddf8e5ac3d915f30a4477ceac7a01eb8b0418c862063a4baa9ca1905',1,'Nexus::Graphics']]],
+  ['solid_11',['Solid',['../namespaceNexus_1_1Graphics.html#aa2c516ae376a2b3d358a71680c71beebae41480b6bbfbf7407974a88d3d34f4fa',1,'Nexus::Graphics']]],
+  ['sourcealpha_12',['SourceAlpha',['../namespaceNexus_1_1Graphics.html#a4993d3d2ab1df415c561d665de4da8d0a5660d86f4a66c824e699b26a51201a70',1,'Nexus::Graphics']]],
+  ['sourcecolour_13',['SourceColour',['../namespaceNexus_1_1Graphics.html#a4993d3d2ab1df415c561d665de4da8d0a7126e576b805684f269ad0810d2c2142',1,'Nexus::Graphics']]],
+  ['sparsebinding_14',['SparseBinding',['../namespaceNexus_1_1Graphics.html#a0024b5ef595821a2144737bf49ac7808afeff37398b5fea4504bad60820f94829',1,'Nexus::Graphics']]],
+  ['spirv_15',['SPIRV',['../namespaceNexus_1_1Graphics.html#a24e6b70a29029b8ca5c0a8ca168571c4a649dd317597e959fb32149ac40206199',1,'Nexus::Graphics']]],
+  ['stopped_16',['Stopped',['../namespaceNexus.html#afd00ee66601de7437b67183272cf7d84ac23e2b09ebe6bf4cb5e2a9abe85c0be2',1,'Nexus']]],
+  ['storagebuffer_17',['storagebuffer',['../namespaceNexus_1_1Graphics.html#a5a7101671aa12a33c9c40f09413a37c3a439f57c2c466c89db942b3de48298b2b',1,'Nexus::Graphics::StorageBuffer'],['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6a439f57c2c466c89db942b3de48298b2b',1,'Nexus::Graphics::StorageBuffer'],['../namespaceNexus_1_1Graphics.html#ae5e62b78cc7c8335d373a44c5ee23f53a439f57c2c466c89db942b3de48298b2b',1,'Nexus::Graphics::StorageBuffer']]],
+  ['storageimage_18',['storageimage',['../namespaceNexus_1_1Graphics.html#a5a7101671aa12a33c9c40f09413a37c3aa078fa7ad769f9e7b53b8c42e3b7bbab',1,'Nexus::Graphics::StorageImage'],['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6aa078fa7ad769f9e7b53b8c42e3b7bbab',1,'Nexus::Graphics::StorageImage'],['../namespaceNexus_1_1Graphics.html#ae5e62b78cc7c8335d373a44c5ee23f53aa078fa7ad769f9e7b53b8c42e3b7bbab',1,'Nexus::Graphics::StorageImage']]],
+  ['storagetexelbuffer_19',['StorageTexelBuffer',['../namespaceNexus_1_1Graphics.html#a5a7101671aa12a33c9c40f09413a37c3aae1f93780c3073aeadaf118d550f0c65',1,'Nexus::Graphics']]],
+  ['storagetexturebuffer_20',['storagetexturebuffer',['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6a89523a723450d361b511e8b101528329',1,'Nexus::Graphics::StorageTextureBuffer'],['../namespaceNexus_1_1Graphics.html#ae5e62b78cc7c8335d373a44c5ee23f53a89523a723450d361b511e8b101528329',1,'Nexus::Graphics::StorageTextureBuffer']]],
+  ['struct_21',['Struct',['../namespaceNexus_1_1Graphics.html#aa03fc61c2590367d589a2561c46a33a6a886ef5dbd655a6c97726d7091c6b173e',1,'Nexus::Graphics']]],
+  ['subtract_22',['Subtract',['../namespaceNexus_1_1Graphics.html#a3cdc8d301351009c8c3d2d20715a9e89a1d9baf077ee87921f57a8fe42d510b65',1,'Nexus::Graphics']]]
+];

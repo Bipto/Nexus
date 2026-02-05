@@ -1,0 +1,13 @@
+<map id="src/Nexus/include/Nexus&#45;Core/Scripting" name="src/Nexus/include/Nexus&#45;Core/Scripting">
+<area shape="rect" id="node1" href="dir_5f32c91939a54c43276880c5beeec873.html" title="Utils" alt="" coords="27,125,79,151"/>
+<area shape="rect" id="node2" href="dir_d021bf530e5b10f1dd9cdfc14c15f4dd.html" title="ImGui" alt="" coords="104,125,165,151"/>
+<area shape="rect" id="node3" href="dir_d2ad868eec74cc9271655a2dc5a4232d.html" title="Runtime" alt="" coords="189,125,267,151"/>
+<area shape="rect" id="node4" href="dir_010607b901fef19dd7a00c624855f947.html" title="Scripting" alt="" coords="95,52,174,77"/>
+<area shape="poly" id="edge1" href="dir_000026_000032.html" alt="" coords="123,79,79,118,75,114,120,75"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000026_000032.html" title="1" alt="" coords="81,112,91,127"/>
+<area shape="poly" id="edge2" href="dir_000026_000012.html" alt="" coords="137,78,137,112,132,112,132,78"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000026_000012.html" title="1" alt="" coords="138,100,148,114"/>
+<area shape="poly" id="edge3" href="dir_000026_000024.html" alt="" coords="151,75,204,115,200,119,148,79"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000026_000024.html" title="1" alt="" coords="199,100,208,115"/>
+<area shape="rect" id="clust1" href="dir_d4b17d97244c2ae928486306f1cc8e98.html" title="Nexus&#45;Core" alt="" coords="16,16,277,161"/>
+</map>

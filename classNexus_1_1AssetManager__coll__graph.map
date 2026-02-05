@@ -1,0 +1,9 @@
+<map id="Nexus::AssetManager" name="Nexus::AssetManager">
+<area shape="rect" id="Node000001" title="A class representing an asset manager to load and retrieve assets." alt="" coords="101,196,265,221"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1IGraphicsDevice.html" title="A class representing an abstraction over a graphics API." alt="" coords="5,93,203,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,146,120,170,134,184,151,194,148,198,130,188,115,174,104,148"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1Project.html" title=" " alt="" coords="227,101,343,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="274,140,246,174,210,198,207,194,242,170,270,136"/>
+<area shape="rect" id="Node000004" href="$classNexus_1_1Assets_1_1AssetRegistry.html" title=" " alt="" coords="179,5,391,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="288,44,288,101,283,101,283,44"/>
+</map>

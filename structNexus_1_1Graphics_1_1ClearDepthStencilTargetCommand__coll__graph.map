@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::ClearDepthStencilTargetCommand" name="Nexus::Graphics::ClearDepthStencilTargetCommand">
+<area shape="rect" id="Node000001" title="A structure representing a command to clear a depth/stencil target." alt="" coords="5,108,215,148"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1ClearDepthStencilValue.html" title="A struct representing a set of values to use to clear the depth/stencil buffer." alt="" coords="5,5,215,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,59,113,108,107,108,107,59"/>
+</map>

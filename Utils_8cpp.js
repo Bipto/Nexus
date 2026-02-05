@@ -1,0 +1,27 @@
+var Utils_8cpp =
+[
+    [ "Clip", "Utils_8cpp.html#a587a5ab20eb60837cd80b051a78fef92", null ],
+    [ "ColourFromBorderColor", "Utils_8cpp.html#a850fa84ccd5bb2d8006287d00afe0321", null ],
+    [ "ColourFromRGBA", "Utils_8cpp.html#aa86f33b6a820d93e27e73d84c28640f2", null ],
+    [ "ConvertNanosecondsToTm", "Utils_8cpp.html#aac8bcb15277c56be518ea1cc8be92bbf", null ],
+    [ "CreateFilledIndexBuffer", "Utils_8cpp.html#afa69a3ac6f0f98887200524d76156309", null ],
+    [ "CreateFilledUniformBuffer", "Utils_8cpp.html#aa927ceec98367d276811c40e60f78bcd", null ],
+    [ "CreateFilledVertexBuffer", "Utils_8cpp.html#aaecea7943a4eb00eb0204f28f4456bc5", null ],
+    [ "CreateUploadBuffer", "Utils_8cpp.html#a044aa11f759baad3d96f798b1138971a", null ],
+    [ "FindPolygonArea", "Utils_8cpp.html#ac7108d8a887585ddc638ca9de53218d7", null ],
+    [ "FlipPixelsHorizontally", "Utils_8cpp.html#a6140a0ba44b8358db3153353af7a950e", null ],
+    [ "FlipPixelsVertically", "Utils_8cpp.html#a4088fa5092b444d2f27222ee4e8901d9", null ],
+    [ "GenerateGeometry", "Utils_8cpp.html#a7e75048526c91a87f8276aabb6586ba0", null ],
+    [ "GeneratePolygon", "Utils_8cpp.html#a822f6116877cc1277745e36c1af734d3", null ],
+    [ "GenerateRandomColour", "Utils_8cpp.html#a9757ab5a139b4c8235c1c5ac3356872f", null ],
+    [ "GetCurrentTimeAsInt", "Utils_8cpp.html#a89d3a14a3c760a0c3db5e64c3369f527", null ],
+    [ "GetWindingOrder", "Utils_8cpp.html#a238f76475e688db2ebc87f23df09a4d3", null ],
+    [ "IsPointInTriangle", "Utils_8cpp.html#ad2e3f175bcecde49c91ea626b7e989bc", null ],
+    [ "PackColour", "Utils_8cpp.html#a0358ef87b37f3d8f2e9f245dc0b7872e", null ],
+    [ "ReverseWindingOrder", "Utils_8cpp.html#a016a31c8eed452a826f5a793bf65718d", null ],
+    [ "SutherlandHodgman", "Utils_8cpp.html#afc12a8418d5a8602744804aca67165e2", null ],
+    [ "SutherlandHodgman", "Utils_8cpp.html#ae60d656b199c5e5896658e91eb3ed8ef", null ],
+    [ "Triangulate", "Utils_8cpp.html#a0a357d6254224bc1825ab67afc1e6b9f", null ],
+    [ "XIntersect", "Utils_8cpp.html#a031b249258449619f25307ab49e29ede", null ],
+    [ "YIntersect", "Utils_8cpp.html#aabd9f91cdc5c0d3695212849123e4f63", null ]
+];

@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::ClearColorTargetCommand" name="Nexus::Graphics::ClearColorTargetCommand">
+<area shape="rect" id="Node000001" title="A structure representing a command to clear a colour target." alt="" coords="9,108,213,148"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1ClearColourValue.html" title="A struct representing a set of values to use to clear the colour buffer." alt="" coords="5,5,217,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,59,114,108,109,108,109,59"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::CopyBufferToBufferCommand" name="Nexus::Graphics::CopyBufferToBufferCommand">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,108,213,148"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1BufferCopyDescription.html" title="A structure containing a set of buffer copy operations." alt="" coords="5,5,213,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,59,112,108,107,108,107,59"/>
+</map>

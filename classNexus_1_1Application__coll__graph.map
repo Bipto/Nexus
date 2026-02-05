@@ -1,0 +1,11 @@
+<map id="Nexus::Application" name="Nexus::Application">
+<area shape="rect" id="Node000001" title="A class representing an application." alt="" coords="153,196,297,221"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1CommandQueueGroup.html" title=" " alt="" coords="5,108,224,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,145,137,170,155,184,176,193,174,198,152,188,133,174,118,148"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1ApplicationDescription.html" title="A struct representing options to use when creating an application." alt="" coords="248,108,467,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="341,146,310,174,261,198,259,193,306,170,337,142"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1Graphics_1_1GraphicsAPICreateInfo.html" title=" " alt="" coords="149,5,342,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="278,53,312,82,343,106,340,110,309,86,275,57"/>
+<area shape="rect" id="Node000005" href="$structNexus_1_1Graphics_1_1SwapchainDescription.html" title=" " alt="" coords="366,5,573,45"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="460,60,442,86,422,100,400,110,398,106,419,96,438,82,456,57"/>
+</map>

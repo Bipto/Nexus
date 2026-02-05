@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::BlendStateDescription" name="Nexus::Graphics::BlendStateDescription">
+<area shape="rect" id="Node000001" title="A struct represenging how pixels should be blended." alt="" coords="5,93,212,133"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1WriteMask.html" title="A struct representing a mask of pixels to be written." alt="" coords="5,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,44,111,93,106,93,106,44"/>
+</map>

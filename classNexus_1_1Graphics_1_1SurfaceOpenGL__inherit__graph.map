@@ -1,0 +1,7 @@
+<map id="Nexus::Graphics::SurfaceOpenGL" name="Nexus::Graphics::SurfaceOpenGL">
+<area shape="rect" id="Node000001" title=" " alt="" coords="20,79,205,119"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1Graphics_1_1SurfaceWGL.html" title=" " alt="" coords="5,167,220,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,132,115,166,110,166,110,132"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1ISurface.html" title=" " alt="" coords="18,5,207,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,44,115,79,110,79,110,44"/>
+</map>

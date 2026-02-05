@@ -1,0 +1,7 @@
+<map id="Nexus::Graphics::CommandQueueOpenGL" name="Nexus::Graphics::CommandQueueOpenGL">
+<area shape="rect" id="Node000001" title=" " alt="" coords="122,108,325,148"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1ICommandQueue.html" title=" " alt="" coords="5,5,212,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,52,204,106,200,110,139,56"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1CommandQueueDescription.html" title=" " alt="" coords="237,5,439,45"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="308,56,247,110,243,106,304,52"/>
+</map>

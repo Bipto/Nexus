@@ -1,0 +1,15 @@
+<map id="Nexus::Graphics::IGraphicsPipeline" name="Nexus::Graphics::IGraphicsPipeline">
+<area shape="rect" id="Node000001" title="A pure virtual class representing an API specific pipeline." alt="" coords="1016,49,1213,89"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1Pipeline.html" title=" " alt="" coords="679,29,867,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="881,47,1016,59,1016,64,880,53"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1GraphicsPipelineDescription.html" title="A struct representing how all of the settings required to create a pipeline." alt="" coords="676,79,869,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="883,87,1015,75,1016,80,883,92"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1Graphics_1_1DepthStencilDescription.html" title="A struct representing how the depth and stencil configuration should be used in a pipeline." alt="" coords="271,15,489,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="503,52,652,76,676,80,675,85,652,81,503,57"/>
+<area shape="rect" id="Node000005" href="$structNexus_1_1Graphics_1_1StencilState.html" title=" " alt="" coords="5,15,185,55"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="199,32,270,32,270,37,199,37"/>
+<area shape="rect" id="Node000006" href="$structNexus_1_1Graphics_1_1RasterizerStateDescription.html" title="A struct representing how triangles should be rendered onto the screen." alt="" coords="279,79,481,119"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="495,96,676,96,676,101,495,101"/>
+<area shape="rect" id="Node000007" href="$structNexus_1_1Graphics_1_1ResourceSetDescription.html" title=" " alt="" coords="282,143,478,183"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="492,142,652,116,675,112,676,117,652,121,492,147"/>
+</map>

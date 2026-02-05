@@ -1,0 +1,9 @@
+<map id="Nexus::GL::OffscreenContextWGL" name="Nexus::GL::OffscreenContextWGL">
+<area shape="rect" id="Node000001" title=" " alt="" coords="166,183,405,208"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1GL_1_1IOffscreenContext.html" title=" " alt="" coords="5,87,219,113"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,117,265,180,263,185,144,121"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1GL_1_1IGLContext.html" title=" " alt="" coords="28,5,196,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="115,44,115,87,109,87,109,44"/>
+<area shape="rect" id="Node000004" href="$classNexus_1_1GL_1_1OpenGLFunctionContext.html" title=" " alt="" coords="243,80,445,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="327,133,295,184,290,181,323,130"/>
+</map>

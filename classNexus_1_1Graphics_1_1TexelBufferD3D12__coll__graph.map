@@ -1,0 +1,7 @@
+<map id="Nexus::Graphics::TexelBufferD3D12" name="Nexus::Graphics::TexelBufferD3D12">
+<area shape="rect" id="Node000001" title=" " alt="" coords="125,108,333,148"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1ITexelBuffer.html" title=" " alt="" coords="5,13,217,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,45,208,106,205,110,134,49"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1TexelBufferDescription.html" title=" " alt="" coords="242,5,450,45"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="315,56,252,110,249,106,312,52"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="Nexus::Graphics::MipmapGenerator" name="Nexus::Graphics::MipmapGenerator">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,196,260,221"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1IGraphicsDevice.html" title="A class representing an abstraction over a graphics API." alt="" coords="34,5,231,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,59,127,133,134,196,128,196,122,133,125,59"/>
+<area shape="rect" id="Node000003" href="$classNexus_1_1Graphics_1_1FullscreenQuad.html" title=" " alt="" coords="205,108,441,133"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="185,49,301,106,299,110,182,54"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="286,142,160,198,157,193,284,137"/>
+</map>

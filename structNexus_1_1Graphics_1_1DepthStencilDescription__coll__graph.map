@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::DepthStencilDescription" name="Nexus::Graphics::DepthStencilDescription">
+<area shape="rect" id="Node000001" title="A struct representing how the depth and stencil configuration should be used in a pipeline." alt="" coords="5,123,224,163"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1StencilState.html" title=" " alt="" coords="25,5,205,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,59,117,122,112,122,112,59"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::HdriProcessor" name="Nexus::Graphics::HdriProcessor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,108,232,133"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1IGraphicsDevice.html" title="A class representing an abstraction over a graphics API." alt="" coords="20,5,217,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,59,121,108,116,108,116,59"/>
+</map>

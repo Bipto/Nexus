@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['generalshader_0',['GeneralShader',['../structNexus_1_1Graphics_1_1ShaderGroup.html#a97cb875fc1bca362e7f65027d51988e9',1,'Nexus::Graphics::ShaderGroup']]],
+  ['generation_1',['generation',['../structNexus_1_1Graphics_1_1ResourcePool_1_1Entry.html#a3af3ab5a5e71321bf312a00b565317e5',1,'Nexus::Graphics::ResourcePool::Entry']]],
+  ['geometry_2',['geometry',['../structNexus_1_1Graphics_1_1AccelerationStructureGeometryDescription.html#a5d053feb00976a5f9557dc0e907280e9',1,'Nexus::Graphics::AccelerationStructureGeometryDescription::Geometry'],['../structNexus_1_1Graphics_1_1AccelerationStructureGeometryBuildDescription.html#a888f8b22d8ab00999025d303c7f30120',1,'Nexus::Graphics::AccelerationStructureGeometryBuildDescription::Geometry']]],
+  ['geometrymodule_3',['GeometryModule',['../structNexus_1_1Graphics_1_1GraphicsPipelineDescription.html#a1841573e6243dc86a4b0204d5ef5c538',1,'Nexus::Graphics::GraphicsPipelineDescription']]],
+  ['glversion_4',['GLVersion',['../structNexus_1_1GL_1_1ContextDescription.html#af09bb97ec4dcebff25223083716e8238',1,'Nexus::GL::ContextDescription']]],
+  ['graphicscreateinfo_5',['GraphicsCreateInfo',['../structNexus_1_1ApplicationDescription.html#a5afc963d64b88019f7f97045e9a0a9f4',1,'Nexus::ApplicationDescription']]],
+  ['graphicsqueue_6',['GraphicsQueue',['../structNexus_1_1CommandQueueGroup.html#a116dfde238a152cf1126bd387cbcfe81',1,'Nexus::CommandQueueGroup']]],
+  ['green_7',['green',['../structNexus_1_1Graphics_1_1ClearColourValue.html#a70001322426589fc04b068e4e7d32c21',1,'Nexus::Graphics::ClearColourValue::Green'],['../structNexus_1_1Graphics_1_1BlendFactorDesc.html#a25a253c0f4533e94cd838d90bb58d2dc',1,'Nexus::Graphics::BlendFactorDesc::Green'],['../structNexus_1_1Graphics_1_1WriteMask.html#af08eeb662ca8fe083cdf6c7018659bff',1,'Nexus::Graphics::WriteMask::Green']]],
+  ['greenbits_8',['GreenBits',['../structNexus_1_1GL_1_1ContextDescription.html#a1dd65e1bb6dedf18aec0248286204473',1,'Nexus::GL::ContextDescription']]],
+  ['groupcountx_9',['groupcountx',['../structNexus_1_1Graphics_1_1IndirectDispatchArguments.html#a286fe9de1ce5ca2a9f37ddda78115a8c',1,'Nexus::Graphics::IndirectDispatchArguments::GroupCountX'],['../structNexus_1_1Graphics_1_1IndirectMeshArguments.html#ab514b26e8ae525bef73a327f92dc0710',1,'Nexus::Graphics::IndirectMeshArguments::GroupCountX']]],
+  ['groupcounty_10',['groupcounty',['../structNexus_1_1Graphics_1_1IndirectDispatchArguments.html#ab2d9f72c2505e182ec193bfe2bd6c258',1,'Nexus::Graphics::IndirectDispatchArguments::GroupCountY'],['../structNexus_1_1Graphics_1_1IndirectMeshArguments.html#acbe21d11bf3ed986288e5edffb0311c6',1,'Nexus::Graphics::IndirectMeshArguments::GroupCountY']]],
+  ['groupcountz_11',['groupcountz',['../structNexus_1_1Graphics_1_1IndirectDispatchArguments.html#ac881b3ca8d73bc38ec7ce3b075e10f39',1,'Nexus::Graphics::IndirectDispatchArguments::GroupCountZ'],['../structNexus_1_1Graphics_1_1IndirectMeshArguments.html#a375de609ab72cd81a2696da635ffba6b',1,'Nexus::Graphics::IndirectMeshArguments::GroupCountZ']]],
+  ['groupname_12',['GroupName',['../structNexus_1_1Graphics_1_1BeginDebugGroupCommand.html#af1125477d5bee378bc470ca68544a1da',1,'Nexus::Graphics::BeginDebugGroupCommand']]],
+  ['guid_13',['guid',['../structNexus_1_1Graphics_1_1ModelRenderData.html#a192b69fcf615aa95bc6ec42a30800ac2',1,'Nexus::Graphics::ModelRenderData::Guid'],['../structNexus_1_1SceneInfo.html#a2a9b7b009a3364b5a9822b43e2192bf3',1,'Nexus::SceneInfo::Guid'],['../structNexus_1_1Scene.html#a067b2ae92d75a4988e469c8005605805',1,'Nexus::Scene::Guid']]],
+  ['guid1_14',['Guid1',['../structNexus_1_1Graphics_1_1ModelTransformUniforms.html#a217b51487078f7d23055e46ae5cef1a3',1,'Nexus::Graphics::ModelTransformUniforms']]],
+  ['guid2_15',['Guid2',['../structNexus_1_1Graphics_1_1ModelTransformUniforms.html#a221f1f1e06acc11bdddcc6fce72737ce',1,'Nexus::Graphics::ModelTransformUniforms']]]
+];

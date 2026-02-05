@@ -1,0 +1,5 @@
+<map id="Nexus::Graphics::Mesh" name="Nexus::Graphics::Mesh">
+<area shape="rect" id="Node000001" title="A class representing a mesh containing a vertex buffer and an index buffer." alt="" coords="15,93,186,119"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1Material.html" title=" " alt="" coords="5,5,196,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,45,103,93,98,93,98,45"/>
+</map>

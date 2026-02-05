@@ -1,0 +1,15 @@
+<map id="Nexus::ImGuiUtils::ImGuiGraphicsRenderer" name="Nexus::ImGuiUtils::ImGuiGraphicsRenderer">
+<area shape="rect" id="Node000001" title=" " alt="" coords="258,299,435,339"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Application.html" title="A class representing an application." alt="" coords="144,203,288,229"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,237,274,273,311,296,308,301,270,277,233,241"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1CommandQueueGroup.html" title=" " alt="" coords="5,108,224,133"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,145,137,170,159,188,183,201,181,206,156,193,133,174,118,148"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1ApplicationDescription.html" title="A struct representing options to use when creating an application." alt="" coords="248,108,467,133"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="341,146,310,174,279,192,249,206,247,201,277,187,306,170,337,142"/>
+<area shape="rect" id="Node000005" href="$structNexus_1_1Graphics_1_1GraphicsAPICreateInfo.html" title=" " alt="" coords="149,5,342,45"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="278,53,312,82,343,106,340,110,309,86,275,57"/>
+<area shape="rect" id="Node000006" href="$structNexus_1_1Graphics_1_1SwapchainDescription.html" title=" " alt="" coords="366,5,573,45"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="460,60,442,86,422,100,400,110,398,106,419,96,438,82,456,57"/>
+<area shape="rect" id="Node000007" href="$classNexus_1_1Graphics_1_1IGraphicsDevice.html" title="A class representing an abstraction over a graphics API." alt="" coords="312,196,509,236"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="394,249,361,300,356,297,389,246"/>
+</map>

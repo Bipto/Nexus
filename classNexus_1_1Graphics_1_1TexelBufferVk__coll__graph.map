@@ -1,0 +1,7 @@
+<map id="Nexus::Graphics::TexelBufferVk" name="Nexus::Graphics::TexelBufferVk">
+<area shape="rect" id="Node000001" title=" " alt="" coords="116,108,341,133"/>
+<area shape="rect" id="Node000002" href="$classNexus_1_1Graphics_1_1ITexelBuffer.html" title=" " alt="" coords="5,13,217,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,44,216,106,213,110,135,49"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1TexelBufferDescription.html" title=" " alt="" coords="242,5,450,45"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="313,56,245,110,242,106,310,52"/>
+</map>

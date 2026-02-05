@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['offscreencontextwgl_0',['OffscreenContextWGL',['../classNexus_1_1GL_1_1OffscreenContextWGL.html#ac7e1291b254828c44f6aa608d8a853ac',1,'Nexus::GL::OffscreenContextWGL']]],
+  ['offset_1',['offset',['../structNexus_1_1Graphics_1_1Rectangle.html#a2d07fa3ad4a3da2630baedb587e35c5f',1,'Nexus::Graphics::Rectangle::Offset()'],['../structNexus_1_1Graphics_1_1RoundedRectangle.html#adf6f05a110902abc3849f56b8514a29e',1,'Nexus::Graphics::RoundedRectangle::Offset()']]],
+  ['onclose_2',['OnClose',['../classNexus_1_1Application.html#a76a9713438fc0af4ca624f0fb3acde0e',1,'Nexus::Application']]],
+  ['onload_3',['OnLoad',['../classNexus_1_1Scripting_1_1NativeScript.html#a5ca5bdaeb42fb436d190eae08c8508df',1,'Nexus::Scripting::NativeScript']]],
+  ['onrender_4',['onrender',['../classNexus_1_1Project.html#a009d61a0ec590ed154dc8da4f117baa5',1,'Nexus::Project::OnRender()'],['../structNexus_1_1Scene.html#aa9aa561cae9cc0670db734d7de673038',1,'Nexus::Scene::OnRender()'],['../classNexus_1_1Scripting_1_1NativeScript.html#a57be48763cb125fc19a83e373b1fb2cb',1,'Nexus::Scripting::NativeScript::OnRender()']]],
+  ['onresize_5',['OnResize',['../classNexus_1_1Application.html#a887e1388d74e8382b7c5b10fc704bb4b',1,'Nexus::Application']]],
+  ['ontick_6',['ontick',['../structNexus_1_1Scene.html#a7b4c983a9d5a627e1ae24217b0eb9965',1,'Nexus::Scene::OnTick()'],['../classNexus_1_1Scripting_1_1NativeScript.html#a7846438e6ed59f453945c6c1ed1fc036',1,'Nexus::Scripting::NativeScript::OnTick()'],['../classNexus_1_1Project.html#a9fcff9c3bd72b06e06038507da0ce668',1,'Nexus::Project::OnTick()']]],
+  ['onunload_7',['OnUnload',['../classNexus_1_1Scripting_1_1NativeScript.html#ae613582044c54a04a753a0970f137cad',1,'Nexus::Scripting::NativeScript']]],
+  ['onupdate_8',['onupdate',['../classNexus_1_1Project.html#a30cce23210c2799503cbed4333f6d172',1,'Nexus::Project::OnUpdate()'],['../structNexus_1_1Scene.html#a4b6cef1db3cf429c3c6dff181e28643a',1,'Nexus::Scene::OnUpdate()'],['../classNexus_1_1Scripting_1_1NativeScript.html#afbf6fc78d0d0cd9aaa06af64675c69cf',1,'Nexus::Scripting::NativeScript::OnUpdate()']]],
+  ['openglfunctioncontext_9',['OpenGLFunctionContext',['../classNexus_1_1GL_1_1OpenGLFunctionContext.html#a8f9d88657a67d5b162356d690f0bdbd7',1,'Nexus::GL::OpenGLFunctionContext']]],
+  ['openglshaderparser_10',['OpenGLShaderParser',['../classNexus_1_1OpenGL_1_1OpenGLShaderParser.html#a186ecb626d5101ea3cd88629cb8bb876',1,'Nexus::OpenGL::OpenGLShaderParser']]],
+  ['operator_20bool_11',['operator bool',['../classAutoHandle.html#a25090bc50e6c6926f8cbaef4ea183aab',1,'AutoHandle']]],
+  ['operator_20delete_12',['operator delete',['../Nexus_8hpp.html#a90041ff228a9a8bb503b3a6029ff62ac',1,'operator delete(void *memory, size_t size):&#160;Nexus.cpp'],['../Nexus_8cpp.html#a90041ff228a9a8bb503b3a6029ff62ac',1,'operator delete(void *memory, size_t size):&#160;Nexus.cpp']]],
+  ['operator_20new_13',['operator new',['../Nexus_8hpp.html#a160dcabc54bbecfc69484678cafadb81',1,'operator new(size_t size):&#160;Nexus.cpp'],['../Nexus_8cpp.html#a160dcabc54bbecfc69484678cafadb81',1,'operator new(size_t size):&#160;Nexus.cpp']]],
+  ['operator_20uint64_5ft_14',['operator uint64_t',['../structNexus_1_1GUID.html#a930224a65c86af07ed492399c6d1e6eb',1,'Nexus::GUID']]],
+  ['operator_2a_15',['operator*',['../classNexus_1_1ECS_1_1View_1_1iterator.html#a93430f3cedc8f09c31eea56c6ddd010c',1,'Nexus::ECS::View::iterator']]],
+  ['operator_2b_2b_16',['operator++',['../classNexus_1_1ECS_1_1View_1_1iterator.html#a29fed9358056e5bc6df10d2ef2e4fb8c',1,'Nexus::ECS::View::iterator::operator++(int)'],['../classNexus_1_1ECS_1_1View_1_1iterator.html#a47cae000b80396ed66fe7969f5956991',1,'Nexus::ECS::View::iterator::operator++()']]],
+  ['operator_2d_3e_17',['operator-&gt;',['../classNexus_1_1ECS_1_1View_1_1iterator.html#a3f235514368a60e80638eeb42b19604c',1,'Nexus::ECS::View::iterator']]],
+  ['operator_3c_18',['operator&lt;',['../namespaceNexus_1_1Graphics.html#acdb01223019dd07dbd0c259f67d9ca22',1,'Nexus::Graphics']]],
+  ['operator_3c_3c_19',['operator&lt;&lt;',['../Scene_8cpp.html#aa0075dcb9c31a7e8fce4073f007f0a45',1,'operator&lt;&lt;(YAML::Emitter &amp;output, const glm::vec2 &amp;vec):&#160;Scene.cpp'],['../Scene_8cpp.html#a74cabb28b99330b55daa75b072d1c613',1,'operator&lt;&lt;(YAML::Emitter &amp;output, const glm::vec3 &amp;vec):&#160;Scene.cpp'],['../Scene_8cpp.html#abfdd09b8557c8b4d7bc0be2904119c9c',1,'operator&lt;&lt;(YAML::Emitter &amp;output, const glm::vec4 &amp;vec):&#160;Scene.cpp']]],
+  ['operator_3d_20',['operator=',['../classAutoHandle.html#af081471dac9d7d07bbbfe1886439655d',1,'AutoHandle::operator=(const AutoHandle &amp;)=delete'],['../classAutoHandle.html#afbf903cd75453bc0fd7814ecd037a82c',1,'AutoHandle::operator=(AutoHandle &amp;&amp;other) noexcept'],['../classNexus_1_1Graphics_1_1ScopedDebugGroup.html#ae7903fb7180f6c51915b76e2766e9f81',1,'Nexus::Graphics::ScopedDebugGroup::operator=()']]],
+  ['operator_3d_3d_21',['operator==',['../namespaceNexus_1_1Graphics.html#ae9c97385eb65156f70437ddce7423c36',1,'Nexus::Graphics']]]
+];

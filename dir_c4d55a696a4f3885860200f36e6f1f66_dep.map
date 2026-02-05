@@ -1,0 +1,18 @@
+<map id="src/Nexus/src/Platform/OpenGL" name="src/Nexus/src/Platform/OpenGL">
+<area shape="rect" id="node2" href="dir_67a6a378280aa5ea9ba7d75719224886.html" title="Backends" alt="" coords="38,136,122,161"/>
+<area shape="poly" id="edge1" href="dir_000018_000003.html" alt="" coords="85,88,84,123,78,122,80,88"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000018_000003.html" title="1" alt="" coords="85,111,94,125"/>
+<area shape="rect" id="node5" href="dir_735099e4047b2b564c2e8253654ef35e.html" title="include" alt="" coords="223,209,292,235"/>
+<area shape="poly" id="edge2" href="dir_000018_000014.html" alt="" coords="120,85,186,107,215,121,234,134,251,164,258,195,253,196,246,166,230,138,212,125,184,112,119,90"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000018_000014.html" title="17" alt="" coords="255,183,272,198"/>
+<area shape="rect" id="node3" href="dir_ebedb3ee5a7a2db12f72b0fd1adfb3af.html" title="Context" alt="" coords="146,136,219,161"/>
+<area shape="poly" id="edge3" href="dir_000005_000014.html" alt="" coords="196,159,237,198,233,202,193,163"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000005_000014.html" title="5" alt="" coords="233,183,242,198"/>
+<area shape="rect" id="node4" href="dir_ca00ad0fe5c8ba2784d2abea7549bd01.html" title="Surface" alt="" coords="147,63,218,88"/>
+<area shape="poly" id="edge5" href="dir_000030_000005.html" alt="" coords="185,88,185,122,180,122,180,88"/>
+<area shape="rect" id="edge5-headlabel" href="dir_000030_000005.html" title="3" alt="" coords="186,110,196,125"/>
+<area shape="poly" id="edge4" href="dir_000030_000014.html" alt="" coords="217,86,251,105,266,118,278,135,283,151,283,167,274,198,268,196,278,166,278,151,274,137,262,122,248,109,214,90"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000030_000014.html" title="1" alt="" coords="276,189,285,204"/>
+<area shape="rect" id="clust2" href="dir_c4d55a696a4f3885860200f36e6f1f66.html" alt="" coords="27,52,231,172"/>
+<area shape="rect" id="clust1" href="dir_49debb8301ce4c3d838ae2e809b8e195.html" title="Platform" alt="" coords="16,16,241,183"/>
+</map>

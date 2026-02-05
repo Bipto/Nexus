@@ -1,0 +1,9 @@
+<map id="Nexus::Graphics::CopyBufferToTextureCommand" name="Nexus::Graphics::CopyBufferToTextureCommand">
+<area shape="rect" id="Node000001" title=" " alt="" coords="107,196,315,236"/>
+<area shape="rect" id="Node000002" href="$structNexus_1_1Graphics_1_1BufferTextureCopyDescription.html" title="A structure representing a copy operation between a buffer and a texture." alt="" coords="100,93,323,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,147,214,196,209,196,209,147"/>
+<area shape="rect" id="Node000003" href="$structNexus_1_1Graphics_1_1Offset3D.html" title=" " alt="" coords="5,5,199,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="128,38,191,91,187,95,124,42"/>
+<area shape="rect" id="Node000004" href="$structNexus_1_1Graphics_1_1Extent2D.html" title=" " alt="" coords="223,5,419,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="298,42,235,95,232,91,295,38"/>
+</map>
