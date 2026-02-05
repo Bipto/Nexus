@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IGLContext.hpp"
-#include "Platform/OpenGL/ContextSpecification.hpp"
+#include "Platform/OpenGL/ContextDescription.hpp"
 
 #include "Nexus-Core/Graphics/Structures.hpp"
 

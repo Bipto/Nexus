@@ -1,0 +1,59 @@
+name: Generate Doxygen Docs (HTML + PDF)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen and Graphviz
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
+      - name: Install LaTeX (for PDF generation)
+        run: sudo apt-get install -y texlive texlive-latex-extra texlive-fonts-recommended
+
+      - name: Run Doxygen
+        run: doxygen Doxyfile
+
+      - name: Build PDF from LaTeX
+        working-directory: docs/latex
+        run: |
+          make
+          ls -l refman.pdf
+
+      - name: Upload HTML docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-html
+          path: docs/html
+
+      - name: Upload PDF docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-pdf
+          path: docs/latex/refman.pdf
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Download HTML artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: doxygen-html
+          path: docs/html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/html

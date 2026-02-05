@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/nxpch.hpp"
+#include <cstdint>
 
 namespace Nexus::GL
 {

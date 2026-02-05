@@ -1,6 +1,4 @@
-#if defined(NX_PLATFORM_WGL)
-
-	#include "PhysicalDeviceWGL.hpp"
+#include "PhysicalDeviceWGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -43,5 +41,3 @@ namespace Nexus::Graphics
 		return m_HDC;
 	}
 }	 // namespace Nexus::Graphics
-
-#endif

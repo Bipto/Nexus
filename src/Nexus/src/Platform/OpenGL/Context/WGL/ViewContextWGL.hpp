@@ -1,28 +1,24 @@
 #pragma once
 
-#if defined(NX_PLATFORM_WGL)
+#include "OffscreenContextWGL.hpp"
+#include "Platform/OpenGL/Context/IViewContext.hpp"
 
-	#include "Nexus-Core/nxpch.hpp"
-
-	#include "OffscreenContextWGL.hpp"
-	#include "Platform/OpenGL/Context/IViewContext.hpp"
-
-	#include "Platform/OpenGL/FramebufferOpenGL.hpp"
-	#include "Platform/Windows/WindowsInclude.hpp"
+#include "Platform/OpenGL/FramebufferOpenGL.hpp"
+#include "Platform/Windows/WindowsInclude.hpp"
 
 namespace Nexus::GL
 {
-	class ViewContextWGL : public IViewContext
+	class ViewContextWGL final : public IViewContext
 	{
 	  public:
 		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextDescription &spec);
 		virtual ~ViewContextWGL();
-		virtual bool MakeCurrent() override;
-		virtual void Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc) override;
-		virtual void SetVSync(bool enabled) override;
-		virtual const ContextDescription &GetDescription() const override;
-		virtual bool					  Validate() override;
-		virtual const GladGLContext		 &GetContext() const override;
+		bool					  MakeCurrent() final;
+		void					  Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc) final;
+		void					  SetVSync(bool enabled) final;
+		const ContextDescription &GetDescription() const final;
+		bool					  Validate() final;
+		const GladGLContext		 &GetContext() const final;
 
 	  private:
 		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec);
@@ -38,5 +34,3 @@ namespace Nexus::GL
 		OpenGLFunctionContext m_FunctionContext = {};
 	};
 }	 // namespace Nexus::GL
-
-#endif

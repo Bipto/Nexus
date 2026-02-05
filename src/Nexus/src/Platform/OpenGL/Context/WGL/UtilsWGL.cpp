@@ -1,9 +1,5 @@
-#if defined(NX_PLATFORM_WGL)
-
-	#include "Nexus-Core/nxpch.hpp"
-
-	#include "Platform/OpenGL/Context/WGL/PhysicalDeviceWGL.hpp"
-	#include "Platform/OpenGL/GL.hpp"
+#include "Platform/OpenGL/Context/WGL/PhysicalDeviceWGL.hpp"
+#include "Platform/OpenGL/GL.hpp"
 
 namespace Nexus::GL
 {
@@ -124,5 +120,3 @@ namespace Nexus::GL
 		return physicalDevices;
 	}
 }	 // namespace Nexus::GL
-
-#endif

@@ -1,9 +1,7 @@
-#if defined(NX_PLATFORM_WGL)
+#include "OffscreenContextWGL.hpp"
+#include "PhysicalDeviceWGL.hpp"
 
-	#include "OffscreenContextWGL.hpp"
-	#include "PhysicalDeviceWGL.hpp"
-
-	#include "Platform/OpenGL/GL.hpp"
+#include "Platform/OpenGL/GL.hpp"
 
 namespace Nexus::GL
 {
@@ -125,5 +123,3 @@ namespace Nexus::GL
 		return m_FunctionContext.GetContext();
 	}
 }	 // namespace Nexus::GL
-
-#endif

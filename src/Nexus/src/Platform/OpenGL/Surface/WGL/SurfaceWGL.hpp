@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Platform/OpenGL/ContextSpecification.hpp"
+#include "Platform/OpenGL/ContextDescription.hpp"
 #include "Platform/OpenGL/Surface/SurfaceOpenGL.hpp"
 
 namespace Nexus::Graphics

@@ -1,24 +1,21 @@
 #pragma once
 
-#if defined(NX_PLATFORM_WGL)
+#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
+#include "Platform/OpenGL/ContextDescription.hpp"
 
-	#include "Nexus-Core/nxpch.hpp"
-	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
-	#include "Platform/OpenGL/ContextSpecification.hpp"
-
-	#include "Platform/Windows/WindowsInclude.hpp"
-	#include "glad/wgl.h"
+#include "Platform/Windows/WindowsInclude.hpp"
+#include "glad/wgl.h"
 
 namespace Nexus::GL
 {
-	class OffscreenContextWGL : public IOffscreenContext
+	class OffscreenContextWGL final : public IOffscreenContext
 	{
 	  public:
 		OffscreenContextWGL(const ContextDescription &spec, Graphics::IPhysicalDevice *device);
 		virtual ~OffscreenContextWGL();
-		virtual bool				 MakeCurrent() override;
-		virtual bool				 Validate() override;
-		virtual const GladGLContext &GetContext() const override;
+		bool				 MakeCurrent() final;
+		bool				 Validate() final;
+		const GladGLContext &GetContext() const final;
 
 		HGLRC GetHGLRC();
 
@@ -36,5 +33,3 @@ namespace Nexus::GL
 		inline static bool s_GLFunctionsLoaded = false;
 	};
 }	 // namespace Nexus::GL
-
-#endif

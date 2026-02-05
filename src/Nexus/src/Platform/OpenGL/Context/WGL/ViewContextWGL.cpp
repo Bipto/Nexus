@@ -1,11 +1,9 @@
-#if defined(NX_PLATFORM_WGL)
+#include "ViewContextWGL.hpp"
 
-	#include "ViewContextWGL.hpp"
+#include "glad/wgl.h"
 
-	#include "glad/wgl.h"
-
-	#include "Platform/OpenGL/GL.hpp"
-	#include "Platform/OpenGL/TextureOpenGL.hpp"
+#include "Platform/OpenGL/GL.hpp"
+#include "Platform/OpenGL/TextureOpenGL.hpp"
 
 namespace Nexus::GL
 {
@@ -268,5 +266,3 @@ namespace Nexus::GL
 		return m_FunctionContext.GetContext();
 	}
 }	 // namespace Nexus::GL
-
-#endif
