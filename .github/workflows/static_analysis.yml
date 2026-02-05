@@ -35,9 +35,9 @@ jobs:
         uses: johnwason/vcpkg-action@v7
         with:
           manifest-dir: ${{ github.workspace }}
-          triplet: ${{ matrix.vcpkg_triplet }}
+          triplet: x64-linux
           token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          cache-key: vcpkg-${{ runner.os }}-x64-linux-${{ matrix.build_type }}
 
       - name: Configure project
         run: cmake -S . -B build \
