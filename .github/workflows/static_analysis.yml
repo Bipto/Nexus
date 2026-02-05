@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install -y \
             libgl1-mesa-dev mesa-utils mesa-common-dev \
             libx11-dev xserver-xorg-dev xorg-dev \
-            build-essential nasm autoconf autoconf-archive automake libtool
+            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
       - name: Install tools
         run: |
