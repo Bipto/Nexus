@@ -18,6 +18,8 @@
 
 	#if defined(WIN32)
 		#include "Surface/WGL/SurfaceWGL.hpp"
+	#else if defined(LINUX)
+		#include "Surface/EGL/SurfaceEGL.hpp"
 	#endif
 
 	#include "glad/gl.h"
@@ -192,7 +194,11 @@ namespace Nexus::Graphics
 
 	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
 	{
+	#if defined(__linux__)
+		return CreateRef<SurfaceEGL>(display, screen, window, this);
+	#else
 		return nullptr;
+	#endif
 	}
 
 	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const

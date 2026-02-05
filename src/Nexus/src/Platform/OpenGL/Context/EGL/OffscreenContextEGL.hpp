@@ -1,27 +1,25 @@
 #pragma once
 
-#if defined(NX_PLATFORM_EGL)
+#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
+#include "Platform/OpenGL/ContextDescription.hpp"
 
-	#include "Nexus-Core/nxpch.hpp"
-	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
-	#include "Platform/OpenGL/ContextSpecification.hpp"
+#include "egl_include.hpp"
+#include "glad/gl.h"
 
-	#include "egl_include.hpp"
-	#include "glad/gl.h"
+#if defined(NX_PLATFORM_LINUX)
+	#include "Platform/X11/X11Include.hpp"
+#endif
 
-	#if defined(NX_PLATFORM_LINUX)
-		#include "Platform/X11/X11Include.hpp"
-	#endif
 namespace Nexus::GL
 {
-	class OffscreenContextEGL : public IOffscreenContext
+	class OffscreenContextEGL final : public IOffscreenContext
 	{
 	  public:
-		OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display);
+		OffscreenContextEGL(const ContextDescription &spec, EGLDisplay display);
 		virtual ~OffscreenContextEGL();
-		virtual bool				 MakeCurrent() override;
-		virtual bool				 Validate() override;
-		virtual const GladGLContext &GetContext() const override;
+		bool				 MakeCurrent() final;
+		bool				 Validate() final;
+		const GladGLContext &GetContext() const final;
 
 		EGLContext GetEGLContext();
 
@@ -29,9 +27,7 @@ namespace Nexus::GL
 		EGLDisplay m_EGLDisplay = {};
 		EGLContext m_Context	= {};
 
-		ContextSpecification m_Description;
-		GladGLContext		 m_GladContext = {};
+		ContextDescription m_Description;
+		GladGLContext	   m_GladContext = {};
 	};
 }	 // namespace Nexus::GL
-
-#endif

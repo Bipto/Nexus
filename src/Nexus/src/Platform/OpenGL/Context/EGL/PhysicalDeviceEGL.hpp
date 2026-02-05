@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Nexus-Core/nxpch.hpp"
 #include "OffscreenContextEGL.hpp"
 #include "Platform/OpenGL/Context/EGL/egl_include.hpp"
 #include "Platform/OpenGL/PhysicalDeviceOpenGL.hpp"

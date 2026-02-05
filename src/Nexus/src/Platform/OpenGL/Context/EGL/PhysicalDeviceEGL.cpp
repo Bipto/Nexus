@@ -4,15 +4,15 @@ namespace Nexus::Graphics
 {
 	PhysicalDeviceEGL::PhysicalDeviceEGL(bool debug, EGLDisplay display)
 	{
-		GL::ContextSpecification spec;
-		spec.GLVersion = GL::OpenGLVersion::OpenGL;
-        spec.VersionMajor = 4;
-        spec.VersionMinor = 6;
+		GL::ContextDescription spec;
+		spec.GLVersion	  = GL::OpenGLVersion::OpenGL;
+		spec.VersionMajor = 4;
+		spec.VersionMinor = 6;
 
 #if defined(__ANDROID__)
-		spec.GLVersion = GL::OpenGLVersion::OpenGLES;
-        spec.VersionMajor = 3;
-        spec.VersionMinor = 0;
+		spec.GLVersion	  = GL::OpenGLVersion::OpenGLES;
+		spec.VersionMajor = 3;
+		spec.VersionMinor = 0;
 #endif
 
 		spec.Debug = debug;

@@ -1,18 +1,16 @@
-#if defined(NX_PLATFORM_EGL)
+#include "ViewContextEGL.hpp"
 
-	#include "ViewContextEGL.hpp"
+#include "glad/gl.h"
 
-	#include "glad/gl.h"
+#include "Platform/OpenGL/GL.hpp"
 
-	#include "Platform/OpenGL/GL.hpp"
+#include "EGLUtils.hpp"
 
-	#include "EGLUtils.hpp"
-
-	#include "Platform/OpenGL/TextureOpenGL.hpp"
+#include "Platform/OpenGL/TextureOpenGL.hpp"
 
 namespace Nexus::GL
 {
-	ViewContextEGL::ViewContextEGL(EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextSpecification &spec)
+	ViewContextEGL::ViewContextEGL(EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextDescription &spec)
 		: m_EGLDisplay(display),
 		  m_PBuffer(pbuffer),
 		  m_Description(spec)
@@ -254,7 +252,7 @@ namespace Nexus::GL
 		eglSwapInterval(m_EGLDisplay, (EGLint)enabled);
 	}
 
-	const ContextSpecification &ViewContextEGL::GetDescription() const
+	const ContextDescription &ViewContextEGL::GetDescription() const
 	{
 		return m_Description;
 	}
@@ -269,5 +267,3 @@ namespace Nexus::GL
 		return m_GladContext;
 	}
 }	 // namespace Nexus::GL
-
-#endif

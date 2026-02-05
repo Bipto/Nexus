@@ -70,19 +70,6 @@ macro(nexus_copy_required_runtime_libraries target_name)
       endif()
   endif()
 
-  #copy vcpkg dependencies
-  set(VCPKG_BIN_DIR
-      "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<IF:$<CONFIG:Debug>,debug/bin,bin>"
-  )
-
-  add_custom_command(
-      TARGET ${target_name}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-              "${VCPKG_BIN_DIR}"
-              $<TARGET_FILE_DIR:${target_name}>
-  )
-
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)

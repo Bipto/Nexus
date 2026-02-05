@@ -1,23 +1,20 @@
-#if defined(NX_PLATFORM_EGL)
+#include "OffscreenContextEGL.hpp"
 
-	#include "OffscreenContextEGL.hpp"
+#include "glad/gl.h"
 
-	#include "glad/gl.h"
+#if defined(NX_PLATFORM_LINUX)
+	#include "Platform/X11/X11Include.hpp"
+#endif
 
-	#if defined(NX_PLATFORM_LINUX)
-		#include "Platform/X11/X11Include.hpp"
-	#endif
+#include "EGLUtils.hpp"
 
-	#include "EGLUtils.hpp"
+#include "Platform/OpenGL/GL.hpp"
 
-	#include "Platform/OpenGL/GL.hpp"
-
-	#include "Platform/Platform.hpp"
+#include "Platform/Platform.hpp"
 
 namespace Nexus::GL
 {
-	OffscreenContextEGL::OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display) : m_Description(spec)
-
+	OffscreenContextEGL::OffscreenContextEGL(const ContextDescription &spec, EGLDisplay display) : m_Description(spec)
 	{
 		m_EGLDisplay = display;
 
@@ -188,5 +185,3 @@ namespace Nexus::GL
 	}
 
 }	 // namespace Nexus::GL
-
-#endif

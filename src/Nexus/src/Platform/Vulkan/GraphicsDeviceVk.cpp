@@ -1,31 +1,29 @@
-#if defined(NX_PLATFORM_VULKAN)
+#include "GraphicsDeviceVk.hpp"
 
-	#include "GraphicsDeviceVk.hpp"
+#include "AccelerationStructureVk.hpp"
+#include "CommandListVk.hpp"
+#include "CommandQueueVk.hpp"
+#include "DeviceBufferVk.hpp"
+#include "FenceVk.hpp"
+#include "FramebufferVk.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "PhysicalDeviceVk.hpp"
+#include "PipelineVk.hpp"
+#include "PlatformVk.hpp"
+#include "ResourceSetVk.hpp"
+#include "SamplerVk.hpp"
+#include "ShaderModuleVk.hpp"
+#include "SwapchainVk.hpp"
+#include "TexelBufferVk.hpp"
+#include "TextureViewVk.hpp"
+#include "TextureVk.hpp"
+#include "TimingQueryVk.hpp"
 
-	#include "AccelerationStructureVk.hpp"
-	#include "CommandListVk.hpp"
-	#include "CommandQueueVk.hpp"
-	#include "DeviceBufferVk.hpp"
-	#include "FenceVk.hpp"
-	#include "FramebufferVk.hpp"
-	#include "Nexus-Core/nxpch.hpp"
-	#include "PhysicalDeviceVk.hpp"
-	#include "PipelineVk.hpp"
-	#include "PlatformVk.hpp"
-	#include "ResourceSetVk.hpp"
-	#include "SamplerVk.hpp"
-	#include "ShaderModuleVk.hpp"
-	#include "SwapchainVk.hpp"
-	#include "TexelBufferVk.hpp"
-	#include "TextureViewVk.hpp"
-	#include "TextureVk.hpp"
-	#include "TimingQueryVk.hpp"
+#if defined(WIN32)
+	#include "Surface/SurfaceWin32_Vk.hpp"
+#endif
 
-	#if defined(WIN32)
-		#include "Surface/SurfaceWin32_Vk.hpp"
-	#endif
-
-	#include "Platform/Timings/Profiler.hpp"
+#include "Platform/Timings/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -780,7 +778,11 @@ namespace Nexus::Graphics
 
 	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
 	{
+#if defined(WIN32)
 		return CreateRef<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
+#else
+		return nullptr;
+#endif
 	}
 
 	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
@@ -834,5 +836,3 @@ namespace Nexus::Graphics
 		throw std::runtime_error("Failed to find suitable memory type");
 	}
 }	 // namespace Nexus::Graphics
-
-#endif

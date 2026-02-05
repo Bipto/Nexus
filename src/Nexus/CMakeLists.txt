@@ -41,7 +41,7 @@ if(NOT EXISTS "${RENDERDOC_HEADER}")
     message(STATUS "Downloading RenderDoc header from ${RENDERDOC_URL}")
     file(DOWNLOAD "${RENDERDOC_URL}" "${RENDERDOC_HEADER}" SHOW_PROGRESS)
 else()
-    message(STATUS "RenderDoc header already downloaded — skipping")
+    message(STATUS "RenderDoc header already downloaded ï¿½ skipping")
 endif()
 
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_BINARY_DIR})
@@ -164,7 +164,7 @@ file (GLOB NEXUS_OPENGL_CONTEXT_HEADERS "src/Platform/OpenGL/Context/*.hpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_CONTEXT_HEADERS})
 
 if (NX_PLATFORM_EGL)
-  file (GLOB_RECURSE NEXUS_EGL_SOURCES "src/Platform/OpenGL/Context/EGL/*.cpp" "src/Platform/OpenGL/Context/EGL/*.hpp")
+  file (GLOB_RECURSE NEXUS_EGL_SOURCES "src/Platform/OpenGL/Context/EGL/*.cpp" "src/Platform/OpenGL/Context/EGL/*.hpp" "src/Platform/OpenGL/Surface/EGL/*.cpp" "src/Platform/OpenGL/Surface/EGL/*.hpp")
   list (APPEND ENGINE_SOURCES ${NEXUS_EGL_SOURCES})
 endif()
 
@@ -182,7 +182,14 @@ file (GLOB_RECURSE NEXUS_SDL_SOURCES "src/Platform/SDL3/*.cpp" "src/Platform/SDL
 list (APPEND ENGINE_SOURCES ${NEXUS_SDL_SOURCES})
 
 if (NX_PLATFORM_VULKAN)
-	file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp" "src/Platform/Vulkan/Surface/*.cpp" "src/Platform/Vulkan/Surface/*.hpp")
+	file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp")
+
+  list (APPEND NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/Surface/SurfaceVk.hpp")
+  
+  if (WIN32)
+    list (APPEND NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/Surface/SurfaceWin32_Vk.hpp" "src/Platform/Vulkan/Surface/SurfaceWin32_Vk.cpp")
+  endif()
+
 	list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
 
 	if (WIN32)

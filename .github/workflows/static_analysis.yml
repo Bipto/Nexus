@@ -1,0 +1,27 @@
+name: Static Analysis
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy cppcheck
+
+      - name: Configure project
+        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy
+        run: clang-tidy -p build $(find src -name '*.cpp')
+
+      - name: Run cppcheck
+        run: cppcheck --enable=all --inconclusive --error-exitcode=1 src/
