@@ -58,6 +58,7 @@ namespace Nexus::GL
 			const char *errorMessage = eglGetErrorString(eglGetError());
 			std::cout << errorMessage << std::endl;
 		}
+
 		eglInitialize(m_EGLDisplay, NULL, NULL);
 
 		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)

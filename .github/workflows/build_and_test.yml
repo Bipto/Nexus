@@ -247,7 +247,7 @@ jobs:
           sudo apt-get install -y \
             libgl1-mesa-dev mesa-utils mesa-common-dev \
             libx11-dev xserver-xorg-dev xorg-dev \
-            build-essential nasm autoconf autoconf-archive automake libtool        libltdl-dev
+            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
       - name: Install libc++ for Clang
         if: matrix.c_compiler == 'clang'
@@ -288,7 +288,7 @@ jobs:
           manifest-dir: ${{ github.workspace }}
           triplet: ${{ matrix.vcpkg_triplet }}
           token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{  matrix.c_compiler  }}-${{ matrix.build_type }}
 
       - name: Configure CMake
         run: |

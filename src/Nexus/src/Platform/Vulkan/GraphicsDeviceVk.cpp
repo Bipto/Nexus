@@ -21,6 +21,8 @@
 
 #if defined(WIN32)
 	#include "Surface/SurfaceWin32_Vk.hpp"
+#else if defined(__linux__)
+	#include "Surface/SurfaceX11_Vk.hpp"
 #endif
 
 #include "Platform/Timings/Profiler.hpp"
@@ -787,7 +789,11 @@ namespace Nexus::Graphics
 
 	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
 	{
+#if defined(__linux__)
+		return CreateRef<SurfaceX11_Vk>(display, screen, window);
+#else
 		return nullptr;
+#endif
 	}
 
 	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const

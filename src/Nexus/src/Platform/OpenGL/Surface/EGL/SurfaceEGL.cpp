@@ -21,7 +21,20 @@ namespace Nexus::Graphics
 		int						 screen		= static_cast<int>(m_Screen);
 		Window					 window		= static_cast<Window>(m_Window);
 
-		auto context = std::make_unique<GL::ViewContextEGL>(display, window, pbufferEGL, desc);
+		EGLDisplay eglDisplay = {};
+
+		if (eglGetPlatformDisplay != nullptr)
+		{
+			eglDisplay = eglGetPlatformDisplay(EGL_PLATFORM_X11_EXT, (EGLNativeDisplayType)display, nullptr);
+		}
+		else
+		{
+			eglDisplay = eglGetDisplay((EGLNativeDisplayType)display);
+		}
+
+		EGLNativeWindowType nativeWindow = (EGLNativeWindowType)window;
+
+		auto context = std::make_unique<GL::ViewContextEGL>(eglDisplay, nativeWindow, pbufferEGL, desc);
 		return context;
 	}
 }	 // namespace Nexus::Graphics

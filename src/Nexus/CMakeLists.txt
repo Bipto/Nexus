@@ -190,6 +190,10 @@ if (NX_PLATFORM_VULKAN)
     list (APPEND NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/Surface/SurfaceWin32_Vk.hpp" "src/Platform/Vulkan/Surface/SurfaceWin32_Vk.cpp")
   endif()
 
+  if (LINUX)
+    list (APPEND NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/Surface/SurfaceX11_Vk.hpp" "src/Platform/Vulkan/Surface/SurfaceX11_Vk.cpp")
+  endif()
+
 	list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
 
 	if (WIN32)

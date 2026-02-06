@@ -18,7 +18,7 @@
 
 	#if defined(WIN32)
 		#include "Surface/WGL/SurfaceWGL.hpp"
-	#else if defined(LINUX)
+	#else if defined(__linux__)
 		#include "Surface/EGL/SurfaceEGL.hpp"
 	#endif
 
