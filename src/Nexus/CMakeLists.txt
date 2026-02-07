@@ -269,10 +269,7 @@ target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COM
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 
-set_target_properties(SPIRV-Tools-opt PROPERTIES CXX_STANDARD 17)
-set_target_properties(SPIRV-Tools-static PROPERTIES CXX_STANDARD 17)
-
-target_compile_features(Nexus PUBLIC cxx_std_23)
+target_compile_features(Nexus PUBLIC cxx_std_20)
 set_target_properties(Nexus PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF

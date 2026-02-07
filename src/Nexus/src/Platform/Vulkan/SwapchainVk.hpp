@@ -29,7 +29,7 @@ namespace Nexus::Graphics
 		PixelFormat GetColourFormat() final;
 		PixelFormat GetDepthFormat() final;
 
-		std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
+		tl::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
 		VkSurfaceKHR	   GetSurface();
 		VkSurfaceFormatKHR GetSurfaceFormat();

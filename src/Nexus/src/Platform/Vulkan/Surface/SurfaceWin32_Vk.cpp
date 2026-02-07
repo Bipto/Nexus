@@ -8,9 +8,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	std::expected<VkSurfaceKHR, VkResult> SurfaceWin32_Vk::CreateVkSurface(const SwapchainDescription &swapchainDesc,
-																		   VkInstance				   instance,
-																		   const GladVulkanContext	  &context) const
+	tl::expected<VkSurfaceKHR, VkResult> SurfaceWin32_Vk::CreateVkSurface(const SwapchainDescription &swapchainDesc,
+																		  VkInstance				  instance,
+																		  const GladVulkanContext	 &context) const
 	{
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType					   = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 		}
 		else
 		{
-			return std::unexpected(result);
+			return tl::unexpected(result);
 		}
 	}
 

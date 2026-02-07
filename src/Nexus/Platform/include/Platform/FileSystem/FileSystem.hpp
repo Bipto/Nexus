@@ -1,13 +1,14 @@
 #pragma once
 
-#include <expected>
 #include <filesystem>
+
+#include <tl/expected.hpp>
 
 #include "Platform/Platform-Core.hpp"
 
 namespace Nexus::FileSystem
 {
-	NX_PLATFORM_API std::expected<std::string, std::string> ReadFileNew(const std::filesystem::path &filepath);
+	NX_PLATFORM_API tl::expected<std::string, std::string> ReadFileNew(const std::filesystem::path &filepath);
 
 	/// @brief A method to read the contents of a file into a string
 	/// @param filepath An absolute path to the file to read

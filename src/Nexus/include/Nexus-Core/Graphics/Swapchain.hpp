@@ -1,6 +1,6 @@
 #pragma once
 
-#include <expected>
+#include <tl/expected.hpp>
 
 #include "Framebuffer.hpp"
 #include "Nexus-Core/ApplicationDescription.hpp"
@@ -22,13 +22,13 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void							 SetPresentMode(PresentMode presentMode)					 = 0;
-		virtual std::pair<uint32_t, uint32_t>	 GetSize()													 = 0;
-		virtual PixelFormat						 GetColourFormat()											 = 0;
-		virtual PixelFormat						 GetDepthFormat()											 = 0;
-		virtual void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) = 0;
-		virtual Ref<IFramebuffer>				 GetCurrentFramebuffer()									 = 0;
-		virtual std::expected<void, std::string> Resize(uint32_t width, uint32_t height)					 = 0;
+		virtual void							SetPresentMode(PresentMode presentMode)						= 0;
+		virtual std::pair<uint32_t, uint32_t>	GetSize()													= 0;
+		virtual PixelFormat						GetColourFormat()											= 0;
+		virtual PixelFormat						GetDepthFormat()											= 0;
+		virtual void							SwapBuffers(const SwapchainPresentDescription &presentDesc) = 0;
+		virtual Ref<IFramebuffer>				GetCurrentFramebuffer()										= 0;
+		virtual tl::expected<void, std::string> Resize(uint32_t width, uint32_t height)						= 0;
 
 		const SwapchainDescription &GetDescription()
 		{

@@ -5,6 +5,19 @@
       "name": "directx-dxc",
       "platform": "(windows & !arm32 & !uwp & !xbox) | (linux & x64)"
     },
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "avcodec",
+        "avdevice",
+        "avformat",
+        "swresample",
+        "swscale"
+      ],
+      "platform": "!mingw",
+      "version>=": "6.1.1"
+    },
     "freetype",
     "glm",
     "glslang",
@@ -20,18 +33,6 @@
       "platform": "windows & (x64 | arm64) & !staticcrt & !xbox"
     },
     "yaml-cpp",
-    {
-      "name": "ffmpeg",
-      "version>=": "6.1.1",
-      "platform": "!mingw",
-      "default-features": false,
-      "features": [
-        "avcodec",
-        "avformat",
-        "swresample",
-        "swscale",
-        "avdevice"
-      ]
-    }
+    "tl-expected"
   ]
 }

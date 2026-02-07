@@ -1,7 +1,8 @@
 #pragma once
 
-#include <expected>
 #include <string>
+
+#include <tl/expected.hpp>
 
 #include "Audio-Core.hpp"
 #include "AudioDevice.hpp"
@@ -16,6 +17,6 @@ namespace Nexus::Audio
 		/// @param filepath The path to the audio file to load
 		/// @param device The audio device to use to create the audio buffer
 		/// @return A created audio buffer containing the data loaded from the file
-		static std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFile(const std::string &filepath, AudioDevice *device);
+		static tl::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFile(const std::string &filepath, AudioDevice *device);
 	};
 };	  // namespace Nexus::Audio

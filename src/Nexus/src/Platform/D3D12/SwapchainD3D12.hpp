@@ -18,13 +18,13 @@ namespace Nexus::Graphics
 	  public:
 		SwapchainD3D12(IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
-		void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>				 GetCurrentFramebuffer();
-		void							 SetPresentMode(PresentMode presentMode) final;
-		std::pair<uint32_t, uint32_t>	 GetSize() final;
-		PixelFormat						 GetColourFormat() final;
-		PixelFormat						 GetDepthFormat() final;
-		std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
+		void							SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>				GetCurrentFramebuffer();
+		void							SetPresentMode(PresentMode presentMode) final;
+		std::pair<uint32_t, uint32_t>	GetSize() final;
+		PixelFormat						GetColourFormat() final;
+		PixelFormat						GetDepthFormat() final;
+		tl::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
 		uint32_t GetCurrentBufferIndex();
 

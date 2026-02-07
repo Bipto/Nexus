@@ -20,13 +20,13 @@ namespace Nexus::Graphics
 	  public:
 		SwapchainOpenGL(const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice);
 		virtual ~SwapchainOpenGL();
-		void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>				 GetCurrentFramebuffer() final;
-		void							 SetPresentMode(PresentMode presentMode) final;
-		std::pair<uint32_t, uint32_t>	 GetSize() final;
-		PixelFormat						 GetColourFormat() final;
-		PixelFormat						 GetDepthFormat() final;
-		std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
+		void							SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
+		Ref<IFramebuffer>				GetCurrentFramebuffer() final;
+		void							SetPresentMode(PresentMode presentMode) final;
+		std::pair<uint32_t, uint32_t>	GetSize() final;
+		PixelFormat						GetColourFormat() final;
+		PixelFormat						GetDepthFormat() final;
+		tl::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
 		void BindAsDrawTarget();
 

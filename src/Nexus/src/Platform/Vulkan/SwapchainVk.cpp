@@ -130,11 +130,11 @@ namespace Nexus::Graphics
 		return m_DepthFormat;
 	}
 
-	std::expected<void, std::string> SwapchainVk::Resize(uint32_t width, uint32_t height)
+	tl::expected<void, std::string> SwapchainVk::Resize(uint32_t width, uint32_t height)
 	{
 		m_SwapchainSize = {width, height};
 		RecreateSwapchain();
-		return std::expected<void, std::string>();
+		return tl::expected<void, std::string>();
 	}
 
 	VkSurfaceKHR SwapchainVk::GetSurface()

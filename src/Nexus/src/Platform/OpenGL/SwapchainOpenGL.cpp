@@ -101,7 +101,7 @@ namespace Nexus::Graphics
 		return m_DepthFormat;
 	}
 
-	std::expected<void, std::string> SwapchainOpenGL::Resize(uint32_t width, uint32_t height)
+	tl::expected<void, std::string> SwapchainOpenGL::Resize(uint32_t width, uint32_t height)
 	{
 		if (width != m_SwapchainWidth || height != m_SwapchainHeight)
 		{
@@ -111,7 +111,7 @@ namespace Nexus::Graphics
 			CreateFramebuffer();
 		}
 
-		return std::expected<void, std::string>();
+		return tl::expected<void, std::string>();
 	}
 
 	void SwapchainOpenGL::BindAsDrawTarget()
