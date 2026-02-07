@@ -288,22 +288,16 @@ jobs:
           manifest-dir: ${{ github.workspace }}
           triplet: ${{ matrix.vcpkg_triplet }}
           token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{  matrix.c_compiler  }}-${{ matrix.build_type }}
+          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
 
       - name: Configure CMake
         run: |
-          EXTRA_CXX_FLAGS=""
-          if [[ "${{ matrix.c_compiler }}" == "clang" ]]; then
-              EXTRA_CXX_FLAGS="-stdlib=libc++"
-          fi
-
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_CXX_FLAGS="${EXTRA_CXX_FLAGS}" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \

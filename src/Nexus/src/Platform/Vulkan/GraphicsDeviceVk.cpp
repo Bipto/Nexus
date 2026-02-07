@@ -21,7 +21,7 @@
 
 #if defined(WIN32)
 	#include "Surface/SurfaceWin32_Vk.hpp"
-#else if defined(__linux__)
+#elif defined(__linux__)
 	#include "Surface/SurfaceX11_Vk.hpp"
 #endif
 
