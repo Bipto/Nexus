@@ -19,20 +19,15 @@
       "version>=": "6.1.1"
     },
     "freetype",
-    "glm",
     "glslang",
-    "openal-soft",
-    "sdl3",
     "shaderc",
     "spirv-cross",
     "spirv-headers",
     "spirv-reflect",
-    "stb",
     {
       "name": "winpixevent",
       "platform": "windows & (x64 | arm64) & !staticcrt & !xbox"
     },
-    "yaml-cpp",
-    "tl-expected"
+    "yaml-cpp"
   ]
 }

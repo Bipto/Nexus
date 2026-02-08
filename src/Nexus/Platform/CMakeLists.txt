@@ -79,17 +79,27 @@ endif()
 
 add_library(Nexus-Platform ${PLATFORM_SOURCES})
 
-find_package(SDL3 CONFIG REQUIRED)
-list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
-
 target_compile_features(Nexus-Platform PRIVATE cxx_std_20)
 set_target_properties(Nexus-Platform PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-find_package(tl-expected CONFIG REQUIRED)
-target_link_libraries(Nexus-Platform PRIVATE tl::expected)
+FetchContent_Declare(
+	tl_expected
+	GIT_REPOSITORY https://github.com/TartanLlama/expected.git
+	GIT_TAG v1.3.1
+)
+FetchContent_MakeAvailable(tl_expected)
+target_link_libraries(Nexus-Platform PUBLIC tl::expected)
+
+FetchContent_Declare(
+	SDL3
+	GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+	GIT_TAG release-3.4.0
+)
+FetchContent_MakeAvailable(SDL3)
+target_link_libraries(Nexus-Platform PUBLIC SDL3::SDL3)
 
 target_compile_definitions(Nexus-Platform PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Platform PUBLIC ${PUBLIC_LIBRARY_INCLUDES})

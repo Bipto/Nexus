@@ -17,7 +17,6 @@ add_subdirectory(cmake)
 add_subdirectory(Audio)
 add_subdirectory(Platform)
 
-
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -29,7 +28,6 @@ find_package(spirv_cross_core CONFIG REQUIRED)
 find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(spirv_cross_hlsl CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
 
 #fetch renderdoc header
@@ -228,19 +226,26 @@ list (APPEND NEXUS_INCLUDE_DIRS
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES
-  assimp::assimp
   Nexus-Audio
   Nexus-Platform
+  assimp::assimp
   unofficial::shaderc::shaderc
   spirv-cross-core
   spirv-cross-glsl
   spirv-cross-hlsl
   freetype
   yaml-cpp::yaml-cpp
-  glm::glm
   imgui
   imguizmo
   glad2)
+
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY https://github.com/g-truc/glm.git
+	GIT_TAG 1.0.3
+)
+FetchContent_MakeAvailable(glm)
+target_link_libraries(Nexus PUBLIC glm::glm)
 
 #precompiled header
 #target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
@@ -262,6 +267,22 @@ nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 set(NX_INCLUDE_VISIBILITY PUBLIC)
 set(NX_LINK_VISIBILITY PUBLIC)
 set(NX_COMPILE_DEFINITION_VISIBILITY PUBLIC)
+
+#FetchContent_Declare(
+#	zlib
+#	GIT_REPOSITORY https://github.com/madler/zlib.git
+#	GIT_TAG 9f25df2c80c2b26c8b050fba880f0851d9d243ea
+#)
+#FetchContent_MakeAvailable(zlib)
+#target_link_libraries(Nexus PUBLIC zlibstatic)
+#
+#FetchContent_Declare(
+#	assimp
+#	GIT_REPOSITORY https://github.com/assimp/assimp.git
+#	GIT_TAG v6.0.4
+#)
+#FetchContent_MakeAvailable(assimp)
+#target_link_libraries(Nexus PUBLIC assimp::assimp)
 
 target_include_directories(Nexus ${NX_INCLUDE_VISIBILITY} SYSTEM ${NEXUS_INCLUDE_DIRS})
 target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})

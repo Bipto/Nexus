@@ -46,16 +46,17 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
-	  find_package(OpenAL CONFIG REQUIRED)
+	  FetchContent_Declare(
+		openal-soft
+		GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+		GIT_TAG 1.25.1
+	  )
+	  FetchContent_MakeAvailable(openal-soft)
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)
 	endif()
 endif()
 
-
 add_library(Nexus-Audio ${AUDIO_SOURCES})
-
-find_package(tl-expected CONFIG REQUIRED)
-target_link_libraries(Nexus-Audio PRIVATE tl::expected)
 
 target_compile_features(Nexus-Audio PUBLIC cxx_std_20)
 set_target_properties(Nexus-Audio PROPERTIES
@@ -63,10 +64,18 @@ set_target_properties(Nexus-Audio PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
+FetchContent_Declare(
+	tl_expected
+	GIT_REPOSITORY https://github.com/TartanLlama/expected.git
+	GIT_TAG v1.3.1
+)
+FetchContent_MakeAvailable(tl_expected)
+target_link_libraries(Nexus-Audio PUBLIC tl::expected)
+
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
 target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
-target_link_libraries(Nexus-Audio PUBLIC ${NEXUS_LINKED_LIBRARIES})
+target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES})
 
 #ffmpeg
 if (MINGW)
