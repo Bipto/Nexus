@@ -359,7 +359,7 @@ nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 
 if (NX_PLATFORM_D3D12)
-	#dxc
+	# Download DXC
 	FetchContent_Declare(
 		dxc
 		URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/dxc_2025_07_14.zip
@@ -367,18 +367,32 @@ if (NX_PLATFORM_D3D12)
 
 	FetchContent_MakeAvailable(dxc)
 
-	# DXC unpacks into a folder; we need to locate include + lib
+	# DXC root folder
 	set(DXC_ROOT ${dxc_SOURCE_DIR})
 
-	set(DXC_INCLUDE_DIR ${DXC_ROOT}/include)
-	set(DXC_LIB_DIR ${DXC_ROOT}/lib/x64)   # or lib/x86 depending on your target
+	set(DXC_INCLUDE_DIR ${DXC_ROOT}/inc)
+	set(DXC_LIB_DIR     ${DXC_ROOT}/lib/x64)
+	set(DXC_BIN_DIR     ${DXC_ROOT}/bin/x64)
 
-	# Add the include directory
-	target_include_directories(Nexus PRIVATE ${DXC_INCLUDE_DIR})
+	# Create imported target for dxcompiler.dll
+	add_library(dxcompiler SHARED IMPORTED)
 
-	# Link the DXC libraries
-	target_link_directories(Nexus PRIVATE ${DXC_LIB_DIR})
-	target_link_libraries(Nexus PRIVATE dxcompiler)
+	set_target_properties(dxcompiler PROPERTIES
+		IMPORTED_LOCATION     "${DXC_BIN_DIR}/dxcompiler.dll"
+		IMPORTED_IMPLIB       "${DXC_LIB_DIR}/dxcompiler.lib"
+		INTERFACE_INCLUDE_DIRECTORIES "${DXC_INCLUDE_DIR}"
+	)
+
+	# Optional: DXIL library (needed for SM6.x validation)
+	add_library(dxil SHARED IMPORTED)
+
+	set_target_properties(dxil PROPERTIES
+		IMPORTED_LOCATION     "${DXC_BIN_DIR}/dxil.dll"
+		IMPORTED_IMPLIB       "${DXC_LIB_DIR}/dxil.lib"
+	)
+
+	# Link your engine
+	target_link_libraries(Nexus PRIVATE dxcompiler dxil)
 
 	#pix
 	FetchContent_Declare(
@@ -386,14 +400,24 @@ if (NX_PLATFORM_D3D12)
 		URL https://www.nuget.org/api/v2/package/WinPixEventRuntime/1.0.230302001
 		DOWNLOAD_NO_EXTRACT FALSE
 	)
+
 	FetchContent_MakeAvailable(WinPixEventRuntime)
 
+	# Paths inside the NuGet package
 	set(PIX_INCLUDE_DIR ${winpixeventruntime_SOURCE_DIR}/Include)
 	set(PIX_LIB_DIR ${winpixeventruntime_SOURCE_DIR}/bin/x64)
 
-	target_include_directories(Nexus PUBLIC ${PIX_INCLUDE_DIR})
-	target_link_directories(Nexus PRIVATE ${PIX_LIB_DIR})
-	target_link_libraries(Nexus PRIVATE WinPixEventRuntime)
+	# Create an imported library target
+	add_library(WinPixEventRuntimeLib SHARED IMPORTED)
+
+	set_target_properties(WinPixEventRuntimeLib PROPERTIES
+		IMPORTED_LOCATION "${PIX_LIB_DIR}/WinPixEventRuntime.dll"
+		IMPORTED_IMPLIB   "${PIX_LIB_DIR}/WinPixEventRuntime.lib"
+		INTERFACE_INCLUDE_DIRECTORIES "${PIX_INCLUDE_DIR}"
+	)
+
+	# Link your target against the imported library
+	target_link_libraries(Nexus PRIVATE WinPixEventRuntimeLib)
 
 endif()
 

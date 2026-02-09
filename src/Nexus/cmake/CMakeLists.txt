@@ -55,8 +55,9 @@ function(nexus_collect_runtime_targets out_var target_name visited)
             get_target_property(is_imported ${dep} IMPORTED)
 
             # Only include SHARED or MODULE libraries
-            if(dep_type STREQUAL "SHARED_LIBRARY"
-               OR dep_type STREQUAL "MODULE_LIBRARY")
+            if((dep_type STREQUAL "SHARED_LIBRARY"
+                OR dep_type STREQUAL "MODULE_LIBRARY"
+                OR (is_imported AND dep_type STREQUAL "UNKNOWN_LIBRARY")))
                 list(APPEND result ${dep})
             endif()
 

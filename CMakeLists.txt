@@ -5,6 +5,9 @@ project("Nexus")
 
 set(BUILD_SHARED_LIBS OFF)
 
+#disable cmake module scanning
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 #allow flexible page sizes on Android devices
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
 
