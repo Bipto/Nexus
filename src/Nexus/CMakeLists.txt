@@ -22,14 +22,6 @@ set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
 set(NEXUS_COMPILE_DEFINITIONS "")
 
-find_package(assimp CONFIG REQUIRED)
-find_package(unofficial-shaderc CONFIG REQUIRED)
-find_package(spirv_cross_core CONFIG REQUIRED)
-find_package(spirv_cross_glsl CONFIG REQUIRED)
-find_package(spirv_cross_hlsl CONFIG REQUIRED)
-find_package(yaml-cpp CONFIG REQUIRED)
-find_package(freetype CONFIG REQUIRED)
-
 #fetch renderdoc header
 set(RENDERDOC_VERSION "v1.32")
 set(RENDERDOC_URL "https://raw.githubusercontent.com/baldurk/renderdoc/${RENDERDOC_VERSION}/renderdoc/api/app/renderdoc_app.h")
@@ -110,9 +102,6 @@ if (NX_PLATFORM_D3D12)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_D3D12=1)
   list (APPEND NEXUS_LINKED_LIBRARIES D3D12MemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${D3D12MemoryAllocator_SOURCE_DIR}/include)
-
-  find_package(winpixevent CONFIG REQUIRED)
-  list (APPEND NEXUS_LINKED_LIBRARIES Microsoft::WinPixEventRuntime)
 endif()
 
 if (NX_PLATFORM_VULKAN)
@@ -228,13 +217,6 @@ list (APPEND NEXUS_INCLUDE_DIRS
 list (APPEND NEXUS_LINKED_LIBRARIES
   Nexus-Audio
   Nexus-Platform
-  assimp::assimp
-  unofficial::shaderc::shaderc
-  spirv-cross-core
-  spirv-cross-glsl
-  spirv-cross-hlsl
-  freetype
-  yaml-cpp::yaml-cpp
   imgui
   imguizmo
   glad2)
@@ -266,29 +248,154 @@ nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 
 set(NX_INCLUDE_VISIBILITY PUBLIC)
 set(NX_LINK_VISIBILITY PUBLIC)
-set(NX_COMPILE_DEFINITION_VISIBILITY PUBLIC)
+set(NX_COMPILE_DEFINITION_VISIBILITY PUBLIC)#
 
-#FetchContent_Declare(
-#	zlib
-#	GIT_REPOSITORY https://github.com/madler/zlib.git
-#	GIT_TAG 9f25df2c80c2b26c8b050fba880f0851d9d243ea
-#)
-#FetchContent_MakeAvailable(zlib)
-#target_link_libraries(Nexus PUBLIC zlibstatic)
-#
-#FetchContent_Declare(
-#	assimp
-#	GIT_REPOSITORY https://github.com/assimp/assimp.git
-#	GIT_TAG v6.0.4
-#)
-#FetchContent_MakeAvailable(assimp)
-#target_link_libraries(Nexus PUBLIC assimp::assimp)
+FetchContent_Declare(
+	stb_lib
+	GIT_REPOSITORY https://github.com/nothings/stb.git
+	GIT_TAG f1c79c0
+)
+FetchContent_MakeAvailable(stb_lib)
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${stb_lib_SOURCE_DIR})
+target_link_libraries(Nexus PUBLIC stb)
+
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_UNZIP OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+	assimp
+	GIT_REPOSITORY https://github.com/assimp/assimp.git
+	GIT_TAG v6.0.4
+)
+FetchContent_MakeAvailable(assimp)
+target_link_libraries(Nexus PUBLIC assimp::assimp)
+
+FetchContent_Declare(
+	yaml-cpp
+	GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+	GIT_TAG yaml-cpp-0.9.0
+)
+FetchContent_MakeAvailable(yaml-cpp)
+target_link_libraries(Nexus PUBLIC yaml-cpp)
+
+FetchContent_Declare(
+	freetype
+	GIT_REPOSITORY https://github.com/freetype/freetype.git
+	GIT_TAG 85c8efe
+)
+FetchContent_MakeAvailable(freetype)
+target_link_libraries(Nexus PRIVATE freetype)
+
+FetchContent_Declare(
+	spirv-headers
+	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+	GIT_TAG vulkan-sdk-1.4.341.0
+)
+FetchContent_MakeAvailable(spirv-headers)
+
+set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
+set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+	spirv-tools
+	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+	GIT_TAG v2026.1
+)
+FetchContent_MakeAvailable(spirv-tools)
+
+set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
+set(SKIP_GLSLANG_INSTALL ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+	glslang
+	GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+	GIT_TAG 16.2.0
+)
+FetchContent_MakeAvailable(glslang)
+target_link_libraries(Nexus PRIVATE glslang)
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SHADERC_SKIP_EXAMPLES ON CACHE BOOL "" FORCE)
+set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
+set(SHADERC_ENABLE_SHARED_CRT ON)
+FetchContent_Declare(
+	shaderc
+	GIT_REPOSITORY https://github.com/google/shaderc.git
+	GIT_TAG v2026.1
+)
+FetchContent_MakeAvailable(shaderc)
+target_link_libraries(Nexus PRIVATE shaderc)
+
+set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+	spirv-cross
+	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+	GIT_TAG a0fba56
+)
+FetchContent_MakeAvailable(spirv-cross)
+target_link_libraries(Nexus PRIVATE spirv-cross-cpp spirv-cross-hlsl)
+
+set(SPIRV_REFLECT_EXECUTABLE OFF CACHE BOOL "" FORCE)
+set(SPIRV_REFLECT_STATIC_LIB ON CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+	spirv_reflect
+	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Reflect.git
+	GIT_TAG vulkan-sdk-1.4.341.0
+)
+FetchContent_MakeAvailable(spirv_reflect)
+target_link_libraries(Nexus PRIVATE spirv-reflect-static)
 
 target_include_directories(Nexus ${NX_INCLUDE_VISIBILITY} SYSTEM ${NEXUS_INCLUDE_DIRS})
 target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+
+if (NX_PLATFORM_D3D12)
+	#dxc
+	FetchContent_Declare(
+		dxc
+		URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/dxc_2025_07_14.zip
+	)
+
+	FetchContent_MakeAvailable(dxc)
+
+	# DXC unpacks into a folder; we need to locate include + lib
+	set(DXC_ROOT ${dxc_SOURCE_DIR})
+
+	set(DXC_INCLUDE_DIR ${DXC_ROOT}/include)
+	set(DXC_LIB_DIR ${DXC_ROOT}/lib/x64)   # or lib/x86 depending on your target
+
+	# Add the include directory
+	target_include_directories(Nexus PRIVATE ${DXC_INCLUDE_DIR})
+
+	# Link the DXC libraries
+	target_link_directories(Nexus PRIVATE ${DXC_LIB_DIR})
+	target_link_libraries(Nexus PRIVATE dxcompiler)
+
+	#pix
+	FetchContent_Declare(
+		WinPixEventRuntime
+		URL https://www.nuget.org/api/v2/package/WinPixEventRuntime/1.0.230302001
+		DOWNLOAD_NO_EXTRACT FALSE
+	)
+	FetchContent_MakeAvailable(WinPixEventRuntime)
+
+	set(PIX_INCLUDE_DIR ${winpixeventruntime_SOURCE_DIR}/Include)
+	set(PIX_LIB_DIR ${winpixeventruntime_SOURCE_DIR}/bin/x64)
+
+	target_include_directories(Nexus PUBLIC ${PIX_INCLUDE_DIR})
+	target_link_directories(Nexus PRIVATE ${PIX_LIB_DIR})
+	target_link_libraries(Nexus PRIVATE WinPixEventRuntime)
+
+endif()
 
 target_compile_features(Nexus PUBLIC cxx_std_20)
 set_target_properties(Nexus PROPERTIES

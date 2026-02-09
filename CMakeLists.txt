@@ -3,6 +3,8 @@ cmake_policy(SET CMP0135 NEW)
 
 project("Nexus")
 
+set(BUILD_SHARED_LIBS OFF)
+
 #allow flexible page sizes on Android devices
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
 
@@ -22,7 +24,6 @@ endif()
 if (MINGW)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 endif()
-
 
 if (MSVC)
     #enable exceptions for all targets (MSVC only)

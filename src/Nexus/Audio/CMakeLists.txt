@@ -65,6 +65,15 @@ set_target_properties(Nexus-Audio PROPERTIES
 	COMPILE_WARNING_AS_ERROR ON)
 
 FetchContent_Declare(
+	libnyquist
+	GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
+	GIT_TAG 767efd9
+	GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(libnyquist)
+target_link_libraries(Nexus-Audio PRIVATE libnyquist)
+
+FetchContent_Declare(
 	tl_expected
 	GIT_REPOSITORY https://github.com/TartanLlama/expected.git
 	GIT_TAG v1.3.1
@@ -76,18 +85,3 @@ target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
 target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
 target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES})
-
-#ffmpeg
-if (MINGW)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
-		libavcodec libavformat libavutil libswscale libswresample
-	)
-
-	target_link_libraries(Nexus-Audio PRIVATE PkgConfig::FFMPEG)
-else()
-	find_package(FFMPEG REQUIRED)
-	target_include_directories(Nexus-Audio PRIVATE ${FFMPEG_INCLUDE_DIRS})
-	target_link_directories(Nexus-Audio PRIVATE ${FFMPEG_LIBRARY_DIRS})
-	target_link_libraries(Nexus-Audio PRIVATE ${FFMPEG_LIBRARIES})
-endif()

@@ -11,7 +11,7 @@
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 
-	#include <pix3.h>
+	#include <WinPixEventRuntime/pix3.h>
 
 namespace Nexus::Graphics
 {
