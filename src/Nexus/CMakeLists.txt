@@ -4,6 +4,8 @@ project ("Nexus")
 
 include(FetchContent)
 
+include(cmake/get_cpm.cmake)
+
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)
 endif()
@@ -221,12 +223,11 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   imguizmo
   glad2)
 
-FetchContent_Declare(
-	glm
-	GIT_REPOSITORY https://github.com/g-truc/glm.git
+CPMAddPackage(
+	NAME glm
+	GITHUB_REPOSITORY g-truc/glm
 	GIT_TAG 1.0.3
 )
-FetchContent_MakeAvailable(glm)
 target_link_libraries(Nexus PUBLIC glm::glm)
 
 #precompiled header
@@ -250,106 +251,101 @@ set(NX_INCLUDE_VISIBILITY PUBLIC)
 set(NX_LINK_VISIBILITY PUBLIC)
 set(NX_COMPILE_DEFINITION_VISIBILITY PUBLIC)#
 
-FetchContent_Declare(
-	stb_lib
-	GIT_REPOSITORY https://github.com/nothings/stb.git
+CPMAddPackage(
+	NAME stb_lib
+	GITHUB_REPOSITORY nothings/stb
 	GIT_TAG f1c79c0
 )
-FetchContent_MakeAvailable(stb_lib)
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${stb_lib_SOURCE_DIR})
 target_link_libraries(Nexus PUBLIC stb)
 
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_UNZIP OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
-FetchContent_Declare(
-	assimp
-	GIT_REPOSITORY https://github.com/assimp/assimp.git
+CPMAddPackage(
+	NAME assimp
+	GITHUB_REPOSITORY assimp/assimp
 	GIT_TAG v6.0.4
+	OPTIONS
+		"ASSIMP_BUILD_ASSIMP_TOOLS OFF"
+		"ASSIMP_BUILD_SAMPLES OFF"
+		"ASSIMP_BUILD_TESTS OFF"
+		"ASSIMP_BUILD_UNZIP OFF"
+		"ASSIMP_BUILD_ZLIB ON"
 )
-FetchContent_MakeAvailable(assimp)
 target_link_libraries(Nexus PUBLIC assimp::assimp)
 
-FetchContent_Declare(
-	yaml-cpp
-	GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+CPMAddPackage(
+	NAME yaml_cpp
+	GITHUB_REPOSITORY jbeder/yaml-cpp
 	GIT_TAG yaml-cpp-0.9.0
 )
-FetchContent_MakeAvailable(yaml-cpp)
 target_link_libraries(Nexus PUBLIC yaml-cpp)
 
-FetchContent_Declare(
-	freetype
-	GIT_REPOSITORY https://github.com/freetype/freetype.git
+CPMAddPackage(
+	NAME freetype
+	GITHUB_REPOSITORY freetype/freetype
 	GIT_TAG 85c8efe
 )
-FetchContent_MakeAvailable(freetype)
 target_link_libraries(Nexus PRIVATE freetype)
 
-FetchContent_Declare(
-	spirv-headers
-	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+CPMAddPackage(
+	NAME spirv-headers
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Headers
 	GIT_TAG vulkan-sdk-1.4.341.0
 )
-FetchContent_MakeAvailable(spirv-headers)
 
-set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
-set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(
-	spirv-tools
-	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+CPMAddPackage(
+	NAME spirv-tools
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Tools
 	GIT_TAG v2026.1
+	OPTIONS
+		"SKIP_SPIRV_TOOLS_INSTALL ON"
+		"ENABLE_SPIRV_TOOLS_INSTALL OFF"
 )
 FetchContent_MakeAvailable(spirv-tools)
 
-set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
-set(SKIP_GLSLANG_INSTALL ON CACHE BOOL "" FORCE)
-FetchContent_Declare(
-	glslang
-	GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+CPMAddPackage(
+	NAME glslang
+	GITHUB_REPOSITORY KhronosGroup/glslang
 	GIT_TAG 16.2.0
+	OPTIONS
+		"ENABLE_GLSLANG_BINARIES OFF"
+		"SKIP_GLSLANG_INSTALL ON"
 )
-FetchContent_MakeAvailable(glslang)
 target_link_libraries(Nexus PRIVATE glslang)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-set(SHADERC_SKIP_EXAMPLES ON CACHE BOOL "" FORCE)
-set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
-set(SHADERC_ENABLE_SHARED_CRT ON)
-FetchContent_Declare(
-	shaderc
-	GIT_REPOSITORY https://github.com/google/shaderc.git
+CPMAddPackage(
+	NAME shaderc
+	GITHUB_REPOSITORY google/shaderc
 	GIT_TAG v2026.1
+	OPTIONS
+		"SHADERC_ENABLE_TESTS OFF"
+		"SHADERC_SKIP_EXAMPLES ON"
+		"SHADERC_SKIP_TESTS ON"
+		"SHADERC_ENABLE_SHARED_CRT ON"
 )
-FetchContent_MakeAvailable(shaderc)
 target_link_libraries(Nexus PRIVATE shaderc)
 
-set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
-set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
-set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
-set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(
-	spirv-cross
-	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+CPMAddPackage(
+	NAME spirv-cross
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Cross
 	GIT_TAG a0fba56
+	OPTIONS
+		"SPIRV_CROSS_CLI OFF"
+		"SPIRV_CROSS_ENABLE_TESTS ON"
+		"SPIRV_SKIP_EXECUTABLES ON"
+		"SPIRV_SKIP_TESTS ON"
+		"SPIRV_CROSS_ENABLE_UTIL OFF"
 )
-FetchContent_MakeAvailable(spirv-cross)
 target_link_libraries(Nexus PRIVATE spirv-cross-cpp spirv-cross-hlsl)
 
-set(SPIRV_REFLECT_EXECUTABLE OFF CACHE BOOL "" FORCE)
-set(SPIRV_REFLECT_STATIC_LIB ON CACHE BOOL "" FORCE)
-
-FetchContent_Declare(
-	spirv_reflect
-	GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Reflect.git
+CPMAddPackage(
+	NAME spirv_reflect
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Reflect
 	GIT_TAG vulkan-sdk-1.4.341.0
+	OPTIONS
+		"SPIRV_REFLECT_EXECUTABLE OFF"
+		"SPIRV_REFLECT_STATIC_LIB ON"
 )
-FetchContent_MakeAvailable(spirv_reflect)
 target_link_libraries(Nexus PRIVATE spirv-reflect-static)
 
 target_include_directories(Nexus ${NX_INCLUDE_VISIBILITY} SYSTEM ${NEXUS_INCLUDE_DIRS})
