@@ -78,9 +78,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:\cpm-cache
-          key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/cmake/*.cmake') }}
+          key: cpm-windows-${{ hashFiles('cmake/CPM.cmake') }}
           restore-keys: |
             cpm-windows-
+
 
       # -------------------------------
       # LLVM / Clang setup
@@ -175,7 +176,6 @@ jobs:
             $LAUNCHER_OPTS \
             $MODULE_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCPM_SOURCE_CACHE="C:/Users/runneradmin/AppData/Local/cpm-cache" \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
@@ -196,7 +196,6 @@ jobs:
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCPM_SOURCE_CACHE="$HOME/.cache/cpm" \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
@@ -304,9 +303,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/sccache
-          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          key: cpm-linux-${{ hashFiles('cmake/CPM.cmake') }}
           restore-keys: |
-            sccache-linux-${{ matrix.c_compiler }}
+            cpm-linux-
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
@@ -324,7 +323,6 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCPM_SOURCE_CACHE="$HOME/.cache/cpm" \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
