@@ -231,15 +231,47 @@ jobs:
       # -------------------------------
       # Dependencies
       # -------------------------------
-      - run: |
-          sudo apt-get update
+      - name: Fix apt mirror sync issues
+        run: |
+          sudo apt-get clean
+          sudo apt-get update --allow-releaseinfo-change
+          sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
+
+      - name: Install Linux dependencies
+        run: |
           sudo apt-get install -y \
-            build-essential ninja-build sccache \
-            libgl1-mesa-dev libx11-dev
+            libgl1-mesa-dev mesa-utils mesa-common-dev \
+            libx11-dev xserver-xorg-dev xorg-dev \
+            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
-      - uses: seanmiddleditch/gha-setup-ninja@v6
+      - name: Install libc++ for Clang
+        if: matrix.c_compiler == 'clang'
+        run: |
+          sudo apt-get install -y libc++-dev libc++abi-dev
 
-      - uses: humbletim/install-vulkan-sdk@v1.2
+      - name: Install Clang (latest)
+        if: matrix.c_compiler == 'clang'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh all
+
+      - name: Install sccache
+        run: sudo apt-get install -y sccache
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/sccache
+          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          restore-keys: |
+            sccache-linux-${{ matrix.c_compiler }}
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
