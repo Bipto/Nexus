@@ -78,7 +78,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:\cpm-cache
-          key: cpm-windows-${{ hashFiles('cmake/CPM.cmake') }}
+          key: cpm-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
           restore-keys: |
             cpm-windows-
 
