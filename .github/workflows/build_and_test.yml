@@ -159,7 +159,7 @@ jobs:
 
           # Disable module scanning for Clang and Clang-CL
           if [[ "${{ matrix.c_compiler }}" == "clang" || "${{ matrix.c_compiler }}" == "clang-cl" ]]; then
-              MODULE_OPTS="-DCMAKE_CXX_SCAN_FOR_MODULES=OFF -DCMAKE_CXX_MODULES=OFF"
+              MODULE_OPTS="-DCMAKE_CXX_SCAN_FOR_MODULES=OFF -DCMAKE_CXX_MODULES=OFF -DALSOFT_REQUIRE_CXX20_MODULES=OFF -DALSOFT_BUILD_MODULES=OFF ALSOFT_ENABLE_MODULES=OFF"
           else
               MODULE_OPTS=""
           fi
