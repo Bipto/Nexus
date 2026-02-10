@@ -5,6 +5,9 @@ project("Nexus")
 
 set(BUILD_SHARED_LIBS OFF)
 
+set(CPM_DOWNLOAD_ALL ON)
+set(CPM_USE_NAMED_CACHE_DIRECTORIES ON)
+
 #disable cmake module scanning
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
