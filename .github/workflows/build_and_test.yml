@@ -1,4 +1,4 @@
-name: Build and Test (Multi-Platform)
+﻿name: Build and Test (Multi‑Platform)
 
 on:
   push:
@@ -6,12 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
-# ============================================================
-# WINDOWS
-# ============================================================
 jobs:
+  # ============================================================
+  # WINDOWS JOB
+  # ============================================================
   build-windows:
-    name: Windows (${{ matrix.name }} - ${{ matrix.build_type }})
+    name: Build (Windows - ${{ matrix.name }} - ${{ matrix.build_type }})
     runs-on: windows-latest
 
     env:
@@ -21,9 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # ----------------------------
           # MSVC
-          # ----------------------------
           - name: MSVC
             c_compiler: cl
             cpp_compiler: cl
@@ -34,9 +32,7 @@ jobs:
             cpp_compiler: cl
             build_type: Debug
 
-          # ----------------------------
           # Clang-CL
-          # ----------------------------
           - name: Clang-CL
             c_compiler: clang-cl
             cpp_compiler: clang-cl
@@ -47,9 +43,7 @@ jobs:
             cpp_compiler: clang-cl
             build_type: Debug
 
-          # ----------------------------
-          # Clang
-          # ----------------------------
+          # <<< NEW: Regular Clang (clang + lld-link)
           - name: Clang
             c_compiler: clang
             cpp_compiler: clang++
@@ -60,9 +54,7 @@ jobs:
             cpp_compiler: clang++
             build_type: Debug
 
-          # ----------------------------
-          # MinGW-UCRT
-          # ----------------------------
+          # MinGW-UCRT (MSYS2)
           - name: MinGW-UCRT
             c_compiler: ucrt64-w64-mingw32-gcc
             cpp_compiler: ucrt64-w64-mingw32-g++
@@ -79,7 +71,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # -------------------------------
+       # -------------------------------
       # CPM cache (shared across all Windows jobs)
       # -------------------------------
       - name: Cache CPM dependencies
@@ -91,9 +83,9 @@ jobs:
             cpm-windows-
 
       # -------------------------------
-      # Tooling
+      # LLVM / Clang setup
       # -------------------------------
-      - name: Install LLVM
+      - name: Install LLVM (Clang & Clang-CL)
         if: matrix.c_compiler == 'clang' || matrix.c_compiler == 'clang-cl'
         run: choco install llvm
 
@@ -106,19 +98,26 @@ jobs:
           path: C:\Users\runneradmin\AppData\Local\sccache
           key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
-            sccache-windows-
+            sccache-windows-${{ matrix.c_compiler }}
 
-      - uses: seanmiddleditch/gha-setup-ninja@v6
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
 
-      - uses: TheMrMilchmann/setup-msvc-dev@v3
+      - name: Install Windows SDK
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+        with:
+          sdk-version: 26100
+
+      - name: Setup MSVC
         if: matrix.name != 'MinGW-UCRT'
+        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
           arch: x64
 
-      # -------------------------------
-      # MSYS2 (MinGW-UCRT)
-      # -------------------------------
-      - name: Setup MSYS2
+      # ------------------------------------------------------------
+      # MSYS2 MinGW-UCRT setup
+      # ------------------------------------------------------------
+      - name: Install MinGW-UCRT (MSYS2)
         if: matrix.name == 'MinGW-UCRT'
         uses: msys2/setup-msys2@v2
         with:
@@ -129,60 +128,104 @@ jobs:
             mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-ffmpeg
 
-      # -------------------------------
-      # Vulkan
-      # -------------------------------
-      - uses: humbletim/install-vulkan-sdk@v1.2
+      # ------------------------------------------------------------
+      # Vulkan SDK
+      # ------------------------------------------------------------
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
-      # -------------------------------
-      # Configure
-      # -------------------------------
-      - name: Configure (MSVC / Clang)
+      # ------------------------------------------------------------
+      # CMake configure (MSVC / Clang-CL / Clang)
+      # ------------------------------------------------------------
+      - name: Configure CMake (MSVC/Clang/Clang-CL)
         if: matrix.name != 'MinGW-UCRT'
         shell: bash
         run: |
+          # Determine launcher flags
+          if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
+              LAUNCHER_OPTS=""
+          else
+              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          fi
+
+          # Regular Clang requires lld-link
+          if [[ "${{ matrix.c_compiler }}" == "clang" ]]; then
+              LINKER_OPTS="-DCMAKE_LINKER=lld-link -DCMAKE_CXX_LINKER=lld-link"
+          else
+              LINKER_OPTS=""
+          fi
+
+          # Disable module scanning for Clang and Clang-CL
+          if [[ "${{ matrix.c_compiler }}" == "clang" || "${{ matrix.c_compiler }}" == "clang-cl" ]]; then
+              MODULE_OPTS="-DCMAKE_CXX_SCAN_FOR_MODULES=OFF -DCMAKE_CXX_MODULES=OFF -DALSOFT_REQUIRE_CXX20_MODULES=OFF -DALSOFT_BUILD_MODULES=OFF -DALSOFT_ENABLE_MODULES=OFF"
+          else
+              MODULE_OPTS=""
+          fi
+
           cmake -B build \
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            $LINKER_OPTS \
+            $LAUNCHER_OPTS \
+            $MODULE_OPTS \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_SOURCE_CACHE="C:/Users/runneradmin/AppData/Local/cpm-cache" \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_PLATFORM_D3D12=ON \
             -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
+            -DALSOFT_REQUIRE_MODULES=OFF \
             -DCMAKE_CXX_MODULES=OFF \
             -DNX_BUILD_TESTS=1 \
             -S .
 
-      - name: Configure (MinGW-UCRT)
+      # ------------------------------------------------------------
+      # CMake configure (MSYS2 MinGW-UCRT)
+      # ------------------------------------------------------------
+      - name: Configure CMake (MSYS2 MinGW-UCRT)
         if: matrix.name == 'MinGW-UCRT'
         shell: msys2 {0}
         run: |
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCPM_SOURCE_CACHE="$HOME/.cache/cpm" \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
             -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
+            -DALSOFT_REQUIRE_MODULES=OFF \
             -DCMAKE_CXX_MODULES=OFF \
             -DNX_BUILD_TESTS=1 \
             -S .
 
-      # -------------------------------
+      # ------------------------------------------------------------
       # Build
-      # -------------------------------
-      - name: Build
+      # ------------------------------------------------------------
+      - name: Build (MSVC/Clang/Clang-CL)
+        if: matrix.name != 'MinGW-UCRT'
+        run: cmake --build build --target TestRunner
+
+      - name: Build (MSYS2 MinGW-UCRT)
+        if: matrix.name == 'MinGW-UCRT'
+        shell: msys2 {0}
         run: cmake --build build --target TestRunner
 
       - name: sccache stats
         run: sccache --show-stats || true
 
-# ============================================================
-# LINUX
-# ============================================================
+  # ============================================================
+  # LINUX JOB
+  # ============================================================
   build-linux:
-    name: Linux (${{ matrix.name }} - ${{ matrix.build_type }})
+    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.build_type }})
     runs-on: ubuntu-24.04
 
     env:
@@ -216,21 +259,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       # -------------------------------
-      # CPM cache
+      # CPM.cmake cache
       # -------------------------------
-      - name: Cache CPM dependencies
+      - name: Cache CPM.cmake dependencies
         uses: actions/cache@v4
         with:
           path: ~/.cache/cpm
-          key: cpm-linux-${{ hashFiles('**/CMakeLists.txt', '**/cmake/*.cmake') }}
+          key: cpm-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
           restore-keys: |
-            cpm-linux-
+            cpm-linux-${{ matrix.c_compiler }}
 
-      # -------------------------------
-      # Dependencies
-      # -------------------------------
       - name: Fix apt mirror sync issues
         run: |
           sudo apt-get clean
@@ -276,23 +317,27 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      # -------------------------------
-      # Configure & Build
-      # -------------------------------
-      - name: Configure
+      - name: Configure CMake
         run: |
           cmake -B build \
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_SOURCE_CACHE="$HOME/.cache/cpm" \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
             -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
+            -DALSOFT_REQUIRE_MODULES=OFF \
             -DCMAKE_CXX_MODULES=OFF \
             -DNX_BUILD_TESTS=1 \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
 
-      - run: cmake --build build --target TestRunner
+      - name: Build
+        run: cmake --build build --target TestRunner
 
-      - run: sccache --show-stats || true
+      - name: sccache stats
+        run: sccache --show-stats || true
