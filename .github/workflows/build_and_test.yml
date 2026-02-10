@@ -79,7 +79,8 @@ jobs:
         with:
           path: C:\cpm-cache
           key: cpm-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
-          cpm-linux-${{ matrix.c_compiler }}
+          restore-keys: |
+            cpm-windows-${{ matrix.c_compiler }}
 
 
       # -------------------------------
