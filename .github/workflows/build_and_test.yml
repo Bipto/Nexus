@@ -16,9 +16,6 @@ jobs:
 
     env:
       SCCACHE_IDLE_TIMEOUT: 0
-      CPM_SOURCE_CACHE: ${{ github.workspace }}\cache\CPM
-      SCCACHE_DIR: ${{ github.workspace }}\cache\sccache
-
 
     strategy:
       fail-fast: false
@@ -91,7 +88,7 @@ jobs:
       - name: Cache sccache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}\cache\sccache
+          path: ~\AppData\Local\Mozilla\sccache
           key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-windows-${{ matrix.c_compiler }}
@@ -176,6 +173,7 @@ jobs:
             -DNX_PLATFORM_OPENAL=1 `
             -DNX_PLATFORM_D3D12=ON `
             -DNX_BUILD_TESTS=1 `
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM `
             $extra `
             -S .
 
@@ -198,6 +196,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM `
             -S .
 
       # ------------------------------------------------------------
@@ -218,8 +217,6 @@ jobs:
 
     env:
       SCCACHE_IDLE_TIMEOUT: 0
-      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/CPM
-      SCCACHE_CACHE_DIR: ${{ github.workspace }}/.cache/sccache
 
     strategy:
       fail-fast: false
@@ -271,7 +268,7 @@ jobs:
       - name: Cache sccache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/.cache/sccache
+          path: /home/runner/.cache/sccache
           key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-linux-${{ matrix.c_compiler }}
@@ -323,6 +320,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM `
             -S .
 
       - name: Build
