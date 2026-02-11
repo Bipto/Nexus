@@ -196,7 +196,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM `
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM \
             -S .
 
       # ------------------------------------------------------------
@@ -320,7 +320,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM `
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM \
             -S .
 
       - name: Build
