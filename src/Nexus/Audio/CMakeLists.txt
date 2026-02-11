@@ -46,6 +46,7 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
+	  set(ALSOFT_ENABLE_MODULES OFF CACHE BOOL "")
 	  FetchContent_Declare(
 		openal-soft
 		GIT_REPOSITORY https://github.com/kcat/openal-soft.git
