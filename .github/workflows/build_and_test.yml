@@ -98,7 +98,7 @@ jobs:
       - uses: KyleMayes/install-llvm-action@v2
         if: matrix.c_compiler == 'clang' || matrix.c_compiler == 'clang-cl'
         with:
-          version: "18"
+          version: "21"
 
       # ------------------------------------------------------------
       # Ninja
