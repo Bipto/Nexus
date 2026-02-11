@@ -15,8 +15,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CPM_SOURCE_CACHE: C:\CPM
-      SCCACHE_DIR: C:\sccache
+      CPM_SOURCE_CACHE: ${{ github.workspace }}\CPM
+      SCCACHE_DIR: ${{ github.workspace }}\sccache
 
     strategy:
       fail-fast: false
@@ -74,7 +74,7 @@ jobs:
       - name: Cache CPM
         uses: actions/cache@v4
         with:
-          path: C:\CPM
+          path: ${{ github.workspace }}\CPM
           key: cpm-windows-v1
 
       # ------------------------------------------------------------
@@ -86,7 +86,7 @@ jobs:
       - name: Cache sccache
         uses: actions/cache@v4
         with:
-          path: C:\sccache
+          path: ${{ github.workspace }}sccache
           key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-windows-${{ matrix.c_compiler }}
@@ -130,10 +130,9 @@ jobs:
             mingw-w64-ucrt-x86_64-ninja
 
       # ------------------------------------------------------------
-      # Vulkan SDK (NOT for MSYS2)
+      # Vulkan SDK
       # ------------------------------------------------------------
       - name: Install Vulkan SDK
-        if: matrix.name != 'MinGW-UCRT'
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
@@ -213,8 +212,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      CPM_SOURCE_CACHE: ~/.cache/CPM
-      SCCACHE_DIR: ~/.cache/sccache
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/CPM
+      SCCACHE_CACHE_DIR: ${{ github.workspace }}/.sccache
 
     strategy:
       fail-fast: false
@@ -252,7 +251,7 @@ jobs:
       - name: Cache CPM
         uses: actions/cache@v4
         with:
-          path: ~/.cache/CPM
+          path: ${{ github.workspace }}/.cache/CPM
           key: cpm-linux-v1
 
       # ------------------------------------------------------------
@@ -264,7 +263,7 @@ jobs:
       - name: Cache sccache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/sccache
+          path: ${{ github.workspace }}/.cache/sccache
           key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-linux-${{ matrix.c_compiler }}
