@@ -74,10 +74,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}\cache\CPM
-          key: cpm-windows-${{ hashFiles('**/CMakeLists.txt') }}
+          key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
             cpm-windows-
-
 
       # ------------------------------------------------------------
       # sccache
@@ -89,18 +88,17 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~\AppData\Local\Mozilla\sccache
-          key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          key: sccache-windows-${{ matrix.c_compiler }}
           restore-keys: |
-            sccache-windows-${{ matrix.c_compiler }}
+            sccache-windows-
 
       # ------------------------------------------------------------
-      # LLVM (Clang / lld)
+      # LLVM (fast install)
       # ------------------------------------------------------------
-      - name: Install LLVM
+      - uses: KyleMayes/install-llvm-action@v2
         if: matrix.c_compiler == 'clang' || matrix.c_compiler == 'clang-cl'
-        run: |
-          choco install llvm
-          refreshenv
+        with:
+          version: "18"
 
       # ------------------------------------------------------------
       # Ninja
@@ -108,11 +106,11 @@ jobs:
       - uses: seanmiddleditch/gha-setup-ninja@v6
 
       # ------------------------------------------------------------
-      # MSVC (ONLY for cl / clang-cl)
+      # MSVC environment
       # ------------------------------------------------------------
       - name: Setup MSVC
         if: matrix.c_compiler == 'cl' || matrix.c_compiler == 'clang-cl'
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
@@ -124,9 +122,8 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
-          update: true
+          update: false
           install: >
-            base-devel
             mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
@@ -148,15 +145,8 @@ jobs:
         shell: pwsh
         run: |
           $extra = ""
-
-          if ("${{ matrix.c_compiler }}" -ne "cl") {
-            $extra += " -DCMAKE_C_COMPILER_LAUNCHER=sccache"
-            $extra += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-          }
-
-          if ("${{ matrix.c_compiler }}" -eq "clang") {
-            $extra += " -DCMAKE_LINKER=lld-link"
-          }
+          $extra += " -DCMAKE_C_COMPILER_LAUNCHER=sccache"
+          $extra += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
 
           cmake -B build `
             -G Ninja `
@@ -187,6 +177,8 @@ jobs:
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_USE_LOCAL_PACKAGES=ON \
             -DCPM_DOWNLOAD_ALL=ON \
             -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
@@ -200,10 +192,17 @@ jobs:
             -S .
 
       # ------------------------------------------------------------
+      # Speed: Defender exclusion
+      # ------------------------------------------------------------
+      - name: Disable Defender scanning for build dir
+        shell: pwsh
+        run: Add-MpPreference -ExclusionPath "$pwd\build"
+
+      # ------------------------------------------------------------
       # Build
       # ------------------------------------------------------------
       - name: Build
-        run: cmake --build build --target TestRunner
+        run: cmake --build build --target TestRunner --parallel
 
       - name: sccache stats
         run: sccache --show-stats || true
@@ -248,20 +247,16 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # ------------------------------------------------------------
       # CPM cache
-      # ------------------------------------------------------------
       - name: Cache CPM
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.cache/CPM
-          key: cpm-linux-${{ hashFiles('**/CMakeLists.txt') }}
+          key: cpm-linux-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
             cpm-linux-
 
-      # ------------------------------------------------------------
       # sccache
-      # ------------------------------------------------------------
       - name: Install sccache
         run: sudo apt-get update && sudo apt-get install -y sccache
 
@@ -269,27 +264,20 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/sccache
-          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          key: sccache-linux-${{ matrix.c_compiler }}
           restore-keys: |
-            sccache-linux-${{ matrix.c_compiler }}
+            sccache-linux-
 
-      # ------------------------------------------------------------
       # Dependencies
-      # ------------------------------------------------------------
       - name: Install deps
         run: |
           sudo apt-get install -y \
             build-essential \
             libgl1-mesa-dev \
             libx11-dev \
-            xorg-dev
-
-      - name: Install Clang
-        if: matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh all
+            xorg-dev \
+            clang \
+            lld
 
       - uses: seanmiddleditch/gha-setup-ninja@v6
 
@@ -299,9 +287,7 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      # ------------------------------------------------------------
       # Configure
-      # ------------------------------------------------------------
       - name: Configure CMake
         run: |
           cmake -B build \
@@ -309,10 +295,10 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCPM_USE_LOCAL_PACKAGES=ON \
-            -DCPM_DOWNLOAD_ALL=ON \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_USE_LOCAL_PACKAGES=ON \
+            -DCPM_DOWNLOAD_ALL=ON \
             -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
             -DCMAKE_CXX_MODULES=OFF \
             -DALSOFT_REQUIRE_MODULES=OFF \
@@ -324,7 +310,7 @@ jobs:
             -S .
 
       - name: Build
-        run: cmake --build build --target TestRunner
+        run: cmake --build build --target TestRunner --parallel
 
       - name: sccache stats
         run: sccache --show-stats || true
