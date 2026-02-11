@@ -15,8 +15,10 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CPM_SOURCE_CACHE: ${{ github.workspace }}\CPM
-      SCCACHE_DIR: ${{ github.workspace }}\sccache
+      SCCACHE_IDLE_TIMEOUT: 0
+      CPM_SOURCE_CACHE: ${{ github.workspace }}\cache\CPM
+      SCCACHE_DIR: ${{ github.workspace }}\cache\sccache
+
 
     strategy:
       fail-fast: false
@@ -74,8 +76,11 @@ jobs:
       - name: Cache CPM
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}\CPM
-          key: cpm-windows-v1
+          path: ${{ github.workspace }}\cache\CPM
+          key: cpm-windows-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            cpm-windows-
+
 
       # ------------------------------------------------------------
       # sccache
@@ -86,7 +91,7 @@ jobs:
       - name: Cache sccache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}sccache
+          path: ${{ github.workspace }}\cache\sccache
           key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-windows-${{ matrix.c_compiler }}
@@ -95,7 +100,7 @@ jobs:
       # LLVM (Clang / lld)
       # ------------------------------------------------------------
       - name: Install LLVM
-        if: matrix.c_compiler != 'cl'
+        if: matrix.c_compiler == 'clang' || matrix.c_compiler == 'clang-cl'
         run: |
           choco install llvm
           refreshenv
@@ -212,8 +217,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
+      SCCACHE_IDLE_TIMEOUT: 0
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/CPM
-      SCCACHE_CACHE_DIR: ${{ github.workspace }}/.sccache
+      SCCACHE_CACHE_DIR: ${{ github.workspace }}/.cache/sccache
 
     strategy:
       fail-fast: false
@@ -252,7 +258,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.cache/CPM
-          key: cpm-linux-v1
+          key: cpm-linux-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            cpm-linux-
 
       # ------------------------------------------------------------
       # sccache
