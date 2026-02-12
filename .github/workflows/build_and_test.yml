@@ -6,60 +6,32 @@ on:
   pull_request:
     branches: [ main ]
 
+jobs:
+
 # ============================================================
 # WINDOWS
 # ============================================================
-jobs:
+
   build-windows:
     name: Build (Windows - ${{ matrix.name }} - ${{ matrix.build_type }})
     runs-on: windows-latest
 
     env:
       SCCACHE_IDLE_TIMEOUT: 0
+      SCCACHE_CACHE_SIZE: 5G
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: MSVC
-            c_compiler: cl
-            cpp_compiler: cl
-            build_type: Release
-
-          - name: MSVC
-            c_compiler: cl
-            cpp_compiler: cl
-            build_type: Debug
-
-          - name: Clang-CL
-            c_compiler: clang-cl
-            cpp_compiler: clang-cl
-            build_type: Release
-
-          - name: Clang-CL
-            c_compiler: clang-cl
-            cpp_compiler: clang-cl
-            build_type: Debug
-
-          - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Release
-
-          - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Debug
-
-          - name: MinGW-UCRT
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Release
-
-          - name: MinGW-UCRT
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Debug
+          - { name: MSVC,      c: cl,        cxx: cl,        type: Release }
+          - { name: MSVC,      c: cl,        cxx: cl,        type: Debug }
+          - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Release }
+          - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Debug }
+          - { name: Clang,     c: clang,     cxx: clang++,   type: Release }
+          - { name: Clang,     c: clang,     cxx: clang++,   type: Debug }
+          - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Release }
+          - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Debug }
 
     steps:
       - uses: actions/checkout@v4
@@ -68,15 +40,13 @@ jobs:
           fetch-depth: 0
 
       # ------------------------------------------------------------
-      # CPM cache
+      # CPM Cache
       # ------------------------------------------------------------
-      - name: Cache CPM
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}\cache\CPM
           key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-          restore-keys: |
-            cpm-windows-
+          restore-keys: cpm-windows-
 
       # ------------------------------------------------------------
       # sccache
@@ -84,38 +54,36 @@ jobs:
       - name: Install sccache
         run: choco install sccache
 
-      - name: Cache sccache
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~\AppData\Local\Mozilla\sccache
-          key: sccache-windows-${{ matrix.c_compiler }}
-          restore-keys: |
-            sccache-windows-
+          key: sccache-windows-${{ matrix.c }}
+          restore-keys: sccache-windows-
+
+      - name: Start sccache
+        run: sccache --start-server
 
       # ------------------------------------------------------------
-      # LLVM (fast install)
+      # LLVM
       # ------------------------------------------------------------
       - uses: KyleMayes/install-llvm-action@v2
-        if: matrix.c_compiler == 'clang' || matrix.c_compiler == 'clang-cl'
+        if: matrix.c == 'clang' || matrix.c == 'clang-cl'
         with:
           version: "21"
 
-      # ------------------------------------------------------------
-      # Ninja
-      # ------------------------------------------------------------
       - uses: seanmiddleditch/gha-setup-ninja@v6
 
       # ------------------------------------------------------------
-      # MSVC environment
+      # MSVC env
       # ------------------------------------------------------------
       - name: Setup MSVC
-        if: matrix.c_compiler == 'cl' || matrix.c_compiler == 'clang-cl'
+        if: matrix.c == 'cl' || matrix.c == 'clang-cl'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
       # ------------------------------------------------------------
-      # MSYS2 (MinGW-UCRT)
+      # MSYS2
       # ------------------------------------------------------------
       - name: Setup MSYS2
         if: matrix.name == 'MinGW-UCRT'
@@ -128,11 +96,15 @@ jobs:
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
 
+      - name: Add sccache to MSYS2 PATH
+        if: matrix.name == 'MinGW-UCRT'
+        shell: msys2 {0}
+        run: echo "export PATH=/c/ProgramData/chocolatey/bin:\$PATH" >> ~/.bashrc
+
       # ------------------------------------------------------------
-      # Vulkan SDK
+      # Vulkan
       # ------------------------------------------------------------
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+      - uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
@@ -144,15 +116,14 @@ jobs:
         if: matrix.name != 'MinGW-UCRT'
         shell: pwsh
         run: |
-          $extra = ""
-          $extra += " -DCMAKE_C_COMPILER_LAUNCHER=sccache"
-          $extra += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-
           cmake -B build `
             -G Ninja `
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
+            -DCMAKE_C_COMPILER=${{ matrix.c }} `
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} `
+            -DCMAKE_BUILD_TYPE=${{ matrix.type }} `
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache `
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
+            -DCMAKE_RC_COMPILER_LAUNCHER= `
             -DCPM_USE_LOCAL_PACKAGES=ON `
             -DCPM_DOWNLOAD_ALL=ON `
             -DCMAKE_CXX_SCAN_FOR_MODULES=OFF `
@@ -166,7 +137,6 @@ jobs:
             -DNX_PLATFORM_D3D12=ON `
             -DNX_BUILD_TESTS=1 `
             -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM `
-            $extra `
             -S .
 
       # ------------------------------------------------------------
@@ -178,72 +148,57 @@ jobs:
         run: |
           cmake -B build \
             -G Ninja \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_RC_COMPILER_LAUNCHER= \
             -DCPM_USE_LOCAL_PACKAGES=ON \
             -DCPM_DOWNLOAD_ALL=ON \
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
             -DCMAKE_CXX_MODULES=OFF \
-            -DALSOFT_REQUIRE_MODULES=OFF \
             -DALSOFT_BUILD_MODULES=OFF \
             -DHAVE_CXXMODULES:BOOL=OFF \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM \
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/cache/CPM \
             -S .
 
-      # ------------------------------------------------------------
-      # Speed: Defender exclusion
-      # ------------------------------------------------------------
-      - name: Disable Defender scanning for build dir
+      # Defender speedup
+      - name: Exclude build dir from Defender
         shell: pwsh
         run: Add-MpPreference -ExclusionPath "$pwd\build"
 
-      # ------------------------------------------------------------
-      # Build
-      # ------------------------------------------------------------
       - name: Build
-        run: cmake --build build --target TestRunner --parallel
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
 
       - name: sccache stats
         run: sccache --show-stats || true
 
-  # ============================================================
-  # LINUX
-  # ============================================================
+
+# ============================================================
+# LINUX
+# ============================================================
+
   build-linux:
-    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.build_type }})
+    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.type }})
     runs-on: ubuntu-24.04
 
     env:
       SCCACHE_IDLE_TIMEOUT: 0
+      SCCACHE_CACHE_SIZE: 5G
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: GCC
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Release
-
-          - name: GCC
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Debug
-
-          - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Release
-
-          - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Debug
+          - { name: GCC,   c: gcc,   cxx: g++,     type: Release }
+          - { name: GCC,   c: gcc,   cxx: g++,     type: Debug }
+          - { name: Clang, c: clang, cxx: clang++, type: Release }
+          - { name: Clang, c: clang, cxx: clang++, type: Debug }
 
     steps:
       - uses: actions/checkout@v4
@@ -251,63 +206,53 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # CPM cache
-      - name: Cache CPM
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.cache/CPM
           key: cpm-linux-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-          restore-keys: |
-            cpm-linux-
+          restore-keys: cpm-linux-
 
-      # sccache
-      - name: Install sccache
-        run: sudo apt-get update && sudo apt-get install -y sccache
-
-      - name: Cache sccache
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.cache/sccache
-          key: sccache-linux-${{ matrix.c_compiler }}
-          restore-keys: |
-            sccache-linux-
-
-      # Dependencies
       - name: Install deps
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             libgl1-mesa-dev \
             libx11-dev \
             xorg-dev \
-            clang \
-            lld
+            sccache
+
+          if [ "${{ matrix.c }}" = "clang" ]; then
+            sudo apt-get install -y clang lld
+          fi
+
+      - uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/sccache
+          key: sccache-linux-${{ matrix.c }}
+          restore-keys: sccache-linux-
+
+      - name: Start sccache
+        run: sccache --start-server
 
       - uses: seanmiddleditch/gha-setup-ninja@v6
 
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+      - uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
 
-      # Configure
-      - name: Configure CMake
+      - name: Configure
         run: |
           cmake -B build \
             -G Ninja \
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=${{ matrix.c }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_USE_LOCAL_PACKAGES=ON \
             -DCPM_DOWNLOAD_ALL=ON \
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
-            -DALSOFT_BUILD_MODULES=OFF \
-            -DHAVE_CXXMODULES:BOOL=OFF \
-            -DCMAKE_CXX_MODULES=OFF \
-            -DALSOFT_REQUIRE_MODULES=OFF \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
@@ -316,7 +261,10 @@ jobs:
             -S .
 
       - name: Build
-        run: cmake --build build --target TestRunner --parallel
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
 
       - name: sccache stats
         run: sccache --show-stats || true
