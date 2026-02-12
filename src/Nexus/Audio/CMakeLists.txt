@@ -66,13 +66,13 @@ set_target_properties(Nexus-Audio PROPERTIES
 	COMPILE_WARNING_AS_ERROR ON)
 
 FetchContent_Declare(
-	libnyquist
-	GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
-	GIT_TAG 767efd9
+	libsndfile
+	GIT_REPOSITORY https://github.com/libsndfile/libsndfile.git
+	GIT_TAG 68f6c16
 	GIT_PROGRESS TRUE
 )
-FetchContent_MakeAvailable(libnyquist)
-target_link_libraries(Nexus-Audio PRIVATE libnyquist)
+FetchContent_MakeAvailable(libsndfile)
+target_link_libraries(Nexus-Audio PRIVATE sndfile)
 
 FetchContent_Declare(
 	tl_expected

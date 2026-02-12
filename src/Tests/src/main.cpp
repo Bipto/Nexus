@@ -103,6 +103,8 @@ TEST(ScopedEvent, Behaviour)
 	EXPECT_EQ(eventHandler.GetDelegateCount(), 0);
 }
 
+#if defined(NX_TEST_GRAPHICS)
+
 void CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI					   api,
 								std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	  &graphicsAPI,
 								std::unique_ptr<Nexus::Graphics::IGraphicsDevice> &device,
@@ -132,7 +134,7 @@ void CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI					   api,
 	}
 }
 
-#if defined(NX_PLATFORM_OPENGL)
+	#if defined(NX_PLATFORM_OPENGL)
 TEST(CreateGraphicsDeviceOpenGL, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	  api	 = nullptr;
@@ -141,9 +143,9 @@ TEST(CreateGraphicsDeviceOpenGL, Successful)
 	CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI::OpenGL, api, device, queue);
 	EXPECT_TRUE(device->Validate());
 }
-#endif
+	#endif
 
-#if defined(NX_PLATFORM_D3D12)
+	#if defined(NX_PLATFORM_D3D12)
 TEST(CreateGraphicsDeviceD3D12, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	  api	 = nullptr;
@@ -153,9 +155,9 @@ TEST(CreateGraphicsDeviceD3D12, Successful)
 	CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI::D3D12, api, device, queue);
 	EXPECT_TRUE(device->Validate());
 }
-#endif
+	#endif
 
-#if defined(NX_PLATFORM_VULKAN)
+	#if defined(NX_PLATFORM_VULKAN)
 TEST(CreateGraphicsDeviceVulkan, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	  api	 = nullptr;
@@ -165,7 +167,7 @@ TEST(CreateGraphicsDeviceVulkan, Successful)
 	CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI::Vulkan, api, device, queue);
 	EXPECT_TRUE(device->Validate());
 }
-#endif
+	#endif
 
 bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 {
@@ -238,25 +240,27 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	return memcmp(&col, pixel.data(), sizeof(uint32_t)) == 0;
 }
 
-#if defined(NX_PLATFORM_OPENGL)
+	#if defined(NX_PLATFORM_OPENGL)
 TEST(CopyTextureToBufferOpenGL, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::OpenGL));
 }
-#endif
+	#endif
 
-#if defined(NX_PLATFORM_D3D12)
+	#if defined(NX_PLATFORM_D3D12)
 TEST(CopyTextureToBufferD3D12, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::D3D12));
 }
-#endif
+	#endif
 
-#if defined(NX_PLATFORM_VULKAN)
+	#if defined(NX_PLATFORM_VULKAN)
 TEST(CopyTextureToBufferVulkan, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::Vulkan));
 }
+	#endif
+
 #endif
 
 TEST(ResourcePool, Successful)
