@@ -44,7 +44,7 @@ jobs:
       # ------------------------------------------------------------
       - uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}\cache\CPM
+          path: ${{ github.workspace }}/.cache/CPM
           key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: cpm-windows-
 
@@ -57,8 +57,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~\AppData\Local\Mozilla\sccache
-          key: sccache-windows-${{ matrix.c }}
-          restore-keys: sccache-windows-
+          key: sccache-windows-${{ matrix.c }}-${{ matrix.type }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            sccache-windows-${{ matrix.c }}-${{ matrix.type }}-
+            sccache-windows-${{ matrix.c }}-
 
       - name: Start sccache
         if: matrix.c != 'cl'
@@ -124,27 +126,22 @@ jobs:
             $launcher += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
           }
 
-          cmake -B build `
+          cmake -S . -B build `
             -G Ninja `
             -DCMAKE_C_COMPILER=${{ matrix.c }} `
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} `
             -DCMAKE_BUILD_TYPE=${{ matrix.type }} `
-            -DCMAKE_RC_COMPILER_LAUNCHER= `
+            -DCMAKE_RC_COMPILER=rc `
             -DCPM_USE_LOCAL_PACKAGES=ON `
             -DCPM_DOWNLOAD_ALL=ON `
-            -DCMAKE_CXX_SCAN_FOR_MODULES=OFF `
-            -DCMAKE_CXX_MODULES=OFF `
-            -DALSOFT_REQUIRE_MODULES=OFF `
-            -DALSOFT_BUILD_MODULES=OFF `
-            -DHAVE_CXXMODULES:BOOL=OFF `
             -DNX_PLATFORM_OPENGL=1 `
             -DNX_PLATFORM_VULKAN=1 `
             -DNX_PLATFORM_OPENAL=1 `
             -DNX_PLATFORM_D3D12=ON `
             -DNX_BUILD_TESTS=1 `
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}\cache\CPM `
-            $launcher `
-            -S .
+            -DCRT_SECURE_NO_WARNINGS=ON `
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM `
+            $launcher
 
       # ------------------------------------------------------------
       # Configure (MSYS2)
@@ -153,36 +150,40 @@ jobs:
         if: matrix.name == 'MinGW-UCRT'
         shell: msys2 {0}
         run: |
-          cmake -B build \
+          cmake -S . -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_RC_COMPILER_LAUNCHER= \
             -DCPM_USE_LOCAL_PACKAGES=ON \
             -DCPM_DOWNLOAD_ALL=ON \
-            -DCMAKE_CXX_MODULES=OFF \
-            -DALSOFT_BUILD_MODULES=OFF \
-            -DHAVE_CXXMODULES:BOOL=OFF \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}/cache/CPM \
-            -S .
+            -DCRT_SECURE_NO_WARNINGS=ON \
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM
 
-      # Defender speedup
+      # ------------------------------------------------------------
+      # Defender exclusion (safe)
+      # ------------------------------------------------------------
       - name: Exclude build dir from Defender
         shell: pwsh
-        run: Add-MpPreference -ExclusionPath "$pwd\build"
+        run: |
+          Try {
+            Add-MpPreference -ExclusionPath "$pwd\build"
+          } Catch {
+            Write-Host "Defender exclusion failed, continuing."
+          }
 
       - name: Build
         run: cmake --build build --parallel
 
       - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --test-dir build --output-on-failure --parallel
 
       - name: sccache stats
+        if: matrix.c != 'cl'
         run: sccache --show-stats || true
 
 
@@ -236,8 +237,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: /home/runner/.cache/sccache
-          key: sccache-linux-${{ matrix.c }}
-          restore-keys: sccache-linux-
+          key: sccache-linux-${{ matrix.c }}-${{ matrix.type }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            sccache-linux-${{ matrix.c }}-${{ matrix.type }}-
+            sccache-linux-${{ matrix.c }}-
 
       - name: Start sccache
         run: sccache --start-server
@@ -251,7 +254,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -B build \
+          cmake -S . -B build \
             -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.c }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
@@ -259,19 +262,3 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_USE_LOCAL_PACKAGES=ON \
-            -DCPM_DOWNLOAD_ALL=ON \
-            -DNX_PLATFORM_OPENGL=1 \
-            -DNX_PLATFORM_VULKAN=1 \
-            -DNX_PLATFORM_OPENAL=1 \
-            -DNX_BUILD_TESTS=1 \
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM \
-            -S .
-
-      - name: Build
-        run: cmake --build build --parallel
-
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
-
-      - name: sccache stats
-        run: sccache --show-stats || true
