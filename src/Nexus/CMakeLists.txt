@@ -323,6 +323,15 @@ CPMAddPackage(
 		"SHADERC_SKIP_TESTS ON"
 		"SHADERC_ENABLE_SHARED_CRT ON"
 )
+
+if (WIN32)
+    foreach(t shaderc shaderc_util)
+        if (TARGET ${t})
+            target_compile_definitions(${t} PRIVATE _CRT_SECURE_NO_WARNINGS)
+        endif()
+    endforeach()
+endif()
+
 target_link_libraries(Nexus PRIVATE shaderc)
 
 CPMAddPackage(

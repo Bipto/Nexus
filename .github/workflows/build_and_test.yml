@@ -96,7 +96,6 @@ jobs:
             mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
-            mingw-w64-ucrt-x86_64-openal
 
       - name: Add sccache to MSYS2 PATH
         if: matrix.name == 'MinGW-UCRT'
@@ -118,17 +117,6 @@ jobs:
         if: matrix.name != 'MinGW-UCRT'
         shell: pwsh
         run: |
-          $launcher = ""
-
-          if ("${{ matrix.c }}" -eq "clang-cl") {
-            $launcher += " -DCMAKE_RC_COMPILER=rc"
-          }
-
-          if ("${{ matrix.c }}" -ne "cl") {
-            $launcher += " -DCMAKE_C_COMPILER_LAUNCHER=sccache"
-            $launcher += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-          }
-
           cmake -S . -B build `
             -G Ninja `
             -DCMAKE_C_COMPILER=${{ matrix.c }} `
@@ -142,8 +130,7 @@ jobs:
             -DNX_PLATFORM_D3D12=ON `
             -DNX_BUILD_TESTS=1 `
             -DCRT_SECURE_NO_WARNINGS=ON `
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM `
-            $launcher
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM
 
       # ------------------------------------------------------------
       # Configure (MSYS2)
@@ -152,7 +139,8 @@ jobs:
         if: matrix.name == 'MinGW-UCRT'
         shell: msys2 {0}
         run: |
-          cmake -S . -B build \
+          export MSYS2_ARG_CONV_EXCL="*"
+            cmake -S "$(pwd)" -B "$(pwd)/build" \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
