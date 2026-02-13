@@ -65,6 +65,7 @@ set_target_properties(Nexus-Audio PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
+set(BUILD_TESTING OFF CACHE BOOL "")
 FetchContent_Declare(
 	libsndfile
 	GIT_REPOSITORY https://github.com/libsndfile/libsndfile.git
