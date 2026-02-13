@@ -139,8 +139,7 @@ jobs:
         if: matrix.name == 'MinGW-UCRT'
         shell: msys2 {0}
         run: |
-          export MSYS2_ARG_CONV_EXCL="*"
-            cmake -S "$(pwd)" -B "$(pwd)/build" \
+          cmake -S . -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
@@ -152,7 +151,8 @@ jobs:
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
             -DCRT_SECURE_NO_WARNINGS=ON \
-            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM
+            -DCPM_SOURCE_CACHE="$(pwd)/.cache/CPM"
+
 
       # ------------------------------------------------------------
       # Build + Test
