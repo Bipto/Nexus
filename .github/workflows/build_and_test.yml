@@ -1,168 +1,256 @@
-build-windows:
-  name: Build (Windows - ${{ matrix.name }} - ${{ matrix.type }})
-  runs-on: windows-latest
+name: Build and Test (Multi-Platform)
 
-  env:
-    SCCACHE_IDLE_TIMEOUT: 0
-    SCCACHE_CACHE_SIZE: 5G
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-  strategy:
-    fail-fast: false
-    matrix:
-      include:
-        - { name: MSVC,      c: cl,        cxx: cl,        type: Release }
-        - { name: MSVC,      c: cl,        cxx: cl,        type: Debug }
-        - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Release }
-        - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Debug }
-        - { name: Clang,     c: clang,     cxx: clang++,   type: Release }
-        - { name: Clang,     c: clang,     cxx: clang++,   type: Debug }
-        - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Release }
-        - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Debug }
+jobs:
+# ============================================================
+# WINDOWS
+# ============================================================
+  build-windows:
+    name: Build (Windows - ${{ matrix.name }} - ${{ matrix.type }})
+    runs-on: windows-latest
 
-  steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
+    env:
+      SCCACHE_IDLE_TIMEOUT: 0
+      SCCACHE_CACHE_SIZE: 5G
 
-    # ------------------------------------------------------------
-    # CPM Cache
-    # ------------------------------------------------------------
-    - uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/.cache/CPM
-        key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-        restore-keys: cpm-windows-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: MSVC,      c: cl,        cxx: cl,        type: Release }
+          - { name: MSVC,      c: cl,        cxx: cl,        type: Debug }
+          - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Release }
+          - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Debug }
+          - { name: Clang,     c: clang,     cxx: clang++,   type: Release }
+          - { name: Clang,     c: clang,     cxx: clang++,   type: Debug }
+          - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Release }
+          - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Debug }
 
-    # ------------------------------------------------------------
-    # sccache
-    # ------------------------------------------------------------
-    - name: Install sccache
-      run: choco install sccache
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - uses: actions/cache@v4
-      with:
-        path: ~\AppData\Local\Mozilla\sccache
-        key: sccache-windows-${{ matrix.c }}-${{ matrix.type }}-${{ hashFiles('**/CMakeLists.txt') }}
-        restore-keys: |
-          sccache-windows-${{ matrix.c }}-${{ matrix.type }}-
-          sccache-windows-${{ matrix.c }}-
+      # ------------------------------------------------------------
+      # CPM Cache
+      # ------------------------------------------------------------
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/CPM
+          key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: cpm-windows-
 
-    - name: Start sccache
-      if: matrix.c != 'cl'
-      run: sccache --start-server
+      # ------------------------------------------------------------
+      # sccache
+      # ------------------------------------------------------------
+      - name: Install sccache
+        run: choco install sccache
 
-    # ------------------------------------------------------------
-    # LLVM (for clang variants)
-    # ------------------------------------------------------------
-    - uses: KyleMayes/install-llvm-action@v2
-      if: matrix.c == 'clang' || matrix.c == 'clang-cl'
-      with:
-        version: "21"
+      - uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\Mozilla\sccache
+          key: sccache-windows-${{ matrix.c }}-${{ matrix.type }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            sccache-windows-${{ matrix.c }}-${{ matrix.type }}-
+            sccache-windows-${{ matrix.c }}-
 
-    - uses: seanmiddleditch/gha-setup-ninja@v6
+      - name: Start sccache
+        if: matrix.c != 'cl'
+        run: sccache --start-server
 
-    # ------------------------------------------------------------
-    # MSVC ENV (needed for rc.exe + Windows SDK)
-    # ------------------------------------------------------------
-    - name: Setup MSVC
-      if: matrix.name != 'MinGW-UCRT'
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x64
+      # ------------------------------------------------------------
+      # LLVM (for clang variants)
+      # ------------------------------------------------------------
+      - uses: KyleMayes/install-llvm-action@v2
+        if: matrix.c == 'clang' || matrix.c == 'clang-cl'
+        with:
+          version: "21"
 
-    # ------------------------------------------------------------
-    # MSYS2 (MinGW only)
-    # ------------------------------------------------------------
-    - name: Setup MSYS2
-      if: matrix.name == 'MinGW-UCRT'
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: UCRT64
-        update: false
-        install: >
-          mingw-w64-ucrt-x86_64-toolchain
-          mingw-w64-ucrt-x86_64-cmake
-          mingw-w64-ucrt-x86_64-ninja
-          mingw-w64-ucrt-x86_64-openal
+      - uses: seanmiddleditch/gha-setup-ninja@v6
 
-    - name: Add sccache to MSYS2 PATH
-      if: matrix.name == 'MinGW-UCRT'
-      shell: msys2 {0}
-      run: echo "export PATH=/c/ProgramData/chocolatey/bin:\$PATH" >> ~/.bashrc
+      # ------------------------------------------------------------
+      # MSVC ENV (needed for rc.exe + Windows SDK)
+      # ------------------------------------------------------------
+      - name: Setup MSVC
+        if: matrix.name != 'MinGW-UCRT'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
 
-    # ------------------------------------------------------------
-    # Vulkan
-    # ------------------------------------------------------------
-    - uses: humbletim/install-vulkan-sdk@v1.2
-      with:
-        version: 1.4.309.0
-        cache: true
+      # ------------------------------------------------------------
+      # MSYS2 (MinGW only)
+      # ------------------------------------------------------------
+      - name: Setup MSYS2
+        if: matrix.name == 'MinGW-UCRT'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: >
+            mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openal
 
-    # ------------------------------------------------------------
-    # Configure (Native Windows)
-    # ------------------------------------------------------------
-    - name: Configure CMake (Windows)
-      if: matrix.name != 'MinGW-UCRT'
-      shell: pwsh
-      run: |
-        $launcher = ""
+      - name: Add sccache to MSYS2 PATH
+        if: matrix.name == 'MinGW-UCRT'
+        shell: msys2 {0}
+        run: echo "export PATH=/c/ProgramData/chocolatey/bin:\$PATH" >> ~/.bashrc
 
-        if ("${{ matrix.c }}" -eq "clang-cl") {
-          $launcher += " -DCMAKE_RC_COMPILER=rc"
-        }
+      # ------------------------------------------------------------
+      # Vulkan
+      # ------------------------------------------------------------
+      - uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
 
-        if ("${{ matrix.c }}" -ne "cl") {
-          $launcher += " -DCMAKE_C_COMPILER_LAUNCHER=sccache"
-          $launcher += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-        }
+      # ------------------------------------------------------------
+      # Configure (Native Windows)
+      # ------------------------------------------------------------
+      - name: Configure CMake (Windows)
+        if: matrix.name != 'MinGW-UCRT'
+        shell: pwsh
+        run: |
+          $launcher = ""
 
-        cmake -S . -B build `
-          -G Ninja `
-          -DCMAKE_C_COMPILER=${{ matrix.c }} `
-          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} `
-          -DCMAKE_BUILD_TYPE=${{ matrix.type }} `
-          -DCPM_USE_LOCAL_PACKAGES=ON `
-          -DCPM_DOWNLOAD_ALL=ON `
-          -DNX_PLATFORM_OPENGL=1 `
-          -DNX_PLATFORM_VULKAN=1 `
-          -DNX_PLATFORM_OPENAL=1 `
-          -DNX_PLATFORM_D3D12=ON `
-          -DNX_BUILD_TESTS=1 `
-          -DCRT_SECURE_NO_WARNINGS=ON `
-          -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM `
-          $launcher
+          if ("${{ matrix.c }}" -eq "clang-cl") {
+            $launcher += " -DCMAKE_RC_COMPILER=rc"
+          }
 
-    # ------------------------------------------------------------
-    # Configure (MSYS2)
-    # ------------------------------------------------------------
-    - name: Configure CMake (MSYS2)
-      if: matrix.name == 'MinGW-UCRT'
-      shell: msys2 {0}
-      run: |
-        cmake -S . -B build \
-          -G Ninja \
-          -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
-          -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-          -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-          -DCPM_USE_LOCAL_PACKAGES=ON \
-          -DCPM_DOWNLOAD_ALL=ON \
-          -DNX_PLATFORM_OPENGL=1 \
-          -DNX_PLATFORM_VULKAN=1 \
-          -DNX_PLATFORM_OPENAL=1 \
-          -DNX_BUILD_TESTS=1 \
-          -DCRT_SECURE_NO_WARNINGS=ON \
-          -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM
+          if ("${{ matrix.c }}" -ne "cl") {
+            $launcher += " -DCMAKE_C_COMPILER_LAUNCHER=sccache"
+            $launcher += " -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          }
 
-    # ------------------------------------------------------------
-    # Build + Test
-    # ------------------------------------------------------------
-    - name: Build
-      run: cmake --build build --parallel
+          cmake -S . -B build `
+            -G Ninja `
+            -DCMAKE_C_COMPILER=${{ matrix.c }} `
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} `
+            -DCMAKE_BUILD_TYPE=${{ matrix.type }} `
+            -DCPM_USE_LOCAL_PACKAGES=ON `
+            -DCPM_DOWNLOAD_ALL=ON `
+            -DNX_PLATFORM_OPENGL=1 `
+            -DNX_PLATFORM_VULKAN=1 `
+            -DNX_PLATFORM_OPENAL=1 `
+            -DNX_PLATFORM_D3D12=ON `
+            -DNX_BUILD_TESTS=1 `
+            -DCRT_SECURE_NO_WARNINGS=ON `
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM `
+            $launcher
 
-    - name: Run tests
-      run: ctest --test-dir build --output-on-failure --parallel
+      # ------------------------------------------------------------
+      # Configure (MSYS2)
+      # ------------------------------------------------------------
+      - name: Configure CMake (MSYS2)
+        if: matrix.name == 'MinGW-UCRT'
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_USE_LOCAL_PACKAGES=ON \
+            -DCPM_DOWNLOAD_ALL=ON \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_BUILD_TESTS=1 \
+            -DCRT_SECURE_NO_WARNINGS=ON \
+            -DCPM_SOURCE_CACHE=${{ github.workspace }}/.cache/CPM
 
-    - name: sccache stats
-      if: matrix.c != 'cl'
-      run: sccache --show-stats || true
+      # ------------------------------------------------------------
+      # Build + Test
+      # ------------------------------------------------------------
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure --parallel
+
+      - name: sccache stats
+        if: matrix.c != 'cl'
+        run: sccache --show-stats || true
+
+# ============================================================
+# LINUX
+# ============================================================
+
+  build-linux:
+    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.type }})
+    runs-on: ubuntu-24.04
+
+    env:
+      SCCACHE_IDLE_TIMEOUT: 0
+      SCCACHE_CACHE_SIZE: 5G
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: GCC,   c: gcc,   cxx: g++,     type: Release }
+          - { name: GCC,   c: gcc,   cxx: g++,     type: Debug }
+          - { name: Clang, c: clang, cxx: clang++, type: Release }
+          - { name: Clang, c: clang, cxx: clang++, type: Debug }
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/CPM
+          key: cpm-linux-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: cpm-linux-
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libgl1-mesa-dev \
+            libx11-dev \
+            xorg-dev \
+            sccache
+
+          if [ "${{ matrix.c }}" = "clang" ]; then
+            sudo apt-get install -y clang lld
+          fi
+
+      - uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/sccache
+          key: sccache-linux-${{ matrix.c }}-${{ matrix.type }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            sccache-linux-${{ matrix.c }}-${{ matrix.type }}-
+            sccache-linux-${{ matrix.c }}-
+
+      - name: Start sccache
+        run: sccache --start-server
+
+      - uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_C_COMPILER=${{ matrix.c }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.type }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_USE_LOCAL_PACKAGES=ON \
