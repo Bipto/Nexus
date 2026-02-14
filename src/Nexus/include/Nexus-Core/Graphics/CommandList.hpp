@@ -702,8 +702,9 @@ namespace Nexus::Graphics
 		void EndRendering();
 
 	  private:
-		CommandListDescription		   m_Description = {};
-		std::vector<RenderCommandData> m_Commands;
+		CommandListDescription		   m_Description			  = {};
+		std::vector<RenderCommandData> m_Commands				  = {};
+		mutable std::mutex			   m_Mutex					  = {};
 		bool						   m_Started				  = false;
 		uint32_t					   m_DebugGroups			  = 0;
 		Ref<IFramebuffer>			   m_CurrentFramebuffer		  = nullptr;
