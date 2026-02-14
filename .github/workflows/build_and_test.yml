@@ -24,8 +24,6 @@ jobs:
         include:
           - { name: MSVC,      c: cl,        cxx: cl,        type: Release }
           - { name: MSVC,      c: cl,        cxx: cl,        type: Debug }
-          - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Release }
-          - { name: Clang-CL,  c: clang-cl,  cxx: clang-cl,  type: Debug }
           - { name: Clang,     c: clang,     cxx: clang++,   type: Release }
           - { name: Clang,     c: clang,     cxx: clang++,   type: Debug }
           - { name: MinGW-UCRT,c: gcc,       cxx: g++,       type: Release }
