@@ -121,7 +121,7 @@ jobs:
             -G Ninja `
             -DCMAKE_C_COMPILER=${{ matrix.c }} `
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} `
-            -DCMAKE_RC_COMPILER_LAUNCHER= `
+            -DCMAKE_RC_COMPILER=rc `
             -DCMAKE_BUILD_TYPE=${{ matrix.type }} `
             -DCPM_USE_LOCAL_PACKAGES=ON `
             -DCPM_DOWNLOAD_ALL=ON `
