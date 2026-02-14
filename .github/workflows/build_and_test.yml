@@ -243,3 +243,13 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_USE_LOCAL_PACKAGES=ON \
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure --parallel
+
+      - name: sccache stats
+        if: matrix.c != 'cl'
+        run: sccache --show-stats || true
