@@ -705,8 +705,8 @@ namespace Nexus::Graphics
 		CommandListDescription		   m_Description			  = {};
 		std::vector<RenderCommandData> m_Commands				  = {};
 		mutable std::mutex			   m_Mutex					  = {};
-		bool						   m_Started				  = false;
-		uint32_t					   m_DebugGroups			  = 0;
+		std::atomic<bool>			   m_Started				  = false;
+		std::atomic<uint32_t>		   m_DebugGroups			  = 0;
 		Ref<IFramebuffer>			   m_CurrentFramebuffer		  = nullptr;
 		bool						   m_AutomaticBarrierTracking = false;
 	};

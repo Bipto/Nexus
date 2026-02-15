@@ -9,8 +9,6 @@ namespace Nexus::Graphics
 
 	void ICommandList::Begin()
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (m_Started)
@@ -19,6 +17,7 @@ namespace Nexus::Graphics
 					 "been closed");
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.clear();
 		m_Started				   = true;
 		m_DebugGroups			   = 0;
@@ -27,8 +26,6 @@ namespace Nexus::Graphics
 
 	void ICommandList::End()
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -63,8 +60,6 @@ namespace Nexus::Graphics
 
 	void ICommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -77,13 +72,13 @@ namespace Nexus::Graphics
 		SetVertexBufferCommand command;
 		command.View = vertexBuffer;
 		command.Slot = slot;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::SetIndexBuffer(IndexBufferView indexBuffer)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -95,13 +90,13 @@ namespace Nexus::Graphics
 
 		SetIndexBufferCommand command;
 		command.View = indexBuffer;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::SetPipeline(Ref<Pipeline> pipeline)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -111,13 +106,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(pipeline);
 	}
 
 	void ICommandList::Draw(const DrawDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -127,13 +121,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::DrawIndexed(const DrawIndexedDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -143,13 +136,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::DrawIndirect(const DrawIndirectDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -159,13 +151,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -175,13 +166,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::Dispatch(const DispatchDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -191,13 +181,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -207,13 +196,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::DrawMesh(const DrawMeshDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -223,13 +211,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -239,13 +226,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::TraceRays(const TraceRaysDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -255,13 +241,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::SetResourceSet(const ResourceSetBindingDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -340,13 +325,12 @@ namespace Nexus::Graphics
 			}
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -360,13 +344,13 @@ namespace Nexus::Graphics
 		command.Index  = index;
 		command.Colour = color;
 		command.Rect   = clearRect;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -380,13 +364,13 @@ namespace Nexus::Graphics
 		command.Index  = index;
 		command.Colour = color;
 		command.Rect   = std::nullopt;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -399,13 +383,13 @@ namespace Nexus::Graphics
 		ClearDepthStencilTargetCommand command;
 		command.Value = value;
 		command.Rect  = clearRect;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -418,6 +402,8 @@ namespace Nexus::Graphics
 		ClearDepthStencilTargetCommand command;
 		command.Value = value;
 		command.Rect  = std::nullopt;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
@@ -492,8 +478,6 @@ namespace Nexus::Graphics
 
 	void ICommandList::SetFramebuffer(Ref<IFramebuffer> framebuffer)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -508,13 +492,12 @@ namespace Nexus::Graphics
 		TransitionFramebufferLayouts(this, framebuffer, TextureLayout::ColourAttachmentOptimal, TextureLayout::DepthStencilAttachmentOptimal);
 		m_CurrentFramebuffer = framebuffer;
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(framebuffer);
 	}
 
 	void ICommandList::SetViewport(const Viewport &viewport)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -524,13 +507,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(viewport);
 	}
 
 	void ICommandList::SetScissor(const Scissor &scissor)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -540,13 +522,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(scissor);
 	}
 
 	void ICommandList::ResolveFramebuffer(const ResolveTextureDescription &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -585,13 +566,12 @@ namespace Nexus::Graphics
 			SubmitTextureBarrier(destBarrierDesc);
 		}
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void Nexus::Graphics::ICommandList::StartTimingQuery(Ref<ITimingQuery> query)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -603,13 +583,13 @@ namespace Nexus::Graphics
 
 		StartTimingQueryCommand command;
 		command.Query = query;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void Nexus::Graphics::ICommandList::StopTimingQuery(Ref<ITimingQuery> query)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -621,13 +601,13 @@ namespace Nexus::Graphics
 
 		StopTimingQueryCommand command;
 		command.Query = query;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -639,13 +619,13 @@ namespace Nexus::Graphics
 
 		Graphics::CopyBufferToBufferCommand command;
 		command.BufferCopy = bufferCopy;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -673,13 +653,13 @@ namespace Nexus::Graphics
 
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -707,13 +687,13 @@ namespace Nexus::Graphics
 
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -754,13 +734,13 @@ namespace Nexus::Graphics
 
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::BeginDebugGroup(const std::string &name)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -772,6 +752,7 @@ namespace Nexus::Graphics
 
 		BeginDebugGroupCommand command;
 		command.GroupName = name;
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 
 		m_DebugGroups++;
@@ -779,8 +760,6 @@ namespace Nexus::Graphics
 
 	void ICommandList::EndDebugGroup()
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -791,6 +770,8 @@ namespace Nexus::Graphics
 		}
 
 		EndDebugGroupCommand command;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 
 		m_DebugGroups--;
@@ -798,8 +779,6 @@ namespace Nexus::Graphics
 
 	void ICommandList::InsertDebugMarker(const std::string &name)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		if (!m_Started)
@@ -811,74 +790,73 @@ namespace Nexus::Graphics
 
 		InsertDebugMarkerCommand command;
 		command.MarkerName = name;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		SetBlendFactorCommand command;
 		command.BlendFactor = blendFactor;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::SetStencilReference(uint32_t stencilReference)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		SetStencilReferenceCommand command;
 		command.StencilReference = stencilReference;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
 		BuildAccelerationStructuresCommand command;
 		command.BuildDescriptions = description;
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(command);
 	}
 
 	void ICommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(description);
 	}
 
 	void ICommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(description);
 	}
 
 	void ICommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
 
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(description);
 	}
 
 	void ICommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
+
+		std::lock_guard<std::mutex> lock(m_Mutex);
 
 		PushConstantsDesc pushConstantDesc = {};
 		pushConstantDesc.Name			   = name;
@@ -890,51 +868,44 @@ namespace Nexus::Graphics
 
 	void ICommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	void ICommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
 	}
 
 	const std::vector<RenderCommandData> &ICommandList::GetCommandData() const
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
-
+		std::lock_guard<std::mutex> lock(m_Mutex);
 		return m_Commands;
 	}
 
 	const CommandListDescription &ICommandList::GetDescription()
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
+		std::lock_guard<std::mutex> lock(m_Mutex);
 
 		return m_Description;
 	}
 
 	bool ICommandList::IsRecording() const
 	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		NX_PROFILE_FUNCTION();
+		std::lock_guard<std::mutex> lock(m_Mutex);
 
 		return m_Started;
 	}
