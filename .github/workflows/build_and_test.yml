@@ -42,7 +42,6 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/.cache/CPM
-            build
           key: cpm-windows-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: cpm-windows-
 
@@ -199,7 +198,6 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/.cache/CPM
-            build
           key: cpm-linux-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: cpm-linux-
 
