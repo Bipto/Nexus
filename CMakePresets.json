@@ -1,6 +1,5 @@
 {
   "version": 6,
-
   "configurePresets": [
     {
       "name": "base",
@@ -11,7 +10,6 @@
         "NX_PLATFORM_OPENGL": "1",
         "NX_PLATFORM_VULKAN": "1",
         "NX_PLATFORM_OPENAL": "1",
-
         "NX_BUILD_DEMO": "1",
         "NX_BUILD_EDITOR": "1",
         "NX_BUILD_TESTS": "1",
@@ -28,7 +26,7 @@
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
         "NX_PLATFORM_D3D12": "1",
-        "NX_BUILD_TYPE": "SHARED",
+        "NX_BUILD_TYPE": "SHARED"
       },
       "condition": {
         "type": "equals",
@@ -45,7 +43,7 @@
         "CMAKE_C_COMPILER": "clang-cl.exe",
         "CMAKE_CXX_COMPILER": "clang-cl.exe",
         "NX_PLATFORM_D3D12": "1",
-        "NX_BUILD_TYPE": "SHARED",
+        "NX_BUILD_TYPE": "SHARED"
       },
       "condition": {
         "type": "equals",
@@ -61,7 +59,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc.exe",
         "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++.exe",
-        "NX_BUILD_TYPE": "STATIC",
+        "NX_BUILD_TYPE": "STATIC"
       },
       "condition": {
         "type": "equals",
@@ -77,7 +75,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
-        "NX_BUILD_TYPE": "STATIC",
+        "NX_BUILD_TYPE": "STATIC"
       },
       "condition": {
         "type": "equals",
@@ -93,7 +91,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "NX_BUILD_TYPE": "STATIC",
+        "NX_BUILD_TYPE": "STATIC"
       },
       "condition": {
         "type": "equals",
@@ -105,56 +103,65 @@
       "name": "windows-x64-msvc-debug",
       "displayName": "Windows x64 MSVC Debug",
       "inherits": "windows-msvc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
-
     {
       "name": "windows-x64-msvc-release",
       "displayName": "Windows x64 MSVC  Release",
       "inherits": "windows-msvc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     },
-
     {
       "name": "windows-x64-msvc-relwithdebinfo",
       "displayName": "Windows x64 MSVC RelWithDebInfo",
       "inherits": "windows-msvc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     },
-
     {
       "name": "windows-x64-msvc-minsizerel",
       "displayName": "Windows x64 MSVC MinSizeRel",
       "inherits": "windows-msvc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
     },
-
     {
       "name": "windows-x64-clang-debug",
       "displayName": "Windows x64 Clang Debug",
       "inherits": "windows-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
-
     {
       "name": "windows-x64-clang-release",
       "displayName": "Windows x64 Clang  Release",
       "inherits": "windows-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     },
-
     {
       "name": "windows-x64-clang-relwithdebinfo",
       "displayName": "Windows x64 Clang RelWithDebInfo",
       "inherits": "windows-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     },
-
     {
       "name": "windows-x64-clang-minsizerel",
       "displayName": "Windows x64 Clang MinSizeRel",
       "inherits": "windows-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
     },
     {
       "name": "windows-x64-mingw-debug",
@@ -192,56 +199,65 @@
       "name": "linux-x64-gcc-debug",
       "displayName": "Linux x64 GCC Debug",
       "inherits": "linux-gcc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
-
     {
       "name": "linux-x64-gcc-release",
       "displayName": "Linux x64 GCC Release",
       "inherits": "linux-gcc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     },
-
     {
       "name": "linux-x64-gcc-relwithdebinfo",
       "displayName": "Linux x64 GCC RelWithDebInfo",
       "inherits": "linux-gcc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     },
-
     {
       "name": "linux-x64-gcc-minsizerel",
       "displayName": "Linux x64 GCC MinSizeRel",
       "inherits": "linux-gcc-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
     },
-
     {
       "name": "linux-x64-clang-debug",
       "displayName": "Linux x64 Clang Debug",
       "inherits": "linux-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
-
     {
       "name": "linux-x64-clang-release",
       "displayName": "Linux x64 Clang Release",
       "inherits": "linux-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     },
-
     {
       "name": "linux-x64-clang-relwithdebinfo",
       "displayName": "Linux x64 Clang RelWithDebInfo",
       "inherits": "linux-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     },
-
     {
       "name": "linux-x64-clang-minsizerel",
       "displayName": "Linux x64 Clang MinSizeRel",
       "inherits": "linux-clang-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "MinSizeRel" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
     }
   ]
 }
