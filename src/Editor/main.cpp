@@ -152,9 +152,16 @@ class EditorApplication : public Nexus::Application
 			ImGui::SameLine();
 			if (ImGui::Button("..."))
 			{
-				std::unique_ptr<Nexus::OpenFolderDialog> dialog = std::unique_ptr<Nexus::OpenFolderDialog>(
-					Nexus::Platform::CreateOpenFolderDialog(Nexus::GetApplication()->GetPrimaryWindow(), nullptr, false));
+				std::vector<Nexus::FileDialogFilter> filters = {{"All files", "*"}};
+
+				Nexus::OpenFolderDialogDescription dialogDesc = {};
+				dialogDesc.WindowHandle						  = Nexus::GetApplication()->GetPrimaryWindow();
+				dialogDesc.Filters							  = filters;
+
+				std::unique_ptr<Nexus::OpenFolderDialog> dialog =
+					std::unique_ptr<Nexus::OpenFolderDialog>(Nexus::Platform::CreateOpenFolderDialog(dialogDesc));
 				Nexus::FileDialogResult result = dialog->Show();
+
 				if (result.FilePaths.size() > 0)
 				{
 					s_ProjectDirectory = result.FilePaths[0];
@@ -192,9 +199,14 @@ class EditorApplication : public Nexus::Application
 			{
 				if (ImGui::MenuItem("Open"))
 				{
-					std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
-					std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-						 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+					std::vector<Nexus::FileDialogFilter> filters = {{"All files", "*"}};
+
+					Nexus::OpenFileDialogDescription dialogDesc = {};
+					dialogDesc.WindowHandle						= Nexus::GetApplication()->GetPrimaryWindow();
+					dialogDesc.Filters							= filters;
+
+					std::unique_ptr<Nexus::OpenFileDialog> dialog =
+						std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(dialogDesc));
 					Nexus::FileDialogResult result = dialog->Show();
 
 					if (result.FilePaths.size() > 0)
@@ -217,9 +229,14 @@ class EditorApplication : public Nexus::Application
 
 			if (ImGui::MenuItem("Import Asset"))
 			{
-				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
-				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, true));
+				std::vector<Nexus::FileDialogFilter> filters = {{"All files", "*"}};
+
+				Nexus::OpenFileDialogDescription dialogDesc = {};
+				dialogDesc.WindowHandle						= Nexus::GetApplication()->GetPrimaryWindow();
+				dialogDesc.Filters							= filters;
+
+				std::unique_ptr<Nexus::OpenFileDialog> dialog =
+					std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(dialogDesc));
 
 				if (m_Project)
 				{
@@ -565,12 +582,10 @@ class EditorApplication : public Nexus::Application
 	{
 		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
-		Nexus::Graphics::RenderTarget target(m_Framebuffer);
-
 		if (m_Project && m_Project->IsSceneLoaded())
 		{
 			m_Project->OnRender(time);
-			m_SceneRenderer->Render(m_Project->GetLoadedScene(), target, time);
+			m_SceneRenderer->Render(m_Project->GetLoadedScene(), m_Framebuffer, time);
 		}
 
 		m_ImGuiRenderer->BeforeLayout(time);
@@ -581,7 +596,7 @@ class EditorApplication : public Nexus::Application
 
 		if (m_ClickPosition)
 		{
-			Nexus::Ref<Nexus::Graphics::ITexture> idTexture = m_Framebuffer->GetColorTexture(1);
+			Nexus::Ref<Nexus::Graphics::ITexture> idTexture = m_Framebuffer->GetColorTextureHandle(1u);
 
 			// FIX ME
 			std::vector<char> pixels;
@@ -607,7 +622,7 @@ class EditorApplication : public Nexus::Application
 			}
 		}
 
-		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers(Nexus::Graphics::SwapchainPresentDescription {});
 	}
 
 	virtual void Tick(Nexus::TimeSpan time) override
@@ -647,20 +662,21 @@ class EditorApplication : public Nexus::Application
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
-	Nexus::ApplicationDescription spec;
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
-	spec.GraphicsCreateInfo.Debug = true;
-	spec.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
+	Nexus::ApplicationDescription desc;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	desc.GraphicsCreateInfo.Debug = true;
 
-	spec.WindowProperties.Width			   = 1280;
-	spec.WindowProperties.Height		   = 720;
-	spec.WindowProperties.Title			   = "Editor";
-	spec.WindowProperties.Resizable		   = true;
-	spec.WindowProperties.RendersPerSecond = 60;
-	spec.WindowProperties.UpdatesPerSecond = 60;
+	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
-	spec.SwapchainDescription.Samples		   = 8;
-	spec.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Fifo;
+	desc.WindowProperties.Width			   = 1280;
+	desc.WindowProperties.Height		   = 720;
+	desc.WindowProperties.Title			   = "Editor";
+	desc.WindowProperties.RendersPerSecond = 60;
+	desc.WindowProperties.UpdatesPerSecond = 60;
+	desc.WindowProperties.Flags			   = WindowFlags_Resizable | WindowFlags_HighPixelDensity;
 
-	return new EditorApplication(spec);
+	desc.SwapchainDescription.Samples		   = 8;
+	desc.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Fifo;
+
+	return new EditorApplication(desc);
 }

@@ -606,19 +606,19 @@ namespace Nexus::Platform
 		return new MessageBoxSDL3(description);
 	}
 
-	OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany)
+	OpenFileDialog *CreateOpenFileDialog(const OpenFileDialogDescription &desc)
 	{
-		return new OpenFileDialogSDL3(window, filters, defaultLocation, allowMany);
+		return new OpenFileDialogSDL3(desc);
 	}
 
-	SaveFileDialog *CreateSaveFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation)
+	SaveFileDialog *CreateSaveFileDialog(const SaveFileDialogDescription &desc)
 	{
-		return new SaveFileDialogSDL3(window, filters, defaultLocation);
+		return new SaveFileDialogSDL3(desc);
 	}
 
-	OpenFolderDialog *CreateOpenFolderDialog(IWindow *window, const char *defaultLocation, bool allowMany)
+	OpenFolderDialog *CreateOpenFolderDialog(const OpenFolderDialogDescription &desc)
 	{
-		return new OpenFolderDialogSDL3(window, defaultLocation, allowMany);
+		return new OpenFolderDialogSDL3(desc);
 	}
 
 	std::optional<IWindow *> GetMouseFocus()
@@ -755,14 +755,14 @@ namespace Nexus::Platform
 		return state;
 	}
 
-	const char *GetRootPath()
+	std::string GetRootPath()
 	{
 		return SDL_GetBasePath();
 	}
 
-	const char *GetApplicationPath(const char *org, const char *app)
+	std::string GetApplicationPath(const std::string &org, const std::string &app)
 	{
-		return SDL_GetPrefPath(org, app);
+		return SDL_GetPrefPath(org.c_str(), app.c_str());
 	}
 
 	std::string GetCurrentExecutableDirectory()
@@ -798,9 +798,9 @@ namespace Nexus::Platform
 		return SDL_GetUserFolder(sdlFolder);
 	}
 
-	std::string CopyFileTo(const char *source, const char *destination, bool overwriteIfExists)
+	std::string CopyFileTo(const std::string &source, const std::string &destination, bool overwriteIfExists)
 	{
-		if (!SDL_CopyFile(source, destination))
+		if (!SDL_CopyFile(source.c_str(), destination.c_str()))
 		{
 			return std::string(SDL_GetError());
 		}
@@ -808,9 +808,9 @@ namespace Nexus::Platform
 		return {};
 	}
 
-	std::string CreateDirectoryAt(const char *path)
+	std::string CreateDirectoryAt(const std::string &path)
 	{
-		if (!SDL_CreateDirectory(path))
+		if (!SDL_CreateDirectory(path.c_str()))
 		{
 			return std::string(SDL_GetError());
 		}
@@ -830,12 +830,12 @@ namespace Nexus::Platform
 		}
 	}
 
-	IO::PathInfo GetPathInfo(const char *path)
+	IO::PathInfo GetPathInfo(const std::string &path)
 	{
 		IO::PathInfo info = {};
 
 		SDL_PathInfo sdlPathInfo;
-		if (SDL_GetPathInfo(path, &sdlPathInfo))
+		if (SDL_GetPathInfo(path.c_str(), &sdlPathInfo))
 		{
 			info.Type		 = GetPathTypeFromSDLPathType(sdlPathInfo.type);
 			info.SizeInBytes = sdlPathInfo.size;
@@ -847,9 +847,9 @@ namespace Nexus::Platform
 		return info;
 	}
 
-	std::string RemovePath(const char *path)
+	std::string RemovePath(const std::string &path)
 	{
-		if (!SDL_RemovePath(path))
+		if (!SDL_RemovePath(path.c_str()))
 		{
 			return std::string(SDL_GetError());
 		}
@@ -857,9 +857,9 @@ namespace Nexus::Platform
 		return {};
 	}
 
-	std::string RenamePath(const char *oldPath, const char *newPath)
+	std::string RenamePath(const std::string &oldPath, const std::string &newPath)
 	{
-		if (!SDL_RenamePath(oldPath, newPath))
+		if (!SDL_RenamePath(oldPath.c_str(), newPath.c_str()))
 		{
 			return std::string(SDL_GetError());
 		}
@@ -877,10 +877,10 @@ namespace Nexus::Platform
 		return SDL_ENUM_CONTINUE;
 	}
 
-	std::vector<std::string> EnumerateDirectoryContents(const char *path)
+	std::vector<std::string> EnumerateDirectoryContents(const std::string &path)
 	{
 		std::vector<std::string> contents = {};
-		SDL_EnumerateDirectory(path, IterateDirectory, &contents);
+		SDL_EnumerateDirectory(path.c_str(), IterateDirectory, &contents);
 		return contents;
 	}
 

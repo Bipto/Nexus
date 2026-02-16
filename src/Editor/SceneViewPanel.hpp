@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Panel.hpp"
+#include "Platform/FileSystem/FileDialogs.hpp"
 
 class SceneViewPanel : public Panel
 {
@@ -32,9 +33,14 @@ class SceneViewPanel : public Panel
 			ImGui::SameLine();
 			if (ImGui::Button("..."))
 			{
-				std::vector<Nexus::FileDialogFilter>   filters = {{"HDR images", "hdr"}};
-				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+				std::vector<Nexus::FileDialogFilter> filters = {{"HDR images", "hdr"}};
+
+				Nexus::OpenFileDialogDescription dialogDesc = {};
+				dialogDesc.WindowHandle						= Nexus::GetApplication()->GetPrimaryWindow();
+				dialogDesc.Filters							= filters;
+
+				std::unique_ptr<Nexus::OpenFileDialog> dialog =
+					std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(dialogDesc));
 				Nexus::FileDialogResult result = dialog->Show();
 				if (result.FilePaths.size() > 0)
 				{

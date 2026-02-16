@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -7,10 +8,44 @@
 
 namespace Nexus
 {
+	class IWindow;
+
 	struct FileDialogFilter
 	{
 		const char *Name;
 		const char *Pattern;
+	};
+
+	struct OpenFileDialogDescription
+	{
+		IWindow						 *WindowHandle	  = nullptr;
+		std::vector<FileDialogFilter> Filters		  = {};
+		std::optional<std::string>	  DefaultLocation = {};
+		bool						  AllowMany		  = false;
+		std::string					  TitleString	  = "Open File";
+		std::string					  AcceptString	  = "Accept";
+		std::string					  CancelString	  = "Cancel";
+	};
+
+	struct SaveFileDialogDescription
+	{
+		IWindow						 *WindowHandle	  = nullptr;
+		std::vector<FileDialogFilter> Filters		  = {};
+		std::optional<std::string>	  DefaultLocation = {};
+		std::string					  TitleString	  = "Save File";
+		std::string					  AcceptString	  = "Accept";
+		std::string					  CancelString	  = "Cancel";
+	};
+
+	struct OpenFolderDialogDescription
+	{
+		IWindow						 *WindowHandle	  = nullptr;
+		std::vector<FileDialogFilter> Filters		  = {};
+		std::optional<std::string>	  DefaultLocation = {};
+		bool						  AllowMany		  = false;
+		std::string					  TitleString	  = "Open Folder";
+		std::string					  AcceptString	  = "Accept";
+		std::string					  CancelString	  = "Cancel";
 	};
 
 	struct FileDialogResult

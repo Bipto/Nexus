@@ -524,6 +524,14 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthFormat								 = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 		pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
+		pipelineDescription.ResourceDescription.Descriptors = {
+			{Nexus::Graphics::ResourceDescriptor {.Name				  = "Camera",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+												  .CountOrSizeInBytes = 1},
+			 Nexus::Graphics::ResourceDescriptor {.Name				  = "skybox",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												  .CountOrSizeInBytes = 1}}};
+
 		m_CubemapPipeline	 = m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_CubemapResourceSet = m_Device->CreateResourceSet(m_CubemapPipeline);
 
@@ -569,6 +577,23 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourBlendStates[0].SourceAlphaBlend		= Nexus::Graphics::BlendFactor::One;
 		pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend	= Nexus::Graphics::BlendFactor::Zero;
 		pipelineDescription.ColourBlendStates[0].AlphaBlendFunction		= Nexus::Graphics::BlendEquation::Add;
+
+		pipelineDescription.ResourceDescription.Descriptors = {
+			{Nexus::Graphics::ResourceDescriptor {.Name				  = "Camera",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+												  .CountOrSizeInBytes = 1},
+			 Nexus::Graphics::ResourceDescriptor {.Name				  = "Transform",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+												  .CountOrSizeInBytes = 1},
+			 Nexus::Graphics::ResourceDescriptor {.Name				  = "diffuseMapSampler",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												  .CountOrSizeInBytes = 1},
+			 Nexus::Graphics::ResourceDescriptor {.Name				  = "normalMapSampler",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												  .CountOrSizeInBytes = 1},
+			 Nexus::Graphics::ResourceDescriptor {.Name				  = "specularMapSampler",
+												  .Type				  = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+												  .CountOrSizeInBytes = 1}}};
 
 		m_ModelPipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
 

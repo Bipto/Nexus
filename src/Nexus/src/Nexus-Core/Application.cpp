@@ -150,7 +150,7 @@ namespace Nexus
 		m_Running = false;
 	}
 
-	const char *Application::GetApplicationPath()
+	std::string Application::GetApplicationPath()
 	{
 		return Platform::GetApplicationPath(m_Description.Organization.c_str(), m_Description.App.c_str());
 	}

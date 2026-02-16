@@ -57,12 +57,9 @@ namespace Nexus::Platform
 	NX_PLATFORM_API IWindow			 *CreatePlatformWindow(const WindowDescription &windowProps);
 	NX_PLATFORM_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 
-	NX_PLATFORM_API OpenFileDialog *CreateOpenFileDialog(IWindow							 *window,
-														 const std::vector<FileDialogFilter> &filters,
-														 const char							 *defaultLocation,
-														 bool								  allowMany);
-	NX_PLATFORM_API SaveFileDialog *CreateSaveFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation);
-	NX_PLATFORM_API OpenFolderDialog *CreateOpenFolderDialog(IWindow *window, const char *defaultLocation, bool allowMany);
+	NX_PLATFORM_API OpenFileDialog	 *CreateOpenFileDialog(const OpenFileDialogDescription &desc);
+	NX_PLATFORM_API SaveFileDialog	 *CreateSaveFileDialog(const SaveFileDialogDescription &desc);
+	NX_PLATFORM_API OpenFolderDialog *CreateOpenFolderDialog(const OpenFolderDialogDescription &desc);
 
 	NX_PLATFORM_API std::optional<IWindow *> GetKeyboardFocus();
 	NX_PLATFORM_API std::optional<IWindow *> GetMouseFocus();
@@ -76,18 +73,18 @@ namespace Nexus::Platform
 	NX_PLATFORM_API MouseState GetGlobalMouseState();
 
 	// filesystem
-	NX_PLATFORM_API const char *GetRootPath();
-	NX_PLATFORM_API const char *GetApplicationPath(const char *org, const char *app);
+	NX_PLATFORM_API std::string GetRootPath();
+	NX_PLATFORM_API std::string GetApplicationPath(const std::string &org, const std::string &app);
 	NX_PLATFORM_API std::string GetCurrentExecutableDirectory();
 	NX_PLATFORM_API std::string GetCurrentUserFolder(IO::UserFolder folder);
 
-	NX_PLATFORM_API std::string CopyFileTo(const char *source, const char *destination, bool overwriteIfExists);
-	NX_PLATFORM_API std::string CreateDirectoryAt(const char *path);
-	NX_PLATFORM_API IO::PathInfo GetPathInfo(const char *path);
-	NX_PLATFORM_API std::string RemovePath(const char *path);
-	NX_PLATFORM_API std::string RenamePath(const char *oldPath, const char *newPath);
+	NX_PLATFORM_API std::string CopyFileTo(const std::string &source, const std::string &destination, bool overwriteIfExists);
+	NX_PLATFORM_API std::string CreateDirectoryAt(const std::string &path);
+	NX_PLATFORM_API IO::PathInfo GetPathInfo(const std::string &path);
+	NX_PLATFORM_API std::string RemovePath(const std::string &path);
+	NX_PLATFORM_API std::string RenamePath(const std::string &oldPath, const std::string &newPath);
 
-	NX_PLATFORM_API std::vector<std::string> EnumerateDirectoryContents(const char *path);
+	NX_PLATFORM_API std::vector<std::string> EnumerateDirectoryContents(const std::string &path);
 
 	NX_PLATFORM_API bool AreAnyWindowsOpen();
 

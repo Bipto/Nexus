@@ -120,8 +120,12 @@ namespace Nexus
 								  std::vector<Nexus::FileDialogFilter> filters;
 								  filters.push_back(Nexus::FileDialogFilter {.Name = "All files", .Pattern = "*"});
 
-								  std::unique_ptr<Nexus::OpenFileDialog> dialog = std::unique_ptr<Nexus::OpenFileDialog>(
-									  Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+								  Nexus::OpenFileDialogDescription fileDialogDesc = {};
+								  fileDialogDesc.WindowHandle					  = Nexus::GetApplication()->GetPrimaryWindow();
+								  fileDialogDesc.Filters						  = filters;
+
+								  std::unique_ptr<Nexus::OpenFileDialog> dialog =
+									  std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(fileDialogDesc));
 								  Nexus::FileDialogResult result = dialog->Show();
 
 								  if (result.FilePaths.size() > 0)
@@ -271,8 +275,13 @@ namespace Nexus
 								  std::vector<Nexus::FileDialogFilter> filters;
 								  filters.push_back(Nexus::FileDialogFilter {.Name = "All files", .Pattern = "*"});
 
-								  std::unique_ptr<Nexus::OpenFileDialog> dialog = std::unique_ptr<Nexus::OpenFileDialog>(
-									  Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+								  Nexus::OpenFileDialogDescription dialogDesc = {};
+								  dialogDesc.WindowHandle					  = Nexus::GetApplication()->GetPrimaryWindow();
+								  dialogDesc.Filters						  = filters;
+								  dialogDesc.AllowMany						  = false;
+
+								  std::unique_ptr<Nexus::OpenFileDialog> dialog =
+									  std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(dialogDesc));
 								  Nexus::FileDialogResult result = dialog->Show();
 
 								  if (result.FilePaths.size() > 0)

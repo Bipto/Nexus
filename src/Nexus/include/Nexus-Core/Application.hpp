@@ -113,7 +113,7 @@ namespace Nexus
 
 		void Stop();
 
-		const char *GetApplicationPath();
+		std::string GetApplicationPath();
 
 	  protected:
 		std::unique_ptr<Graphics::IGraphicsAPI> m_GraphicsAPI = nullptr;
