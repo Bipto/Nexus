@@ -2,6 +2,8 @@
 
 #include "Nexus-Core/ECS/Components.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
+#include "Nexus-Core/Runtime.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 const std::string c_ClearGBufferVertexShader = R"(
 #version 450 core
@@ -508,10 +510,18 @@ namespace Nexus::Graphics
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode		 = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace		 = Nexus::Graphics::FrontFace::CounterClockwise;
-		pipelineDescription.VertexModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_CubemapVertexShader, "cubemap.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-		pipelineDescription.FragmentModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_CubemapFragmentShader, "cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+
+		pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								c_CubemapVertexShader,
+																								"cubemap.vert.glsl",
+																								Nexus::GetApplication()->GetApplicationPath(),
+																								Nexus::Graphics::ShaderStage::Vertex);
+
+		pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								  c_CubemapFragmentShader,
+																								  "cubemap.frag.glsl",
+																								  Nexus::GetApplication()->GetApplicationPath(),
+																								  Nexus::Graphics::ShaderStage::Fragment);
 
 		pipelineDescription.ColourTargetCount = 2;
 		pipelineDescription.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
@@ -558,10 +568,16 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthStencilDesc.EnableDepthWrite			 = true;
 		pipelineDescription.DepthStencilDesc.DepthComparisonFunction	 = Nexus::Graphics::ComparisonFunction::Less;
 
-		pipelineDescription.VertexModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ModelVertexShader, "model.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-		pipelineDescription.FragmentModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ModelFragmentShader, "model.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+		pipelineDescription.VertexModule   = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								  c_ModelVertexShader,
+																								  "model.vert.glsl",
+																								  Nexus::GetApplication()->GetApplicationPath(),
+																								  Nexus::Graphics::ShaderStage::Vertex);
+		pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								  c_ModelFragmentShader,
+																								  "model.frag.glsl",
+																								  Nexus::GetApplication()->GetApplicationPath(),
+																								  Nexus::Graphics::ShaderStage::Fragment);
 
 		pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
@@ -623,12 +639,16 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthStencilDesc.EnableDepthWrite			 = true;
 		pipelineDescription.DepthStencilDesc.DepthComparisonFunction	 = Nexus::Graphics::ComparisonFunction::Less;
 
-		pipelineDescription.VertexModule   = m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ClearGBufferVertexShader,
-																							  "clearscreen.vert.glsl",
-																							  Nexus::Graphics::ShaderStage::Vertex);
-		pipelineDescription.FragmentModule = m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ClearGBufferFragmentShader,
-																							  "clearscreen.frag.glsl",
-																							  Nexus::Graphics::ShaderStage::Fragment);
+		pipelineDescription.VertexModule   = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								  c_ClearGBufferVertexShader,
+																								  "clearscreen.vert.glsl",
+																								  Nexus::GetApplication()->GetApplicationPath(),
+																								  Nexus::Graphics::ShaderStage::Vertex);
+		pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								  c_ClearGBufferFragmentShader,
+																								  "clearscreen.frag.glsl",
+																								  Nexus::GetApplication()->GetApplicationPath(),
+																								  Nexus::Graphics::ShaderStage::Fragment);
 
 		pipelineDescription.Layouts = {m_FullscreenQuad.GetVertexBufferLayout()};
 

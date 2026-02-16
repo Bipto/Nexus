@@ -1,6 +1,7 @@
 #include "Nexus-Core/Renderer/BatchRenderer.hpp"
 
 #include "Nexus-Core/Runtime.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -411,21 +412,29 @@ namespace Nexus::Graphics
 		m_BlankTextureView						  = m_Device->CreateTextureView(viewDesc);
 
 		Nexus::Ref<Nexus::Graphics::IShaderModule> vertexModule =
-			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
-														   "Batch Renderer - Vertex Shader",
-														   Nexus::Graphics::ShaderStage::Vertex);
+			Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(device,
+																 s_BatchVertexShaderSource,
+																 "Batch Renderer - Vertex Shader",
+																 Nexus::GetApplication()->GetApplicationPath(),
+																 Nexus::Graphics::ShaderStage::Vertex);
 		Nexus::Ref<Nexus::Graphics::IShaderModule> sdfFragmentModule =
-			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchSDFFragmentShaderSource,
-														   "Batch Renderer - SDF Fragment Shader",
-														   Nexus::Graphics::ShaderStage::Fragment);
+			Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(device,
+																 s_BatchSDFFragmentShaderSource,
+																 "Batch Renderer - SDF Fragment Shader",
+																 Nexus::GetApplication()->GetApplicationPath(),
+																 Nexus::Graphics::ShaderStage::Fragment);
 		Nexus::Ref<Nexus::Graphics::IShaderModule> textureFragmentModule =
-			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchTextureFragmentShaderSource,
-														   "Batch Renderer - Texture Fragment Shader",
-														   Nexus::Graphics::ShaderStage::Fragment);
+			Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(device,
+																 s_BatchTextureFragmentShaderSource,
+																 "Batch Renderer - Texture Fragment Shader",
+																 Nexus::GetApplication()->GetApplicationPath(),
+																 Nexus::Graphics::ShaderStage::Fragment);
 		Nexus::Ref<Nexus::Graphics::IShaderModule> fontFragmentModule =
-			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchFontFragmentShaderSource,
-														   "Batch Renderer - Font Fragment Shader",
-														   Nexus::Graphics::ShaderStage::Fragment);
+			Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(device,
+																 s_BatchFontFragmentShaderSource,
+																 "Batch Renderer - Font Fragment Shader",
+																 Nexus::GetApplication()->GetApplicationPath(),
+																 Nexus::Graphics::ShaderStage::Fragment);
 
 		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule, m_UseDepthTest, sampleCount);
 		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule, m_UseDepthTest, sampleCount);

@@ -167,10 +167,14 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/3d/3d.vert.glsl",
-																										Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/3d/3d.frag.glsl",
-																										Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule   = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																									"resources/demo/shaders/3d/3d.vert.glsl",
+																									Nexus::GetApplication()->GetApplicationPath(),
+																									Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																									"resources/demo/shaders/3d/3d.frag.glsl",
+																									Nexus::GetApplication()->GetApplicationPath(),
+																									Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ColourTargetCount = 1;
 			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();

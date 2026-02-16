@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Demo.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Platform/Timings/Profiler.hpp"
 
 namespace Demos
@@ -254,13 +255,19 @@ namespace Demos
 				if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
 				{
 					Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
-					pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/raygen.rgen",
-																									 Nexus::Graphics::ShaderStage::RayGeneration));
-					pipelineDesc.Shaders.push_back(m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/miss.rmiss",
-																									 Nexus::Graphics::ShaderStage::RayMiss));
+					pipelineDesc.Shaders.push_back(Nexus::Utils::CreateShaderModuleFromSpirvFile(m_GraphicsDevice,
+																								 "resources/demo/shaders/ray_tracing/raygen.rgen",
+																								 Nexus::GetApplication()->GetApplicationPath(),
+																								 Nexus::Graphics::ShaderStage::RayGeneration));
+					pipelineDesc.Shaders.push_back(Nexus::Utils::CreateShaderModuleFromSpirvFile(m_GraphicsDevice,
+																								 "resources/demo/shaders/ray_tracing/miss.rmiss",
+																								 Nexus::GetApplication()->GetApplicationPath(),
+																								 Nexus::Graphics::ShaderStage::RayMiss));
 					pipelineDesc.Shaders.push_back(
-						m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/ray_tracing/closesthit.rchit",
-																		  Nexus::Graphics::ShaderStage::RayClosestHit));
+						Nexus::Utils::CreateShaderModuleFromSpirvFile(m_GraphicsDevice,
+																	  "resources/demo/shaders/ray_tracing/closesthit.rchit",
+																	  Nexus::GetApplication()->GetApplicationPath(),
+																	  Nexus::Graphics::ShaderStage::RayClosestHit));
 
 					Nexus::Graphics::ShaderGroup rayGenGroup = {};
 					rayGenGroup.Type						 = Nexus::Graphics::ShaderGroupType::General;

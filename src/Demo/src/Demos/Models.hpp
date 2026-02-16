@@ -189,12 +189,15 @@ namespace Demos
 			pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = true;
 			pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/models/models.vert.glsl",
-																	   Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/models/models.frag.glsl",
-																	   Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																								  "resources/demo/shaders/models/models.vert.glsl",
+																								  Nexus::GetApplication()->GetApplicationPath(),
+																								  Nexus::Graphics::ShaderStage::Vertex);
+
+			pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																									"resources/demo/shaders/models/models.frag.glsl",
+																									Nexus::GetApplication()->GetApplicationPath(),
+																									Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 

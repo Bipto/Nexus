@@ -1,4 +1,6 @@
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+#include "Nexus-Core/Runtime.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 
@@ -30,10 +32,16 @@ namespace Nexus::Graphics
 	{
 		m_CommandList = m_CommandQueue->CreateCommandList();
 
-		Ref<IShaderModule> m_VertexModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
-		Ref<IShaderModule> m_FragmentModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
+		Ref<IShaderModule> m_VertexModule	= Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								   c_MipmapVertexSource,
+																								   "Mipmap-Gen.vert",
+																								   Nexus::GetApplication()->GetApplicationPath(),
+																								   Nexus::Graphics::ShaderStage::Vertex);
+		Ref<IShaderModule> m_FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+																								   c_MipmapFragmentSource,
+																								   "Mipmap-Gen.frag",
+																								   Nexus::GetApplication()->GetApplicationPath(),
+																								   Nexus::Graphics::ShaderStage::Fragment);
 
 		// set up pipeline for rendering
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;

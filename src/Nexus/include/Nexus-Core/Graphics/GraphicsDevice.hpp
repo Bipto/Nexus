@@ -155,19 +155,13 @@ namespace Nexus::Graphics
 
 		virtual FenceWaitResult WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
 
+		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;
+
 		virtual void ResetFences(Ref<IFence> *fences, uint32_t count) = 0;
 
 		virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
 
 		virtual Ref<ICommandQueue> CreateCommandQueue(const CommandQueueDescription &description) = 0;
-
-		Ref<IShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
-
-		Ref<IShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
-
-		Ref<IShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
-
-		Ref<IShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
 		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
@@ -188,10 +182,6 @@ namespace Nexus::Graphics
 		virtual Ref<ISurface> CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const			   = 0;
 		virtual Ref<ISurface> CreateSurfaceFromAndroid(uintptr_t nativeWindow) const						   = 0;
 		virtual Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const						   = 0;
-
-	  private:
-		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;
-		Ref<IShaderModule> TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
 		Ref<ICommandList> m_ImmediateCommandList = nullptr;

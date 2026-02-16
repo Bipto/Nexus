@@ -106,11 +106,15 @@ namespace Demos
 			pipelineDescription.Samples			  = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
 			pipelineDescription.MeshModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/mesh_shaders/hello_triangle_mesh.mesh.glsl",
-																	   Nexus::Graphics::ShaderStage::Mesh);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/mesh_shaders/hello_triangle_mesh.mesh.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Mesh);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/mesh_shaders/hello_triangle_mesh.frag.glsl",
-																	   Nexus::Graphics::ShaderStage::Fragment);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/mesh_shaders/hello_triangle_mesh.frag.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreateMeshletPipeline(pipelineDescription);
 		}

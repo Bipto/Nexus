@@ -77,13 +77,12 @@ namespace Nexus::Graphics
 		Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const final;
 
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
+		Ref<IShaderModule>		  CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
+		PixelFormatProperties	  GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 
 	  private:
-		Ref<IShaderModule>		 CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
 		std::vector<std::string> GetSupportedExtensions(const GladGLContext &context);
 		void					 GetFeatures();
-
-		PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 
 	  private:
 		WeakRef<FramebufferOpenGL> m_BoundFramebuffer = {};

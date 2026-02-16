@@ -206,11 +206,15 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/instancing/instancing.vert.glsl",
-																	   Nexus::Graphics::ShaderStage::Vertex);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/instancing/instancing.vert.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/instancing/instancing.frag.glsl",
-																	   Nexus::Graphics::ShaderStage::Fragment);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/instancing/instancing.frag.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Fragment);
 
 			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
 																   {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},

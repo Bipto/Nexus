@@ -4,6 +4,8 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Runtime.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -127,10 +129,18 @@ namespace Nexus::Graphics
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-		pipelineDescription.VertexModule =
-			m_Device->CreateShaderModuleFromSpirvSource(HdriVertexShaderSource, "hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-		pipelineDescription.FragmentModule =
-			m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+
+		pipelineDescription.VertexModule = Nexus::Utils::CreateShaderModuleFromSpirvSource(m_Device,
+																						   HdriVertexShaderSource,
+																						   "hdri.vert.glsl",
+																						   Nexus::GetApplication()->GetApplicationPath(),
+																						   Nexus::Graphics::ShaderStage::Vertex);
+
+		pipelineDescription.FragmentModule = Nexus::Utils::CreateShaderModuleFromSpirvSource(m_Device,
+																							 HdriFragmentShaderSource,
+																							 "hdri.frag.glsl",
+																							 Nexus::GetApplication()->GetApplicationPath(),
+																							 Nexus::Graphics::ShaderStage::Fragment);
 
 		pipelineDescription.ColourFormats[0]  = framebufferSpec.ColourAttachmentFormats[0];
 		pipelineDescription.ColourTargetCount = 1;

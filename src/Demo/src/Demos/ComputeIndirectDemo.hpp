@@ -41,12 +41,14 @@ namespace Demos
 			m_TextureView									 = m_GraphicsDevice->CreateTextureView(viewDesc);
 
 			Nexus::Graphics::ComputePipelineDescription desc = {};
-			desc.ComputeShader = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/compute/compute.glsl",
-																						Nexus::Graphics::ShaderStage::Compute);
-			desc.ResourceDescription.Descriptors = {
+			desc.ComputeShader								 = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																					  "resources/demo/shaders/compute/compute.glsl",
+																					  Nexus::GetApplication()->GetApplicationPath(),
+																					  Nexus::Graphics::ShaderStage::Compute);
+			desc.ResourceDescription.Descriptors			 = {
 				Nexus::Graphics::ResourceDescriptor {.Name				 = "u_Image",
-													 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
-													 .CountOrSizeInBytes = 1},
+																 .Type				 = Nexus::Graphics::ResourceDescriptorType::StorageImage,
+																 .CountOrSizeInBytes = 1},
 			};
 			m_ComputePipeline = m_GraphicsDevice->CreateComputePipeline(desc);
 

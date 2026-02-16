@@ -106,9 +106,9 @@ namespace Nexus::Graphics
 		const GladVulkanContext &GetVulkanContext() const;
 
 		// vulkan functions
-	  private:
 		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
 
+	  private:
 		void RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);

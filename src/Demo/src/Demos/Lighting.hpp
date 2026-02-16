@@ -214,11 +214,15 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/lighting/lighting.vert.glsl",
-																	   Nexus::Graphics::ShaderStage::Vertex);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/lighting/lighting.vert.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/lighting/lighting.frag.glsl",
-																	   Nexus::Graphics::ShaderStage::Fragment);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/lighting/lighting.frag.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 

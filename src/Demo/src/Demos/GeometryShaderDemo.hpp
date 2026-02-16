@@ -114,15 +114,21 @@ namespace Demos
 			pipelineDescription.PrimitiveTopology = Nexus::Graphics::Topology::PointList;
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/geometry/geometry_demo.vert.glsl",
-																	   Nexus::Graphics::ShaderStage::Vertex);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/geometry/geometry_demo.vert.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Vertex);
 
 			pipelineDescription.GeometryModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/geometry/geometry_demo.geom.glsl",
-																	   Nexus::Graphics::ShaderStage::Geometry);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/geometry/geometry_demo.geom.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Geometry);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/geometry/geometry_demo.frag.glsl",
-																	   Nexus::Graphics::ShaderStage::Fragment);
+				Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(m_GraphicsDevice,
+																   "resources/demo/shaders/geometry/geometry_demo.frag.glsl",
+																   Nexus::GetApplication()->GetApplicationPath(),
+																   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 		}

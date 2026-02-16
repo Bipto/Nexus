@@ -96,10 +96,11 @@ namespace Nexus::Graphics
 
 		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 
-	  private:
 		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) override;
-		void					   GetLimitsAndFeatures();
-		inline static void		   ReportLiveObjects();
+
+	  private:
+		void			   GetLimitsAndFeatures();
+		inline static void ReportLiveObjects();
 
 	  private:
 	#if defined(_DEBUG)

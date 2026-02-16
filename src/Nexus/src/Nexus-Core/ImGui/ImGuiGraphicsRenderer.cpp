@@ -89,10 +89,16 @@ namespace Nexus::ImGuiUtils
 		auto vertexSource	= GetImGuiShaderVertexSource();
 		auto fragmentSource = GetImGuiShaderFragmentSource();
 
-		m_VertexShader =
-			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-		m_FragmentShader =
-			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+		m_VertexShader	 = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_GraphicsDevice,
+																				vertexSource,
+																				"ImGui.vert.glsl",
+																				Nexus::GetApplication()->GetApplicationPath(),
+																				Nexus::Graphics::ShaderStage::Vertex);
+		m_FragmentShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_GraphicsDevice,
+																				fragmentSource,
+																				"ImGui.frag.glsl",
+																				Nexus::GetApplication()->GetApplicationPath(),
+																				Nexus::Graphics::ShaderStage::Fragment);
 
 		CreatePipeline();
 
