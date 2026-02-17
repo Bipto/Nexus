@@ -50,18 +50,13 @@ macro(nexus_copy_required_runtime_libraries target_name)
     if (_dlls)
         add_custom_command(
             TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "Copying runtime DLLs for ${target_name}"
-            COMMAND ${CMAKE_COMMAND} -E echo "Runtime DLLs: '${_dlls}'"
+            COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Copying runtime DLLs for ${target_name}..."
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${target_name}>
+                $<TARGET_FILE_DIR:${target_name}>
+            COMMAND_EXPAND_LISTS
+            VERBATIM
         )
-
-        add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${_dlls}
-            $<TARGET_FILE_DIR:${target_name}>
-        COMMAND_EXPAND_LISTS
-        VERBATIM
-    )
     endif()
 
     #
