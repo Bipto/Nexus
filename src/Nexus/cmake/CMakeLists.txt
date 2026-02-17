@@ -34,43 +34,6 @@ macro(nexus_structure_folders)
   endforeach()
 endmacro()
 
-# Collect all runtime-producing dependencies recursively
-function(nexus_collect_runtime_targets out_var target_name visited)
-    # Avoid infinite recursion
-    if(${target_name} IN_LIST visited)
-        set(${out_var} "" PARENT_SCOPE)
-        return()
-    endif()
-
-    list(APPEND visited ${target_name})
-
-    set(result "")
-
-    # Get direct dependencies
-    get_target_property(deps ${target_name} LINK_LIBRARIES)
-
-    foreach(dep IN LISTS deps)
-        if(TARGET ${dep})
-            get_target_property(dep_type ${dep} TYPE)
-            get_target_property(is_imported ${dep} IMPORTED)
-
-            # Only include SHARED or MODULE libraries
-            if((dep_type STREQUAL "SHARED_LIBRARY"
-                OR dep_type STREQUAL "MODULE_LIBRARY"
-                OR (is_imported AND dep_type STREQUAL "UNKNOWN_LIBRARY")))
-                list(APPEND result ${dep})
-            endif()
-
-            # Recurse into dependencies
-            nexus_collect_runtime_targets(subdeps ${dep} "${visited}")
-            list(APPEND result ${subdeps})
-        endif()
-    endforeach()
-
-    list(REMOVE_DUPLICATES result)
-    set(${out_var} "${result}" PARENT_SCOPE)
-endfunction()
-
 macro(nexus_copy_required_runtime_libraries target_name)
 
     if(NOT TARGET ${target_name})
@@ -78,61 +41,33 @@ macro(nexus_copy_required_runtime_libraries target_name)
         return()
     endif()
 
-    # Collect recursive dependencies
-    nexus_collect_runtime_targets(all_runtime_targets Nexus "")
-
-    # Convert to generator expressions
-    set(nexus_runtime_files "")
-    foreach(dep IN LISTS all_runtime_targets)
-        list(APPEND nexus_runtime_files $<TARGET_FILE:${dep}>)
-    endforeach()
-
-    # Copy all dependency DLLs
-    if(nexus_runtime_files)
-        add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${nexus_runtime_files}
-                $<TARGET_FILE_DIR:${target_name}>
-            COMMAND_EXPAND_LISTS
-            COMMENT "Copying recursive runtime DLLs for ${target_name}"
-        )
-    endif()
-
-    # Copy Nexus.dll explicitly
+    # Copy all runtime DLLs (CMake 3.21+)
     add_custom_command(TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:Nexus>
+            $<TARGET_RUNTIME_DLLS:${target_name}>
             $<TARGET_FILE_DIR:${target_name}>
-        COMMENT "Copying Nexus.dll"
+        COMMAND_EXPAND_LISTS
+        COMMENT "Copying runtime DLLs for ${target_name}"
     )
 
-    # Copy target's own runtime DLLs (CMake 3.21+)
-    get_target_property(target_runtime_dlls ${target_name} RUNTIME_DLLS)
-    if(target_runtime_dlls)
+    # Only copy them in Debug builds
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        file(GLOB VCPKG_DEBUG_PDBS
+            "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.pdb"
+        )
+
         add_custom_command(TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${target_name}>
+                ${VCPKG_DEBUG_PDBS}
                 $<TARGET_FILE_DIR:${target_name}>
+            COMMENT "Copying vcpkg PDBs (Debug only)"
             COMMAND_EXPAND_LISTS
-            COMMENT "Copying runtime DLLs for ${target_name}"
         )
     endif()
 
-    # Copy PDB (MSVC only)
-    if(MSVC)
-        get_target_property(pdb_file Nexus PDB_OUTPUT_DIRECTORY)
-        if(NOT pdb_file STREQUAL "pdb_file-NOTFOUND")
-            add_custom_command(TARGET ${target_name} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    $<TARGET_PDB_FILE:Nexus>
-                    $<TARGET_FILE_DIR:${target_name}>
-                COMMENT "Copying Nexus PDB"
-            )
-        endif()
-    endif()
+
 
 endmacro()
-
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
