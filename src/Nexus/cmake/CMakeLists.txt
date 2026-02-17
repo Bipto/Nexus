@@ -35,39 +35,57 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries target_name)
-
     if(NOT TARGET ${target_name})
         message(WARNING "Target '${target_name}' does not exist.")
         return()
     endif()
 
-    # Copy all runtime DLLs (CMake 3.21+)
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${target_name}>
-            $<TARGET_FILE_DIR:${target_name}>
-        COMMAND_EXPAND_LISTS
-        COMMENT "Copying runtime DLLs for ${target_name}"
+    #
+    # 1. Copy runtime DLLs (CMake 3.21+)
+    #
+    # TARGET_RUNTIME_DLLS may expand to an empty list, so we must guard it.
+    #
+    set(_dlls "$<TARGET_RUNTIME_DLLS:${target_name}>")
+
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying runtime DLLs for ${target_name}"
+        COMMAND ${CMAKE_COMMAND} -E echo "Runtime DLLs: '${_dlls}'"
     )
 
-    # Only copy them in Debug builds
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${_dlls}
+            $<TARGET_FILE_DIR:${target_name}>
+        COMMAND_EXPAND_LISTS
+        VERBATIM
+    )
+
+    #
+    # 2. Copy vcpkg debug PDBs (Debug only)
+    #
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         file(GLOB VCPKG_DEBUG_PDBS
             "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.pdb"
         )
 
-        add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${VCPKG_DEBUG_PDBS}
-                $<TARGET_FILE_DIR:${target_name}>
-            COMMENT "Copying vcpkg PDBs (Debug only)"
-            COMMAND_EXPAND_LISTS
-        )
+        if(VCPKG_DEBUG_PDBS)
+            add_custom_command(
+                TARGET ${target_name} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E echo "Copying vcpkg PDBs for ${target_name}"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${VCPKG_DEBUG_PDBS}
+                    $<TARGET_FILE_DIR:${target_name}>
+                COMMAND_EXPAND_LISTS
+                VERBATIM
+            )
+        else()
+            message(STATUS "No vcpkg PDBs found for ${target_name}")
+        endif()
     endif()
-
-
-
 endmacro()
+
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
