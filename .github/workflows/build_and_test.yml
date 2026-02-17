@@ -207,6 +207,8 @@ jobs:
         shell: msys2 {0}
         run: cmake --build build --target TestRunner
 
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure --parallel
 
       - name: sccache stats
         run: sccache --show-stats || true
@@ -275,7 +277,7 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh all
+          sudo ./llvm.sh 21
 
       - name: Install sccache
         run: sudo apt-get install -y sccache
@@ -325,6 +327,9 @@ jobs:
 
       - name: Build
         run: cmake --build build --target TestRunner
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure --parallel
 
       - name: sccache stats
         run: sccache --show-stats || true
