@@ -46,13 +46,7 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
-	  set(ALSOFT_ENABLE_MODULES OFF CACHE BOOL "")
-	  FetchContent_Declare(
-		openal-soft
-		GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-		GIT_TAG 1.25.1
-	  )
-	  FetchContent_MakeAvailable(openal-soft)
+	  find_package(OpenAL CONFIG REQUIRED)
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)
 	endif()
 endif()
@@ -65,25 +59,25 @@ set_target_properties(Nexus-Audio PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-set(BUILD_TESTING OFF CACHE BOOL "")
-FetchContent_Declare(
-	libsndfile
-	GIT_REPOSITORY https://github.com/libsndfile/libsndfile.git
-	GIT_TAG 68f6c16
-	GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(libsndfile)
-target_link_libraries(Nexus-Audio PRIVATE sndfile)
-
-FetchContent_Declare(
-	tl_expected
-	GIT_REPOSITORY https://github.com/TartanLlama/expected.git
-	GIT_TAG v1.3.1
-)
-FetchContent_MakeAvailable(tl_expected)
-target_link_libraries(Nexus-Audio PUBLIC tl::expected)
+find_package(tl-expected CONFIG REQUIRED)
+target_link_libraries(Nexus-Audio PRIVATE tl::expected)
 
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
 target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
 target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES})
+
+#ffmpeg
+if (MINGW)
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
+		libavcodec libavformat libavutil libswscale libswresample
+	)
+
+	target_link_libraries(Nexus-Audio PRIVATE PkgConfig::FFMPEG)
+else()
+	find_package(FFMPEG REQUIRED)
+	target_include_directories(Nexus-Audio PRIVATE ${FFMPEG_INCLUDE_DIRS})
+	target_link_directories(Nexus-Audio PRIVATE ${FFMPEG_LIBRARY_DIRS})
+	target_link_libraries(Nexus-Audio PRIVATE ${FFMPEG_LIBRARIES})
+endif()
