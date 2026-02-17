@@ -47,13 +47,14 @@ macro(nexus_copy_required_runtime_libraries target_name)
     #
     set(_dlls "$<TARGET_RUNTIME_DLLS:${target_name}>")
 
-    add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Copying runtime DLLs for ${target_name}"
-        COMMAND ${CMAKE_COMMAND} -E echo "Runtime DLLs: '${_dlls}'"
-    )
+    if (_dlls)
+        add_custom_command(
+            TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "Copying runtime DLLs for ${target_name}"
+            COMMAND ${CMAKE_COMMAND} -E echo "Runtime DLLs: '${_dlls}'"
+        )
 
-    add_custom_command(
+        add_custom_command(
         TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${_dlls}
@@ -61,6 +62,7 @@ macro(nexus_copy_required_runtime_libraries target_name)
         COMMAND_EXPAND_LISTS
         VERBATIM
     )
+    endif()
 
     #
     # 2. Copy vcpkg debug PDBs (Debug only)
