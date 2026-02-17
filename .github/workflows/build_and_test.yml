@@ -31,6 +31,19 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
+          #Clang
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Release
+            vcpkg_triplet: x64-mingw-static
+
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Debug
+            vcpkg_triplet: x64-mingw-static
+
           # Clang-CL
           - name: Clang-CL
             c_compiler: clang-cl
@@ -99,7 +112,7 @@ jobs:
       # MSYS2 MinGW-UCRT setup
       # ------------------------------------------------------------
       - name: Install MinGW-UCRT (MSYS2)
-        if: matrix.name == 'MinGW-UCRT'
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -133,7 +146,7 @@ jobs:
       # CMake configure (MSVC / Clang-CL)
       # ------------------------------------------------------------
       - name: Configure CMake (MSVC/Clang-CL)
-        if: matrix.name != 'MinGW-UCRT'
+        if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
         shell: bash
         run: |
           if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
@@ -163,7 +176,7 @@ jobs:
       # CMake configure (MSYS2 MinGW-UCRT)
       # ------------------------------------------------------------
       - name: Configure CMake (MSYS2 MinGW-UCRT)
-        if: matrix.name == 'MinGW-UCRT'
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
           TOOLCHAIN_FILE="$(cygpath -u "${GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake")"
@@ -183,14 +196,17 @@ jobs:
       # ------------------------------------------------------------
       # Build
       # ------------------------------------------------------------
+      # MSVC / Clang-CL
       - name: Build (MSVC/Clang-CL)
-        if: matrix.name != 'MinGW-UCRT'
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         run: cmake --build build --target TestRunner
 
-      - name: Build (MSYS2 MinGW-UCRT)
-        if: matrix.name == 'MinGW-UCRT'
+      # MSYS2 (Clang + MinGW-UCRT)
+      - name: Build (MSYS2)
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: cmake --build build --target TestRunner
+
 
       - name: sccache stats
         run: sccache --show-stats || true
