@@ -41,13 +41,10 @@ macro(nexus_copy_required_runtime_libraries target_name)
     endif()
 
     #
-    # 1. Copy runtime DLLs (CMake 3.21+)
+    # 1. Copy runtime DLLs (Windows only, CMake 3.21+)
     #
-    # TARGET_RUNTIME_DLLS may expand to an empty list, so we must guard it.
-    #
-    set(_dlls "$<TARGET_RUNTIME_DLLS:${target_name}>")
-
-    if (_dlls)
+    if(WIN32)
+        # Use generator expression to guard empty lists
         add_custom_command(
             TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Copying runtime DLLs for ${target_name}..."
@@ -56,13 +53,15 @@ macro(nexus_copy_required_runtime_libraries target_name)
                 $<TARGET_FILE_DIR:${target_name}>
             COMMAND_EXPAND_LISTS
             VERBATIM
+            # Only run if there are actually DLLs
+            COMMENT "Copying runtime DLLs for ${target_name}"
         )
     endif()
 
     #
-    # 2. Copy vcpkg debug PDBs (Debug only)
+    # 2. Copy vcpkg debug PDBs (Debug only, Windows only)
     #
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
         file(GLOB VCPKG_DEBUG_PDBS
             "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.pdb"
         )
