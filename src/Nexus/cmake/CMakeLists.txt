@@ -35,53 +35,72 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries target_name)
+
     if(NOT TARGET ${target_name})
         message(WARNING "Target '${target_name}' does not exist.")
         return()
     endif()
 
-    #
-    # 1. Copy runtime DLLs (Windows only, CMake 3.21+)
-    #
     if(WIN32)
-        # Use generator expression to guard empty lists
-        add_custom_command(
-            TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Copying runtime DLLs for ${target_name}..."
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${target_name}>
-                $<TARGET_FILE_DIR:${target_name}>
-            COMMAND_EXPAND_LISTS
-            VERBATIM
-            # Only run if there are actually DLLs
-            COMMENT "Copying runtime DLLs for ${target_name}"
-        )
-    endif()
 
-    #
-    # 2. Copy vcpkg debug PDBs (Debug only, Windows only)
-    #
-    if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-        file(GLOB VCPKG_DEBUG_PDBS
-            "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.pdb"
-        )
-
-        if(VCPKG_DEBUG_PDBS)
+        # ---- MSVC & modern CMake (3.21+) ----
+        if(MSVC)
             add_custom_command(
                 TARGET ${target_name} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E echo "Copying vcpkg PDBs for ${target_name}"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    ${VCPKG_DEBUG_PDBS}
+                    $<TARGET_RUNTIME_DLLS:${target_name}>
                     $<TARGET_FILE_DIR:${target_name}>
                 COMMAND_EXPAND_LISTS
                 VERBATIM
             )
-        else()
-            message(STATUS "No vcpkg PDBs found for ${target_name}")
         endif()
-    endif()
-endmacro()
 
+        # ---- MinGW (MSYS2) ----
+        if(MINGW)
+
+            get_filename_component(MINGW_BIN_DIR
+                "${CMAKE_CXX_COMPILER}" DIRECTORY)
+
+            file(GLOB MINGW_RUNTIME_DLLS
+                "${MINGW_BIN_DIR}/libgcc_s_*.dll"
+                "${MINGW_BIN_DIR}/libstdc++-6.dll"
+                "${MINGW_BIN_DIR}/libwinpthread-1.dll"
+            )
+
+            if(MINGW_RUNTIME_DLLS)
+                add_custom_command(
+                    TARGET ${target_name} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        ${MINGW_RUNTIME_DLLS}
+                        $<TARGET_FILE_DIR:${target_name}>
+                    COMMAND_EXPAND_LISTS
+                    VERBATIM
+                )
+            endif()
+
+        endif()
+
+        # ---- Debug PDBs (MSVC only) ----
+        if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+            file(GLOB VCPKG_DEBUG_PDBS
+                "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.pdb"
+            )
+
+            if(VCPKG_DEBUG_PDBS)
+                add_custom_command(
+                    TARGET ${target_name} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        ${VCPKG_DEBUG_PDBS}
+                        $<TARGET_FILE_DIR:${target_name}>
+                    COMMAND_EXPAND_LISTS
+                    VERBATIM
+                )
+            endif()
+        endif()
+
+    endif()
+
+endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
