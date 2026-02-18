@@ -30,9 +30,9 @@ namespace Demos
 			m_Mesh = factory.CreateSprite();
 
 			auto [texture, textureView] =
-				m_GraphicsDevice->CreateTexture2DWithView(m_CommandQueue,
-														  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"),
-														  true);
+				Nexus::Utils::CreateTexture2DWithView(m_CommandQueue,
+													  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"),
+													  true);
 
 			m_Texture	  = texture;
 			m_TextureView = textureView;

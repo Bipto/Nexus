@@ -15,7 +15,7 @@ extern "C"
 
 namespace Nexus::Audio
 {
-	Audio::AudioFormat GetAudioFormatFFmpeg(int channelCount)
+	static Audio::AudioFormat GetAudioFormatFFmpeg(int channelCount)
 	{
 		if (channelCount > 1)
 			return Audio::AudioFormat::StereoFloat32;
@@ -23,43 +23,43 @@ namespace Nexus::Audio
 			return Audio::AudioFormat::MonoFloat32;
 	}
 
-	tl::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBufferFFmpeg(const std::string &filepath, AudioDevice *device)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBufferFFmpeg(const std::string &filepath, AudioDevice *device)
 	{
 		if (!device)
-			return tl::unexpected("Audio device was invalid");
+			return std::unexpected("Audio device was invalid");
 
 		auto buffer = device->CreateAudioBuffer();
 		if (!buffer)
-			return tl::unexpected("Failed to create buffer");
+			return std::unexpected("Failed to create buffer");
 
 		AVFormatContext *formatCtx = nullptr;
 		if (avformat_open_input(&formatCtx, filepath.c_str(), nullptr, nullptr) < 0)
-			return tl::unexpected("Failed to open audio file");
+			return std::unexpected("Failed to open audio file");
 
 		if (avformat_find_stream_info(formatCtx, nullptr) < 0)
-			return tl::unexpected("Failed to read stream info");
+			return std::unexpected("Failed to read stream info");
 
 		int audioStreamIndex = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 
 		if (audioStreamIndex < 0)
-			return tl::unexpected("No audio stream found");
+			return std::unexpected("No audio stream found");
 
 		AVStream		  *stream	   = formatCtx->streams[audioStreamIndex];
 		AVCodecParameters *codecParams = stream->codecpar;
 
 		const AVCodec *codec = avcodec_find_decoder(codecParams->codec_id);
 		if (!codec)
-			return tl::unexpected("Unsupported audio codec");
+			return std::unexpected("Unsupported audio codec");
 
 		AVCodecContext *codecCtx = avcodec_alloc_context3(codec);
 		if (!codecCtx)
-			return tl::unexpected("Failed to allocate codec context");
+			return std::unexpected("Failed to allocate codec context");
 
 		if (avcodec_parameters_to_context(codecCtx, codecParams) < 0)
-			return tl::unexpected("Failed to copy codec parameters");
+			return std::unexpected("Failed to copy codec parameters");
 
 		if (avcodec_open2(codecCtx, codec, nullptr) < 0)
-			return tl::unexpected("Failed to open codec");
+			return std::unexpected("Failed to open codec");
 
 		// -----------------------------
 		// Resampler (to interleaved float)
@@ -79,11 +79,11 @@ namespace Nexus::Audio
 								0,
 								nullptr) < 0)
 		{
-			return tl::unexpected("Failed to create resampler");
+			return std::unexpected("Failed to create resampler");
 		}
 
 		if (swr_init(swr) < 0)
-			return tl::unexpected("Failed to initialize resampler");
+			return std::unexpected("Failed to initialize resampler");
 
 		std::vector<float> samples;
 
@@ -91,7 +91,7 @@ namespace Nexus::Audio
 		AVFrame	 *frame	 = av_frame_alloc();
 
 		if (!packet || !frame)
-			return tl::unexpected("Failed to allocate packet/frame");
+			return std::unexpected("Failed to allocate packet/frame");
 
 		// -----------------------------
 		// Decode loop
@@ -139,7 +139,7 @@ namespace Nexus::Audio
 		avformat_close_input(&formatCtx);
 
 		if (samples.empty())
-			return tl::unexpected("Decoded audio was empty");
+			return std::unexpected("Decoded audio was empty");
 
 		// -----------------------------
 		// Fill AudioBuffer
@@ -153,7 +153,7 @@ namespace Nexus::Audio
 		return buffer;
 	}
 
-	tl::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadAudioFile(const std::string &filepath, AudioDevice *device)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadAudioFile(const std::string &filepath, AudioDevice *device)
 	{
 		return LoadAudioFileToBufferFFmpeg(filepath, device);
 	}

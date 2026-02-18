@@ -1,13 +1,13 @@
 #include "Nexus-Core/AssetManager.hpp"
-
 #include "Nexus-Core/Assets/Processors/IProcessor.hpp"
 #include "Nexus-Core/Runtime/Project.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 namespace Nexus
 {
 	Ref<Graphics::ITexture> AssetManager::GetTexture(const std::string &filepath)
 	{
-		return m_GraphicsDevice->CreateTexture2D(m_CommandQueue, filepath.c_str(), false);
+		return Utils::CreateTexture2D(m_CommandQueue, filepath.c_str(), false);
 	}
 
 	std::any AssetManager::LoadAsset(GUID id)

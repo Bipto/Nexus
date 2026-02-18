@@ -270,7 +270,7 @@ target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COM
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 
-target_compile_features(Nexus PUBLIC cxx_std_20)
+target_compile_features(Nexus PUBLIC cxx_std_23)
 set_target_properties(Nexus PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF

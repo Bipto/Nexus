@@ -25,7 +25,9 @@ namespace Demos
 		{
 			m_CommandList = m_CommandQueue->CreateCommandList();
 
-			Nexus::Audio::AudioLoader::LoadAudioFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice)
+			auto loadedData = Nexus::Audio::AudioLoader::LoadAudioFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"),
+																	   m_AudioDevice);
+			loadedData
 				.transform(
 					[this](auto buffer)
 					{
@@ -38,7 +40,7 @@ namespace Demos
 					[](const std::string &error)
 					{
 						std::cerr << "Failed to load audio file: " << error << std::endl;
-						return tl::expected<std::shared_ptr<Nexus::Audio::AudioBuffer>, std::string>(nullptr);
+						return std::expected<std::shared_ptr<Nexus::Audio::AudioBuffer>, std::string>(nullptr);
 					});
 		}
 

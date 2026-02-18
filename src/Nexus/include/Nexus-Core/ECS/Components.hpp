@@ -7,6 +7,7 @@
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Scripting/NativeScript.hpp"
@@ -248,7 +249,9 @@ namespace Nexus
 			if (!TexturePath.empty())
 			{
 				Nexus::Graphics::IGraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
-				SpriteTexture							 = device->CreateTexture2D(nullptr, TexturePath, true, false);
+				// SpriteTexture							 = device->CreateTexture2D(nullptr, TexturePath, true, false);
+
+				throw std::runtime_error("Not implemented");
 			}
 		}
 	};

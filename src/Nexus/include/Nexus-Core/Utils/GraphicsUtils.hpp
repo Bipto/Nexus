@@ -27,4 +27,31 @@ namespace Nexus::Utils
 																			 const std::string		   &filepath,
 																			 const std::string		   &outputDirectory,
 																			 Graphics::ShaderStage		stage);
+
+	/// @brief A method that loads a new texture from a image stored on disk
+	/// @param filepath The filepath to load the image from
+	/// @return A pointer to a texture
+	NX_API Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue,
+												   const char				   *filepath,
+												   bool							generateMips,
+												   bool							srgb = false);
+
+	/// @brief A method that loads a new texture from an image stored on disk
+	/// @param filepath The filepath to load the image from
+	/// @return A pointer to a texture
+	NX_API Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue,
+												   const std::string		   &filepath,
+												   bool							generateMips,
+												   bool							srgb = false);
+
+	NX_API std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+																								   const char				   *filepath,
+																								   bool							generateMips,
+																								   bool							srgb = false);
+
+	NX_API std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+																								   const std::string		   &filepath,
+																								   bool							generateMips,
+																								   bool							srgb = false);
+
 }	 // namespace Nexus::Utils

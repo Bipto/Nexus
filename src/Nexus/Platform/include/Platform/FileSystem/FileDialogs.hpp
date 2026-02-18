@@ -23,7 +23,7 @@ namespace Nexus
 		std::optional<std::string>	  DefaultLocation = {};
 		bool						  AllowMany		  = false;
 		std::string					  TitleString	  = "Open File";
-		std::string					  AcceptString	  = "Accept";
+		std::string					  AcceptString	  = "Open";
 		std::string					  CancelString	  = "Cancel";
 	};
 
@@ -33,7 +33,7 @@ namespace Nexus
 		std::vector<FileDialogFilter> Filters		  = {};
 		std::optional<std::string>	  DefaultLocation = {};
 		std::string					  TitleString	  = "Save File";
-		std::string					  AcceptString	  = "Accept";
+		std::string					  AcceptString	  = "Save";
 		std::string					  CancelString	  = "Cancel";
 	};
 
@@ -44,7 +44,7 @@ namespace Nexus
 		std::optional<std::string>	  DefaultLocation = {};
 		bool						  AllowMany		  = false;
 		std::string					  TitleString	  = "Open Folder";
-		std::string					  AcceptString	  = "Accept";
+		std::string					  AcceptString	  = "Open";
 		std::string					  CancelString	  = "Cancel";
 	};
 

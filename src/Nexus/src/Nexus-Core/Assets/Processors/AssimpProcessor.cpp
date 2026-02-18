@@ -5,12 +5,13 @@
 #include "assimp/scene.h"
 
 #include "Nexus-Core/Runtime/Project.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 #include "stb_image.h"
 
 namespace Nexus::Processors
 {
-	void ProcessMesh(aiMesh *mesh, const aiScene *scene, std::vector<Graphics::MeshData> &meshes, Graphics::IGraphicsDevice *device)
+	static void ProcessMesh(aiMesh *mesh, const aiScene *scene, std::vector<Graphics::MeshData> &meshes, Graphics::IGraphicsDevice *device)
 	{
 		Graphics::MeshData meshData = {};
 
@@ -78,11 +79,11 @@ namespace Nexus::Processors
 		meshes.push_back(meshData);
 	}
 
-	void ProcessNode(aiNode										  *node,
-					 const aiScene								  *scene,
-					 const std::vector<Nexus::Graphics::Material> &materials,
-					 std::vector<Graphics::MeshData>			  &meshData,
-					 Graphics::IGraphicsDevice					  *device)
+	static void ProcessNode(aiNode										 *node,
+							const aiScene								 *scene,
+							const std::vector<Nexus::Graphics::Material> &materials,
+							std::vector<Graphics::MeshData>				 &meshData,
+							Graphics::IGraphicsDevice					 *device)
 	{
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
@@ -125,11 +126,11 @@ namespace Nexus::Processors
 		return createdTexture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITexture> LoadTextureFile(const std::string				   &filename,
-														  const std::string				   &directory,
-														  bool								generateMips,
-														  Nexus::Graphics::IGraphicsDevice *device,
-														  Ref<Graphics::ICommandQueue>		commandQueue)
+	static Nexus::Ref<Nexus::Graphics::ITexture> LoadTextureFile(const std::string				  &filename,
+																 const std::string				  &directory,
+																 bool							   generateMips,
+																 Nexus::Graphics::IGraphicsDevice *device,
+																 Ref<Graphics::ICommandQueue>	   commandQueue)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
@@ -137,16 +138,16 @@ namespace Nexus::Processors
 
 		if (std::filesystem::is_regular_file(texturePath))
 		{
-			texture = device->CreateTexture2D(commandQueue, texturePath, generateMips);
+			texture = Utils::CreateTexture2D(commandQueue, texturePath, generateMips);
 		}
 
 		return texture;
 	}
 
-	std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene					*scene,
-														   const std::string				&directory,
-														   Nexus::Graphics::IGraphicsDevice *device,
-														   Ref<Graphics::ICommandQueue>		 commandQueue)
+	static std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene					   *scene,
+																  const std::string				   &directory,
+																  Nexus::Graphics::IGraphicsDevice *device,
+																  Ref<Graphics::ICommandQueue>		commandQueue)
 	{
 		std::vector<Nexus::Graphics::Material> materials;
 		materials.reserve(scene->mNumMaterials);

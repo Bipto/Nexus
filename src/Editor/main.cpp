@@ -118,12 +118,12 @@ class EditorApplication : public Nexus::Application
 	void OpenProject(const std::string &filepath)
 	{
 		// TODO: Fix this
-		// m_Project = Nexus::Project::Deserialize(filepath);
-		// if (m_Project->GetNumberOfScenes() > 0)
-		//{
-		//	m_Project->LoadScene(0);
-		// }
-		// LoadProject(m_Project);
+		m_Project = Nexus::Project::Deserialize(filepath);
+		if (m_Project->GetNumberOfScenes() > 0)
+		{
+			m_Project->LoadScene(0, m_GraphicsDevice, GetGraphicsCommandQueue());
+		}
+		LoadProject(m_Project);
 	}
 
 	void LoadProject(Nexus::Ref<Nexus::Project> project)

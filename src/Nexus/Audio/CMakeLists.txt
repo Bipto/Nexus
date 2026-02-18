@@ -53,14 +53,11 @@ endif()
 
 add_library(Nexus-Audio ${AUDIO_SOURCES})
 
-target_compile_features(Nexus-Audio PUBLIC cxx_std_20)
+target_compile_features(Nexus-Audio PUBLIC cxx_std_23)
 set_target_properties(Nexus-Audio PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
-
-find_package(tl-expected CONFIG REQUIRED)
-target_link_libraries(Nexus-Audio PRIVATE tl::expected)
 
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})

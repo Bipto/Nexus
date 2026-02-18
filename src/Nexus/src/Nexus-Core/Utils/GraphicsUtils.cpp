@@ -1,5 +1,10 @@
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Nexus-Core/Caching/CachedShader.hpp"
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+
+#include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+
+#include "stb_image.h"
 
 namespace
 {
@@ -119,5 +124,92 @@ namespace Nexus::Utils
 	{
 		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
 		return GetOrCreateCachedShaderFromSpirvSource(graphicsDevice, source, filepath, outputDirectory, stage);
+	}
+
+	Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb)
+	{
+		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
+
+		int receivedChannels  = 0;
+		int width			  = 0;
+		int height			  = 0;
+		int requestedChannels = 4;
+
+		stbi_set_flip_vertically_on_load(true);
+
+		Graphics::TextureDescription spec;
+		unsigned char				*data = stbi_load(filepath, &width, &height, &receivedChannels, requestedChannels);
+		spec.Width						  = (uint32_t)width;
+		spec.Height						  = (uint32_t)height;
+		spec.Format						  = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		spec.MipLevels					  = 1;
+
+		if (srgb)
+		{
+			spec.Format = Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB;
+		}
+
+		if (generateMips)
+		{
+			uint32_t mipCount = Graphics::MipmapGenerator::GetMaximumNumberOfMips(spec.Width, spec.Height);
+			spec.MipLevels	  = mipCount;
+		}
+
+		auto   texture	  = Ref<Graphics::ITexture>(device->CreateTexture(spec));
+		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
+
+		commandQueue->WriteToTexture(texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
+
+		stbi_image_free(data);
+
+		if (generateMips)
+		{
+			Graphics::MipmapGenerator mipGenerator(device, commandQueue);
+
+			for (uint32_t i = 1; i < spec.MipLevels; i++)
+			{
+				auto [width, height]	 = Utils::GetMipSize(spec.Width, spec.Height, i);
+				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1, 0);
+				commandQueue->WriteToTexture(texture, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
+			}
+		}
+
+		return texture;
+	}
+
+	Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
+	{
+		return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
+	}
+
+	std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+																							const char					*filepath,
+																							bool						 generateMips,
+																							bool						 srgb)
+	{
+		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
+
+		Ref<Graphics::ITexture> texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
+
+		Graphics::TextureViewDescription viewDesc = {};
+		viewDesc.TargetTexture					  = texture;
+		viewDesc.Format							  = texture->GetPixelFormat();
+		viewDesc.Range							  = {.BaseMipLevel	 = 0,
+													 .LevelCount	 = texture->GetMipLevels(),
+													 .BaseArrayLayer = 0,
+													 .LayerCount	 = texture->GetDepthOrArrayLayers()};
+		std::string viewName					  = filepath + std::string(" - View");
+		viewDesc.DebugName						  = viewName;
+		Ref<Graphics::ITextureView> textureView	  = device->CreateTextureView(viewDesc);
+
+		return {texture, textureView};
+	}
+
+	std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+																							const std::string			&filepath,
+																							bool						 generateMips,
+																							bool						 srgb)
+	{
+		return CreateTexture2DWithView(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 }	 // namespace Nexus::Utils

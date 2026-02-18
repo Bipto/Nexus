@@ -38,7 +38,7 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_Mesh = factory.CreateCube();
 
-			auto [texture, textureView] = m_GraphicsDevice->CreateTexture2DWithView(
+			auto [texture, textureView] = Nexus::Utils::CreateTexture2DWithView(
 				m_CommandQueue,
 				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
 				true);

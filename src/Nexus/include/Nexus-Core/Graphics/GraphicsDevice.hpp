@@ -83,26 +83,6 @@ namespace Nexus::Graphics
 
 		virtual Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
-		/// @brief A method that loads a new texture from a image stored on disk
-		/// @param filepath The filepath to load the image from
-		/// @return A pointer to a texture
-		Ref<ITexture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb = false);
-
-		/// @brief A method that loads a new texture from an image stored on disk
-		/// @param filepath The filepath to load the image from
-		/// @return A pointer to a texture
-		Ref<ITexture> CreateTexture2D(Ref<ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb = false);
-
-		std::pair<Ref<ITexture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
-																			const char		  *filepath,
-																			bool			   generateMips,
-																			bool			   srgb = false);
-
-		std::pair<Ref<ITexture>, Ref<ITextureView>> CreateTexture2DWithView(Ref<ICommandQueue> commandQueue,
-																			const std::string &filepath,
-																			bool			   generateMips,
-																			bool			   srgb = false);
-
 		virtual Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
 		Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureCreateDescription &desc);

@@ -109,7 +109,7 @@ namespace Nexus
 		SDLDialogData data = {};
 
 		// display the dialog using the callback
-		SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_SAVEFILE, sdl_file_selected_callback, &data, properties);
+		SDL_ShowFileDialogWithProperties(dialogType, sdl_file_selected_callback, &data, properties);
 
 		// wait and keep updating events until the user selects a file
 		while (!data.dialogFinished) { Nexus::Platform::PollEvents(); }
@@ -154,7 +154,7 @@ namespace Nexus
 								 m_Description.TitleString,
 								 m_Description.AcceptString,
 								 m_Description.CancelString,
-								 SDL_FILEDIALOG_SAVEFILE);
+								 SDL_FILEDIALOG_OPENFILE);
 	}
 
 	OpenFolderDialogSDL3::OpenFolderDialogSDL3(const OpenFolderDialogDescription &desc) : m_Description(desc)

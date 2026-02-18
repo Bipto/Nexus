@@ -35,24 +35,24 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
 			m_CubeMesh = factory.CreateCube();
 
-			auto [diffuseMap, diffuseMapView] = m_GraphicsDevice->CreateTexture2DWithView(
-				m_CommandQueue,
-				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"),
-				true);
+			auto [diffuseMap, diffuseMapView] =
+				Nexus::Utils::CreateTexture2DWithView(m_CommandQueue,
+													  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"),
+													  true);
 			m_DiffuseMap	 = diffuseMap;
 			m_DiffuseMapView = diffuseMapView;
 
-			auto [normalMap, normalMapView] = m_GraphicsDevice->CreateTexture2DWithView(
-				m_CommandQueue,
-				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"),
-				true);
+			auto [normalMap, normalMapView] =
+				Nexus::Utils::CreateTexture2DWithView(m_CommandQueue,
+													  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"),
+													  true);
 			m_NormalMap		= normalMap;
 			m_NormalMapView = normalMapView;
 
-			auto [specularMap, specularMapView] = m_GraphicsDevice->CreateTexture2DWithView(
-				m_CommandQueue,
-				Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"),
-				true);
+			auto [specularMap, specularMapView] =
+				Nexus::Utils::CreateTexture2DWithView(m_CommandQueue,
+													  Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"),
+													  true);
 			m_SpecularMap	  = specularMap;
 			m_SpecularMapView = specularMapView;
 
