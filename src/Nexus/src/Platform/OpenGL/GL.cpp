@@ -1229,7 +1229,7 @@ namespace Nexus::GL
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				if (isCompressed)
+				if (!isCompressed)
 				{
 					glCall(context.CompressedTextureSubImage1D(texture->GetHandle(),
 															   command.BufferTextureCopy.MipLevel,
@@ -1256,19 +1256,7 @@ namespace Nexus::GL
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				if (isCompressed)
-				{
-					glCall(context.CompressedTextureSubImage2D(texture->GetHandle(),
-															   command.BufferTextureCopy.MipLevel,
-															   command.BufferTextureCopy.TextureOffset.X,
-															   command.BufferTextureCopy.TextureOffset.Y,
-															   command.BufferTextureCopy.TextureExtent.Width,
-															   command.BufferTextureCopy.TextureExtent.Height,
-															   dataFormat,
-															   baseType,
-															   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
+				if (!isCompressed)
 				{
 					glCall(context.TextureSubImage2D(texture->GetHandle(),
 													 command.BufferTextureCopy.MipLevel,
@@ -1280,12 +1268,24 @@ namespace Nexus::GL
 													 baseType,
 													 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
 				}
+				else
+				{
+					glCall(context.CompressedTextureSubImage2D(texture->GetHandle(),
+															   command.BufferTextureCopy.MipLevel,
+															   command.BufferTextureCopy.TextureOffset.X,
+															   command.BufferTextureCopy.TextureOffset.Y,
+															   command.BufferTextureCopy.TextureExtent.Width,
+															   command.BufferTextureCopy.TextureExtent.Height,
+															   dataFormat,
+															   baseType,
+															   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
+				}
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
 			{
 				size_t offset = command.BufferTextureCopy.BufferOffset;
 
-				if (isCompressed)
+				if (!isCompressed)
 				{
 					glCall(context.TextureSubImage3D(texture->GetHandle(),
 													 command.BufferTextureCopy.MipLevel,

@@ -88,8 +88,16 @@ namespace Nexus::Graphics
 		shaderc::CompileOptions compileOptions = {};
 
 		// this means the standard of GLSL used in the written shader, not the output
-		compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-		compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
+		if (options.OutputFormat == ShaderLanguage::GLSL || options.OutputFormat == ShaderLanguage::GLSLES)
+		{
+			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0);
+			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
+		}
+		else
+		{
+			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
+		}
 
 		compileOptions.SetGenerateDebugInfo();
 

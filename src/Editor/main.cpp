@@ -104,8 +104,11 @@ class EditorApplication : public Nexus::Application
 
 	void CreateProject(const std::string &projectName, const std::string &projectDirectory)
 	{
-		// TODO: Fix me
-		// m_Project = Nexus::CreateRef<Nexus::Project>(projectName, projectDirectory, true);
+		m_Project = Nexus::CreateRef<Nexus::Project>(Nexus::GetApplication()->GetGraphicsDevice(),
+													 Nexus::GetApplication()->GetGraphicsCommandQueue(),
+													 projectName,
+													 projectDirectory,
+													 true);
 		m_Project->Serialize();
 
 		Nexus::Utils::ScriptProjectGenerator generator = {};
@@ -117,11 +120,10 @@ class EditorApplication : public Nexus::Application
 
 	void OpenProject(const std::string &filepath)
 	{
-		// TODO: Fix this
-		m_Project = Nexus::Project::Deserialize(filepath);
+		m_Project = Nexus::Project::Deserialize(filepath, m_GraphicsDevice.get(), GetGraphicsCommandQueue());
 		if (m_Project->GetNumberOfScenes() > 0)
 		{
-			m_Project->LoadScene(0, m_GraphicsDevice, GetGraphicsCommandQueue());
+			m_Project->LoadScene(0, m_GraphicsDevice.get(), GetGraphicsCommandQueue());
 		}
 		LoadProject(m_Project);
 	}
@@ -441,8 +443,8 @@ class EditorApplication : public Nexus::Application
 						scene->Stop();
 						m_Project->UnloadSharedLibrary();
 
-						// TODO: Fix this
-						// m_Project->ReloadCurrentScene();
+						m_Project->ReloadCurrentScene(Nexus::GetApplication()->GetGraphicsDevice(),
+													  Nexus::GetApplication()->GetGraphicsCommandQueue());
 					}
 				}
 				ImGui::SameLine();
@@ -593,15 +595,14 @@ class EditorApplication : public Nexus::Application
 		ImGuizmo::BeginFrame();
 		RenderDockspace();
 		m_ImGuiRenderer->AfterLayout();
+		m_GraphicsDevice->WaitForIdle();
 
 		if (m_ClickPosition)
 		{
 			Nexus::Ref<Nexus::Graphics::ITexture> idTexture = m_Framebuffer->GetColorTextureHandle(1u);
 
-			// FIX ME
-			std::vector<char> pixels;
-			// std::vector<char> pixels =
-			//	m_GraphicsDevice->ReadFromTexture(idTexture, m_CommandQueue, 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
+			std::vector<char> pixels =
+				GetGraphicsCommandQueue()->ReadFromTexture(idTexture, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
 
 			uint32_t upperValue = 0;
 			uint32_t lowerValue = 0;
@@ -665,8 +666,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	Nexus::ApplicationDescription desc;
 	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	desc.GraphicsCreateInfo.Debug = true;
-
-	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
 	desc.WindowProperties.Width			   = 1280;
 	desc.WindowProperties.Height		   = 720;

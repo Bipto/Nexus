@@ -281,6 +281,19 @@ namespace Nexus::Graphics
 		return cubemap;
 	}
 
+	Ref<ITextureView> HdriProcessor::GenerateView(uint32_t size)
+	{
+		Ref<ITexture> cubemap = Generate(size);
+
+		Graphics::TextureViewDescription cubemapViewDesc = {
+			.TargetTexture = cubemap,
+			.Format		   = cubemap->GetPixelFormat(),
+			.Range = {.BaseMipLevel = 0, .LevelCount = cubemap->GetMipLevels(), .BaseArrayLayer = 0, .LayerCount = cubemap->GetDepthOrArrayLayers()},
+			.DebugName = "Cubemap View"};
+
+		return m_Device->CreateTextureView(cubemapViewDesc);
+	}
+
 	Ref<ITexture> HdriProcessor::GetLoadedTexture() const
 	{
 		return m_HdriImage;

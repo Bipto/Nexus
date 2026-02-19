@@ -64,8 +64,8 @@ namespace Nexus::Graphics
 		Ref<IFramebuffer>			 m_RenderTarget	  = {};
 		FullscreenQuad				 m_FullscreenQuad = {};
 
-		Scene		 *m_Scene	= nullptr;
-		Ref<ITexture> m_Cubemap = nullptr;
+		Scene			 *m_Scene	= nullptr;
+		Ref<ITextureView> m_Cubemap = nullptr;
 
 		Ref<ICommandList> m_CommandList = nullptr;
 

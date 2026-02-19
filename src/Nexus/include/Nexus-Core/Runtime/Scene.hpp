@@ -33,10 +33,10 @@ namespace Nexus
 
 	struct Environment
 	{
-		std::string				CubemapPath		   = {};
-		Ref<Graphics::ITexture> EnvironmentCubemap = nullptr;
-		Ref<Graphics::ISampler> CubemapSampler	   = nullptr;
-		glm::vec4				ClearColour		   = {1.0f, 1.0f, 1.0f, 1.0f};
+		std::string					CubemapPath		   = {};
+		Ref<Graphics::ITextureView> EnvironmentCubemap = nullptr;
+		Ref<Graphics::ISampler>		CubemapSampler	   = nullptr;
+		glm::vec4					ClearColour		   = {1.0f, 1.0f, 1.0f, 1.0f};
 	};
 
 	// forward declaration

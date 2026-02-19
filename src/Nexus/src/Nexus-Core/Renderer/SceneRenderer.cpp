@@ -56,8 +56,6 @@ namespace Nexus::Graphics
 											  spriteRenderer->Tiling,
 											  worldMatrix,
 											  entity->ID);*/
-
-				throw std::runtime_error("Not implemented");
 			});
 
 		m_BatchRenderer->End();

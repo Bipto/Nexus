@@ -267,18 +267,6 @@ jobs:
             libx11-dev xserver-xorg-dev xorg-dev \
             build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
-      - name: Install libc++ for Clang
-        if: matrix.c_compiler == 'clang'
-        run: |
-          sudo apt-get install -y libc++-dev libc++abi-dev
-
-      - name: Install Clang (latest)
-        if: matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 21
-
       - name: Install sccache
         run: sudo apt-get install -y sccache
 
@@ -316,6 +304,7 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_CXX_FLAGS="-stdlib=libstdc++" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \

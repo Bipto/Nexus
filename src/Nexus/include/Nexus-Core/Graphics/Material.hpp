@@ -3,6 +3,7 @@
 #include "Nexus-Core/nxpch.hpp"
 
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Graphics/TextureView.hpp"
 #include "Nexus-Core/Types.hpp"
 
 namespace Nexus::Graphics

@@ -35,71 +35,70 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries target_name)
-
     if(NOT TARGET ${target_name})
         message(WARNING "Target '${target_name}' does not exist.")
         return()
     endif()
 
-    if(WIN32)
+    # ============================================================
+    # 1. Collect DLLs CMake *knows* about (IMPORTED targets)
+    # ============================================================
+    set(_KNOWN_DLLS "$<TARGET_RUNTIME_DLLS:${target_name}>")
 
-        # ---- MSVC & modern CMake (3.21+) ----
-        if(MSVC)
-            add_custom_command(
-                TARGET ${target_name} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    $<TARGET_RUNTIME_DLLS:${target_name}>
-                    $<TARGET_FILE_DIR:${target_name}>
-                COMMAND_EXPAND_LISTS
-                VERBATIM
-            )
-        endif()
+    # ============================================================
+    # 2. Collect all vcpkg DLLs (debug + release)
+    # ============================================================
+    file(GLOB _VCPKG_ALL_DLLS
+        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/*.dll"
+        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.dll"
+    )
 
-        # ---- MinGW (MSYS2) ----
-        if(MINGW)
+    # ============================================================
+    # 3. Filter vcpkg DLLs by actual link dependencies
+    # ============================================================
+    get_target_property(_LINKED_LIBS ${target_name} LINK_LIBRARIES)
 
-            get_filename_component(MINGW_BIN_DIR
-                "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    set(_FILTERED_VCPKG_DLLS "")
+    foreach(dll ${_VCPKG_ALL_DLLS})
+        get_filename_component(_dll_name "${dll}" NAME_WE)
 
-            file(GLOB MINGW_RUNTIME_DLLS
-                "${MINGW_BIN_DIR}/libgcc_s_*.dll"
-                "${MINGW_BIN_DIR}/libstdc++-6.dll"
-                "${MINGW_BIN_DIR}/libwinpthread-1.dll"
-            )
+        foreach(lib ${_LINKED_LIBS})
+            # Match DLL name to library name (case-insensitive)
+            string(TOLOWER "${lib}" _lib_lower)
+            string(TOLOWER "${_dll_name}" _dll_lower)
 
-            if(MINGW_RUNTIME_DLLS)
-                add_custom_command(
-                    TARGET ${target_name} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        ${MINGW_RUNTIME_DLLS}
-                        $<TARGET_FILE_DIR:${target_name}>
-                    COMMAND_EXPAND_LISTS
-                    VERBATIM
-                )
+            if(_lib_lower MATCHES "${_dll_lower}")
+                list(APPEND _FILTERED_VCPKG_DLLS "${dll}")
             endif()
+        endforeach()
+    endforeach()
 
-        endif()
+    # ============================================================
+    # 4. MinGW runtime DLLs (if needed)
+    # ============================================================
+    if(MINGW)
+        get_filename_component(_MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
 
-        # ---- Debug PDBs (MSVC only) ----
-        if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-            file(GLOB VCPKG_DEBUG_PDBS
-                "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.pdb"
-            )
-
-            if(VCPKG_DEBUG_PDBS)
-                add_custom_command(
-                    TARGET ${target_name} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        ${VCPKG_DEBUG_PDBS}
-                        $<TARGET_FILE_DIR:${target_name}>
-                    COMMAND_EXPAND_LISTS
-                    VERBATIM
-                )
-            endif()
-        endif()
-
+        file(GLOB _MINGW_RUNTIME_DLLS
+            "${_MINGW_BIN_DIR}/libgcc_s_*.dll"
+            "${_MINGW_BIN_DIR}/libstdc++-6.dll"
+            "${_MINGW_BIN_DIR}/libwinpthread-1.dll"
+        )
     endif()
 
+    # ============================================================
+    # 5. Copy everything relevant
+    # ============================================================
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${_KNOWN_DLLS}
+            ${_FILTERED_VCPKG_DLLS}
+            ${_MINGW_RUNTIME_DLLS}
+            $<TARGET_FILE_DIR:${target_name}>
+        COMMAND_EXPAND_LISTS
+        VERBATIM
+    )
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)

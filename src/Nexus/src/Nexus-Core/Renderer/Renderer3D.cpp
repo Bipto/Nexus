@@ -286,13 +286,6 @@ namespace Nexus::Graphics
 
 		const Environment &environment = m_Scene->SceneEnvironment;
 
-		m_CommandList->ClearColourTarget(
-			0,
-			{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
-		m_CommandList->ClearColourTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
-
-		m_CommandList->ClearDepthTarget(Nexus::Graphics::ClearDepthStencilValue {});
-
 		if (m_Cubemap)
 		{
 			m_CommandList->SetPipeline(m_CubemapPipeline);
@@ -303,7 +296,9 @@ namespace Nexus::Graphics
 			uniformBufferView.Size				= m_CubemapUniformBuffer->GetDescription().SizeInBytes;
 			m_CubemapResourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
 
-			throw std::runtime_error("Not implemented");
+			m_CubemapResourceSet->Flush();
+
+			CombinedImageSampler skyboxCiSampelr = {.ImageTexture = environment.EnvironmentCubemap, .ImageSampler = environment.CubemapSampler};
 
 			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
 			resourceBindingDesc.TargetResourceSet							   = m_CubemapResourceSet;
@@ -336,8 +331,9 @@ namespace Nexus::Graphics
 
 		m_CommandList->End();
 
-		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-	}
+		m_CommandQueue->SubmitCommandList(m_CommandList);
+		m_CommandQueue->WaitForIdle();
+	}	 // namespace Nexus::Graphics
 
 	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid)
 	{
@@ -408,11 +404,23 @@ namespace Nexus::Graphics
 				specularTexture = mat.SpecularTexture;
 			}
 
-			throw std::runtime_error("Not implemented");
+			// diffuse
+			{
+				Graphics::CombinedImageSampler ciSampler = {.ImageTexture = diffuseTexture, .ImageSampler = m_ModelSampler};
+				resourceSet->WriteCombinedImageSampler(ciSampler, "diffuseMapSampler");
+			}
 
-			// resourceSet->WriteCombinedImageSampler(diffuseTexture, m_ModelSampler, "diffuseMapSampler");
-			// resourceSet->WriteCombinedImageSampler(normalTexture, m_ModelSampler, "normalMapSampler");
-			// resourceSet->WriteCombinedImageSampler(specularTexture, m_ModelSampler, "specularMapSampler");
+			// normal
+			{
+				Graphics::CombinedImageSampler ciSampler = {.ImageTexture = normalTexture, .ImageSampler = m_ModelSampler};
+				resourceSet->WriteCombinedImageSampler(ciSampler, "normalMapSampler");
+			}
+
+			// specular
+			{
+				Graphics::CombinedImageSampler ciSampler = {.ImageTexture = specularTexture, .ImageSampler = m_ModelSampler};
+				resourceSet->WriteCombinedImageSampler(ciSampler, "specularMapSampler");
+			}
 
 			UniformBufferView modelCameraUniformView = {};
 			modelCameraUniformView.BufferHandle		 = m_ModelCameraUniformBuffer;
@@ -425,6 +433,8 @@ namespace Nexus::Graphics
 			modelTransformUniformView.Offset			= 0;
 			modelTransformUniformView.Size				= transformUniformBuffer->GetDescription().SizeInBytes;
 			resourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
+
+			resourceSet->Flush();
 
 			Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
 			resourceBindingDesc.TargetResourceSet							   = resourceSet;
@@ -462,6 +472,8 @@ namespace Nexus::Graphics
 		m_CommandList->Begin();
 		m_CommandList->SetFramebuffer(m_RenderTarget);
 
+		m_CommandList->SetPipeline(m_ClearScreenPipeline);
+
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
 		vp.Y		= 0;
@@ -491,8 +503,6 @@ namespace Nexus::Graphics
 		indexBufferView.BufferFormat					 = Graphics::IndexFormat::UInt32;
 		m_CommandList->SetIndexBuffer(indexBufferView);
 
-		m_CommandList->SetPipeline(m_ClearScreenPipeline);
-
 		DrawDescription drawDesc = {};
 		drawDesc.VertexStart	 = 0;
 		drawDesc.InstanceStart	 = 0;
@@ -502,7 +512,8 @@ namespace Nexus::Graphics
 
 		m_CommandList->End();
 
-		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		m_CommandQueue->SubmitCommandList(m_CommandList);
+		m_CommandQueue->WaitForIdle();
 	}
 
 	void Renderer3D::CreateCubemapPipeline()

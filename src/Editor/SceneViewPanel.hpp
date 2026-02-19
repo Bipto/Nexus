@@ -53,7 +53,7 @@ class SceneViewPanel : public Panel
 					if (!path.empty() && std::filesystem::exists(path))
 					{
 						Nexus::Graphics::HdriProcessor processor(path, graphicsDevice, commandQueue);
-						scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
+						scene->SceneEnvironment.EnvironmentCubemap = processor.GenerateView(2048);
 					}
 				}
 			}
