@@ -119,7 +119,7 @@ jobs:
       # Vulkan + vcpkg
       # ------------------------------------------------------------
       - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
