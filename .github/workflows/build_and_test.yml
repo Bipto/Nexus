@@ -105,6 +105,7 @@ jobs:
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-sccache
+            mingw-w64-ucrt-x86_64-ffmpeg
 
       - name: Cache sccache (MSYS2)
         if: matrix.name == 'MinGW-UCRT'
