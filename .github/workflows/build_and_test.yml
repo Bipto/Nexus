@@ -124,13 +124,16 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      - name: vcpkg build
-        uses: johnwason/vcpkg-action@v7
+      - name: Clone vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ./vcpkg/bootstrap-vcpkg.sh
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
         with:
-          manifest-dir: ${{ github.workspace }}
-          triplet: ${{ matrix.vcpkg_triplet }}
-          token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          path: vcpkg
+          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
 
       # ============================================================
       # Configure (MSVC / Clang-CL)
@@ -272,13 +275,6 @@ jobs:
         run: |
           sudo apt-get install -y libc++-dev libc++abi-dev
 
-      - name: Install Clang (latest)
-        if: matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 21
-
       - name: Install sccache
         run: sudo apt-get install -y sccache
 
@@ -299,23 +295,26 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      - name: vcpkg build
-        id: vcpkg
-        uses: johnwason/vcpkg-action@v7
-        with:
-          manifest-dir: ${{ github.workspace }}
-          triplet: ${{ matrix.vcpkg_triplet }}
-          token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+      - name: Clone vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ./vcpkg/bootstrap-vcpkg.sh
 
-      - name: Configure CMake
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg
+          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+
+      - name: Configure CMake (GCC)
+        if: matrix.c_compiler == 'gcc'
         run: |
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_CXX_COMPILER=g++ \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
@@ -324,6 +323,27 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
+
+      - name: Configure CMake (Clang)
+        if: matrix.c_compiler == 'clang'
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_STANDARD_LIBRARY=libc++ \
+            -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++" \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_BUILD_TESTS=1 \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -S .
+
 
       - name: Build
         run: cmake --build build --target TestRunner
