@@ -31,7 +31,20 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          # Clang-CL (recommended Windows Clang)
+          #Clang
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Release
+            vcpkg_triplet: x64-mingw-static
+
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Debug
+            vcpkg_triplet: x64-mingw-static
+
+          # Clang-CL
           - name: Clang-CL
             c_compiler: clang-cl
             cpp_compiler: clang-cl
@@ -44,12 +57,16 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          # MSYS2 MinGW-UCRT
+          # MinGW-UCRT (MSYS2)
           - name: MinGW-UCRT
+            c_compiler: ucrt64-w64-mingw32-gcc
+            cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Release
             vcpkg_triplet: x64-mingw-static
 
           - name: MinGW-UCRT
+            c_compiler: ucrt64-w64-mingw32-gcc
+            cpp_compiler: ucrt64-w64-mingw32-g++
             build_type: Debug
             vcpkg_triplet: x64-mingw-static
 
@@ -59,42 +76,43 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # ------------------------------------------------------------
-      # Common tools
-      # ------------------------------------------------------------
-      - name: Install sccache (Windows)
-        if: matrix.name != 'MinGW-UCRT'
+      # -------------------------------
+      # MSVC / Clang-CL setup
+      # -------------------------------
+      - name: Install LLVM (Clang-CL)
+        if: matrix.c_compiler == 'clang-cl'
+        run: choco install llvm
+
+      - name: Install sccache
         run: choco install sccache
 
-      - name: Cache sccache (Windows)
-        if: matrix.name != 'MinGW-UCRT'
+      - name: Cache sccache
         uses: actions/cache@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\sccache
-          key: sccache-windows-${{ matrix.name }}-${{ matrix.build_type }}
+          key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
-            sccache-windows-${{ matrix.name }}
+            sccache-windows-${{ matrix.c_compiler }}
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
       - name: Install Windows SDK
-        if: matrix.name != 'MinGW-UCRT'
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
         with:
           sdk-version: 26100
 
       - name: Setup MSVC
         if: matrix.name != 'MinGW-UCRT'
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
           arch: x64
 
       # ------------------------------------------------------------
-      # MSYS2 setup (MinGW-UCRT only)
+      # MSYS2 MinGW-UCRT setup
       # ------------------------------------------------------------
-      - name: Install MSYS2 (MinGW-UCRT)
-        if: matrix.name == 'MinGW-UCRT'
+      - name: Install MinGW-UCRT (MSYS2)
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -104,20 +122,10 @@ jobs:
             mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
-            mingw-w64-ucrt-x86_64-sccache
             mingw-w64-ucrt-x86_64-ffmpeg
 
-      - name: Cache sccache (MSYS2)
-        if: matrix.name == 'MinGW-UCRT'
-        uses: actions/cache@v4
-        with:
-          path: C:\msys64\ucrt64\var\cache\sccache
-          key: sccache-msys2-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-msys2-
-
       # ------------------------------------------------------------
-      # Vulkan + vcpkg
+      # Vulkan SDK + vcpkg
       # ------------------------------------------------------------
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
@@ -125,25 +133,27 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      - name: Clone vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.sh
-
-      - name: Cache vcpkg
-        uses: actions/cache@v4
+      - name: vcpkg build
+        id: vcpkg
+        uses: johnwason/vcpkg-action@v7
         with:
-          path: vcpkg
-          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          manifest-dir: ${{ github.workspace }}
+          triplet: ${{ matrix.vcpkg_triplet }}
+          token: ${{ github.token }}
+          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
 
-      # ============================================================
-      # Configure (MSVC / Clang-CL)
-      # ============================================================
+      # ------------------------------------------------------------
+      # CMake configure (MSVC / Clang-CL)
+      # ------------------------------------------------------------
       - name: Configure CMake (MSVC/Clang-CL)
-        if: matrix.name != 'MinGW-UCRT'
+        if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
         shell: bash
         run: |
-          export SCCACHE_BASE_DIR="$GITHUB_WORKSPACE"
+          if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
+              LAUNCHER_OPTS=""
+          else
+              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+          fi
 
           TOOLCHAIN_PATH=$(cygpath -m "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
@@ -159,21 +169,18 @@ jobs:
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_PLATFORM_D3D12=ON \
             -DNX_BUILD_TESTS=1 \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            $LAUNCHER_OPTS \
             -S .
 
-      # ============================================================
-      # Configure (MSYS2 MinGW)
-      # ============================================================
-      - name: Configure CMake (MSYS2)
-        if: matrix.name == 'MinGW-UCRT'
+      # ------------------------------------------------------------
+      # CMake configure (MSYS2 MinGW-UCRT)
+      # ------------------------------------------------------------
+      - name: Configure CMake (MSYS2 MinGW-UCRT)
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
-          export SCCACHE_BASE_DIR="$GITHUB_WORKSPACE"
-
           TOOLCHAIN_FILE="$(cygpath -u "${GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake")"
-
+      
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE" \
@@ -183,38 +190,27 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_BUILD_TESTS=1 \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
 
-      # ============================================================
+
+      # ------------------------------------------------------------
       # Build
-      # ============================================================
+      # ------------------------------------------------------------
+      # MSVC / Clang-CL
       - name: Build (MSVC/Clang-CL)
-        if: matrix.name != 'MinGW-UCRT'
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         run: cmake --build build --target TestRunner
 
+      # MSYS2 (Clang + MinGW-UCRT)
       - name: Build (MSYS2)
-        if: matrix.name == 'MinGW-UCRT'
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: cmake --build build --target TestRunner
 
-      # ============================================================
-      # Test
-      # ============================================================
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
 
-      # ============================================================
-      # sccache stats
-      # ============================================================
-      - name: sccache stats (Windows)
-        if: matrix.name != 'MinGW-UCRT'
-        run: sccache --show-stats || true
-
-      - name: sccache stats (MSYS2)
-        if: matrix.name == 'MinGW-UCRT'
-        shell: msys2 {0}
+      - name: sccache stats
         run: sccache --show-stats || true
 
   # ============================================================
@@ -276,6 +272,13 @@ jobs:
         run: |
           sudo apt-get install -y libc++-dev libc++abi-dev
 
+      - name: Install Clang (latest)
+        if: matrix.c_compiler == 'clang'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+
       - name: Install sccache
         run: sudo apt-get install -y sccache
 
@@ -296,26 +299,23 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      - name: Clone vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.sh
-
-      - name: Cache vcpkg
-        uses: actions/cache@v4
+      - name: vcpkg build
+        id: vcpkg
+        uses: johnwason/vcpkg-action@v7
         with:
-          path: vcpkg
-          key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
+          manifest-dir: ${{ github.workspace }}
+          triplet: ${{ matrix.vcpkg_triplet }}
+          token: ${{ github.token }}
+          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.build_type }}
 
-      - name: Configure CMake (GCC)
-        if: matrix.c_compiler == 'gcc'
+      - name: Configure CMake
         run: |
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DCMAKE_C_COMPILER=gcc \
-            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
@@ -324,27 +324,6 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
-
-      - name: Configure CMake (Clang)
-        if: matrix.c_compiler == 'clang'
-        run: |
-          cmake -B build \
-            -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_CXX_STANDARD_LIBRARY=libc++ \
-            -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++" \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DNX_PLATFORM_OPENGL=1 \
-            -DNX_PLATFORM_VULKAN=1 \
-            -DNX_PLATFORM_OPENAL=1 \
-            -DNX_BUILD_TESTS=1 \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-            -S .
-
 
       - name: Build
         run: cmake --build build --target TestRunner
