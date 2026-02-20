@@ -89,16 +89,26 @@ macro(nexus_copy_required_runtime_libraries target_name)
     # ============================================================
     # 5. Copy everything relevant
     # ============================================================
-    add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${_KNOWN_DLLS}
-            ${_FILTERED_VCPKG_DLLS}
-            ${_MINGW_RUNTIME_DLLS}
-            $<TARGET_FILE_DIR:${target_name}>
-        COMMAND_EXPAND_LISTS
-        VERBATIM
+    set(_ALL_DLLS
+        ${_KNOWN_DLLS}
+        ${_FILTERED_VCPKG_DLLS}
+        ${_MINGW_RUNTIME_DLLS}
     )
+
+    # Remove empty entries
+    list(FILTER _ALL_DLLS EXCLUDE REGEX "^$")
+
+    if(_ALL_DLLS)
+        add_custom_command(
+            TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${_ALL_DLLS}
+                $<TARGET_FILE_DIR:${target_name}>
+            COMMAND_EXPAND_LISTS
+            VERBATIM
+        )
+    endif()
+
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
