@@ -98,7 +98,7 @@ macro(nexus_copy_required_runtime_libraries target_name)
     # Remove empty entries
     list(FILTER _ALL_DLLS EXCLUDE REGEX "^$")
 
-    if(_ALL_DLLS)
+    if(WIN32 AND _ALL_DLLS)
         add_custom_command(
             TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -106,8 +106,8 @@ macro(nexus_copy_required_runtime_libraries target_name)
                 $<TARGET_FILE_DIR:${target_name}>
             COMMAND_EXPAND_LISTS
             VERBATIM
-        )
-    endif()
+    )
+endif()
 
 endmacro()
 
