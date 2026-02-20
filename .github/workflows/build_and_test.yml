@@ -304,7 +304,6 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_CXX_FLAGS="-stdlib=libstdc++" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
