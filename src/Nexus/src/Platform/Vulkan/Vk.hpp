@@ -202,6 +202,65 @@ namespace Nexus::Vk
 							const uint32_t			*dynamicOffsets,
 							size_t					 dynamicOffsetCount);
 
+	struct SubresourceRangeLayout
+	{
+		VkImageSubresourceRange range;
+		VkImageLayout			layout;
+	};
+
+	// -----------------------------------------------------------------------------------
+	//								MEMORY BARRIERS
+	// -----------------------------------------------------------------------------------
+	void CreateMemoryBarrier2(Graphics::GraphicsDeviceVk		*device,
+							  const Graphics::MemoryBarrierDesc &memoryBarrier,
+							  std::vector<VkMemoryBarrier2>		&memoryBarriers);
+
+	void CreateMemoryBarrier(Graphics::GraphicsDeviceVk		   *device,
+							 const Graphics::MemoryBarrierDesc &memoryBarrier,
+							 std::vector<VkMemoryBarrier>	   &memoryBarriers);
+
+	// -----------------------------------------------------------------------------------
+	//								TEXTURE BARRIERS
+	// -----------------------------------------------------------------------------------
+	void CreateTextureBarrier2(Graphics::GraphicsDeviceVk												 *device,
+							   VkImage																	  image,
+							   Graphics::BarrierAccess													  beforeAccess,
+							   Graphics::BarrierAccess													  afterAccess,
+							   Graphics::BarrierPipelineStage											  beforeStage,
+							   Graphics::BarrierPipelineStage											  afterStage,
+							   uint32_t																	  srcQueueFamily,
+							   uint32_t																	  dstQueueFamily,
+							   VkImageLayout															  newLayout,
+							   std::vector<VkImageMemoryBarrier2>										 &imageBarriers,
+							   const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges);
+
+	void CreateTextureBarrier(Graphics::GraphicsDeviceVk												*device,
+							  VkImage																	 image,
+							  Graphics::BarrierAccess													 beforeAccess,
+							  Graphics::BarrierAccess													 afterAccess,
+							  Graphics::BarrierPipelineStage											 beforeStage,
+							  Graphics::BarrierPipelineStage											 afterStage,
+							  uint32_t																	 srcQueueFamily,
+							  uint32_t																	 dstQueueFamily,
+							  VkImageLayout																 newLayout,
+							  std::vector<VkImageMemoryBarrier>											&imageBarriers,
+							  const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges);
+
+	// -----------------------------------------------------------------------------------
+	//								BUFFER BARRIERS
+	// -----------------------------------------------------------------------------------
+	void CreateBufferBarrier2(Graphics::GraphicsDeviceVk		  *device,
+							  const Graphics::BufferBarrierDesc	  &bufferBarrierDesc,
+							  std::vector<VkBufferMemoryBarrier2> &bufferBarriers,
+							  uint32_t							   srcQueueFamily,
+							  uint32_t							   dstQueueFamily);
+
+	void CreateBufferBarrier(Graphics::GraphicsDeviceVk			*device,
+							 const Graphics::BufferBarrierDesc	&bufferBarrierDesc,
+							 std::vector<VkBufferMemoryBarrier> &bufferBarriers,
+							 uint32_t							 srcQueueFamily,
+							 uint32_t							 dstQueueFamily);
+
 	struct GladLoaderData
 	{
 		VkInstance instance = VK_NULL_HANDLE;

@@ -503,7 +503,7 @@ namespace Nexus::Graphics
 
 	struct TextureBarrierDesc
 	{
-		Ref<Graphics::ITexture> ITexture				= nullptr;
+		Ref<Graphics::ITexture> Texture					= nullptr;
 		TextureLayout			Layout					= {};
 		BarrierAccess			BeforeAccess			= {};
 		BarrierAccess			AfterAccess				= {};
@@ -521,6 +521,20 @@ namespace Nexus::Graphics
 		BarrierPipelineStage		 AfterStage	  = {};
 		size_t						 Offset		  = 0;
 		size_t						 Size		  = 0;
+	};
+
+	struct BarrierGroupDescription
+	{
+		std::vector<MemoryBarrierDesc>	MemoryBarriers	= {};
+		std::vector<TextureBarrierDesc> TextureBarriers = {};
+		std::vector<BufferBarrierDesc>	BufferBarriers	= {};
+
+		void Clear()
+		{
+			MemoryBarriers.clear();
+			TextureBarriers.clear();
+			BufferBarriers.clear();
+		}
 	};
 
 	struct PushConstantsDesc
@@ -569,10 +583,8 @@ namespace Nexus::Graphics
 						 AccelerationStructureDeviceBufferCopyDescription,
 						 DeviceBufferAccelerationStructureCopyDescription,
 						 PushConstantsDesc,
-						 MemoryBarrierDesc,
-						 TextureBarrierDesc,
-						 BufferBarrierDesc,
 						 TraceRaysDescription,
+						 BarrierGroupDescription,
 						 EndRenderingCommand>
 		RenderCommandData;
 
@@ -693,6 +705,8 @@ namespace Nexus::Graphics
 
 		void SubmitBufferBarrier(const BufferBarrierDesc &desc);
 
+		void FlushBarriers();
+
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListDescription		 &GetDescription();
 
@@ -709,6 +723,7 @@ namespace Nexus::Graphics
 		std::atomic<uint32_t>		   m_DebugGroups			  = 0;
 		Ref<IFramebuffer>			   m_CurrentFramebuffer		  = nullptr;
 		bool						   m_AutomaticBarrierTracking = false;
+		BarrierGroupDescription		   m_Barriers				  = {};
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

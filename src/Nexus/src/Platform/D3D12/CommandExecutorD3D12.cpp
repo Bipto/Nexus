@@ -732,93 +732,202 @@ namespace Nexus::Graphics
 			->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size(), isGraphics, m_CommandList);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceD3D12 *deviceD3D12   = (GraphicsDeviceD3D12 *)device;
 		const auto			&d3d12Features = deviceD3D12->GetD3D12DeviceFeatures();
 
+		// enhanced barriers
 		if (d3d12Features.SupportsEnhancedBarriers)
 		{
-			D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(command.BeforeStage);
-			D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(command.AfterStage);
-			D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(command.BeforeAccess);
-			D3D12_BARRIER_ACCESS afterAccess  = D3D12::GetBarrierAccess(command.AfterAccess);
+			std::vector<D3D12_GLOBAL_BARRIER>  globalBarriers  = {};
+			std::vector<D3D12_TEXTURE_BARRIER> textureBarriers = {};
+			std::vector<D3D12_BUFFER_BARRIER>  bufferBarriers  = {};
 
-			D3D12_GLOBAL_BARRIER barrier = {};
-			barrier.SyncBefore			 = beforeSync;
-			barrier.SyncAfter			 = afterSync;
-			barrier.AccessBefore		 = beforeAccess;
-			barrier.AccessAfter			 = afterAccess;
-
-			D3D12_BARRIER_GROUP barrierGroup = {};
-			barrierGroup.Type				 = D3D12_BARRIER_TYPE_GLOBAL;
-			barrierGroup.NumBarriers		 = 1;
-			barrierGroup.pGlobalBarriers	 = &barrier;
-
-			m_CommandList->Barrier(1, &barrierGroup);
-		}
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)
-	{
-		GraphicsDeviceD3D12 *deviceD3D12   = (GraphicsDeviceD3D12 *)device;
-		const auto			&d3d12Features = deviceD3D12->GetD3D12DeviceFeatures();
-
-		// if we support the newer enhanced barriers API, then we submit a texture barrier, otherwise we use the legacy ResourceBarrier API
-		if (d3d12Features.SupportsEnhancedBarriers)
-		{
-			InsertTextureBarrier(command);
-		}
-		else
-		{
-			InsertResourceBarrier(command);
-		}
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)
-	{
-		GraphicsDeviceD3D12 *deviceD3D12   = (GraphicsDeviceD3D12 *)device;
-		const auto			&d3d12Features = deviceD3D12->GetD3D12DeviceFeatures();
-
-		Ref<DeviceBufferD3D12>					buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.Buffer);
-		Microsoft::WRL::ComPtr<ID3D12Resource2> handle = buffer->GetHandle();
-
-		// if we support the newer enhanced barriers API, then we submit a texture barrier, otherwise we use the legacy ResourceBarrier API
-		if (d3d12Features.SupportsEnhancedBarriers)
-		{
-			D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(command.BeforeStage);
-			D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(command.AfterStage);
-			D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(command.BeforeAccess);
-			D3D12_BARRIER_ACCESS afterAccess  = D3D12::GetBarrierAccess(command.AfterAccess);
-
-			D3D12_BUFFER_BARRIER barrier = {};
-			barrier.SyncBefore			 = beforeSync;
-			barrier.SyncAfter			 = afterSync;
-			barrier.AccessBefore		 = beforeAccess;
-			barrier.AccessAfter			 = afterAccess;
-			barrier.pResource			 = handle.Get();
-
-			// these have to be hardcoded to these values as transitioning part of a buffer is not currently supported
-			barrier.Offset = 0;
-			barrier.Size   = UINT64_MAX;
-
-			D3D12_BARRIER_GROUP barrierGroup = {};
-			barrierGroup.Type				 = D3D12_BARRIER_TYPE_BUFFER;
-			barrierGroup.NumBarriers		 = 1;
-			barrierGroup.pBufferBarriers	 = &barrier;
-
-			m_CommandList->Barrier(1, &barrierGroup);
-		}
-		else
-		{
-			if (command.BeforeAccess == BarrierAccess::ShaderWrite)
+			// memory barriers
+			for (const auto &memoryBarrier : command.MemoryBarriers)
 			{
-				D3D12_RESOURCE_BARRIER barrier = {};
-				barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-				barrier.UAV.pResource		   = handle.Get();
-				barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(memoryBarrier.BeforeStage);
+				D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(memoryBarrier.AfterStage);
+				D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(memoryBarrier.BeforeAccess);
+				D3D12_BARRIER_ACCESS afterAccess  = D3D12::GetBarrierAccess(memoryBarrier.AfterAccess);
 
-				m_CommandList->ResourceBarrier(1, &barrier);
+				D3D12_GLOBAL_BARRIER &barrier = globalBarriers.emplace_back();
+				barrier.SyncBefore			  = beforeSync;
+				barrier.SyncAfter			  = afterSync;
+				barrier.AccessBefore		  = beforeAccess;
+				barrier.AccessAfter			  = afterAccess;
+			}
+
+			// texture barriers
+			for (const auto &textureBarrier : command.TextureBarriers)
+			{
+				Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(textureBarrier.Texture);
+				Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
+
+				D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(textureBarrier.BeforeStage);
+				D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(textureBarrier.AfterStage);
+				D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(textureBarrier.BeforeAccess);
+				D3D12_BARRIER_ACCESS afterAccess  = D3D12::GetBarrierAccess(textureBarrier.AfterAccess);
+
+				D3D12_BARRIER_LAYOUT afterLayout = D3D12::GetBarrierLayout(textureBarrier.Layout);
+
+				for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+					 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
+					 arrayLayer++)
+				{
+					for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+						 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel + textureBarrier.TextureSubresourceRange.LevelCount;
+						 mipLevel++)
+					{
+						D3D12_BARRIER_LAYOUT beforeLayout = D3D12::GetBarrierLayout(texture->GetTextureLayout(arrayLayer, mipLevel));
+
+						if (beforeLayout == afterLayout)
+						{
+							continue;
+						}
+
+						D3D12_TEXTURE_BARRIER &barrier			  = textureBarriers.emplace_back();
+						barrier.SyncBefore						  = beforeSync;
+						barrier.SyncAfter						  = afterSync;
+						barrier.AccessBefore					  = beforeAccess;
+						barrier.AccessAfter						  = afterAccess;
+						barrier.LayoutBefore					  = beforeLayout;
+						barrier.LayoutAfter						  = afterLayout;
+						barrier.pResource						  = handle.Get();
+						barrier.Subresources.FirstArraySlice	  = arrayLayer;
+						barrier.Subresources.NumArraySlices		  = 1;
+						barrier.Subresources.IndexOrFirstMipLevel = mipLevel;
+						barrier.Subresources.NumMipLevels		  = 1;
+						barrier.Subresources.FirstPlane			  = 0;
+						barrier.Subresources.NumPlanes			  = 1;
+					}
+				}
+			}
+
+			// buffer barriers
+			for (const auto &bufferBarrier : command.BufferBarriers)
+			{
+				Ref<DeviceBufferD3D12>					buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(bufferBarrier.Buffer);
+				Microsoft::WRL::ComPtr<ID3D12Resource2> handle = buffer->GetHandle();
+
+				D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(bufferBarrier.BeforeStage);
+				D3D12_BARRIER_SYNC	 afterSync	  = D3D12::GetBarrierSync(bufferBarrier.AfterStage);
+				D3D12_BARRIER_ACCESS beforeAccess = D3D12::GetBarrierAccess(bufferBarrier.BeforeAccess);
+				D3D12_BARRIER_ACCESS afterAccess  = D3D12::GetBarrierAccess(bufferBarrier.AfterAccess);
+
+				D3D12_BUFFER_BARRIER barrier = bufferBarriers.emplace_back();
+				barrier.SyncBefore			 = beforeSync;
+				barrier.SyncAfter			 = afterSync;
+				barrier.AccessBefore		 = beforeAccess;
+				barrier.AccessAfter			 = afterAccess;
+				barrier.pResource			 = handle.Get();
+
+				// these have to be hardcoded to these values as transitioning part of a buffer is not currently supported
+				barrier.Offset = 0;
+				barrier.Size   = UINT64_MAX;
+			}
+
+			// create the barriers to submit
+			std::vector<D3D12_BARRIER_GROUP> barrierGroups = {};
+			if (globalBarriers.size() > 0)
+			{
+				D3D12_BARRIER_GROUP &globalBarrierGroup = barrierGroups.emplace_back();
+				globalBarrierGroup.Type					= D3D12_BARRIER_TYPE_GLOBAL;
+				globalBarrierGroup.NumBarriers			= static_cast<UINT32>(globalBarriers.size());
+				globalBarrierGroup.pGlobalBarriers		= globalBarriers.data();
+			}
+
+			if (textureBarriers.size() > 0)
+			{
+				D3D12_BARRIER_GROUP &textureBarrierGroup = barrierGroups.emplace_back();
+				textureBarrierGroup.Type				 = D3D12_BARRIER_TYPE_TEXTURE;
+				textureBarrierGroup.NumBarriers			 = static_cast<UINT32>(textureBarriers.size());
+				textureBarrierGroup.pTextureBarriers	 = textureBarriers.data();
+			}
+
+			if (bufferBarriers.size() > 0)
+			{
+				D3D12_BARRIER_GROUP &bufferBarrierGroup = barrierGroups.emplace_back();
+				bufferBarrierGroup.Type					= D3D12_BARRIER_TYPE_BUFFER;
+				bufferBarrierGroup.NumBarriers			= static_cast<UINT32>(bufferBarriers.size());
+				bufferBarrierGroup.pBufferBarriers		= bufferBarriers.data();
+			}
+
+			m_CommandList->Barrier(static_cast<UINT32>(barrierGroups.size()), barrierGroups.data());
+		}
+		// resource barriers
+		else
+		{
+			std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers = {};
+
+			for (const auto &textureBarrier : command.TextureBarriers)
+			{
+				Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(textureBarrier.Texture);
+				Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
+
+				for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+					 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
+					 arrayLayer++)
+				{
+					for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+						 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel + textureBarrier.TextureSubresourceRange.LevelCount;
+						 mipLevel++)
+					{
+						D3D12_RESOURCE_STATES beforeState = D3D12::GetTextureResourceState(texture->GetTextureLayout(arrayLayer, mipLevel));
+						D3D12_RESOURCE_STATES afterState  = D3D12::GetTextureResourceState(textureBarrier.Layout);
+
+						if (beforeState == afterState)
+						{
+							continue;
+						}
+
+						uint32_t subresourceIndex = Utils::CalculateSubresource(mipLevel, arrayLayer, texture->GetDescription().MipLevels);
+
+						D3D12_RESOURCE_BARRIER &barrier = resourceBarriers.emplace_back();
+						barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+						barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+						barrier.Transition.pResource	= handle.Get();
+						barrier.Transition.Subresource	= subresourceIndex;
+						barrier.Transition.StateBefore	= beforeState;
+						barrier.Transition.StateAfter	= afterState;
+					}
+				}
+			}
+
+			for (const auto &bufferBarrier : command.BufferBarriers)
+			{
+				if (bufferBarrier.BeforeAccess == BarrierAccess::ShaderWrite)
+				{
+					Ref<DeviceBufferD3D12>					buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(bufferBarrier.Buffer);
+					Microsoft::WRL::ComPtr<ID3D12Resource2> handle = buffer->GetHandle();
+
+					D3D12_RESOURCE_BARRIER barrier = resourceBarriers.emplace_back();
+					barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+					barrier.UAV.pResource		   = handle.Get();
+					barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				}
+			}
+
+			m_CommandList->ResourceBarrier(static_cast<UINT>(resourceBarriers.size()), resourceBarriers.data());
+		}
+
+		// update texture layouts
+		// enumerate through all texture barriers and create the required subresource ranges
+		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
+		{
+			Ref<TextureD3D12> textureD3D12 = std::dynamic_pointer_cast<TextureD3D12>(textureBarrier.Texture);
+
+			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
+				 arrayLayer++)
+			{
+				for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+					 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel + textureBarrier.TextureSubresourceRange.LevelCount;
+					 mipLevel++)
+				{
+					textureD3D12->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
+				}
 			}
 		}
 	}
@@ -854,10 +963,12 @@ namespace Nexus::Graphics
 							TextureLayout destLayout =
 								resolveAttachmentDesc.TargetTexture->GetTextureLayout(destArrayIndex, resolveAttachmentDesc.MipLevel);
 
+							BarrierGroupDescription barrierGroup = {};
+
 							// to resolve compatible layouts
 							{
 								TextureBarrierDesc sourceBarrier	  = {};
-								sourceBarrier.ITexture				  = colourAttachmentDesc.ColourAttachment.TargetTexture;
+								sourceBarrier.Texture				  = colourAttachmentDesc.ColourAttachment.TargetTexture;
 								sourceBarrier.BeforeAccess			  = BarrierAccess::ColourAttachmentWrite;
 								sourceBarrier.AfterAccess			  = BarrierAccess::ColourAttachmentRead;
 								sourceBarrier.BeforeStage			  = BarrierPipelineStage::ColourAttachmentOutput;
@@ -867,10 +978,10 @@ namespace Nexus::Graphics
 																		 .LevelCount	 = 1,
 																		 .BaseArrayLayer = sourceArrayIndex,
 																		 .LayerCount	 = 1};
-								ExecuteCommand(sourceBarrier, device);
+								barrierGroup.TextureBarriers.emplace_back(sourceBarrier);
 
 								TextureBarrierDesc destBarrier		= {};
-								destBarrier.ITexture				= resolveAttachmentDesc.TargetTexture;
+								destBarrier.Texture					= resolveAttachmentDesc.TargetTexture;
 								destBarrier.BeforeAccess			= BarrierAccess::ColourAttachmentWrite;
 								destBarrier.AfterAccess				= BarrierAccess::ColourAttachmentRead;
 								destBarrier.BeforeStage				= BarrierPipelineStage::ColourAttachmentOutput;
@@ -880,7 +991,9 @@ namespace Nexus::Graphics
 																	   .LevelCount	   = 1,
 																	   .BaseArrayLayer = destArrayIndex,
 																	   .LayerCount	   = 1};
-								ExecuteCommand(destBarrier, device);
+								barrierGroup.TextureBarriers.emplace_back(destBarrier);
+
+								ExecuteCommand(barrierGroup, device);
 							}
 
 							// execute resolve
@@ -898,8 +1011,10 @@ namespace Nexus::Graphics
 
 							// to resolve compatible layouts
 							{
+								BarrierGroupDescription barrierGroup = {};
+
 								TextureBarrierDesc sourceBarrier	  = {};
-								sourceBarrier.ITexture				  = colourAttachmentDesc.ColourAttachment.TargetTexture;
+								sourceBarrier.Texture				  = colourAttachmentDesc.ColourAttachment.TargetTexture;
 								sourceBarrier.BeforeAccess			  = BarrierAccess::TransferRead;
 								sourceBarrier.AfterAccess			  = BarrierAccess::NoAccess;
 								sourceBarrier.BeforeStage			  = BarrierPipelineStage::Resolve;
@@ -909,10 +1024,10 @@ namespace Nexus::Graphics
 																		 .LevelCount	 = 1,
 																		 .BaseArrayLayer = sourceArrayIndex,
 																		 .LayerCount	 = 1};
-								ExecuteCommand(sourceBarrier, device);
+								barrierGroup.TextureBarriers.emplace_back(sourceBarrier);
 
 								TextureBarrierDesc destBarrier		= {};
-								destBarrier.ITexture				= resolveAttachmentDesc.TargetTexture;
+								destBarrier.Texture					= resolveAttachmentDesc.TargetTexture;
 								destBarrier.BeforeAccess			= BarrierAccess::TransferRead;
 								destBarrier.AfterAccess				= BarrierAccess::NoAccess;
 								destBarrier.BeforeStage				= BarrierPipelineStage::Resolve;
@@ -922,7 +1037,7 @@ namespace Nexus::Graphics
 																	   .LevelCount	   = 1,
 																	   .BaseArrayLayer = destArrayIndex,
 																	   .LayerCount	   = 1};
-								ExecuteCommand(destBarrier, device);
+								barrierGroup.TextureBarriers.emplace_back(destBarrier);
 							}
 						}
 					}
@@ -1033,7 +1148,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertResourceBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture	 = std::dynamic_pointer_cast<TextureD3D12>(command.ITexture);
+		Ref<TextureD3D12>						texture	 = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
 		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	 = texture->GetHandle();
 		std::vector<D3D12_RESOURCE_BARRIER>		barriers = {};
 
@@ -1085,7 +1200,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertTextureBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.ITexture);
+		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
 		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 		bool		  transitionEachSubresourceSeparately = false;

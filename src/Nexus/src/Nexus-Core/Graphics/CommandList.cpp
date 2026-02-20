@@ -22,6 +22,7 @@ namespace Nexus::Graphics
 		m_Started				   = true;
 		m_DebugGroups			   = 0;
 		m_AutomaticBarrierTracking = m_Description.AutomaticBarrierTransitions;
+		m_Barriers.Clear();
 	}
 
 	void ICommandList::End()
@@ -272,7 +273,7 @@ namespace Nexus::Graphics
 					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
 					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
 					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
-					barrier.ITexture							   = textureView->GetTexture();
+					barrier.Texture								   = textureView->GetTexture();
 					barrier.Layout								   = TextureLayout::ShaderReadOnlyOptimal;
 					barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
 					barrier.TextureSubresourceRange.LayerCount	   = viewDesc.Range.LayerCount;
@@ -293,7 +294,7 @@ namespace Nexus::Graphics
 					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
 					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
 					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
-					barrier.ITexture							   = imageView->GetTexture();
+					barrier.Texture								   = imageView->GetTexture();
 					barrier.Layout								   = TextureLayout::ShaderReadOnlyOptimal;
 					barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
 					barrier.TextureSubresourceRange.LayerCount	   = viewDesc.Range.LayerCount;
@@ -314,7 +315,7 @@ namespace Nexus::Graphics
 					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
 					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
 					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
-					barrier.ITexture							   = texture;
+					barrier.Texture								   = texture;
 					barrier.Layout								   = TextureLayout::General;
 					barrier.TextureSubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
 					barrier.TextureSubresourceRange.LayerCount	   = 1;
@@ -324,6 +325,8 @@ namespace Nexus::Graphics
 				}
 			}
 		}
+
+		FlushBarriers();
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Commands.push_back(desc);
@@ -421,7 +424,7 @@ namespace Nexus::Graphics
 				FramebufferColourAttachmentDescription colourAttachment = colourAttachmentOpt.value();
 
 				TextureBarrierDesc barrierDesc		= {};
-				barrierDesc.ITexture				= colourAttachment.ColourAttachment.TargetTexture;
+				barrierDesc.Texture					= colourAttachment.ColourAttachment.TargetTexture;
 				barrierDesc.BeforeAccess			= BarrierAccess::NoAccess;
 				barrierDesc.AfterAccess				= BarrierAccess::ColourAttachmentWrite;
 				barrierDesc.BeforeStage				= BarrierPipelineStage::NoStage;
@@ -439,7 +442,7 @@ namespace Nexus::Graphics
 					FramebufferTextureDescription resolveAttachmentDesc = colourAttachment.ResolveAttachment.value();
 
 					TextureBarrierDesc barrierDesc		= {};
-					barrierDesc.ITexture				= resolveAttachmentDesc.TargetTexture;
+					barrierDesc.Texture					= resolveAttachmentDesc.TargetTexture;
 					barrierDesc.BeforeAccess			= BarrierAccess::ColourAttachmentWrite;
 					barrierDesc.AfterAccess				= BarrierAccess::NoAccess;
 					barrierDesc.BeforeStage				= BarrierPipelineStage::ColourAttachmentOutput;
@@ -461,7 +464,7 @@ namespace Nexus::Graphics
 			FramebufferTextureDescription depthAttachment = depthAttachmentOpt.value();
 
 			TextureBarrierDesc barrierDesc		= {};
-			barrierDesc.ITexture				= depthAttachment.TargetTexture;
+			barrierDesc.Texture					= depthAttachment.TargetTexture;
 			barrierDesc.BeforeAccess			= BarrierAccess::NoAccess;
 			barrierDesc.AfterAccess				= BarrierAccess::DepthStencilAttachmentWrite;
 			barrierDesc.BeforeStage				= BarrierPipelineStage::NoStage;
@@ -474,6 +477,8 @@ namespace Nexus::Graphics
 
 			commandList->SubmitTextureBarrier(barrierDesc);
 		}
+
+		commandList->FlushBarriers();
 	}
 
 	void ICommandList::SetFramebuffer(Ref<IFramebuffer> framebuffer)
@@ -540,7 +545,7 @@ namespace Nexus::Graphics
 		if (m_AutomaticBarrierTracking)
 		{
 			TextureBarrierDesc sourceBarrierDesc	  = {};
-			sourceBarrierDesc.ITexture				  = desc.Source;
+			sourceBarrierDesc.Texture				  = desc.Source;
 			sourceBarrierDesc.BeforeAccess			  = BarrierAccess::ColourAttachmentWrite;
 			sourceBarrierDesc.AfterAccess			  = BarrierAccess::TransferRead;
 			sourceBarrierDesc.BeforeStage			  = BarrierPipelineStage::ColourAttachmentOutput;
@@ -553,7 +558,7 @@ namespace Nexus::Graphics
 			SubmitTextureBarrier(sourceBarrierDesc);
 
 			TextureBarrierDesc destBarrierDesc		= {};
-			destBarrierDesc.ITexture				= desc.Destination;
+			destBarrierDesc.Texture					= desc.Destination;
 			destBarrierDesc.BeforeAccess			= BarrierAccess::NoAccess;
 			destBarrierDesc.AfterAccess				= BarrierAccess::TransferWrite;
 			destBarrierDesc.BeforeStage				= BarrierPipelineStage::NoStage;
@@ -638,7 +643,7 @@ namespace Nexus::Graphics
 		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc barrierDesc = {};
-			barrierDesc.ITexture					 = bufferTextureCopy.TextureHandle;
+			barrierDesc.Texture						 = bufferTextureCopy.TextureHandle;
 			barrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
 			barrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
 			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
@@ -650,6 +655,8 @@ namespace Nexus::Graphics
 														.LayerCount		= 1};
 			SubmitTextureBarrier(barrierDesc);
 		}
+
+		FlushBarriers();
 
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
@@ -672,7 +679,7 @@ namespace Nexus::Graphics
 		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc barrierDesc = {};
-			barrierDesc.ITexture					 = textureBufferCopy.TextureHandle;
+			barrierDesc.Texture						 = textureBufferCopy.TextureHandle;
 			barrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
 			barrierDesc.AfterAccess					 = BarrierAccess::TransferRead;
 			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
@@ -684,6 +691,8 @@ namespace Nexus::Graphics
 														.LayerCount		= 1};
 			SubmitTextureBarrier(barrierDesc);
 		}
+
+		FlushBarriers();
 
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
@@ -706,7 +715,7 @@ namespace Nexus::Graphics
 		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc sourceBarrierDesc = {};
-			sourceBarrierDesc.ITexture					   = textureCopy.Source;
+			sourceBarrierDesc.Texture					   = textureCopy.Source;
 			sourceBarrierDesc.BeforeAccess				   = BarrierAccess::NoAccess;
 			sourceBarrierDesc.AfterAccess				   = BarrierAccess::TransferWrite;
 			sourceBarrierDesc.BeforeStage				   = BarrierPipelineStage::Copy;
@@ -719,7 +728,7 @@ namespace Nexus::Graphics
 			SubmitTextureBarrier(sourceBarrierDesc);
 
 			Graphics::TextureBarrierDesc destBarrierDesc = {};
-			destBarrierDesc.ITexture					 = textureCopy.Destination;
+			destBarrierDesc.Texture						 = textureCopy.Destination;
 			destBarrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
 			destBarrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
 			destBarrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
@@ -731,6 +740,8 @@ namespace Nexus::Graphics
 															.LayerCount		= 1};
 			SubmitTextureBarrier(destBarrierDesc);
 		}
+
+		FlushBarriers();
 
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
@@ -870,21 +881,29 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
+		m_Barriers.MemoryBarriers.emplace_back(desc);
 	}
 
 	void ICommandList::SubmitTextureBarrier(const TextureBarrierDesc &desc)
 	{
 		NX_PROFILE_FUNCTION();
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
+		m_Barriers.TextureBarriers.emplace_back(desc);
 	}
 
 	void ICommandList::SubmitBufferBarrier(const BufferBarrierDesc &desc)
 	{
 		NX_PROFILE_FUNCTION();
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
+		m_Barriers.BufferBarriers.emplace_back(desc);
+	}
+
+	void ICommandList::FlushBarriers()
+	{
+		NX_PROFILE_FUNCTION();
+		std::lock_guard<std::mutex> lock(m_Mutex);
+		m_Commands.push_back(m_Barriers);
+		m_Barriers.Clear();
 	}
 
 	const std::vector<RenderCommandData> &ICommandList::GetCommandData() const
@@ -898,7 +917,6 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 		std::lock_guard<std::mutex> lock(m_Mutex);
-
 		return m_Description;
 	}
 

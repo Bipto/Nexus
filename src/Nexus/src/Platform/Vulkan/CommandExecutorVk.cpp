@@ -373,7 +373,7 @@ namespace Nexus::Graphics
 		clearAttachment.clearValue.depthStencil.stencil = command.Value.Stencil;
 		clearAttachment.colorAttachment					= m_DepthAttachmentIndex;
 
-		VkClearRect clearRect;
+		VkClearRect clearRect	 = {};
 		clearRect.baseArrayLayer = 0;
 		clearRect.layerCount	 = 1;
 
@@ -1122,7 +1122,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device)
 	{
 		if (m_Rendering)
 		{
@@ -1134,251 +1134,161 @@ namespace Nexus::Graphics
 		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
 		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		if (context.CmdPipelineBarrier2KHR)
+		std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> ranges;
+
+		// enumerate through all texture barriers and create the required subresource ranges
+		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(m_Device, command.BeforeAccess);
-			VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(m_Device, command.AfterAccess);
+			Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
 
-			VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(m_Device, command.BeforeStage);
-			VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(m_Device, command.AfterStage);
-
-			VkMemoryBarrier2KHR memoryBarrier = {};
-			memoryBarrier.sType				  = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
-			memoryBarrier.pNext				  = nullptr;
-			memoryBarrier.srcStageMask		  = srcStage;
-			memoryBarrier.dstStageMask		  = dstStage;
-			memoryBarrier.srcAccessMask		  = srcAccess;
-			memoryBarrier.dstAccessMask		  = dstAccess;
-
-			VkDependencyInfoKHR dependencyInfo		= {};
-			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
-			dependencyInfo.pNext					= nullptr;
-			dependencyInfo.dependencyFlags			= dependencyFlags;
-			dependencyInfo.memoryBarrierCount		= 1;
-			dependencyInfo.pMemoryBarriers			= &memoryBarrier;
-			dependencyInfo.bufferMemoryBarrierCount = 0;
-			dependencyInfo.pBufferMemoryBarriers	= nullptr;
-			dependencyInfo.imageMemoryBarrierCount	= 0;
-			dependencyInfo.pImageMemoryBarriers		= nullptr;
-
-			context.CmdPipelineBarrier2KHR(m_CommandBuffer, &dependencyInfo);
-		}
-		else
-		{
-			VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
-			VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
-
-			VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
-			VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
-
-			VkMemoryBarrier barrier = {};
-			barrier.sType			= VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-			barrier.pNext			= nullptr;
-			barrier.srcAccessMask	= srcAccess;
-			barrier.dstAccessMask	= dstAccess;
-
-			context.CmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 1, &barrier, 0, nullptr, 0, nullptr);
-		}
-	}
-
-	void CommandExecutorVk::ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)
-	{
-		if (m_Rendering)
-		{
-			StopRendering();
-		}
-
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-
-		Ref<TextureVk> texture	 = std::dynamic_pointer_cast<TextureVk>(command.ITexture);
-		VkImageLayout  newLayout = Vk::GetImageLayout(m_Device, command.Layout);
-
-		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
-		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		struct SubresourceRangeLayout
-		{
-			VkImageSubresourceRange range;
-			VkImageLayout			layout;
-		};
-
-		std::vector<SubresourceRangeLayout> ranges;
-
-		for (uint32_t arrayLayer = command.TextureSubresourceRange.BaseArrayLayer;
-			 arrayLayer < command.TextureSubresourceRange.BaseArrayLayer + command.TextureSubresourceRange.LayerCount;
-			 arrayLayer++)
-		{
-			for (uint32_t mipLevel = command.TextureSubresourceRange.BaseMipLevel;
-				 mipLevel < command.TextureSubresourceRange.BaseMipLevel + command.TextureSubresourceRange.LevelCount;
-				 mipLevel++)
+			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
+				 arrayLayer++)
 			{
-				SubresourceRangeLayout &range = ranges.emplace_back();
-				range.range.aspectMask		  = Vk::GetAspectFlags(texture->IsDepth());
-				range.range.baseArrayLayer	  = arrayLayer;
-				range.range.layerCount		  = 1;
-				range.range.baseMipLevel	  = mipLevel;
-				range.range.levelCount		  = 1;
-				range.layout				  = Vk::GetImageLayout(m_Device, texture->GetTextureLayout(arrayLayer, mipLevel));
+				for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+					 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel + textureBarrier.TextureSubresourceRange.LevelCount;
+					 mipLevel++)
+				{
+					Vk::SubresourceRangeLayout &range = ranges[textureVk->GetImage()].emplace_back();
+					range.range.aspectMask			  = Vk::GetAspectFlags(textureVk->IsDepth());
+					range.range.baseArrayLayer		  = arrayLayer;
+					range.range.layerCount			  = 1;
+					range.range.baseMipLevel		  = mipLevel;
+					range.range.levelCount			  = 1;
+					range.layout					  = Vk::GetImageLayout(m_Device, textureVk->GetTextureLayout(arrayLayer, mipLevel));
+				}
 			}
 		}
 
-		if (context.CmdPipelineBarrier2KHR)
+		uint32_t srcQueue = VK_QUEUE_FAMILY_IGNORED;
+		uint32_t dstQueue = VK_QUEUE_FAMILY_IGNORED;
+
+		// submit a PipelineBarrier2
+		if (context.CmdPipelineBarrier2)
 		{
-			VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(m_Device, command.BeforeAccess);
-			VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(m_Device, command.AfterAccess);
+			std::vector<VkMemoryBarrier2>		memoryBarriers	= {};
+			std::vector<VkImageMemoryBarrier2>	textureBarriers = {};
+			std::vector<VkBufferMemoryBarrier2> bufferBarriers	= {};
 
-			VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(m_Device, command.BeforeStage);
-			VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(m_Device, command.AfterStage);
+			memoryBarriers.reserve(command.MemoryBarriers.size());
+			textureBarriers.reserve(command.TextureBarriers.size());
+			bufferBarriers.reserve(command.BufferBarriers.size());
 
-			std::vector<VkImageMemoryBarrier2KHR> imageBarriers = {};
-
-			for (const auto &[subresourceRange, imageLayout] : ranges)
+			for (const MemoryBarrierDesc &memoryBarrier : command.MemoryBarriers)
 			{
-				VkImageMemoryBarrier2KHR &imageBarrier = imageBarriers.emplace_back();
-				imageBarrier.sType					   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
-				imageBarrier.pNext					   = nullptr;
-				imageBarrier.srcStageMask			   = srcStage;
-				imageBarrier.dstStageMask			   = dstStage;
-				imageBarrier.srcAccessMask			   = srcAccess;
-				imageBarrier.dstAccessMask			   = dstAccess;
-				imageBarrier.oldLayout				   = imageLayout;
-				imageBarrier.newLayout				   = newLayout;
-				imageBarrier.srcQueueFamilyIndex	   = VK_QUEUE_FAMILY_IGNORED;
-				imageBarrier.dstQueueFamilyIndex	   = VK_QUEUE_FAMILY_IGNORED;
-				imageBarrier.image					   = texture->GetImage();
-				imageBarrier.subresourceRange		   = subresourceRange;
+				Vk::CreateMemoryBarrier2(m_Device, memoryBarrier, memoryBarriers);
 			}
 
-			VkDependencyInfoKHR dependencyInfo		= {};
-			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+			for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
+			{
+				VkImageLayout  layout	 = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+				Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+				Vk::CreateTextureBarrier2(m_Device,
+										  textureVk->GetImage(),
+										  textureBarrier.BeforeAccess,
+										  textureBarrier.AfterAccess,
+										  textureBarrier.BeforeStage,
+										  textureBarrier.AfterStage,
+										  srcQueue,
+										  dstQueue,
+										  layout,
+										  textureBarriers,
+										  ranges);
+			}
+
+			for (const BufferBarrierDesc &bufferBarrier : command.BufferBarriers)
+			{
+				Vk::CreateBufferBarrier2(m_Device, bufferBarrier, bufferBarriers, srcQueue, dstQueue);
+			}
+
+			VkDependencyInfo dependencyInfo			= {};
+			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
 			dependencyInfo.pNext					= nullptr;
 			dependencyInfo.dependencyFlags			= dependencyFlags;
-			dependencyInfo.memoryBarrierCount		= 0;
-			dependencyInfo.pMemoryBarriers			= nullptr;
-			dependencyInfo.bufferMemoryBarrierCount = 0;
-			dependencyInfo.pBufferMemoryBarriers	= nullptr;
-			dependencyInfo.imageMemoryBarrierCount	= imageBarriers.size();
-			dependencyInfo.pImageMemoryBarriers		= imageBarriers.data();
+			dependencyInfo.memoryBarrierCount		= static_cast<uint32_t>(memoryBarriers.size());
+			dependencyInfo.pMemoryBarriers			= memoryBarriers.data();
+			dependencyInfo.bufferMemoryBarrierCount = static_cast<uint32_t>(bufferBarriers.size());
+			dependencyInfo.pBufferMemoryBarriers	= bufferBarriers.data();
+			dependencyInfo.imageMemoryBarrierCount	= static_cast<uint32_t>(textureBarriers.size());
+			dependencyInfo.pImageMemoryBarriers		= textureBarriers.data();
 
-			context.CmdPipelineBarrier2KHR(m_CommandBuffer, &dependencyInfo);
+			context.CmdPipelineBarrier2(m_CommandBuffer, std::addressof(dependencyInfo));
 		}
+		// submit a legacy pipeline barrier
 		else
 		{
-			VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
-			VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
+			std::vector<VkMemoryBarrier>	   memoryBarriers  = {};
+			std::vector<VkImageMemoryBarrier>  textureBarriers = {};
+			std::vector<VkBufferMemoryBarrier> bufferBarriers  = {};
 
-			VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
-			VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
+			memoryBarriers.reserve(command.MemoryBarriers.size());
+			textureBarriers.reserve(command.TextureBarriers.size());
+			bufferBarriers.reserve(command.BufferBarriers.size());
 
-			std::vector<VkImageMemoryBarrier> imageBarriers = {};
-			for (const auto &[subresourceRange, imageLayout] : ranges)
+			VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_NONE;
+			VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_NONE;
+
+			for (const MemoryBarrierDesc &memoryBarrier : command.MemoryBarriers)
 			{
-				VkImageMemoryBarrier &imageBarrier = imageBarriers.emplace_back();
-				imageBarrier.sType				   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageBarrier.pNext				   = nullptr;
-				imageBarrier.srcAccessMask		   = srcAccess;
-				imageBarrier.dstAccessMask		   = dstAccess;
-				imageBarrier.oldLayout			   = imageLayout;
-				imageBarrier.newLayout			   = newLayout;
-				imageBarrier.srcQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-				imageBarrier.dstQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-				imageBarrier.image				   = texture->GetImage();
-				imageBarrier.subresourceRange	   = subresourceRange;
+				Vk::CreateMemoryBarrier(m_Device, memoryBarrier, memoryBarriers);
+			}
+
+			for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
+			{
+				VkImageLayout  layout	 = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+				Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+				Vk::CreateTextureBarrier(m_Device,
+										 textureVk->GetImage(),
+										 textureBarrier.BeforeAccess,
+										 textureBarrier.AfterAccess,
+										 textureBarrier.BeforeStage,
+										 textureBarrier.AfterStage,
+										 srcQueue,
+										 dstQueue,
+										 layout,
+										 textureBarriers,
+										 ranges);
+
+				srcStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.BeforeStage);
+				dstStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.AfterStage);
+			}
+
+			for (const BufferBarrierDesc &bufferBarrier : command.BufferBarriers)
+			{
+				Vk::CreateBufferBarrier(m_Device, bufferBarrier, bufferBarriers, srcQueue, dstQueue);
+				srcStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.BeforeStage);
+				dstStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.AfterStage);
 			}
 
 			context.CmdPipelineBarrier(m_CommandBuffer,
-									   srcStage,
-									   dstStage,
+									   srcStageMask,
+									   dstStageMask,
 									   dependencyFlags,
-									   0,
-									   nullptr,
-									   0,
-									   nullptr,
-									   imageBarriers.size(),
-									   imageBarriers.data());
+									   static_cast<uint32_t>(memoryBarriers.size()),
+									   memoryBarriers.data(),
+									   static_cast<uint32_t>(bufferBarriers.size()),
+									   bufferBarriers.data(),
+									   static_cast<uint32_t>(textureBarriers.size()),
+									   textureBarriers.data());
 		}
 
-		for (uint32_t arrayLayer = command.TextureSubresourceRange.BaseArrayLayer;
-			 arrayLayer < command.TextureSubresourceRange.BaseArrayLayer + command.TextureSubresourceRange.LayerCount;
-			 arrayLayer++)
+		// update texture layouts
+		// enumerate through all texture barriers and create the required subresource ranges
+		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			for (uint32_t mipLevel = command.TextureSubresourceRange.BaseMipLevel;
-				 mipLevel < command.TextureSubresourceRange.BaseMipLevel + command.TextureSubresourceRange.LevelCount;
-				 mipLevel++)
+			Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+
+			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
+				 arrayLayer++)
 			{
-				texture->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
+				for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+					 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel + textureBarrier.TextureSubresourceRange.LevelCount;
+					 mipLevel++)
+				{
+					textureVk->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
+				}
 			}
-		}
-	}
-
-	void CommandExecutorVk::ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)
-	{
-		if (m_Rendering)
-		{
-			StopRendering();
-		}
-
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-
-		Ref<DeviceBufferVk> bufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(command.Buffer);
-
-		// for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to be exposed in future
-		VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		if (context.CmdPipelineBarrier2KHR)
-		{
-			VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(m_Device, command.BeforeAccess);
-			VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(m_Device, command.AfterAccess);
-
-			VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(m_Device, command.BeforeStage);
-			VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(m_Device, command.AfterStage);
-
-			VkBufferMemoryBarrier2KHR bufferBarrier = {};
-			bufferBarrier.sType						= VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2_KHR;
-			bufferBarrier.pNext						= nullptr;
-			bufferBarrier.srcStageMask				= srcStage;
-			bufferBarrier.dstStageMask				= dstStage;
-			bufferBarrier.srcAccessMask				= srcAccess;
-			bufferBarrier.dstAccessMask				= dstAccess;
-			bufferBarrier.srcQueueFamilyIndex		= VK_QUEUE_FAMILY_IGNORED;
-			bufferBarrier.dstQueueFamilyIndex		= VK_QUEUE_FAMILY_IGNORED;
-			bufferBarrier.buffer					= bufferVk->GetVkBuffer();
-			bufferBarrier.offset					= command.Offset;
-			bufferBarrier.size						= command.Size;
-
-			VkDependencyInfoKHR dependencyInfo		= {};
-			dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
-			dependencyInfo.pNext					= nullptr;
-			dependencyInfo.dependencyFlags			= dependencyFlags;
-			dependencyInfo.memoryBarrierCount		= 0;
-			dependencyInfo.pMemoryBarriers			= nullptr;
-			dependencyInfo.bufferMemoryBarrierCount = 1;
-			dependencyInfo.pBufferMemoryBarriers	= &bufferBarrier;
-			dependencyInfo.imageMemoryBarrierCount	= 0;
-			dependencyInfo.pImageMemoryBarriers		= nullptr;
-
-			context.CmdPipelineBarrier2KHR(m_CommandBuffer, &dependencyInfo);
-		}
-		else
-		{
-			VkAccessFlagBits srcAccess = Vk::GetAccessFlags(m_Device, command.BeforeAccess);
-			VkAccessFlagBits dstAccess = Vk::GetAccessFlags(m_Device, command.AfterAccess);
-
-			VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(m_Device, command.BeforeStage);
-			VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(m_Device, command.AfterStage);
-
-			VkBufferMemoryBarrier barrier = {};
-			barrier.sType				  = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-			barrier.pNext				  = nullptr;
-			barrier.srcAccessMask		  = srcAccess;
-			barrier.dstAccessMask		  = dstAccess;
-			barrier.srcQueueFamilyIndex	  = VK_QUEUE_FAMILY_IGNORED;
-			barrier.dstQueueFamilyIndex	  = VK_QUEUE_FAMILY_IGNORED;
-			barrier.buffer				  = bufferVk->GetVkBuffer();
-			barrier.offset				  = command.Offset;
-			barrier.size				  = command.Size;
-
-			context.CmdPipelineBarrier(m_CommandBuffer, srcStage, dstStage, dependencyFlags, 0, nullptr, 1, &barrier, 0, nullptr);
 		}
 	}
 

@@ -708,57 +708,61 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device)
 	{
+		bool requiresFinish = false;
+
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				// check that we have a version of OpenGL that supports memory barriers
-				bool barrierSupported = context.ES_VERSION_3_1 || context.VERSION_4_2 || context.MemoryBarrierEXT;
-
-				if (barrierSupported)
+				if (command.TextureBarriers.size() > 0)
 				{
-					// convert into OpenGL barrier flags and whether the flags can be used with a region barrier
-					bool supportsByRegion = false;
-
-					// check if the OpenGL context version supports storage buffers
-					bool	   supportsStorageBuffers = context.ES_VERSION_3_1 || context.VERSION_4_3;
-					GLbitfield barrierFlags			  = GL::GetBarrierFlags(command.AfterAccess, supportsStorageBuffers, supportsByRegion);
-
-					// we check if the OpenGL context supports memory barriers by region and this feature is supported with the requested barrier
-					// access. This will make some barriers e.g. framebuffer reads after writes much more efficient.
-					if (supportsByRegion && context.MemoryBarrierByRegion != nullptr)
+					if (context.TextureBarrier != nullptr)
 					{
-						context.MemoryBarrierByRegion(barrierFlags);
+						context.TextureBarrier();
 					}
-					// otherwise, we have to use a global memory barrier if they are supported
-					else if (context.MemoryBarrierEXT != nullptr)
+					else
 					{
-						context.MemoryBarrierEXT(barrierFlags);
+						requiresFinish = true;
 					}
 				}
+
+				if (command.MemoryBarriers.size() > 0)
+				{
+					if (context.MemoryBarrierEXT != nullptr)
+					{
+						context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS_EXT);
+					}
+					else
+					{
+						requiresFinish = true;
+					}
+				}
+
+				if (requiresFinish)
+				{
+					context.Finish();
+				}
 			});
-	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device)
-	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.TextureBarrier(); });
-
-		const SubresourceRange &range = command.TextureSubresourceRange;
-
-		Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(command.ITexture);
-
-		for (uint32_t arrayLayer = range.BaseArrayLayer; arrayLayer < range.BaseArrayLayer + range.LayerCount; arrayLayer++)
+		// update texture layouts
+		// enumerate through all texture barriers and create the required subresource ranges
+		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			for (uint32_t mipLevel = range.BaseMipLevel; mipLevel < range.BaseMipLevel + range.LevelCount; mipLevel++)
+			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(textureBarrier.Texture);
+
+			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
+				 arrayLayer++)
 			{
-				textureGL->SetTextureLayout(arrayLayer, mipLevel, command.Layout);
+				for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+					 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel + textureBarrier.TextureSubresourceRange.LevelCount;
+					 mipLevel++)
+				{
+					textureGL->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
+				}
 			}
 		}
-	}
-
-	void CommandExecutorOpenGL::ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device)
-	{
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)

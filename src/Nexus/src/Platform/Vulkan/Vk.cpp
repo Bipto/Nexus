@@ -2637,6 +2637,172 @@ namespace Nexus::Vk
 		}
 	}
 
+	void CreateMemoryBarrier2(Graphics::GraphicsDeviceVk		*device,
+							  const Graphics::MemoryBarrierDesc &memoryBarrier,
+							  std::vector<VkMemoryBarrier2>		&memoryBarriers)
+	{
+		VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, memoryBarrier.BeforeAccess);
+		VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, memoryBarrier.AfterAccess);
+
+		VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(device, memoryBarrier.BeforeStage);
+		VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(device, memoryBarrier.AfterStage);
+
+		VkMemoryBarrier2KHR vkBarrier = memoryBarriers.emplace_back();
+		vkBarrier.sType				  = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
+		vkBarrier.pNext				  = nullptr;
+		vkBarrier.srcStageMask		  = srcStage;
+		vkBarrier.dstStageMask		  = dstStage;
+		vkBarrier.srcAccessMask		  = srcAccess;
+		vkBarrier.dstAccessMask		  = dstAccess;
+	}
+
+	void CreateMemoryBarrier(Graphics::GraphicsDeviceVk		   *device,
+							 const Graphics::MemoryBarrierDesc &memoryBarrier,
+							 std::vector<VkMemoryBarrier>	   &memoryBarriers)
+	{
+		VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, memoryBarrier.BeforeAccess);
+		VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, memoryBarrier.AfterAccess);
+
+		VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(device, memoryBarrier.BeforeStage);
+		VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(device, memoryBarrier.AfterStage);
+
+		VkMemoryBarrier vkBarrier = memoryBarriers.emplace_back();
+		vkBarrier.sType			  = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+		vkBarrier.pNext			  = nullptr;
+		vkBarrier.srcAccessMask	  = srcAccess;
+		vkBarrier.dstAccessMask	  = dstAccess;
+	}
+
+	void CreateTextureBarrier2(Graphics::GraphicsDeviceVk												 *device,
+							   VkImage																	  image,
+							   Graphics::BarrierAccess													  beforeAccess,
+							   Graphics::BarrierAccess													  afterAccess,
+							   Graphics::BarrierPipelineStage											  beforeStage,
+							   Graphics::BarrierPipelineStage											  afterStage,
+							   uint32_t																	  srcQueueFamily,
+							   uint32_t																	  dstQueueFamily,
+							   VkImageLayout															  newLayout,
+							   std::vector<VkImageMemoryBarrier2>										 &imageBarriers,
+							   const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges)
+	{
+		VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, beforeAccess);
+		VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, afterAccess);
+
+		VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(device, beforeStage);
+		VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(device, afterStage);
+
+		if (subresourceRanges.contains(image))
+		{
+			for (const auto &[subresourceRange, imageLayout] : subresourceRanges.at(image))
+			{
+				VkImageMemoryBarrier2KHR &imageBarrier = imageBarriers.emplace_back();
+				imageBarrier.sType					   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
+				imageBarrier.pNext					   = nullptr;
+				imageBarrier.srcStageMask			   = srcStage;
+				imageBarrier.dstStageMask			   = dstStage;
+				imageBarrier.srcAccessMask			   = srcAccess;
+				imageBarrier.dstAccessMask			   = dstAccess;
+				imageBarrier.oldLayout				   = imageLayout;
+				imageBarrier.newLayout				   = newLayout;
+				imageBarrier.srcQueueFamilyIndex	   = srcQueueFamily;
+				imageBarrier.dstQueueFamilyIndex	   = dstQueueFamily;
+				imageBarrier.image					   = image;
+				imageBarrier.subresourceRange		   = subresourceRange;
+			}
+		}
+	}
+
+	void CreateTextureBarrier(Graphics::GraphicsDeviceVk												*device,
+							  VkImage																	 image,
+							  Graphics::BarrierAccess													 beforeAccess,
+							  Graphics::BarrierAccess													 afterAccess,
+							  Graphics::BarrierPipelineStage											 beforeStage,
+							  Graphics::BarrierPipelineStage											 afterStage,
+							  uint32_t																	 srcQueueFamily,
+							  uint32_t																	 dstQueueFamily,
+							  VkImageLayout																 newLayout,
+							  std::vector<VkImageMemoryBarrier>											&imageBarriers,
+							  const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges)
+	{
+		VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, beforeAccess);
+		VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, afterAccess);
+
+		VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(device, beforeStage);
+		VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(device, afterStage);
+
+		if (subresourceRanges.contains(image))
+		{
+			for (const auto &[subresourceRange, imageLayout] : subresourceRanges.at(image))
+			{
+				VkImageMemoryBarrier &imageBarrier = imageBarriers.emplace_back();
+				imageBarrier.sType				   = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+				imageBarrier.pNext				   = nullptr;
+				imageBarrier.srcAccessMask		   = srcAccess;
+				imageBarrier.dstAccessMask		   = dstAccess;
+				imageBarrier.oldLayout			   = imageLayout;
+				imageBarrier.newLayout			   = newLayout;
+				imageBarrier.srcQueueFamilyIndex   = srcQueueFamily;
+				imageBarrier.dstQueueFamilyIndex   = dstQueueFamily;
+				imageBarrier.image				   = image;
+				imageBarrier.subresourceRange	   = subresourceRange;
+			}
+		}
+	}
+
+	void CreateBufferBarrier2(Graphics::GraphicsDeviceVk		  *device,
+							  const Graphics::BufferBarrierDesc	  &bufferBarrierDesc,
+							  std::vector<VkBufferMemoryBarrier2> &bufferBarriers,
+							  uint32_t							   srcQueueFamily,
+							  uint32_t							   dstQueueFamily)
+	{
+		Ref<Graphics::DeviceBufferVk> bufferVk = std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferBarrierDesc.Buffer);
+
+		VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, bufferBarrierDesc.BeforeAccess);
+		VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, bufferBarrierDesc.AfterAccess);
+
+		VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(device, bufferBarrierDesc.BeforeStage);
+		VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(device, bufferBarrierDesc.AfterStage);
+
+		VkBufferMemoryBarrier2KHR bufferBarrier = bufferBarriers.emplace_back();
+		bufferBarrier.sType						= VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2_KHR;
+		bufferBarrier.pNext						= nullptr;
+		bufferBarrier.srcStageMask				= srcStage;
+		bufferBarrier.dstStageMask				= dstStage;
+		bufferBarrier.srcAccessMask				= srcAccess;
+		bufferBarrier.dstAccessMask				= dstAccess;
+		bufferBarrier.srcQueueFamilyIndex		= srcQueueFamily;
+		bufferBarrier.dstQueueFamilyIndex		= dstQueueFamily;
+		bufferBarrier.buffer					= bufferVk->GetVkBuffer();
+		bufferBarrier.offset					= bufferBarrierDesc.Offset;
+		bufferBarrier.size						= bufferBarrierDesc.Size;
+	}
+
+	void CreateBufferBarrier(Graphics::GraphicsDeviceVk			*device,
+							 const Graphics::BufferBarrierDesc	&bufferBarrierDesc,
+							 std::vector<VkBufferMemoryBarrier> &bufferBarriers,
+							 uint32_t							 srcQueueFamily,
+							 uint32_t							 dstQueueFamily)
+	{
+		Ref<Graphics::DeviceBufferVk> bufferVk = std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferBarrierDesc.Buffer);
+
+		VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, bufferBarrierDesc.BeforeAccess);
+		VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, bufferBarrierDesc.AfterAccess);
+
+		VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(device, bufferBarrierDesc.BeforeStage);
+		VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(device, bufferBarrierDesc.AfterStage);
+
+		VkBufferMemoryBarrier barrier = bufferBarriers.emplace_back();
+		barrier.sType				  = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+		barrier.pNext				  = nullptr;
+		barrier.srcAccessMask		  = srcAccess;
+		barrier.dstAccessMask		  = dstAccess;
+		barrier.srcQueueFamilyIndex	  = srcQueueFamily;
+		barrier.dstQueueFamilyIndex	  = dstQueueFamily;
+		barrier.buffer				  = bufferVk->GetVkBuffer();
+		barrier.offset				  = bufferBarrierDesc.Offset;
+		barrier.size				  = bufferBarrierDesc.Size;
+	}
+
 	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName)
 	{
 		void *result = nullptr;

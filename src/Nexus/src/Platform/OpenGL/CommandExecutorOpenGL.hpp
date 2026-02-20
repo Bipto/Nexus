@@ -52,9 +52,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(const MemoryBarrierDesc &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(const TextureBarrierDesc &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(const BufferBarrierDesc &command, IGraphicsDevice *device) final;
+		void ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
