@@ -1,6 +1,7 @@
 ﻿#include "Audio/AudioLoader.hpp"
 #include "Audio/AudioTypes.hpp"
 
+#include <expected>
 #include <vector>
 
 extern "C"
