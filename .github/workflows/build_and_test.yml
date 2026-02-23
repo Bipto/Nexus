@@ -251,6 +251,13 @@ jobs:
             libgl1-mesa-dev libx11-dev \
             nasm autoconf automake libtool sccache
 
+      - name: Install Clang 21
+        if: matrix.name == 'Clang'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
@@ -279,16 +286,30 @@ jobs:
 
       - name: Configure CMake
         run: |
+          if [ "${{ matrix.name }}" = "Clang" ]; then
+            CC=clang-21
+            CXX=clang++-21
+          else
+            CC=${{ matrix.c_compiler }}
+            CXX=${{ matrix.cpp_compiler }}
+          fi
+
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_C_COMPILER=$CC \
+            -DCMAKE_CXX_COMPILER=$CXX \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_CXX_STANDARD=23 \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_CXX_EXTENSIONS=OFF \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DNX_BUILD_TESTS=1 \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-            -DNX_BUILD_TESTS=1 \
             -S .
 
       - name: Build
