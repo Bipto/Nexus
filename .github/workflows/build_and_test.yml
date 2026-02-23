@@ -243,13 +243,12 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Install dependencies
+      - name: Install Linux dependencies
         run: |
-          sudo apt-get update
           sudo apt-get install -y \
-            build-essential ninja-build \
-            libgl1-mesa-dev libx11-dev \
-            nasm autoconf automake libtool sccache
+            libgl1-mesa-dev mesa-utils mesa-common-dev \
+            libx11-dev xserver-xorg-dev xorg-dev \
+            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
       - name: Install Clang 21
         if: matrix.name == 'Clang'
