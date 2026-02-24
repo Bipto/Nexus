@@ -218,6 +218,40 @@ jobs:
       - name: sccache stats
         run: sccache --show-stats || true
 
+  # -------------------------------------
+  # Build CI image
+  # -------------------------------------
+  build-image:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: meta
+        run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        run: |
+          docker build \
+            -t ghcr.io/bipto/ci-linux:${{ steps.meta.outputs.tag }} \
+            -f docker/Dockerfile .
+
+          docker push ghcr.io/bipto/ci-linux:${{ steps.meta.outputs.tag }}
+
+
   # ============================================================
   # LINUX JOB
   # ============================================================
