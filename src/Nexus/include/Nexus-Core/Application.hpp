@@ -5,6 +5,7 @@
 #include "Graphics/IGraphicsAPI.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/IWindow.hpp"
+#include "Platform/Layers/LayerStack.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
@@ -125,6 +126,8 @@ namespace Nexus
 
 		/// @brief A pointer to an audio device
 		std::shared_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
+
+		LayerStack m_LayerStack = {};
 
 	  private:
 		/// @brief The specification that the application was created with

@@ -5,6 +5,8 @@ project ("Nexus-Platform")
 include (FetchContent)
 
 set(PLATFORM_SOURCES 
+	"include/Platform/Events/Event.hpp"
+	"include/Platform/Events/EventDispatcher.hpp"
 	"include/Platform/Events/EventHandler.hpp"
 	"include/Platform/FileSystem/Directory.hpp"
 	"include/Platform/FileSystem/File.hpp"

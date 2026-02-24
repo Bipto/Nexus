@@ -10,6 +10,7 @@
 #include "Platform/Input/Input.hpp"
 #include "Platform/Input/Keyboard.hpp"
 #include "Platform/Input/Mouse.hpp"
+#include "Platform/Layers/LayerStack.hpp"
 #include "Platform/MessageBox.hpp"
 #include "Platform/Monitor.hpp"
 #include "Platform/Platform-Core.hpp"
@@ -52,8 +53,8 @@ namespace Nexus::Platform
 	NX_PLATFORM_API void			  Initialise();
 	NX_PLATFORM_API void			  Shutdown();
 	NX_PLATFORM_API void			  Update();
-	NX_PLATFORM_API void			  PollEvents();
-	NX_PLATFORM_API void			  WaitEvent();
+	NX_PLATFORM_API void			  PollEvents(LayerStack &layerStack);
+	NX_PLATFORM_API void			  WaitEvent(LayerStack &layerStack);
 	NX_PLATFORM_API IWindow			 *CreatePlatformWindow(const WindowDescription &windowProps);
 	NX_PLATFORM_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 

@@ -112,7 +112,11 @@ namespace Nexus
 		SDL_ShowFileDialogWithProperties(dialogType, sdl_file_selected_callback, &data, properties);
 
 		// wait and keep updating events until the user selects a file
-		while (!data.dialogFinished) { Nexus::Platform::PollEvents(); }
+		while (!data.dialogFinished)
+		{
+			SDL_Event e;
+			SDL_PollEvent(&e);
+		}
 
 		// return the completed dialog result
 		return data.dialogResult;

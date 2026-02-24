@@ -116,8 +116,6 @@ namespace Nexus::ImGuiUtils
 		m_Context = ImGui::CreateContext();
 		SetCurrentRenderer(this);
 		SetContext(m_Context);
-
-		// look into implementing viewports
 		UpdateMonitors();
 	}
 
@@ -193,8 +191,6 @@ namespace Nexus::ImGuiUtils
 		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
 		textureDesc.DebugName					 = "ImGui Font Texture";
 		m_FontTexture							 = m_GraphicsDevice->CreateTexture(textureDesc);
-
-		Graphics::SubresourceFootprint footprint = m_FontTexture->GetSubresourceFootprint(0, 0);
 
 		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, width, height, pixels, bufferSize);
 

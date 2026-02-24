@@ -8,6 +8,7 @@
 #include "Platform/Logging/Log.hpp"
 
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
+#include "Platform/Events/EventDispatcher.hpp"
 #include "Platform/Platform.hpp"
 
 namespace Nexus
@@ -71,6 +72,8 @@ namespace Nexus
 	{
 		NX_PROFILE_FUNCTION();
 
+		EventDispatcher messageBus = {};
+
 		{
 			NX_PROFILE_SCOPE("Platform::Update");
 			Platform::Update();
@@ -79,12 +82,12 @@ namespace Nexus
 		if (m_Description.EventDriven)
 		{
 			NX_PROFILE_SCOPE("Platform::WaitEvent");
-			Platform::WaitEvent();
+			Platform::WaitEvent(m_LayerStack);
 		}
 		else
 		{
 			NX_PROFILE_SCOPE("Platform::PollEvents");
-			Platform::PollEvents();
+			Platform::PollEvents(m_LayerStack);
 		}
 
 		if (!Platform::AreAnyWindowsOpen())

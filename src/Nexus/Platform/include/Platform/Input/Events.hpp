@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "Platform/Events/Event.hpp"
 #include "Platform/Input/Gamepad.hpp"
 #include "Platform/Input/Keyboard.hpp"
 #include "Platform/Input/Mouse.hpp"
@@ -20,7 +21,7 @@ namespace Nexus
 		Flipped
 	};
 
-	struct KeyPressedEventArgs
+	struct KeyPressedEventArgs : public Event
 	{
 		Nexus::KeyCode	KeyCode	   = {};
 		Nexus::ScanCode ScanCode   = {};
@@ -30,7 +31,7 @@ namespace Nexus
 		uint32_t		KeyboardID = {};
 	};
 
-	struct KeyReleasedEventArgs
+	struct KeyReleasedEventArgs : public Event
 	{
 		Nexus::KeyCode	KeyCode	   = {};
 		Nexus::ScanCode ScanCode   = {};
@@ -38,7 +39,7 @@ namespace Nexus
 		uint32_t		KeyboardID = {};
 	};
 
-	struct MouseMovedEventArgs
+	struct MouseMovedEventArgs : public Event
 	{
 		std::pair<float, float> Position	   = {};
 		std::pair<float, float> ScreenPosition = {};
@@ -47,7 +48,7 @@ namespace Nexus
 		MouseType				Type		   = {};
 	};
 
-	struct MouseButtonPressedEventArgs
+	struct MouseButtonPressedEventArgs : public Event
 	{
 		MouseButton				Button		   = {};
 		std::pair<float, float> Position	   = {};
@@ -57,7 +58,7 @@ namespace Nexus
 		MouseType				Type		   = {};
 	};
 
-	struct MouseButtonReleasedEventArgs
+	struct MouseButtonReleasedEventArgs : public Event
 	{
 		MouseButton				Button		   = {};
 		std::pair<float, float> Position	   = {};
@@ -66,7 +67,7 @@ namespace Nexus
 		MouseType				Type		   = {};
 	};
 
-	struct MouseScrolledEventArgs
+	struct MouseScrolledEventArgs : public Event
 	{
 		std::pair<float, float> Scroll		   = {};
 		std::pair<float, float> Position	   = {};
@@ -85,7 +86,7 @@ namespace Nexus
 		Position
 	};
 
-	struct FileDropEventArgs
+	struct FileDropEventArgs : public Event
 	{
 		FileDropType			Type		   = {};
 		std::pair<float, float> Position	   = {};
@@ -94,29 +95,29 @@ namespace Nexus
 		std::string				Data		   = {};
 	};
 
-	struct WindowResizedEventArgs
+	struct WindowResizedEventArgs : public Event
 	{
 		std::pair<uint32_t, uint32_t> Size = {};
 	};
 
-	struct WindowMovedEventArgs
+	struct WindowMovedEventArgs : public Event
 	{
 		std::pair<int32_t, int32_t> Position = {};
 	};
 
-	struct TextInputEventArgs
+	struct TextInputEventArgs : public Event
 	{
 		const char *Text = {};
 	};
 
-	struct TextEditEventArgs
+	struct TextEditEventArgs : public Event
 	{
 		const char *Text   = {};
 		int32_t		Start  = {};
 		int32_t		Length = {};
 	};
 
-	struct FingerDownEventArgs
+	struct FingerDownEventArgs : public Event
 	{
 		std::pair<float, float> Position	  = {};
 		std::pair<float, float> Movement	  = {};
@@ -125,7 +126,7 @@ namespace Nexus
 		uint64_t				FingerID	  = {};
 	};
 
-	struct FingerUpEventArgs
+	struct FingerUpEventArgs : public Event
 	{
 		std::pair<float, float> Position	  = {};
 		std::pair<float, float> Movement	  = {};
@@ -134,7 +135,7 @@ namespace Nexus
 		uint64_t				FingerID	  = {};
 	};
 
-	struct FingerMotionEventArgs
+	struct FingerMotionEventArgs : public Event
 	{
 		std::pair<float, float> Position	  = {};
 		std::pair<float, float> Movement	  = {};
@@ -143,7 +144,7 @@ namespace Nexus
 		uint64_t				FingerID	  = {};
 	};
 
-	struct FingerUpCancelledArgs
+	struct FingerUpCancelledArgs : public Event
 	{
 		std::pair<float, float> Position	  = {};
 		std::pair<float, float> Movement	  = {};
