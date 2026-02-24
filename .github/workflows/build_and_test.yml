@@ -140,7 +140,12 @@ jobs:
           manifest-dir: ${{ github.workspace }}
           triplet: ${{ matrix.vcpkg_triplet }}
           token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json') }}
+          cache-key: >
+            vcpkg-${{ runner.os }}-
+            ${{ matrix.vcpkg_triplet }}-
+            ${{ matrix.c_compiler }}-
+            ${{ matrix.build_type }}-
+            ${{ hashFiles('vcpkg.json') }}
 
       # ------------------------------------------------------------
       # CMake configure (MSVC / Clang-CL)
@@ -306,7 +311,12 @@ jobs:
           manifest-dir: ${{ github.workspace }}
           triplet: ${{ matrix.vcpkg_triplet }}
           token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ hashFiles('vcpkg.json') }}
+          cache-key: >
+            vcpkg-${{ runner.os }}-
+            ${{ matrix.vcpkg_triplet }}-
+            ${{ matrix.c_compiler }}-
+            ${{ matrix.build_type }}-
+            ${{ hashFiles('vcpkg.json') }}
 
       - name: Configure CMake
         run: |
