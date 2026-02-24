@@ -226,7 +226,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ci-linux:latest
+      image: ghcr.io/bipto/ci-linux:latest
 
     strategy:
       fail-fast: false
