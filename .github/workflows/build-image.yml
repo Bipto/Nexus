@@ -1,0 +1,35 @@
+name: Build CI Docker Image
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docker/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/ci-linux:latest \
+            -f docker/Dockerfile .
+
+      - name: Push image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/ci-linux:latest

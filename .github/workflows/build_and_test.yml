@@ -225,6 +225,9 @@ jobs:
     name: Build (Linux - ${{ matrix.name }} - ${{ matrix.build_type }})
     runs-on: ubuntu-24.04
 
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ci-linux:latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -242,14 +245,14 @@ jobs:
             vcpkg_triplet: x64-linux
 
           - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
+            c_compiler: clang-21
+            cpp_compiler: clang++-21
             build_type: Release
             vcpkg_triplet: x64-linux
 
           - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
+            c_compiler: clang-21
+            cpp_compiler: clang++-21
             build_type: Debug
             vcpkg_triplet: x64-linux
 
@@ -259,34 +262,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Fix apt mirror sync issues
-        run: |
-          sudo apt-get clean
-          sudo apt-get update --allow-releaseinfo-change
-          sudo apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=True
-
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get install -y \
-            libgl1-mesa-dev mesa-utils mesa-common-dev \
-            libx11-dev xserver-xorg-dev xorg-dev \
-            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
-
-      - name: Install libc++ for Clang
-        if: matrix.c_compiler == 'clang'
-        run: |
-          sudo apt-get install -y libc++-dev libc++abi-dev
-
-      - name: Install Clang (latest)
-        if: matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 21
-
-      - name: Install sccache
-        run: sudo apt-get install -y sccache
-
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -294,15 +269,6 @@ jobs:
           key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
           restore-keys: |
             sccache-linux-${{ matrix.c_compiler }}
-
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
-
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
-        with:
-          version: 1.4.309.0
-          cache: true
 
       - name: vcpkg build
         id: vcpkg
@@ -320,20 +286,12 @@ jobs:
 
       - name: Configure CMake
         run: |
-          if [ "${{ matrix.name }}" = "Clang" ]; then
-            CC=clang-21
-            CXX=clang++-21
-          else
-            CC=${{ matrix.c_compiler }}
-            CXX=${{ matrix.cpp_compiler }}
-          fi
-
           cmake -B build \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DCMAKE_C_COMPILER=$CC \
-            -DCMAKE_CXX_COMPILER=$CXX \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_STANDARD=23 \
             -DCMAKE_CXX_STANDARD_REQUIRED=ON \
