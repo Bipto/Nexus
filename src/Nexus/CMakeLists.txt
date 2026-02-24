@@ -105,7 +105,7 @@ if (NX_PLATFORM_D3D12)
   FetchContent_Declare(
 	  D3D12MemoryAllocator
 	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
-	  GIT_TAG c06cd9a
+	  GIT_TAG v3.1.0
 	  GIT_SHALLOW TRUE
   )
   FetchContent_MakeAvailable(D3D12MemoryAllocator)
@@ -125,7 +125,7 @@ if (NX_PLATFORM_VULKAN)
   FetchContent_Declare(
 	  VulkanMemoryAllocator
 	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-	  GIT_TAG e722e57
+	  GIT_TAG v3.3.0
 	  GIT_SHALLOW TRUE
   )
   FetchContent_MakeAvailable(VulkanMemoryAllocator)
