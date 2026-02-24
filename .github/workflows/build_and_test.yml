@@ -276,11 +276,6 @@ jobs:
             build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev \
             sccache
 
-      - name: Install libc++ for Clang
-        if: matrix.c_compiler == 'clang'
-        run: |
-          sudo apt-get install -y libc++-dev libc++abi-dev
-
       - name: Install Clang 21
         if: matrix.c_compiler == 'clang'
         run: |
