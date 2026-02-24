@@ -279,8 +279,9 @@ jobs:
       - name: Install Clang 21
         if: matrix.c_compiler == 'clang'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-21 lldb-21 lld-21
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
 
       - name: Install sccache
         run: sudo apt-get install -y sccache
