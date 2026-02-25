@@ -51,6 +51,11 @@ namespace Nexus::ImGuiUtils
 		ImGuiContext *GetContext();
 		void		  SetContext(ImGuiContext *context);
 
+		void AddTextInput(const TextInputEventArgs &args);
+		void AddMouseScroll(const MouseScrolledEventArgs &args);
+		void AddKeyPressed(const KeyPressedEventArgs &args);
+		void AddKeyReleased(const KeyReleasedEventArgs &args);
+
 		static ImGuiGraphicsRenderer *GetCurrentRenderer();
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
 

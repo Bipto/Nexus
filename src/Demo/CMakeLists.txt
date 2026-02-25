@@ -58,7 +58,7 @@ endif()
 #this ONLY applies to Visual Studio
 set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 
-nexus_copy_required_runtime_libraries(Demo)
+copy_runtime_deps(Demo)
 
 if (ANDROID)
     set_target_properties(Demo PROPERTIES

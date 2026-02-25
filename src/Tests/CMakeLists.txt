@@ -25,4 +25,4 @@ target_link_libraries(TestRunner
     gtest 
     gtest_main)
 
-nexus_copy_required_runtime_libraries(TestRunner)
+copy_runtime_deps(TestRunner)

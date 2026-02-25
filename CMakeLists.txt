@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 cmake_policy(SET CMP0135 NEW)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 project("Nexus")
 
 set(BUILD_SHARED_LIBS OFF)

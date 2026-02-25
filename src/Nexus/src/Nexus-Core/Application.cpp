@@ -53,9 +53,9 @@ namespace Nexus
 
 		m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
 
-		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { Render(time); });
-		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { Update(time); });
-		m_Window->SetTickFunction([&](Nexus::TimeSpan time) { Tick(time); });
+		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnRender(time, m_Window); });
+		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnUpdate(time, m_Window); });
+		m_Window->SetTickFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnTick(time, m_Window); });
 		m_Window->AddResizeCallback(
 			[&](const Nexus::WindowResizedEventArgs &args)
 			{
@@ -71,8 +71,6 @@ namespace Nexus
 	void Application::MainLoop()
 	{
 		NX_PROFILE_FUNCTION();
-
-		EventDispatcher messageBus = {};
 
 		{
 			NX_PROFILE_SCOPE("Platform::Update");

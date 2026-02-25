@@ -31,19 +31,10 @@
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "Nexus-Core/nxpch.hpp"
-#include "Nexus.hpp"
 
 #include "Nexus-Core/EntryPoint.hpp"
 
-#include "Platform/FileSystem/Directory.hpp"
-#include "Platform/FileSystem/File.hpp"
-#include "Platform/FileSystem/FileSystem.hpp"
-#include "Platform/FileSystem/Path.hpp"
-
-#include "Platform/Timings/Timer.hpp"
-
-#include "Nexus-Core/Graphics/ResourcePool.hpp"
+#include "DemoImGuiLayer.hpp"
 
 struct DemoInfo
 {
@@ -69,67 +60,69 @@ class DemoApplication : public Nexus::Application
 	{
 		m_CommandQueue = m_CommandQueueGroup.GraphicsQueue;
 
-		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this, m_CommandQueue);
-		ImGuiContext *context = m_ImGuiRenderer->GetContext();
-		ImGui::SetCurrentContext(context);
+		m_LayerStack.AddOverlay<DemoImGuiLayer>(this, m_CommandQueue);
 
-		ImGui::GetStyle().ScrollbarSize = 20.0f;
-
-		ImGuiIO &io = m_ImGuiRenderer->GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-		int size = 20;
-
-#if defined(__ANDROID__) || defined(ANDROID)
-		size = 42;
-#endif
-
-		std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
-		io.FontDefault		 = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
-		m_ImGuiRenderer->RebuildFontAtlas();
-
-		RegisterDemo<Demos::ClearScreenDemo>("Graphics", "Clear Colour");
-		RegisterDemo<Demos::ClearRectDemo>("Graphics", "Clear Rects");
-		RegisterDemo<Demos::TimingDemo>("Graphics", "Timings");
-		RegisterDemo<Demos::HelloTriangleDemo>("Graphics", "Hello Triangle");
-		RegisterDemo<Demos::HelloTriangleIndexedDemo>("Graphics", "Hello Triangle Indexed");
-		RegisterDemo<Demos::HelloTriangleIndirectDemo>("Graphics", "Hello Triangle Indirect");
-		RegisterDemo<Demos::HelloTriangleIndirectIndexedDemo>("Graphics", "Hello Triangle Indexed Indirect");
-
-		const Nexus::Graphics::DeviceFeatures deviceFeatures = m_GraphicsDevice->GetPhysicalDeviceFeatures();
-		if (deviceFeatures.SupportsMeshTaskShaders)
-		{
-			RegisterDemo<Demos::HelloTriangleMeshShadersDemo>("Graphics", "Hello Triangle Mesh Shaders");
-			RegisterDemo<Demos::HelloTriangleMeshShadersIndirect>("Graphics", "Hello Triangle Mesh Shaders Indirect");
-		}
-
-		RegisterDemo<Demos::TexturingDemo>("Graphics", "Texturing");
-		RegisterDemo<Demos::BatchingDemo>("Graphics", "Batching");
-		RegisterDemo<Demos::FramebufferDemo>("Graphics", "Framebuffers");
-		RegisterDemo<Demos::UniformBufferDemo>("Graphics", "Uniform Buffers");
-		RegisterDemo<Demos::StorageBufferDemo>("Graphics", "Storage Buffers");
-		RegisterDemo<Demos::Demo3D>("Graphics", "3D");
-		RegisterDemo<Demos::CameraDemo>("Graphics", "Camera");
-		RegisterDemo<Demos::LightingDemo>("Graphics", "Lighting");
-		RegisterDemo<Demos::ModelDemo>("Graphics", "Models");
-		RegisterDemo<Demos::InstancingDemo>("Graphics", "Instancing");
-		RegisterDemo<Demos::MipmapDemo>("Graphics", "Mipmaps");
-		RegisterDemo<Demos::CubemapDemo>("Graphics", "Cubemaps");
-		RegisterDemo<Demos::ComputeDemo>("Graphics", "Compute");
-		RegisterDemo<Demos::ComputeIndirectDemo>("Graphics", "Compute Indirect");
-
-		// geometry shaders have some issues with SPIRV-Cross HLSL backend
-		if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::D3D12)
-		{
-			RegisterDemo<Demos::GeometryShaderDemo>("Graphics", "Geometry Shader");
-		}
-
-		RegisterDemo<Demos::RayTracingDemo>("Graphics", "Ray Tracing");
-		RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
-		RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
-		RegisterDemo<Demos::Splines>("Utils", "Splines");
-
-		m_CommandList = m_CommandQueue->CreateCommandList();
+		//		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this, m_CommandQueue);
+		//		ImGuiContext *context = m_ImGuiRenderer->GetContext();
+		//		ImGui::SetCurrentContext(context);
+		//
+		//		ImGui::GetStyle().ScrollbarSize = 20.0f;
+		//
+		//		ImGuiIO &io = m_ImGuiRenderer->GetIO();
+		//		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		//
+		//		int size = 20;
+		//
+		// #if defined(__ANDROID__) || defined(ANDROID)
+		//		size = 42;
+		// #endif
+		//
+		//		std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
+		//		io.FontDefault		 = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
+		//		m_ImGuiRenderer->RebuildFontAtlas();
+		//
+		//		RegisterDemo<Demos::ClearScreenDemo>("Graphics", "Clear Colour");
+		//		RegisterDemo<Demos::ClearRectDemo>("Graphics", "Clear Rects");
+		//		RegisterDemo<Demos::TimingDemo>("Graphics", "Timings");
+		//		RegisterDemo<Demos::HelloTriangleDemo>("Graphics", "Hello Triangle");
+		//		RegisterDemo<Demos::HelloTriangleIndexedDemo>("Graphics", "Hello Triangle Indexed");
+		//		RegisterDemo<Demos::HelloTriangleIndirectDemo>("Graphics", "Hello Triangle Indirect");
+		//		RegisterDemo<Demos::HelloTriangleIndirectIndexedDemo>("Graphics", "Hello Triangle Indexed Indirect");
+		//
+		//		const Nexus::Graphics::DeviceFeatures deviceFeatures = m_GraphicsDevice->GetPhysicalDeviceFeatures();
+		//		if (deviceFeatures.SupportsMeshTaskShaders)
+		//		{
+		//			RegisterDemo<Demos::HelloTriangleMeshShadersDemo>("Graphics", "Hello Triangle Mesh Shaders");
+		//			RegisterDemo<Demos::HelloTriangleMeshShadersIndirect>("Graphics", "Hello Triangle Mesh Shaders Indirect");
+		//		}
+		//
+		//		RegisterDemo<Demos::TexturingDemo>("Graphics", "Texturing");
+		//		RegisterDemo<Demos::BatchingDemo>("Graphics", "Batching");
+		//		RegisterDemo<Demos::FramebufferDemo>("Graphics", "Framebuffers");
+		//		RegisterDemo<Demos::UniformBufferDemo>("Graphics", "Uniform Buffers");
+		//		RegisterDemo<Demos::StorageBufferDemo>("Graphics", "Storage Buffers");
+		//		RegisterDemo<Demos::Demo3D>("Graphics", "3D");
+		//		RegisterDemo<Demos::CameraDemo>("Graphics", "Camera");
+		//		RegisterDemo<Demos::LightingDemo>("Graphics", "Lighting");
+		//		RegisterDemo<Demos::ModelDemo>("Graphics", "Models");
+		//		RegisterDemo<Demos::InstancingDemo>("Graphics", "Instancing");
+		//		RegisterDemo<Demos::MipmapDemo>("Graphics", "Mipmaps");
+		//		RegisterDemo<Demos::CubemapDemo>("Graphics", "Cubemaps");
+		//		RegisterDemo<Demos::ComputeDemo>("Graphics", "Compute");
+		//		RegisterDemo<Demos::ComputeIndirectDemo>("Graphics", "Compute Indirect");
+		//
+		//		// geometry shaders have some issues with SPIRV-Cross HLSL backend
+		//		if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::D3D12)
+		//		{
+		//			RegisterDemo<Demos::GeometryShaderDemo>("Graphics", "Geometry Shader");
+		//		}
+		//
+		//		RegisterDemo<Demos::RayTracingDemo>("Graphics", "Ray Tracing");
+		//		RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
+		//		RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
+		//		RegisterDemo<Demos::Splines>("Utils", "Splines");
+		//
+		//		m_CommandList = m_CommandQueue->CreateCommandList();
 	}
 
 	template<typename T>
@@ -248,7 +241,7 @@ class DemoApplication : public Nexus::Application
 	{
 		NX_PROFILE_FUNCTION();
 
-		m_ImGuiRenderer->BeforeLayout(time);
+		/*m_ImGuiRenderer->BeforeLayout(time);
 
 		if (Nexus::Input::IsKeyDown(Nexus::ScanCode::F11))
 		{
@@ -290,7 +283,7 @@ class DemoApplication : public Nexus::Application
 		{
 			NX_PROFILE_SCOPE("CommandQueue::Present");
 			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers(Nexus::Graphics::SwapchainPresentDescription {});
-		}
+		}*/
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -319,9 +312,10 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationDescription desc;
 
-	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	desc.GraphicsCreateInfo.Debug = true;
-	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
+
+	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
 	desc.WindowProperties.Width			   = 1280;
 	desc.WindowProperties.Height		   = 720;

@@ -312,6 +312,9 @@ namespace Nexus::Platform
 
 				m_ActiveKeyboard = event.kdevice.which;
 				window->InvokeKeyPressedCallback(keyPressedEvent);
+
+				layerStack.OnEvent(keyPressedEvent);
+
 				break;
 			}
 			case SDL_EVENT_KEY_UP:
@@ -327,6 +330,9 @@ namespace Nexus::Platform
 
 				m_ActiveKeyboard = event.kdevice.which;
 				window->InvokeKeyReleasedCallback(keyReleasedEvent);
+
+				layerStack.OnEvent(keyReleasedEvent);
+
 				break;
 			}
 			case SDL_EVENT_WINDOW_HIDDEN:
@@ -391,6 +397,8 @@ namespace Nexus::Platform
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMouseReleasedCallback(mouseReleasedEvent);
+
+					layerStack.OnEvent(mouseReleasedEvent);
 				}
 
 				break;
@@ -414,6 +422,9 @@ namespace Nexus::Platform
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseMovedCallback(mouseMovedEvent);
+
+				layerStack.OnEvent(mouseMovedEvent);
+
 				break;
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
@@ -434,6 +445,9 @@ namespace Nexus::Platform
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseScrollCallback(scrollEvent);
+
+				layerStack.OnEvent(scrollEvent);
+
 				break;
 			}
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
@@ -462,6 +476,9 @@ namespace Nexus::Platform
 				Nexus::TextInputEventArgs args = {};
 				args.Text					   = event.text.text;
 				window->InvokeTextInputCallback(args);
+
+				layerStack.OnEvent(args);
+
 				break;
 			}
 			case SDL_EVENT_TEXT_EDITING:
@@ -471,6 +488,9 @@ namespace Nexus::Platform
 				textEditArgs.Start					  = event.edit.start;
 				textEditArgs.Length					  = event.edit.length;
 				window->InvokeTextEditCallback(textEditArgs);
+
+				layerStack.OnEvent(textEditArgs);
+
 				break;
 			}
 			case SDL_EVENT_WINDOW_RESIZED:
@@ -478,6 +498,9 @@ namespace Nexus::Platform
 				Nexus::WindowResizedEventArgs resizeEventArgs = {};
 				resizeEventArgs.Size						  = {(uint32_t)event.window.data1, (uint32_t)event.window.data2};
 				window->InvokeResizeCallback(resizeEventArgs);
+
+				layerStack.OnEvent(resizeEventArgs);
+
 				break;
 			}
 			case SDL_EVENT_WINDOW_MOVED:
@@ -485,6 +508,9 @@ namespace Nexus::Platform
 				Nexus::WindowMovedEventArgs movedEventArgs = {};
 				movedEventArgs.Position					   = {event.window.data1, event.window.data2};
 				window->InvokeMoveCallback(movedEventArgs);
+
+				layerStack.OnEvent(movedEventArgs);
+
 				break;
 			}
 			case SDL_EVENT_DROP_FILE:
@@ -517,6 +543,9 @@ namespace Nexus::Platform
 				fileDropEvent.Data					   = sourceData;
 
 				window->InvokeFileDropCallback(fileDropEvent);
+
+				layerStack.OnEvent(fileDropEvent);
+
 				break;
 			}
 			case SDL_EVENT_WINDOW_FOCUS_GAINED:

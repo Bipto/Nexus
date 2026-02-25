@@ -20,15 +20,13 @@ namespace Nexus
 	class EventDispatcher
 	{
 	  public:
-		using Handler = std::function<void(const Event &)>;
-
 		template<EventType Message>
-		void Subscribe(Handler handler)
+		void Subscribe(Handler<Message> handler)
 		{
-			static_assert(std::is_base_of_v<Event, Message>, "Message must derive from Event");
+			// Store erased handler
+			auto &handlers = m_Subscribers[typeid(Message)];
 
-			std::vector<ErasedHandler> &handlers = m_Subscribers[typeid(Message)];
-			handlers.push_back([handler](const void *msg) { handler(*static_cast<const Message &>(msg)); });
+			handlers.push_back([handler](const Event &e) { handler(static_cast<const Message &>(e)); });
 		}
 
 		void Dispatch(const Event &message) const
@@ -37,7 +35,7 @@ namespace Nexus
 			if (it == m_Subscribers.end())
 				return;
 
-			for (const ErasedHandler &fn : it->second) { fn(message); }
+			for (const auto &fn : it->second) fn(message);
 		}
 
 	  private:

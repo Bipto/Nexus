@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.28)
 project ("Nexus")
 
 include(FetchContent)
-include(cmake/get_cpm.cmake)
 
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)

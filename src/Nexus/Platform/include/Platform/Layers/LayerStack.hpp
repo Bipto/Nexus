@@ -1,11 +1,14 @@
 #pragma once
 
 #include <concepts>
+#include <ranges>
 
 #include "Platform/Layers/Layer.hpp"
 
 namespace Nexus
 {
+	class IWindow;
+
 	template<typename T>
 	concept LayerType = std::is_base_of_v<ILayer, T>;
 
@@ -73,17 +76,46 @@ namespace Nexus
 
 		void OnEvent(const Event &event)
 		{
-			for (auto it = m_Overlays.rbegin(); it != m_Overlays.rend(); ++it)
+			auto dispatch = [&](auto &container)
 			{
-				if ((*it)->OnEvent(event))
-					return;
-			}
+				for (auto &layer : std::views::reverse(container))
+					if (layer->OnEvent(event))
+						return true;
+				return false;
+			};
+			if (dispatch(m_Overlays))
+				return;
+			if (dispatch(m_Layers))
+				return;
+		}
 
-			for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
+		void OnRender(Nexus::TimeSpan time, IWindow *window)
+		{
+			auto dispatch = [&](auto &container)
 			{
-				if ((*it)->OnEvent(event))
-					return;
-			}
+				for (auto &layer : container | std::views::all) layer->OnRender(time, window);
+			};
+			dispatch(m_Layers);
+			dispatch(m_Overlays);
+		}
+
+		void OnUpdate(Nexus::TimeSpan time, IWindow *window)
+		{
+			auto dispatch = [&](auto &container)
+			{
+				for (auto &layer : container | std::views::all) layer->OnUpdate(time, window);
+			};
+			dispatch(m_Layers);
+			dispatch(m_Overlays);
+		}
+		void OnTick(Nexus::TimeSpan time, IWindow *window)
+		{
+			auto dispatch = [&](auto &container)
+			{
+				for (auto &layer : container | std::views::all) layer->OnTick(time, window);
+			};
+			dispatch(m_Layers);
+			dispatch(m_Overlays);
 		}
 
 	  private:

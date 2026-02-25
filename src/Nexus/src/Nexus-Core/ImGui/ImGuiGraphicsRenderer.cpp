@@ -173,6 +173,26 @@ namespace Nexus::ImGuiUtils
 		m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
+	void ImGuiGraphicsRenderer::SetupInput(IWindow *window)
+	{
+		auto &io = ImGui::GetIO();
+
+		window->AddTextInputCallback(
+			[&](const TextInputEventArgs &args)
+			{
+				ImGuiIO &io = ImGui::GetIO();
+				io.AddInputCharactersUTF8(args.Text);
+			});
+
+		window->AddMouseScrollCallback(
+			[&](const MouseScrolledEventArgs &args)
+			{
+				ImGuiIO &io = ImGui::GetIO();
+				auto [x, y] = args.Scroll;
+				io.AddMouseWheelEvent(x, y);
+			});
+	}
+
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
 	{
 		auto		  &io = ImGui::GetIO();
@@ -289,6 +309,8 @@ namespace Nexus::ImGuiUtils
 
 		RenderDrawData(ImGui::GetDrawData());
 		UpdateCursor();
+
+		m_GraphicsDevice->WaitForIdle();
 	}
 
 	ImGuiIO &ImGuiGraphicsRenderer::GetIO()
@@ -319,8 +341,104 @@ namespace Nexus::ImGuiUtils
 		io.Fonts->AddFontDefault();
 		RebuildFontAtlas();
 
-		SetupHandlers();
 		SetupInput(Nexus::GetApplication()->GetPrimaryWindow());
+		SetupHandlers();
+	}
+
+	void ImGuiGraphicsRenderer::AddTextInput(const TextInputEventArgs &args)
+	{
+		ImGuiIO &io = ImGui::GetIO();
+		io.AddInputCharactersUTF8(args.Text);
+	}
+
+	void ImGuiGraphicsRenderer::AddMouseScroll(const MouseScrolledEventArgs &args)
+	{
+		ImGuiIO &io = ImGui::GetIO();
+		auto [x, y] = args.Scroll;
+		io.AddMouseWheelEvent(x, y);
+	}
+
+	static std::map<Nexus::ScanCode, ImGuiKey> s_KeyMap = {
+		{Nexus::ScanCode::Tab, ImGuiKey_Tab},
+		{Nexus::ScanCode::Left, ImGuiKey_LeftArrow},
+		{Nexus::ScanCode::Right, ImGuiKey_RightArrow},
+		{Nexus::ScanCode::Up, ImGuiKey_UpArrow},
+		{Nexus::ScanCode::Down, ImGuiKey_DownArrow},
+		{Nexus::ScanCode::PageUp, ImGuiKey_PageUp},
+		{Nexus::ScanCode::PageDown, ImGuiKey_PageDown},
+		{Nexus::ScanCode::Home, ImGuiKey_Home},
+		{Nexus::ScanCode::End, ImGuiKey_End},
+		{Nexus::ScanCode::Delete, ImGuiKey_Delete},
+		{Nexus::ScanCode::Backspace, ImGuiKey_Backspace},
+		{Nexus::ScanCode::Return, ImGuiKey_Enter},
+		{Nexus::ScanCode::Escape, ImGuiKey_Escape},
+		{Nexus::ScanCode::Space, ImGuiKey_Space},
+		{Nexus::ScanCode::A, ImGuiKey_A},
+		{Nexus::ScanCode::C, ImGuiKey_C},
+		{Nexus::ScanCode::V, ImGuiKey_V},
+		{Nexus::ScanCode::X, ImGuiKey_X},
+		{Nexus::ScanCode::Y, ImGuiKey_Y},
+		{Nexus::ScanCode::Z, ImGuiKey_Z},
+	};
+
+	void ImGuiGraphicsRenderer::AddKeyPressed(const KeyPressedEventArgs &args)
+	{
+		auto &io = ImGui::GetIO();
+
+		if (args.ScanCode == ScanCode::LeftShift || args.ScanCode == ScanCode::RightShift)
+		{
+			io.KeyShift = true;
+		}
+
+		if (args.ScanCode == ScanCode::LeftControl || args.ScanCode == ScanCode::RightControl)
+		{
+			io.KeyCtrl = true;
+		}
+
+		if (args.ScanCode == ScanCode::LeftAlt || args.ScanCode == ScanCode::RightAlt)
+		{
+			io.KeyAlt = true;
+		}
+
+		if (args.ScanCode == ScanCode::LeftGUI || args.ScanCode == ScanCode::RightGUI)
+		{
+			io.KeySuper = true;
+		}
+
+		if (s_KeyMap.contains(args.ScanCode))
+		{
+			io.AddKeyEvent(s_KeyMap[args.ScanCode], true);
+		}
+	}
+
+	void ImGuiGraphicsRenderer::AddKeyReleased(const KeyReleasedEventArgs &args)
+	{
+		auto &io = ImGui::GetIO();
+
+		if (args.ScanCode == ScanCode::LeftShift || args.ScanCode == ScanCode::RightShift)
+		{
+			io.KeyShift = false;
+		}
+
+		if (args.ScanCode == ScanCode::LeftControl || args.ScanCode == ScanCode::RightControl)
+		{
+			io.KeyCtrl = false;
+		}
+
+		if (args.ScanCode == ScanCode::LeftAlt || args.ScanCode == ScanCode::RightAlt)
+		{
+			io.KeyAlt = false;
+		}
+
+		if (args.ScanCode == ScanCode::LeftGUI || args.ScanCode == ScanCode::RightGUI)
+		{
+			io.KeySuper = false;
+		}
+
+		if (s_KeyMap.contains(args.ScanCode))
+		{
+			io.AddKeyEvent(s_KeyMap[args.ScanCode], false);
+		}
 	}
 
 	ImGuiGraphicsRenderer *ImGuiGraphicsRenderer::GetCurrentRenderer()
@@ -333,26 +451,6 @@ namespace Nexus::ImGuiUtils
 		s_ImGuiRenderer = renderer;
 		ImGui::SetCurrentContext(s_ImGuiRenderer->GetContext());
 		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
-	}
-
-	void ImGuiGraphicsRenderer::SetupInput(IWindow *window)
-	{
-		auto &io = ImGui::GetIO();
-
-		window->AddTextInputCallback(
-			[&](const TextInputEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				io.AddInputCharactersUTF8(args.Text);
-			});
-
-		window->AddMouseScrollCallback(
-			[&](const MouseScrolledEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				auto [x, y] = args.Scroll;
-				io.AddMouseWheelEvent(x, y);
-			});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()
@@ -712,7 +810,7 @@ namespace Nexus::ImGuiUtils
 			info->Window		  = window;
 			info->Swapchain		  = swapchain;
 
-			Nexus::ImGuiUtils::ImGuiGraphicsRenderer::SetupInput(window);
+			SetupInput(Nexus::GetApplication()->GetPrimaryWindow());
 
 			vp->PlatformUserData = info;
 			vp->RendererUserData = info;
