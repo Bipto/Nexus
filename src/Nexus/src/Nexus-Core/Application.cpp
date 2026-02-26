@@ -72,6 +72,8 @@ namespace Nexus
 	{
 		NX_PROFILE_FUNCTION();
 
+		m_EventQueue.DispatchEvents(m_LayerStack);
+
 		{
 			NX_PROFILE_SCOPE("Platform::Update");
 			Platform::Update();
@@ -80,12 +82,12 @@ namespace Nexus
 		if (m_Description.EventDriven)
 		{
 			NX_PROFILE_SCOPE("Platform::WaitEvent");
-			Platform::WaitEvent(m_LayerStack);
+			Platform::WaitEvent(m_EventQueue);
 		}
 		else
 		{
 			NX_PROFILE_SCOPE("Platform::PollEvents");
-			Platform::PollEvents(m_LayerStack);
+			Platform::PollEvents(m_EventQueue);
 		}
 
 		if (!Platform::AreAnyWindowsOpen())

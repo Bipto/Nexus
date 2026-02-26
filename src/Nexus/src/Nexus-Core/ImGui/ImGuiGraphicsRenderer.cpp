@@ -177,7 +177,7 @@ namespace Nexus::ImGuiUtils
 	{
 		auto &io = ImGui::GetIO();
 
-		window->AddTextInputCallback(
+		/*window->AddTextInputCallback(
 			[&](const TextInputEventArgs &args)
 			{
 				ImGuiIO &io = ImGui::GetIO();
@@ -190,7 +190,7 @@ namespace Nexus::ImGuiUtils
 				ImGuiIO &io = ImGui::GetIO();
 				auto [x, y] = args.Scroll;
 				io.AddMouseWheelEvent(x, y);
-			});
+			});*/
 	}
 
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -348,7 +348,7 @@ namespace Nexus::ImGuiUtils
 	void ImGuiGraphicsRenderer::AddTextInput(const TextInputEventArgs &args)
 	{
 		ImGuiIO &io = ImGui::GetIO();
-		io.AddInputCharactersUTF8(args.Text);
+		io.AddInputCharactersUTF8(args.Text.c_str());
 	}
 
 	void ImGuiGraphicsRenderer::AddMouseScroll(const MouseScrolledEventArgs &args)
@@ -479,7 +479,7 @@ namespace Nexus::ImGuiUtils
 		}
 
 		IWindow *activeWindow = window.value();
-		io.AddKeyEvent(ImGuiKey_Tab, activeWindow->IsKeyDown(Nexus::ScanCode::Tab));
+		/*io.AddKeyEvent(ImGuiKey_Tab, activeWindow->IsKeyDown(Nexus::ScanCode::Tab));
 		io.AddKeyEvent(ImGuiKey_LeftArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Left));
 		io.AddKeyEvent(ImGuiKey_RightArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Right));
 		io.AddKeyEvent(ImGuiKey_UpArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Up));
@@ -503,7 +503,7 @@ namespace Nexus::ImGuiUtils
 		io.KeyShift = activeWindow->IsKeyDown(ScanCode::LeftShift) || activeWindow->IsKeyDown(ScanCode::RightShift);
 		io.KeyCtrl	= activeWindow->IsKeyDown(ScanCode::LeftControl) || activeWindow->IsKeyDown(ScanCode::RightControl);
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
-		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
+		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);*/
 
 		MouseState state	= Platform::GetFocussedMouseState();
 		auto	   mousePos = activeWindow->GetMousePosition();

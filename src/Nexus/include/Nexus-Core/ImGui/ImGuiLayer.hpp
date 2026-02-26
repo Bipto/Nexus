@@ -18,8 +18,9 @@ namespace Nexus
 		virtual void OnImGuiRenderer() = 0;
 
 	  protected:
-		std::unique_ptr<ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
-		Nexus::Ref<Graphics::ICommandQueue>				   m_CommandQueue  = nullptr;
-		Nexus::Ref<Graphics::ICommandList>				   m_CommandList   = nullptr;
+		std::unique_ptr<ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer		= nullptr;
+		Nexus::Ref<Graphics::ICommandQueue>				   m_CommandQueue		= nullptr;
+		Nexus::Ref<Graphics::ICommandList>				   m_CommandList		= nullptr;
+		bool											   m_IsAnyWindowHovered = false;
 	};
 }	 // namespace Nexus

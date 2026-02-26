@@ -11,17 +11,11 @@
 
 namespace Nexus
 {
-	template<typename T>
-	concept EventType = std::is_base_of_v<Event, T>;
-
-	template<EventType Message>
-	using Handler = std::function<void(const Message &)>;
-
 	class EventDispatcher
 	{
 	  public:
 		template<EventType Message>
-		void Subscribe(Handler<Message> handler)
+		void Subscribe(EventHandlerFunction<Message> handler)
 		{
 			// Store erased handler
 			auto &handlers = m_Subscribers[typeid(Message)];

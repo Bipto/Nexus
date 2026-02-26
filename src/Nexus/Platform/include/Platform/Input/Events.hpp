@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <utility>
 
 #include "Platform/Events/Event.hpp"
@@ -107,12 +108,12 @@ namespace Nexus
 
 	struct TextInputEventArgs : public Event
 	{
-		const char *Text = {};
+		std::string Text = {};
 	};
 
 	struct TextEditEventArgs : public Event
 	{
-		const char *Text   = {};
+		std::string Text   = {};
 		int32_t		Start  = {};
 		int32_t		Length = {};
 	};

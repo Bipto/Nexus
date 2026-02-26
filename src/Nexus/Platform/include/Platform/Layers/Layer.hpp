@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform/Events/Event.hpp"
+#include "Platform/Timings/TimeSpan.hpp"
 
 namespace Nexus
 {

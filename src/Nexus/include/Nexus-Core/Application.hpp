@@ -13,6 +13,7 @@
 
 #include "ApplicationDescription.hpp"
 #include "Nexus-Core/Types.hpp"
+#include "Platform/Events/EventQueue.hpp"
 #include "Platform/Timings/Timespan.hpp"
 #include "Point.hpp"
 
@@ -128,6 +129,8 @@ namespace Nexus
 		std::shared_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
 
 		LayerStack m_LayerStack = {};
+
+		EventQueue m_EventQueue = {};
 
 	  private:
 		/// @brief The specification that the application was created with

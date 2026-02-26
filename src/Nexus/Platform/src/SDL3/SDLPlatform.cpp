@@ -6,18 +6,18 @@
 #include "Platform/Platform.hpp"
 
 #include "FileDialogsSDL3.hpp"
-#include "SDL3FileStream.hpp"
-#include "SDL3Include.hpp"
-#include "SDL3MessageBox.hpp"
-#include "SDL3SharedLibrary.hpp"
-#include "SDL3Window.hpp"
-
 #include "Platform/Events/EventHandler.hpp"
+#include "Platform/Events/EventQueue.hpp"
 #include "Platform/Input/Events.hpp"
 #include "Platform/Input/Input.hpp"
 #include "Platform/Input/Keyboard.hpp"
 #include "Platform/Input/Mouse.hpp"
 #include "Platform/Platform.hpp"
+#include "SDL3FileStream.hpp"
+#include "SDL3Include.hpp"
+#include "SDL3MessageBox.hpp"
+#include "SDL3SharedLibrary.hpp"
+#include "SDL3Window.hpp"
 
 std::vector<Nexus::IWindow *> m_Windows		   = {};
 std::vector<Nexus::IWindow *> m_WindowsToClose = {};
@@ -286,7 +286,7 @@ namespace Nexus::Platform
 		}
 	}
 
-	static void HandleEvent(SDL_Event &event, LayerStack &layerStack)
+	static void HandleEvent(SDL_Event &event, EventQueue &eventQueue)
 	{
 		auto window = (SDL3Window *)GetWindowFromHandle(event.window.windowID);
 		if (!window)
@@ -302,18 +302,16 @@ namespace Nexus::Platform
 				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
 				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
 
-				Nexus::KeyPressedEventArgs keyPressedEvent = {};
-				keyPressedEvent.KeyCode					   = nexusKeyCode;
-				keyPressedEvent.ScanCode				   = nexusScanCode;
-				keyPressedEvent.Repeat					   = event.key.repeat;
-				keyPressedEvent.Unicode					   = event.key.raw;
-				keyPressedEvent.Mods					   = mods;
-				keyPressedEvent.KeyboardID				   = event.kdevice.which;
+				KeyPressedEventArgs &keyPressedEvent = eventQueue.Add<KeyPressedEventArgs>();
+				keyPressedEvent.KeyCode				 = nexusKeyCode;
+				keyPressedEvent.ScanCode			 = nexusScanCode;
+				keyPressedEvent.Repeat				 = event.key.repeat;
+				keyPressedEvent.Unicode				 = event.key.raw;
+				keyPressedEvent.Mods				 = mods;
+				keyPressedEvent.KeyboardID			 = event.kdevice.which;
 
 				m_ActiveKeyboard = event.kdevice.which;
 				window->InvokeKeyPressedCallback(keyPressedEvent);
-
-				layerStack.OnEvent(keyPressedEvent);
 
 				break;
 			}
@@ -322,16 +320,14 @@ namespace Nexus::Platform
 				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
 				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
 
-				Nexus::KeyReleasedEventArgs keyReleasedEvent = {};
-				keyReleasedEvent.KeyCode					 = nexusKeyCode;
-				keyReleasedEvent.ScanCode					 = nexusScanCode;
-				keyReleasedEvent.Unicode					 = event.key.raw;
-				keyReleasedEvent.KeyboardID					 = event.kdevice.which;
+				KeyReleasedEventArgs &keyReleasedEvent = eventQueue.Add<KeyReleasedEventArgs>();
+				keyReleasedEvent.KeyCode			   = nexusKeyCode;
+				keyReleasedEvent.ScanCode			   = nexusScanCode;
+				keyReleasedEvent.Unicode			   = event.key.raw;
+				keyReleasedEvent.KeyboardID			   = event.kdevice.which;
 
 				m_ActiveKeyboard = event.kdevice.which;
 				window->InvokeKeyReleasedCallback(keyReleasedEvent);
-
-				layerStack.OnEvent(keyReleasedEvent);
 
 				break;
 			}
@@ -359,18 +355,16 @@ namespace Nexus::Platform
 				{
 					std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
 
-					Nexus::MouseButtonPressedEventArgs mousePressedEvent = {};
-					mousePressedEvent.Button							 = button.value();
-					mousePressedEvent.Position							 = localPos;
-					mousePressedEvent.ScreenPosition					 = screenPos;
-					mousePressedEvent.Clicks							 = event.button.clicks;
-					mousePressedEvent.MouseID							 = mouseId;
-					mousePressedEvent.Type								 = mouseType;
+					MouseButtonPressedEventArgs &mousePressedEvent = eventQueue.Add<MouseButtonPressedEventArgs>();
+					mousePressedEvent.Button					   = button.value();
+					mousePressedEvent.Position					   = localPos;
+					mousePressedEvent.ScreenPosition			   = screenPos;
+					mousePressedEvent.Clicks					   = event.button.clicks;
+					mousePressedEvent.MouseID					   = mouseId;
+					mousePressedEvent.Type						   = mouseType;
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMousePressedCallback(mousePressedEvent);
-
-					layerStack.OnEvent(mousePressedEvent);
 				}
 
 				break;
@@ -387,18 +381,17 @@ namespace Nexus::Platform
 
 				if (button.has_value())
 				{
-					std::pair<int32_t, int32_t>			windowPos		   = window->GetWindowPosition();
-					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent = {};
-					mouseReleasedEvent.Button							   = button.value();
-					mouseReleasedEvent.Position							   = localPos;
-					mouseReleasedEvent.ScreenPosition					   = screenPos;
-					mouseReleasedEvent.MouseID							   = mouseId;
-					mouseReleasedEvent.Type								   = mouseType;
+					std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
+
+					MouseButtonReleasedEventArgs &mouseReleasedEvent = eventQueue.Add<MouseButtonReleasedEventArgs>();
+					mouseReleasedEvent.Button						 = button.value();
+					mouseReleasedEvent.Position						 = localPos;
+					mouseReleasedEvent.ScreenPosition				 = screenPos;
+					mouseReleasedEvent.MouseID						 = mouseId;
+					mouseReleasedEvent.Type							 = mouseType;
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMouseReleasedCallback(mouseReleasedEvent);
-
-					layerStack.OnEvent(mouseReleasedEvent);
 				}
 
 				break;
@@ -414,16 +407,14 @@ namespace Nexus::Platform
 
 				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
 
-				Nexus::MouseMovedEventArgs mouseMovedEvent = {};
-				mouseMovedEvent.Position				   = localPos;
-				mouseMovedEvent.ScreenPosition			   = screenPos;
-				mouseMovedEvent.Movement				   = movement;
+				MouseMovedEventArgs &mouseMovedEvent = eventQueue.Add<MouseMovedEventArgs>();
+				mouseMovedEvent.Position			 = localPos;
+				mouseMovedEvent.ScreenPosition		 = screenPos;
+				mouseMovedEvent.Movement			 = movement;
 				mouseMovedEvent.MouseID = mouseId, mouseMovedEvent.Type = mouseType;
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseMovedCallback(mouseMovedEvent);
-
-				layerStack.OnEvent(mouseMovedEvent);
 
 				break;
 			}
@@ -437,16 +428,14 @@ namespace Nexus::Platform
 
 				std::pair<float, float> screenPos = {event.button.x + windowPos.first, event.button.y + windowPos.second};
 
-				Nexus::MouseScrolledEventArgs scrollEvent = {};
-				scrollEvent.Scroll						  = {event.wheel.x, event.wheel.y};
-				scrollEvent.Position					  = {event.wheel.mouse_x, event.wheel.mouse_y};
+				Nexus::MouseScrolledEventArgs &scrollEvent = eventQueue.Add<MouseScrolledEventArgs>();
+				scrollEvent.Scroll						   = {event.wheel.x, event.wheel.y};
+				scrollEvent.Position					   = {event.wheel.mouse_x, event.wheel.mouse_y};
 				scrollEvent.ScreenPosition = screenPos, scrollEvent.MouseID = mouseId, scrollEvent.Type = mouseType;
 				scrollEvent.Direction = direction;
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseScrollCallback(scrollEvent);
-
-				layerStack.OnEvent(scrollEvent);
 
 				break;
 			}
@@ -473,43 +462,35 @@ namespace Nexus::Platform
 			}
 			case SDL_EVENT_TEXT_INPUT:
 			{
-				Nexus::TextInputEventArgs args = {};
-				args.Text					   = event.text.text;
+				TextInputEventArgs &args = eventQueue.Add<TextInputEventArgs>();
+				args.Text				 = event.text.text;
 				window->InvokeTextInputCallback(args);
-
-				layerStack.OnEvent(args);
 
 				break;
 			}
 			case SDL_EVENT_TEXT_EDITING:
 			{
-				Nexus::TextEditEventArgs textEditArgs = {};
-				textEditArgs.Text					  = event.edit.text;
-				textEditArgs.Start					  = event.edit.start;
-				textEditArgs.Length					  = event.edit.length;
+				TextEditEventArgs &textEditArgs = eventQueue.Add<TextEditEventArgs>();
+				textEditArgs.Text				= event.edit.text;
+				textEditArgs.Start				= event.edit.start;
+				textEditArgs.Length				= event.edit.length;
 				window->InvokeTextEditCallback(textEditArgs);
-
-				layerStack.OnEvent(textEditArgs);
 
 				break;
 			}
 			case SDL_EVENT_WINDOW_RESIZED:
 			{
-				Nexus::WindowResizedEventArgs resizeEventArgs = {};
-				resizeEventArgs.Size						  = {(uint32_t)event.window.data1, (uint32_t)event.window.data2};
+				WindowResizedEventArgs &resizeEventArgs = eventQueue.Add<WindowResizedEventArgs>();
+				resizeEventArgs.Size					= {(uint32_t)event.window.data1, (uint32_t)event.window.data2};
 				window->InvokeResizeCallback(resizeEventArgs);
-
-				layerStack.OnEvent(resizeEventArgs);
 
 				break;
 			}
 			case SDL_EVENT_WINDOW_MOVED:
 			{
-				Nexus::WindowMovedEventArgs movedEventArgs = {};
-				movedEventArgs.Position					   = {event.window.data1, event.window.data2};
+				WindowMovedEventArgs &movedEventArgs = eventQueue.Add<WindowMovedEventArgs>();
+				movedEventArgs.Position				 = {event.window.data1, event.window.data2};
 				window->InvokeMoveCallback(movedEventArgs);
-
-				layerStack.OnEvent(movedEventArgs);
 
 				break;
 			}
@@ -535,16 +516,14 @@ namespace Nexus::Platform
 				std::pair<float, float> localPos  = {event.drop.x, event.drop.y};
 				std::pair<float, float> screenPos = {event.drop.x + windowPos.first, event.drop.y + windowPos.second};
 
-				Nexus::FileDropEventArgs fileDropEvent = {};
-				fileDropEvent.Type					   = type;
-				fileDropEvent.Position				   = localPos;
-				fileDropEvent.ScreenPosition		   = screenPos;
-				fileDropEvent.SourceApp				   = sourceApp;
-				fileDropEvent.Data					   = sourceData;
+				FileDropEventArgs &fileDropEvent = eventQueue.Add<FileDropEventArgs>();
+				fileDropEvent.Type				 = type;
+				fileDropEvent.Position			 = localPos;
+				fileDropEvent.ScreenPosition	 = screenPos;
+				fileDropEvent.SourceApp			 = sourceApp;
+				fileDropEvent.Data				 = sourceData;
 
 				window->InvokeFileDropCallback(fileDropEvent);
-
-				layerStack.OnEvent(fileDropEvent);
 
 				break;
 			}
@@ -621,18 +600,18 @@ namespace Nexus::Platform
 		}
 	}
 
-	void PollEvents(LayerStack &layerStack)
+	void PollEvents(EventQueue &eventQueue)
 	{
 		SDL_Event event;
-		while (SDL_PollEvent(&event)) { HandleEvent(event, layerStack); }
+		while (SDL_PollEvent(&event)) { HandleEvent(event, eventQueue); }
 	}
 
-	void WaitEvent(LayerStack &layerStack)
+	void WaitEvent(EventQueue &eventQueue)
 	{
 		SDL_Event event;
 		if (SDL_WaitEvent(&event))
 		{
-			HandleEvent(event, layerStack);
+			HandleEvent(event, eventQueue);
 		}
 	}
 

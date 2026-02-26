@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform/Events/EventHandler.hpp"
+#include "Platform/Events/EventQueue.hpp"
 #include "Platform/FileSystem/File.hpp"
 #include "Platform/FileSystem/FileDialogs.hpp"
 #include "Platform/FileSystem/Path.hpp"
@@ -53,8 +54,8 @@ namespace Nexus::Platform
 	NX_PLATFORM_API void			  Initialise();
 	NX_PLATFORM_API void			  Shutdown();
 	NX_PLATFORM_API void			  Update();
-	NX_PLATFORM_API void			  PollEvents(LayerStack &layerStack);
-	NX_PLATFORM_API void			  WaitEvent(LayerStack &layerStack);
+	NX_PLATFORM_API void			  PollEvents(Nexus::EventQueue &eventQueue);
+	NX_PLATFORM_API void			  WaitEvent(Nexus::EventQueue &eventQueue);
 	NX_PLATFORM_API IWindow			 *CreatePlatformWindow(const WindowDescription &windowProps);
 	NX_PLATFORM_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 

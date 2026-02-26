@@ -17,16 +17,23 @@ namespace Nexus
 
 	bool ImGuiLayer::OnEvent(const Event &event)
 	{
-		/*EventDispatcher dispatcher = {};
-		dispatcher.Subscribe<TextInputEventArgs>([this](const TextInputEventArgs &args) { m_ImGuiRenderer->AddTextInput(args); });
+		EventDispatcher dispatcher = {};
+		dispatcher.Subscribe<TextInputEventArgs>(
+			[this](const TextInputEventArgs &args)
+			{
+				m_ImGuiRenderer->AddTextInput(args);
+				int x = 0;
+			});
 		dispatcher.Subscribe<MouseScrolledEventArgs>([this](const MouseScrolledEventArgs &args) { m_ImGuiRenderer->AddMouseScroll(args); });
 		dispatcher.Subscribe<KeyPressedEventArgs>([this](const KeyPressedEventArgs &args) { m_ImGuiRenderer->AddKeyPressed(args); });
 		dispatcher.Subscribe<KeyReleasedEventArgs>([this](const KeyReleasedEventArgs &args) { m_ImGuiRenderer->AddKeyReleased(args); });
 
-		if (ImGui::IsWindowHovered())
+		dispatcher.Dispatch(event);
+
+		if (m_IsAnyWindowHovered)
 		{
 			return true;
-		}*/
+		}
 
 		return false;
 	}
@@ -46,6 +53,7 @@ namespace Nexus
 
 		m_ImGuiRenderer->BeforeLayout(time);
 		OnImGuiRenderer();
+		m_IsAnyWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 		m_ImGuiRenderer->AfterLayout();
 
 		swapchain->SwapBuffers({});
