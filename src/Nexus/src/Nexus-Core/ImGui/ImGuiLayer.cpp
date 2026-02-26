@@ -13,20 +13,23 @@ namespace Nexus
 		m_ImGuiRenderer->RebuildFontAtlas();
 
 		m_CommandList = m_CommandQueue->CreateCommandList();
+
+		ImGuiIO &io = m_ImGuiRenderer->GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	}
 
 	bool ImGuiLayer::OnEvent(const Event &event)
 	{
 		EventDispatcher dispatcher = {};
-		dispatcher.Subscribe<TextInputEventArgs>(
-			[this](const TextInputEventArgs &args)
-			{
-				m_ImGuiRenderer->AddTextInput(args);
-				int x = 0;
-			});
+		dispatcher.Subscribe<TextInputEventArgs>([this](const TextInputEventArgs &args) { m_ImGuiRenderer->AddTextInput(args); });
 		dispatcher.Subscribe<MouseScrolledEventArgs>([this](const MouseScrolledEventArgs &args) { m_ImGuiRenderer->AddMouseScroll(args); });
 		dispatcher.Subscribe<KeyPressedEventArgs>([this](const KeyPressedEventArgs &args) { m_ImGuiRenderer->AddKeyPressed(args); });
 		dispatcher.Subscribe<KeyReleasedEventArgs>([this](const KeyReleasedEventArgs &args) { m_ImGuiRenderer->AddKeyReleased(args); });
+		dispatcher.Subscribe<MouseMovedEventArgs>([this](const MouseMovedEventArgs &args) { m_ImGuiRenderer->AddMouseMoved(args); });
+		dispatcher.Subscribe<MouseButtonPressedEventArgs>([this](const MouseButtonPressedEventArgs &args)
+														  { m_ImGuiRenderer->AddMouseButtonPressed(args); });
+		dispatcher.Subscribe<MouseButtonReleasedEventArgs>([this](const MouseButtonReleasedEventArgs &args)
+														   { m_ImGuiRenderer->AddMouseButtonReleased(args); });
 
 		dispatcher.Dispatch(event);
 
@@ -40,20 +43,13 @@ namespace Nexus
 
 	void ImGuiLayer::OnRender(Nexus::TimeSpan time, IWindow *window)
 	{
-		m_CommandList->Begin();
-
-		Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-		Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
-		m_CommandList->SetFramebuffer(framebuffer);
-		m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
-
-		m_CommandList->End();
+		Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
 
 		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
 		m_ImGuiRenderer->BeforeLayout(time);
 		OnImGuiRenderer();
-		m_IsAnyWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+		m_IsAnyWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemActive() || ImGui::IsAnyItemHovered();
 		m_ImGuiRenderer->AfterLayout();
 
 		swapchain->SwapBuffers({});

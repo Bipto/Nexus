@@ -173,26 +173,6 @@ namespace Nexus::ImGuiUtils
 		m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
-	void ImGuiGraphicsRenderer::SetupInput(IWindow *window)
-	{
-		auto &io = ImGui::GetIO();
-
-		/*window->AddTextInputCallback(
-			[&](const TextInputEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				io.AddInputCharactersUTF8(args.Text);
-			});
-
-		window->AddMouseScrollCallback(
-			[&](const MouseScrolledEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				auto [x, y] = args.Scroll;
-				io.AddMouseWheelEvent(x, y);
-			});*/
-	}
-
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
 	{
 		auto		  &io = ImGui::GetIO();
@@ -289,9 +269,10 @@ namespace Nexus::ImGuiUtils
 			// issue
 			for (int i = platform_io.Viewports.Size - 1; i >= 1; i--)
 			{
+				ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
+
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
-					ImGuiWindowInfo					*info	   = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
 					Nexus::IWindow					*window	   = info->Window;
 					Ref<Nexus::Graphics::ISwapchain> swapchain = info->Swapchain;
 
@@ -341,7 +322,6 @@ namespace Nexus::ImGuiUtils
 		io.Fonts->AddFontDefault();
 		RebuildFontAtlas();
 
-		SetupInput(Nexus::GetApplication()->GetPrimaryWindow());
 		SetupHandlers();
 	}
 
@@ -441,6 +421,80 @@ namespace Nexus::ImGuiUtils
 		}
 	}
 
+	void ImGuiGraphicsRenderer::AddMouseMoved(const MouseMovedEventArgs &args)
+	{
+		auto &io = ImGui::GetIO();
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			io.AddMousePosEvent(args.ScreenPosition.first, args.ScreenPosition.second);
+		}
+		else
+		{
+			io.AddMousePosEvent(args.Position.first, args.Position.second);
+		}
+	}
+
+	void ImGuiGraphicsRenderer::AddMouseButtonPressed(const MouseButtonPressedEventArgs &args)
+	{
+		auto &io = ImGui::GetIO();
+
+		if (args.Button == MouseButton::Left)
+		{
+			io.AddMouseButtonEvent(0, true);
+		}
+
+		if (args.Button == MouseButton::Right)
+		{
+			io.AddMouseButtonEvent(1, true);
+		}
+
+		if (args.Button == MouseButton::Middle)
+		{
+			io.AddMouseButtonEvent(2, true);
+		}
+
+		if (args.Button == MouseButton::X1)
+		{
+			io.AddMouseButtonEvent(3, true);
+		}
+
+		if (args.Button == MouseButton::X2)
+		{
+			io.AddMouseButtonEvent(4, true);
+		}
+	}
+
+	void ImGuiGraphicsRenderer::AddMouseButtonReleased(const MouseButtonReleasedEventArgs &args)
+	{
+		auto &io = ImGui::GetIO();
+
+		if (args.Button == MouseButton::Left)
+		{
+			io.AddMouseButtonEvent(0, false);
+		}
+
+		if (args.Button == MouseButton::Right)
+		{
+			io.AddMouseButtonEvent(1, false);
+		}
+
+		if (args.Button == MouseButton::Middle)
+		{
+			io.AddMouseButtonEvent(2, false);
+		}
+
+		if (args.Button == MouseButton::X1)
+		{
+			io.AddMouseButtonEvent(3, false);
+		}
+
+		if (args.Button == MouseButton::X2)
+		{
+			io.AddMouseButtonEvent(4, false);
+		}
+	}
+
 	ImGuiGraphicsRenderer *ImGuiGraphicsRenderer::GetCurrentRenderer()
 	{
 		return s_ImGuiRenderer;
@@ -477,52 +531,6 @@ namespace Nexus::ImGuiUtils
 				w->StopTextInput();
 			}
 		}
-
-		IWindow *activeWindow = window.value();
-		/*io.AddKeyEvent(ImGuiKey_Tab, activeWindow->IsKeyDown(Nexus::ScanCode::Tab));
-		io.AddKeyEvent(ImGuiKey_LeftArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Left));
-		io.AddKeyEvent(ImGuiKey_RightArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Right));
-		io.AddKeyEvent(ImGuiKey_UpArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Up));
-		io.AddKeyEvent(ImGuiKey_DownArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Down));
-		io.AddKeyEvent(ImGuiKey_PageUp, activeWindow->IsKeyDown(Nexus::ScanCode::PageUp));
-		io.AddKeyEvent(ImGuiKey_PageDown, activeWindow->IsKeyDown(Nexus::ScanCode::PageDown));
-		io.AddKeyEvent(ImGuiKey_Home, activeWindow->IsKeyDown(Nexus::ScanCode::Home));
-		io.AddKeyEvent(ImGuiKey_End, activeWindow->IsKeyDown(Nexus::ScanCode::End));
-		io.AddKeyEvent(ImGuiKey_Delete, activeWindow->IsKeyDown(Nexus::ScanCode::Delete));
-		io.AddKeyEvent(ImGuiKey_Backspace, activeWindow->IsKeyDown(Nexus::ScanCode::Backspace));
-		io.AddKeyEvent(ImGuiKey_Enter, activeWindow->IsKeyDown(Nexus::ScanCode::Return));
-		io.AddKeyEvent(ImGuiKey_Escape, activeWindow->IsKeyDown(Nexus::ScanCode::Escape));
-		io.AddKeyEvent(ImGuiKey_Space, activeWindow->IsKeyDown(Nexus::ScanCode::Space));
-		io.AddKeyEvent(ImGuiKey_A, activeWindow->IsKeyDown(Nexus::ScanCode::A));
-		io.AddKeyEvent(ImGuiKey_C, activeWindow->IsKeyDown(Nexus::ScanCode::C));
-		io.AddKeyEvent(ImGuiKey_V, activeWindow->IsKeyDown(Nexus::ScanCode::V));
-		io.AddKeyEvent(ImGuiKey_X, activeWindow->IsKeyDown(Nexus::ScanCode::X));
-		io.AddKeyEvent(ImGuiKey_Y, activeWindow->IsKeyDown(Nexus::ScanCode::Y));
-		io.AddKeyEvent(ImGuiKey_Z, activeWindow->IsKeyDown(Nexus::ScanCode::Z));
-
-		io.KeyShift = activeWindow->IsKeyDown(ScanCode::LeftShift) || activeWindow->IsKeyDown(ScanCode::RightShift);
-		io.KeyCtrl	= activeWindow->IsKeyDown(ScanCode::LeftControl) || activeWindow->IsKeyDown(ScanCode::RightControl);
-		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
-		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);*/
-
-		MouseState state	= Platform::GetFocussedMouseState();
-		auto	   mousePos = activeWindow->GetMousePosition();
-
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			state	 = Platform::GetGlobalMouseState();
-			mousePos = state.MousePosition;
-		}
-
-		if (mousePos)
-		{
-			auto [mouseX, mouseY] = mousePos.value();
-			io.AddMousePosEvent(mouseX, mouseY);
-		}
-
-		io.AddMouseButtonEvent(0, state.LeftButton == MouseButtonState::Pressed);
-		io.AddMouseButtonEvent(1, state.RightButton == MouseButtonState::Pressed);
-		io.AddMouseButtonEvent(2, state.MiddleButton == MouseButtonState::Pressed);
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
@@ -793,24 +801,14 @@ namespace Nexus::ImGuiUtils
 			WindowDescription windowSpec;
 			windowSpec.Width  = vp->Size.x;
 			windowSpec.Height = vp->Size.y;
-			windowSpec.Flags  = WindowFlags_HighPixelDensity | WindowFlags_Borderless;
-
-			Nexus::Graphics::SwapchainDescription swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription();
+			windowSpec.Flags  = WindowFlags_HighPixelDensity | WindowFlags_Borderless | WindowFlags_Utility;
 
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
-			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
-
-			swapchainSpec.Width	  = windowSpec.Width;
-			swapchainSpec.Height  = windowSpec.Height;
-			swapchainSpec.Surface = Utils::CreateSurfaceForWindow(Nexus::GetApplication()->GetGraphicsDevice(), window);
-
-			Ref<Nexus::Graphics::ISwapchain> swapchain = app->GetGraphicsCommandQueue()->CreateSwapchain(swapchainSpec);
+			window->Show();
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
-			info->Swapchain		  = swapchain;
-
-			SetupInput(Nexus::GetApplication()->GetPrimaryWindow());
+			info->Swapchain		  = nullptr;
 
 			vp->PlatformUserData = info;
 			vp->RendererUserData = info;
@@ -871,7 +869,6 @@ namespace Nexus::ImGuiUtils
 					uint32_t height = static_cast<uint32_t>(size.y);
 
 					info->Window->SetSize(width, height);
-					info->Swapchain->Resize(width, height);
 				}
 			}
 		};
@@ -970,6 +967,58 @@ namespace Nexus::ImGuiUtils
 			}
 			return {0, 0};
 		};
+
+		platformIo.Renderer_CreateWindow = [](ImGuiViewport *vp)
+		{
+			auto app			= Nexus::GetApplication();
+			auto graphicsDevice = app->GetGraphicsDevice();
+
+			ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+
+			uint32_t w		 = static_cast<uint32_t>(vp->Size.x);
+			uint32_t h		 = static_cast<uint32_t>(vp->Size.y);
+			info->LastWidth	 = w;
+			info->LastHeight = h;
+
+			Graphics::SwapchainDescription swapchainDesc = {};
+			swapchainDesc.Width							 = w;
+			swapchainDesc.Height						 = h;
+			swapchainDesc.Surface						 = Utils::CreateSurfaceForWindow(Nexus::GetApplication()->GetGraphicsDevice(), info->Window);
+
+			Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(swapchainDesc);
+
+			info->Swapchain = swapchain;
+
+			info->CreateSwapchain = false;
+		};
+
+		platformIo.Renderer_DestroyWindow = [](ImGuiViewport *vp)
+		{
+			ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+			info->Swapchain		  = nullptr;
+		};
+
+		platformIo.Renderer_SetWindowSize = [](ImGuiViewport *vp, ImVec2 size)
+		{
+			ImGuiWindowInfo *info				   = (ImGuiWindowInfo *)vp->PlatformUserData;
+			auto [swapchainWidth, swapchainHeight] = info->Swapchain->GetSize();
+
+			uint32_t w = (uint32_t)size.x;
+			uint32_t h = (uint32_t)size.y;
+
+			if (w == 0 || h == 0)
+				return;
+
+			if (info->LastWidth != w || info->LastHeight != h)
+			{
+				info->Swapchain->Resize(size.x, size.y);
+			}
+		};
+
+		/* platformIo.Renderer_RenderWindow = [](ImGuiViewport *vp, void *render_arg) {};
+
+		platformIo.Renderer_SwapBuffers = [](ImGuiViewport *vp, void *render_arg) {};
+		*/
 
 		ImGuiViewport *vp = ImGui::GetMainViewport();
 

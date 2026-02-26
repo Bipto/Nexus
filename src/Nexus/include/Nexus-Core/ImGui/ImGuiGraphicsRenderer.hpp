@@ -23,8 +23,11 @@ namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
 	{
-		Nexus::IWindow					*Window	   = nullptr;
-		Ref<Nexus::Graphics::ISwapchain> Swapchain = nullptr;
+		Nexus::IWindow					*Window			 = nullptr;
+		Ref<Nexus::Graphics::ISwapchain> Swapchain		 = nullptr;
+		uint32_t						 LastWidth		 = 0;
+		uint32_t						 LastHeight		 = 0;
+		bool							 CreateSwapchain = true;
 	};
 
 	struct ImGuiDescriptorInfo
@@ -55,20 +58,22 @@ namespace Nexus::ImGuiUtils
 		void AddMouseScroll(const MouseScrolledEventArgs &args);
 		void AddKeyPressed(const KeyPressedEventArgs &args);
 		void AddKeyReleased(const KeyReleasedEventArgs &args);
+		void AddMouseMoved(const MouseMovedEventArgs &args);
+		void AddMouseButtonPressed(const MouseButtonPressedEventArgs &args);
+		void AddMouseButtonReleased(const MouseButtonReleasedEventArgs &args);
 
 		static ImGuiGraphicsRenderer *GetCurrentRenderer();
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
 
 	  private:
-		void		CreatePipeline();
-		static void SetupInput(IWindow *window);
-		void		UpdateInput();
-		void		RenderDrawData(ImDrawData *drawData);
-		void		UpdateBuffers(ImDrawData *drawData);
-		void		RenderCommandLists(ImDrawData *drawData);
-		void		UpdateCursor();
-		void		UpdateMonitors();
-		void		SetupHandlers();
+		void CreatePipeline();
+		void UpdateInput();
+		void RenderDrawData(ImDrawData *drawData);
+		void UpdateBuffers(ImDrawData *drawData);
+		void RenderCommandLists(ImDrawData *drawData);
+		void UpdateCursor();
+		void UpdateMonitors();
+		void SetupHandlers();
 
 	  private:
 		Nexus::Application							  *m_Application	 = nullptr;

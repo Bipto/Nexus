@@ -19,8 +19,8 @@ namespace Nexus
 	enum class MouseButton
 	{
 		Left,
-		Middle,
 		Right,
+		Middle,
 		X1,
 		X2
 	};

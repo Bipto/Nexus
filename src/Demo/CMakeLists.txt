@@ -2,10 +2,15 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project("Demo")
 
+set(SOURCE_FILES
+    "src/main.cpp"
+    "src/Layers/DemoLayer.cpp"
+)
+
 if (ANDROID OR __ANDROID__)
-add_library(Demo SHARED src/main.cpp)
+add_library(Demo SHARED ${SOURCE_FILES})
 else()
-add_executable(Demo src/main.cpp)
+add_executable(Demo ${SOURCE_FILES})
 endif()
 
 target_include_directories(Demo PUBLIC ../Nexus/src)

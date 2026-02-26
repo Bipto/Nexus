@@ -34,7 +34,8 @@
 
 #include "Nexus-Core/EntryPoint.hpp"
 
-#include "DemoImGuiLayer.hpp"
+#include "Layers/DemoImGuiLayer.hpp"
+#include "Layers/DemoLayer.hpp"
 
 struct DemoInfo
 {
@@ -61,6 +62,7 @@ class DemoApplication : public Nexus::Application
 		m_CommandQueue = m_CommandQueueGroup.GraphicsQueue;
 
 		m_LayerStack.AddOverlay<DemoImGuiLayer>(this, m_CommandQueue);
+		m_LayerStack.AddLayer<DemoLayer>(this, m_CommandQueue);
 
 		//		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this, m_CommandQueue);
 		//		ImGuiContext *context = m_ImGuiRenderer->GetContext();
@@ -314,8 +316,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	desc.GraphicsCreateInfo.Debug = true;
-
-	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
 	desc.WindowProperties.Width			   = 1280;
 	desc.WindowProperties.Height		   = 720;
