@@ -34,37 +34,82 @@ macro(nexus_structure_folders)
   endforeach()
 endmacro()
 
-function(copy_vcpkg_dll target dll_name)
-    set(dbg "${VCPKG_INSTALLED_DIR}/x64-windows/debug/bin/${dll_name}")
-    set(rel "${VCPKG_INSTALLED_DIR}/x64-windows/bin/${dll_name}")
-
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<$<CONFIG:Debug>:${dbg}>"
-            "$<$<NOT:$<CONFIG:Debug>>:${rel}>"
-            $<TARGET_FILE_DIR:${target}>
-        COMMAND_EXPAND_LISTS
-    )
-endfunction()
-
-
-function(copy_runtime_deps target)
-    if(NOT WIN32)
+macro(copy_runtime_deps target_name)
+    if(NOT TARGET ${target_name})
+        message(WARNING "Target '${target_name}' does not exist.")
         return()
     endif()
 
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${target}>
-            $<TARGET_FILE_DIR:${target}>
-        COMMAND_EXPAND_LISTS
+    # ============================================================
+    # 1. Collect DLLs CMake *knows* about (IMPORTED targets)
+    # ============================================================
+    set(_KNOWN_DLLS "$<TARGET_RUNTIME_DLLS:${target_name}>")
+
+    # ============================================================
+    # 2. Collect all vcpkg DLLs (debug + release)
+    # ============================================================
+    file(GLOB _VCPKG_ALL_DLLS
+        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/*.dll"
+        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.dll"
     )
 
-    copy_vcpkg_dll(${target} poly2tri.dll)
-    copy_vcpkg_dll(${target} minizip.dll)
+    # ============================================================
+    # 3. Filter vcpkg DLLs by actual link dependencies
+    # ============================================================
+    get_target_property(_LINKED_LIBS ${target_name} LINK_LIBRARIES)
 
-endfunction()
+    set(_FILTERED_VCPKG_DLLS "")
+    foreach(dll ${_VCPKG_ALL_DLLS})
+        get_filename_component(_dll_name "${dll}" NAME_WE)
 
+        foreach(lib ${_LINKED_LIBS})
+            # Match DLL name to library name (case-insensitive)
+            string(TOLOWER "${lib}" _lib_lower)
+            string(TOLOWER "${_dll_name}" _dll_lower)
+
+            if(_lib_lower MATCHES "${_dll_lower}")
+                list(APPEND _FILTERED_VCPKG_DLLS "${dll}")
+            endif()
+        endforeach()
+    endforeach()
+
+    # ============================================================
+    # 4. MinGW runtime DLLs (if needed)
+    # ============================================================
+    if(MINGW)
+        get_filename_component(_MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+
+        file(GLOB _MINGW_RUNTIME_DLLS
+            "${_MINGW_BIN_DIR}/libgcc_s_*.dll"
+            "${_MINGW_BIN_DIR}/libstdc++-6.dll"
+            "${_MINGW_BIN_DIR}/libwinpthread-1.dll"
+        )
+    endif()
+
+    # ============================================================
+    # 5. Copy everything relevant
+    # ============================================================
+    set(_ALL_DLLS
+        ${_KNOWN_DLLS}
+        ${_FILTERED_VCPKG_DLLS}
+        ${_MINGW_RUNTIME_DLLS}
+    )
+
+    # Remove empty entries
+    list(FILTER _ALL_DLLS EXCLUDE REGEX "^$")
+
+    if(WIN32 AND _ALL_DLLS)
+        add_custom_command(
+            TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${_ALL_DLLS}
+                $<TARGET_FILE_DIR:${target_name}>
+            COMMAND_EXPAND_LISTS
+            VERBATIM
+    )
+endif()
+
+endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
