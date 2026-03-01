@@ -5,6 +5,7 @@ project("Demo")
 set(SOURCE_FILES
     "src/main.cpp"
     "src/Layers/DemoLayer.cpp"
+    "src/Layers/DemoImGuiLayer.cpp"
 )
 
 if (ANDROID OR __ANDROID__)

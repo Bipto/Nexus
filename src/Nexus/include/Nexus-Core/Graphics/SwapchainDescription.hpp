@@ -39,6 +39,6 @@ namespace Nexus::Graphics
 		std::optional<PixelFormat> DepthFormat = std::nullopt;
 
 		/// @brief How many samples should be used by the swapchain
-		uint32_t Samples = 0;
+		uint32_t Samples = 1;
 	};
 }	 // namespace Nexus::Graphics

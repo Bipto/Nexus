@@ -10,6 +10,8 @@
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Platform/Timings/Profiler.hpp"
 
+#include <print>
+
 static std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
@@ -801,10 +803,9 @@ namespace Nexus::ImGuiUtils
 			WindowDescription windowSpec;
 			windowSpec.Width  = vp->Size.x;
 			windowSpec.Height = vp->Size.y;
-			windowSpec.Flags  = WindowFlags_HighPixelDensity | WindowFlags_Borderless | WindowFlags_Utility;
+			windowSpec.Flags  = WindowFlags_HighPixelDensity | WindowFlags_Borderless;
 
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
-			window->Show();
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
@@ -863,12 +864,14 @@ namespace Nexus::ImGuiUtils
 			{
 				ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
 
-				if (!info->Window->IsClosing())
-				{
-					uint32_t width	= static_cast<uint32_t>(size.x);
-					uint32_t height = static_cast<uint32_t>(size.y);
+				uint32_t width	= static_cast<uint32_t>(size.x);
+				uint32_t height = static_cast<uint32_t>(size.y);
 
+				if (!info->Window->IsClosing() && (info->LastWindowWidth != width || info->LastWindowHeight != height))
+				{
 					info->Window->SetSize(width, height);
+					info->LastWindowWidth  = width;
+					info->LastWindowHeight = height;
 				}
 			}
 		};
@@ -975,21 +978,20 @@ namespace Nexus::ImGuiUtils
 
 			ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
 
-			uint32_t w		 = static_cast<uint32_t>(vp->Size.x);
-			uint32_t h		 = static_cast<uint32_t>(vp->Size.y);
-			info->LastWidth	 = w;
-			info->LastHeight = h;
+			uint32_t w				  = static_cast<uint32_t>(vp->Size.x);
+			uint32_t h				  = static_cast<uint32_t>(vp->Size.y);
+			info->LastSwapchainWidth  = w;
+			info->LastSwapchainHeight = h;
 
 			Graphics::SwapchainDescription swapchainDesc = {};
 			swapchainDesc.Width							 = w;
 			swapchainDesc.Height						 = h;
 			swapchainDesc.Surface						 = Utils::CreateSurfaceForWindow(Nexus::GetApplication()->GetGraphicsDevice(), info->Window);
+			swapchainDesc.ImagePresentMode				 = Graphics::PresentMode::Immediate;
 
 			Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(swapchainDesc);
 
 			info->Swapchain = swapchain;
-
-			info->CreateSwapchain = false;
 		};
 
 		platformIo.Renderer_DestroyWindow = [](ImGuiViewport *vp)
@@ -1009,9 +1011,11 @@ namespace Nexus::ImGuiUtils
 			if (w == 0 || h == 0)
 				return;
 
-			if (info->LastWidth != w || info->LastHeight != h)
+			if (info->LastSwapchainWidth != w || info->LastSwapchainHeight != h)
 			{
 				info->Swapchain->Resize(size.x, size.y);
+				info->LastSwapchainWidth  = w;
+				info->LastSwapchainHeight = h;
 			}
 		};
 

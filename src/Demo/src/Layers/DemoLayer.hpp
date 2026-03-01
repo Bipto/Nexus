@@ -1,3 +1,4 @@
+#include "../Demos/Demo.hpp"
 #include "Nexus-Core/Application.hpp"
 #include "Platform/Layers/Layer.hpp"
 
@@ -15,4 +16,5 @@ class DemoLayer final : public Nexus::ILayer
 	Nexus::Application						  *m_Application  = nullptr;
 	Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList  = nullptr;
+	Demos::Demo								  *m_Demo		  = nullptr;
 };

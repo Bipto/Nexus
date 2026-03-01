@@ -6,7 +6,8 @@ namespace Nexus
 {
 	ImGuiLayer::ImGuiLayer(Nexus::Application *app, Nexus::Ref<Graphics::ICommandQueue> commandQueue)
 		: m_ImGuiRenderer(std::make_unique<ImGuiUtils::ImGuiGraphicsRenderer>(app, commandQueue)),
-		  m_CommandQueue(commandQueue)
+		  m_CommandQueue(commandQueue),
+		  m_Application(app)
 	{
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
