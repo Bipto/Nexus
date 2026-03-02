@@ -1,5 +1,7 @@
 # Nexus
 
+[![Build and Test (Multi‑Platform)](https://github.com/Bipto/Nexus/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/Bipto/Nexus/actions/workflows/build_and_test.yml)
+
 Nexus is a cross-platform 2D and 3D graphics and audio library, encompassing a Render Hardware Interface (RHI) across OpenGL, Vulkan and D3D12 and various utilities to support resource loading. It provides a clean and simple abstraction layer across all supported API's while still providing low level control and optimization opportunities for performance-critical applications.
 
 <img width="1277" height="757" alt="image" src="https://github.com/user-attachments/assets/407d6a9d-a67c-4bb0-af08-add8a71bc4da" />
