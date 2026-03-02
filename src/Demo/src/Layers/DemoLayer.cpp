@@ -4,8 +4,6 @@
 
 #include "Platform/Events/EventDispatcher.hpp"
 
-#include <print>
-
 DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 	: m_Application(app),
 	  m_CommandQueue(commandQueue)
@@ -16,8 +14,7 @@ DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::IComma
 bool DemoLayer::OnEvent(const Nexus::Event &event)
 {
 	Nexus::EventDispatcher dispatcher = {};
-	dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>([](const Nexus::MouseButtonPressedEventArgs &args)
-															 { std::println("Demo layer clicked!"); });
+	dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>([](const Nexus::MouseButtonPressedEventArgs &args) {});
 	dispatcher.Dispatch(event);
 
 	return true;
