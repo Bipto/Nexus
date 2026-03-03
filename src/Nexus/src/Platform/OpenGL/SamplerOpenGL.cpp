@@ -22,8 +22,8 @@ namespace Nexus::Graphics
 					context.BindSampler(0, m_Handle);
 					context.ObjectLabelKHR(GL_SAMPLER, m_Handle, -1, spec.DebugName.c_str());
 
-					uint32_t lodRange = spec.MaximumLOD - spec.MinimumLOD;
-					Setup(lodRange != 0, context);
+					bool useMips = m_Description.MinimumLOD != 0 || m_Description.MaximumLOD != 0;
+					Setup(useMips, context);
 				}
 			});
 	}
@@ -43,7 +43,7 @@ namespace Nexus::Graphics
 		return m_Handle;
 	}
 
-	void SamplerOpenGL::Setup(bool hasMips, const GladGLContext &context)
+	void SamplerOpenGL::Setup(bool hasMips, const GladGLContext &context) const
 	{
 		GLenum min, max;
 		GL::GetSamplerFilter(m_Description.SampleFilter, min, max, hasMips);
@@ -65,15 +65,16 @@ namespace Nexus::Graphics
 
 		// border colour
 		GLfloat border[] = {color.r, color.g, color.b, color.a};
+		glCall(context.SamplerParameterfv(m_Handle, GL_TEXTURE_BORDER_COLOR, border));
 
 		// LOD
 		glCall(context.SamplerParameterf(m_Handle, GL_TEXTURE_MIN_LOD, m_Description.MinimumLOD));
 		glCall(context.SamplerParameterf(m_Handle, GL_TEXTURE_MAX_LOD, m_Description.MaximumLOD));
 
-	#if defined(NX_PLATFORM_GL_DESKTOP)
-		glCall(context.SamplerParameterfv(m_Handle, GL_TEXTURE_BORDER_COLOR, border));
-		glCall(context.SamplerParameterf(m_Handle, GL_TEXTURE_LOD_BIAS_EXT, m_Description.LODBias));
-	#endif
+		if (context.EXT_texture_lod_bias)
+		{
+			glCall(context.SamplerParameterf(m_Handle, GL_TEXTURE_LOD_BIAS_EXT, m_Description.LODBias));
+		}
 
 		// texture comparison
 		if (m_Description.SamplerComparisonFunction != ComparisonFunction::Never)

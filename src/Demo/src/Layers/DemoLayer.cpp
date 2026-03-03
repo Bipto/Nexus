@@ -4,6 +4,8 @@
 
 #include "Platform/Events/EventDispatcher.hpp"
 
+#include "Platform/Timings/Profiler.hpp"
+
 DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 	: m_Application(app),
 	  m_CommandQueue(commandQueue)
@@ -22,16 +24,25 @@ bool DemoLayer::OnEvent(const Nexus::Event &event)
 
 void DemoLayer::OnRender(Nexus::TimeSpan time, Nexus::IWindow *window)
 {
-	m_CommandList->Begin();
+	if (m_Demo)
+	{
+		NX_PROFILE_SCOPE("Render Demo");
+		m_Demo->Render(time);
+	}
+	else
+	{
+		NX_PROFILE_SCOPE("Clear Screen");
+		m_CommandList->Begin();
 
-	Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-	Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
-	m_CommandList->SetFramebuffer(framebuffer);
-	m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
+		Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
+		Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+		m_CommandList->SetFramebuffer(framebuffer);
+		m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
-	m_CommandList->End();
+		m_CommandList->End();
 
-	m_CommandQueue->SubmitCommandList(m_CommandList);
+		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+	}
 }
 
 void DemoLayer::OnUpdate(Nexus::TimeSpan time, Nexus::IWindow *window)
@@ -40,4 +51,9 @@ void DemoLayer::OnUpdate(Nexus::TimeSpan time, Nexus::IWindow *window)
 
 void DemoLayer::OnTick(Nexus::TimeSpan time, Nexus::IWindow *window)
 {
+}
+
+void DemoLayer::SetDemo(std::shared_ptr<Demos::Demo> demo)
+{
+	m_Demo = demo;
 }

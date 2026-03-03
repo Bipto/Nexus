@@ -36,6 +36,23 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphi
 	ImGuiContext *context = m_ImGuiRenderer->GetContext();
 	ImGui::SetCurrentContext(context);
 
+	ImGui::SetCurrentContext(context);
+
+	ImGui::GetStyle().ScrollbarSize = 20.0f;
+
+	ImGuiIO &io = m_ImGuiRenderer->GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+	int size = 20;
+
+#if defined(__ANDROID__) || defined(ANDROID)
+	size = 42;
+#endif
+
+	std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
+	io.FontDefault		 = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
+	m_ImGuiRenderer->RebuildFontAtlas();
+
 	RegisterDemo<Demos::ClearScreenDemo>("Graphics", "Clear Colour");
 	RegisterDemo<Demos::ClearRectDemo>("Graphics", "Clear Rects");
 	RegisterDemo<Demos::TimingDemo>("Graphics", "Timings");
@@ -111,8 +128,13 @@ void DemoImGuiLayer::RenderDemoList()
 					if (ImGui::IsItemClicked())
 					{
 						m_CurrentDemo =
-							std::unique_ptr<Demos::Demo>(pair.CreationFunction(m_Application, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue));
+							std::shared_ptr<Demos::Demo>(pair.CreationFunction(m_Application, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue));
 						m_CurrentDemo->Load();
+
+						if (m_CallbackFunction)
+						{
+							m_CallbackFunction(m_CurrentDemo);
+						}
 					}
 
 					ImGui::TreePop();
@@ -133,6 +155,11 @@ void DemoImGuiLayer::RenderDemoInfo()
 		if (ImGui::Button("<- Back"))
 		{
 			m_CurrentDemo = nullptr;
+
+			if (m_CallbackFunction)
+			{
+				m_CallbackFunction(m_CurrentDemo);
+			}
 		}
 
 		// required because demo could be deleted in the previous if statement

@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project("Demo")
 
-set(SOURCE_FILES
-    "src/main.cpp"
-    "src/Layers/DemoLayer.cpp"
-    "src/Layers/DemoImGuiLayer.cpp"
+file(GLOB_RECURSE SOURCE_FILES
+    src/*.cpp
+    src/*.hpp
+    src/Demos/*
+    src/Layers/*
 )
 
 if (ANDROID OR __ANDROID__)

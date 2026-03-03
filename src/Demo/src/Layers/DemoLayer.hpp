@@ -11,10 +11,11 @@ class DemoLayer final : public Nexus::ILayer
 	void OnRender(Nexus::TimeSpan time, Nexus::IWindow *window) final;
 	void OnUpdate(Nexus::TimeSpan time, Nexus::IWindow *window) final;
 	void OnTick(Nexus::TimeSpan time, Nexus::IWindow *window) final;
+	void SetDemo(std::shared_ptr<Demos::Demo> demo);
 
   protected:
 	Nexus::Application						  *m_Application  = nullptr;
 	Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList  = nullptr;
-	Demos::Demo								  *m_Demo		  = nullptr;
+	std::shared_ptr<Demos::Demo>			   m_Demo		  = nullptr;
 };

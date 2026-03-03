@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <memory>
 #include <ranges>
 
 #include "Platform/Layers/Layer.hpp"
@@ -19,12 +20,12 @@ namespace Nexus
 		~LayerStack() = default;
 
 		template<LayerType Layer, typename... Args>
-		ILayer *AddLayer(Args &&...args)
+		[[maybe_unused]] Layer *AddLayer(Args &&...args)
 		{
 			auto	layer = std::make_unique<Layer>(std::forward<Args>(args)...);
 			ILayer *ptr	  = layer.get();
 			m_Layers.push_back(std::move(layer));
-			return ptr;
+			return dynamic_cast<Layer *>(ptr);
 		}
 
 		void RemoveLayer(ILayer *layer)
@@ -47,12 +48,12 @@ namespace Nexus
 		}
 
 		template<LayerType Layer, typename... Args>
-		ILayer *AddOverlay(Args &&...args)
+		[[maybe_unused]] Layer *AddOverlay(Args &&...args)
 		{
 			auto	layer = std::make_unique<Layer>(std::forward<Args>(args)...);
 			ILayer *ptr	  = layer.get();
 			m_Overlays.push_back(std::move(layer));
-			return ptr;
+			return dynamic_cast<Layer *>(ptr);
 		}
 
 		void RemoveOverlay(ILayer *layer)
@@ -108,6 +109,7 @@ namespace Nexus
 			dispatch(m_Layers);
 			dispatch(m_Overlays);
 		}
+
 		void OnTick(Nexus::TimeSpan time, IWindow *window)
 		{
 			auto dispatch = [&](auto &container)

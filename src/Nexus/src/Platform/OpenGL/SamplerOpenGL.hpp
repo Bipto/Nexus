@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		void Bind(uint32_t slot);
 
 	  private:
-		void Setup(bool hasMips, const GladGLContext &context);
+		void Setup(bool hasMips, const GladGLContext &context) const;
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device = nullptr;

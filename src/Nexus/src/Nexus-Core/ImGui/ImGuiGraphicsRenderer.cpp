@@ -10,8 +10,6 @@
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Platform/Timings/Profiler.hpp"
 
-#include <print>
-
 static std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
