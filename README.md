@@ -12,8 +12,7 @@ Nexus is a cross-platform 2D and 3D graphics and audio library, encompassing a R
 -  Support for graphics, meshlet, and compute pipelines
 -  Extension/version handling for OpenGL and Vulkan based on driver capabilities
 -  Integrated custom ImGui backend implementation
--  Intuitive API design with low-level access preserved:
- <img width="1920" height="558" alt="code" src="https://github.com/user-attachments/assets/4be83d98-1a63-4447-b31e-62ed234486dd" />
+-  Intuitive API design with low-level access preserved
 
 # Demos
 Repository contains a full demo suite, containing examples of all supported features, including command recording, indirect rendering, model loading, lighting and audio.
