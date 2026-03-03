@@ -22,6 +22,8 @@ namespace Demos
 					Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
+			auto [width, height] = m_Window->GetWindowSizeInPixels();
+			m_Camera			 = Nexus::FirstPersonCamera(m_GraphicsDevice, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
 		}
 
 		virtual ~CubemapDemo()
@@ -40,8 +42,6 @@ namespace Demos
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
 			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
-
-			m_Camera.SetPosition(glm::vec3(0, 0, 0));
 
 			Nexus::Graphics::SamplerDescription samplerDesc {};
 			samplerDesc.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -85,6 +85,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+			m_Camera.Update(width, height, time);
 
 			m_CameraUniforms.Projection = m_Camera.GetProjection();
 			m_CameraUniforms.View		= glm::mat4(glm::mat3(m_Camera.GetView()));

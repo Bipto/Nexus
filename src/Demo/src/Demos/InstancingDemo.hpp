@@ -22,6 +22,8 @@ namespace Demos
 					   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
+			auto [width, height] = m_Window->GetWindowSizeInPixels();
+			m_Camera			 = Nexus::FirstPersonCamera(m_GraphicsDevice, width, height, glm::vec3(0.0f, 0.0f, 2.5f));
 		}
 
 		virtual ~InstancingDemo()
@@ -75,7 +77,6 @@ namespace Demos
 			m_InstanceBuffer->SetData(mvps.data(), 0, mvps.size() * sizeof(glm::mat4));
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -107,6 +108,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+			m_Camera.Update(width, height, time);
 
 			m_Rotation += time.GetSeconds<float>();
 			m_CameraUniforms.View		 = m_Camera.GetView();

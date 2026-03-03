@@ -264,8 +264,8 @@ namespace Nexus
 		glm::mat4 m_World;
 		float	  m_Zoom = 45.0f;
 
-		float m_Pitch = 180.0f;
-		float m_Yaw	  = 270.0f;
+		float m_Pitch = 0;
+		float m_Yaw	  = 90;
 
 		int m_Width	 = 0;
 		int m_Height = 0;

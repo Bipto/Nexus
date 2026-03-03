@@ -5,7 +5,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationDescription desc;
 
-	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
+	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	desc.GraphicsCreateInfo.Debug = true;
 
 	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
@@ -17,7 +17,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	desc.WindowProperties.RendersPerSecond = {};
 	desc.WindowProperties.UpdatesPerSecond = {};
 
-	desc.SwapchainDescription.Samples		   = 1;
+	desc.SwapchainDescription.Samples		   = 8;
 	desc.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
 	desc.Organization = "Nexus";

@@ -27,6 +27,8 @@ namespace Demos
 				  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
+			auto [width, height] = m_Window->GetWindowSizeInPixels();
+			m_Camera			 = Nexus::FirstPersonCamera(m_GraphicsDevice, width, height, glm::vec3(0.0f, 0.5f, 2.0f));
 		}
 
 		virtual ~ModelDemo()
@@ -54,7 +56,6 @@ namespace Demos
 			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.5f, 2.0f));
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -63,13 +64,14 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+			m_Camera.Update(width, height, time);
 
 			m_CameraUniforms.View		 = m_Camera.GetView();
 			m_CameraUniforms.Projection	 = m_Camera.GetProjection();
 			m_CameraUniforms.CamPosition = m_Camera.GetPosition();
 			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
-			m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), glm::vec3(0.0f, 1.0f, 0.0f)) *
 											glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
