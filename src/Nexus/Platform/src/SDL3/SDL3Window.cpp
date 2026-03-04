@@ -322,6 +322,11 @@ namespace Nexus
 		SDL_RaiseWindow(m_Window.get());
 	}
 
+	void SDL3Window::WarpMouse(float x, float y)
+	{
+		SDL_WarpMouseInWindow(m_Window.get(), x, y);
+	}
+
 	uint32_t SDL3Window::GetID()
 	{
 		return m_WindowID;

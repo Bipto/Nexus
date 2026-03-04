@@ -100,6 +100,8 @@ namespace Nexus
 
 		void Focus() final;
 
+		void WarpMouse(float x, float y) final;
+
 		uint32_t GetID() final;
 
 		float GetDisplayScale() final;

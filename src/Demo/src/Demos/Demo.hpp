@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
 #include "Nexus.hpp"
 #include "Platform/FileSystem/FileSystem.hpp"
 #include "Platform/Input/Events.hpp"
-
-#include "Nexus-Core/Utils/Utils.hpp"
 
 namespace Demos
 {
@@ -36,6 +35,7 @@ namespace Demos
 		virtual void Update(Nexus::TimeSpan time)
 		{
 		}
+
 		virtual void Render(Nexus::TimeSpan time)
 		{
 		}
@@ -45,6 +45,10 @@ namespace Demos
 		}
 
 		virtual void RenderUI()
+		{
+		}
+
+		virtual void OnEvent(const Nexus::Event &event)
 		{
 		}
 

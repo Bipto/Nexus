@@ -254,6 +254,8 @@ namespace Nexus
 		/// @brief A method to focus a window
 		virtual void Focus() = 0;
 
+		virtual void WarpMouse(float x, float y) = 0;
+
 		/// @brief A method that sets the position of a window
 		/// @param x The X coordinate to position the window to
 		/// @param y The Y coordinate to position the window to

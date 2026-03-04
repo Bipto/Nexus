@@ -87,6 +87,44 @@ namespace Demos
 			auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 			m_Camera.Update(width, height, time);
 
+			// handle camera movement
+			if (m_CameraActive)
+			{
+				Nexus::IWindow *window			 = Nexus::GetApplication()->GetPrimaryWindow();
+				auto [windowWidth, windowHeight] = window->GetWindowSize();
+				window->WarpMouse(static_cast<float>(windowWidth) / 2.0f, static_cast<float>(windowHeight) / 2.0f);
+
+				glm::vec3 movement	  = {0.0f, 0.0f, 0.0f};
+				float	  cameraSpeed = 2.0f * time.GetSeconds<float>();
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::LeftShift) || Nexus::Input::IsKeyDown(Nexus::ScanCode::RightShift))
+				{
+					cameraSpeed *= 2.0f;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
+				{
+					movement.z += cameraSpeed;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
+				{
+					movement.z -= cameraSpeed;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
+				{
+					movement.x += cameraSpeed;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
+				{
+					movement.x -= cameraSpeed;
+				}
+
+				m_Camera.Translate(movement);
+			}
+
 			m_CameraUniforms.Projection = m_Camera.GetProjection();
 			m_CameraUniforms.View		= glm::mat4(glm::mat3(m_Camera.GetView()));
 			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
@@ -202,6 +240,42 @@ namespace Demos
 			return "Creating and rendering a cubemap to provide an environment.";
 		}
 
+		virtual void OnEvent(const Nexus::Event &event) override
+		{
+			Nexus::EventDispatcher dispatcher = {};
+
+			dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>(
+				[this](const Nexus::MouseButtonPressedEventArgs &args)
+				{
+					if (args.Button == Nexus::MouseButton::Right)
+					{
+						m_CameraActive = true;
+						Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
+					}
+				});
+
+			dispatcher.Subscribe<Nexus::KeyPressedEventArgs>(
+				[this](const Nexus::KeyPressedEventArgs &args)
+				{
+					if (args.ScanCode == Nexus::ScanCode::Escape)
+					{
+						m_CameraActive = false;
+						Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(false);
+					}
+				});
+
+			dispatcher.Subscribe<Nexus::MouseMovedEventArgs>(
+				[this](const Nexus::MouseMovedEventArgs &args)
+				{
+					if (m_CameraActive)
+					{
+						m_Camera.Rotate(args.Movement.first, args.Movement.second);
+					}
+				});
+
+			dispatcher.Dispatch(event);
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITexture>	  m_Cubemap		= nullptr;
@@ -217,6 +291,7 @@ namespace Demos
 		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms		 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
 
-		Nexus::FirstPersonCamera m_Camera = {};
+		Nexus::FirstPersonCamera m_Camera		= {};
+		bool					 m_CameraActive = false;
 	};
 }	 // namespace Demos

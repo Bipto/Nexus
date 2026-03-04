@@ -22,45 +22,10 @@ namespace Nexus
 		FirstPersonCamera() = default;
 
 		FirstPersonCamera(Graphics::IGraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
-			: m_Device(device)
+			: m_Device(device),
+			  m_Position(position)
 		{
 			Resize(width, height);
-			m_Position = position;
-
-			Nexus::GetApplication()->GetPrimaryWindow()->AddMouseMovedCallback(
-				[&](const MouseMovedEventArgs &event)
-				{
-					auto [x, y] = event.Movement;
-					Rotate(x, y);
-				});
-
-			Nexus::GetApplication()->GetPrimaryWindow()->AddMousePressedCallback(
-				[&](const MouseButtonPressedEventArgs &event)
-				{
-					if (event.Button == MouseButton::Right)
-					{
-						IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
-						if (window)
-						{
-							window->SetRelativeMouseMode(true);
-						}
-						m_RotationActive = true;
-					}
-				});
-
-			Nexus::GetApplication()->GetPrimaryWindow()->AddKeyPressedCallback(
-				[&](const KeyPressedEventArgs &event)
-				{
-					if (event.ScanCode == ScanCode::Escape)
-					{
-						IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
-						if (window)
-						{
-							window->SetRelativeMouseMode(false);
-						}
-						m_RotationActive = false;
-					}
-				});
 
 			RecalculateProjection();
 		}
@@ -88,6 +53,24 @@ namespace Nexus
 		void SetPosition(const glm::vec3 &position)
 		{
 			m_Position = position;
+			RecalculateProjection();
+		}
+
+		void Translate(const glm::vec3 &translation)
+		{
+			glm::vec3 right = glm::normalize(glm::cross(m_Front, m_Up));
+
+			m_Position += m_Front * translation.z;
+			m_Position += right * translation.x;
+			m_Position += m_Up * translation.y;
+
+			RecalculateProjection();
+		}
+
+		void Zoom(float increment)
+		{
+			m_Zoom -= increment;
+			Resize(m_Width, m_Height);
 			RecalculateProjection();
 		}
 
@@ -154,6 +137,28 @@ namespace Nexus
 			return m_Projection * m_View;
 		}
 
+		inline void Rotate(float x, float y)
+		{
+			m_Yaw -= x;
+			m_Pitch -= y;
+
+			// clamp pitch to avoid flipping
+			m_Pitch = glm::clamp(m_Pitch, -89.0f, 89.0f);
+
+			// wrap yaw
+			if (m_Yaw > 360.0f)
+				m_Yaw -= 360.0f;
+			if (m_Yaw < 0.0f)
+				m_Yaw += 360.0f;
+
+			glm::vec3 dir;
+			dir.x = glm::cos(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
+			dir.y = glm::sin(glm::radians(m_Pitch));
+			dir.z = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
+
+			m_Front = glm::normalize(dir);
+		}
+
 	  private:
 		inline void Move(TimeSpan time)
 		{
@@ -191,42 +196,6 @@ namespace Nexus
 			{
 				m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
-
-			/* if (Input::IsGamepadConnected())
-			{
-				m_Position -= speed * m_Front * (Input::GetGamepadAxisLeft(0).Y * (Input::GetGamepadRightTrigger(0) + 1));
-				m_Position +=
-				glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f * (Input::GetGamepadRightTrigger(0) + 1));
-			} */
-		}
-
-		inline void Rotate(float x, float y)
-		{
-			/* if (Input::IsGamepadConnected())
-			{
-				auto rightStick = Input::GetGamepadAxisRight(0);
-				m_Yaw -= rightStick.X * 2.0f;
-				m_Pitch -= rightStick.Y * 2.0f;
-			} */
-
-			std::optional<uint32_t> defaultMouse = Platform::GetActiveMouseId();
-
-			if (!defaultMouse.has_value())
-				return;
-
-			if (m_RotationActive)
-			{
-				m_Yaw -= x;
-				m_Pitch -= y;
-			}
-
-			m_Pitch				 = glm::clamp(m_Pitch, 91.0f, 269.0f);
-			auto cameraDirection = glm::vec3(0.0f);
-			cameraDirection.x	 = glm::cos(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
-			cameraDirection.y	 = glm::sin(glm::radians(-m_Pitch));
-			cameraDirection.z	 = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
-
-			m_Front = glm::normalize(cameraDirection);
 		}
 
 		inline void RecalculateProjection()
@@ -256,7 +225,7 @@ namespace Nexus
 	  private:
 		Graphics::IGraphicsDevice *m_Device = nullptr;
 		glm::vec3				   m_Position {0.0f, 0.0f, 5.0f};
-		glm::vec3				   m_Front {0.0f, 0.0f, -1.0f};
+		glm::vec3				   m_Front {0.0f, 0.0f, 1.0f};
 		glm::vec3				   m_Up {0.0f, 1.0f, 0.0f};
 
 		glm::mat4 m_Projection;
@@ -264,8 +233,8 @@ namespace Nexus
 		glm::mat4 m_World;
 		float	  m_Zoom = 45.0f;
 
-		float m_Pitch = 0;
-		float m_Yaw	  = 90;
+		float m_Pitch = 0.0f;
+		float m_Yaw	  = 90.0f;
 
 		int m_Width	 = 0;
 		int m_Height = 0;

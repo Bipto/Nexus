@@ -15,9 +15,10 @@ DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::IComma
 
 bool DemoLayer::OnEvent(const Nexus::Event &event)
 {
-	Nexus::EventDispatcher dispatcher = {};
-	dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>([](const Nexus::MouseButtonPressedEventArgs &args) {});
-	dispatcher.Dispatch(event);
+	if (m_Demo)
+	{
+		m_Demo->OnEvent(event);
+	}
 
 	return true;
 }

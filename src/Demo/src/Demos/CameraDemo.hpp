@@ -2,6 +2,7 @@
 
 #include "Demo.hpp"
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
+#include "Platform/Events/EventDispatcher.hpp"
 
 namespace Demos
 {
@@ -64,7 +65,7 @@ namespace Demos
 			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
+			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
 
 			Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
 			cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer;
@@ -88,6 +89,44 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			// handle camera movement
+			if (m_CameraActive)
+			{
+				Nexus::IWindow *window			 = Nexus::GetApplication()->GetPrimaryWindow();
+				auto [windowWidth, windowHeight] = window->GetWindowSize();
+				window->WarpMouse(static_cast<float>(windowWidth) / 2.0f, static_cast<float>(windowHeight) / 2.0f);
+
+				glm::vec3 movement	  = {0.0f, 0.0f, 0.0f};
+				float	  cameraSpeed = 2.0f * time.GetSeconds<float>();
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::LeftShift) || Nexus::Input::IsKeyDown(Nexus::ScanCode::RightShift))
+				{
+					cameraSpeed *= 2.0f;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
+				{
+					movement.z += cameraSpeed;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
+				{
+					movement.z -= cameraSpeed;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
+				{
+					movement.x += cameraSpeed;
+				}
+
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
+				{
+					movement.x -= cameraSpeed;
+				}
+
+				m_Camera.Translate(movement);
+			}
+
 			// upload transform
 			{
 				m_TransformUniforms.Transform = glm::mat4(1.0f);
@@ -173,7 +212,43 @@ namespace Demos
 		virtual std::string GetInfo() const override
 		{
 			return "3D scene with a cube\nControls: Right click in the scene to activate the camera, use escape to return the mouse cursor.\nUse "
-				   "WASD to move the camera.";
+				   "WASD to move the camera. Hold shift to speed up the camera.";
+		}
+
+		virtual void OnEvent(const Nexus::Event &event) override
+		{
+			Nexus::EventDispatcher dispatcher = {};
+
+			dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>(
+				[this](const Nexus::MouseButtonPressedEventArgs &args)
+				{
+					if (args.Button == Nexus::MouseButton::Right)
+					{
+						m_CameraActive = true;
+						Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
+					}
+				});
+
+			dispatcher.Subscribe<Nexus::KeyPressedEventArgs>(
+				[this](const Nexus::KeyPressedEventArgs &args)
+				{
+					if (args.ScanCode == Nexus::ScanCode::Escape)
+					{
+						m_CameraActive = false;
+						Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(false);
+					}
+				});
+
+			dispatcher.Subscribe<Nexus::MouseMovedEventArgs>(
+				[this](const Nexus::MouseMovedEventArgs &args)
+				{
+					if (m_CameraActive)
+					{
+						m_Camera.Rotate(args.Movement.first, args.Movement.second);
+					}
+				});
+
+			dispatcher.Dispatch(event);
 		}
 
 	  private:
@@ -231,5 +306,6 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
 
 		Nexus::FirstPersonCamera m_Camera;
+		bool					 m_CameraActive = false;
 	};
 }	 // namespace Demos
