@@ -40,91 +40,88 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    set(_OUT_DIR $<TARGET_FILE_DIR:${target_name}>)
+    # Embedded script
+    set(_copy_script "
+        file(MAKE_DIRECTORY \"\${OUT_DIR}\")
 
-    # Detect whether this CMake supports get_runtime_dependencies
-    set(_HAS_GET_RUNTIME_DEPS FALSE)
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.21")
-        execute_process(
-            COMMAND "${CMAKE_COMMAND}" -E help
-            OUTPUT_VARIABLE _CMAKE_E_HELP
-        )
-        if(_CMAKE_E_HELP MATCHES "get_runtime_dependencies")
-            set(_HAS_GET_RUNTIME_DEPS TRUE)
+        # Copy target PDB
+        if(EXISTS \"\${TARGET_PDB}\")
+            file(COPY \"\${TARGET_PDB}\" DESTINATION \"\${OUT_DIR}\")
         endif()
-    endif()
 
-    # ============================================================
-    # 1. Copy DLLs (two modes: full or fallback)
-    # ============================================================
-    if(_HAS_GET_RUNTIME_DEPS)
-        message(STATUS "Using get_runtime_dependencies for ${target_name}")
+        # Determine vcpkg dirs based on config
+        if(\"\${CONFIG}\" STREQUAL \"Debug\")
+            set(VCPKG_BIN \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin\")
+            set(VCPKG_LIB \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib\")
+        else()
+            set(VCPKG_BIN \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin\")
+            set(VCPKG_LIB \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib\")
+        endif()
 
-        add_custom_command(
-            TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${_OUT_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E env
-                CMAKE_GET_RUNTIME_DEPENDENCIES_PLATFORM=windows
-                "${CMAKE_COMMAND}" -E get_runtime_dependencies
-                    --executable $<TARGET_FILE:${target_name}>
-                    --library-dirs "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin"
-                    --library-dirs "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin"
-                    --copy "${_OUT_DIR}"
-            VERBATIM
-        )
+        # Glob vcpkg DLLs
+        file(GLOB VCPKG_DLLS \"\${VCPKG_BIN}/*.dll\")
 
-    else()
-        message(WARNING
-            "CMake does not support get_runtime_dependencies here. "
-            "Falling back to TARGET_RUNTIME_DLLS for ${target_name}."
-        )
+        # Merge DLL sources
+        set(ALL_DLLS \${VCPKG_DLLS} \${RUNTIME_DLLS})
 
-        add_custom_command(
-            TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${target_name}>
-                "${_OUT_DIR}"
-            COMMAND_EXPAND_LISTS
-            VERBATIM
-        )
-    endif()
+        foreach(d IN LISTS EXTRA_DLL_DIRS)
+            file(GLOB EXTRA_DLLS \"\${d}/*.dll\")
+            list(APPEND ALL_DLLS \${EXTRA_DLLS})
+        endforeach()
 
-    # ============================================================
-    # 2. Copy PDB files for the target itself
-    # ============================================================
+        # Helper: find matching PDB
+        function(find_pdb dll_path out_var)
+            get_filename_component(name_we \"\${dll_path}\" NAME_WE)
+            get_filename_component(dll_dir \"\${dll_path}\" DIRECTORY)
+
+            set(names \"\${name_we}.pdb\" \"\${name_we}d.pdb\")
+            set(dirs \"\${dll_dir}\" \"\${VCPKG_LIB}\" \"\${VCPKG_BIN}\" \"\${TARGET_DIR}\")
+
+            foreach(d IN LISTS dirs)
+                foreach(n IN LISTS names)
+                    set(candidate \"\${d}/\${n}\")
+                    if(EXISTS \"\${candidate}\")
+                        set(\${out_var} \"\${candidate}\" PARENT_SCOPE)
+                        return()
+                    endif()
+                endforeach()
+            endforeach()
+
+            set(\${out_var} \"\" PARENT_SCOPE)
+        endfunction()
+
+        # Copy DLLs + PDBs
+        foreach(dll IN LISTS ALL_DLLS)
+            file(COPY \"\${dll}\" DESTINATION \"\${OUT_DIR}\")
+
+            find_pdb(\"\${dll}\" pdb_path)
+            if(pdb_path)
+                file(COPY \"\${pdb_path}\" DESTINATION \"\${OUT_DIR}\")
+            endif()
+        endforeach()
+    ")
+
+    # Write script
+    set(_script_path "${CMAKE_BINARY_DIR}/copy_runtime_deps_${target_name}.cmake")
+    file(WRITE "${_script_path}" "${_copy_script}")
+
+    # Add post-build step
     add_custom_command(
         TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_PDB_FILE:${target_name}>
-            "${_OUT_DIR}"
-        VERBATIM
-    )
-
-    # ============================================================
-    # 3. Copy PDBs for DLLs copied above
-    #    (works in both modes)
-    # ============================================================
-    add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Copying dependent PDBs..."
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${target_name}>
-            "${_OUT_DIR}"
-        COMMAND_EXPAND_LISTS
-        VERBATIM
-    )
-
-    # For each DLL, also try to copy a matching .pdb
-    add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Attempting to copy PDBs for DLLs..."
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<JOIN:$<MAP:$<TARGET_RUNTIME_DLLS:${target_name}>,STRING:$$<PATH:NAME_WE>.pdb>, >
-            "${_OUT_DIR}"
+        COMMAND "${CMAKE_COMMAND}"
+            -D CONFIG=$<CONFIG>
+            -D TARGET_PDB=$<TARGET_PDB_FILE:${target_name}>
+            -D TARGET_DIR=$<TARGET_FILE_DIR:${target_name}>
+            -D OUT_DIR=$<TARGET_FILE_DIR:${target_name}>
+            -D RUNTIME_DLLS=$<TARGET_RUNTIME_DLLS:${target_name}>
+            -D EXTRA_DLL_DIRS="${ARGN}"
+            -P "${_script_path}"
         COMMAND_EXPAND_LISTS
         VERBATIM
     )
 endmacro()
+
+
 
 
 macro(nexus_add_all_subdirs SUBDIRS)
