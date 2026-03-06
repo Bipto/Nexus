@@ -40,6 +40,10 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
+    if(NOT WIN32)
+        return()
+    endif()
+
     # Embedded script
     set(_copy_script "
         file(MAKE_DIRECTORY \"\${OUT_DIR}\")
@@ -120,9 +124,6 @@ macro(copy_runtime_deps target_name)
         VERBATIM
     )
 endmacro()
-
-
-
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
