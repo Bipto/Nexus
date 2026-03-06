@@ -19,6 +19,9 @@ namespace Nexus::Graphics
 		virtual ~CommandQueueVk();
 		const CommandQueueDescription &GetDescription() const final;
 		Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec) final;
+		void						   SubmitCommandList(Ref<ICommandList> commandList) final;
+		void						   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence) final;
+		void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) final;
 		void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
 		IGraphicsDevice				  *GetGraphicsDevice() final;
 		bool						   WaitForIdle() final;

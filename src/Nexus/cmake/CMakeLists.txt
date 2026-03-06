@@ -40,76 +40,54 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    # ============================================================
-    # 1. Collect DLLs CMake *knows* about (IMPORTED targets)
-    # ============================================================
-    set(_KNOWN_DLLS "$<TARGET_RUNTIME_DLLS:${target_name}>")
-
-    # ============================================================
-    # 2. Collect all vcpkg DLLs (debug + release)
-    # ============================================================
-    file(GLOB _VCPKG_ALL_DLLS
-        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/*.dll"
-        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/*.dll"
-    )
-
-    # ============================================================
-    # 3. Filter vcpkg DLLs by actual link dependencies
-    # ============================================================
-    get_target_property(_LINKED_LIBS ${target_name} LINK_LIBRARIES)
-
-    set(_FILTERED_VCPKG_DLLS "")
-    foreach(dll ${_VCPKG_ALL_DLLS})
-        get_filename_component(_dll_name "${dll}" NAME_WE)
-
-        foreach(lib ${_LINKED_LIBS})
-            # Match DLL name to library name (case-insensitive)
-            string(TOLOWER "${lib}" _lib_lower)
-            string(TOLOWER "${_dll_name}" _dll_lower)
-
-            if(_lib_lower MATCHES "${_dll_lower}")
-                list(APPEND _FILTERED_VCPKG_DLLS "${dll}")
-            endif()
-        endforeach()
-    endforeach()
-
-    # ============================================================
-    # 4. MinGW runtime DLLs (if needed)
-    # ============================================================
-    if(MINGW)
-        get_filename_component(_MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
-
-        file(GLOB _MINGW_RUNTIME_DLLS
-            "${_MINGW_BIN_DIR}/libgcc_s_*.dll"
-            "${_MINGW_BIN_DIR}/libstdc++-6.dll"
-            "${_MINGW_BIN_DIR}/libwinpthread-1.dll"
+    # Detect whether this CMake supports get_runtime_dependencies
+    set(_HAS_GET_RUNTIME_DEPS FALSE)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.21")
+        # VS ships a custom CMake that reports a fake version but lacks the command.
+        execute_process(
+            COMMAND "${CMAKE_COMMAND}" -E help
+            OUTPUT_VARIABLE _CMAKE_E_HELP
         )
+        if(_CMAKE_E_HELP MATCHES "get_runtime_dependencies")
+            set(_HAS_GET_RUNTIME_DEPS TRUE)
+        endif()
     endif()
 
-    # ============================================================
-    # 5. Copy everything relevant
-    # ============================================================
-    set(_ALL_DLLS
-        ${_KNOWN_DLLS}
-        ${_FILTERED_VCPKG_DLLS}
-        ${_MINGW_RUNTIME_DLLS}
-    )
+    set(_OUT_DIR $<TARGET_FILE_DIR:${target_name}>)
 
-    # Remove empty entries
-    list(FILTER _ALL_DLLS EXCLUDE REGEX "^$")
+    if(_HAS_GET_RUNTIME_DEPS)
+        message(STATUS "Using get_runtime_dependencies for ${target_name}")
 
-    if(WIN32 AND _ALL_DLLS)
+        add_custom_command(
+            TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${_OUT_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E env
+                CMAKE_GET_RUNTIME_DEPENDENCIES_PLATFORM=windows
+                "${CMAKE_COMMAND}" -E get_runtime_dependencies
+                    --executable $<TARGET_FILE:${target_name}>
+                    --library-dirs "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin"
+                    --library-dirs "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin"
+                    --copy "${_OUT_DIR}"
+            VERBATIM
+        )
+
+    else()
+        message(WARNING
+            "CMake does not support get_runtime_dependencies here. "
+            "Falling back to TARGET_RUNTIME_DLLS for ${target_name}."
+        )
+
         add_custom_command(
             TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${_ALL_DLLS}
-                $<TARGET_FILE_DIR:${target_name}>
+                $<TARGET_RUNTIME_DLLS:${target_name}>
+                "${_OUT_DIR}"
             COMMAND_EXPAND_LISTS
             VERBATIM
-    )
-endif()
-
+        )
+    endif()
 endmacro()
+
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})

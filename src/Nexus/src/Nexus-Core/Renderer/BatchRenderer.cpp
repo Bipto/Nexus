@@ -399,7 +399,7 @@ namespace Nexus::Graphics
 		textureDesc.Usage						 = Graphics::TextureUsage_Sampled;
 		textureDesc.DebugName					 = "Blank Texture";
 		m_BlankTexture							 = m_Device->CreateTexture(textureDesc);
-		m_CommandQueue->WriteToTexture(m_BlankTexture, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+		Utils::WriteToTexture(m_CommandQueue, m_BlankTexture, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
 
 		Graphics::TextureViewDescription viewDesc = {};
 		viewDesc.TargetTexture					  = m_BlankTexture;

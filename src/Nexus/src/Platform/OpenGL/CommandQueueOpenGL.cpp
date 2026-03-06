@@ -27,6 +27,21 @@ namespace Nexus::Graphics
 		return CreateRef<SwapchainOpenGL>(spec, m_Device);
 	}
 
+	void CommandQueueOpenGL::SubmitCommandList(Ref<ICommandList> commandList)
+	{
+		SubmitCommandList(commandList, nullptr);
+	}
+
+	void CommandQueueOpenGL::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
+	{
+		SubmitCommandLists(&commandList, 1, fence);
+	}
+
+	void CommandQueueOpenGL::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
+	{
+		SubmitCommandLists(commandLists, numCommandLists, nullptr);
+	}
+
 	void CommandQueueOpenGL::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		NX_PROFILE_FUNCTION();

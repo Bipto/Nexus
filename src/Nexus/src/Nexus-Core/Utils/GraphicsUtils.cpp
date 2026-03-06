@@ -158,7 +158,7 @@ namespace Nexus::Utils
 		auto   texture	  = Ref<Graphics::ITexture>(device->CreateTexture(spec));
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 
-		commandQueue->WriteToTexture(texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
+		Utils::WriteToTexture(commandQueue, texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 
 		stbi_image_free(data);
 
@@ -170,7 +170,7 @@ namespace Nexus::Utils
 			{
 				auto [width, height]	 = Utils::GetMipSize(spec.Width, spec.Height, i);
 				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1, 0);
-				commandQueue->WriteToTexture(texture, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
+				WriteToTexture(commandQueue, texture, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
 			}
 		}
 
@@ -211,5 +211,223 @@ namespace Nexus::Utils
 																							bool						 srgb)
 	{
 		return CreateTexture2DWithView(commandQueue, filepath.c_str(), generateMips, srgb);
+	}
+
+	Ref<Graphics::IFramebuffer> CreateFramebuffer(Graphics::IGraphicsDevice *device, const Graphics::FramebufferTextureCreateDescription &desc)
+	{
+		Graphics::FramebufferTextureSetDescription framebufferDesc = {};
+
+		for (size_t i = 0; i < desc.ColourAttachmentFormats.size(); i++)
+		{
+			Graphics::PixelFormat format = desc.ColourAttachmentFormats.at(i);
+
+			Graphics::TextureDescription textureDesc = {};
+			textureDesc.Width						 = desc.Width;
+			textureDesc.Height						 = desc.Height;
+			textureDesc.Type						 = Graphics::TextureType::Texture2D;
+			textureDesc.Usage						 = Graphics::TextureUsage_ColourAttachment;
+			textureDesc.Samples						 = desc.Samples;
+			textureDesc.Format						 = format;
+
+			Ref<Graphics::ITexture> colourAttachment = device->CreateTexture(textureDesc);
+
+			Graphics::FramebufferColourAttachmentDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
+			framebufferTextureDesc.ColourAttachment.TargetTexture					 = colourAttachment;
+			framebufferTextureDesc.ColourAttachment.BaseArrayLayer					 = 0;
+			framebufferTextureDesc.ColourAttachment.LayerCount						 = 1;
+			framebufferTextureDesc.ColourAttachment.MipLevel						 = 0;
+
+			// create a resolve attachment if using multi-sampling
+			if (textureDesc.Samples > 1)
+			{
+				Graphics::TextureDescription resolveTextureDesc = {};
+				resolveTextureDesc.Width						= desc.Width;
+				resolveTextureDesc.Height						= desc.Height;
+				resolveTextureDesc.Type							= Graphics::TextureType::Texture2D;
+				resolveTextureDesc.Usage						= Graphics::TextureUsage_ColourAttachment;
+				resolveTextureDesc.Samples						= 1;
+				resolveTextureDesc.Format						= format;
+
+				Ref<Graphics::ITexture> resolveAttachment = device->CreateTexture(resolveTextureDesc);
+
+				Graphics::FramebufferTextureDescription resolveAttachmentDesc = {};
+				resolveAttachmentDesc.TargetTexture							  = resolveAttachment;
+				resolveAttachmentDesc.BaseArrayLayer						  = 0;
+				resolveAttachmentDesc.LayerCount							  = 1;
+				resolveAttachmentDesc.MipLevel								  = 0;
+				framebufferTextureDesc.ResolveAttachment					  = resolveAttachmentDesc;
+			}
+		}
+
+		if (desc.DepthAttachmentFormat.has_value())
+		{
+			Graphics::TextureDescription textureDesc = {};
+			textureDesc.Width						 = desc.Width;
+			textureDesc.Height						 = desc.Height;
+			textureDesc.Type						 = Graphics::TextureType::Texture2D;
+			textureDesc.Usage						 = Graphics::TextureUsage_DepthStencilAttachment;
+			textureDesc.Samples						 = desc.Samples;
+			textureDesc.Format						 = desc.DepthAttachmentFormat.value();
+
+			Ref<Graphics::ITexture> texture = device->CreateTexture(textureDesc);
+
+			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+			framebufferTextureDesc.TargetTexture						   = texture;
+			framebufferTextureDesc.BaseArrayLayer						   = 0;
+			framebufferTextureDesc.LayerCount							   = 1;
+			framebufferTextureDesc.MipLevel								   = 0;
+
+			framebufferDesc.DepthAttachment = framebufferTextureDesc;
+		}
+
+		return device->CreateFramebuffer(framebufferDesc);
+	}
+
+	void WriteToTexture(Ref<Graphics::ICommandQueue> commandQueue,
+						Ref<Graphics::ITexture>		 texture,
+						uint32_t					 mipLevel,
+						uint32_t					 x,
+						uint32_t					 y,
+						uint32_t					 z,
+						uint32_t					 width,
+						uint32_t					 height,
+						const void					*data,
+						size_t						 size)
+	{
+		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
+
+		Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access							 = Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.Usage							 = Graphics::BufferUsage_None;
+		bufferDesc.SizeInBytes						 = size;
+		bufferDesc.StrideInBytes					 = size;
+		Ref<Graphics::IDeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
+		Ref<Graphics::ICommandList>	 cmdList		 = commandQueue->CreateCommandList();
+
+		buffer->SetData(data, 0, size);
+
+		cmdList->Begin();
+
+		Graphics::BufferTextureCopyDescription copyDesc = {};
+		copyDesc.BufferHandle							= buffer;
+		copyDesc.BufferOffset							= 0;
+		copyDesc.BufferRowLength						= 0;
+		copyDesc.BufferImageHeight						= 0;
+		copyDesc.TextureHandle							= texture;
+		copyDesc.TextureOffset							= {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
+		copyDesc.TextureExtent							= {.Width = width, .Height = height};
+		copyDesc.MipLevel								= mipLevel;
+		cmdList->CopyBufferToTexture(copyDesc);
+
+		cmdList->End();
+		commandQueue->SubmitCommandList(cmdList);
+		device->WaitForIdle();
+	}
+
+	std::vector<char> ReadFromTexture(Ref<Graphics::ICommandQueue> commandQueue,
+									  Ref<Graphics::ITexture>	   texture,
+									  uint32_t					   mipLevel,
+									  uint32_t					   x,
+									  uint32_t					   y,
+									  uint32_t					   z,
+									  uint32_t					   width,
+									  uint32_t					   height)
+	{
+		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
+
+		Graphics::SubresourceFootprint footprint = texture->GetSubresourceFootprint(0, mipLevel);
+
+		Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access							 = Graphics::BufferMemoryAccess::Readback;
+		bufferDesc.Usage							 = Graphics::BufferUsage_None;
+		bufferDesc.SizeInBytes						 = footprint.Size;
+		bufferDesc.StrideInBytes					 = footprint.Size;
+
+		Ref<Graphics::IDeviceBuffer> buffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Ref<Graphics::ICommandList>	 cmdList = commandQueue->CreateCommandList();
+
+		cmdList->Begin();
+
+		Graphics::BufferTextureCopyDescription copyDesc = {};
+		copyDesc.BufferHandle							= buffer;
+		copyDesc.BufferOffset							= 0;
+		copyDesc.BufferRowLength						= 0;
+		copyDesc.BufferImageHeight						= 0;
+		copyDesc.TextureHandle							= texture;
+		copyDesc.TextureOffset							= {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
+		copyDesc.TextureExtent							= {.Width = width, .Height = height};
+		copyDesc.MipLevel								= mipLevel;
+		cmdList->CopyTextureToBuffer(copyDesc);
+
+		cmdList->End();
+		commandQueue->SubmitCommandList(cmdList);
+		device->WaitForIdle();
+
+		return buffer->GetData(0, footprint.Size);
+	}
+
+	void WriteToBuffer(Ref<Graphics::ICommandQueue> commandQueue, Ref<Graphics::IDeviceBuffer> buffer, const void *data, size_t offset, size_t size)
+	{
+		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
+
+		Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access							 = Nexus::Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.SizeInBytes						 = size;
+		bufferDesc.StrideInBytes					 = size;
+		Ref<Graphics::IDeviceBuffer> uploadBuffer	 = device->CreateDeviceBuffer(bufferDesc);
+
+		uploadBuffer->SetData(data, 0, size);
+
+		Graphics::BufferCopy bufferCopy = {};
+		bufferCopy.Size					= size;
+		bufferCopy.ReadOffset			= 0;
+		bufferCopy.WriteOffset			= offset;
+
+		Graphics::BufferCopyDescription bufferCopyDesc = {};
+		bufferCopyDesc.Source						   = uploadBuffer;
+		bufferCopyDesc.Destination					   = buffer;
+		bufferCopyDesc.Copies						   = {bufferCopy};
+
+		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
+		cmdList->Begin();
+		cmdList->CopyBufferToBuffer(bufferCopyDesc);
+		cmdList->End();
+
+		commandQueue->SubmitCommandList(cmdList);
+		device->WaitForIdle();
+	}
+
+	std::vector<char> ReadFromBuffer(Ref<Graphics::ICommandQueue> commandQueue, Ref<Graphics::IDeviceBuffer> buffer, size_t offset)
+	{
+		size_t dataSize = buffer->GetSizeInBytes() - offset;
+
+		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
+
+		Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access							 = Nexus::Graphics::BufferMemoryAccess::Readback;
+		bufferDesc.SizeInBytes						 = dataSize;
+		bufferDesc.StrideInBytes					 = dataSize;
+		Ref<Graphics::IDeviceBuffer> readbackBuffer	 = device->CreateDeviceBuffer(bufferDesc);
+
+		Graphics::BufferCopy bufferCopy = {};
+		bufferCopy.Size					= dataSize;
+		bufferCopy.ReadOffset			= offset;
+		bufferCopy.WriteOffset			= 0;
+
+		Graphics::BufferCopyDescription bufferCopyDesc = {};
+		bufferCopyDesc.Source						   = buffer;
+		bufferCopyDesc.Destination					   = readbackBuffer;
+		bufferCopyDesc.Copies						   = {bufferCopy};
+
+		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
+		cmdList->Begin();
+		cmdList->CopyBufferToBuffer(bufferCopyDesc);
+		cmdList->End();
+
+		commandQueue->SubmitCommandList(cmdList);
+
+		device->WaitForIdle();
+
+		return readbackBuffer->GetData(0, dataSize);
 	}
 }	 // namespace Nexus::Utils

@@ -65,7 +65,7 @@ namespace Demos
 			auto [width, height] = m_Window->GetWindowSize();
 
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_CommandQueue->WriteToBuffer(m_StorageBuffer, &transform, 0, sizeof(transform));
+			Nexus::Utils::WriteToBuffer(m_CommandQueue, m_StorageBuffer, &transform, 0, sizeof(transform));
 
 			m_CommandList->Begin();
 

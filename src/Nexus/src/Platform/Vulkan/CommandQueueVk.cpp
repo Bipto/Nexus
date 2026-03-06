@@ -49,6 +49,21 @@ namespace Nexus::Graphics
 		return swapchain;
 	}
 
+	void CommandQueueVk::SubmitCommandList(Ref<ICommandList> commandList)
+	{
+		SubmitCommandList(commandList, nullptr);
+	}
+
+	void CommandQueueVk::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
+	{
+		SubmitCommandLists(&commandList, 1, fence);
+	}
+
+	void CommandQueueVk::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
+	{
+		SubmitCommandLists(commandLists, numCommandLists, nullptr);
+	}
+
 	void CommandQueueVk::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		NX_PROFILE_FUNCTION();

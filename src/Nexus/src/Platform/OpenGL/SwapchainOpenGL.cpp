@@ -4,6 +4,7 @@
 	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
 	#include "GraphicsDeviceOpenGL.hpp"
+	#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "Surface/SurfaceOpenGL.hpp"
 
@@ -142,7 +143,7 @@ namespace Nexus::Graphics
 		framebufferDesc.Samples								= m_Description.Samples;
 		framebufferDesc.ColourAttachmentFormats				= {m_ColourFormat};
 		framebufferDesc.DepthAttachmentFormat				= m_DepthFormat;
-		m_Framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(device->CreateFramebuffer(framebufferDesc));
+		m_Framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(Utils::CreateFramebuffer(m_Device, framebufferDesc));
 	}
 }	 // namespace Nexus::Graphics
 

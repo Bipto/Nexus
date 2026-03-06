@@ -192,7 +192,7 @@ namespace Nexus::ImGuiUtils
 		textureDesc.DebugName					 = "ImGui Font Texture";
 		m_FontTexture							 = m_GraphicsDevice->CreateTexture(textureDesc);
 
-		m_CommandQueue->WriteToTexture(m_FontTexture, 0, 0, 0, 0, width, height, pixels, bufferSize);
+		Utils::WriteToTexture(m_CommandQueue, m_FontTexture, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		Graphics::TextureViewDescription viewDesc = {};
 		viewDesc.TargetTexture					  = m_FontTexture;

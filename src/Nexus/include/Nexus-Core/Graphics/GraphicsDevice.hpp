@@ -85,8 +85,6 @@ namespace Nexus::Graphics
 
 		virtual Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
-		Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureCreateDescription &desc);
-
 		/// @brief A pure virtual method that creates a new resource set from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set

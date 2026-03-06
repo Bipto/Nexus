@@ -176,7 +176,7 @@ namespace Nexus::Graphics
 		m_DefaultTexture						 = m_Device->CreateTexture(textureDesc);
 
 		uint32_t colour = 0xFFFFFFFF;
-		m_CommandQueue->WriteToTexture(m_DefaultTexture, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
+		Utils::WriteToTexture(m_CommandQueue, m_DefaultTexture, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
 
 		Graphics::TextureViewDescription viewDesc = {};
 		viewDesc.TargetTexture					  = m_DefaultTexture;

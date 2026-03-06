@@ -42,7 +42,11 @@ namespace Demos
 				vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
 				vertexBufferDesc.DebugName								  = "Acceleration Structure Vertex Buffer";
 				m_VertexBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
-				m_CommandQueue->WriteToBuffer(m_VertexBuffer, vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
+				Nexus::Utils::WriteToBuffer(m_CommandQueue,
+											m_VertexBuffer,
+											vertices.data(),
+											0,
+											vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
 				std::vector<uint32_t> indices = {0, 1, 2};
 
@@ -53,7 +57,7 @@ namespace Demos
 				indexBufferDesc.SizeInBytes								 = indices.size() * sizeof(uint32_t);
 				indexBufferDesc.DebugName								 = "Acceleration Structure Index Buffer";
 				m_IndexBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
-				m_CommandQueue->WriteToBuffer(m_IndexBuffer, indices.data(), 0, indices.size() * sizeof(uint32_t));
+				Nexus::Utils::WriteToBuffer(m_CommandQueue, m_IndexBuffer, indices.data(), 0, indices.size() * sizeof(uint32_t));
 			}
 
 			// BLAS
@@ -158,7 +162,7 @@ namespace Demos
 				transformBufferDesc.StrideInBytes							 = sizeof(Nexus::Graphics::AccelerationStructureInstance);
 				transformBufferDesc.SizeInBytes								 = sizeof(Nexus::Graphics::AccelerationStructureInstance);
 				m_TransformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(transformBufferDesc);
-				m_CommandQueue->WriteToBuffer(m_TransformBuffer, &instance, 0, sizeof(Nexus::Graphics::AccelerationStructureInstance));
+				Nexus::Utils::WriteToBuffer(m_CommandQueue, m_TransformBuffer, &instance, 0, sizeof(Nexus::Graphics::AccelerationStructureInstance));
 
 				Nexus::Graphics::AccelerationStructureInstanceGeometry instanceDesc = {};
 				instanceDesc.InstanceBuffer											= m_TransformBuffer->GetDeviceAddress(0);
@@ -352,7 +356,7 @@ namespace Demos
 					memset(dst + handleSize, 0, recordStride - handleSize);
 				}
 
-				m_CommandQueue->WriteToBuffer(m_SBT, sbtData.data(), 0, sbtData.size());
+				Nexus::Utils::WriteToBuffer(m_CommandQueue, m_SBT, sbtData.data(), 0, sbtData.size());
 
 				// Regions
 				m_RaygenRegion	 = {.Address = m_SBT->GetDeviceAddress(0 * recordStride), .Size = recordStride};

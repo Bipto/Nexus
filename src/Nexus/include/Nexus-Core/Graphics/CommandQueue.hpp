@@ -44,12 +44,12 @@ namespace Nexus::Graphics
 	class NX_API ICommandQueue
 	{
 	  public:
-		virtual ~ICommandQueue()																 = default;
-		virtual const CommandQueueDescription &GetDescription() const							 = 0;
-		virtual Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec) = 0;
-		void								   SubmitCommandList(Ref<ICommandList> commandList);
-		void								   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence);
-		void								   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists);
+		virtual ~ICommandQueue()																							 = default;
+		virtual const CommandQueueDescription &GetDescription() const														 = 0;
+		virtual Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec)							 = 0;
+		virtual void						   SubmitCommandList(Ref<ICommandList> commandList)								 = 0;
+		virtual void						   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)			 = 0;
+		virtual void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) = 0;
 		virtual void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) = 0;
 		virtual IGraphicsDevice				  *GetGraphicsDevice()																				= 0;
 		virtual bool						   WaitForIdle()																					= 0;
@@ -57,27 +57,5 @@ namespace Nexus::Graphics
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
 		virtual Ref<ICommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
-
-		void WriteToTexture(Ref<ITexture> texture,
-							uint32_t	  mipLevel,
-							uint32_t	  x,
-							uint32_t	  y,
-							uint32_t	  z,
-							uint32_t	  width,
-							uint32_t	  height,
-							const void	 *data,
-							size_t		  size);
-
-		std::vector<char> ReadFromTexture(Ref<ITexture> texture,
-										  uint32_t		mipLevel,
-										  uint32_t		x,
-										  uint32_t		y,
-										  uint32_t		z,
-										  uint32_t		width,
-										  uint32_t		height);
-
-		void WriteToBuffer(Ref<IDeviceBuffer> buffer, const void *data, size_t offset, size_t size);
-
-		std::vector<char> ReadFromBuffer(Ref<IDeviceBuffer> buffer, size_t offset);
 	};
 }	 // namespace Nexus::Graphics

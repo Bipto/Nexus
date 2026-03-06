@@ -4,6 +4,7 @@
 #include "Nexus-Core/Graphics/CommandQueue.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
 
 namespace Nexus::Graphics
 {
@@ -12,7 +13,7 @@ namespace Nexus::Graphics
 		Utils::FlipPixelsVertically(Pixels.data(), Width, Height, Format);
 	}
 
-	Image Image::FromTexture(IGraphicsDevice	   *device,
+	Image Image::FromTexture(IGraphicsDevice   *device,
 							 Ref<ICommandQueue> commandQueue,
 							 Ref<ITexture>		texture,
 							 uint32_t			arrayLayer,
@@ -23,7 +24,7 @@ namespace Nexus::Graphics
 							 uint32_t			width,
 							 uint32_t			height)
 	{
-		std::vector<char> pixels = commandQueue->ReadFromTexture(texture, mipLevel, x, y, z, width, height);
+		std::vector<char> pixels = Utils::ReadFromTexture(commandQueue, texture, mipLevel, x, y, z, width, height);
 
 		Image image	 = {};
 		image.Width	 = width;

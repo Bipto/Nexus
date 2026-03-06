@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -53,5 +55,36 @@ namespace Nexus::Utils
 																								   const std::string		   &filepath,
 																								   bool							generateMips,
 																								   bool							srgb = false);
+
+	NX_API Ref<Graphics::IFramebuffer> CreateFramebuffer(Graphics::IGraphicsDevice							 *device,
+														 const Graphics::FramebufferTextureCreateDescription &desc);
+
+	NX_API void WriteToTexture(Ref<Graphics::ICommandQueue> commandQueue,
+							   Ref<Graphics::ITexture>		texture,
+							   uint32_t						mipLevel,
+							   uint32_t						x,
+							   uint32_t						y,
+							   uint32_t						z,
+							   uint32_t						width,
+							   uint32_t						height,
+							   const void				   *data,
+							   size_t						size);
+
+	NX_API std::vector<char> ReadFromTexture(Ref<Graphics::ICommandQueue> commandQueue,
+											 Ref<Graphics::ITexture>	  texture,
+											 uint32_t					  mipLevel,
+											 uint32_t					  x,
+											 uint32_t					  y,
+											 uint32_t					  z,
+											 uint32_t					  width,
+											 uint32_t					  height);
+
+	NX_API void WriteToBuffer(Ref<Graphics::ICommandQueue> commandQueue,
+							  Ref<Graphics::IDeviceBuffer> buffer,
+							  const void				  *data,
+							  size_t					   offset,
+							  size_t					   size);
+
+	NX_API std::vector<char> ReadFromBuffer(Ref<Graphics::ICommandQueue> commandQueue, Ref<Graphics::IDeviceBuffer> buffer, size_t offset);
 
 }	 // namespace Nexus::Utils

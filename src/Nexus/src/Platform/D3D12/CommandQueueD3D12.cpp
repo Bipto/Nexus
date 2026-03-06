@@ -48,6 +48,21 @@ namespace Nexus::Graphics
 		return CreateRef<SwapchainD3D12>(m_Device, this, spec);
 	}
 
+	void CommandQueueD3D12::SubmitCommandList(Ref<ICommandList> commandList)
+	{
+		SubmitCommandList(commandList, nullptr);
+	}
+
+	void CommandQueueD3D12::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
+	{
+		SubmitCommandLists(&commandList, 1, fence);
+	}
+
+	void CommandQueueD3D12::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
+	{
+		SubmitCommandLists(commandLists, numCommandLists, nullptr);
+	}
+
 	void CommandQueueD3D12::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);

@@ -82,7 +82,7 @@ namespace Nexus::Graphics
 			framebufferTextureDesc.Width												= mipWidth;
 			framebufferTextureDesc.Height												= mipHeight;
 
-			Ref<IFramebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferTextureDesc);
+			Ref<IFramebuffer> framebuffer = Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
 
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
@@ -160,7 +160,7 @@ namespace Nexus::Graphics
 			m_Device->WaitForIdle();
 
 			Ref<ITexture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
-			pixels							 = m_CommandQueue->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
+			pixels							 = Utils::ReadFromTexture(m_CommandQueue, framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

@@ -90,7 +90,7 @@ namespace Nexus::Graphics
 		textureDesc.Format						 = Graphics::PixelFormat::R32_G32_B32_A32_Float;
 		textureDesc.DebugName					 = "HDRI";
 		m_HdriImage								 = m_Device->CreateTexture(textureDesc);
-		m_CommandQueue->WriteToTexture(m_HdriImage, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
+		Utils::WriteToTexture(m_CommandQueue, m_HdriImage, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
 
 		Graphics::TextureViewDescription cubemapViewDesc = {};
 		cubemapViewDesc.TargetTexture					 = m_HdriImage;
@@ -112,7 +112,7 @@ namespace Nexus::Graphics
 		framebufferSpec.ColourAttachmentFormats								 = {PixelFormat::R32_G32_B32_A32_Float};
 		framebufferSpec.DepthAttachmentFormat								 = PixelFormat::D24_UNorm_S8_UInt;
 
-		Ref<IFramebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
+		Ref<IFramebuffer> framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
 		Ref<ICommandList> commandList = m_CommandQueue->CreateCommandList();
 
 		Graphics::TextureDescription cubemapSpec = {};
@@ -273,9 +273,9 @@ namespace Nexus::Graphics
 			m_Device->WaitForIdle();
 
 			Ref<ITexture>	  colourTexture = framebuffer->GetColorTextureHandle(0);
-			std::vector<char> pixels		= m_CommandQueue->ReadFromTexture(colourTexture, 0, 0, 0, 0, size, size);
+			std::vector<char> pixels		= Utils::ReadFromTexture(m_CommandQueue, colourTexture, 0, 0, 0, 0, size, size);
 
-			m_CommandQueue->WriteToTexture(cubemap, 0, 0, 0, i, size, size, pixels.data(), pixels.size());
+			Utils::WriteToTexture(m_CommandQueue, cubemap, 0, 0, 0, i, size, size, pixels.data(), pixels.size());
 		}
 
 		return cubemap;
