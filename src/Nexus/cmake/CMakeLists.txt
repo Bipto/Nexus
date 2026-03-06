@@ -40,7 +40,7 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    if(NOT WIN32)
+    if(NOT MSVC)
         return()
     endif()
 
