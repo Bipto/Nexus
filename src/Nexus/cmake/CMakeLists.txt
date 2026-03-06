@@ -40,10 +40,11 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
+    set(_OUT_DIR $<TARGET_FILE_DIR:${target_name}>)
+
     # Detect whether this CMake supports get_runtime_dependencies
     set(_HAS_GET_RUNTIME_DEPS FALSE)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.21")
-        # VS ships a custom CMake that reports a fake version but lacks the command.
         execute_process(
             COMMAND "${CMAKE_COMMAND}" -E help
             OUTPUT_VARIABLE _CMAKE_E_HELP
@@ -53,8 +54,9 @@ macro(copy_runtime_deps target_name)
         endif()
     endif()
 
-    set(_OUT_DIR $<TARGET_FILE_DIR:${target_name}>)
-
+    # ============================================================
+    # 1. Copy DLLs (two modes: full or fallback)
+    # ============================================================
     if(_HAS_GET_RUNTIME_DEPS)
         message(STATUS "Using get_runtime_dependencies for ${target_name}")
 
@@ -86,6 +88,42 @@ macro(copy_runtime_deps target_name)
             VERBATIM
         )
     endif()
+
+    # ============================================================
+    # 2. Copy PDB files for the target itself
+    # ============================================================
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_PDB_FILE:${target_name}>
+            "${_OUT_DIR}"
+        VERBATIM
+    )
+
+    # ============================================================
+    # 3. Copy PDBs for DLLs copied above
+    #    (works in both modes)
+    # ============================================================
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying dependent PDBs..."
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:${target_name}>
+            "${_OUT_DIR}"
+        COMMAND_EXPAND_LISTS
+        VERBATIM
+    )
+
+    # For each DLL, also try to copy a matching .pdb
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Attempting to copy PDBs for DLLs..."
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<JOIN:$<MAP:$<TARGET_RUNTIME_DLLS:${target_name}>,STRING:$$<PATH:NAME_WE>.pdb>, >
+            "${_OUT_DIR}"
+        COMMAND_EXPAND_LISTS
+        VERBATIM
+    )
 endmacro()
 
 
