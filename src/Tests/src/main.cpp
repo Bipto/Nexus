@@ -5,8 +5,8 @@
 
 #include "Platform/Events/EventHandler.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-#include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/IGraphicsAPI.hpp"
 
 #include "Nexus-Core/Graphics/ResourcePool.hpp"
 
