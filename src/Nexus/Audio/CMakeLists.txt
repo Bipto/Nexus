@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
 
-project ("Nexus-Audio")
-
 include (FetchContent)
 
 set(AUDIO_SOURCES 

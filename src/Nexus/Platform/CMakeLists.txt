@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
 
-project ("Nexus-Platform")
-
 include (FetchContent)
 
 set(PLATFORM_SOURCES 
