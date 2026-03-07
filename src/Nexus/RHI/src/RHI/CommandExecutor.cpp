@@ -1,5 +1,6 @@
 #include "RHI/CommandExecutor.hpp"
 
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 

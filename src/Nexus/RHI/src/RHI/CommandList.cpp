@@ -1,5 +1,7 @@
 #include "RHI/CommandList.hpp"
 
+#include <cstring>
+
 namespace Nexus::Graphics
 {
 	ICommandList::ICommandList(const CommandListDescription &spec) : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
