@@ -4,8 +4,8 @@
 
 	#include "CommandExecutorVk.hpp"
 	#include "DeviceBufferVk.hpp"
-	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 	#include "PhysicalDeviceVk.hpp"
+	#include "RHI/GraphicsDevice.hpp"
 	#include "SwapchainVk.hpp"
 	#include "Vk.hpp"
 
@@ -52,7 +52,7 @@ namespace Nexus::Graphics
 		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;
 

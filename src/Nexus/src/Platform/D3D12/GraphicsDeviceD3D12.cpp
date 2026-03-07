@@ -203,7 +203,7 @@ namespace Nexus::Graphics
 		return CreateRef<FenceD3D12>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<HANDLE> eventHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -212,7 +212,8 @@ namespace Nexus::Graphics
 			eventHandles[i]		  = fence->GetFenceEvent();
 		}
 
-		DWORD result = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeout.GetMilliseconds<uint64_t>());
+		uint64_t timeoutMS = timeoutNS / 1000000ULL;
+		DWORD	 result	   = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeoutMS);
 
 		if (result == WAIT_OBJECT_0)
 		{

@@ -2,11 +2,11 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/ResourceSet.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "Platform/OpenGL/DeviceBufferOpenGL.hpp"
 	#include "Platform/OpenGL/SamplerOpenGL.hpp"
 	#include "Platform/OpenGL/TextureOpenGL.hpp"
+	#include "RHI/ResourceSet.hpp"
 
 namespace Nexus::Graphics
 {

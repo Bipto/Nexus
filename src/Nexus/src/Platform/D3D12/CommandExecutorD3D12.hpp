@@ -3,8 +3,8 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "D3D12Utils.hpp"
-	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "RHI/CommandExecutor.hpp"
+	#include "RHI/CommandList.hpp"
 
 typedef void(WINAPI *PIXBeginEventFn)(ID3D12GraphicsCommandList *, UINT64, PCSTR);
 typedef void(WINAPI *PIXEndEventFn)(ID3D12GraphicsCommandList *);

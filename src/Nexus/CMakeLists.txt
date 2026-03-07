@@ -16,7 +16,7 @@ endif()
 add_subdirectory(cmake)
 add_subdirectory(Audio)
 add_subdirectory(Platform)
-
+add_subdirectory(RHI)
 
 set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -231,6 +231,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   assimp::assimp
   Nexus-Audio
   Nexus-Platform
+  Nexus-RHI
   unofficial::shaderc::shaderc
   spirv-cross-core
   spirv-cross-glsl

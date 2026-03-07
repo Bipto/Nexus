@@ -1,8 +1,6 @@
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
-
-#include "Nexus-Core/nxpch.hpp"
-
 #include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
 
 namespace Nexus::Graphics
 {

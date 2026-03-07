@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/Pipeline.hpp"
+	#include "RHI/Pipeline.hpp"
 	#include "ResourceSetVk.hpp"
 
 namespace Nexus::Graphics

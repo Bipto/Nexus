@@ -3,11 +3,11 @@
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Scripting/NativeScript.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Fence.hpp"
 #include "Platform/D3D12/D3D12Include.hpp"
+#include "RHI/Fence.hpp"
 
 #include "GraphicsDeviceD3D12.hpp"
 
@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 		const FenceDescription &GetDescription() const final;
 
 		Microsoft::WRL::ComPtr<ID3D12Fence1> GetHandle();
-		HANDLE		  GetFenceEvent();
+		HANDLE								 GetFenceEvent();
 
 		void Reset();
 

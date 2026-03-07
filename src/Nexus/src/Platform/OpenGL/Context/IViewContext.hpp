@@ -3,7 +3,7 @@
 #include "IGLContext.hpp"
 #include "Platform/OpenGL/ContextDescription.hpp"
 
-#include "Nexus-Core/Graphics/Structures.hpp"
+#include "RHI/Structures.hpp"
 
 namespace Nexus::Graphics
 {

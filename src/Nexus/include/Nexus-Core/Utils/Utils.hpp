@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Graphics/Polygon.hpp"
-#include "Nexus-Core/Graphics/SamplerState.hpp"
 #include "Nexus-Core/Graphics/Triangle.hpp"
-#include "Nexus-Core/Graphics/WindingOrder.hpp"
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "RHI/PixelFormat.hpp"
+#include "RHI/SamplerState.hpp"
+#include "RHI/WindingOrder.hpp"
 
 namespace Nexus::Graphics
 {

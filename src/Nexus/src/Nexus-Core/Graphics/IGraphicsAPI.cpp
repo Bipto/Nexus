@@ -1,9 +1,8 @@
-#include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
-
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "RHI/IGraphicsAPI.hpp"
 #include "Platform/D3D12/GraphicsAPI_D3D12.hpp"
 #include "Platform/OpenGL/GraphicsAPI_OpenGL.hpp"
 #include "Platform/Vulkan/GraphicsAPIVk.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
 {

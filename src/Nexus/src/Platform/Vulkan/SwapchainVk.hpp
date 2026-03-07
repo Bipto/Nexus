@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PhysicalDeviceVk.hpp"
+	#include "RHI/Swapchain.hpp"
 	#include "Surface/SurfaceVk.hpp"
 	#include "Vk.hpp"
 
@@ -29,7 +29,7 @@ namespace Nexus::Graphics
 		PixelFormat GetColourFormat() final;
 		PixelFormat GetDepthFormat() final;
 
-		tl::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
+		std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
 		VkSurfaceKHR	   GetSurface();
 		VkSurfaceFormatKHR GetSurfaceFormat();

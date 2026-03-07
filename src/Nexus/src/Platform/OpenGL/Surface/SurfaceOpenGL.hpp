@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/ISurface.hpp"
 #include "Platform/OpenGL/Context/IViewContext.hpp"
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+#include "RHI/ISurface.hpp"
 
 namespace Nexus::Graphics
 {

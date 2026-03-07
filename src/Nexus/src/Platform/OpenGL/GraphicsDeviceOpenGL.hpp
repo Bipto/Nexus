@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+	#include "RHI/GraphicsDevice.hpp"
 
 	#include "CommandExecutorOpenGL.hpp"
 	#include "FramebufferOpenGL.hpp"
@@ -40,7 +40,7 @@ namespace Nexus::Graphics
 		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
 		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) final;
+		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;

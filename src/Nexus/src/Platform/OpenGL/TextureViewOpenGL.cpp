@@ -1,5 +1,7 @@
 #include "TextureViewOpenGL.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
 	bool IsFullTextureView(const TextureViewDescription &desc)

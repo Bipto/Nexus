@@ -3,10 +3,10 @@
 #include "Nexus-Core/nxpch.hpp"
 
 #include "Nexus-Core/Graphics/FullscreenQuad.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime/Camera.hpp"
 #include "Nexus-Core/Runtime/Scene.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
 {

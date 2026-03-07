@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "Nexus-Core/Graphics/ResourceSet.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
+	#include "RHI/ResourceSet.hpp"
 	#include "SamplerD3D12.hpp"
 
 namespace Nexus::Graphics

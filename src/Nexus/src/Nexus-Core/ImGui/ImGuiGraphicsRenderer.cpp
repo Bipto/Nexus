@@ -1,10 +1,10 @@
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 
-#include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Platform/Input/Input.hpp"
 #include "Platform/Platform.hpp"
+#include "RHI/PixelFormat.hpp"
+#include "RHI/Swapchain.hpp"
 
-#include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
@@ -986,6 +986,7 @@ namespace Nexus::ImGuiUtils
 			swapchainDesc.Height						 = h;
 			swapchainDesc.Surface						 = Utils::CreateSurfaceForWindow(Nexus::GetApplication()->GetGraphicsDevice(), info->Window);
 			swapchainDesc.ImagePresentMode				 = Graphics::PresentMode::Immediate;
+			swapchainDesc.Samples						 = app->GetPrimarySwapchain()->GetDescription().Samples;
 
 			Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(swapchainDesc);
 

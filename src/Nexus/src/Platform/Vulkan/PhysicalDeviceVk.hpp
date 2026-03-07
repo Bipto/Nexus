@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
+	#include "RHI/IPhysicalDevice.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

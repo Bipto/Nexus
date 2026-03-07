@@ -1,8 +1,7 @@
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 #include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
-
-#include "Nexus-Core/nxpch.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
 
 const std::string c_MipmapVertexSource = "#version 450 core\n"
 										 "layout (location = 0) in vec3 a_Position;\n"

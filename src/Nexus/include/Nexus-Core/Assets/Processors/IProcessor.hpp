@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus
 {

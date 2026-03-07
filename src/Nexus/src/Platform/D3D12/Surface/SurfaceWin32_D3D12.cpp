@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	tl::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string> SurfaceWin32_D3D12::CreateDXGISwapchain(
+	std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string> SurfaceWin32_D3D12::CreateDXGISwapchain(
 		const SwapchainDescription &swapchainDesc,
 		ID3D12CommandQueue		   *commandQueue,
 		IDXGIFactory2			   *factory) const
@@ -45,7 +45,7 @@ namespace Nexus::Graphics
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			return tl::unexpected(err.ErrorMessage());
+			return std::unexpected(err.ErrorMessage());
 		}
 
 		return sc1;

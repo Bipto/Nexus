@@ -4,8 +4,8 @@
 
 	#include "FramebufferD3D12.hpp"
 	#include "GraphicsDeviceD3D12.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "PipelineD3D12.hpp"
+	#include "RHI/CommandList.hpp"
 	#include "SwapchainD3D12.hpp"
 
 namespace Nexus::Graphics

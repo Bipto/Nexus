@@ -3,9 +3,9 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "DeviceBufferOpenGL.hpp"
-	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "PipelineOpenGL.hpp"
+	#include "RHI/CommandExecutor.hpp"
+	#include "RHI/CommandList.hpp"
 	#include "ResourceSetOpenGL.hpp"
 
 namespace Nexus::Graphics

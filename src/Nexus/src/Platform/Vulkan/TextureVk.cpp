@@ -4,6 +4,8 @@
 
 	#include "CommandListVk.hpp"
 
+	#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
 	TextureVk::TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device) : ITexture(spec), m_GraphicsDevice(device)

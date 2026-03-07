@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GraphicsDevice.hpp"
-#include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
-#include "Texture.hpp"
+#include "RHI/Color.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/Texture.hpp"
 
 namespace Nexus::Graphics
 {

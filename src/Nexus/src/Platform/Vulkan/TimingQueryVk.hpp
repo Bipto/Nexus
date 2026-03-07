@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/TimingQuery.hpp"
+	#include "RHI/TimingQuery.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

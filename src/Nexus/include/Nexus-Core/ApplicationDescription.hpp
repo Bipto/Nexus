@@ -2,12 +2,11 @@
 
 #include <inttypes.h>
 
-#include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/IWindow.hpp"
-
-#include "Nexus-Core/Graphics/ISurface.hpp"
-#include "Nexus-Core/Graphics/SwapchainDescription.hpp"
+#include "RHI/GraphicsAPICreateInfo.hpp"
+#include "RHI/ISurface.hpp"
+#include "RHI/SwapchainDescription.hpp"
 
 namespace Nexus::Audio
 {

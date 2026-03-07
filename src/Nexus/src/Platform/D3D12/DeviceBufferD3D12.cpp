@@ -1,6 +1,8 @@
 #include "DeviceBufferD3D12.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
 	DeviceBufferD3D12::DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice)

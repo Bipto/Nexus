@@ -42,7 +42,7 @@
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_ENABLE_EXPERIMENTAL
 #include "Nexus-Core/Point.hpp"
-#include "Nexus-Core/Types.hpp"
+#include "RHI/Types.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/bitfield.hpp>
 #include <glm/gtc/constants.hpp>

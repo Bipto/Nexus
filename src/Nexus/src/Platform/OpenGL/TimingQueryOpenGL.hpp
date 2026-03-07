@@ -2,7 +2,9 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/TimingQuery.hpp"
+	#include <cstdint>
+
+	#include "RHI/TimingQuery.hpp"
 
 namespace Nexus::Graphics
 {

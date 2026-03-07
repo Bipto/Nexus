@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
+	#include "RHI/IGraphicsAPI.hpp"
 
 namespace Nexus::Graphics
 {

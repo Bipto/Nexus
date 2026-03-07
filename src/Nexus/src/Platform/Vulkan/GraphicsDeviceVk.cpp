@@ -148,7 +148,7 @@ namespace Nexus::Graphics
 		return CreateRef<FenceVk>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
@@ -157,7 +157,7 @@ namespace Nexus::Graphics
 			fenceHandles[i]	   = fence->GetHandle();
 		}
 
-		VkResult result = m_Context.WaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeout.GetNanoseconds<uint64_t>());
+		VkResult result = m_Context.WaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeoutNS);
 
 		if (result == VK_SUCCESS)
 		{

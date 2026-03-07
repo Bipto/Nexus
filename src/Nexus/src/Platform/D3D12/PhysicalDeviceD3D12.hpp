@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "Platform/D3D12/D3D12Include.hpp"
+	#include "RHI/IPhysicalDevice.hpp"
 
 namespace Nexus::Graphics
 {
@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 		void FindMaximumSupportedFeatureLevel();
 
 	  private:
-		std::string							  m_Name	 = {};
+		std::string							  m_Name			= {};
 		Microsoft::WRL::ComPtr<IDXGIAdapter4> m_Adapter			= nullptr;
 		D3D_FEATURE_LEVEL					  m_MaxFeatureLevel = D3D_FEATURE_LEVEL_10_0;
 	};

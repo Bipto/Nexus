@@ -4,14 +4,14 @@
 
 	#include "D3D12Include.hpp"
 	#include "Nexus-Core/ApplicationDescription.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
-	#include "Nexus-Core/Graphics/PixelFormat.hpp"
-	#include "Nexus-Core/Graphics/SamplerState.hpp"
-	#include "Nexus-Core/Graphics/ShaderModule.hpp"
-	#include "Nexus-Core/Graphics/ShaderResources.hpp"
-	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Vertex.hpp"
+	#include "RHI/CommandList.hpp"
+	#include "RHI/DeviceBuffer.hpp"
+	#include "RHI/PixelFormat.hpp"
+	#include "RHI/SamplerState.hpp"
+	#include "RHI/ShaderModule.hpp"
+	#include "RHI/ShaderResources.hpp"
+	#include "RHI/Texture.hpp"
 
 namespace Nexus::Graphics
 {

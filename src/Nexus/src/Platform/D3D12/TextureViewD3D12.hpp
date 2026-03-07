@@ -2,7 +2,7 @@
 
 #include "GraphicsDeviceD3D12.hpp"
 
-#include "Nexus-Core/Graphics/TextureView.hpp"
+#include "RHI/TextureView.hpp"
 
 namespace Nexus::Graphics
 {

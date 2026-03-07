@@ -9,9 +9,9 @@ namespace Nexus::Graphics
 	  public:
 		SurfaceX11_Vk(uintptr_t display, uint32_t screen, uint32_t window);
 		virtual ~SurfaceX11_Vk() final = default;
-		tl::expected<VkSurfaceKHR, VkResult> CreateVkSurface(const SwapchainDescription &swapchainDesc,
-															 VkInstance					 instance,
-															 const GladVulkanContext	&context) const final;
+		std::expected<VkSurfaceKHR, VkResult> CreateVkSurface(const SwapchainDescription &swapchainDesc,
+															  VkInstance				  instance,
+															  const GladVulkanContext	 &context) const final;
 
 	  private:
 		uintptr_t m_Display = {};

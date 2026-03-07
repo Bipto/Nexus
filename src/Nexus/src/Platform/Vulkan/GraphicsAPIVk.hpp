@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
 	#include "Nexus-Core/nxpch.hpp"
+	#include "RHI/IGraphicsAPI.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

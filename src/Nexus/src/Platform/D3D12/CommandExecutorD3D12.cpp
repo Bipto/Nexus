@@ -11,6 +11,8 @@
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 
+	#include "Nexus-Core/Utils/Utils.hpp"
+
 	#include <pix3.h>
 
 namespace Nexus::Graphics

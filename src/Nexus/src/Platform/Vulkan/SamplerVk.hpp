@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/Sampler.hpp"
+	#include "RHI/Sampler.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -13,13 +13,13 @@ namespace Nexus::Graphics
 	  public:
 		SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec);
 		virtual ~SamplerVk();
-		virtual const SamplerDescription   &GetSamplerDescription() override;
-		VkSampler							GetSampler();
+		virtual const SamplerDescription &GetSamplerDescription() override;
+		VkSampler						  GetSampler();
 
 	  private:
-		SamplerDescription	 m_Description;
-		VkSampler			 m_Sampler;
-		GraphicsDeviceVk	*m_Device = nullptr;
+		SamplerDescription m_Description;
+		VkSampler		   m_Sampler;
+		GraphicsDeviceVk  *m_Device = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

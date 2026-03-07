@@ -4,7 +4,7 @@
 
 	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
-	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "RHI/Texture.hpp"
 
 namespace Nexus::Graphics
 {

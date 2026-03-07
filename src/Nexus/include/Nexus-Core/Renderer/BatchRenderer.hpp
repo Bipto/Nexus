@@ -2,12 +2,12 @@
 
 #include "Nexus-Core/Graphics/Circle.hpp"
 #include "Nexus-Core/Graphics/Font.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/Polygon.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/RoundedRectangle.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/Vertex.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
 {

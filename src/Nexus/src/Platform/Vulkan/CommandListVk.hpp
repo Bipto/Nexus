@@ -4,8 +4,8 @@
 
 	#include "CommandQueueVk.hpp"
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "PipelineVk.hpp"
+	#include "RHI/CommandList.hpp"
 
 namespace Nexus::Graphics
 {

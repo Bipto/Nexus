@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDeviceVk.hpp"
-#include "Nexus-Core/Graphics/TextureView.hpp"
+#include "RHI/TextureView.hpp"
 
 namespace Nexus::Graphics
 {

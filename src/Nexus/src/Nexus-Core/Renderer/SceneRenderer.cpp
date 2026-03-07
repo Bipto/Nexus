@@ -19,21 +19,21 @@ namespace Nexus::Graphics
 		m_Renderer3D->Begin(scene, target, time);
 		m_Renderer3D->End();
 
-		Point2D<uint32_t> targetSize = target->GetSize();
+		auto [width, height] = target->GetSize();
 
 		Nexus::Graphics::Viewport vp = {};
 		vp.X						 = 0;
 		vp.Y						 = 0;
-		vp.Width					 = targetSize.X;
-		vp.Height					 = targetSize.Y;
+		vp.Width					 = width;
+		vp.Height					 = height;
 		vp.MinDepth					 = 0.0f;
 		vp.MaxDepth					 = 1.0f;
 
 		Nexus::Graphics::Scissor scissor = {};
 		scissor.X						 = 0;
 		scissor.Y						 = 0;
-		scissor.Width					 = targetSize.X;
-		scissor.Height					 = targetSize.Y;
+		scissor.Width					 = width;
+		scissor.Height					 = height;
 
 		glm::mat4 viewProj = m_Renderer3D->GetCamera().GetViewProjection();
 

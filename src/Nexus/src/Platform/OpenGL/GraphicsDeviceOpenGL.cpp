@@ -305,7 +305,7 @@ namespace Nexus::Graphics
 		return CreateRef<FenceOpenGL>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<FenceWaitResult> success(count);
 
@@ -313,7 +313,7 @@ namespace Nexus::Graphics
 		{
 			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
 
-			GLenum result = fence->Wait(timeout);
+			GLenum result = fence->Wait(timeoutNS);
 			if (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED)
 			{
 				// if a fence has been signalled successfully and we are not waiting for all the fences, we can return that a fence has been signalled

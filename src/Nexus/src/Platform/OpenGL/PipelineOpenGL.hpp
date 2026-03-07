@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "DeviceBufferOpenGL.hpp"
-	#include "Nexus-Core/Graphics/Pipeline.hpp"
+	#include "RHI/Pipeline.hpp"
 
 namespace Nexus::Graphics
 {
@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 		{
 		}
 		virtual void	 Bind(const GladGLContext &context) = 0;
-		virtual uint32_t GetShaderHandle() const = 0;
+		virtual uint32_t GetShaderHandle() const			= 0;
 	};
 
 	class GraphicsPipelineOpenGL : public IGraphicsPipeline, public PipelineOpenGL

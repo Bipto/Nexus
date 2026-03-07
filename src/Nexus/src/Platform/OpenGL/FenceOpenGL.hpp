@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Fence.hpp"
 #include "Platform/OpenGL/GL.hpp"
 #include "Platform/Timings/Timespan.hpp"
+#include "RHI/Fence.hpp"
 
 namespace Nexus::Graphics
 {
@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 
 		GLsync GetHandle() const;
 		void   Reset();
-		GLenum Wait(TimeSpan timeout);
+		GLenum Wait(uint64_t timeoutNS);
 
 	  private:
 		void CreateFence(bool signalled);

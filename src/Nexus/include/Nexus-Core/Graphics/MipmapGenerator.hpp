@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/FullscreenQuad.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
 {
@@ -15,15 +15,15 @@ namespace Nexus::Graphics
 		static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
 
 	  private:
-		IGraphicsDevice	*m_Device	   = nullptr;
+		IGraphicsDevice	 *m_Device		= nullptr;
 		Ref<ICommandList> m_CommandList = nullptr;
-		FullscreenQuad	 m_Quad {};
+		FullscreenQuad	  m_Quad {};
 
-		Ref<IShaderModule> m_VertexModule   = nullptr;
+		Ref<IShaderModule> m_VertexModule	= nullptr;
 		Ref<IShaderModule> m_FragmentModule = nullptr;
 
-		Ref<IGraphicsPipeline> m_Pipeline	= nullptr;
-		Ref<IResourceSet>	  m_ResourceSet = nullptr;
+		Ref<IGraphicsPipeline> m_Pipeline	 = nullptr;
+		Ref<IResourceSet>	   m_ResourceSet = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	};

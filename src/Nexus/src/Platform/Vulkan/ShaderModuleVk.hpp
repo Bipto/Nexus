@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/ShaderModule.hpp"
+#include "RHI/ShaderModule.hpp"
 #include "Vk.hpp"
 
 #if defined(NX_PLATFORM_VULKAN)
@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	  public:
 		ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceVk *device);
 		virtual ~ShaderModuleVk();
-		VkShaderModule GetShaderModule();
+		VkShaderModule		 GetShaderModule();
 		ShaderReflectionData Reflect() const final;
 
 	  private:

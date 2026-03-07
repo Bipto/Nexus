@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/Framebuffer.hpp"
+	#include "RHI/Framebuffer.hpp"
 	#include "TextureVk.hpp"
 	#include "Vk.hpp"
 

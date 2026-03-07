@@ -137,7 +137,6 @@ namespace Nexus::Graphics
 
 	void FramebufferVk::CreateVulkanFramebuffer()
 	{
-		Nexus::Point2D<uint32_t>		 size			 = m_Description.GetSize();
 		Vk::VulkanFramebufferDescription framebufferDesc = {};
 
 		for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
@@ -181,8 +180,9 @@ namespace Nexus::Graphics
 			framebufferDesc.DepthImageView			 = m_DepthAttachment->GetImageView(viewInfo);
 		}
 
-		framebufferDesc.Width			 = size.X;
-		framebufferDesc.Height			 = size.Y;
+		auto [width, height]			 = m_Description.GetSize();
+		framebufferDesc.Width			 = width;
+		framebufferDesc.Height			 = height;
 		framebufferDesc.VulkanRenderPass = m_RenderPass;
 
 		m_Framebuffer = Vk::CreateFramebuffer(m_Device->GetVulkanContext(), m_Device->GetVkDevice(), framebufferDesc);

@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "RHI/DeviceBuffer.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

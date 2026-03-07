@@ -6,8 +6,8 @@
 #include "../DemoInfo.hpp"
 #include "../Demos/Demo.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/ImGui/ImGuiLayer.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 class DemoImGuiLayer : public Nexus::ImGuiLayer
 {

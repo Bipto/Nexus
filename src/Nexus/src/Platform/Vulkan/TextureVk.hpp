@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "RHI/Texture.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

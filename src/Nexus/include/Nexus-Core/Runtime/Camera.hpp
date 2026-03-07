@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/Input/Input.hpp"
 #include "Platform/Platform.hpp"
 #include "Platform/Utils/FramerateMonitor.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 #include "Nexus-Core/Runtime.hpp"
 

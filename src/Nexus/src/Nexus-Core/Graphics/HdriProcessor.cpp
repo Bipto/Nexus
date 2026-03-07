@@ -1,11 +1,13 @@
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
-#include "Nexus-Core/Graphics/Framebuffer.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
-#include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
+#include "RHI/Framebuffer.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/Texture.hpp"
+
+#include "Nexus-Core/Utils/Utils.hpp"
 
 #include "stb_image.h"
 #include "stb_image_write.h"

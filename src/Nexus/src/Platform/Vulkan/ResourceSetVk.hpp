@@ -3,8 +3,8 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "GraphicsDeviceVk.hpp"
-	#include "Nexus-Core/Graphics/ResourceSet.hpp"
-	#include "Nexus-Core/Graphics/ShaderResources.hpp"
+	#include "RHI/ResourceSet.hpp"
+	#include "RHI/ShaderResources.hpp"
 	#include "TextureVk.hpp"
 	#include "Vk.hpp"
 

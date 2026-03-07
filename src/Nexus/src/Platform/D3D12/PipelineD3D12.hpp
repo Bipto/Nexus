@@ -4,7 +4,7 @@
 
 	#include "D3D12Include.hpp"
 	#include "D3D12Utils.hpp"
-	#include "Nexus-Core/Graphics/Pipeline.hpp"
+	#include "RHI/Pipeline.hpp"
 
 namespace Nexus::Graphics
 {

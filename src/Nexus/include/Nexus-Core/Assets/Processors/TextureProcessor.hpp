@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Assets/Processors/IProcessor.hpp"
-#include "Nexus-Core/Graphics/Texture.hpp"
+#include "RHI/Texture.hpp"
 
 #define TEXTURE_2D_PROCESSOR_NAME "Texture2D"
 

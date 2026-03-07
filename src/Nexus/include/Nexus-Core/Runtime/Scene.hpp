@@ -1,17 +1,17 @@
 #pragma once
 
 #include "Entity.hpp"
-#include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "RHI/Types.hpp"
 #include "glm/glm.hpp"
 
 #include "Nexus-Core/ECS/Registry.hpp"
 
 #include "Nexus-Core/Utils/GUID.hpp"
 
-#include "Nexus-Core/Graphics/Sampler.hpp"
-#include "Nexus-Core/Graphics/Texture.hpp"
 #include "Platform/Timings/Timespan.hpp"
+#include "RHI/Sampler.hpp"
+#include "RHI/Texture.hpp"
 
 #include "Nexus-Core/Renderer/BatchRenderer.hpp"
 

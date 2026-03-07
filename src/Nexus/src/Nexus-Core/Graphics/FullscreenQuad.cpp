@@ -1,4 +1,6 @@
 #include "Nexus-Core/Graphics/FullscreenQuad.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
+#include "Nexus-Core/Vertex.hpp"
 
 namespace Nexus::Graphics
 {

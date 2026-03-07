@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Platform/OpenGL/GL.hpp"
+	#include "RHI/DeviceBuffer.hpp"
 
 namespace Nexus::Graphics
 {

@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/Sampler.hpp"
 	#include "Platform/OpenGL/GL.hpp"
+	#include "RHI/Sampler.hpp"
 
 namespace Nexus::Graphics
 {

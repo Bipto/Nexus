@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDeviceVk.hpp"
-#include "Nexus-Core/Graphics/TexelBuffer.hpp"
+#include "RHI/TexelBuffer.hpp"
 
 namespace Nexus::Graphics
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
-#include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Vertex.hpp"
+#include "RHI/DeviceBuffer.hpp"
+#include "RHI/Types.hpp"
 
 #include "Nexus-Core/Graphics/Material.hpp"
 

@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
+	#include "RHI/IPhysicalDevice.hpp"
 
 namespace Nexus::Graphics
 {

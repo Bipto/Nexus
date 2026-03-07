@@ -1,8 +1,9 @@
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Nexus-Core/Caching/CachedShader.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 #include "stb_image.h"
 

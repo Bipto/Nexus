@@ -2,8 +2,9 @@
 
 #include <cstdint>
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "Platform/IWindow.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Utils
 {

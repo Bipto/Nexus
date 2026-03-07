@@ -4,10 +4,10 @@
 #include "Nexus-Core/Assets/AssetRegistry.hpp"
 #include "Nexus-Core/Assets/Processors/IProcessor.hpp"
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
-#include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/Utils/SharedLibrary.hpp"
+#include "RHI/Types.hpp"
 #include "Scene.hpp"
 
 namespace Nexus

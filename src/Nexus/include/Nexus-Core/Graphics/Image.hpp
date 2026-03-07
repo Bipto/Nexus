@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "RHI/PixelFormat.hpp"
 
 namespace Nexus::Graphics
 {
@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 
 		void FlipVertically();
 
-		static Image FromTexture(IGraphicsDevice	   *device,
+		static Image FromTexture(IGraphicsDevice   *device,
 								 Ref<ICommandQueue> commandQueue,
 								 Ref<ITexture>		texture,
 								 uint32_t			arrayLayer,

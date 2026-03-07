@@ -1,6 +1,6 @@
 #include "Nexus-Core/Utils/Utils.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Utils
 {

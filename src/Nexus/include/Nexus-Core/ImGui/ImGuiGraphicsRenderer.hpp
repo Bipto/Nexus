@@ -2,9 +2,9 @@
 #pragma once
 
 #include "Nexus-Core/Application.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 inline void *ImGuiAlloc(size_t size, void *user_data)
 {

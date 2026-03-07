@@ -50,13 +50,13 @@ namespace Nexus::Graphics
 
 		std::vector<VkRectLayerKHR> presentRectLayers = {};
 
-		for (const Rectangle<uint32_t> &rect : presentDesc.PresentRects)
+		for (const Graphics::SwapchainPresentDescription::Rectangle &rect : presentDesc.PresentRects)
 		{
 			VkRectLayerKHR rectLayer = {};
-			rectLayer.offset.x		 = static_cast<int32_t>(rect.GetLeft());
-			rectLayer.offset.y		 = static_cast<int32_t>(rect.GetRight());
-			rectLayer.extent.width	 = rect.GetWidth();
-			rectLayer.extent.height	 = rect.GetHeight();
+			rectLayer.offset.x		 = static_cast<int32_t>(rect.X);
+			rectLayer.offset.y		 = static_cast<int32_t>(rect.Y);
+			rectLayer.extent.width	 = rect.Width;
+			rectLayer.extent.height	 = rect.Height;
 			rectLayer.layer			 = 0;
 			presentRectLayers.push_back(rectLayer);
 		}
@@ -130,11 +130,11 @@ namespace Nexus::Graphics
 		return m_DepthFormat;
 	}
 
-	tl::expected<void, std::string> SwapchainVk::Resize(uint32_t width, uint32_t height)
+	std::expected<void, std::string> SwapchainVk::Resize(uint32_t width, uint32_t height)
 	{
 		m_SwapchainSize = {width, height};
 		RecreateSwapchain();
-		return tl::expected<void, std::string>();
+		return std::expected<void, std::string>();
 	}
 
 	VkSurfaceKHR SwapchainVk::GetSurface()

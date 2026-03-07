@@ -2,9 +2,9 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "Nexus-Core/Graphics/Texture.hpp"
-#include "Nexus-Core/Graphics/TextureView.hpp"
-#include "Nexus-Core/Types.hpp"
+#include "RHI/Texture.hpp"
+#include "RHI/TextureView.hpp"
+#include "RHI/Types.hpp"
 
 namespace Nexus::Graphics
 {

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Texture.hpp"
-#include "Nexus-Core/Graphics/TextureView.hpp"
-#include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "RHI/CommandQueue.hpp"
+#include "RHI/Texture.hpp"
+#include "RHI/TextureView.hpp"
+#include "RHI/Types.hpp"
 
 namespace Nexus::Graphics
 {

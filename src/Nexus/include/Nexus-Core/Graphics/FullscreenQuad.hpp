@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
 {
@@ -22,8 +22,8 @@ namespace Nexus::Graphics
 	  private:
 		IGraphicsDevice	  *m_GraphicsDevice = nullptr;
 		Ref<ICommandQueue> m_CommandQueue	= nullptr;
-		Ref<IDeviceBuffer>  m_VertexBuffer	= nullptr;
-		Ref<IDeviceBuffer>  m_IndexBuffer	= nullptr;
+		Ref<IDeviceBuffer> m_VertexBuffer	= nullptr;
+		Ref<IDeviceBuffer> m_IndexBuffer	= nullptr;
 		bool			   m_HasUV			= false;
 	};
 }	 // namespace Nexus::Graphics

@@ -33,15 +33,15 @@ namespace Nexus::Graphics
 	void FramebufferOpenGL::BindAsDrawBuffer(const GladGLContext &context)
 	{
 		glCall(context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
-		Point2D<uint32_t> size = m_Description.GetSize();
+		auto [width, height] = m_Description.GetSize();
 
 		std::vector<GLenum> drawBuffers;
 		for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++) { drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i); }
 
 		context.DrawBuffers(drawBuffers.size(), drawBuffers.data());
 
-		glCall(context.Viewport(0, 0, size.X, size.Y));
-		glCall(context.Scissor(0, 0, size.X, size.Y));
+		glCall(context.Viewport(0, 0, width, height));
+		glCall(context.Scissor(0, 0, width, height));
 	}
 
 	void FramebufferOpenGL::Unbind()

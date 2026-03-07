@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDeviceVk.hpp"
-#include "Nexus-Core/Graphics/AccelerationStructure.hpp"
+#include "RHI/AccelerationStructure.hpp"
 
 namespace Nexus::Graphics
 {

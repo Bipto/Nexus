@@ -8,6 +8,8 @@
 	#include "ResourceSetVk.hpp"
 	#include "TimingQueryVk.hpp"
 
+	#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)

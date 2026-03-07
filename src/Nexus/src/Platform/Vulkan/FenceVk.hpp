@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Fence.hpp"
 #include "Platform/Vulkan/Vk.hpp"
+#include "RHI/Fence.hpp"
 
 #include "GraphicsDeviceVk.hpp"
 

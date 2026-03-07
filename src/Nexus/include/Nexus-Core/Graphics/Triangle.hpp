@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/WindingOrder.hpp"
 #include "Nexus-Core/Point.hpp"
+#include "RHI/WindingOrder.hpp"
 #include "glm/glm.hpp"
 
 namespace Nexus::Graphics

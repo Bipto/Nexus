@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "D3D12Include.hpp"
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "RHI/DeviceBuffer.hpp"
 
 namespace Nexus::Graphics
 {

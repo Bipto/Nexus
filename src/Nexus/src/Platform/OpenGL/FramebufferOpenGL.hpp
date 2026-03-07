@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "GL.hpp"
-	#include "Nexus-Core/Graphics/Framebuffer.hpp"
+	#include "RHI/Framebuffer.hpp"
 
 namespace Nexus::Graphics
 {

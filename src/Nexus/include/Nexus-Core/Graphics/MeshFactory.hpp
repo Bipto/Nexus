@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/Mesh.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
-#include "Nexus-Core/Types.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/Types.hpp"
 
 namespace Nexus::Graphics
 {

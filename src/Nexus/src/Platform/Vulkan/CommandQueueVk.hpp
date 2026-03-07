@@ -1,14 +1,14 @@
 #pragma once
 
 #include "CommandExecutorVk.hpp"
-#include "Nexus-Core/Graphics/CommandQueue.hpp"
-
 #include "GraphicsDeviceVk.hpp"
-#include <Nexus-Core/Graphics/CommandList.hpp>
-#include <Nexus-Core/Graphics/Fence.hpp>
-#include <Nexus-Core/Graphics/GraphicsDevice.hpp>
-#include <Nexus-Core/Graphics/Swapchain.hpp>
-#include <Nexus-Core/Types.hpp>
+
+#include "RHI/CommandQueue.hpp"
+#include <RHI/CommandList.hpp>
+#include <RHI/Fence.hpp>
+#include <RHI/GraphicsDevice.hpp>
+#include <RHI/Swapchain.hpp>
+#include <RHI/Types.hpp>
 
 namespace Nexus::Graphics
 {

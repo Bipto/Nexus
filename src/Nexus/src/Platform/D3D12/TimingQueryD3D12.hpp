@@ -4,7 +4,7 @@
 
 	#include "D3D12Include.hpp"
 	#include "GraphicsDeviceD3D12.hpp"
-	#include "Nexus-Core/Graphics/TimingQuery.hpp"
+	#include "RHI/TimingQuery.hpp"
 
 namespace Nexus::Graphics
 {

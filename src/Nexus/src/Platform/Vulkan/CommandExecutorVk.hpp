@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
+	#include "RHI/CommandExecutor.hpp"
 	#include "SwapchainVk.hpp"
 	#include "Vk.hpp"
 

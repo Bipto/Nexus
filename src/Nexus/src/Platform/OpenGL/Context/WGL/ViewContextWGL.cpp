@@ -94,15 +94,15 @@ namespace Nexus::GL
 
 						// framebuffer texture
 						copyDesc.Source			= texture;
-						copyDesc.SourceOffset	= {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
+						copyDesc.SourceOffset	= {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 						copyDesc.SourceMipLevel = 0;
 
 						// backbuffer
 						copyDesc.Destination		 = nullptr;
 						copyDesc.DestinationMipLevel = 0;
-						copyDesc.DestinationOffset	 = {(int32_t)rect.GetLeft(), (int32_t)rect.GetTop(), 0};
+						copyDesc.DestinationOffset	 = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
-						copyDesc.Extent = {rect.GetWidth(), rect.GetHeight()};
+						copyDesc.Extent = {rect.Width, rect.Height};
 						GL::CopyTextureToTexture(copyDesc, context);
 					}
 				}

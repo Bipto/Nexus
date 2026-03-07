@@ -1,10 +1,10 @@
 #include "Nexus-Core/Graphics/Image.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 
-#include "Nexus-Core/Graphics/CommandQueue.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-#include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
+#include "RHI/CommandQueue.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/Texture.hpp"
 
 namespace Nexus::Graphics
 {

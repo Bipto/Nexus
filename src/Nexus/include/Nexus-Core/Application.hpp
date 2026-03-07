@@ -1,21 +1,21 @@
 #pragma once
 
 #include "Audio/AudioDevice.hpp"
-#include "Graphics/GraphicsDevice.hpp"
-#include "Graphics/IGraphicsAPI.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/IWindow.hpp"
 #include "Platform/Layers/LayerStack.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/IGraphicsAPI.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
 #endif
 
 #include "ApplicationDescription.hpp"
-#include "Nexus-Core/Types.hpp"
 #include "Platform/Events/EventQueue.hpp"
 #include "Platform/Timings/Timespan.hpp"
 #include "Point.hpp"
+#include "RHI/Types.hpp"
 
 namespace Nexus
 {

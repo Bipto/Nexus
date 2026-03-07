@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IGLContext.hpp"
-#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
+#include "RHI/IPhysicalDevice.hpp"
 
 namespace Nexus::GL
 {

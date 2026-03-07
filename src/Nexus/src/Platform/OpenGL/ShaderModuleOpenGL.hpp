@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "GL.hpp"
-	#include "Nexus-Core/Graphics/ShaderModule.hpp"
+	#include "RHI/ShaderModule.hpp"
 
 namespace Nexus::Graphics
 {
@@ -14,14 +14,14 @@ namespace Nexus::Graphics
 	  public:
 		ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceOpenGL *device);
 		virtual ~ShaderModuleOpenGL();
-		GLenum	 GetGLShaderStage();
-		uint32_t GetHandle();
+		GLenum				 GetGLShaderStage();
+		uint32_t			 GetHandle();
 		ShaderReflectionData Reflect() const final;
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device		= nullptr;
-		uint32_t m_Handle	   = 0;
-		GLenum	 m_ShaderStage = 0;
+		uint32_t			  m_Handle		= 0;
+		GLenum				  m_ShaderStage = 0;
 	};
 }	 // namespace Nexus::Graphics
 

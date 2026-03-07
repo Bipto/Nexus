@@ -9,7 +9,7 @@
 
 namespace Nexus::Graphics
 {
-	static tl::expected<Ref<SurfaceD3D12>, std::string> GetD3D12Surface(Ref<ISurface> surface)
+	static std::expected<Ref<SurfaceD3D12>, std::string> GetD3D12Surface(Ref<ISurface> surface)
 	{
 		if (auto d3d12Surface = std::dynamic_pointer_cast<SurfaceD3D12>(surface))
 		{
@@ -17,11 +17,11 @@ namespace Nexus::Graphics
 		}
 		else
 		{
-			return tl::unexpected("Failed to create D3D12 swapchain: Surface is not a D3D12 surface");
+			return std::unexpected("Failed to create D3D12 swapchain: Surface is not a D3D12 surface");
 		}
 	}
 
-	static tl::expected<Microsoft::WRL::ComPtr<IDXGISwapChain3>, std::string> QuerySwapchainComInterface(
+	static std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain3>, std::string> QuerySwapchainComInterface(
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain)
 	{
 		Microsoft::WRL::ComPtr<IDXGISwapChain3> outputSC;
@@ -30,7 +30,7 @@ namespace Nexus::Graphics
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			return tl::unexpected(err.ErrorMessage());
+			return std::unexpected(err.ErrorMessage());
 		}
 
 		return outputSC;
@@ -81,10 +81,10 @@ namespace Nexus::Graphics
 			for (const auto &rect : presentDesc.PresentRects)
 			{
 				RECT &presentRect  = presentRects.emplace_back();
-				presentRect.left   = rect.GetLeft();
-				presentRect.top	   = rect.GetTop();
-				presentRect.right  = rect.GetRight();
-				presentRect.bottom = rect.GetBottom();
+				presentRect.left   = rect.X;
+				presentRect.top	   = rect.Y;
+				presentRect.right  = rect.Width;
+				presentRect.bottom = rect.Height;
 			}
 
 			DXGI_PRESENT_PARAMETERS presentParams = {};
@@ -129,7 +129,7 @@ namespace Nexus::Graphics
 		return PixelFormat::D24_UNorm_S8_UInt;
 	}
 
-	tl::expected<void, std::string> SwapchainD3D12::Resize(uint32_t width, uint32_t height)
+	std::expected<void, std::string> SwapchainD3D12::Resize(uint32_t width, uint32_t height)
 	{
 		// if the size of the window is the same, we do not need to do anything and
 		// can return

@@ -11,6 +11,8 @@
 
 	#include "Platform/Timings/Profiler.hpp"
 
+	#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
 	CommandExecutorOpenGL::~CommandExecutorOpenGL()

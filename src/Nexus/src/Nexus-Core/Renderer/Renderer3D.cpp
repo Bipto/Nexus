@@ -197,8 +197,8 @@ namespace Nexus::Graphics
 		m_Cubemap		 = scene->SceneEnvironment.EnvironmentCubemap;
 		m_CubemapSampler = scene->SceneEnvironment.CubemapSampler;
 
-		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
-		m_Camera.Update(size.X, size.Y, time);
+		auto [width, height] = m_RenderTarget->GetSize();
+		m_Camera.Update(width, height, time);
 	}
 
 	void Nexus::Graphics::Renderer3D::End()
@@ -217,15 +217,15 @@ namespace Nexus::Graphics
 		ClearGBuffer();
 		RenderCubemap();
 
-		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
+		auto [width, height] = m_RenderTarget->GetSize();
 		m_CommandList->Begin();
 		m_CommandList->SetFramebuffer(m_RenderTarget);
 
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
 		vp.Y		= 0;
-		vp.Width	= size.X;
-		vp.Height	= size.Y;
+		vp.Width	= width;
+		vp.Height	= height;
 		vp.MinDepth = 0.0f;
 		vp.MaxDepth = 1.0f;
 		m_CommandList->SetViewport(vp);
@@ -233,8 +233,8 @@ namespace Nexus::Graphics
 		Nexus::Graphics::Scissor scissor;
 		scissor.X	   = 0;
 		scissor.Y	   = 0;
-		scissor.Width  = size.X;
-		scissor.Height = size.Y;
+		scissor.Width  = width;
+		scissor.Height = height;
 		m_CommandList->SetScissor(scissor);
 
 		m_CommandList->SetPipeline(m_ModelPipeline);
@@ -264,15 +264,15 @@ namespace Nexus::Graphics
 
 	void Renderer3D::RenderCubemap()
 	{
-		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
+		auto [width, height] = m_RenderTarget->GetSize();
 		m_CommandList->Begin();
 		m_CommandList->SetFramebuffer(m_RenderTarget);
 
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
 		vp.Y		= 0;
-		vp.Width	= size.X;
-		vp.Height	= size.Y;
+		vp.Width	= width;
+		vp.Height	= height;
 		vp.MinDepth = 0.0f;
 		vp.MaxDepth = 1.0f;
 		m_CommandList->SetViewport(vp);
@@ -280,8 +280,8 @@ namespace Nexus::Graphics
 		Nexus::Graphics::Scissor scissor;
 		scissor.X	   = 0;
 		scissor.Y	   = 0;
-		scissor.Width  = size.X;
-		scissor.Height = size.Y;
+		scissor.Width  = width;
+		scissor.Height = height;
 		m_CommandList->SetScissor(scissor);
 
 		const Environment &environment = m_Scene->SceneEnvironment;
@@ -468,7 +468,7 @@ namespace Nexus::Graphics
 
 	void Renderer3D::ClearGBuffer()
 	{
-		Nexus::Point2D<uint32_t> size = m_RenderTarget->GetSize();
+		auto [width, height] = m_RenderTarget->GetSize();
 		m_CommandList->Begin();
 		m_CommandList->SetFramebuffer(m_RenderTarget);
 
@@ -477,8 +477,8 @@ namespace Nexus::Graphics
 		Nexus::Graphics::Viewport vp;
 		vp.X		= 0;
 		vp.Y		= 0;
-		vp.Width	= size.X;
-		vp.Height	= size.Y;
+		vp.Width	= width;
+		vp.Height	= height;
 		vp.MinDepth = 0.0f;
 		vp.MaxDepth = 1.0f;
 		m_CommandList->SetViewport(vp);
@@ -486,8 +486,8 @@ namespace Nexus::Graphics
 		Nexus::Graphics::Scissor scissor;
 		scissor.X	   = 0;
 		scissor.Y	   = 0;
-		scissor.Width  = size.X;
-		scissor.Height = size.Y;
+		scissor.Width  = width;
+		scissor.Height = height;
 		m_CommandList->SetScissor(scissor);
 
 		Nexus::Graphics::VertexBufferView vertexBufferView = {};

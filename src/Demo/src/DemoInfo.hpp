@@ -3,8 +3,8 @@
 #include <string>
 
 #include "Nexus-Core/Application.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 #include "Demos/Demo.hpp"
 

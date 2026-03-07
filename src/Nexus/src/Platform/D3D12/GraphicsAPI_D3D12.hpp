@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
 	#include "D3D12Include.hpp"
+	#include "RHI/IGraphicsAPI.hpp"
 
 namespace Nexus::Graphics
 {

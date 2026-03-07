@@ -6,8 +6,8 @@
 #include "Platform/Platform.hpp"
 #include "yaml-cpp/yaml.h"
 
-#include "Nexus-Core/Graphics/CommandQueue.hpp"
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "RHI/CommandQueue.hpp"
+#include "RHI/GraphicsDevice.hpp"
 
 const std::string DefaultSceneName = "UntitledScene";
 
