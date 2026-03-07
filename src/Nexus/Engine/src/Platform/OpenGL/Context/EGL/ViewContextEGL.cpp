@@ -234,10 +234,11 @@ namespace Nexus::GL
 			for (size_t i = 0; i < presentDesc.PresentRects.size(); i++)
 			{
 				const auto &presentRect = presentDesc.PresentRects.at(i);
-				presentRects[i]			= {.x	   = (EGLint)presentRect.GetLeft(),
-										   .y	   = (EGLint)presentRect.GetTop(),
-										   .width  = (EGLint)presentRect.GetWidth(),
-										   .height = (EGLint)presentRect.GetHeight()};
+				presentRects[i]			= {
+							.x		= static_cast<EGLint>(presentRect.X),
+							.y		= static_cast<EGLint>(presentRect.Y),
+							.width	= static_cast<EGLint>(presentRect.Width),
+							.height = static_cast<EGLint>(presentRect.Height);
 			}
 
 			eglSwapBuffersWithDamageKHR(m_EGLDisplay, m_Surface, &presentRects[0].x, presentRects.size());
