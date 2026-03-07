@@ -1,6 +1,8 @@
 #include "RHI/ResourceSet.hpp"
 #include "RHI/Pipeline.hpp"
 
+#include <cstring>
+
 namespace Nexus::Graphics
 {
 	static void CreateInitialStorageForDescriptors(const ResourceSetDescription &resourceDesc,
