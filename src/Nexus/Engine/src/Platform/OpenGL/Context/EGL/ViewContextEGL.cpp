@@ -196,7 +196,7 @@ namespace Nexus::GL
 						copyDesc.DestinationMipLevel = 0;
 						copyDesc.DestinationOffset	 = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
-						copyDesc.Extent = {rect.GetWidth(), rect.GetHeight()};
+						copyDesc.Extent = {rect.Width, rect.Height};
 						GL::CopyTextureToTexture(copyDesc, context);
 					}
 				}
