@@ -20,30 +20,34 @@ jobs:
 
       - name: Find merged PR for this commit
         id: findpr
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # 1) Try to read PR number from event payload (works for merge commits)
+          # 1) Try to read PR number from event payload (merge commits)
           pr=$(jq -r '.pull_request.number // empty' "$GITHUB_EVENT_PATH")
 
-          # 2) If empty, try to extract PR number from commit message (works for squash merges)
+          # 2) Try to extract PR number from squash merge commit message
           if [ -z "$pr" ]; then
             pr=$(git log -1 --pretty=%B | sed -n 's/.*(#\([0-9]\+\)).*/\1/p')
           fi
 
-          # 3) If still empty, fallback to API lookup (works for merge commits with preserved SHAs)
+          # 3) API fallback using curl instead of gh
           if [ -z "$pr" ]; then
             echo "Falling back to API lookup..."
-            prs=$(gh api repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls --jq '.[0].number // empty')
-            pr="$prs"
+            pr=$(curl -s \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls" \
+              | jq -r '.[0].number // empty')
           fi
 
-          # 4) If still empty, fail
+          # 4) Fail if still empty
           if [ -z "$pr" ]; then
             echo "::error::No PR associated with commit ${GITHUB_SHA}"
             exit 1
           fi
 
           echo "pr_number=$pr" >> "$GITHUB_OUTPUT"
-
 
       - name: Get PR Body
         id: prbody
