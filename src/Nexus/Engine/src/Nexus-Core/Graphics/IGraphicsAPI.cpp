@@ -4,6 +4,8 @@
 #include "Platform/Vulkan/GraphicsAPIVk.hpp"
 #include "RHI/GraphicsDevice.hpp"
 
+#include "Platform/Logging/Log.hpp"
+
 namespace Nexus::Graphics
 {
 	IGraphicsAPI *IGraphicsAPI::CreateAPI(const GraphicsAPICreateInfo &createInfo)
