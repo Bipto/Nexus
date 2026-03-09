@@ -40,6 +40,9 @@ Optional CMake variables:
 - NX_BUILD_EDITOR: Builds the experimental level editor
 - NX_BUILD_TESTS: Builds unit tests
 
+# Documentation
+Documentation of source code is available at:  https://bipto.github.io/Nexus/
+
 # Demos
 Repository contains a full demo suite, containing examples of all supported features, including command recording, indirect rendering, model loading, lighting and audio.
 
