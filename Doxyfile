@@ -993,8 +993,8 @@ WARN_LOGFILE           =
 
 INPUT                  = src/Nexus/Audio/include \
                             src/Nexus/Engine/include \
-                            src/Nexus/Engine/Platform \
-                            src/Nexus/Engine/RHI
+                            src/Nexus/Engine/Platform/include \
+                            src/Nexus/Engine/RHI/include
                         
 
 # This tag can be used to specify the character encoding of the source files
