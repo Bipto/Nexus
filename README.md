@@ -34,7 +34,7 @@ Required CMake variables:
 Optional CMake variables:
 - NX_PLATFORM_OPENGL: Builds the OpenGL graphics implementation
 - NX_PLATFORM_VULKAN: Builds the Vulkan graphics implementation
-- NX_PLATFORM_D3D12: Builds the DirectD3D12 graphics implementation
+- NX_PLATFORM_D3D12: Builds the Direct3D12 graphics implementation
 - NX_PLATFORM_OPENAL: Builds the OpenAL audio implementation
 - NX_BUILD_DEMO: Builds the demo suite application
 - NX_BUILD_EDITOR: Builds the experimental level editor
