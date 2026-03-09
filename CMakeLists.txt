@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.30)
 
+file(READ "${CMAKE_SOURCE_DIR}/version.txt" PROJECT_VERSION_RAW)
+string(STRIP "${PROJECT_VERSION_RAW}" PROJECT_VERSION_RAW)
+
 project(Nexus
-    VERSION 0.1.0
+    VERSION ${PROJECT_VERSION_RAW}
     LANGUAGES C CXX
     DESCRIPTION "Cross-platform graphics and audio engine"
     HOMEPAGE_URL "https://github.com/Bipto/Nexus")
+
+message(STATUS "Configuring Nexus version ${PROJECT_VERSION}")
 
 #allow flexible page sizes on Android devices
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
