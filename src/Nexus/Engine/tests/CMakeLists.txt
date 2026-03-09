@@ -1,8 +1,3 @@
-FetchContent_MakeAvailable(googletest)
-include(GoogleTest)
-
-mark_as_advanced(BUILD_GMOCK BUILD_GTEST gtest_hide_internal_symbols)
-
 add_executable(EngineUnitTests
     src/CircleTests.cpp
     src/GraphicsTests.cpp
@@ -20,4 +15,7 @@ target_link_libraries(EngineUnitTests
 
 copy_runtime_deps(EngineUnitTests)
 
-gtest_discover_tests(EngineUnitTests DISCOVERY_MODE PRE_TEST)
+add_test(
+    NAME EngineUnitTests
+    COMMAND EngineUnitTests
+)
