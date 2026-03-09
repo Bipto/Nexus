@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 3.28)
-cmake_policy(SET CMP0135 NEW)
+cmake_minimum_required(VERSION 3.30)
 
-project("Nexus")
-include(FetchContent)
-
-set(BUILD_SHARED_LIBS OFF)
-
-#disable cmake module scanning
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+project(Nexus
+    VERSION 0.1.0
+    LANGUAGES C CXX
+    DESCRIPTION "Cross-platform graphics and audio engine"
+    HOMEPAGE_URL "https://github.com/Bipto/Nexus")
 
 #allow flexible page sizes on Android devices
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
@@ -37,6 +34,7 @@ add_definitions(-DTRACY_ENABLE)
 if (DEFINED BUILD_TESTING)
     enable_testing()
     include(CTest)
+    include(FetchContent)
 
     FetchContent_Declare(
         googletest

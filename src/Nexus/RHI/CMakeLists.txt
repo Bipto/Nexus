@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.30)
-
 include (FetchContent)
 
 set(RHI_SOURCES

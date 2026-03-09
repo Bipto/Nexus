@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.28)
-
 include(FetchContent)
 
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
@@ -94,7 +92,7 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 target_include_directories(imguizmo PUBLIC ${imgui_SOURCE_DIR} ${imguizmo_SOURCE_DIR})
 
 add_subdirectory(
-    ${PROJECT_SOURCE_DIR}/external/glad2
+    ${CMAKE_SOURCE_DIR}/src/Nexus/external/glad2
     ${CMAKE_BINARY_DIR}/external/glad2
 )
 

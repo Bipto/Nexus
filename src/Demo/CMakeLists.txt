@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.22.1)
-
-project("Demo")
-
 file(GLOB_RECURSE SOURCE_FILES
     src/*.cpp
     src/*.hpp
@@ -41,24 +37,24 @@ endif()
 
 if (EMSCRIPTEN)
     add_custom_command(
-    TARGET ${PROJECT_NAME} PRE_LINK
+    TARGET Nexus PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/html
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        $<TARGET_FILE_DIR:Nexus>)
 
     #copy resources folder to output directory
     add_custom_command(
-    TARGET ${PROJECT_NAME} PRE_LINK
+    TARGET Nexus PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         ${CMAKE_BINARY_DIR}/resources)
 
 else()
     #copy resources folder to output directory
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    add_custom_command(TARGET Demo POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+        $<TARGET_FILE_DIR:Nexus>/resources)
 endif()
 
 #set the working directory to the executable directory and startup project to the Demo project
