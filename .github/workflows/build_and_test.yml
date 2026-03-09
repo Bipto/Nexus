@@ -199,13 +199,13 @@ jobs:
       # MSVC / Clang-CL
       - name: Build (MSVC/Clang-CL)
         if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
-        run: cmake --build build
+        run: cmake --build build --target test
 
       # MSYS2 (Clang + MinGW-UCRT)
       - name: Build (MSYS2)
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
-        run: cmake --build build
+        run: cmake --build build --target test
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
@@ -343,7 +343,7 @@ jobs:
             -S .
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --target test
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
