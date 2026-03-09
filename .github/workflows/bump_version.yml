@@ -20,23 +20,30 @@ jobs:
 
       - name: Find merged PR for this commit
         id: findpr
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const commit = context.sha;
-            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: commit
-            });
-            if (!prs.data.length) {
-              core.setFailed(`No PR associated with commit ${commit}`);
-              return;
-            }
-            const mergedPr =
-              prs.data.find(pr => pr.merged_at && pr.base.ref === 'main') ||
-              prs.data[0];
-            core.setOutput('pr_number', mergedPr.number);
+        run: |
+          # 1) Try to read PR number from event payload (works for merge commits)
+          pr=$(jq -r '.pull_request.number // empty' "$GITHUB_EVENT_PATH")
+
+          # 2) If empty, try to extract PR number from commit message (works for squash merges)
+          if [ -z "$pr" ]; then
+            pr=$(git log -1 --pretty=%B | sed -n 's/.*(#\([0-9]\+\)).*/\1/p')
+          fi
+
+          # 3) If still empty, fallback to API lookup (works for merge commits with preserved SHAs)
+          if [ -z "$pr" ]; then
+            echo "Falling back to API lookup..."
+            prs=$(gh api repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls --jq '.[0].number // empty')
+            pr="$prs"
+          fi
+
+          # 4) If still empty, fail
+          if [ -z "$pr" ]; then
+            echo "::error::No PR associated with commit ${GITHUB_SHA}"
+            exit 1
+          fi
+
+          echo "pr_number=$pr" >> "$GITHUB_OUTPUT"
+
 
       - name: Get PR Body
         id: prbody
