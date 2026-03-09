@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 cmake_policy(SET CMP0135 NEW)
 
 project("Nexus")
+include(FetchContent)
 
 set(BUILD_SHARED_LIBS OFF)
 
@@ -32,13 +33,20 @@ endif()
 
 add_definitions(-DTRACY_ENABLE)
 
+#testing
+if (DEFINED BUILD_TESTING)
+    enable_testing()
+    include(CTest)
+
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG 6986c2b
+    )
+endif()
+
 #set up engine project
 add_subdirectory(src/Nexus)
-
-if (DEFINED NX_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(src/Tests)
-endif()
 
 if (DEFINED NX_BUILD_DEMO)
     add_subdirectory(src/Demo)

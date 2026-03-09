@@ -2,6 +2,7 @@
 cppcheck_report.txt
 .vs
 CMakeCache.txt
+CMakeSettings.json
 Testing
 src/Demo/android/.idea
 android-project/app/.cxx
