@@ -1,3 +1,5 @@
+#include <gtest/gtest.h>
+
 #include "Nexus-Core/Graphics/Circle.hpp"
 
 TEST(Circle, To)

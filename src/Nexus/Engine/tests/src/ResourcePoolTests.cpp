@@ -1,3 +1,5 @@
+#include <gtest/gtest.h>
+
 #include "Nexus-Core/Graphics/ResourcePool.hpp"
 
 TEST(ResourcePool, Successful)

@@ -20,6 +20,8 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
+#include "Nexus-Core/Utils/GraphicsUtils.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -90,7 +92,7 @@ class EditorApplication : public Nexus::Application
 		framebufferSpec.ColourAttachmentFormats = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}, {Nexus::Graphics::PixelFormat::R32_G32_UInt}};
 		framebufferSpec.DepthAttachmentFormat	= {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
 
-		m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+		m_Framebuffer = Nexus::Utils::CreateFramebuffer(m_GraphicsDevice.get(), framebufferSpec);
 
 		Nexus::Graphics::TextureViewDescription textureViewDesc = {};
 		textureViewDesc.TargetTexture							= m_Framebuffer->GetColorTextureHandle(0);
@@ -602,7 +604,7 @@ class EditorApplication : public Nexus::Application
 			Nexus::Ref<Nexus::Graphics::ITexture> idTexture = m_Framebuffer->GetColorTextureHandle(1u);
 
 			std::vector<char> pixels =
-				GetGraphicsCommandQueue()->ReadFromTexture(idTexture, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
+				Nexus::Utils::ReadFromTexture(GetGraphicsCommandQueue(), idTexture, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
 
 			uint32_t upperValue = 0;
 			uint32_t lowerValue = 0;

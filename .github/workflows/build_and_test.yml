@@ -194,19 +194,8 @@ jobs:
 
 
       # ------------------------------------------------------------
-      # Build
+      # Test
       # ------------------------------------------------------------
-      # MSVC / Clang-CL
-      - name: Build (MSVC/Clang-CL)
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
-        run: cmake --build build --target TestRunner
-
-      # MSYS2 (Clang + MinGW-UCRT)
-      - name: Build (MSYS2)
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
-        shell: msys2 {0}
-        run: cmake --build build --target TestRunner
-
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
 
@@ -341,9 +330,6 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
-
-      - name: Build
-        run: cmake --build build --target TestRunner
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
