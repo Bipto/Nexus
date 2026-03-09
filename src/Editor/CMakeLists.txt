@@ -12,4 +12,3 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/fonts)
 
 copy_runtime_deps(Editor)
-setup_scripting_project(Nexus)

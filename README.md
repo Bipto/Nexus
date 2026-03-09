@@ -38,7 +38,7 @@ Optional CMake variables:
 - NX_PLATFORM_OPENAL: Builds the OpenAL audio implementation
 - NX_BUILD_DEMO: Builds the demo suite application
 - NX_BUILD_EDITOR: Builds the experimental level editor
-- NX_BUILD_TESTS: Builds unit tests
+- BUILD_TESTING: Builds unit tests
 
 # Documentation
 Documentation of source code is available at:  https://bipto.github.io/Nexus/

@@ -168,7 +168,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_PLATFORM_D3D12=ON \
-            -DNX_BUILD_TESTS=1 \
+            -DBUILD_TESTING=ON \
             $LAUNCHER_OPTS \
             -S .
 
@@ -189,7 +189,7 @@ jobs:
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
-            -DNX_BUILD_TESTS=1 \
+            -DBUILD_TESTING=ON \
             -S .
 
 
@@ -326,7 +326,7 @@ jobs:
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
-            -DNX_BUILD_TESTS=1 \
+            -DBUILD_TESTING=ON \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
