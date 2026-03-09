@@ -1,3 +1,5 @@
+FetchContent_MakeAvailable(googletest)
+
 add_executable(EngineUnitTests
     src/CircleTests.cpp
     src/GraphicsTests.cpp
