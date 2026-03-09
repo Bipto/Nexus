@@ -168,7 +168,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_PLATFORM_D3D12=ON \
-            -DBUILD_TESTING=ON \
+            -DNX_BUILD_TESTS=1 \
             $LAUNCHER_OPTS \
             -S .
 
@@ -189,13 +189,24 @@ jobs:
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
-            -DBUILD_TESTING=ON \
+            -DNX_BUILD_TESTS=1 \
             -S .
 
 
       # ------------------------------------------------------------
-      # Test
+      # Build
       # ------------------------------------------------------------
+      # MSVC / Clang-CL
+      - name: Build (MSVC/Clang-CL)
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
+        run: cmake --build build
+
+      # MSYS2 (Clang + MinGW-UCRT)
+      - name: Build (MSYS2)
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
+        shell: msys2 {0}
+        run: cmake --build build
+
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
 
@@ -326,10 +337,13 @@ jobs:
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
-            -DBUILD_TESTING=ON \
+            -DNX_BUILD_TESTS=1 \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -S .
+
+      - name: Build
+        run: cmake --build build
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --parallel
