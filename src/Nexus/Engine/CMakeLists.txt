@@ -28,15 +28,31 @@ find_package(freetype CONFIG REQUIRED)
 ##################################################################################
 
 set(RENDERDOC_VERSION "v1.32")
-set(RENDERDOC_URL "https://raw.githubusercontent.com/baldurk/renderdoc/${RENDERDOC_VERSION}/renderdoc/api/app/renderdoc_app.h")
+set(RENDERDOC_URL
+    "https://raw.githubusercontent.com/baldurk/renderdoc/${RENDERDOC_VERSION}/renderdoc/api/app/renderdoc_app.h"
+)
 set(RENDERDOC_HEADER "${CMAKE_BINARY_DIR}/renderdoc/renderdoc_app.h")
+
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/renderdoc")
 
 if(NOT EXISTS "${RENDERDOC_HEADER}")
     message(STATUS "Downloading RenderDoc header from ${RENDERDOC_URL}")
-    file(DOWNLOAD "${RENDERDOC_URL}" "${RENDERDOC_HEADER}" SHOW_PROGRESS)
+
+    file(DOWNLOAD
+        "${RENDERDOC_URL}"
+        "${RENDERDOC_HEADER}"
+        STATUS DOWNLOAD_STATUS
+        SHOW_PROGRESS
+    )
+
+    list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+    if(NOT STATUS_CODE EQUAL 0)
+        message(FATAL_ERROR "Failed to download RenderDoc header: ${DOWNLOAD_STATUS}")
+    endif()
 else()
-    message(STATUS "RenderDoc header already downloaded � skipping")
+    message(STATUS "RenderDoc header already downloaded — skipping")
 endif()
+
 
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/renderdoc)
 
