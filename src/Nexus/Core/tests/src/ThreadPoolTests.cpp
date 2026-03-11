@@ -1,5 +1,3 @@
-#warning "ThreadPoolTests.cpp is being compiled"
-
 #include <gtest/gtest.h>
 
 #include "Core/ThreadPool.hpp"
