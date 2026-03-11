@@ -1,5 +1,6 @@
 set(CORE_SOURCES
 	include/Core/NamedJThread.hpp
+	include/Core/ThreadPool.hpp
 	)
 
 add_library(Nexus-Core INTERFACE ${CORE_SOURCES})
