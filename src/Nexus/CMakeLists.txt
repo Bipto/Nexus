@@ -10,6 +10,7 @@ if (NX_BUILD_TYPE STREQUAL "SHARED")
   add_compile_definitions(NX_EXPORT_API=1)
 endif()
 
+add_subdirectory(Core)
 add_subdirectory(Audio)
 add_subdirectory(Platform)
 add_subdirectory(RHI)
