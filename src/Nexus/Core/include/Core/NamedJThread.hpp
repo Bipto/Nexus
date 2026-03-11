@@ -3,6 +3,7 @@
 #include <chrono>
 #include <functional>
 #include <latch>
+#include <memory>
 #include <stop_token>
 #include <string>
 #include <string_view>
@@ -43,16 +44,15 @@ namespace Nexus
 				[this, func = std::forward<Callable>(func), ... args = std::forward<Args>(args)](std::stop_token st) mutable
 				{
 					m_StartTime = std::chrono::steady_clock::now();
-					m_Started.count_down();
-
 					SetCurrentThreadName(m_Name);
 
 					m_Running = true;
-
 					if (m_OnStart)
 					{
 						m_OnStart();
 					}
+
+					m_Started.count_down();
 
 					try
 					{
@@ -60,9 +60,9 @@ namespace Nexus
 					}
 					catch (...)
 					{
-						m_Exception = std::current_exception();
 						if (m_OnException)
-							m_OnException(m_Exception);
+							m_OnException(std::current_exception());
+						throw;
 					}
 
 					m_Running = false;

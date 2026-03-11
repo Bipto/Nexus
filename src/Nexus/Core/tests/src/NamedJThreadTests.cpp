@@ -42,7 +42,7 @@ namespace
 	}
 }
 
-TEST(NamedJThread, ValidThreadName)
+TEST(NamedJThread, ThreadName)
 {
 	std::latch	ready(1);
 	std::string observedName = {};
@@ -59,7 +59,7 @@ TEST(NamedJThread, ValidThreadName)
 	EXPECT_EQ(observedName, "test_thread");
 }
 
-TEST(NamedJThread, ValidThreadID)
+TEST(NamedJThread, ThreadID)
 {
 	std::latch ready(1);
 
