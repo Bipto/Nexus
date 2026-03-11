@@ -1,19 +1,20 @@
 FetchContent_MakeAvailable(googletest)
 
-add_executable(CoreUnitTest
-    "src/NamedJThreadTests.cpp"
+add_executable(CoreUnitTests
+    src/NamedJThreadTests.cpp
+    src/ThreadPoolTests.cpp
 )
     
-target_link_libraries(CoreUnitTest 
+target_link_libraries(CoreUnitTests 
     PRIVATE 
     Nexus-Core 
     gtest 
     gtest_main
 )
 
-copy_runtime_deps(CoreUnitTest)
+copy_runtime_deps(CoreUnitTests)
 
 add_test(
-    NAME CoreUnitTest
-    COMMAND CoreUnitTest
+    NAME CoreUnitTests
+    COMMAND CoreUnitTests
 )
