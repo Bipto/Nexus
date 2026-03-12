@@ -146,6 +146,9 @@ namespace Nexus
 					job = std::move(m_Jobs.front());
 					m_Jobs.pop();
 					m_ActiveJobs.fetch_add(1, std::memory_order_relaxed);
+
+					// we just freed a slot in the queue -> wake blocked submitters
+					m_Condition.notify_all();
 				}
 
 				if (job)
