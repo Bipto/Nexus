@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <atomic>
+#include <exception>
 #include <latch>
 #include <stop_token>
 #include <string>

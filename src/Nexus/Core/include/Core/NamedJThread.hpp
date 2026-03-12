@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <latch>
@@ -48,10 +49,7 @@ namespace Nexus
 
 					m_Running = true;
 					if (m_OnStart)
-					{
 						m_OnStart();
-					}
-
 					m_Started.count_down();
 
 					try
@@ -60,29 +58,26 @@ namespace Nexus
 					}
 					catch (...)
 					{
+						m_Exception = std::current_exception();
+
 						if (m_OnException)
-							m_OnException(std::current_exception());
-						throw;
+							m_OnException(m_Exception);
 					}
 
 					m_Running = false;
 					m_Stopped.count_down();
 
 					if (m_OnStop)
-					{
 						m_OnStop();
-					}
 				});
 		}
 
-		// Movable, not copyable
 		NamedJThread(NamedJThread &&) noexcept			  = default;
 		NamedJThread &operator=(NamedJThread &&) noexcept = default;
 
 		NamedJThread(const NamedJThread &)			  = delete;
 		NamedJThread &operator=(const NamedJThread &) = delete;
 
-		// Thread API passthrough
 		void Join()
 		{
 			m_Thread.join();
@@ -139,7 +134,6 @@ namespace Nexus
 		{
 			m_OnStart = std::move(func);
 		}
-
 		void SetOnStop(std::function<void()> func)
 		{
 			m_OnStop = std::move(func);
@@ -148,6 +142,10 @@ namespace Nexus
 		void SetOnException(std::function<void(std::exception_ptr)> func)
 		{
 			m_OnException = std::move(func);
+
+			// If exception already happened, call handler immediately
+			if (m_Exception)
+				m_OnException(m_Exception);
 		}
 
 		auto Uptime() const
@@ -168,15 +166,15 @@ namespace Nexus
 		}
 
 	  private:
-		std::string								m_Name = {};
+		std::string								m_Name;
 		std::latch								m_Started {1};
 		std::latch								m_Stopped {1};
 		std::atomic<bool>						m_Running	= false;
-		std::exception_ptr						m_Exception = {};
+		std::exception_ptr						m_Exception = nullptr;
 		std::chrono::steady_clock::time_point	m_StartTime;
-		std::jthread							m_Thread	  = {};
-		std::function<void()>					m_OnStart	  = {};
-		std::function<void()>					m_OnStop	  = {};
-		std::function<void(std::exception_ptr)> m_OnException = {};
+		std::jthread							m_Thread;
+		std::function<void()>					m_OnStart;
+		std::function<void()>					m_OnStop;
+		std::function<void(std::exception_ptr)> m_OnException;
 	};
 }	 // namespace Nexus
