@@ -66,7 +66,6 @@ namespace Nexus
 			{
 				std::unique_lock<std::mutex> lock(m_Mutex);
 
-				// Same logic as void Submit
 				m_Condition.wait(lock, [&] { return m_Stop || m_Jobs.size() < m_MaxQueueSize; });
 
 				if (m_Stop)
@@ -93,9 +92,15 @@ namespace Nexus
 
 		void Join()
 		{
+			// Request stop on all workers
+			for (auto &worker : m_Workers) worker->RequestStop();
+
+			// Wake any workers blocked on the condition variable
+			m_Condition.notify_all();
+
+			// Now join them
 			for (auto &worker : m_Workers)
 			{
-				worker->RequestStop();
 				if (worker->Joinable())
 					worker->Join();
 			}
