@@ -26,11 +26,10 @@ namespace Nexus
 			for (size_t i = 0; i < threadCount; ++i)
 			{
 				std::string workerName = std::format("{} thread-{}", m_Name, i);
-
 				m_Workers.emplace_back(std::make_unique<NamedJThread>(workerName, [this](std::stop_token st) { WorkerLoop(st); }));
 			}
 
-			for (auto &worker : m_Workers) { worker->WaitUntilStarted(); }
+			for (auto &worker : m_Workers) worker->WaitUntilStarted();
 		}
 
 		~ThreadPool()
@@ -44,12 +43,11 @@ namespace Nexus
 		{
 			std::unique_lock<std::mutex> lock(m_Mutex);
 
-			m_Condition.wait(lock, [&] { return m_Stop == false && m_Jobs.size() < m_MaxQueueSize; });
+			// Wake when either stopped OR there is space in the queue
+			m_Condition.wait(lock, [&] { return m_Stop || m_Jobs.size() < m_MaxQueueSize; });
 
 			if (m_Stop)
-			{
 				throw std::runtime_error("ThreadPool: Submit() called after Stop()");
-			}
 
 			m_Jobs.push(std::move(job));
 			m_Condition.notify_one();
@@ -68,12 +66,11 @@ namespace Nexus
 			{
 				std::unique_lock<std::mutex> lock(m_Mutex);
 
-				m_Condition.wait(lock, [&] { return m_Stop == false && m_Jobs.size() < m_MaxQueueSize; });
+				// Same logic as void Submit
+				m_Condition.wait(lock, [&] { return m_Stop || m_Jobs.size() < m_MaxQueueSize; });
 
 				if (m_Stop)
-				{
 					throw std::runtime_error("ThreadPool: Submit() called after Stop()");
-				}
 
 				m_Jobs.push([task]() { (*task)(); });
 			}
@@ -88,6 +85,8 @@ namespace Nexus
 				std::lock_guard<std::mutex> lock(m_Mutex);
 				m_Stop = true;
 			}
+
+			// Wake all waiting submitters and workers
 			m_Condition.notify_all();
 			m_IdleCondition.notify_all();
 		}
@@ -98,9 +97,7 @@ namespace Nexus
 			{
 				worker->RequestStop();
 				if (worker->Joinable())
-				{
 					worker->Join();
-				}
 			}
 		}
 
@@ -128,24 +125,25 @@ namespace Nexus
 	  private:
 		void WorkerLoop(std::stop_token st)
 		{
-			while (!st.stop_requested())
+			for (;;)
 			{
 				std::function<void()> job;
 
 				{
 					std::unique_lock<std::mutex> lock(m_Mutex);
 
-					m_Condition.wait(lock, [&] { return m_Stop || st.stop_requested() || (!m_Paused && !m_Jobs.empty()); });
+					// Wake when:
+					//  - stop requested, or
+					//  - not paused and there is work
+					m_Condition.wait(lock, [&] { return st.stop_requested() || (!m_Paused && !m_Jobs.empty()); });
 
-					if (m_Stop || st.stop_requested())
-					{
+					// If stop requested and no work left, exit
+					if (st.stop_requested() && m_Jobs.empty())
 						return;
-					}
 
+					// If paused or no jobs (spurious wake), loop again
 					if (m_Paused || m_Jobs.empty())
-					{
 						continue;
-					}
 
 					job = std::move(m_Jobs.front());
 					m_Jobs.pop();
@@ -153,17 +151,14 @@ namespace Nexus
 				}
 
 				if (job)
-				{
 					job();
-				}
 
 				{
 					std::lock_guard<std::mutex> lock(m_Mutex);
 					m_ActiveJobs.fetch_sub(1, std::memory_order_relaxed);
+
 					if (m_Jobs.empty() && m_ActiveJobs.load(std::memory_order_relaxed) == 0)
-					{
 						m_IdleCondition.notify_all();
-					}
 				}
 			}
 		}
@@ -180,7 +175,7 @@ namespace Nexus
 		std::atomic<size_t> m_ActiveJobs {0};
 		size_t				m_MaxQueueSize {1024};
 
-		bool m_Stop {false};
+		bool m_Stop {false};	// prevents new submissions
 		bool m_Paused {false};
 	};
 

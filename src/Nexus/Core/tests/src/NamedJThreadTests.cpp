@@ -65,6 +65,7 @@ TEST(NamedJThread, ThreadID)
 	std::latch ready(1);
 
 	Nexus::NamedJThread namedThread("test_thread", [&](std::stop_token) {});
+	namedThread.Join();
 
 	EXPECT_NE(namedThread.GetID(), std::this_thread::get_id());
 }
@@ -79,6 +80,11 @@ TEST(NamedJThread, Cancellation)
 							  while (!st.stop_requested()) { std::this_thread::sleep_for(std::chrono::milliseconds(1)); }
 							  stopped = true;
 						  });
+
+	t.RequestStop();
+	t.Join();
+
+	EXPECT_TRUE(stopped.load());
 }
 
 TEST(NamedJThread, WaitUntilStartedUnblocks)
