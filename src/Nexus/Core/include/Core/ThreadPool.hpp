@@ -26,7 +26,7 @@ namespace Nexus
 			for (size_t i = 0; i < threadCount; ++i)
 			{
 				std::string workerName = std::format("{} thread-{}", m_Name, i);
-				m_Workers.emplace_back(std::make_unique<NamedJThread>(workerName, [this](std::stop_token st) { WorkerLoop(st); }));
+				m_Workers.emplace_back(std::make_unique<NamedJThread>(workerName, [this](std::stop_token) { WorkerLoop(); }));
 			}
 
 			for (auto &worker : m_Workers) worker->WaitUntilStarted();
@@ -92,13 +92,6 @@ namespace Nexus
 
 		void Join()
 		{
-			// Request stop on all workers
-			for (auto &worker : m_Workers) worker->RequestStop();
-
-			// Wake any workers blocked on the condition variable
-			m_Condition.notify_all();
-
-			// Now join them
 			for (auto &worker : m_Workers)
 			{
 				if (worker->Joinable())
@@ -128,7 +121,7 @@ namespace Nexus
 		}
 
 	  private:
-		void WorkerLoop(std::stop_token st)
+		void WorkerLoop()
 		{
 			for (;;)
 			{
@@ -138,12 +131,12 @@ namespace Nexus
 					std::unique_lock<std::mutex> lock(m_Mutex);
 
 					// Wake when:
-					//  - stop requested, or
+					//  - stop requested (m_Stop), or
 					//  - not paused and there is work
-					m_Condition.wait(lock, [&] { return st.stop_requested() || (!m_Paused && !m_Jobs.empty()); });
+					m_Condition.wait(lock, [&] { return m_Stop || (!m_Paused && !m_Jobs.empty()); });
 
-					// If stop requested and no work left, exit
-					if (st.stop_requested() && m_Jobs.empty())
+					// If stopping and no work left, exit
+					if (m_Stop && m_Jobs.empty())
 						return;
 
 					// If paused or no jobs (spurious wake), loop again
@@ -180,7 +173,7 @@ namespace Nexus
 		std::atomic<size_t> m_ActiveJobs {0};
 		size_t				m_MaxQueueSize {1024};
 
-		bool m_Stop {false};	// prevents new submissions
+		bool m_Stop {false};	// prevents new submissions and drives worker exit
 		bool m_Paused {false};
 	};
 
