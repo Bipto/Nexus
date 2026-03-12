@@ -1,8 +1,8 @@
 
 #include <ctime>
 
+#include "Core/Utils.hpp"
 #include "Platform/Timings/DateTime.hpp"
-#include "Platform/Utils/Utils.hpp"
 
 namespace
 {

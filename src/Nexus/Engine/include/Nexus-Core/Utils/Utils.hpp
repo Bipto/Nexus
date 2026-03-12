@@ -190,9 +190,4 @@ namespace Nexus::Utils
 	NX_API void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 	NX_API void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x)	 STRINGIFY(x)
-
 }	 // namespace Nexus::Utils
-
-#define BIT(x) (1 << x)

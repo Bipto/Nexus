@@ -39,7 +39,6 @@ set(RHI_SOURCES
 	"include/RHI/TextureView.hpp"
 	"include/RHI/TimingQuery.hpp"
 	"include/RHI/Types.hpp"
-	"include/RHI/Utils.hpp"
 	"include/RHI/VertexBufferLayout.hpp"
 	"include/RHI/Viewport.hpp"
 	"include/RHI/WindingOrder.hpp"
@@ -51,8 +50,6 @@ set(RHI_SOURCES
 	"src/RHI/ShaderDataType.cpp"
 	"src/RHI/VertexBufferLayout.cpp"
 )
-
-set(LIBRARY_COMPILE_DEFINITIONS "NX_RHI_EXPORT=1")
 
 add_library(Nexus-RHI ${RHI_SOURCES})
 
@@ -66,5 +63,5 @@ set_target_properties(Nexus-RHI PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-target_compile_definitions(Nexus-RHI PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
-target_link_libraries(Nexus-RHI PUBLIC ${NEXUS_LINKED_LIBRARIES})
+target_compile_definitions(Nexus-RHI PUBLIC NX_RHI_EXPORT=1)
+target_link_libraries(Nexus-RHI PUBLIC Nexus-Core)

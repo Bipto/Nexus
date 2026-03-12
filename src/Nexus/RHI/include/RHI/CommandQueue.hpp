@@ -5,8 +5,9 @@
 #include "RHI/RHI-Core.hpp"
 #include "RHI/Swapchain.hpp"
 #include "RHI/Texture.hpp"
-#include "RHI/Utils.hpp"
-#include <RHI/Types.hpp>
+#include "RHI/Types.hpp"
+
+#include "Core/Utils.hpp"
 
 namespace Nexus::Graphics
 {

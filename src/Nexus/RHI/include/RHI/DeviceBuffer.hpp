@@ -6,7 +6,8 @@
 #include "RHI/DeviceAddress.hpp"
 #include "RHI/RHI-Core.hpp"
 #include "RHI/Types.hpp"
-#include "RHI/Utils.hpp"
+
+#include "Core/Utils.hpp"
 
 namespace Nexus::Graphics
 {

@@ -84,7 +84,7 @@ set_target_properties(Nexus-Platform PROPERTIES
 	COMPILE_WARNING_AS_ERROR ON)
 
 find_package(SDL3 CONFIG REQUIRED)
-list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
+list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3 Nexus-Core)
 
 target_compile_definitions(Nexus-Platform PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Platform PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
