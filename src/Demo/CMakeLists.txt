@@ -36,25 +36,11 @@ if (ANDROID OR __ANDROID__)
 endif()
 
 if (EMSCRIPTEN)
-    add_custom_command(
-    TARGET Nexus PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/html
-        $<TARGET_FILE_DIR:Nexus>)
-
-    #copy resources folder to output directory
-    add_custom_command(
-    TARGET Nexus PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        ${CMAKE_BINARY_DIR}/resources)
-
+    copy_directory_to_target_output(Nexus html)
+    copy_directory_to_target_output(Demo resources)
 else()
     #copy resources folder to output directory
-    add_custom_command(TARGET Demo POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        $<TARGET_FILE_DIR:Nexus>/resources)
+    copy_directory_to_target_output(Demo resources)
 endif()
 
 #set the working directory to the executable directory and startup project to the Demo project

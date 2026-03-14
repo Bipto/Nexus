@@ -34,6 +34,16 @@ macro(nexus_structure_folders)
   endforeach()
 endmacro()
 
+function(copy_directory_to_target_output target dir)
+    add_custom_command(
+        TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/${dir}
+            $<TARGET_FILE_DIR:${target}>/${dir}
+        VERBATIM
+    )
+endfunction()
+
 macro(copy_runtime_deps target_name)
     if(NOT TARGET ${target_name})
         message(WARNING "Target '${target_name}' does not exist.")
