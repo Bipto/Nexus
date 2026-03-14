@@ -6,7 +6,7 @@ add_executable(EngineUnitTests
     src/Point2DTests.cpp
     src/Point3DTests.cpp
     src/ResourcePoolTests.cpp
-)
+    src/TextureImporterTests.cpp)
     
 target_link_libraries(EngineUnitTests 
     PRIVATE 
@@ -16,6 +16,7 @@ target_link_libraries(EngineUnitTests
 )
 
 copy_runtime_deps(EngineUnitTests)
+copy_directory_to_target_output(EngineUnitTests resources)
 
 add_test(
     NAME EngineUnitTests
