@@ -44,10 +44,10 @@ namespace Nexus::IO
 		}
 	}
 
-	std::expected<std::vector<uint8_t>, std::string> FileStreamSDL3::Read(size_t count)
+	std::expected<std::vector<std::byte>, std::string> FileStreamSDL3::Read(size_t count)
 	{
-		std::vector<uint8_t> buffer(count);
-		size_t				 bytesRead = SDL_ReadIO(m_File.get(), buffer.data(), count);
+		std::vector<std::byte> buffer(count);
+		size_t				   bytesRead = SDL_ReadIO(m_File.get(), buffer.data(), count);
 
 		if (bytesRead == 0 && SDL_GetError()[0] != '\0')
 		{
@@ -58,7 +58,7 @@ namespace Nexus::IO
 		return buffer;
 	}
 
-	std::expected<size_t, std::string> FileStreamSDL3::Write(const uint8_t *data, size_t count)
+	std::expected<size_t, std::string> FileStreamSDL3::Write(const std::byte *data, size_t count)
 	{
 		size_t bytesWritten = SDL_WriteIO(m_File.get(), (void *)data, count);
 		if (bytesWritten == 0 && SDL_GetError()[0] != '\0')

@@ -8,12 +8,12 @@ namespace Nexus::IO
 		m_Impl = std::unique_ptr<FileStreamImpl>(Platform::CreateFileStreamImpl(path, fileMode));
 	}
 
-	std::expected<std::vector<uint8_t>, std::string> FileStream::Read(size_t count)
+	std::expected<std::vector<std::byte>, std::string> FileStream::Read(size_t count)
 	{
 		return m_Impl->Read(count);
 	}
 
-	std::expected<size_t, std::string> FileStream::Write(const uint8_t *data, size_t count)
+	std::expected<size_t, std::string> FileStream::Write(const std::byte *data, size_t count)
 	{
 		return m_Impl->Write(data, count);
 	}
@@ -28,7 +28,7 @@ namespace Nexus::IO
 		return m_Impl->GetSize();
 	}
 
-	std::expected<std::vector<uint8_t>, std::string> File::ReadAllBytes(const std::filesystem::path &path)
+	std::expected<std::vector<std::byte>, std::string> File::ReadAllBytes(const std::filesystem::path &path)
 	{
 		IO::FileStream fileStream(path, IO::FileMode::ReadBinary);
 		return fileStream.Read(static_cast<size_t>(fileStream.GetSize().value()));
@@ -42,10 +42,10 @@ namespace Nexus::IO
 		{
 			return std::unexpected(result.error());
 		}
-		return std::string(result->begin(), result->end());
+		return std::string(reinterpret_cast<const char *>(result->data()), result->size());
 	}
 
-	std::expected<size_t, std::string> File::WriteAllBytes(const std::filesystem::path &path, const uint8_t *data, size_t size)
+	std::expected<size_t, std::string> File::WriteAllBytes(const std::filesystem::path &path, const std::byte *data, size_t size)
 	{
 		IO::FileStream fileStream(path, IO::FileMode::WriteNewBinary);
 		return fileStream.Write(data, size);
@@ -54,6 +54,6 @@ namespace Nexus::IO
 	std::expected<size_t, std::string> File::WriteAllText(const std::filesystem::path &path, const std::string &text)
 	{
 		IO::FileStream fileStream(path, IO::FileMode::WriteNewText);
-		return fileStream.Write(reinterpret_cast<const uint8_t *>(text.data()), text.size());
+		return fileStream.Write(reinterpret_cast<const std::byte *>(text.data()), text.size());
 	}
 }	 // namespace Nexus::IO
