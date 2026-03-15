@@ -620,7 +620,35 @@ namespace Nexus::ImGuiUtils
 		m_CommandList->Begin();
 		m_CommandList->BeginDebugGroup("Rendering ImGui");
 
-		ImVec2 pos = drawData->DisplayPos;
+		m_CommandList->SetPipeline(m_Pipeline);
+
+		Ref<Graphics::ISwapchain> swapchain = info->Swapchain;
+		m_CommandList->SetFramebuffer(swapchain->GetCurrentFramebuffer());
+
+		Graphics::VertexBufferView vertexBufferView = {};
+		vertexBufferView.BufferHandle				= m_VertexBuffer;
+		vertexBufferView.Offset						= 0;
+		vertexBufferView.Size						= m_VertexBuffer->GetSizeInBytes();
+		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+		Graphics::IndexBufferView indexBufferView = {};
+		indexBufferView.BufferHandle			  = m_IndexBuffer;
+		indexBufferView.Offset					  = 0;
+		indexBufferView.Size					  = m_IndexBuffer->GetSizeInBytes();
+		indexBufferView.BufferFormat			  = Graphics::IndexFormat::UInt16;
+		m_CommandList->SetIndexBuffer(indexBufferView);
+
+		Nexus::Graphics::Viewport viewport;
+		viewport.X		= 0;
+		viewport.Y		= 0;
+		viewport.Width	= drawData->DisplaySize.x;
+		viewport.Height = drawData->DisplaySize.y;
+		m_CommandList->SetViewport(viewport);
+
+		auto &io = ImGui::GetIO();
+
+		ImVec2	  pos = drawData->DisplayPos;
+		glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
 
 		ImGuiViewport *vp = drawData->OwnerViewport;
 
@@ -633,54 +661,25 @@ namespace Nexus::ImGuiUtils
 
 			for (int cmdi = 0; cmdi < cmdList->CmdBuffer.Size; cmdi++)
 			{
-				ImDrawCmd drawCmd = cmdList->CmdBuffer[cmdi];
+				const ImDrawCmd &drawCmd = cmdList->CmdBuffer[cmdi];
+
+				Nexus::Graphics::Scissor scissor;
+				scissor.X	   = drawCmd.ClipRect.x - pos.x;
+				scissor.Y	   = drawCmd.ClipRect.y - pos.y;
+				scissor.Width  = (uint32_t)(drawCmd.ClipRect.z - drawCmd.ClipRect.x);
+				scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
+				m_CommandList->SetScissor(scissor);
+
+				auto										  &descriptorInfo	   = m_Descriptors.at(drawCmd.TextureId);
+				Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
+				resourceBindingDesc.TargetResourceSet							   = descriptorInfo.m_ResourceSet;
+				resourceBindingDesc.DynamicOffsets								   = {};
+				m_CommandList->SetResourceSet(resourceBindingDesc);
+
+				m_CommandList->WritePushConstants("PushConstants", &mvp, sizeof(mvp), 0);
 
 				if (drawCmd.ElemCount > 0)
 				{
-					m_CommandList->SetPipeline(m_Pipeline);
-
-					Ref<Graphics::ISwapchain> swapchain = info->Swapchain;
-					m_CommandList->SetFramebuffer(swapchain->GetCurrentFramebuffer());
-
-					Graphics::VertexBufferView vertexBufferView = {};
-					vertexBufferView.BufferHandle				= m_VertexBuffer;
-					vertexBufferView.Offset						= 0;
-					vertexBufferView.Size						= m_VertexBuffer->GetSizeInBytes();
-					m_CommandList->SetVertexBuffer(vertexBufferView, 0);
-
-					Graphics::IndexBufferView indexBufferView = {};
-					indexBufferView.BufferHandle			  = m_IndexBuffer;
-					indexBufferView.Offset					  = 0;
-					indexBufferView.Size					  = m_IndexBuffer->GetSizeInBytes();
-					indexBufferView.BufferFormat			  = Graphics::IndexFormat::UInt16;
-					m_CommandList->SetIndexBuffer(indexBufferView);
-
-					Nexus::Graphics::Viewport viewport;
-					viewport.X		= 0;
-					viewport.Y		= 0;
-					viewport.Width	= drawData->DisplaySize.x;
-					viewport.Height = drawData->DisplaySize.y;
-					m_CommandList->SetViewport(viewport);
-
-					Nexus::Graphics::Scissor scissor;
-					scissor.X	   = drawCmd.ClipRect.x - pos.x;
-					scissor.Y	   = drawCmd.ClipRect.y - pos.y;
-					scissor.Width  = (uint32_t)(drawCmd.ClipRect.z - drawCmd.ClipRect.x);
-					scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
-					m_CommandList->SetScissor(scissor);
-
-					auto	 &io  = ImGui::GetIO();
-					glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
-
-					auto &descriptorInfo = m_Descriptors.at(drawCmd.TextureId);
-
-					Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
-					resourceBindingDesc.TargetResourceSet							   = descriptorInfo.m_ResourceSet;
-					resourceBindingDesc.DynamicOffsets								   = {};
-					m_CommandList->SetResourceSet(resourceBindingDesc);
-
-					m_CommandList->WritePushConstants("PushConstants", &mvp, sizeof(mvp), 0);
-
 					Graphics::DrawIndexedDescription drawDesc = {};
 					drawDesc.VertexStart					  = drawCmd.VtxOffset + vtxOffset;
 					drawDesc.IndexStart						  = drawCmd.IdxOffset + idxOffset;
