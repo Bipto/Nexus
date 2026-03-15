@@ -13,6 +13,10 @@
 
 namespace Nexus::Graphics
 {
+	constexpr size_t MaxVertexBufferBindings = 8;
+	constexpr size_t MaxViewports			 = 8;
+	constexpr size_t MaxScissors			 = 8;
+
 	/// @brief A struct representing how all of the settings required to create a
 	/// pipeline
 	struct GraphicsPipelineDescription
