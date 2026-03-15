@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Demo.hpp"
-#include "Platform/Timings/Profiler.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Demos
 {

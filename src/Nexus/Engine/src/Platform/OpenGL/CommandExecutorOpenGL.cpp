@@ -9,7 +9,7 @@
 	#include "TextureViewOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 
-	#include "Platform/Timings/Profiler.hpp"
+	#include "Profiling/Profiler.hpp"
 
 	#include "Nexus-Core/Utils/Utils.hpp"
 

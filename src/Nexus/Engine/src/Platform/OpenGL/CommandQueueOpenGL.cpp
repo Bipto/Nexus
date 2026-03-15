@@ -1,6 +1,6 @@
 #include "CommandQueueOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
-#include "Platform/Timings/Profiler.hpp"
+#include "Profiling/Profiler.hpp"
 #include "SwapchainOpenGL.hpp"
 
 namespace Nexus::Graphics

@@ -8,7 +8,7 @@
 #include "Nexus-Core/Runtime.hpp"
 
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
-#include "Platform/Timings/Profiler.hpp"
+#include "Profiling/Profiler.hpp"
 
 static std::string GetImGuiShaderVertexSource()
 {

@@ -5,7 +5,7 @@
 #include "Platform/IWindow.hpp"
 #include "Platform/Input/Input.hpp"
 #include "Platform/Platform.hpp"
-#include "Platform/Timings/Profiler.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Nexus
 {

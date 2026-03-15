@@ -2,7 +2,7 @@
 
 #include "OpenAL/OpenAL-API.hpp"
 
-#include "Platform/Timings/Profiler.hpp"
+#include "Profiling/Profiler.hpp"
 
 #include "Platform/Input/Input.hpp"
 #include "Platform/Logging/Log.hpp"

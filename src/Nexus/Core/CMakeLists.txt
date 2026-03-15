@@ -1,7 +1,10 @@
+include(FetchContent)
+
 set(CORE_SOURCES
 	include/Core/NamedJThread.hpp
 	include/Core/ThreadPool.hpp
-	)
+	include/Profiling/Profiler.hpp
+)
 
 add_library(Nexus-Core INTERFACE ${CORE_SOURCES})
 target_include_directories(Nexus-Core INTERFACE include)
@@ -15,3 +18,36 @@ set_target_properties(Nexus-Core PROPERTIES
 if (DEFINED BUILD_TESTING)
 	add_subdirectory(tests)
 endif()
+
+##################################################################################
+#-----------------------------------Tracy-----------------------------------------
+##################################################################################
+
+FetchContent_Declare(
+	tracy
+	GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+	GIT_TAG v0.13.1
+)
+FetchContent_MakeAvailable(tracy)
+
+add_library(Tracy-Shared SHARED
+    ${tracy_SOURCE_DIR}/public/TracyClient.cpp
+)
+
+target_include_directories(Tracy-Shared PUBLIC
+    ${tracy_SOURCE_DIR}/public
+)
+
+set_target_properties(Tracy-Shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+target_compile_definitions(Tracy-Shared PUBLIC TRACY_ENABLE)
+target_compile_definitions(Nexus-Core INTERFACE TRACY_IMPORTS)
+
+set_target_properties(Tracy-Shared PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN YES
+)
+
+add_definitions(-DTRACY_ENABLE)
+
+target_link_libraries(Nexus-Core INTERFACE Tracy-Shared)

@@ -4,7 +4,7 @@
 
 #include "Platform/Events/EventDispatcher.hpp"
 
-#include "Platform/Timings/Profiler.hpp"
+#include "Profiling/Profiler.hpp"
 
 DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 	: m_Application(app),

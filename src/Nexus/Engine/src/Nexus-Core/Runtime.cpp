@@ -3,7 +3,8 @@
 #include "Nexus-Core/ECS/Components.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/Platform.hpp"
-#include "Platform/Timings/Profiler.hpp"
+
+#include "Profiling/Profiler.hpp"
 
 Nexus::Application *appPtr = nullptr;
 

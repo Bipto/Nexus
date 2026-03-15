@@ -32,24 +32,3 @@ namespace Nexus::Timings
 }	 // namespace Nexus::Timings
 
 // #define NX_PROFILING_ENABLE
-
-#if defined(NX_PROFILING_ENABLE)
-	#define NX_PROFILE_FUNCTION()                                                                                                                    \
-		do                                                                                                                                           \
-		{                                                                                                                                            \
-			Nexus::Timings::ProfilingTimer timer("Function");                                                                                        \
-			timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });         \
-			\                                                                                                                                        \
-		} while (0)
-
-	#define NX_PROFILE_SCOPE(name)                                                                                                                   \
-		Nexus::Timings::ProfilingTimer timer(name);                                                                                                  \
-		timer.OnStop.Bind([&](Nexus::TimeSpan timespan) { Nexus::Timings::Profiler::Get().AddResult(timer.GenerateName(), timespan); });
-
-	#define NX_MARK_FRAME_END()
-
-#else
-	#define NX_PROFILE_FUNCTION()
-	#define NX_PROFILE_SCOPE(name)
-	#define NX_MARK_FRAME_END()
-#endif

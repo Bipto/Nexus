@@ -7,7 +7,7 @@
 	#include "GraphicsDeviceVk.hpp"
 	#include "PlatformVk.hpp"
 
-	#include "Platform/Timings/Profiler.hpp"
+	#include "Profiling/Profiler.hpp"
 
 namespace Nexus::Graphics
 {
