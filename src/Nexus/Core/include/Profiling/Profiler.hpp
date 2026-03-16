@@ -1,7 +1,7 @@
 #pragma once
 
 #define NX_PROFILING_ENABLE 1
-#if defined(NX_PROFILING_ENABLE)
+#if defined(NX_PROFILING_ENABLE) && defined(NX_TRACY_AVAILABLE)
 	#include <tracy/Tracy.hpp>
 
 	#define NX_PROFILE_FUNCTION()  ZoneScoped;
