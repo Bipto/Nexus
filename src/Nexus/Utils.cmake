@@ -51,8 +51,8 @@ macro(copy_runtime_deps target_name)
     endif()
 
     if(NOT MSVC OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    return()
-endif()
+        return()
+    endif()
 
 
     set(VCPKG_BIN
