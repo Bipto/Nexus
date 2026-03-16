@@ -4,6 +4,7 @@ set(CORE_SOURCES
 	include/Core/NamedJThread.hpp
 	include/Core/NamedJThread.inl
 	include/Core/ThreadPool.hpp
+	include/Core/ThreadPool.inl
 	include/Profiling/Profiler.hpp
 )
 

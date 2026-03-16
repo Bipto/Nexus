@@ -1,16 +1,18 @@
 #pragma once
 
-#include "Core/NamedJThread.hpp"
+#include "NamedJThread.hpp"
 
 #include <atomic>
 #include <condition_variable>
 #include <format>
 #include <functional>
 #include <future>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace Nexus
@@ -19,166 +21,79 @@ namespace Nexus
 	class ThreadPool
 	{
 	  public:
-		explicit ThreadPool(std::string_view name, size_t threadCount, size_t maxQueueSize = 1024) : m_Name(name), m_MaxQueueSize(maxQueueSize)
-		{
-			m_Workers.reserve(threadCount);
+		/// @brief Constructor for ThreadPool, taking in the name, number of threads and maximum number of queued functions
+		/// @param name The name of the thread pool for debugging, name will be applied to all created threads
+		/// @param threadCount The number of threads to use in the thread pool
+		/// @param maxQueueSize The maximum number of queue functions to call
+		explicit ThreadPool(std::string_view name, size_t threadCount, size_t maxQueueSize = 1024);
 
-			for (size_t i = 0; i < threadCount; ++i)
-			{
-				std::string workerName = std::format("{} thread-{}", m_Name, i);
-				m_Workers.emplace_back(
-					std::make_unique<NamedJThread>(workerName, nullptr, nullptr, nullptr, [this](std::stop_token) { WorkerLoop(); }));
-			}
+		/// @brief A destructor to clean up the thread pool
+		~ThreadPool();
 
-			for (auto &worker : m_Workers) worker->WaitUntilStarted();
-		}
+		/// @brief A function to submit work into one of the threads in the pool
+		/// @param job The function to call on the thread
+		void Submit(std::function<void()> job);
 
-		~ThreadPool()
-		{
-			Stop();
-			Join();
-		}
-
-		// Submit a void job
-		void Submit(std::function<void()> job)
-		{
-			std::unique_lock<std::mutex> lock(m_Mutex);
-
-			// Wake when either stopped OR there is space in the queue
-			m_Condition.wait(lock, [&] { return m_Stop || m_Jobs.size() < m_MaxQueueSize; });
-
-			if (m_Stop)
-				throw std::runtime_error("ThreadPool: Submit() called after Stop()");
-
-			m_Jobs.push(std::move(job));
-			m_Condition.notify_one();
-		}
-
-		// Submit a job that returns a value
+		/// @brief A function that submits work into one of the threads in the pool
+		/// @tparam F The type of the function to call
+		/// @tparam ...Args The Type of the arguments to pass to the function
+		/// @param f The actual function to call
+		/// @param ...args The parameters to pass into the function
+		/// @return The value returned from the function called by the thread
 		template<typename F, typename... Args>
-		auto Submit(F &&f, Args &&...args) -> std::future<std::invoke_result_t<F, Args...>>
-		{
-			using ReturnT = std::invoke_result_t<F, Args...>;
+		auto Submit(F &&f, Args &&...args) -> std::future<std::invoke_result_t<F, Args...>>;
 
-			auto task = std::make_shared<std::packaged_task<ReturnT()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+		/// @brief A function that prevents new submissions and helps to exit all threads
+		void Stop();
 
-			std::future<ReturnT> result = task->get_future();
+		/// @brief A function that requests that all threads in the pool should join
+		void Join();
 
-			{
-				std::unique_lock<std::mutex> lock(m_Mutex);
+		/// @brief A function that waits until all work in the pool has been completed
+		void WaitUntilIdle();
 
-				m_Condition.wait(lock, [&] { return m_Stop || m_Jobs.size() < m_MaxQueueSize; });
+		/// @brief A function that temporarily pauses all execution within the thread pool
+		void Pause();
 
-				if (m_Stop)
-					throw std::runtime_error("ThreadPool: Submit() called after Stop()");
-
-				m_Jobs.push([task]() { (*task)(); });
-			}
-
-			m_Condition.notify_one();
-			return result;
-		}
-
-		void Stop()
-		{
-			{
-				std::lock_guard<std::mutex> lock(m_Mutex);
-				m_Stop = true;
-			}
-
-			// Wake all waiting submitters and workers
-			m_Condition.notify_all();
-			m_IdleCondition.notify_all();
-		}
-
-		void Join()
-		{
-			for (auto &worker : m_Workers)
-			{
-				if (worker->Joinable())
-					worker->Join();
-			}
-		}
-
-		void WaitUntilIdle()
-		{
-			std::unique_lock<std::mutex> lock(m_Mutex);
-			m_IdleCondition.wait(lock, [&] { return m_Jobs.empty() && m_ActiveJobs.load() == 0; });
-		}
-
-		void Pause()
-		{
-			std::lock_guard<std::mutex> lock(m_Mutex);
-			m_Paused = true;
-		}
-
-		void Resume()
-		{
-			{
-				std::lock_guard<std::mutex> lock(m_Mutex);
-				m_Paused = false;
-			}
-			m_Condition.notify_all();
-		}
+		/// @brief A function that resumes execution within the thread pool
+		void Resume();
 
 	  private:
-		void WorkerLoop()
-		{
-			for (;;)
-			{
-				std::function<void()> job;
-
-				{
-					std::unique_lock<std::mutex> lock(m_Mutex);
-
-					// Wake when:
-					//  - stop requested (m_Stop), or
-					//  - not paused and there is work
-					m_Condition.wait(lock, [&] { return m_Stop || (!m_Paused && !m_Jobs.empty()); });
-
-					// If stopping and no work left, exit
-					if (m_Stop && m_Jobs.empty())
-						return;
-
-					// If paused or no jobs (spurious wake), loop again
-					if (m_Paused || m_Jobs.empty())
-						continue;
-
-					job = std::move(m_Jobs.front());
-					m_Jobs.pop();
-					m_ActiveJobs.fetch_add(1, std::memory_order_relaxed);
-
-					// we just freed a slot in the queue -> wake blocked submitters
-					m_Condition.notify_all();
-				}
-
-				if (job)
-					job();
-
-				{
-					std::lock_guard<std::mutex> lock(m_Mutex);
-					m_ActiveJobs.fetch_sub(1, std::memory_order_relaxed);
-
-					if (m_Jobs.empty() && m_ActiveJobs.load(std::memory_order_relaxed) == 0)
-						m_IdleCondition.notify_all();
-				}
-			}
-		}
+		/// @brief A function that is internally called by the thread pool to execute queued functions
+		void WorkerLoop();
 
 	  private:
-		std::string								   m_Name {};
+		/// @brief The debug name of the thread pool
+		std::string m_Name {};
+
+		/// @brief A vector of all worker threads within the thread pool
 		std::vector<std::unique_ptr<NamedJThread>> m_Workers {};
-		std::queue<std::function<void()>>		   m_Jobs {};
 
-		std::mutex				m_Mutex {};
+		/// @brief A queue of all jobs to be executed
+		std::queue<std::function<void()>> m_Jobs {};
+
+		/// @brief A mutex to handle synchronisation between threads
+		std::mutex m_Mutex {};
+
+		/// @brief A condition variable to synchronise sharing of work between threads
 		std::condition_variable m_Condition {};
+
+		/// @brief A condition variable to check when the thread pool is idle
 		std::condition_variable m_IdleCondition {};
 
+		/// @brief An integer containing the number of jobs currently being executed by the thread pool
 		std::atomic<size_t> m_ActiveJobs {0};
-		size_t				m_MaxQueueSize {1024};
 
-		bool m_Stop {false};	// prevents new submissions and drives worker exit
+		/// @brief The maximum number of threads that can be queued by the thread pool
+		size_t m_MaxQueueSize {1024};
+
+		/// @brief A boolean indicating whether the thread pool is stopping
+		bool m_Stop {false};
+
+		/// @brief a boolean indicating whether the thread pool is currently paused
 		bool m_Paused {false};
 	};
 
 }	 // namespace Nexus
+
+#include "ThreadPool.inl"
