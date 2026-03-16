@@ -22,8 +22,8 @@ endif()
 ##################################################################################
 #-----------------------------------Tracy-----------------------------------------
 ##################################################################################
-
-if (NOT MINGW)
+# Skip Tracy when using MinGW or Clang-cl
+if (NOT MINGW AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC"))
 
 	FetchContent_Declare(
 		tracy
