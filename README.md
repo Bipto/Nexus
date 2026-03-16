@@ -14,6 +14,9 @@ Nexus is a cross-platform 2D and 3D graphics and audio library, encompassing a R
 -  Integrated custom ImGui backend implementation
 -  Intuitive API design with low-level access preserved
 
+# Architecture
+The project is split into multiple components including Audio, Core, Engine, Platform and RHI. Core contains core functionality needed by all other modules. Engine is the top level module and contains all of the functionality you will need to build custom applications with. All other modules have limited depdendencies on each other. All modules have their own src and include directories and include their own unit tests if relevant.
+
 # Building
 
 Windows
@@ -41,7 +44,7 @@ Optional CMake variables:
 - BUILD_TESTING: Builds unit tests
 
 # Documentation
-Documentation of source code is available at:  https://bipto.github.io/Nexus/
+Documentation of source code is generated automatically through Doxygen with every commit. Documentation is available through a browser at:  https://bipto.github.io/Nexus or as a PDF document as a GitHub Actions artifact.
 
 # Demos
 Repository contains a full demo suite, containing examples of all supported features, including command recording, indirect rendering, model loading, lighting and audio.
