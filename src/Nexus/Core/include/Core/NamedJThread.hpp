@@ -103,15 +103,34 @@ namespace Nexus
 		bool IsRunning() const;
 
 	  private:
-		std::string								m_Name;
-		std::latch								m_Started {1};
-		std::latch								m_Stopped {1};
-		std::atomic<bool>						m_Running	= false;
-		std::exception_ptr						m_Exception = nullptr;
-		std::chrono::steady_clock::time_point	m_StartTime;
-		std::jthread							m_Thread;
-		std::function<void()>					m_OnStart;
-		std::function<void()>					m_OnStop;
+		/// @brief A string containing the debug name of the thread
+		std::string m_Name;
+
+		/// @brief A latch to identify when the thread has registered as starting
+		std::latch m_Started {1};
+
+		/// @brief A latch to identify when the thread has registered as stopping
+		std::latch m_Stopped {1};
+
+		/// @brief A boolean indicating whether the thread is registered as currently running
+		std::atomic<bool> m_Running = false;
+
+		/// @brief An exception pointer containing the currently encountered exception (if exists)
+		std::exception_ptr m_Exception = nullptr;
+
+		/// @brief A timestamp of when the thread began executing
+		std::chrono::steady_clock::time_point m_StartTime;
+
+		/// @brief The underlying std::jthread being wrapped
+		std::jthread m_Thread;
+
+		/// @brief A function pointer to a function to call when starting execution on the thread
+		std::function<void()> m_OnStart;
+
+		/// @brief A function pointer to a function to call when stopping execution on the thread
+		std::function<void()> m_OnStop;
+
+		/// @brief A function pointer to a function to call when an exception is encountered on the thread
 		std::function<void(std::exception_ptr)> m_OnException;
 	};
 }	 // namespace Nexus
