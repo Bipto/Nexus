@@ -54,84 +54,21 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    # Embedded script
-    set(_copy_script "
-        file(MAKE_DIRECTORY \"\${OUT_DIR}\")
+    set(VCPKG_BIN
+        $<$<CONFIG:Debug>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin>
+        $<$<NOT:$<CONFIG:Debug>>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin>
+    )
 
-        # Copy target PDB
-        if(EXISTS \"\${TARGET_PDB}\")
-            file(COPY \"\${TARGET_PDB}\" DESTINATION \"\${OUT_DIR}\")
-        endif()
+    set(EXTRA_DLLS
+        ${VCPKG_BIN}/poly2tri.dll
+    )
 
-        # Determine vcpkg dirs based on config
-        if(\"\${CONFIG}\" STREQUAL \"Debug\")
-            set(VCPKG_BIN \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin\")
-            set(VCPKG_LIB \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib\")
-        else()
-            set(VCPKG_BIN \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin\")
-            set(VCPKG_LIB \"${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib\")
-        endif()
-
-        # Glob vcpkg DLLs
-        file(GLOB VCPKG_DLLS \"\${VCPKG_BIN}/*.dll\")
-
-        # Merge DLL sources
-        set(ALL_DLLS \${VCPKG_DLLS} \${RUNTIME_DLLS})
-
-        foreach(d IN LISTS EXTRA_DLL_DIRS)
-            file(GLOB EXTRA_DLLS \"\${d}/*.dll\")
-            list(APPEND ALL_DLLS \${EXTRA_DLLS})
-        endforeach()
-
-        # Helper: find matching PDB
-        function(find_pdb dll_path out_var)
-            get_filename_component(name_we \"\${dll_path}\" NAME_WE)
-            get_filename_component(dll_dir \"\${dll_path}\" DIRECTORY)
-
-            set(names \"\${name_we}.pdb\" \"\${name_we}d.pdb\")
-            set(dirs \"\${dll_dir}\" \"\${VCPKG_LIB}\" \"\${VCPKG_BIN}\" \"\${TARGET_DIR}\")
-
-            foreach(d IN LISTS dirs)
-                foreach(n IN LISTS names)
-                    set(candidate \"\${d}/\${n}\")
-                    if(EXISTS \"\${candidate}\")
-                        set(\${out_var} \"\${candidate}\" PARENT_SCOPE)
-                        return()
-                    endif()
-                endforeach()
-            endforeach()
-
-            set(\${out_var} \"\" PARENT_SCOPE)
-        endfunction()
-
-        # Copy DLLs + PDBs
-        foreach(dll IN LISTS ALL_DLLS)
-            file(COPY \"\${dll}\" DESTINATION \"\${OUT_DIR}\")
-
-            find_pdb(\"\${dll}\" pdb_path)
-            if(pdb_path)
-                file(COPY \"\${pdb_path}\" DESTINATION \"\${OUT_DIR}\")
-            endif()
-        endforeach()
-    ")
-
-    # Write script
-    set(_script_path "${CMAKE_BINARY_DIR}/copy_runtime_deps_${target_name}.cmake")
-    file(WRITE "${_script_path}" "${_copy_script}")
-
-    # Add post-build step
     add_custom_command(
         TARGET ${target_name} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}"
-            -D CONFIG=$<CONFIG>
-            -D TARGET_PDB=$<TARGET_PDB_FILE:${target_name}>
-            -D TARGET_DIR=$<TARGET_FILE_DIR:${target_name}>
-            -D OUT_DIR=$<TARGET_FILE_DIR:${target_name}>
-            -D RUNTIME_DLLS=$<TARGET_RUNTIME_DLLS:${target_name}>
-            -D EXTRA_DLL_DIRS="${ARGN}"
-            -P "${_script_path}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:${target_name}>
+            $<TARGET_FILE_DIR:${target_name}>
         COMMAND_EXPAND_LISTS
-        VERBATIM
     )
 endmacro()
 
