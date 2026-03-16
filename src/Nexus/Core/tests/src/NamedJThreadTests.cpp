@@ -94,6 +94,7 @@ TEST(NamedJThread, WaitUntilStartedUnblocks)
 	Nexus::NamedJThread t("test", [&](std::stop_token) { ran = true; });
 
 	t.WaitUntilStarted();
+	t.WaitUntilStopped();
 	EXPECT_TRUE(ran.load());
 }
 
