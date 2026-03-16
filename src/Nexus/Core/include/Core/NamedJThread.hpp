@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <exception>
 #include <functional>
 #include <latch>
 #include <memory>
@@ -11,159 +12,95 @@
 #include <thread>
 #include <utility>
 
-#if defined(__linux__) || defined(__APPLE__)
-	#include <pthread.h>
-#endif
-
-#if defined(_WIN32)
-	#include <windows.h>
-#endif
-
-namespace
-{
-	inline void SetCurrentThreadName(const std::string &name)
-	{
-#if defined(__linux__)
-		pthread_setname_np(pthread_self(), name.c_str());
-#elif defined(__APPLE__)
-		pthread_setname_np(name.c_str());
-#elif defined(_WIN32)
-		SetThreadDescription(GetCurrentThread(), std::wstring(name.begin(), name.end()).c_str());
-#endif
-	}
-}	 // namespace
-
 namespace Nexus
 {
+	/// @brief Class representing a thread that can be named and will automatically join when being destructed
 	class NamedJThread
 	{
 	  public:
+		/// @brief Constructor to create a thread, taking in a name, the function to run on the new thread, parameters to pass into it and optionally
+		/// functions to call when the thread starts, stops and encounters an exception
+		/// @tparam Callable The type of the function to be executed by the thread
+		/// @tparam ...Args The types of the parameters to pass into Callable
+		/// @param name The name to be assigned to the thread
+		/// @param onStart The function to call when the thread is created, but before it begins executing the supplied function
+		/// @param onStop The function to call when the thread has finished executing the supplied function and is terminating
+		/// @param onException The function to call when the thread encounters an exception
+		/// @param func The function to call from the new thread
+		/// @param ...args The arguments that will be forwarded into Callable
+		/// @param
 		template<typename Callable, typename... Args>
-		NamedJThread(std::string_view name, Callable &&func, Args &&...args) : m_Name(name)
-		{
-			m_Thread = std::jthread(
-				[this, func = std::forward<Callable>(func), ... args = std::forward<Args>(args)](std::stop_token st) mutable
-				{
-					m_StartTime = std::chrono::steady_clock::now();
-					SetCurrentThreadName(m_Name);
+		NamedJThread(std::string_view						 name,
+					 std::function<void()>					 onStart,
+					 std::function<void()>					 onStop,
+					 std::function<void(std::exception_ptr)> onException,
+					 Callable							   &&func,
+					 Args &&...args);
 
-					m_Running = true;
-					if (m_OnStart)
-						m_OnStart();
-					m_Started.count_down();
+		/// @brief Move constructor
+		/// @param The other object to move into this instance
+		NamedJThread(NamedJThread &&) noexcept = default;
 
-					try
-					{
-						std::invoke(func, st, args...);
-					}
-					catch (...)
-					{
-						m_Exception = std::current_exception();
-
-						if (m_OnException)
-							m_OnException(m_Exception);
-					}
-
-					m_Running = false;
-					m_Stopped.count_down();
-
-					if (m_OnStop)
-						m_OnStop();
-				});
-		}
-
-		NamedJThread(NamedJThread &&) noexcept			  = default;
+		/// @brief Move assignment operator
+		/// @param An r-value reference to the other instance to move into this object
+		/// @return A reference to the current instance
 		NamedJThread &operator=(NamedJThread &&) noexcept = default;
 
-		NamedJThread(const NamedJThread &)			  = delete;
+		/// @brief The copy constructor is not supported by this class
+		/// @param A reference to thread to copy
+		NamedJThread(const NamedJThread &) = delete;
+
+		/// @brief The copy assignment operator is not supported by this class
+		/// @param  A reference to the thread to copy
+		/// @return A reference to the newly constructed object
 		NamedJThread &operator=(const NamedJThread &) = delete;
 
-		void Join()
-		{
-			m_Thread.join();
-			if (m_Exception)
-				std::rethrow_exception(m_Exception);
-		}
+		/// @brief A function which waits for the thread to finish executing
+		void Join();
 
-		void Detach()
-		{
-			m_Thread.detach();
-		}
+		/// @brief A function which permits execution to continue independently of the thread handle
+		void Detach();
 
-		bool Joinable() const
-		{
-			return m_Thread.joinable();
-		}
+		/// @brief A function that checks whether the thread is joinable
+		/// @return A boolean indicating whether the thread is able to be joined
+		bool Joinable() const;
 
-		std::thread::id GetID() const
-		{
-			return m_Thread.get_id();
-		}
+		/// @brief A function that returns the ID of the thread
+		/// @return The ID of the thread
+		std::thread::id GetID() const;
 
-		std::string_view GetName() const
-		{
-			return m_Name;
-		}
+		/// @brief A function that returns the name of the thread
+		/// @return A string_view containing the thread name
+		std::string_view GetName() const;
 
-		void RequestStop()
-		{
-			m_Thread.request_stop();
-		}
+		/// @brief A function that requests that the thread finishes executing
+		void RequestStop();
 
-		void WaitUntilStarted()
-		{
-			m_Started.wait();
-		}
+		/// @brief A function that will cause the callee to wait until this thread begins executing the requested function
+		void WaitUntilStarted() const;
 
-		void WaitUntilStopped()
-		{
-			m_Stopped.wait();
-		}
+		/// @brief A function that will cause the callee to wait until this thread has finished executing the requested function
+		void WaitUntilStopped() const;
 
-		bool StopRequested() const
-		{
-			return m_Thread.get_stop_token().stop_requested();
-		}
+		/// @brief A function that checks whether the thread has been requested to terminate
+		/// @return A boolean indicating whether the thread is terminating
+		bool StopRequested() const;
 
-		std::stop_token GetStopToken() const
-		{
-			return m_Thread.get_stop_token();
-		}
+		/// @brief A function that returns the stop token associated with the state of the thread
+		/// @return A stop_token representing the shared stop state of the thread
+		std::stop_token GetStopToken() const;
 
-		void SetOnStart(std::function<void()> func)
-		{
-			m_OnStart = std::move(func);
-		}
-		void SetOnStop(std::function<void()> func)
-		{
-			m_OnStop = std::move(func);
-		}
+		/// @brief A function that checks how long the thread has been running for
+		/// @return The elapsed time since the thread began executing
+		auto Uptime() const;
 
-		void SetOnException(std::function<void(std::exception_ptr)> func)
-		{
-			m_OnException = std::move(func);
+		/// @brief A helper function that describes the current state of the thread
+		/// @return A string containing the thread's description
+		std::string Describe() const;
 
-			// If exception already happened, call handler immediately
-			if (m_Exception)
-				m_OnException(m_Exception);
-		}
-
-		auto Uptime() const
-		{
-			return std::chrono::steady_clock::now() - m_StartTime;
-		}
-
-		std::string Describe() const
-		{
-			return "Thread '" + m_Name + "' id=" + std::to_string(std::hash<std::thread::id> {}(m_Thread.get_id())) +
-				   " running=" + (m_Running ? "true" : "false") +
-				   " uptime=" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(Uptime()).count()) + "ms";
-		}
-
-		bool IsRunning() const
-		{
-			return m_Running;
-		}
+		/// @brief A function that checks whether the thread is currently executing
+		/// @return A boolean indicating whether the thread is currently running
+		bool IsRunning() const;
 
 	  private:
 		std::string								m_Name;
@@ -178,3 +115,5 @@ namespace Nexus
 		std::function<void(std::exception_ptr)> m_OnException;
 	};
 }	 // namespace Nexus
+
+#include "NamedJThread.inl"

@@ -15,7 +15,7 @@
 
 namespace Nexus
 {
-
+	/// @brief Class representing a set of threads and tasks that can be submitted to them
 	class ThreadPool
 	{
 	  public:
@@ -26,7 +26,8 @@ namespace Nexus
 			for (size_t i = 0; i < threadCount; ++i)
 			{
 				std::string workerName = std::format("{} thread-{}", m_Name, i);
-				m_Workers.emplace_back(std::make_unique<NamedJThread>(workerName, [this](std::stop_token) { WorkerLoop(); }));
+				m_Workers.emplace_back(
+					std::make_unique<NamedJThread>(workerName, nullptr, nullptr, nullptr, [this](std::stop_token) { WorkerLoop(); }));
 			}
 
 			for (auto &worker : m_Workers) worker->WaitUntilStarted();
