@@ -59,6 +59,8 @@ macro(copy_runtime_deps target_name)
     set(EXTRA_DLLS
         $<$<CONFIG:Debug>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/poly2tri.dll>
         $<$<NOT:$<CONFIG:Debug>>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/poly2tri.dll>
+        $<$<CONFIG:Debug>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/minizip.dll>
+        $<$<NOT:$<CONFIG:Debug>>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/minizip.dll>
     )
 
     add_custom_command(
