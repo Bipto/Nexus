@@ -50,9 +50,10 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    if(NOT MSVC)
-        return()
-    endif()
+    if(NOT MSVC OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    return()
+endif()
+
 
     set(VCPKG_BIN
         $<$<CONFIG:Debug>:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin>
