@@ -2,6 +2,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(CoreUnitTests
     src/NamedJThreadTests.cpp
+    src/ResourcePoolTests.cpp
     src/ThreadPoolTests.cpp
     src/UtilsTests.cpp)
     
