@@ -15,6 +15,8 @@ namespace Nexus::Graphics
 		HLSL,
 
 		/// @brief Value representing a SPIR-V binary shader
-		SPIRV
+		Vulkan_SPIRV,
+
+		OpenGL_SPIRV
 	};
 }	 // namespace Nexus::Graphics
