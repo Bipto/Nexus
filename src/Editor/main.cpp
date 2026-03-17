@@ -68,7 +68,7 @@ class EditorApplication : public Nexus::Application
 		m_Panels.push_back(std::make_shared<ImporterPanel>());
 		m_Panels.push_back(std::make_shared<ImportAssetPanel>());
 
-		std::string title = "Editor: (" + m_GraphicsDevice->GetAPIName() + std::string(")");
+		std::string title = "Editor";
 		Nexus::GetApplication()->GetPrimaryWindow()->SetTitle(title);
 
 		m_EditorPropertiesPanel = std::make_shared<EditorPropertiesPanel>(m_Panels);
