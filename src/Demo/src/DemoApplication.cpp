@@ -1,7 +1,12 @@
 #include "DemoApplication.hpp"
 
 #include "Layers/DemoImGuiLayer.hpp"
+
 #include "Layers/DemoLayer.hpp"
+
+#include "Nexus-Core/Importers/ShaderImporter.hpp"
+
+#include "Nexus-Core/Resources/FileResourceLoader.hpp"
 
 DemoApplication::DemoApplication(const Nexus::ApplicationDescription &desc) : Application(desc)
 {

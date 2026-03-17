@@ -22,7 +22,7 @@ namespace Nexus::Processors
 				Point2D<uint32_t> size = Utils::GetMipSize(texture->GetDescription().Width, texture->GetDescription().Height, arrayLayer);
 				Graphics::Image	  mip  = Graphics::Image::FromTexture(device, commandQueue, texture, arrayLayer, level, 0, 0, 0, size.X, size.Y);
 
-				if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
+				if (device->GetGraphicsAPI().API == Graphics::GraphicsAPI::OpenGL)
 				{
 					mip.FlipVertically();
 				}

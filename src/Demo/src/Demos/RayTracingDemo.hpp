@@ -256,7 +256,7 @@ namespace Demos
 			// Pipeline
 			{
 				// ray tracing shaders can only be compiled to SPIRV atm, HLSL is not supported
-				if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
+				if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
 				{
 					Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
 					pipelineDesc.Shaders.push_back(Nexus::Utils::CreateShaderModuleFromSpirvFile(m_GraphicsDevice,
@@ -324,7 +324,7 @@ namespace Demos
 
 			// SBT
 			// ray tracing shaders can only be compiled to SPIRV atm, HLSL is not supported
-			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
+			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
 			{
 				Nexus::Graphics::RayTracingDeviceDescription deviceRayTracingDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
 				const uint32_t								 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;	   // e.g., 32
@@ -384,7 +384,7 @@ namespace Demos
 				m_GraphicsDevice->WaitForIdle();
 			}
 
-			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::Vulkan)
+			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
 			{
 				NX_PROFILE_SCOPE("Command submission");
 

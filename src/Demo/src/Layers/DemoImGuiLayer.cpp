@@ -29,6 +29,20 @@
 #include "../Demos/TimingDemo.hpp"
 #include "../Demos/UniformBufferDemo.hpp"
 
+namespace
+{
+	std::string GraphicsAPIToString(Nexus::Graphics::GraphicsAPI api)
+	{
+		switch (api)
+		{
+			case Nexus::Graphics::GraphicsAPI::OpenGL: return "OpenGL";
+			case Nexus::Graphics::GraphicsAPI::D3D12: return "DirectX12";
+			case Nexus::Graphics::GraphicsAPI::Vulkan: return "Vulkan";
+			default: throw std::runtime_error("Failed to find a valid graphics API");
+		}
+	}
+}	 // namespace
+
 DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
 	: Nexus::ImGuiLayer(app, commandQueue),
 	  m_GraphicsDevice(commandQueue->GetGraphicsDevice())
@@ -84,7 +98,7 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphi
 	RegisterDemo<Demos::ComputeIndirectDemo>("Graphics", "Compute Indirect");
 
 	// geometry shaders have some issues with SPIRV-Cross HLSL backend
-	if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::D3D12)
+	if (m_GraphicsDevice->GetGraphicsAPI().API != Nexus::Graphics::GraphicsAPI::D3D12)
 	{
 		RegisterDemo<Demos::GeometryShaderDemo>("Graphics", "Geometry Shader");
 	}
@@ -179,8 +193,12 @@ void DemoImGuiLayer::RenderDemoInfo()
 			ImGui::Separator();
 
 			std::shared_ptr<Nexus::Graphics::IPhysicalDevice> physicalDevice = m_GraphicsDevice->GetPhysicalDevice();
-			std::string										  apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
-			ImGui::Text("%s", apiName.c_str());
+
+			Nexus::Graphics::GraphicsAPIInfo apiInfo = m_GraphicsDevice->GetGraphicsAPI();
+			std::string						 apiName = std::format("{} {}.{}", GraphicsAPIToString(apiInfo.API), apiInfo.Major, apiInfo.Minor);
+
+			std::string apiText = std::string("Running on : ") + apiName;
+			ImGui::Text("%s", apiText.c_str());
 			std::string deviceName = std::string("Device: ") + physicalDevice->GetDeviceName();
 			ImGui::Text("%s", deviceName.c_str());
 

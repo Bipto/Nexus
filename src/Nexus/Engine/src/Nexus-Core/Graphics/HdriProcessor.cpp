@@ -77,7 +77,7 @@ namespace Nexus::Graphics
 		memcpy(pixels.data(), data, pixels.size());
 		stbi_image_free(data);
 
-		if (m_Device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
+		if (m_Device->GetGraphicsAPI().API == GraphicsAPI::OpenGL)
 		{
 			Utils::FlipPixelsHorizontally(pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
 		}
