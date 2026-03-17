@@ -346,7 +346,7 @@ jobs:
         run: cmake --build build
 
       - name: Run tests
-        run: ctest --test-dir build -C ${{matrix.build_type}} --output-on-failure --parallel
+        run: ctest --test-dir build --output-on-failure --parallel
 
       - name: sccache stats
         run: sccache --show-stats || true
