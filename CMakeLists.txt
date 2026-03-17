@@ -39,7 +39,7 @@ add_definitions(-DTRACY_ENABLE)
 if (DEFINED BUILD_TESTING)
     enable_testing()
     include(CTest)
-    find_package(gtest CONFIG REQUIRED)
+    find_package(GTest CONFIG REQUIRED)
 endif()
 
 #set up engine project
