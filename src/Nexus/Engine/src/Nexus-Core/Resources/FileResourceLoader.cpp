@@ -29,7 +29,7 @@ namespace Nexus
 
 			// If rel is empty → paths are identical → not a file
 			// If rel begins with ".." → outside base directory
-			if (rel.empty() || rel.begin()->native() == L"..")
+			if (rel.empty() || *rel.begin() == std::filesystem::path(".."))
 			{
 				return std::unexpected("Attempt to access file outside base directory");
 			}
