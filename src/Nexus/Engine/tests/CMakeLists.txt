@@ -5,8 +5,10 @@ add_executable(EngineUnitTests
     src/GraphicsTests.cpp
     src/Point2DTests.cpp
     src/Point3DTests.cpp
-    src/TextureImporterTests.cpp)
-    
+    src/TextureImporterTests.cpp 
+    src/FileResourceLoaderTests.cpp
+)
+
 target_link_libraries(EngineUnitTests 
     PRIVATE 
     Nexus 
