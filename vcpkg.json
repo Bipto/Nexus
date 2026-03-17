@@ -20,6 +20,7 @@
     "freetype",
     "glm",
     "glslang",
+    "gtest",
     "openal-soft",
     "sdl3",
     "shaderc",
@@ -27,6 +28,7 @@
     "spirv-headers",
     "spirv-reflect",
     "stb",
+    "vulkan-memory-allocator",
     {
       "name": "winpixevent",
       "platform": "windows & (x64 | arm64) & !staticcrt & !xbox"

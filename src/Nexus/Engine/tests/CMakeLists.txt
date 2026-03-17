@@ -1,5 +1,3 @@
-FetchContent_MakeAvailable(googletest)
-
 add_executable(EngineUnitTests
     src/CircleTests.cpp
     src/GraphicsTests.cpp
@@ -12,8 +10,8 @@ add_executable(EngineUnitTests
 target_link_libraries(EngineUnitTests 
     PRIVATE 
     Nexus 
-    gtest 
-    gtest_main
+    GTest::gtest 
+    GTest::gtest_main
 )
 
 copy_runtime_deps(EngineUnitTests)

@@ -1,5 +1,3 @@
-FetchContent_MakeAvailable(googletest)
-
 add_executable(CoreUnitTests
     src/NamedJThreadTests.cpp
     src/ResourcePoolTests.cpp
@@ -9,8 +7,8 @@ add_executable(CoreUnitTests
 target_link_libraries(CoreUnitTests 
     PRIVATE 
     Nexus-Core 
-    gtest 
-    gtest_main
+    GTest::gtest 
+    GTest::gtest_main
 )
 
 copy_runtime_deps(CoreUnitTests)

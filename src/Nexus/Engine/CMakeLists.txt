@@ -11,6 +11,7 @@ endif()
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
+set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
 set(NEXUS_COMPILE_DEFINITIONS "")
 
@@ -184,17 +185,11 @@ if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  FetchContent_Declare(
-	  VulkanMemoryAllocator
-	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-	  GIT_TAG v3.3.0
-	  GIT_SHALLOW TRUE
-  )
-  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+  find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
-  list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
+  list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
 

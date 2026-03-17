@@ -39,13 +39,7 @@ add_definitions(-DTRACY_ENABLE)
 if (DEFINED BUILD_TESTING)
     enable_testing()
     include(CTest)
-    include(FetchContent)
-
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG 6986c2b
-    )
+    find_package(gtest CONFIG REQUIRED)
 endif()
 
 #set up engine project
