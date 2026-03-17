@@ -339,6 +339,12 @@ set_target_properties(Nexus PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR OFF)
 
+set_property(TARGET Nexus APPEND PROPERTY
+    INTERFACE_RUNTIME_DLLS
+        $<TARGET_RUNTIME_DLLS:poly2tri>
+        $<TARGET_RUNTIME_DLLS:minizip>
+)
+
 if (DEFINED BUILD_TESTING)
 	add_subdirectory(tests)
 endif()
