@@ -49,9 +49,9 @@ namespace Nexus::IO
 		std::vector<std::byte> buffer(count);
 		size_t				   bytesRead = SDL_ReadIO(m_File.get(), buffer.data(), count);
 
-		if (bytesRead == 0 && SDL_GetError()[0] != '\0')
+		if (!m_File)
 		{
-			return std::unexpected(std::string("Failed to read from file: ") + SDL_GetError());
+			return std::unexpected("Failed to open file for reading");
 		}
 
 		buffer.resize(bytesRead);
@@ -61,16 +61,23 @@ namespace Nexus::IO
 	std::expected<size_t, std::string> FileStreamSDL3::Write(const std::byte *data, size_t count)
 	{
 		size_t bytesWritten = SDL_WriteIO(m_File.get(), (void *)data, count);
-		if (bytesWritten == 0 && SDL_GetError()[0] != '\0')
+
+		if (!m_File)
 		{
-			return std::unexpected(std::string("Failed to write to file: ") + SDL_GetError());
+			return std::unexpected("Failed to open file for writing");
 		}
+
 		return bytesWritten;
 	}
 
 	std::expected<void, std::string> FileStreamSDL3::Seek(int64_t offset, SeekOrigin origin)
 	{
 		SDL_IOWhence whence = GetSeekOrigin(origin);
+
+		if (!m_File)
+		{
+			return std::unexpected("Failed to open file for seeking");
+		}
 
 		if (SDL_SeekIO(m_File.get(), offset, whence) == -1)
 		{
