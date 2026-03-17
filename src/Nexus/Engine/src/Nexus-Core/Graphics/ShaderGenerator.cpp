@@ -161,7 +161,7 @@ namespace Nexus::Graphics
 				output.Source = compiler.compile();
 				break;
 			}
-			case ShaderLanguage::SPIRV:
+			case ShaderLanguage::Vulkan_SPIRV:
 			{
 				spirv_cross::CompilerGLSL compiler(spirv_binary);
 				glOptions.version = 450;
@@ -174,7 +174,7 @@ namespace Nexus::Graphics
 			default: throw std::runtime_error("Failed to find a valid shader format");
 		}
 
-		if (options.OutputFormat == ShaderLanguage::SPIRV)
+		if (options.OutputFormat == ShaderLanguage::Vulkan_SPIRV)
 		{
 			output.SpirvBinary = spirv_binary;
 		}
@@ -252,7 +252,7 @@ namespace Nexus::Graphics
 			case ShaderLanguage::GLSL: return "GLSL";
 			case ShaderLanguage::GLSLES: return "GLSLES";
 			case ShaderLanguage::HLSL: return "HLSL";
-			case ShaderLanguage::SPIRV: return "SPIRV";
+			case ShaderLanguage::Vulkan_SPIRV: return "SPIRV";
 			default: throw std::runtime_error("Failed to find a valid ShaderLanguage");
 		}
 

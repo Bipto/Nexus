@@ -208,7 +208,7 @@ namespace Nexus::Graphics
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
 	{
-		return ShaderLanguage::SPIRV;
+		return ShaderLanguage::Vulkan_SPIRV;
 	}
 
 	bool GraphicsDeviceVk::IsBufferUsageSupported(BufferUsage usage)
