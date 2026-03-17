@@ -62,11 +62,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	const std::string GraphicsDeviceVk::GetAPIName()
-	{
-		return "Vulkan";
-	}
-
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceVk::GetPhysicalDevice() const
 	{
 		return m_PhysicalDevice;
@@ -221,9 +216,19 @@ namespace Nexus::Graphics
 		m_Context.DeviceWaitIdle(m_Device);
 	}
 
-	GraphicsAPI GraphicsDeviceVk::GetGraphicsAPI()
+	GraphicsAPIInfo GraphicsDeviceVk::GetGraphicsAPI()
 	{
-		return GraphicsAPI::Vulkan;
+		uint32_t version = 0;
+		m_Context.EnumerateInstanceVersion(&version);
+
+		uint32_t major = VK_VERSION_MAJOR(version);
+		uint32_t minor = VK_VERSION_MINOR(version);
+
+		return GraphicsAPIInfo {
+			.API   = GraphicsAPI::Vulkan,
+			.Major = major,
+			.Minor = minor,
+		};
 	}
 
 	void GraphicsDeviceVk::SetObjectName(VkObjectType type, uint64_t handle, const char *name)

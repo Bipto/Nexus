@@ -71,11 +71,6 @@ namespace Nexus::Graphics
 	{
 	}
 
-	const std::string GraphicsDeviceOpenGL::GetAPIName()
-	{
-		return m_APIName;
-	}
-
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceOpenGL::GetPhysicalDevice() const
 	{
 		return m_PhysicalDevice;
@@ -434,9 +429,23 @@ namespace Nexus::Graphics
 	{
 	}
 
-	GraphicsAPI GraphicsDeviceOpenGL::GetGraphicsAPI()
+	GraphicsAPIInfo GraphicsDeviceOpenGL::GetGraphicsAPI()
 	{
-		return GraphicsAPI::OpenGL;
+		GLint major = 0;
+		GLint minor = 0;
+
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				context.GetIntegerv(GL_MAJOR_VERSION, &major);
+				context.GetIntegerv(GL_MINOR_VERSION, &minor);
+			});
+
+		return GraphicsAPIInfo {
+			.API   = GraphicsAPI::OpenGL,
+			.Major = static_cast<uint32_t>(major),
+			.Minor = static_cast<uint32_t>(minor),
+		};
 	}
 
 	bool GraphicsDeviceOpenGL::Validate()

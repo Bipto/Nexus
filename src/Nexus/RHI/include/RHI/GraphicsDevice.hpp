@@ -1,4 +1,5 @@
 #pragma once
+#include "RHI/APIVersion.hpp"
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/CommandList.hpp"
 #include "RHI/CommandQueue.hpp"
@@ -62,11 +63,6 @@ namespace Nexus::Graphics
 		/// @param Another GraphicsDevice taken by const reference
 		IGraphicsDevice(const IGraphicsDevice &) = delete;
 
-		/// @brief A pure virtual method that returns the name of the graphics API as
-		/// a string
-		/// @return A string containing the API name
-		virtual const std::string GetAPIName() = 0;
-
 		/// @brief A pure virtual method that creates a pipeline from a given pipeline
 		/// description
 		/// @param description The properties to use when creating the pipeline
@@ -117,7 +113,7 @@ namespace Nexus::Graphics
 
 		virtual bool IsUVOriginTopLeft() = 0;
 
-		virtual GraphicsAPI GetGraphicsAPI() = 0;
+		virtual GraphicsAPIInfo GetGraphicsAPI() = 0;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 

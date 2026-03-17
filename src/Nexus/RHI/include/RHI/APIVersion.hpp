@@ -5,7 +5,7 @@
 namespace Nexus::Graphics
 {
 	/// @brief An enum class that represents an available graphics API backend
-	enum class GraphicsAPI
+	enum class GraphicsAPI : uint8_t
 	{
 		/// @brief Graphics will be created using OpenGL
 		OpenGL,
@@ -17,10 +17,16 @@ namespace Nexus::Graphics
 		Vulkan
 	};
 
+	/// @brief A structure containing the in-use graphics API and it's version
 	struct GraphicsAPIInfo
 	{
-		GraphicsAPI API	  = {};
-		uint32_t	Major = {};
-		uint32_t	Minor = {};
+		/// @brief The graphics API that is in use
+		GraphicsAPI API = {};
+
+		/// @brief Integer representing the major version of the API
+		uint32_t Major = {};
+
+		/// @brief Integer representing the minor version of the API
+		uint32_t Minor = {};
 	};
 }	 // namespace Nexus::Graphics

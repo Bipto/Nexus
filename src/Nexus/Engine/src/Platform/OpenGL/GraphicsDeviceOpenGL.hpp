@@ -20,7 +20,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		const std::string				 GetAPIName() override;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
 		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
@@ -56,7 +55,7 @@ namespace Nexus::Graphics
 			return false;
 		};
 
-		GraphicsAPI GetGraphicsAPI() final;
+		GraphicsAPIInfo GetGraphicsAPI() final;
 
 		bool Validate() final;
 

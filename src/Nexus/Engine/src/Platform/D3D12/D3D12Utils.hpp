@@ -13,6 +13,8 @@
 	#include "RHI/ShaderResources.hpp"
 	#include "RHI/Texture.hpp"
 
+	#include "Nexus-Core/nxpch.hpp"
+
 namespace Nexus::Graphics
 {
 	class GraphicsDeviceD3D12;
@@ -141,6 +143,8 @@ namespace Nexus::D3D12
 	void GetD3D12AccelerationStructureInputs(const Graphics::AccelerationStructureGeometryBuildDescription &description,
 											 D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS		   &inputs,
 											 std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>				   &geometry);
+
+	void GetD3D12FeatureLevelAsMajorMinor(D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor);
 
 }	 // namespace Nexus::D3D12
 

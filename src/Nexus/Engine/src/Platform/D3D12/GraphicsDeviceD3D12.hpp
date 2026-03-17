@@ -27,7 +27,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
-		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
 		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
@@ -50,8 +49,8 @@ namespace Nexus::Graphics
 
 		bool IsBufferUsageSupported(BufferUsage usage) final;
 
-		void		WaitForIdle() final;
-		GraphicsAPI GetGraphicsAPI() final;
+		void			WaitForIdle() final;
+		GraphicsAPIInfo GetGraphicsAPI() final;
 
 		float GetUVCorrection() final
 		{

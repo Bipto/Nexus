@@ -2110,5 +2110,81 @@ namespace Nexus::D3D12
 			inputs.pGeometryDescs = geometryDesc.data();
 		}
 	}
+
+	void GetD3D12FeatureLevelAsMajorMinor(D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor)
+	{
+		switch (level)
+		{
+			case D3D_FEATURE_LEVEL_1_0_GENERIC:
+			case D3D_FEATURE_LEVEL_1_0_CORE:
+			{
+				major = 1;
+				minor = 0;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_9_1:
+			{
+				major = 9;
+				minor = 1;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_9_2:
+			{
+				major = 9;
+				minor = 2;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_9_3:
+			{
+				major = 9;
+				minor = 3;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_10_0:
+			{
+				major = 10;
+				minor = 0;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_10_1:
+			{
+				major = 10;
+				minor = 1;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_11_0:
+			{
+				major = 11;
+				minor = 0;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_11_1:
+			{
+				major = 11;
+				minor = 1;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_12_0:
+			{
+				major = 12;
+				minor = 0;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_12_1:
+			{
+				major = 12;
+				minor = 1;
+				return;
+			}
+			case D3D_FEATURE_LEVEL_12_2:
+			{
+				major = 12;
+				minor = 2;
+				return;
+			}
+
+			default: throw std::runtime_error("Failed to find a valid feature level");
+		}
+	}
 }	 // namespace Nexus::D3D12
 #endif

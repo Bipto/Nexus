@@ -61,11 +61,6 @@ namespace Nexus::Graphics
 	{
 	}
 
-	const std::string GraphicsDeviceD3D12::GetAPIName()
-	{
-		return {"D3D12"};
-	}
-
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const
 	{
 		return m_PhysicalDevice;
@@ -172,9 +167,20 @@ namespace Nexus::Graphics
 		}
 	}
 
-	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()
+	GraphicsAPIInfo GraphicsDeviceD3D12::GetGraphicsAPI()
 	{
-		return GraphicsAPI::D3D12;
+		std::shared_ptr<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
+
+		uint32_t major = 0;
+		uint32_t minor = 0;
+
+		D3D12::GetD3D12FeatureLevelAsMajorMinor(physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), major, minor);
+
+		return GraphicsAPIInfo {
+			.API   = GraphicsAPI::D3D12,
+			.Major = major,
+			.Minor = minor,
+		};
 	}
 
 	const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const

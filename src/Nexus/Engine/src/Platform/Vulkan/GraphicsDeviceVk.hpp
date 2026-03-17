@@ -31,7 +31,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
-		const std::string				 GetAPIName() final;
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
 		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
@@ -68,7 +67,7 @@ namespace Nexus::Graphics
 			return true;
 		};
 
-		GraphicsAPI GetGraphicsAPI() final;
+		GraphicsAPIInfo GetGraphicsAPI() final;
 
 		void SetObjectName(VkObjectType type, uint64_t handle, const char *name);
 
