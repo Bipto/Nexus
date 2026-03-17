@@ -15,7 +15,7 @@ Nexus is a cross-platform 2D and 3D graphics and audio library, encompassing a R
 -  Intuitive API design with low-level access preserved
 
 # Architecture
-The project is split into multiple components including Audio, Core, Engine, Platform and RHI. Core contains core functionality needed by all other modules. Engine is the top level module and contains all of the functionality you will need to build custom applications with. All other modules have limited depdendencies on each other. All modules have their own src and include directories and include their own unit tests if relevant.
+The project is split into multiple components including Audio, Core, Engine, Platform and RHI. Core contains core functionality needed by all other modules. Engine is the top level module and contains all of the functionality you will need to build custom applications. All other modules have limited dependencies on each other. All modules have their own src and include directories and include their own unit tests if relevant.
 
 # Building
 
