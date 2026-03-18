@@ -469,7 +469,7 @@ class EditorApplication : public Nexus::Application
 			ImVec2 uv0	= {0, 0};
 			ImVec2 uv1	= {1, 1};
 
-			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::OpenGL)
+			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::OpenGL)
 			{
 				uv0 = {0, 1};
 				uv1 = {1, 0};
