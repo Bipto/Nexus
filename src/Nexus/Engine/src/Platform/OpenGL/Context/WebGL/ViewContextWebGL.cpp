@@ -7,8 +7,8 @@
 	#include <emscripten/html5.h>
 	#include <emscripten/val.h>
 
-	#include "Nexus-Core/Timings/Profiler.hpp"
 	#include "Nexus-Core/Point.hpp"
+	#include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Nexus::GL
 {
@@ -31,17 +31,17 @@ namespace Nexus::GL
 			return {};
 		}
 
-		double left		  = rect["x"].as<double>();
-		double top		  = rect["y"].as<double>();
-		double width	  = rect["width"].as<double>();
-		double height	  = rect["height"].as<double>();
+		double left	  = rect["x"].as<double>();
+		double top	  = rect["y"].as<double>();
+		double width  = rect["width"].as<double>();
+		double height = rect["height"].as<double>();
 
 		return BoundingClientRect {.Left = left, .Top = top, .Width = width, .Height = height};
 	}
 
 	ViewContextWebGL::ViewContextWebGL(const std::string					 &canvasName,
 									   Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
-									   const ContextSpecification			 &spec)
+									   const ContextDescription				 &spec)
 		: m_Device(graphicsDevice),
 		  m_Description(spec),
 		  m_CanvasName(canvasName)
@@ -113,16 +113,16 @@ namespace Nexus::GL
 	{
 		BoundingClientRect rect = GetBoundingClientRect(m_CanvasName);
 
-		Graphics::FramebufferSpecification framebufferSpec		 = {};
-		framebufferSpec.Width									 = (uint32_t)rect.Width;
-		framebufferSpec.Height									 = (uint32_t)rect.Height;
+		Graphics::FramebufferSpecification framebufferSpec = {};
+		framebufferSpec.Width							   = (uint32_t)rect.Width;
+		framebufferSpec.Height							   = (uint32_t)rect.Height;
 
 		std::cout << "Creating framebuffer: [Width: " << framebufferSpec.Width << ", Height: " << framebufferSpec.Height << "]" << std::endl;
 
 		framebufferSpec.ColourAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-		framebufferSpec.DepthAttachmentSpecification			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
-		framebufferSpec.Samples									 = 1;
-		m_Framebuffer											 = m_Device->CreateFramebuffer(framebufferSpec);
+		framebufferSpec.DepthAttachmentSpecification			  = Graphics::PixelFormat::D24_UNorm_S8_UInt;
+		framebufferSpec.Samples									  = 1;
+		m_Framebuffer											  = m_Device->CreateFramebuffer(framebufferSpec);
 	}
 
 	bool ViewContextWebGL::Validate()

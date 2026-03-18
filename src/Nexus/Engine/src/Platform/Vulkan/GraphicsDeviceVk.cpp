@@ -67,7 +67,7 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
 	{
 		return CreateRef<ShaderModuleVk>(moduleSpec, this);
 	}

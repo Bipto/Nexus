@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-	ShaderModuleVk::ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceVk *device)
+	ShaderModuleVk::ShaderModuleVk(const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceVk *device)
 		: IShaderModule(shaderModuleSpec),
 		  m_GraphicsDevice(device)
 	{
@@ -497,7 +497,7 @@ namespace Nexus::Graphics
 	{
 		ShaderReflectionData reflectionData = {};
 
-		spirv_cross::Compiler		 compiler(m_ModuleSpecification.SpirvBinary);
+		spirv_cross::Compiler		 compiler(m_ModuleDescription.SpirvBinary);
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		for (const auto &input : resources.stage_inputs)
@@ -582,8 +582,8 @@ namespace Nexus::Graphics
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType					= VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.pNext					= nullptr;
-		createInfo.codeSize					= m_ModuleSpecification.SpirvBinary.size() * sizeof(uint32_t);
-		createInfo.pCode					= m_ModuleSpecification.SpirvBinary.data();
+		createInfo.codeSize					= m_ModuleDescription.SpirvBinary.size() * sizeof(uint32_t);
+		createInfo.pCode					= m_ModuleDescription.SpirvBinary.data();
 
 		if (context.CreateShaderModule(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &m_ShaderModule) != VK_SUCCESS)
 		{

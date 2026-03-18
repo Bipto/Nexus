@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec)
+	Ref<IShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
 	{
 		return CreateRef<ShaderModuleD3D12>(moduleSpec);
 	}

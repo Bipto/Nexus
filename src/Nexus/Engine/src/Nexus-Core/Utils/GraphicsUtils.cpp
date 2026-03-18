@@ -28,7 +28,7 @@ namespace
 			Nexus::Graphics::CachedShader cache = Nexus::Graphics::CachedShader::LoadFromFile(filepath);
 			if (cache.Validate(hash))
 			{
-				const Nexus::Graphics::ShaderModuleSpecification &shaderSpec = cache.GetShaderSpecification();
+				const Nexus::Graphics::ShaderModuleDescription &shaderSpec = cache.GetShaderModuleDescription();
 				module														 = device->CreateShaderModule(shaderSpec);
 				shaderCreated												 = true;
 			}
@@ -37,7 +37,7 @@ namespace
 		if (!shaderCreated)
 		{
 			module								= Nexus::Utils::CreateShaderModuleFromSpirvSource(device, source, name, outputDirectory, stage);
-			Nexus::Graphics::CachedShader cache = Nexus::Graphics::CachedShader::FromModule(module->GetModuleSpecification(), hash);
+			Nexus::Graphics::CachedShader cache = Nexus::Graphics::CachedShader::FromModule(module->GetModuleDescription(), hash);
 			cache.Cache(filepath);
 		}
 
@@ -75,7 +75,7 @@ namespace Nexus::Utils
 																   const std::string		 &outputDirectory,
 																   Graphics::ShaderStage	  stage)
 	{
-		Graphics::ShaderModuleSpecification moduleSpec;
+		Graphics::ShaderModuleDescription moduleSpec;
 
 		auto startTime = std::chrono::system_clock::now();
 

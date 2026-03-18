@@ -9,16 +9,16 @@
 
 namespace Nexus::Graphics
 {
-	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, GraphicsDeviceOpenGL *device)
+	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceOpenGL *device)
 		: IShaderModule(shaderModuleSpec),
-		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage)),
+		  m_ShaderStage(GL::GetShaderStage(m_ModuleDescription.ShadingStage)),
 		  m_Device(device)
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
 				m_Handle		   = context.CreateShader(m_ShaderStage);
-				const char *source = m_ModuleSpecification.Source.c_str();
+				const char *source = m_ModuleDescription.Source.c_str();
 				glCall(context.ShaderSource(m_Handle, 1, &source, nullptr));
 				glCall(context.CompileShader(m_Handle));
 
@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 
 				if (context.KHR_debug)
 				{
-					context.ObjectLabelKHR(GL_SHADER, m_Handle, -1, m_ModuleSpecification.DebugName.c_str());
+					context.ObjectLabelKHR(GL_SHADER, m_Handle, -1, m_ModuleDescription.DebugName.c_str());
 				}
 			});
 	}
@@ -525,7 +525,7 @@ namespace Nexus::Graphics
 	ShaderReflectionData ShaderModuleOpenGL::Reflect() const
 	{
 		OpenGL::OpenGLShaderParser		 shaderParser;
-		OpenGL::ReflectedShaderResources resources = shaderParser.ReflectShader(m_ModuleSpecification.Source);
+		OpenGL::ReflectedShaderResources resources = shaderParser.ReflectShader(m_ModuleDescription.Source);
 		return ExtractReflectionData(resources);
 	}
 }	 // namespace Nexus::Graphics

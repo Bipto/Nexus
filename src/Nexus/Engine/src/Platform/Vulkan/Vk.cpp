@@ -1531,7 +1531,7 @@ namespace Nexus::Vk
 		VkPipelineShaderStageCreateInfo createInfo = {};
 		createInfo.sType						   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		createInfo.pNext						   = nullptr;
-		createInfo.stage						   = Vk::GetVkShaderStageFlags(module->GetModuleSpecification().ShadingStage);
+		createInfo.stage						   = Vk::GetVkShaderStageFlags(module->GetModuleDescription().ShadingStage);
 		createInfo.module						   = module->GetShaderModule();
 		createInfo.pName						   = "main";
 		return createInfo;

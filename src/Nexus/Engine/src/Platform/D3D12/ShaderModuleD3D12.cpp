@@ -37,7 +37,7 @@ namespace Nexus::Graphics
 		return count;
 	}
 
-	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec) : IShaderModule(shaderModuleSpec)
+	ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleDescription &shaderModuleSpec) : IShaderModule(shaderModuleSpec)
 	{
 		Microsoft::WRL::ComPtr<IDxcCompiler3>	   compiler;
 		Microsoft::WRL::ComPtr<IDxcUtils>		   utils;
@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 		utils->CreateDefaultIncludeHandler(includeHandler.GetAddressOf());
 
 		Microsoft::WRL::ComPtr<IDxcBlobEncoding> sourceBlob;
-		utils->CreateBlob(m_ModuleSpecification.Source.c_str(), m_ModuleSpecification.Source.length(), CP_UTF8, sourceBlob.GetAddressOf());
+		utils->CreateBlob(m_ModuleDescription.Source.c_str(), m_ModuleDescription.Source.length(), CP_UTF8, sourceBlob.GetAddressOf());
 
 		std::string	 entryPoint = GetD3DShaderEntryPoint(shaderModuleSpec.ShadingStage);
 		std::wstring wsEntryPoint(entryPoint.begin(), entryPoint.end());

@@ -18,22 +18,22 @@ namespace Nexus::GL
 	class ViewContextWebGL : public IViewContext
 	{
 	  public:
-		ViewContextWebGL(const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice, const ContextSpecification &spec);
+		ViewContextWebGL(const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice, const ContextDescription &spec);
 		virtual ~ViewContextWebGL();
-		virtual bool						MakeCurrent() override;
-		virtual void						Swap() override;
-		virtual void						SetVSync(bool enabled) override;
-		virtual const ContextSpecification &GetDescription() const override;
-		virtual bool						Validate() override;
-		void								HandleResize();
+		virtual bool					  MakeCurrent() override;
+		virtual void					  Swap() override;
+		virtual void					  SetVSync(bool enabled) override;
+		virtual const ContextDescription &GetDescription() const override;
+		virtual bool					  Validate() override;
+		void							  HandleResize();
 
 	  private:
 		void CreateFramebuffer();
 
 	  private:
-		Nexus::Graphics::GraphicsDeviceOpenGL *m_Device		   = nullptr;
-		ContextSpecification				   m_Description   = {};
-		std::string							   m_CanvasName	   = {};
+		Nexus::Graphics::GraphicsDeviceOpenGL *m_Device		 = nullptr;
+		ContextDescription					   m_Description = {};
+		std::string							   m_CanvasName	 = {};
 
 		Ref<Graphics::Framebuffer> m_Framebuffer			= nullptr;
 		BoundingClientRect		   m_BoundingClientRect		= {};

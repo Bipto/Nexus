@@ -125,7 +125,7 @@ namespace Nexus::Graphics
 
 		virtual FenceWaitResult WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) = 0;
 
-		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec) = 0;
+		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
 
 		virtual void ResetFences(Ref<IFence> *fences, uint32_t count) = 0;
 

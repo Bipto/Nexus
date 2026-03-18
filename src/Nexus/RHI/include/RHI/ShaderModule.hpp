@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-	struct ShaderModuleSpecification
+	struct ShaderModuleDescription
 	{
 		std::string			  DebugName = "ShaderModule";
 		std::string			  Source;
@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 	class NX_RHI_API IShaderModule
 	{
 	  public:
-		IShaderModule(const ShaderModuleSpecification &shaderModuleSpec) : m_ModuleSpecification(shaderModuleSpec)
+		IShaderModule(const ShaderModuleDescription &shaderModuleDesc) : m_ModuleDescription(shaderModuleDesc)
 		{
 		}
 
@@ -30,17 +30,17 @@ namespace Nexus::Graphics
 
 		ShaderStage GetShaderStage() const
 		{
-			return m_ModuleSpecification.ShadingStage;
+			return m_ModuleDescription.ShadingStage;
 		}
 
-		const ShaderModuleSpecification &GetModuleSpecification() const
+		const ShaderModuleDescription &GetModuleDescription() const
 		{
-			return m_ModuleSpecification;
+			return m_ModuleDescription;
 		}
 
 		virtual ShaderReflectionData Reflect() const = 0;
 
 	  protected:
-		ShaderModuleSpecification m_ModuleSpecification;
+		ShaderModuleDescription m_ModuleDescription;
 	};
 }	 // namespace Nexus::Graphics

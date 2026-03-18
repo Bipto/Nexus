@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 		Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const final;
 
 		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
-		Ref<IShaderModule>		  CreateShaderModule(const ShaderModuleSpecification &moduleSpec) final;
+		Ref<IShaderModule>		  CreateShaderModule(const ShaderModuleDescription &moduleDesc) final;
 		PixelFormatProperties	  GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
 
 	  private:
