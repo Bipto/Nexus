@@ -1,6 +1,8 @@
 include(FetchContent)
 
 set(CORE_SOURCES
+	include/Core/AutoRelease.hpp
+	include/Core/AutoRelease.inl
 	include/Core/NamedJThread.hpp
 	include/Core/NamedJThread.inl
 	include/Core/ResourceHandle.hpp
