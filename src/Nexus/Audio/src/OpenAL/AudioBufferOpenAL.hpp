@@ -1,17 +1,22 @@
 #pragma once
 
+#include <functional>
+
 #include "Audio/AudioBuffer.hpp"
+
+#include "Core/AutoRelease.hpp"
+
 #include "OpenAL.hpp"
 
 namespace Nexus::Audio
 {
 	class AudioDeviceOpenAL;
 
-	class AudioBufferOpenAL : public AudioBuffer
+	class AudioBufferOpenAL final : public AudioBuffer
 	{
 	  public:
 		AudioBufferOpenAL(AudioDeviceOpenAL *device);
-		virtual ~AudioBufferOpenAL();
+		~AudioBufferOpenAL() final = default;
 		const ALuint   GetHandle() const;
 		virtual void   SetData(const void *const data, size_t size, AudioFormat format, size_t frequency) override;
 		virtual size_t GetFrequency() const override;
@@ -20,7 +25,7 @@ namespace Nexus::Audio
 		virtual size_t GetSize() const override;
 
 	  private:
-		AudioDeviceOpenAL *m_Device = nullptr;
-		ALuint			   m_Buffer = 0;
+		AudioDeviceOpenAL								   *m_Device = nullptr;
+		AutoRelease<ALuint, 0, std::function<void(ALuint)>> m_Buffer = {};
 	};
 }	 // namespace Nexus::Audio

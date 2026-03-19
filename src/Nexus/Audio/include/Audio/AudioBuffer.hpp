@@ -13,9 +13,7 @@ namespace Nexus::Audio
 	{
 	  public:
 		/// @brief A virtual destructor to allow resources to be cleaned up
-		virtual ~AudioBuffer()
-		{
-		}
+		virtual ~AudioBuffer() = default;
 
 		/// @brief A virtual method that sets the data of an audio buffer, the size of the data does not have to match the previous size of the
 		/// buffer, it is able to dynamically resize

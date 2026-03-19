@@ -1,16 +1,21 @@
 #pragma once
 
+#include <functional>
+
 #include "Audio/AudioBuffer.hpp"
 #include "Audio/AudioSource.hpp"
+
+#include "Core/AutoRelease.hpp"
+
 #include "OpenAL.hpp"
 
 namespace Nexus::Audio
 {
-	class NX_AUDIO_API AudioSourceOpenAL : public AudioSource
+	class NX_AUDIO_API AudioSourceOpenAL final : public AudioSource
 	{
 	  public:
 		AudioSourceOpenAL();
-		virtual ~AudioSourceOpenAL();
+		~AudioSourceOpenAL() final = default;
 
 		void SetPitch(float pitch) final;
 		void SetGain(float gain) final;
@@ -62,7 +67,7 @@ namespace Nexus::Audio
 		ALuint GetSource() const;
 
 	  private:
-		std::shared_ptr<AudioBuffer> m_StaticBuffer = nullptr;
-		ALuint						 m_Source		= 0;
+		std::shared_ptr<AudioBuffer>						m_StaticBuffer = nullptr;
+		AutoRelease<ALuint, 0, std::function<void(ALuint)>> m_Source;
 	};
 }	 // namespace Nexus::Audio

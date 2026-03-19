@@ -12,20 +12,15 @@ namespace Nexus::Audio
 	AudioDeviceOpenAL::AudioDeviceOpenAL()
 	{
 		std::string deviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-		m_Device			   = alcOpenDevice(deviceName.c_str());
+		m_Device.reset(alcOpenDevice(deviceName.c_str()));
+
 		if (!m_Device)
 		{
 			throw std::runtime_error("Failed to create audio device");
 		}
 
-		m_Context = alcCreateContext(m_Device, nullptr);
-		alcMakeContextCurrent(m_Context);
-	}
-
-	AudioDeviceOpenAL::~AudioDeviceOpenAL()
-	{
-		alcDestroyContext(m_Context);
-		alcCloseDevice(m_Device);
+		m_Context.reset(alcCreateContext(m_Device.get(), nullptr));
+		alcMakeContextCurrent(m_Context.get());
 	}
 
 	std::shared_ptr<AudioBuffer> AudioDeviceOpenAL::CreateAudioBuffer()
