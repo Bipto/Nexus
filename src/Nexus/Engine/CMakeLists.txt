@@ -287,6 +287,7 @@ list (APPEND NEXUS_INCLUDE_DIRS
 
 list (APPEND NEXUS_LINKED_LIBRARIES
   assimp::assimp
+  Nexus-Core
   Nexus-Audio
   Nexus-Platform
   Nexus-RHI

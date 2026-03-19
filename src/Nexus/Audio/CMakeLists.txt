@@ -58,7 +58,7 @@ set_target_properties(Nexus-Audio PROPERTIES
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
 target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
-target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES})
+target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES} Nexus-Core)
 
 #ffmpeg
 if (MINGW)
