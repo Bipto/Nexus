@@ -46,7 +46,7 @@ namespace Nexus
 		AutoRelease &operator=(AutoRelease &&other) noexcept;
 
 		/// @brief Destructor to clean up the handle, may be noexcept depending on the deleter
-		~AutoRelease() noexcept(DeleterNoexcept);
+		~AutoRelease();
 
 		/// @brief A method that releases the handle from this objects ownership and returns it to the callee
 		/// @return A returned handle, that is no longer owned by this object
@@ -54,7 +54,7 @@ namespace Nexus
 
 		/// @brief A method that assigns this instance to another resource handle
 		/// @param newHandle The handle for this instance to take ownership of
-		void Reset(Handle newHandle = InvalidValue) noexcept(DeleterNoexcept);
+		void Reset(Handle newHandle = InvalidValue);
 
 		/// @brief A method that returns a reference to the handle being stored within this instance
 		/// @return A reference to the handle
@@ -111,10 +111,6 @@ namespace Nexus
 
 		/// @brief A deleter for the handle
 		[[no_unique_address]] Deleter m_Deleter {};
-
-	  private:
-		/// @brief A constexpr value to check whether the deleter uses exceptions
-		static constexpr bool DeleterNoexcept = noexcept(std::declval<Deleter &>()(std::declval<Handle>()));
 	};
 }	 // namespace Nexus
 

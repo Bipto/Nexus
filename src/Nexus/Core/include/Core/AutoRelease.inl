@@ -38,7 +38,7 @@ namespace Nexus
 	}
 
 	template<typename Handle, Handle InvalidValue, typename Deleter>
-	AutoRelease<Handle, InvalidValue, Deleter>::~AutoRelease() noexcept(DeleterNoexcept)
+	AutoRelease<Handle, InvalidValue, Deleter>::~AutoRelease()
 	{
 		Reset();
 	}
@@ -50,7 +50,7 @@ namespace Nexus
 	}
 
 	template<typename Handle, Handle InvalidValue, typename Deleter>
-	void AutoRelease<Handle, InvalidValue, Deleter>::Reset(Handle newHandle) noexcept(DeleterNoexcept)
+	void AutoRelease<Handle, InvalidValue, Deleter>::Reset(Handle newHandle)
 	{
 		if (m_Handle != InvalidValue)
 			m_Deleter(m_Handle);
