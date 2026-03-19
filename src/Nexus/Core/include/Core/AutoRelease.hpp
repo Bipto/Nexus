@@ -110,7 +110,7 @@ namespace Nexus
 		Handle m_Handle = InvalidValue;
 
 		/// @brief A deleter for the handle
-		[[no_unique_address]] Deleter m_Deleter {};
+		Deleter m_Deleter {};
 	};
 }	 // namespace Nexus
 
