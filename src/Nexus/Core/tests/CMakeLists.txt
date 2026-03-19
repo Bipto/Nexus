@@ -2,7 +2,8 @@ add_executable(CoreUnitTests
     src/NamedJThreadTests.cpp
     src/ResourcePoolTests.cpp
     src/ThreadPoolTests.cpp
-    src/UtilsTests.cpp)
+    src/UtilsTests.cpp 
+    src/AutoReleaseTests.cpp)
     
 target_link_libraries(CoreUnitTests 
     PRIVATE 
