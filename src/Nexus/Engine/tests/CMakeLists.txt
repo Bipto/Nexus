@@ -5,7 +5,7 @@ add_executable(EngineUnitTests
     src/Point3DTests.cpp
     src/TextureImporterTests.cpp 
     src/FileResourceLoaderTests.cpp
-)
+    src/SPIRVCrossShaderCompilerTests.cpp)
 
 target_link_libraries(EngineUnitTests 
     PRIVATE 
