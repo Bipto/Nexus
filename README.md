@@ -1,6 +1,8 @@
 # Nexus
 
-[![Build and Test (Multi‑Platform)](https://github.com/Bipto/Nexus/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/Bipto/Nexus/actions/workflows/build_and_test.yml)
+[![Build (Windows)](https://github.com/Bipto/Nexus/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Bipto/Nexus/actions/workflows/build-windows.yml)
+[![Build (Linux)](https://github.com/Bipto/Nexus/actions/workflows/build-linux.yml/badge.svg)](https://github.com/Bipto/Nexus/actions/workflows/build-linux.yml)
+[![CodeQL](https://github.com/Bipto/Nexus/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Bipto/Nexus/actions/workflows/github-code-scanning/codeql)
 
 Nexus is a cross-platform 2D and 3D graphics and audio library, encompassing a Render Hardware Interface (RHI) across OpenGL, Vulkan and D3D12 and various utilities to support resource loading. It provides a clean and simple abstraction layer across all supported API's while still providing low level control and optimization opportunities for performance-critical applications.
 
