@@ -1,0 +1,141 @@
+name: Build (Linux)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+jobs:
+  build-linux:
+    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.build_type }})
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Release
+            vcpkg_triplet: x64-linux
+
+          - name: GCC
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Debug
+            vcpkg_triplet: x64-linux
+
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Release
+            vcpkg_triplet: x64-linux
+
+          - name: Clang
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Debug
+            vcpkg_triplet: x64-linux
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Cache apt
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt
+            /var/lib/apt/lists
+          key: apt-${{ runner.os }}-24.04
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update -o Acquire::Retries=5
+          sudo apt-get install -y --no-install-recommends \
+            libgl1-mesa-dev mesa-common-dev \
+            libx11-dev xorg-dev \
+            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev \
+            sccache
+
+      - name: Install Clang 21
+        if: matrix.c_compiler == 'clang'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+
+      - name: Install sccache
+        run: sudo apt-get install -y sccache
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/sccache
+          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
+          restore-keys: |
+            sccache-linux-${{ matrix.c_compiler }}
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: vcpkg build
+        id: vcpkg
+        uses: johnwason/vcpkg-action@v7
+        with:
+          manifest-dir: ${{ github.workspace }}
+          triplet: ${{ matrix.vcpkg_triplet }}
+          token: ${{ github.token }}
+          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Configure CMake
+        run: |
+          if [ "${{ matrix.name }}" = "Clang" ]; then
+            CC=clang-21
+            CXX=clang++-21
+          else
+            CC=${{ matrix.c_compiler }}
+            CXX=${{ matrix.cpp_compiler }}
+          fi
+
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_C_COMPILER=$CC \
+            -DCMAKE_CXX_COMPILER=$CXX \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_CXX_STANDARD=23 \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_CXX_EXTENSIONS=OFF \
+            -DNX_PLATFORM_OPENGL=1 \
+            -DNX_PLATFORM_VULKAN=1 \
+            -DNX_PLATFORM_OPENAL=1 \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -S .
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure --parallel
+
+      - name: sccache stats
+        run: sccache --show-stats || true

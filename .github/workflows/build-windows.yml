@@ -1,4 +1,4 @@
-name: Build and Test (Multi‑Platform)
+name: Build (Windows)
 
 on:
   push:
@@ -6,10 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
 jobs:
-  # ============================================================
-  # WINDOWS JOB
-  # ============================================================
   build-windows:
     name: Build (Windows - ${{ matrix.name }} - ${{ matrix.build_type }})
     runs-on: windows-latest
@@ -18,7 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # MSVC
           - name: MSVC
             c_compiler: cl
             cpp_compiler: cl
@@ -31,7 +32,6 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          #Clang
           - name: Clang
             c_compiler: clang
             cpp_compiler: clang++
@@ -44,7 +44,6 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-mingw-static
 
-          # Clang-CL
           - name: Clang-CL
             c_compiler: clang-cl
             cpp_compiler: clang-cl
@@ -57,7 +56,6 @@ jobs:
             build_type: Debug
             vcpkg_triplet: x64-windows
 
-          # MinGW-UCRT (MSYS2)
           - name: MinGW-UCRT
             c_compiler: ucrt64-w64-mingw32-gcc
             cpp_compiler: ucrt64-w64-mingw32-g++
@@ -76,9 +74,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # -------------------------------
-      # MSVC / Clang-CL setup
-      # -------------------------------
       - name: Install LLVM (Clang-CL)
         if: matrix.c_compiler == 'clang-cl'
         run: choco install llvm
@@ -108,9 +103,6 @@ jobs:
         with:
           arch: x64
 
-      # ------------------------------------------------------------
-      # MSYS2 MinGW-UCRT setup
-      # ------------------------------------------------------------
       - name: Install MinGW-UCRT (MSYS2)
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         uses: msys2/setup-msys2@v2
@@ -124,9 +116,6 @@ jobs:
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-ffmpeg
 
-      # ------------------------------------------------------------
-      # Vulkan SDK + vcpkg
-      # ------------------------------------------------------------
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
@@ -142,9 +131,6 @@ jobs:
           token: ${{ github.token }}
           cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('vcpkg.json') }}
 
-      # ------------------------------------------------------------
-      # CMake configure (MSVC / Clang-CL)
-      # ------------------------------------------------------------
       - name: Configure CMake (MSVC/Clang-CL)
         if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
         shell: bash
@@ -172,9 +158,6 @@ jobs:
             $LAUNCHER_OPTS \
             -S .
 
-      # ------------------------------------------------------------
-      # CMake configure (MSYS2 MinGW-UCRT)
-      # ------------------------------------------------------------
       - name: Configure CMake (MSYS2 MinGW-UCRT)
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
@@ -192,16 +175,10 @@ jobs:
             -DBUILD_TESTING=ON \
             -S .
 
-
-      # ------------------------------------------------------------
-      # Build
-      # ------------------------------------------------------------
-      # MSVC / Clang-CL
       - name: Build (MSVC/Clang-CL)
         if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         run: cmake --build build
 
-      # MSYS2 (Clang + MinGW-UCRT)
       - name: Build (MSYS2)
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
@@ -209,144 +186,6 @@ jobs:
 
       - name: Run tests
         run: ctest --test-dir build -C ${{matrix.build_type}} --output-on-failure --parallel
-
-      - name: sccache stats
-        run: sccache --show-stats || true
-
-  # ============================================================
-  # LINUX JOB
-  # ============================================================
-  build-linux:
-    name: Build (Linux - ${{ matrix.name }} - ${{ matrix.build_type }})
-    runs-on: ubuntu-24.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: GCC
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Release
-            vcpkg_triplet: x64-linux
-
-          - name: GCC
-            c_compiler: gcc
-            cpp_compiler: g++
-            build_type: Debug
-            vcpkg_triplet: x64-linux
-
-          - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Release
-            vcpkg_triplet: x64-linux
-
-          - name: Clang
-            c_compiler: clang
-            cpp_compiler: clang++
-            build_type: Debug
-            vcpkg_triplet: x64-linux
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      - name: Cache apt
-        uses: actions/cache@v4
-        with:
-          path: |
-            /var/cache/apt
-            /var/lib/apt/lists
-          key: apt-${{ runner.os }}-24.04
-
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update -o Acquire::Retries=5
-          sudo apt-get install -y --no-install-recommends \
-            libgl1-mesa-dev mesa-common-dev \
-            libx11-dev xorg-dev \
-            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev \
-            sccache
-
-      - name: Install Clang 21
-        if: matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 21
-
-      - name: Install sccache
-        run: sudo apt-get install -y sccache
-
-      - name: Cache sccache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/sccache
-          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-linux-${{ matrix.c_compiler }}
-
-      - name: Install Clang (latest)
-        if: matrix.c_compiler == 'clang'
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 21
-
-      - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
-
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
-        with:
-          version: 1.4.309.0
-          cache: true
-
-      - name: vcpkg build
-        id: vcpkg
-        uses: johnwason/vcpkg-action@v7
-        with:
-          manifest-dir: ${{ github.workspace }}
-          triplet: ${{ matrix.vcpkg_triplet }}
-          token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('vcpkg.json') }}
-
-      - name: Configure CMake
-        run: |
-          if [ "${{ matrix.name }}" = "Clang" ]; then
-            CC=clang-21
-            CXX=clang++-21
-          else
-            CC=${{ matrix.c_compiler }}
-            CXX=${{ matrix.cpp_compiler }}
-          fi
-
-          cmake -B build \
-            -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -DCMAKE_C_COMPILER=$CC \
-            -DCMAKE_CXX_COMPILER=$CXX \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_CXX_STANDARD=23 \
-            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
-            -DCMAKE_CXX_EXTENSIONS=OFF \
-            -DNX_PLATFORM_OPENGL=1 \
-            -DNX_PLATFORM_VULKAN=1 \
-            -DNX_PLATFORM_OPENAL=1 \
-            -DBUILD_TESTING=ON \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-            -S .
-
-      - name: Build
-        run: cmake --build build
-
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure --parallel
 
       - name: sccache stats
         run: sccache --show-stats || true
