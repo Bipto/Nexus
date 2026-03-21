@@ -3,7 +3,8 @@ add_executable(CoreUnitTests
     src/ResourcePoolTests.cpp
     src/ThreadPoolTests.cpp
     src/UtilsTests.cpp 
-    src/AutoReleaseTests.cpp)
+    src/AutoReleaseTests.cpp 
+    src/MemorySizeConverterTests.cpp)
     
 target_link_libraries(CoreUnitTests 
     PRIVATE 
