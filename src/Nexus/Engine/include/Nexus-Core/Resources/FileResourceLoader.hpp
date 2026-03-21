@@ -13,7 +13,7 @@
 
 namespace Nexus
 {
-	/// @brief A class providing an interface for resource loading, e.g. from file or from a binary blob
+	/// @brief A class providing an implementation of an interface for loading resources from disk
 	class NX_API FileResourceLoader : public IResourceLoader
 	{
 	  public:
