@@ -35,24 +35,7 @@ namespace Nexus
 		// assign the filter that was used by the user
 		data->dialogResult.SelectedFilter = filter;
 
-		// if the user selected a file, we need to do futher processing
-		if (*filelist)
-		{
-			// iterate through each file in the list
-			while (*filelist)
-			{
-				// check that the filepath is a valid string pointer
-				if (filelist != nullptr)
-				{
-					// retrieve the filepath from the data and insert into the vector of paths to return
-					std::string filepath = std::string(*filelist);
-					data->dialogResult.FilePaths.push_back(filepath);
-				}
-
-				// increment the array pointer
-				filelist++;
-			}
-		}
+		for (const char *const *path = filelist; path && *path; path++) { data->dialogResult.FilePaths.emplace_back(*path); }
 
 		// tell the application that the dialog has been finished so that normal application flow can continue
 		data->dialogFinished = true;
