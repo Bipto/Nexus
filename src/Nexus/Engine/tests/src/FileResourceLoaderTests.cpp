@@ -36,7 +36,7 @@ TEST_F(FileResourceLoaderTest, LoadsExistingFile)
 	WriteFile(filePath, "Hello world");
 
 	Nexus::FileResourceLoader loader(tempDir.string());
-	auto					  result = loader.Load("hello.txt");
+	auto					  result = loader.LoadBytes("hello.txt");
 
 	ASSERT_TRUE(result.has_value());
 	std::string loaded(reinterpret_cast<const char *>(result.value().data()), result.value().size());
@@ -46,7 +46,7 @@ TEST_F(FileResourceLoaderTest, LoadsExistingFile)
 TEST_F(FileResourceLoaderTest, ReturnsErrorForMissingFile)
 {
 	Nexus::FileResourceLoader loader(tempDir.string());
-	auto					  result = loader.Load("does_not_exist.txt");
+	auto					  result = loader.LoadBytes("does_not_exist.txt");
 
 	ASSERT_FALSE(result.has_value());
 	EXPECT_FALSE(result.error().empty());
@@ -59,7 +59,7 @@ TEST_F(FileResourceLoaderTest, RespectsBaseDirectory)
 	WriteFile(outside, "Should not load");
 
 	Nexus::FileResourceLoader loader(tempDir.string());
-	auto					  result = loader.Load("../outside.txt");
+	auto					  result = loader.LoadBytes("../outside.txt");
 
 	ASSERT_FALSE(result.has_value());
 	EXPECT_FALSE(result.error().empty());
@@ -71,7 +71,7 @@ TEST_F(FileResourceLoaderTest, LoadsEmptyFile)
 	WriteFile(filePath, "");
 
 	Nexus::FileResourceLoader loader(tempDir.string());
-	auto					  result = loader.Load("empty.bin");
+	auto					  result = loader.LoadBytes("empty.bin");
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_TRUE(result->empty());
@@ -88,7 +88,7 @@ TEST_F(FileResourceLoaderTest, LoadsBinaryDataCorrectly)
 
 	Nexus::FileResourceLoader loader(tempDir.string());
 
-	auto result = loader.Load("binary.bin");
+	auto result = loader.LoadBytes("binary.bin");
 
 	ASSERT_TRUE(result.has_value());
 	ASSERT_EQ(result->size(), bytes.size());

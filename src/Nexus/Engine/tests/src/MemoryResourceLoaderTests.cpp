@@ -22,7 +22,7 @@ static std::vector<std::byte> Bytes(std::initializer_list<uint8_t> values)
 
 TEST_F(MemoryResourceLoaderTest, LoadFailsWhenFileNotMounted)
 {
-	auto result = loader.Load("missing.bin");
+	auto result = loader.LoadBytes("missing.bin");
 	ASSERT_FALSE(result.has_value());
 	EXPECT_FALSE(result);
 	EXPECT_EQ(result.error(), "Failed to find data mounted to given path: missing.bin");
@@ -35,7 +35,7 @@ TEST_F(MemoryResourceLoaderTest, MountFileSucceedsForNewFile)
 
 	ASSERT_TRUE(mountResult.has_value());
 
-	auto loadResult = loader.Load("file.bin");
+	auto loadResult = loader.LoadBytes("file.bin");
 	ASSERT_TRUE(loadResult.has_value());
 	EXPECT_EQ(loadResult.value(), data);
 }
@@ -63,7 +63,7 @@ TEST_F(MemoryResourceLoaderTest, MountFileOverwritesWhenAllowed)
 	auto mountResult = loader.MountFile("file.bin", true, data2);
 	ASSERT_TRUE(mountResult.has_value());
 
-	auto loadResult = loader.Load("file.bin");
+	auto loadResult = loader.LoadBytes("file.bin");
 	ASSERT_TRUE(loadResult.has_value());
 	EXPECT_EQ(loadResult.value(), data2);
 }
@@ -73,7 +73,7 @@ TEST_F(MemoryResourceLoaderTest, LoadReturnsCorrectData)
 	auto data = Bytes({10, 20, 30, 40});
 	ASSERT_TRUE(loader.MountFile("assets/texture.png", false, data).has_value());
 
-	auto result = loader.Load("assets/texture.png");
+	auto result = loader.LoadBytes("assets/texture.png");
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), data);
 }
@@ -96,7 +96,7 @@ TEST_F(MemoryResourceLoaderTest, ConcurrentLoadsAreThreadSafe)
 			{
 				for (int i = 0; i < ITERATIONS; ++i)
 				{
-					auto result = loader.Load("shared.bin");
+					auto result = loader.LoadBytes("shared.bin");
 					if (!result.has_value() || result.value() != data)
 					{
 						failed = true;
@@ -145,7 +145,7 @@ TEST_F(MemoryResourceLoaderTest, ConcurrentMountAndLoadIsThreadSafe)
 					}
 					else
 					{
-						auto r = loader.Load(path);
+						auto r = loader.LoadBytes(path);
 						if (r.has_value() && r.value() != testData[i])
 						{
 							failed = true;
