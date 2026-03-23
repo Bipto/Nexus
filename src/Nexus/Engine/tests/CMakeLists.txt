@@ -6,7 +6,8 @@ add_executable(EngineUnitTests
     src/TextureImporterTests.cpp 
     src/FileResourceLoaderTests.cpp
     src/SPIRVCrossShaderCompilerTests.cpp 
-    src/MemoryResourceLoaderTests.cpp)
+    src/MemoryResourceLoaderTests.cpp 
+    src/ShaderPreprocessorTests.cpp)
 
 target_link_libraries(EngineUnitTests 
     PRIVATE 
