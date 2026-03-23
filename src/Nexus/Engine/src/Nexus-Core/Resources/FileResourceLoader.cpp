@@ -17,25 +17,43 @@ namespace Nexus
 	{
 	}
 
-	std::expected<std::vector<std::byte>, std::string> FileResourceLoader::Load(std::string_view path) const
+	std::expected<std::string, std::string> ResolveFilepath(std::string_view path, const std::filesystem::path &directory)
+	{
+		std::filesystem::path base	   = std::filesystem::weakly_canonical(directory);
+		std::filesystem::path resolved = std::filesystem::weakly_canonical(base / path);
+
+		// Check if resolved is inside base
+		auto rel = resolved.lexically_relative(base);
+
+		// If rel is empty → paths are identical → not a file
+		// If rel begins with ".." → outside base directory
+		if (rel.empty() || *rel.begin() == std::filesystem::path(".."))
+		{
+			return std::unexpected("Attempt to access file outside base directory");
+		}
+
+		return resolved.string();
+	}
+
+	std::expected<std::vector<std::byte>, std::string> FileResourceLoader::LoadBytes(std::string_view path) const
 	{
 		try
 		{
-			std::filesystem::path base	   = std::filesystem::weakly_canonical(m_Directory);
-			std::filesystem::path resolved = std::filesystem::weakly_canonical(base / path);
+			// resolve the path and then attempt to read the contents
+			return ResolveFilepath(path, m_Directory).and_then(IO::File::ReadAllBytes);
+		}
+		catch (const std::exception &e)
+		{
+			return std::unexpected(e.what());
+		}
+	}
 
-			// Check if resolved is inside base
-			auto rel = resolved.lexically_relative(base);
-
-			// If rel is empty → paths are identical → not a file
-			// If rel begins with ".." → outside base directory
-			if (rel.empty() || *rel.begin() == std::filesystem::path(".."))
-			{
-				return std::unexpected("Attempt to access file outside base directory");
-			}
-
-			// Now load the file
-			return IO::File::ReadAllBytes(resolved.string());
+	std::expected<std::string, std::string> FileResourceLoader::LoadString(std::string_view path) const
+	{
+		try
+		{
+			// resolve the path and then attempt to read the contents
+			return ResolveFilepath(path, m_Directory).and_then(IO::File::ReadAllText);
 		}
 		catch (const std::exception &e)
 		{

@@ -20,6 +20,11 @@ namespace Nexus
 		/// @brief A method that returns the bytes representing a resource from a given path
 		/// @param path The path that the resource should be loaded from
 		/// @return A buffer containing the resource, or an error message
-		virtual std::expected<std::vector<std::byte>, std::string> Load(std::string_view path) const = 0;
+		virtual std::expected<std::vector<std::byte>, std::string> LoadBytes(std::string_view path) const = 0;
+
+		/// @brief A method that returns a string that was retrieved from the resource at the given path
+		/// @param path The path that the resource should be loaded from
+		/// @return A string containing the resource or an error message
+		virtual std::expected<std::string, std::string> LoadString(std::string_view path) const = 0;
 	};
 }	 // namespace Nexus
