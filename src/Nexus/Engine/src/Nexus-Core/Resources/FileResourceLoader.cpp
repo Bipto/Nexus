@@ -10,6 +10,7 @@
 #include "Nexus-Core/Resources/IResourceLoader.hpp"
 
 #include "Platform/FileSystem/File.hpp"
+#include "Platform/FileSystem/Path.hpp"
 
 namespace Nexus
 {
@@ -17,7 +18,7 @@ namespace Nexus
 	{
 	}
 
-	std::expected<std::string, std::string> ResolveFilepath(std::string_view path, const std::filesystem::path &directory)
+	static std::expected<std::string, std::string> ResolveFilepath(std::string_view path, const std::filesystem::path &directory)
 	{
 		std::filesystem::path base	   = std::filesystem::weakly_canonical(directory);
 		std::filesystem::path resolved = std::filesystem::weakly_canonical(base / path);
@@ -59,6 +60,18 @@ namespace Nexus
 		{
 			return std::unexpected(e.what());
 		}
+	}
+
+	bool FileResourceLoader::DoesFileExist(std::string_view path) const
+	{
+		auto resolvedPath = ResolveFilepath(path, m_Directory);
+		if (!resolvedPath)
+		{
+			return false;
+		}
+
+		auto pathInfo = IO::Path::GetPathInfo(std::filesystem::path {*resolvedPath});
+		return pathInfo.Type == IO::PathType::File;
 	}
 
 }	 // namespace Nexus

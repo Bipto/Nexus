@@ -36,12 +36,19 @@ namespace Nexus
 		/// @return A string containing the resource or an error message
 		virtual std::expected<std::string, std::string> LoadString(std::string_view path) const final;
 
+		/// @brief A method that checks if a given file path is accessible to the resource loader
+		/// @param path The path to check
+		/// @return Whether the file was found within the resource loader's filesystem
+		virtual bool DoesFileExist(std::string_view path) const final;
+
 		/// @brief A method that adds data into this resource loader and is indexed with the given file path
 		/// @param path The path that the data should be mounted at
 		/// @param overwrite Specifies whether the loader should give an error if a file is already mounted at the given address, if overwrite is
 		/// true, the original data will be replaced by the supplied data
 		/// @param data The data that should be stored within this loader
-		std::expected<void, std::string> MountFile(std::string_view path, bool overwrite, const std::vector<std::byte> &data);
+		std::expected<void, std::string> MountBinaryFile(std::string_view path, bool overwrite, const std::vector<std::byte> &data);
+
+		std::expected<void, std::string> MountTextFile(std::string_view path, bool overwrite, const std::string &data);
 
 	  private:
 		/// @brief A mutex to control access to the resources across threads

@@ -34,6 +34,11 @@ namespace Nexus
 		/// @return A string containing the resource or an error message
 		virtual std::expected<std::string, std::string> LoadString(std::string_view path) const final;
 
+		/// @brief A method that checks if a given file path is accessible to the resource loader
+		/// @param path The path to check
+		/// @return Whether the file was found within the resource loader's filesystem
+		virtual bool DoesFileExist(std::string_view path) const final;
+
 	  private:
 		/// @brief The base path that resources will be attempted to load from
 		std::filesystem::path m_Directory = {};

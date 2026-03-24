@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <format>
 #include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -38,7 +39,13 @@ namespace Nexus
 										{ return std::string(reinterpret_cast<const char *>(data.data()), data.size()); });
 	}
 
-	std::expected<void, std::string> MemoryResourceLoader::MountFile(std::string_view path, bool overwrite, const std::vector<std::byte> &data)
+	bool MemoryResourceLoader::DoesFileExist(std::string_view path) const
+	{
+		std::string filepath {path};
+		return m_MountedFiles.contains(filepath);
+	}
+
+	std::expected<void, std::string> MemoryResourceLoader::MountBinaryFile(std::string_view path, bool overwrite, const std::vector<std::byte> &data)
 	{
 		std::string filepath(path);
 
@@ -56,6 +63,13 @@ namespace Nexus
 		m_MountedFiles[filepath] = data;
 
 		return {};
+	}
+
+	std::expected<void, std::string> MemoryResourceLoader::MountTextFile(std::string_view path, bool overwrite, const std::string &data)
+	{
+		std::vector<std::byte> binaryData(data.size());
+		memcpy(binaryData.data(), data.data(), data.size());
+		return MountBinaryFile(path, overwrite, binaryData);
 	}
 
 }	 // namespace Nexus
