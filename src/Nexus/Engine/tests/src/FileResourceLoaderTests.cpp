@@ -30,7 +30,7 @@ class FileResourceLoaderTest : public ::testing::Test
 	}
 };
 
-TEST_F(FileResourceLoaderTest, LoadsExistingFile)
+TEST_F(FileResourceLoaderTest, LoadBytes_LoadsExistingFile)
 {
 	fs::path filePath = tempDir / "hello.txt";
 	WriteFile(filePath, "Hello world");
@@ -43,7 +43,7 @@ TEST_F(FileResourceLoaderTest, LoadsExistingFile)
 	EXPECT_EQ(loaded, "Hello world");
 }
 
-TEST_F(FileResourceLoaderTest, ReturnsErrorForMissingFile)
+TEST_F(FileResourceLoaderTest, LoadBytes_ReturnsErrorForMissingFile)
 {
 	Nexus::FileResourceLoader loader(tempDir.string());
 	auto					  result = loader.LoadBytes("does_not_exist.txt");
@@ -52,7 +52,7 @@ TEST_F(FileResourceLoaderTest, ReturnsErrorForMissingFile)
 	EXPECT_FALSE(result.error().empty());
 }
 
-TEST_F(FileResourceLoaderTest, RespectsBaseDirectory)
+TEST_F(FileResourceLoaderTest, LoadBytes_RespectsBaseDirectory)
 {
 	// Create a file outside the base directory
 	fs::path outside = tempDir.parent_path() / "outside.txt";
@@ -65,7 +65,7 @@ TEST_F(FileResourceLoaderTest, RespectsBaseDirectory)
 	EXPECT_FALSE(result.error().empty());
 }
 
-TEST_F(FileResourceLoaderTest, LoadsEmptyFile)
+TEST_F(FileResourceLoaderTest, LoadBytes_LoadsEmptyFile)
 {
 	fs::path filePath = tempDir / "empty.bin";
 	WriteFile(filePath, "");
@@ -77,7 +77,7 @@ TEST_F(FileResourceLoaderTest, LoadsEmptyFile)
 	EXPECT_TRUE(result->empty());
 }
 
-TEST_F(FileResourceLoaderTest, LoadsBinaryDataCorrectly)
+TEST_F(FileResourceLoaderTest, LoadBytes_LoadsBinaryDataCorrectly)
 {
 	fs::path filePath = tempDir / "binary.bin";
 
@@ -94,4 +94,73 @@ TEST_F(FileResourceLoaderTest, LoadsBinaryDataCorrectly)
 	ASSERT_EQ(result->size(), bytes.size());
 
 	for (size_t i = 0; i < bytes.size(); ++i) { EXPECT_EQ(static_cast<unsigned char>((*result)[i]), bytes[i]); }
+}
+
+TEST_F(FileResourceLoaderTest, LoadString_LoadsExistingFile)
+{
+	fs::path filePath = tempDir / "hello.txt";
+	WriteFile(filePath, "Hello world");
+
+	Nexus::FileResourceLoader loader(tempDir.string());
+	auto					  result = loader.LoadString("hello.txt");
+
+	ASSERT_TRUE(result.has_value());
+	EXPECT_EQ(result.value(), "Hello world");
+}
+
+TEST_F(FileResourceLoaderTest, LoadString_ReturnsErrorForMissingFile)
+{
+	Nexus::FileResourceLoader loader(tempDir.string());
+	auto					  result = loader.LoadString("missing.txt");
+
+	ASSERT_FALSE(result.has_value());
+	EXPECT_FALSE(result.error().empty());
+}
+
+TEST_F(FileResourceLoaderTest, LoadString_RespectsBaseDirectory)
+{
+	fs::path outside = tempDir.parent_path() / "outside.txt";
+	WriteFile(outside, "Should not load");
+
+	Nexus::FileResourceLoader loader(tempDir.string());
+	auto					  result = loader.LoadString("../outside.txt");
+
+	ASSERT_FALSE(result.has_value());
+	EXPECT_FALSE(result.error().empty());
+}
+
+TEST_F(FileResourceLoaderTest, LoadString_LoadsEmptyFile)
+{
+	fs::path filePath = tempDir / "empty.txt";
+	WriteFile(filePath, "");
+
+	Nexus::FileResourceLoader loader(tempDir.string());
+	auto					  result = loader.LoadString("empty.txt");
+
+	ASSERT_TRUE(result.has_value());
+	EXPECT_TRUE(result->empty());
+}
+
+TEST_F(FileResourceLoaderTest, DoesFileExist_ReturnsTrueForExistingFile)
+{
+	fs::path filePath = tempDir / "exists.txt";
+	WriteFile(filePath, "data");
+
+	Nexus::FileResourceLoader loader(tempDir.string());
+	EXPECT_TRUE(loader.DoesFileExist("exists.txt"));
+}
+
+TEST_F(FileResourceLoaderTest, DoesFileExist_ReturnsFalseForMissingFile)
+{
+	Nexus::FileResourceLoader loader(tempDir.string());
+	EXPECT_FALSE(loader.DoesFileExist("missing.txt"));
+}
+
+TEST_F(FileResourceLoaderTest, DoesFileExist_RespectsBaseDirectory)
+{
+	fs::path outside = tempDir.parent_path() / "outside.txt";
+	WriteFile(outside, "data");
+
+	Nexus::FileResourceLoader loader(tempDir.string());
+	EXPECT_FALSE(loader.DoesFileExist("../outside.txt"));
 }

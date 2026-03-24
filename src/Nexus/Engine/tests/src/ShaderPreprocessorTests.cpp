@@ -23,7 +23,7 @@ class ShaderPreprocessorTests : public ::testing::Test
 	{
 		std::vector<std::byte> bytes(text.size());
 		std::memcpy(bytes.data(), text.data(), text.size());
-		ASSERT_TRUE(loader.MountFile(path, true, bytes).has_value());
+		ASSERT_TRUE(loader.MountBinaryFile(path, true, bytes).has_value());
 	}
 };
 
