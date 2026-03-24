@@ -32,7 +32,7 @@ TEST_F(ShaderPreprocessorTests, NoIncludes_ReturnsOriginal)
 	std::string shader = "void main() {}";
 
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(*result, shader);
@@ -46,7 +46,7 @@ TEST_F(ShaderPreprocessorTests, SingleInclude_ReplacedWithContent)
 						 "void main() {}";
 
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(),
@@ -58,7 +58,7 @@ TEST_F(ShaderPreprocessorTests, MissingInclude_ReturnsError)
 {
 	std::string				 shader		 = "#include \"missing.glsl\"";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_FALSE(result.has_value());
 	EXPECT_FALSE(result.error().empty());
@@ -72,7 +72,7 @@ TEST_F(ShaderPreprocessorTests, NestedIncludes_ExpandCorrectly)
 	std::string shader = "#include \"a.glsl\"";
 
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "float x;");
@@ -82,7 +82,7 @@ TEST_F(ShaderPreprocessorTests, PreservesTrailingNewline)
 {
 	std::string				 shader		 = "void main() {}\n";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(*result, shader);
@@ -94,7 +94,7 @@ TEST_F(ShaderPreprocessorTests, IncludeWithTrailingNewline)
 
 	std::string				 shader		 = "#include \"a.glsl\"";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "float x;\n");
@@ -106,7 +106,7 @@ TEST_F(ShaderPreprocessorTests, IncludeWithTrailingCode)
 
 	std::string				 shader		 = "#include \"common.glsl\" float bar;";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "vec3 foo; float bar;");
@@ -118,7 +118,7 @@ TEST_F(ShaderPreprocessorTests, IncludeIndented)
 
 	std::string				 shader		 = "    #include \"common.glsl\"";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "vec3 foo;");
@@ -133,7 +133,7 @@ TEST_F(ShaderPreprocessorTests, MultipleIncludes)
 						 "#include \"b.glsl\"";
 
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "float a;\nfloat b;");
@@ -147,7 +147,7 @@ TEST_F(ShaderPreprocessorTests, DeepNestedIncludes)
 
 	std::string				 shader		 = "#include \"a.glsl\"";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "int x;");
@@ -159,7 +159,7 @@ TEST_F(ShaderPreprocessorTests, IncludeAngleBrackets)
 
 	std::string				 shader		 = "#include <common.glsl>";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "vec3 foo;");
@@ -171,7 +171,20 @@ TEST_F(ShaderPreprocessorTests, IncludeWithExtraSpaces)
 
 	std::string				 shader		 = "#include    \"common.glsl\"";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
+
+	ASSERT_TRUE(result.has_value());
+	EXPECT_EQ(result.value(), "vec3 foo;");
+}
+
+TEST_F(ShaderPreprocessorTests, IncludeFromIncludeDirectory)
+{
+	MountText("shaders/common.glsl", "vec3 foo;");
+
+	std::string				 shader		 = "#include    \"common.glsl\"";
+	std::vector<std::string> includeDirs = {"shaders"};
+
+	auto result = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "vec3 foo;");
@@ -183,7 +196,7 @@ TEST_F(ShaderPreprocessorTests, EmptyInclude)
 
 	std::string				 shader		 = "#include \"empty.glsl\"";
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(), "");
@@ -198,7 +211,7 @@ TEST_F(ShaderPreprocessorTests, IncludeBetweenCode)
 						 "float b;";
 
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(),
@@ -218,7 +231,7 @@ TEST_F(ShaderPreprocessorTests, PragmaOncePreventsDuplicateIncludes)
 						 "void main() {}";
 
 	std::vector<std::string> includeDirs = {};
-	auto					 result		 = preprocessor->PreprocessShader(shader, includeDirs);
+	auto					 result		 = preprocessor->PreprocessShader("", shader, includeDirs);
 	ASSERT_TRUE(result.has_value());
 	EXPECT_EQ(result.value(),
 			  "float x;\n"
