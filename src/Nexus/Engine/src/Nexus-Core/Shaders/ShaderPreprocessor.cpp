@@ -2,11 +2,68 @@
 #include <Nexus-Core/Resources/IResourceLoader.hpp>
 
 #include <expected>
+#include <filesystem>
 #include <regex>
 #include <sstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
+
+namespace
+{
+	static std::expected<std::string, std::string> ResolveIncludePath(Nexus::IResourceLoader		 *resourceLoader,
+																	  const std::string				 &originalPath,
+																	  const std::string				 &includePath,
+																	  const std::vector<std::string> &includeDirectories)
+	{
+		std::filesystem::path shaderPath	  = originalPath;
+		std::filesystem::path shaderDirectory = shaderPath.parent_path();
+
+		// attempt to load from the current directory of the shader (relative path)
+		{
+			std::filesystem::path includeLoadPath = shaderDirectory / includePath;
+			if (resourceLoader->DoesFileExist(includeLoadPath.string()))
+			{
+				return includeLoadPath.string();
+			}
+		}
+
+		// attempt to load from the provided include directories
+		for (const std::string &includeDir : includeDirectories)
+		{
+			// attach the requested include path to the end of the provided include directories and see if we can find a valid file there
+			std::filesystem::path  includeLoadPath = includeDir;
+			std::filesystem ::path fullIncludePath = includeLoadPath / includePath;
+
+			// check whether a file can be found at that location
+			if (resourceLoader->DoesFileExist(fullIncludePath.string()))
+			{
+				return fullIncludePath.string();
+			}
+		}
+
+		// otherwise, build an error containing all of the paths that have been searched
+		std::stringstream errorMessage = {};
+		errorMessage << "Attempting to include shader but could not find a valid file, attempted to search in the following directories, however a "
+						"file named: ("
+					 << includePath << ") was not found at any of the specified paths";
+
+		// iterate through all include paths and add them to the error string, appending commands to the end if not the last in the list
+		for (size_t index = 0; index < includeDirectories.size(); index++)
+		{
+			const std::string &includeDir = includeDirectories.at(index);
+			errorMessage << includeDir;
+
+			if (index != includeDirectories.size())
+			{
+				errorMessage << "\n";
+			}
+		}
+
+		// return the built error message
+		return std::unexpected(errorMessage.str());
+	}
+}	 // namespace
 
 namespace Nexus
 {
@@ -14,16 +71,19 @@ namespace Nexus
 	{
 	}
 
-	std::expected<std::string, std::string> ShaderPreprocessor::PreprocessShader(const std::string				&shader,
+	std::expected<std::string, std::string> ShaderPreprocessor::PreprocessShader(const std::string				&shaderPath,
+																				 const std::string				&shaderText,
 																				 const std::vector<std::string> &includeDirectories) const
 	{
 		std::vector<std::string>		includeStack;
 		std::unordered_set<std::string> onceIncluded;
-		// Top-level has no filename context
-		return PreprocessShader(shader, includeDirectories, includeStack, onceIncluded, "");
+
+		// Top-level has no filename context, forward the include paths and shader text
+		return PreprocessShader(shaderPath, shaderText, includeDirectories, includeStack, onceIncluded, "");
 	}
 
-	std::expected<std::string, std::string> ShaderPreprocessor::PreprocessShader(const std::string				 &shader,
+	std::expected<std::string, std::string> ShaderPreprocessor::PreprocessShader(const std::string				 &shaderPath,
+																				 const std::string				 &shaderText,
 																				 const std::vector<std::string>	 &includeDirectories,
 																				 std::vector<std::string>		 &includeStack,
 																				 std::unordered_set<std::string> &onceIncluded,
@@ -32,12 +92,12 @@ namespace Nexus
 		static const std::regex includeRegex(R"(^\s*#include\s+[<"]([^">]+)[">](.*)$)");
 		static const std::regex pragmaOnceRegex(R"(^\s*#pragma\s+once\b)");
 
-		std::stringstream input(shader);
+		std::stringstream input(shaderText);
 		std::stringstream output;
 		std::string		  line;
 
 		// Did the original text end with a newline?
-		bool inputEndsWithNewline = !shader.empty() && shader.back() == '\n';
+		bool inputEndsWithNewline = !shaderText.empty() && shaderText.back() == '\n';
 
 		while (true)
 		{
@@ -87,12 +147,18 @@ namespace Nexus
 
 				includeStack.push_back(filename);
 
-				auto data = m_ResourceLoader->LoadBytes(filename);
+				auto resolvedIncludePath = ResolveIncludePath(m_ResourceLoader, shaderPath, filename, includeDirectories);
+				if (!resolvedIncludePath)
+				{
+					return std::unexpected(resolvedIncludePath.error());
+				}
+
+				auto data = m_ResourceLoader->LoadBytes(*resolvedIncludePath);
 				if (!data)
 					return std::unexpected(data.error());
 
 				std::string loaded(reinterpret_cast<const char *>(data->data()), data->size());
-				auto		processed = PreprocessShader(loaded, includeDirectories, includeStack, onceIncluded, filename);
+				auto		processed = PreprocessShader(shaderPath, loaded, includeDirectories, includeStack, onceIncluded, filename);
 
 				includeStack.pop_back();
 
@@ -149,7 +215,7 @@ namespace Nexus
 		// mark it as "once included" so future includes of it can be skipped.
 		if (!currentFile.empty())
 		{
-			if (shader.find("#pragma once") != std::string::npos)
+			if (shaderText.find("#pragma once") != std::string::npos)
 				onceIncluded.insert(currentFile);
 		}
 
