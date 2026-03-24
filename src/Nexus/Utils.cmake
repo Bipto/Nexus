@@ -50,20 +50,51 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    if(NOT MSVC OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if(NOT WIN32)
         return()
     endif()
 
-    set(VCPKG_INSTALLED_DIR ${CMAKE_BINARY_DIR}/vcpkg_installed)
-
     add_custom_command(
         TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            $<TARGET_FILE_DIR:${target_name}>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_RUNTIME_DLLS:${target_name}>
+
+            $<$<CONFIG:Debug>:${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin/poly2tri.dll>
+            $<$<CONFIG:Debug>:${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin/minizip.dll>
+            $<$<CONFIG:Debug>:${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin/zlibd1.dll>
+
+            $<$<CONFIG:Release>:${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin/poly2tri.dll>
+            $<$<CONFIG:Release>:${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin/minizip.dll>
+            $<$<CONFIG:Release>:${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin/zlib1.dll>
+
             $<TARGET_FILE_DIR:${target_name}>
         COMMAND_EXPAND_LISTS
     )
+
 endmacro()
+
+
+
+
+macro(import_dll target_name dll_path lib_path)
+    add_library(${target_name} SHARED IMPORTED GLOBAL)
+
+    set_target_properties(${target_name} PROPERTIES
+        IMPORTED_LOCATION "${dll_path}"
+        IMPORTED_IMPLIB   "${lib_path}"
+    )
+
+    # Debug versions if they exist
+    if(EXISTS "${dll_path}" AND EXISTS "${dll_path}/../debug")
+        set_target_properties(${target_name} PROPERTIES
+            IMPORTED_LOCATION_DEBUG "${dll_path}/../debug/${target_name}.dll"
+            IMPORTED_IMPLIB_DEBUG   "${lib_path}/../debug/${target_name}.lib"
+        )
+    endif()
+endmacro()
+
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
