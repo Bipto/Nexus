@@ -55,6 +55,6 @@ namespace Nexus
 		mutable std::shared_mutex m_Mutex = {};
 
 		/// @brief The raw data stored against the path it was mounted at
-		std::map<std::string, std::vector<std::byte>> m_MountedFiles = {};
+		std::map<std::filesystem::path, std::vector<std::byte>> m_MountedFiles = {};
 	};
 }	 // namespace Nexus

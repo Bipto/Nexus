@@ -21,15 +21,17 @@ namespace Nexus
 		// lock the resource for this thread
 		std::shared_lock<std::shared_mutex> lock(m_Mutex);
 
+		std::filesystem::path filesystemPath = path;
+
 		// check whether the file exists and return the data if it does
-		if (m_MountedFiles.contains(filepath))
+		if (m_MountedFiles.contains(filesystemPath))
 		{
-			return m_MountedFiles.at(filepath);
+			return m_MountedFiles.at(filesystemPath);
 		}
 		// otherwise, return an error to the caller
 		else
 		{
-			return std::unexpected(std::format("Failed to find data mounted to given path: {}", filepath));
+			return std::unexpected(std::format("Failed to find data mounted to given path: {}", filesystemPath.string()));
 		}
 	}
 
