@@ -341,6 +341,6 @@ set_property(TARGET Nexus APPEND PROPERTY
         $<TARGET_RUNTIME_DLLS:minizip>
 )
 
-if (DEFINED BUILD_TESTING)
+if (BUILD_TESTING)
 	add_subdirectory(tests)
 endif()
