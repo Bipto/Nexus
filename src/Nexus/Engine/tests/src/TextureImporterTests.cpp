@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "Nexus-Core/Importers/TextureImporter.hpp"
+#include "Nexus-Core/Resources/FileResourceLoader.hpp"
 
 static std::vector<std::byte> LoadFile(const std::string &path)
 {
@@ -16,7 +17,8 @@ TEST(TextureImporter, GetTextureInfoFromDisk_Success)
 {
 	Nexus::TextureImporter importer;
 
-	auto result = importer.GetTextureInfoFromDisk("resources/1x1_rgb.jpg");
+	Nexus::FileResourceLoader loader(std::filesystem::current_path().string());
+	auto					  result = importer.GetTextureInfoFromDisk(&loader, "resources/1x1_rgb.jpg");
 
 	ASSERT_TRUE(result.has_value());
 	auto info = result.value();
@@ -31,7 +33,8 @@ TEST(TextureImporter, GetTextureInfoFromDisk_FileMissing)
 {
 	Nexus::TextureImporter importer;
 
-	auto result = importer.GetTextureInfoFromDisk("resources/does_not_exist.png");
+	Nexus::FileResourceLoader loader(std::filesystem::current_path().string());
+	auto					  result = importer.GetTextureInfoFromDisk(&loader, "resources/does_not_exist.png");
 
 	EXPECT_FALSE(result.has_value());
 }
@@ -50,7 +53,8 @@ TEST(TextureImporter, LoadImageFromDisk_Success)
 {
 	Nexus::TextureImporter importer;
 
-	auto result = importer.LoadImageFromDisk("resources/2x2_rgba.png", false, std::nullopt);
+	Nexus::FileResourceLoader loader(std::filesystem::current_path().string());
+	auto					  result = importer.LoadImageFromDisk(&loader, "resources/2x2_rgba.png", false, std::nullopt);
 
 	ASSERT_TRUE(result.has_value());
 	auto data = result.value();
@@ -63,8 +67,9 @@ TEST(TextureImporter, LoadImageFromDisk_Success)
 
 TEST(TextureImporter, LoadImageFromDisk_DesiredChannels)
 {
-	Nexus::TextureImporter importer;
-	auto				   result = importer.LoadImageFromDisk("resources/2x2_rgba.png", false, 3);
+	Nexus::FileResourceLoader loader(std::filesystem::current_path().string());
+	Nexus::TextureImporter	  importer;
+	auto					  result = importer.LoadImageFromDisk(&loader, "resources/2x2_rgba.png", false, 3);
 
 	ASSERT_TRUE(result.has_value());
 	auto data = result.value();
@@ -79,8 +84,9 @@ TEST(TextureImporter, LoadImageFromMemory_MatchesDisk)
 
 	auto buffer = LoadFile("resources/1x1_rgb.jpg");
 
-	auto disk = importer.LoadImageFromDisk("resources/1x1_rgb.jpg", false, std::nullopt);
-	auto mem  = importer.LoadImageFromMemory(buffer, false, std::nullopt);
+	Nexus::FileResourceLoader loader(std::filesystem::current_path().string());
+	auto					  disk = importer.LoadImageFromDisk(&loader, "resources/1x1_rgb.jpg", false, std::nullopt);
+	auto					  mem  = importer.LoadImageFromMemory(buffer, false, std::nullopt);
 
 	ASSERT_TRUE(disk.has_value());
 	ASSERT_TRUE(mem.has_value());
@@ -95,8 +101,9 @@ TEST(TextureImporter, LoadImageFromDisk_FlipVertically)
 {
 	Nexus::TextureImporter importer;
 
-	auto normal	 = importer.LoadImageFromDisk("resources/flip_test.png", false, std::nullopt);
-	auto flipped = importer.LoadImageFromDisk("resources/flip_test.png", true, std::nullopt);
+	Nexus::FileResourceLoader loader(std::filesystem::current_path().string());
+	auto					  normal  = importer.LoadImageFromDisk(&loader, "resources/flip_test.png", false, std::nullopt);
+	auto					  flipped = importer.LoadImageFromDisk(&loader, "resources/flip_test.png", true, std::nullopt);
 
 	ASSERT_TRUE(normal.has_value());
 	ASSERT_TRUE(flipped.has_value());
