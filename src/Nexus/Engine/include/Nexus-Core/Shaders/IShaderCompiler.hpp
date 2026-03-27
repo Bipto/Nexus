@@ -18,6 +18,8 @@
 
 namespace Nexus
 {
+	/// @brief A structure representing the specific version of a shader language that should be used as input/targetted for output of the compilation
+	/// (e.g. GLSL 450 would be 4.5 in this format)
 	struct ShaderTargetVersion
 	{
 		uint16_t Major = 0;
@@ -37,23 +39,44 @@ namespace Nexus
 		std::optional<std::string> Value = {};
 	};
 
-	struct ShaderCompilationOptions
+	struct ShaderSourceInput
 	{
-		std::string				  EntryPoint		= "main";
-		Graphics::GraphicsAPIInfo TargetEnvironment = {};
-		Graphics::ShaderStage	  Stage				= {};
-		std::vector<ShaderDefine> Defines			= {};
-		Graphics::ShaderLanguage  InputLanguage		= {};
-		ShaderTargetVersion		  InputVersion		= {};
-		Graphics::ShaderLanguage  OutputLanguage	= {};
-		ShaderTargetVersion		  OutputVersion		= {};
-		ShaderOptimisationLevel	  OptimisationLevel = ShaderOptimisationLevel::Performance;
-		bool					  Debug				= false;
+		std::string_view		   SourceText	= {};
+		std::span<const std::byte> SourceBinary = {};
+	};
+
+	struct ShaderCompilationInputDescription
+	{
+		Graphics::ShaderLanguage  ShaderLanguage = {};
+		ShaderTargetVersion		  ShaderVersion	 = {};
+		std::string				  EntryPoint	 = "main";
+		std::vector<ShaderDefine> Defines		 = {};
+	};
+
+	struct ShaderCompilationOutputDescription
+	{
+		Graphics::ShaderLanguage ShaderLanguage	   = {};
+		ShaderTargetVersion		 ShaderVersion	   = {};
+		ShaderOptimisationLevel	 OptimisationLevel = ShaderOptimisationLevel::Performance;
+		bool					 Debug			   = false;
 	};
 
 	struct ShaderCompilationResult
 	{
-		std::vector<std::byte> OutputSource = {};
+		std::string					   OutputText	  = {};
+		std::vector<std::byte>		   OutputBinary	  = {};
+		Graphics::ShaderReflectionData ReflectionData = {};
+		std::vector<std::string>	   Warnings		  = {};
+	};
+
+	struct ShaderCompilationOptions
+	{
+		ShaderSourceInput				   SourceInput			 = {};
+		ShaderCompilationInputDescription  InputCompilationDesc	 = {};
+		ShaderCompilationOutputDescription OutputCompilationDesc = {};
+		Graphics::GraphicsAPIInfo		   Environment			 = {};
+		Graphics::ShaderStage			   Stage				 = {};
+		std::string						   DebugName			 = {};
 	};
 
 	class NX_API IShaderCompiler
@@ -61,8 +84,6 @@ namespace Nexus
 	  public:
 		virtual ~IShaderCompiler() = default;
 
-		virtual std::expected<ShaderCompilationResult, std::string> CompileShader(std::string_view				  shaderSource,
-																				  std::string_view				  shaderName,
-																				  const ShaderCompilationOptions &options) const = 0;
+		virtual std::expected<ShaderCompilationResult, std::string> Compile(const ShaderCompilationOptions &options) const = 0;
 	};
 }	 // namespace Nexus

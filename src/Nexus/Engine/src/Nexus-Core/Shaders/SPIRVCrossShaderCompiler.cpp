@@ -76,13 +76,13 @@ namespace
 
 	std::expected<ShaderCEnvironmentInfo, std::string> GetShaderCTargetEnv(const Nexus::ShaderCompilationOptions &options)
 	{
-		switch (options.TargetEnvironment.API)
+		switch (options.Environment.API)
 		{
 			case Nexus::Graphics::GraphicsAPI::Vulkan:
 			{
-				if (options.OutputVersion.Major == 1)
+				if (options.Environment.Major == 1)
 				{
-					switch (options.TargetEnvironment.Minor)
+					switch (options.Environment.Minor)
 					{
 						case 0:
 							return ShaderCEnvironmentInfo {.targetEnv = shaderc_target_env_vulkan, .targetVersion = shaderc_env_version_vulkan_1_0};
@@ -105,7 +105,7 @@ namespace
 			case Nexus::Graphics::GraphicsAPI::OpenGL:
 			{
 				// if we have modern OpenGL, we only need to support core functionality in the shaders
-				if (options.TargetEnvironment.Major > 3 && options.TargetEnvironment.Minor > 3)
+				if (options.Environment.Major > 3 && options.Environment.Minor > 3)
 				{
 					return ShaderCEnvironmentInfo {
 						.targetEnv	   = shaderc_target_env_opengl,
@@ -130,11 +130,11 @@ namespace
 
 	std::expected<shaderc_spirv_version, std::string> GetSpirvShaderVersion(const Nexus::ShaderCompilationOptions &options)
 	{
-		if (options.OutputLanguage == Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV)
+		if (options.OutputCompilationDesc.ShaderLanguage == Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV)
 		{
-			if (options.OutputVersion.Major == 1)
+			if (options.OutputCompilationDesc.ShaderVersion.Major == 1)
 			{
-				switch (options.OutputVersion.Minor)
+				switch (options.OutputCompilationDesc.ShaderVersion.Minor)
 				{
 					case 0: return shaderc_spirv_version_1_0;
 					case 1: return shaderc_spirv_version_1_1;
@@ -186,13 +186,15 @@ namespace
 	}
 
 	int ExtractShaderProfileVersion(Nexus::ShaderTargetVersion version)
-	{	 // e.g. GLSL 4.5 becomes 450
+	{
+		// e.g. GLSL 4.5 becomes 450
 		return (version.Major * 100) + (version.Minor * 10);
 	}
 
-	std::expected<std::vector<std::byte>, std::string> CompileGLSLToSPIRV(const std::string						&source,
-																		  const std::string						&shaderName,
-																		  const Nexus::ShaderCompilationOptions &options)
+	/// compiles a GLSL or HLSL string into SPIRV bytecode using the requested options
+	std::expected<std::vector<std::byte>, std::string> CompileGLSL_HLSL_ToSPIRV(const std::string					  &source,
+																				const std::string					  &shaderName,
+																				const Nexus::ShaderCompilationOptions &options)
 	{
 		auto shaderEnvironment = GetShaderCTargetEnv(options);
 		if (!shaderEnvironment)
@@ -212,7 +214,7 @@ namespace
 			return std::unexpected(shaderKind.error());
 		}
 
-		auto optimisationLevel = GetShadercOptimisationLevel(options.OptimisationLevel);
+		auto optimisationLevel = GetShadercOptimisationLevel(options.OutputCompilationDesc.OptimisationLevel);
 		if (!optimisationLevel)
 		{
 			return std::unexpected(optimisationLevel.error());
@@ -225,7 +227,7 @@ namespace
 		compileOptions.SetOptimizationLevel(*optimisationLevel);
 
 		// preprocessor defines
-		for (const auto &[name, value] : options.Defines)
+		for (const auto &[name, value] : options.InputCompilationDesc.Defines)
 		{
 			if (value.has_value())
 			{
@@ -237,19 +239,19 @@ namespace
 			}
 		}
 
-		if (options.Debug)
+		if (options.OutputCompilationDesc.Debug)
 		{
 			compileOptions.SetGenerateDebugInfo();
 		}
 
-		if (options.InputLanguage == Nexus::Graphics::ShaderLanguage::GLSL)
+		if (options.InputCompilationDesc.ShaderLanguage == Nexus::Graphics::ShaderLanguage::GLSL)
 		{
-			int glslVersion = ExtractShaderProfileVersion(options.InputVersion);
+			int glslVersion = ExtractShaderProfileVersion(options.InputCompilationDesc.ShaderVersion);
 			compileOptions.SetForcedVersionProfile(glslVersion, shaderc_profile_core);
 		}
-		else if (options.InputLanguage == Nexus::Graphics::ShaderLanguage::GLSLES)
+		else if (options.InputCompilationDesc.ShaderLanguage == Nexus::Graphics::ShaderLanguage::GLSLES)
 		{
-			int glslVersion = ExtractShaderProfileVersion(options.InputVersion);
+			int glslVersion = ExtractShaderProfileVersion(options.InputCompilationDesc.ShaderVersion);
 			compileOptions.SetForcedVersionProfile(glslVersion, shaderc_profile_es);
 		}
 
@@ -266,29 +268,32 @@ namespace
 		return returnedSource;
 	}
 
+	std::expected<std::vector<std::byte>, std::string> CompileSPIRVToGLSL()
+	{
+	}
+
 }	 // namespace
 
 namespace Nexus
 {
-	std::expected<ShaderCompilationResult, std::string> SPIRVCrossShaderCompiler::CompileShader(std::string_view				shaderSource,
-																								std::string_view				shaderName,
-																								const ShaderCompilationOptions &options) const
+	std::expected<ShaderCompilationResult, std::string> SPIRVCrossShaderCompiler::Compile(const ShaderCompilationOptions &options) const
 	{
-		switch (options.OutputLanguage)
+		switch (options.OutputCompilationDesc.ShaderLanguage)
 		{
 			case Graphics::ShaderLanguage::OpenGL_SPIRV:
 			case Graphics::ShaderLanguage::Vulkan_SPIRV:
 			{
-				if (options.InputLanguage == Graphics::ShaderLanguage::GLSL || options.InputLanguage == Graphics::ShaderLanguage::GLSLES ||
-					options.InputLanguage == Graphics::ShaderLanguage::HLSL)
+				if (options.InputCompilationDesc.ShaderLanguage == Graphics::ShaderLanguage::GLSL ||
+					options.InputCompilationDesc.ShaderLanguage == Graphics::ShaderLanguage::GLSLES ||
+					options.InputCompilationDesc.ShaderLanguage == Graphics::ShaderLanguage::HLSL)
 				{
-					std::string source = std::string(shaderSource);
-					std::string name   = std::string(shaderName);
-					auto		result = CompileGLSLToSPIRV(source, name, options);
+					std::string source = std::string(options.SourceInput.SourceText);
+					std::string name   = std::string(options.DebugName);
+					auto		result = CompileGLSL_HLSL_ToSPIRV(source, name, options);
 
 					if (result)
 					{
-						return ShaderCompilationResult {.OutputSource = *result};
+						return ShaderCompilationResult {.OutputText = {}, .OutputBinary = *result, .ReflectionData = {}, .Warnings = {}};
 					}
 					else
 					{

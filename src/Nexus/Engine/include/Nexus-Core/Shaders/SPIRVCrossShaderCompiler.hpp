@@ -23,8 +23,6 @@ namespace Nexus
 	class NX_API SPIRVCrossShaderCompiler final : public IShaderCompiler
 	{
 	  public:
-		std::expected<ShaderCompilationResult, std::string> CompileShader(std::string_view				  shaderSource,
-																		  std::string_view				  shaderName,
-																		  const ShaderCompilationOptions &options) const final;
+		std::expected<ShaderCompilationResult, std::string> Compile(const ShaderCompilationOptions &options) const final;
 	};
 }	 // namespace Nexus
