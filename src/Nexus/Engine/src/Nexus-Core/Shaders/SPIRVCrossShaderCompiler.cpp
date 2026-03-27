@@ -185,7 +185,7 @@ namespace
 		}
 	}
 
-	int ExtractShaderProfileVersion(Nexus::ShaderTargetVersion version)
+	int ExtractShaderProfileVersion(Nexus::Graphics::ShaderVersion version)
 	{
 		// e.g. GLSL 4.5 becomes 450
 		return (version.Major * 100) + (version.Minor * 10);
