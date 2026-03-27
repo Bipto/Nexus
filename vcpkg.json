@@ -21,7 +21,10 @@
     "glm",
     "glslang",
     "gtest",
-    "openal-soft",
+    {
+      "name": "openal-soft",
+      "platform": "!wasm32"
+    },
     "sdl3",
     "shaderc",
     "spirv-cross",
