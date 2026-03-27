@@ -40,27 +40,47 @@ if (NOT MINGW AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMU
 	)
 	FetchContent_MakeAvailable(tracy)
 
-	add_library(Tracy-Shared SHARED
-		${tracy_SOURCE_DIR}/public/TracyClient.cpp
-	)
+	if (EMSCRIPTEN)
+		add_library(Tracy-Static
+			${tracy_SOURCE_DIR}/public/TracyClient.cpp
+		)
 
-	target_include_directories(Tracy-Shared PUBLIC
-		${tracy_SOURCE_DIR}/public
-	)
+		target_include_directories(Tracy-Static PUBLIC
+			${tracy_SOURCE_DIR}/public
+		)
 
-	set_target_properties(Tracy-Shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+		target_compile_definitions(Tracy-Static PUBLIC TRACY_ENABLE)
+		target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS)
 
-	target_compile_definitions(Tracy-Shared PUBLIC TRACY_ENABLE)
-	target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS)
+		set_target_properties(Tracy-Static PROPERTIES
+			CXX_VISIBILITY_PRESET hidden
+			VISIBILITY_INLINES_HIDDEN YES
+		)
+		target_link_libraries(Nexus-Core PUBLIC Tracy-Static)
+	else()
+		add_library(Tracy-Shared SHARED
+			${tracy_SOURCE_DIR}/public/TracyClient.cpp
+		)
 
-	set_target_properties(Tracy-Shared PROPERTIES
-		CXX_VISIBILITY_PRESET hidden
-		VISIBILITY_INLINES_HIDDEN YES
-	)
+		target_include_directories(Tracy-Shared PUBLIC
+			${tracy_SOURCE_DIR}/public
+		)
+
+		set_target_properties(Tracy-Shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+		target_compile_definitions(Tracy-Shared PUBLIC TRACY_ENABLE)
+		target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS)
+
+		set_target_properties(Tracy-Shared PROPERTIES
+			CXX_VISIBILITY_PRESET hidden
+			VISIBILITY_INLINES_HIDDEN YES
+		)
+		target_link_libraries(Nexus-Core PUBLIC Tracy-Shared)
+	endif()
+
 
 	add_definitions(-DTRACY_ENABLE)
 
-	target_link_libraries(Nexus-Core PUBLIC Tracy-Shared)
 
 	set(NX_TRACY_AVAILABLE ON CACHE BOOL "")
 
