@@ -9,6 +9,7 @@
 #include <string_view>
 #include <vector>
 
+#include "Nexus-Core/Resources/IResourceLoader.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "RHI/PixelFormat.hpp"
 
@@ -38,13 +39,14 @@ namespace Nexus
 	class NX_API TextureImporter
 	{
 	  public:
-		TextureImporter();
+		TextureImporter() = default;
 
-		[[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromDisk(std::string_view path) const;
+		[[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromDisk(IResourceLoader *loader, std::string_view path) const;
 
 		[[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromMemory(std::span<std::byte> buffer) const;
 
-		[[nodiscard]] std::expected<TextureData, std::string> LoadImageFromDisk(std::string_view		path,
+		[[nodiscard]] std::expected<TextureData, std::string> LoadImageFromDisk(IResourceLoader		   *loader,
+																				std::string_view		path,
 																				bool					flipVertically,
 																				std::optional<uint32_t> desiredChannels) const;
 

@@ -132,14 +132,10 @@ namespace
 
 namespace Nexus
 {
-	TextureImporter::TextureImporter()
-	{
-	}
-
-	std::expected<TextureInfo, std::string> TextureImporter::GetTextureInfoFromDisk(std::string_view path) const
+	std::expected<TextureInfo, std::string> TextureImporter::GetTextureInfoFromDisk(IResourceLoader *loader, std::string_view path) const
 	{
 		std::string filepath = std::string(path);
-		return IO::File::ReadAllBytes(filepath).and_then([this](std::vector<std::byte> pixels) { return GetTextureInfoFromMemory(pixels); });
+		return loader->LoadBytes(path).and_then([this](std::vector<std::byte> pixels) { return GetTextureInfoFromMemory(pixels); });
 	}
 
 	std::expected<TextureInfo, std::string> TextureImporter::GetTextureInfoFromMemory(std::span<std::byte> buffer) const
@@ -162,13 +158,14 @@ namespace Nexus
 		return std::unexpected("The image format is unsupported");
 	}
 
-	std::expected<TextureData, std::string> TextureImporter::LoadImageFromDisk(std::string_view		   path,
+	std::expected<TextureData, std::string> TextureImporter::LoadImageFromDisk(IResourceLoader		  *loader,
+																			   std::string_view		   path,
 																			   bool					   flipVertically,
 																			   std::optional<uint32_t> desiredChannels) const
 	{
 		std::string filepath = std::string(path);
-		return IO::File::ReadAllBytes(filepath).and_then([this, flipVertically, desiredChannels](std::vector<std::byte> pixels)
-														 { return LoadImageFromMemory(pixels, flipVertically, desiredChannels); });
+		return loader->LoadBytes(path).and_then([this, flipVertically, desiredChannels](std::vector<std::byte> pixels)
+												{ return LoadImageFromMemory(pixels, flipVertically, desiredChannels); });
 	}
 
 	std::expected<TextureData, std::string> TextureImporter::LoadImageFromMemory(std::span<std::byte>	 buffer,
