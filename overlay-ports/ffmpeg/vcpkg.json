@@ -1,0 +1,27 @@
+{
+  "name": "ffmpeg",
+  "version": "6.1.1",
+  "description": "FFmpeg with basic Emscripten support via overlay port",
+  "homepage": "https://ffmpeg.org",
+  "license": "LGPL-2.1-or-later",
+  "dependencies": [
+    "zlib"
+  ],
+  "features": {
+    "avcodec": {
+      "description": "Enable libavcodec"
+    },
+    "avdevice": {
+      "description": "Enable libavdevice"
+    },
+    "avformat": {
+      "description": "Enable libavformat"
+    },
+    "swresample": {
+      "description": "Enable libswresample"
+    },
+    "swscale": {
+      "description": "Enable libswscale"
+    }
+  }
+}
