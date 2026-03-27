@@ -18,14 +18,6 @@
 
 namespace Nexus
 {
-	/// @brief A structure representing the specific version of a shader language that should be used as input/targetted for output of the compilation
-	/// (e.g. GLSL 450 would be 4.5 in this format)
-	struct ShaderTargetVersion
-	{
-		uint16_t Major = 0;
-		uint16_t Minor = 0;
-	};
-
 	enum class ShaderOptimisationLevel
 	{
 		None,
@@ -48,7 +40,7 @@ namespace Nexus
 	struct ShaderCompilationInputDescription
 	{
 		Graphics::ShaderLanguage  ShaderLanguage = {};
-		ShaderTargetVersion		  ShaderVersion	 = {};
+		Graphics::ShaderVersion	  ShaderVersion	 = {};
 		std::string				  EntryPoint	 = "main";
 		std::vector<ShaderDefine> Defines		 = {};
 	};
@@ -56,7 +48,7 @@ namespace Nexus
 	struct ShaderCompilationOutputDescription
 	{
 		Graphics::ShaderLanguage ShaderLanguage	   = {};
-		ShaderTargetVersion		 ShaderVersion	   = {};
+		Graphics::ShaderVersion	 ShaderVersion	   = {};
 		ShaderOptimisationLevel	 OptimisationLevel = ShaderOptimisationLevel::Performance;
 		bool					 Debug			   = false;
 	};

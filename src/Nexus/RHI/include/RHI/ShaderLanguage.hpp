@@ -21,6 +21,20 @@ namespace Nexus::Graphics
 		OpenGL_SPIRV
 	};
 
+	/// @brief A structure representing the specific version of a shader language that should be used as input/targetted for output of the compilation
+	/// (e.g. GLSL 450 would be 4.5 in this format)
+	struct ShaderVersion
+	{
+		uint16_t Major = 0;
+		uint16_t Minor = 0;
+	};
+
+	struct ShaderProfile
+	{
+		ShaderLanguage Language = {};
+		ShaderVersion  Version	= {};
+	};
+
 	inline bool IsBinaryShaderFormat(ShaderLanguage language)
 	{
 		switch (language)
