@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace Nexus::Graphics
 {
 	/// @brief An enum representing different shader languages
