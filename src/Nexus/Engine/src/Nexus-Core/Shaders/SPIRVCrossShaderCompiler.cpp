@@ -4,7 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <format>
 #include <span>
+#include <string.h>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -20,12 +22,37 @@
 #include <shaderc/env.h>
 #include <shaderc/shaderc.h>
 #include <shaderc/shaderc.hpp>
+#include <shaderc/status.h>
 #include <spirv.hpp>
+#include <spirv_cross_error_handling.hpp>
 #include <spirv_glsl.hpp>
 #include <spirv_hlsl.hpp>
 
 namespace
 {
+	void SetHLSLUniformNames(spirv_cross::CompilerHLSL &compiler, const spirv_cross::SmallVector<spirv_cross::Resource> &resources)
+	{
+		for (const auto &resource : resources) { compiler.set_name(resource.id, resource.name); }
+	}
+
+	void MaintainHLSLUniformNames(spirv_cross::CompilerHLSL &compiler)
+	{
+		const auto &resources = compiler.get_shader_resources();
+		SetHLSLUniformNames(compiler, resources.uniform_buffers);
+		SetHLSLUniformNames(compiler, resources.storage_buffers);
+		SetHLSLUniformNames(compiler, resources.stage_inputs);
+		SetHLSLUniformNames(compiler, resources.stage_outputs);
+		SetHLSLUniformNames(compiler, resources.subpass_inputs);
+		SetHLSLUniformNames(compiler, resources.storage_images);
+		SetHLSLUniformNames(compiler, resources.sampled_images);
+		SetHLSLUniformNames(compiler, resources.atomic_counters);
+		SetHLSLUniformNames(compiler, resources.acceleration_structures);
+		SetHLSLUniformNames(compiler, resources.push_constant_buffers);
+		SetHLSLUniformNames(compiler, resources.shader_record_buffers);
+		SetHLSLUniformNames(compiler, resources.separate_images);
+		SetHLSLUniformNames(compiler, resources.separate_samplers);
+	}
+
 	std::expected<spv::ExecutionModel, std::string> GetShaderExecutionModelFromShaderStage(Nexus::Graphics::ShaderStage stage)
 	{
 		switch (stage)
@@ -185,10 +212,16 @@ namespace
 		}
 	}
 
-	int ExtractShaderProfileVersion(Nexus::Graphics::ShaderVersion version)
+	int ExtractGLSLShaderProfileVersion(Nexus::Graphics::ShaderVersion version)
 	{
 		// e.g. GLSL 4.5 becomes 450
 		return (version.Major * 100) + (version.Minor * 10);
+	}
+
+	int ExtractHLSLShaderProfileVersion(Nexus::Graphics::ShaderVersion version)
+	{
+		// e.g. HLSL 6.1 becomes 61
+		return (version.Major * 10) + version.Minor;
 	}
 
 	/// compiles a GLSL or HLSL string into SPIRV bytecode using the requested options
@@ -246,12 +279,12 @@ namespace
 
 		if (options.InputCompilationDesc.ShaderLanguage == Nexus::Graphics::ShaderLanguage::GLSL)
 		{
-			int glslVersion = ExtractShaderProfileVersion(options.InputCompilationDesc.ShaderVersion);
+			int glslVersion = ExtractGLSLShaderProfileVersion(options.InputCompilationDesc.ShaderVersion);
 			compileOptions.SetForcedVersionProfile(glslVersion, shaderc_profile_core);
 		}
 		else if (options.InputCompilationDesc.ShaderLanguage == Nexus::Graphics::ShaderLanguage::GLSLES)
 		{
-			int glslVersion = ExtractShaderProfileVersion(options.InputCompilationDesc.ShaderVersion);
+			int glslVersion = ExtractGLSLShaderProfileVersion(options.InputCompilationDesc.ShaderVersion);
 			compileOptions.SetForcedVersionProfile(glslVersion, shaderc_profile_es);
 		}
 
@@ -268,8 +301,74 @@ namespace
 		return returnedSource;
 	}
 
-	std::expected<std::vector<std::byte>, std::string> CompileSPIRVToGLSL()
+	std::expected<Nexus::ShaderCompilationResult, std::string> CompileSPIRVToGLSL(Nexus::Graphics::ShaderVersion shaderVersion,
+																				  bool							 es,
+																				  std::span<const std::byte>	 binaryData)
 	{
+		// check that the data does contain a valid amount of SPIR-V
+		if (binaryData.size_bytes() / sizeof(uint32_t) != 0)
+		{
+			return std::unexpected("binaryData does not containg valid SPIR-V");
+		}
+
+		std::span<const uint32_t> spirvView = {reinterpret_cast<const uint32_t *>(binaryData.data()), binaryData.size_bytes() / sizeof(uint32_t)};
+
+		int glslVersion = ExtractGLSLShaderProfileVersion(shaderVersion);
+
+		spirv_cross::CompilerGLSL compiler(spirvView.data(), spirvView.size());
+
+		spirv_cross::CompilerGLSL::Options options;
+		options.emit_push_constant_as_uniform_buffer = true;
+		options.vulkan_semantics					 = false;
+		options.version								 = glslVersion;
+		compiler.set_common_options(options);
+
+		try
+		{
+			std::string shaderText = compiler.compile();
+			return Nexus::ShaderCompilationResult {.OutputText = shaderText, .OutputBinary = {}, .ReflectionData = {}, .Warnings = {}};
+		}
+		catch (const spirv_cross::CompilerError &e)
+		{
+			std::string errorMessage = std::format("SPIRV-Cross error: {}\n", e.what());
+			return std::unexpected(errorMessage);
+		}
+	}
+
+	std::expected<Nexus::ShaderCompilationResult, std::string> CompileSPIRVToHLSL(Nexus::Graphics::ShaderVersion shaderVersion,
+																				  std::span<const std::byte>	 binaryData)
+	{
+		// check that the data does contain a valid amount of SPIR-V
+		if (binaryData.size_bytes() / sizeof(uint32_t) != 0)
+		{
+			return std::unexpected("binaryData does not containg valid SPIR-V");
+		}
+
+		std::span<const uint32_t> spirvView = {reinterpret_cast<const uint32_t *>(binaryData.data()), binaryData.size_bytes() / sizeof(uint32_t)};
+
+		int hlslVersion = ExtractHLSLShaderProfileVersion(shaderVersion);
+
+		spirv_cross::CompilerHLSL compiler(spirvView.data(), spirvView.size());
+
+		MaintainHLSLUniformNames(compiler);
+
+		spirv_cross::CompilerHLSL::Options options;
+		options.use_entry_point_name				  = true;
+		options.shader_model						  = hlslVersion;
+		options.flatten_matrix_vertex_input_semantics = true;
+		options.force_storage_buffer_as_uav			  = true;
+		compiler.set_hlsl_options(options);
+
+		try
+		{
+			std::string shaderText = compiler.compile();
+			return Nexus::ShaderCompilationResult {.OutputText = shaderText, .OutputBinary = {}, .ReflectionData = {}, .Warnings = {}};
+		}
+		catch (const spirv_cross::CompilerError &e)
+		{
+			std::string errorMessage = std::format("SPIRV-Cross error: {}\n", e.what());
+			return std::unexpected(errorMessage);
+		}
 	}
 
 }	 // namespace
@@ -304,6 +403,18 @@ namespace Nexus
 				{
 					return std::unexpected("Unsupported input language");
 				}
+			}
+			case Graphics::ShaderLanguage::GLSL:
+			{
+				return CompileSPIRVToGLSL(options.OutputCompilationDesc.ShaderVersion, false, options.SourceInput.SourceBinary);
+			}
+			case Graphics::ShaderLanguage::GLSLES:
+			{
+				return CompileSPIRVToGLSL(options.OutputCompilationDesc.ShaderVersion, true, options.SourceInput.SourceBinary);
+			}
+			case Graphics::ShaderLanguage::HLSL:
+			{
+				return CompileSPIRVToHLSL(options.OutputCompilationDesc.ShaderVersion, options.SourceInput.SourceBinary);
 			}
 			default: return std::unexpected("Failed to find a supported output language");
 		}
