@@ -49,7 +49,7 @@ Optional CMake variables:
 Documentation of source code is generated automatically through Doxygen with every commit. Documentation is available through a browser at:  https://bipto.github.io/Nexus or as a PDF document as a GitHub Actions artifact.
 
 # Testing
-Testing is done using googletest. Unit tests are build and executed as part of CI/CD workflows through GitHub Actions. Each module of the project is capable of having their own unit tests, although for some that will not be possible, e.g. running graphics tests is not possible due to limited GPU driver support with GitHub runners.
+Testing is done using googletest. Unit tests are built and executed as part of CI/CD workflows through GitHub Actions. Each module of the project is capable of having their own unit tests, although for some that will not be possible, e.g. running graphics tests is not possible due to limited GPU driver support with GitHub runners.
 
 # Demos
 Repository contains a full demo suite, containing examples of all supported features, including command recording, indirect rendering, model loading, lighting and audio.
