@@ -57,8 +57,6 @@ set(PUBLIC_LIBRARY_INCLUDES
 	"include"
 )
 
-set(PRIVATE_LIBRARY_INCLUDES "")
-
 set(LIBRARY_COMPILE_DEFINITIONS "NX_PLATFORM_EXPORT=1")
 
 #platform specific configurations
@@ -83,10 +81,12 @@ set_target_properties(Nexus-Platform PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-find_package(SDL3 CONFIG REQUIRED)
-list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3 Nexus-Core)
+if (!EMSCRIPTEN)
+	find_package(SDL3 CONFIG REQUIRED)
+	target_link_libraries(Nexus-Platform PRIVATE SDL3::SDL3)
+endif()
+
+target_link_libraries (Nexus-Platform PUBLIC Nexus-Core)
 
 target_compile_definitions(Nexus-Platform PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Platform PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
-target_include_directories(Nexus-Platform PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
-target_link_libraries(Nexus-Platform PUBLIC ${NEXUS_LINKED_LIBRARIES})
