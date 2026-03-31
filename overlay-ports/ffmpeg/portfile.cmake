@@ -77,3 +77,46 @@ vcpkg_execute_required_process(
 
 # Fix pkg-config files (if any)
 vcpkg_fixup_pkgconfig()
+
+# generate cmake config
+set(CONFIG_DIR "${CURRENT_PACKAGES_DIR}/share/ffmpeg")
+file(MAKE_DIRECTORY "${CONFIG_DIR}")
+
+file(WRITE "${CONFIG_DIR}/FFmpegConfig.cmake" "
+include(CMakeFindDependencyMacro)
+
+# FFmpeg libraries enabled in this port
+set(_ffmpeg_libs avutil avcodec avformat swresample swscale)
+
+foreach(lib IN LISTS _ffmpeg_libs)
+    add_library(FFmpeg::${lib} UNKNOWN IMPORTED)
+
+    set_target_properties(FFmpeg::${lib} PROPERTIES
+        IMPORTED_LOCATION \"${CURRENT_PACKAGES_DIR}/lib/lib${lib}.a\"
+        INTERFACE_INCLUDE_DIRECTORIES \"${CURRENT_PACKAGES_DIR}/include\"
+    )
+endforeach()
+
+")
+
+file(WRITE "${CONFIG_DIR}/FFmpegConfigVersion.cmake" "
+set(PACKAGE_VERSION \"6.1.1\")
+
+if(PACKAGE_FIND_VERSION VERSION_EQUAL PACKAGE_VERSION)
+    set(PACKAGE_VERSION_COMPATIBLE TRUE)
+    set(PACKAGE_VERSION_EXACT TRUE)
+elseif(PACKAGE_FIND_VERSION VERSION_LESS PACKAGE_VERSION)
+    set(PACKAGE_VERSION_COMPATIBLE TRUE)
+else()
+    set(PACKAGE_VERSION_COMPATIBLE FALSE)
+endif()
+")
+
+file(WRITE "${CURRENT_PACKAGES_DIR}/share/ffmpeg/usage" "
+FFmpeg was built for Emscripten.
+
+Use it in CMake with:
+
+    find_package(FFmpeg CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE FFmpeg::avcodec FFmpeg::avformat FFmpeg::avutil FFmpeg::swscale FFmpeg::swresample)
+")
