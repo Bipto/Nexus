@@ -81,7 +81,7 @@ set_target_properties(Nexus-Platform PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-if (!EMSCRIPTEN)
+if (NOT EMSCRIPTEN)
 	find_package(SDL3 CONFIG REQUIRED)
 	target_link_libraries(Nexus-Platform PRIVATE SDL3::SDL3)
 endif()
