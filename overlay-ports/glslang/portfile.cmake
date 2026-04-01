@@ -20,7 +20,14 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
-# Remove any version files / arch checks
+# --- FIX: Create missing directories BEFORE fixup ---
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/share/glslang")
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/debug/share/glslang")
+
+# Now fix up the config files
+vcpkg_cmake_config_fixup()
+
+# Remove version files
 file(GLOB VERSION_FILES
     "${CURRENT_PACKAGES_DIR}/share/glslang/*ConfigVersion.cmake"
     "${CURRENT_PACKAGES_DIR}/share/glslang/*-config-version.cmake"
@@ -29,9 +36,7 @@ foreach(f ${VERSION_FILES})
     file(REMOVE "${f}")
 endforeach()
 
-file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/debug/share/glslang")
-
-# Overwrite glslang-config.cmake with a minimal, wasm-safe one
+# Overwrite configs AFTER fixup
 file(WRITE "${CURRENT_PACKAGES_DIR}/share/glslang/glslang-config.cmake" "
 include(\"\${CMAKE_CURRENT_LIST_DIR}/glslang-targets.cmake\")
 ")
@@ -40,7 +45,4 @@ file(WRITE "${CURRENT_PACKAGES_DIR}/debug/share/glslang/glslang-config.cmake" "
 include(\"\${CMAKE_CURRENT_LIST_DIR}/glslang-targets.cmake\")
 ")
 
-
-
-vcpkg_cmake_config_fixup()
 vcpkg_copy_pdbs()
