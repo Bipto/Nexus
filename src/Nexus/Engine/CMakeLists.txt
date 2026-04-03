@@ -15,15 +15,6 @@ set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
 set(NEXUS_COMPILE_DEFINITIONS "")
 
-find_package(assimp CONFIG REQUIRED)
-find_package(unofficial-shaderc CONFIG REQUIRED)
-find_package(spirv_cross_core CONFIG REQUIRED)
-find_package(spirv_cross_glsl CONFIG REQUIRED)
-find_package(spirv_cross_hlsl CONFIG REQUIRED)
-find_package(yaml-cpp CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(freetype CONFIG REQUIRED)
-
 ##################################################################################
 #----------------------------------RenderDoc--------------------------------------
 ##################################################################################
@@ -177,19 +168,82 @@ if (NX_PLATFORM_D3D12)
   list (APPEND NEXUS_LINKED_LIBRARIES D3D12MemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${D3D12MemoryAllocator_SOURCE_DIR}/include)
 
-  find_package(winpixevent CONFIG REQUIRED)
-  list (APPEND NEXUS_LINKED_LIBRARIES Microsoft::WinPixEventRuntime)
+# Download DXC
+	FetchContent_Declare(
+		dxc
+		URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/dxc_2025_07_14.zip
+	)
+
+	FetchContent_MakeAvailable(dxc)
+
+	# DXC root folder
+	set(DXC_ROOT ${dxc_SOURCE_DIR})
+
+	set(DXC_INCLUDE_DIR ${DXC_ROOT}/inc)
+	set(DXC_LIB_DIR     ${DXC_ROOT}/lib/x64)
+	set(DXC_BIN_DIR     ${DXC_ROOT}/bin/x64)
+
+	# Create imported target for dxcompiler.dll
+	add_library(dxcompiler SHARED IMPORTED)
+
+	set_target_properties(dxcompiler PROPERTIES
+		IMPORTED_LOCATION     "${DXC_BIN_DIR}/dxcompiler.dll"
+		IMPORTED_IMPLIB       "${DXC_LIB_DIR}/dxcompiler.lib"
+		INTERFACE_INCLUDE_DIRECTORIES "${DXC_INCLUDE_DIR}"
+	)
+
+	# Optional: DXIL library (needed for SM6.x validation)
+	add_library(dxil SHARED IMPORTED)
+
+	set_target_properties(dxil PROPERTIES
+		IMPORTED_LOCATION     "${DXC_BIN_DIR}/dxil.dll"
+		IMPORTED_IMPLIB       "${DXC_LIB_DIR}/dxil.lib"
+	)
+
+	# Link your engine
+	list (APPEND NEXUS_LINKED_LIBARIES dxcompiler dxil)
+
+	#pix
+	FetchContent_Declare(
+		WinPixEventRuntime
+		URL https://www.nuget.org/api/v2/package/WinPixEventRuntime/1.0.230302001
+		DOWNLOAD_NO_EXTRACT FALSE
+	)
+
+	FetchContent_MakeAvailable(WinPixEventRuntime)
+
+	# Paths inside the NuGet package
+	set(PIX_INCLUDE_DIR ${winpixeventruntime_SOURCE_DIR}/Include)
+	set(PIX_LIB_DIR ${winpixeventruntime_SOURCE_DIR}/bin/x64)
+
+	# Create an imported library target
+	add_library(WinPixEventRuntimeLib SHARED IMPORTED)
+
+	set_target_properties(WinPixEventRuntimeLib PROPERTIES
+		IMPORTED_LOCATION "${PIX_LIB_DIR}/WinPixEventRuntime.dll"
+		IMPORTED_IMPLIB   "${PIX_LIB_DIR}/WinPixEventRuntime.lib"
+		INTERFACE_INCLUDE_DIRECTORIES "${PIX_INCLUDE_DIR}"
+	)
+
+	# Link your target against the imported library
+	list (APPEND NEXUS_LINKED_LIBRARIES WinPixEventRuntimeLib)
 endif()
 
 if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+  FetchContent_Declare(
+	  VulkanMemoryAllocator
+	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+	  GIT_TAG v3.3.0
+	  GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
-  list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
+  list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
 
@@ -279,6 +333,103 @@ endif()
 add_library(Nexus ${NX_BUILD_TYPE} ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
+CPMAddPackage(
+	NAME stb_lib
+	GITHUB_REPOSITORY nothings/stb
+	GIT_TAG f1c79c0
+)
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${stb_lib_SOURCE_DIR})
+target_link_libraries(Nexus PUBLIC stb)
+
+CPMAddPackage(
+	NAME assimp
+	GITHUB_REPOSITORY assimp/assimp
+	GIT_TAG v6.0.4
+	OPTIONS
+		"ASSIMP_BUILD_ASSIMP_TOOLS OFF"
+		"ASSIMP_BUILD_SAMPLES OFF"
+		"ASSIMP_BUILD_TESTS OFF"
+		"ASSIMP_BUILD_UNZIP OFF"
+		"ASSIMP_BUILD_ZLIB ON"
+)
+target_link_libraries(Nexus PUBLIC assimp::assimp)
+
+CPMAddPackage(
+	NAME yaml_cpp
+	GITHUB_REPOSITORY jbeder/yaml-cpp
+	GIT_TAG yaml-cpp-0.9.0
+)
+target_link_libraries(Nexus PUBLIC yaml-cpp)
+
+CPMAddPackage(
+	NAME freetype
+	GITHUB_REPOSITORY freetype/freetype
+	GIT_TAG 85c8efe
+)
+target_link_libraries(Nexus PRIVATE freetype)
+
+CPMAddPackage(
+	NAME spirv-headers
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Headers
+	GIT_TAG vulkan-sdk-1.4.341.0
+)
+
+CPMAddPackage(
+	NAME spirv-tools
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Tools
+	GIT_TAG v2026.1
+	OPTIONS
+		"SKIP_SPIRV_TOOLS_INSTALL ON"
+		"ENABLE_SPIRV_TOOLS_INSTALL OFF"
+)
+FetchContent_MakeAvailable(spirv-tools)
+
+CPMAddPackage(
+	NAME glslang
+	GITHUB_REPOSITORY KhronosGroup/glslang
+	GIT_TAG 16.2.0
+	OPTIONS
+		"ENABLE_GLSLANG_BINARIES OFF"
+		"SKIP_GLSLANG_INSTALL ON"
+)
+target_link_libraries(Nexus PRIVATE glslang)
+
+CPMAddPackage(
+	NAME shaderc
+	GITHUB_REPOSITORY google/shaderc
+	GIT_TAG v2026.1
+	OPTIONS
+		"SHADERC_ENABLE_TESTS OFF"
+		"SHADERC_SKIP_EXAMPLES ON"
+		"SHADERC_SKIP_TESTS ON"
+		"SHADERC_ENABLE_SHARED_CRT ON"
+)
+target_link_libraries(Nexus PRIVATE shaderc)
+
+CPMAddPackage(
+	NAME spirv-cross
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Cross
+	GIT_TAG a0fba56
+	OPTIONS
+		"SPIRV_CROSS_CLI OFF"
+		"SPIRV_CROSS_ENABLE_TESTS ON"
+		"SPIRV_SKIP_EXECUTABLES ON"
+		"SPIRV_SKIP_TESTS ON"
+		"SPIRV_CROSS_ENABLE_UTIL OFF"
+)
+target_link_libraries(Nexus PRIVATE spirv-cross-cpp spirv-cross-hlsl)
+
+CPMAddPackage(
+	NAME spirv_reflect
+	GITHUB_REPOSITORY KhronosGroup/SPIRV-Reflect
+	GIT_TAG vulkan-sdk-1.4.341.0
+	OPTIONS
+		"SPIRV_REFLECT_EXECUTABLE OFF"
+		"SPIRV_REFLECT_STATIC_LIB ON"
+)
+target_link_libraries(Nexus PRIVATE spirv-reflect-static)
+
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -291,7 +442,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   Nexus-Audio
   Nexus-Platform
   Nexus-RHI
-  unofficial::shaderc::shaderc
+  shaderc
   spirv-cross-core
   spirv-cross-glsl
   spirv-cross-hlsl
@@ -335,12 +486,7 @@ set_target_properties(Nexus PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR OFF)
 
-set_property(TARGET Nexus APPEND PROPERTY
-    INTERFACE_RUNTIME_DLLS
-        $<TARGET_RUNTIME_DLLS:poly2tri>
-        $<TARGET_RUNTIME_DLLS:minizip>
-)
-
 if (BUILD_TESTING)
 	add_subdirectory(tests)
 endif()
+

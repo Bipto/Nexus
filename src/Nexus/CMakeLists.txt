@@ -1,6 +1,8 @@
 include(FetchContent)
 include(Utils.cmake)
 
+include(GetCPM.cmake)
+
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)
 endif()

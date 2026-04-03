@@ -57,7 +57,12 @@ set(RHI_SOURCES
 
 add_library(Nexus-RHI ${RHI_SOURCES})
 
-find_package(glm CONFIG REQUIRED)
+CPMAddPackage(
+	NAME glm
+	GITHUB_REPOSITORY g-truc/glm
+	GIT_TAG 1.0.3
+)
+
 target_link_libraries(Nexus-RHI PUBLIC glm::glm)
 target_include_directories(Nexus-RHI PUBLIC "include")
 

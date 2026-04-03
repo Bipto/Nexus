@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.30)
+
+project ("Nexus-Audio")
+
 include (FetchContent)
 
 set(AUDIO_SOURCES 
@@ -14,6 +18,8 @@ set(AUDIO_SOURCES
 set(PUBLIC_LIBRARY_INCLUDES
 	"include"
 )
+
+set(NEXUS_LINKED_LIBRARIES Nexus-Core)
 
 set(PRIVATE_LIBRARY_INCLUDES "")
 
@@ -42,35 +48,34 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
-	  find_package(OpenAL CONFIG REQUIRED)
+	  FetchContent_Declare(
+		openal-soft
+		GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+		GIT_TAG 1.25.1
+	  )
+	  FetchContent_MakeAvailable(openal-soft)
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)
 	endif()
 endif()
 
 add_library(Nexus-Audio ${AUDIO_SOURCES})
 
-target_compile_features(Nexus-Audio PUBLIC cxx_std_23)
+target_compile_features(Nexus-Audio PUBLIC cxx_std_20)
 set_target_properties(Nexus-Audio PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
+FetchContent_Declare(
+	libnyquist
+	GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
+	GIT_TAG 767efd9
+	GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(libnyquist)
+target_link_libraries(Nexus-Audio PRIVATE libnyquist)
+
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})
 target_include_directories(Nexus-Audio PRIVATE ${PRIVATE_LIBRARY_INCLUDES})
-target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES} Nexus-Core)
-
-#ffmpeg
-if (MINGW)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
-		libavcodec libavformat libavutil libswscale libswresample
-	)
-
-	target_link_libraries(Nexus-Audio PRIVATE PkgConfig::FFMPEG)
-else()
-	find_package(FFMPEG REQUIRED)
-	target_include_directories(Nexus-Audio PRIVATE ${FFMPEG_INCLUDE_DIRS})
-	target_link_directories(Nexus-Audio PRIVATE ${FFMPEG_LIBRARY_DIRS})
-	target_link_libraries(Nexus-Audio PRIVATE ${FFMPEG_LIBRARIES})
-endif()
+target_link_libraries(Nexus-Audio PRIVATE ${NEXUS_LINKED_LIBRARIES})

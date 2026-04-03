@@ -81,12 +81,14 @@ set_target_properties(Nexus-Platform PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-if (NOT EMSCRIPTEN)
-	find_package(SDL3 CONFIG REQUIRED)
-	target_link_libraries(Nexus-Platform PRIVATE SDL3::SDL3)
-endif()
+FetchContent_Declare(
+	SDL3
+	GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+	GIT_TAG release-3.4.0
+)
+FetchContent_MakeAvailable(SDL3)
 
-target_link_libraries (Nexus-Platform PUBLIC Nexus-Core)
+target_link_libraries (Nexus-Platform PUBLIC Nexus-Core SDL3::SDL3)
 
 target_compile_definitions(Nexus-Platform PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Platform PUBLIC ${PUBLIC_LIBRARY_INCLUDES})

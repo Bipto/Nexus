@@ -13,7 +13,7 @@
 
 	#include "Nexus-Core/Utils/Utils.hpp"
 
-	#include <pix3.h>
+	#include <WinPixEventRuntime/pix3.h>
 
 namespace Nexus::Graphics
 {
