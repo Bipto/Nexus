@@ -3,92 +3,44 @@
 
 #include <expected>
 #include <filesystem>
+#include <unordered_set>
 #include <vector>
 
-#include "libnyquist/Common.h"
-#include "libnyquist/Decoders.h"
+#include <sndfile.h>
 
 namespace Nexus::Audio
 {
-	Audio::AudioFormat GetAudioFormat(nqr::PCMFormat format, int channelCount)
-	{
-		bool stereo = channelCount > 1;
-		switch (format)
-		{
-			case nqr::PCMFormat::PCM_U8:
-			case nqr::PCMFormat::PCM_S8:
-			{
-				if (stereo)
-				{
-					return Audio::AudioFormat::Stereo8;
-				}
-				else
-				{
-					return Audio::AudioFormat::Mono8;
-				}
-			}
-			case nqr::PCMFormat::PCM_16:
-			case nqr::PCMFormat::PCM_24:
-			{
-				if (stereo)
-				{
-					return Audio::AudioFormat::Stereo16;
-				}
-				else
-				{
-					return Audio::AudioFormat::Mono16;
-				}
-			}
-			case nqr::PCMFormat::PCM_32:
-			case nqr::PCMFormat::PCM_64:
-			case nqr::PCMFormat::PCM_FLT:
-			case nqr::PCMFormat::PCM_DBL:
-			{
-				if (stereo)
-				{
-					return Audio::AudioFormat::StereoFloat32;
-				}
-				else
-				{
-					return Audio::AudioFormat::MonoFloat32;
-				}
-			}
-			case nqr::PCMFormat::PCM_END: throw std::runtime_error("Invalid audio format");
-			default: throw std::runtime_error("Failed to find a valid audio format");
-		}
-	}
-
-	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBuffer(const std::string &filepath,
-																				   AudioDevice		 *device,
-																				   nqr::BaseDecoder	 *decoder)
+	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBuffer(const std::string &filepath, AudioDevice *device)
 	{
 		if (!device)
-		{
 			return std::unexpected("Audio device was invalid");
-		}
 
 		std::shared_ptr<AudioBuffer> buffer = device->CreateAudioBuffer();
-
 		if (!buffer)
-		{
 			return std::unexpected("Failed to create buffer");
-		}
 
-		nqr::AudioData data;
-		decoder->LoadFromPath(&data, filepath);
+		SF_INFO	 info {};
+		SNDFILE *sndFile = sf_open(filepath.c_str(), SFM_READ, &info);
 
-		if (data.samples.empty())
-		{
-			return std::unexpected("Failed to load audio data from file: " + filepath);
-		}
+		if (!sndFile)
+			return std::unexpected("Failed to open audio file: " + filepath);
 
-		int				   bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
-		size_t			   fileSize		 = data.samples.size() * sizeof(float);
-		int				   sampleRate	 = data.sampleRate;
-		Audio::AudioFormat format		 = GetAudioFormat(data.sourceFormat, data.channelCount);
-		const void *const  dataPtr		 = data.samples.data();
+		// Read samples as float32
+		std::vector<float> samples(info.frames * info.channels);
+		sf_count_t		   framesRead = sf_readf_float(sndFile, samples.data(), info.frames);
+		sf_close(sndFile);
 
-		buffer->SetData(dataPtr, fileSize, format, sampleRate);
+		if (framesRead == 0)
+			return std::unexpected("Failed to read audio samples: " + filepath);
+
+		// Determine audio format
+		Audio::AudioFormat format;
+		if (info.channels > 1)
+			format = Audio::AudioFormat::StereoFloat32;
+		else
+			format = Audio::AudioFormat::MonoFloat32;
+
+		buffer->SetData(samples.data(), samples.size() * sizeof(float), format, info.samplerate);
 
 		return buffer;
 	}
@@ -96,19 +48,16 @@ namespace Nexus::Audio
 	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadAudioFile(const std::string &filepath, AudioDevice *device)
 	{
 		std::filesystem::path path = filepath;
-		if (path.has_extension() && path.extension() == ".mp3")
-		{
-			nqr::Mp3Decoder decoder = {};
-			return LoadAudioFileToBuffer(filepath, device, std::addressof(decoder));
-		}
-		else if (path.has_extension() && path.extension() == ".wav")
-		{
-			nqr::WavDecoder decoder = {};
-			return LoadAudioFileToBuffer(filepath, device, std::addressof(decoder));
-		}
-		else
-		{
-			return std::unexpected("Invalid file format");
-		}
+
+		if (!path.has_extension())
+			return std::unexpected("File has no extension");
+
+		static const std::unordered_set<std::string> supported = {".wav", ".flac", ".ogg", ".mp3", ".aiff"};
+
+		if (!supported.contains(path.extension().string()))
+			return std::unexpected("Unsupported audio format: " + path.extension().string());
+
+		return LoadAudioFileToBuffer(filepath, device);
 	}
+
 }	 // namespace Nexus::Audio
