@@ -8,7 +8,6 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
 
         "NX_PLATFORM_OPENGL": "1",
         "NX_PLATFORM_VULKAN": "1",
@@ -24,7 +23,7 @@
       "name": "windows-msvc-base",
       "hidden": true,
       "inherits": "base",
-      "generator": "Ninja",
+      "generator": "Visual Studio 18 2026",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
