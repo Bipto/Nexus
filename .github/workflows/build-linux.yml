@@ -2,9 +2,11 @@ name: Build (Linux)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - '**'
 
 permissions:
   contents: read
@@ -94,15 +96,6 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      - name: vcpkg build
-        id: vcpkg
-        uses: johnwason/vcpkg-action@v7
-        with:
-          manifest-dir: ${{ github.workspace }}
-          triplet: ${{ matrix.vcpkg_triplet }}
-          token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('vcpkg.json') }}
-
       - name: Configure CMake
         run: |
           if [ "${{ matrix.name }}" = "Clang" ]; then
@@ -115,8 +108,6 @@ jobs:
 
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=$CC \
             -DCMAKE_CXX_COMPILER=$CXX \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \

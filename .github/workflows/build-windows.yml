@@ -2,9 +2,11 @@ name: Build (Windows)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - '**'
 
 permissions:
   contents: read
@@ -122,15 +124,6 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      - name: vcpkg build
-        id: vcpkg
-        uses: johnwason/vcpkg-action@v7
-        with:
-          manifest-dir: ${{ github.workspace }}
-          triplet: ${{ matrix.vcpkg_triplet }}
-          token: ${{ github.token }}
-          cache-key: vcpkg-${{ runner.os }}-${{ matrix.vcpkg_triplet }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-${{ hashFiles('vcpkg.json') }}
-
       - name: Configure CMake (MSVC/Clang-CL)
         if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
         shell: bash
@@ -141,12 +134,8 @@ jobs:
               LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
           fi
 
-          TOOLCHAIN_PATH=$(cygpath -m "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
@@ -162,12 +151,9 @@ jobs:
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
-          TOOLCHAIN_FILE="$(cygpath -u "${GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake")"
-      
+          
           cmake -B build \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE" \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
