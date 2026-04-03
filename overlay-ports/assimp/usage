@@ -1,4 +1,0 @@
-The package assimp provides the CMake target:
-
-    find_package(assimp CONFIG REQUIRED)
-    target_link_libraries(main PRIVATE assimp::assimp)
