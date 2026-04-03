@@ -124,6 +124,13 @@ jobs:
           version: 1.4.309.0
           cache: true
 
+      - name: Remove rogue ccache from Strawberry Perl
+        run: |
+          if (Test-Path "C:\Strawberry\c\bin\ccache.exe") {
+              Remove-Item "C:\Strawberry\c\bin\ccache.exe" -Force
+          }
+
+
       - name: Configure CMake (MSVC/Clang-CL)
         if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
         shell: bash
