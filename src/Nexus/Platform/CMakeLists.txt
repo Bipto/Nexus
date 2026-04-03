@@ -81,12 +81,13 @@ set_target_properties(Nexus-Platform PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-FetchContent_Declare(
-	SDL3
-	GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-	GIT_TAG release-3.4.0
+CPMAddPackage(
+		NAME SDL3
+		GITHUB_REPOSITORY libsdl-org/SDL
+		GIT_TAG release-3.4.0
+		OPTIONS
+			"BUILD_TESTING OFF"
 )
-FetchContent_MakeAvailable(SDL3)
 
 target_link_libraries (Nexus-Platform PUBLIC Nexus-Core SDL3::SDL3)
 

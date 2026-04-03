@@ -23,7 +23,7 @@
       "name": "windows-msvc-base",
       "hidden": true,
       "inherits": "base",
-      "generator": "Visual Studio 18 2026",
+      "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",

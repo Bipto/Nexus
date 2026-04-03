@@ -54,12 +54,13 @@ list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/renderdoc)
 
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
 
-FetchContent_Declare(
-    imgui
-    GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG eb642a9
+CPMAddPackage(
+	NAME imgui
+	GITHUB_REPOSITORY ocornut/imgui
+	GIT_TAG eb642a9
+	OPTIONS
+		"BUILD_TESTING OFF"
 )
-FetchContent_MakeAvailable(imgui)
 
 set (Files
 	"${imgui_SOURCE_DIR}/imconfig.h"
@@ -84,12 +85,13 @@ add_library(imgui
 #-----------------------------------ImGuizmo--------------------------------------
 ##################################################################################
 
-FetchContent_Declare(
-    imguizmo
-    GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git
-    GIT_TAG b10e917
+CPMAddPackage(
+	NAME imguizmo
+	GITHUB_REPOSITORY CedricGuillemet/ImGuizmo
+	GIT_TAG b10e917
+	OPTIONS
+		"BUILD_TESTING OFF"
 )
-FetchContent_MakeAvailable(imguizmo)
 
 add_library(imguizmo
     "${imguizmo_SOURCE_DIR}/ImGuizmo.h"
@@ -155,26 +157,25 @@ if (NX_PLATFORM_OPENGL)
 endif()
 
 if (NX_PLATFORM_D3D12)
-	
-  FetchContent_Declare(
-	  D3D12MemoryAllocator
-	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
-	  GIT_TAG v3.1.0
-	  GIT_SHALLOW TRUE
+
+  CPMAddPackage(
+		NAME D3D12MemoryAllocator
+		GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
+		GIT_TAG v3.1.0
+		OPTIONS
+			"BUILD_TESTING OFF"
   )
-  FetchContent_MakeAvailable(D3D12MemoryAllocator)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_D3D12=1)
   list (APPEND NEXUS_LINKED_LIBRARIES D3D12MemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${D3D12MemoryAllocator_SOURCE_DIR}/include)
 
 # Download DXC
-	FetchContent_Declare(
-		dxc
-		URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/dxc_2025_07_14.zip
-	)
 
-	FetchContent_MakeAvailable(dxc)
+  CPMAddPackage(
+		NAME D3D12MemoryAllocator
+		URL GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
+  )
 
 	# DXC root folder
 	set(DXC_ROOT ${dxc_SOURCE_DIR})
@@ -204,17 +205,14 @@ if (NX_PLATFORM_D3D12)
 	list (APPEND NEXUS_LINKED_LIBARIES dxcompiler dxil)
 
 	#pix
-	FetchContent_Declare(
-		WinPixEventRuntime
+	CPMAddPackage(
+		NAME WinPixEventRuntime
 		URL https://www.nuget.org/api/v2/package/WinPixEventRuntime/1.0.230302001
-		DOWNLOAD_NO_EXTRACT FALSE
 	)
 
-	FetchContent_MakeAvailable(WinPixEventRuntime)
-
 	# Paths inside the NuGet package
-	set(PIX_INCLUDE_DIR ${winpixeventruntime_SOURCE_DIR}/Include)
-	set(PIX_LIB_DIR ${winpixeventruntime_SOURCE_DIR}/bin/x64)
+	set(PIX_INCLUDE_DIR ${WinPixEventRuntime_SOURCE_DIR}/Include)
+	set(PIX_LIB_DIR ${WinPixEventRuntime_SOURCE_DIR}/bin/x64)
 
 	# Create an imported library target
 	add_library(WinPixEventRuntimeLib SHARED IMPORTED)
@@ -233,13 +231,13 @@ if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  FetchContent_Declare(
-	  VulkanMemoryAllocator
-	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-	  GIT_TAG v3.3.0
-	  GIT_SHALLOW TRUE
-  )
-  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+  CPMAddPackage(
+	NAME VulkanMemoryAllocator
+	GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+	GIT_TAG v3.3.0
+	OPTIONS
+		"BUILD_TESTING OFF"
+)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
@@ -383,7 +381,6 @@ CPMAddPackage(
 		"SKIP_SPIRV_TOOLS_INSTALL ON"
 		"ENABLE_SPIRV_TOOLS_INSTALL OFF"
 )
-FetchContent_MakeAvailable(spirv-tools)
 
 CPMAddPackage(
 	NAME glslang

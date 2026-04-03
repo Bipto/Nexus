@@ -1,16 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-find_program(SCCACHE_PROGRAM sccache)
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    message(STATUS "Not using sccache: MSVC detected")
-elseif (SCCACHE_PROGRAM)
-    set(CMAKE_C_COMPILER_LAUNCHER   "${SCCACHE_PROGRAM}")
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
-    message(STATUS "Using sccache: ${SCCACHE_PROGRAM}")
-else()
-    message(STATUS "sccache not found")
-endif()
+include(cmake/GetCPM.cmake)
 
 file(READ "${CMAKE_SOURCE_DIR}/version.txt" PROJECT_VERSION_RAW)
 string(STRIP "${PROJECT_VERSION_RAW}" PROJECT_VERSION_RAW)
