@@ -1,5 +1,17 @@
 cmake_minimum_required(VERSION 3.30)
 
+find_program(SCCACHE_PROGRAM sccache)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message(STATUS "Not using sccache: MSVC detected")
+elseif (SCCACHE_PROGRAM)
+    set(CMAKE_C_COMPILER_LAUNCHER   "${SCCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
+    message(STATUS "Using sccache: ${SCCACHE_PROGRAM}")
+else()
+    message(STATUS "sccache not found")
+endif()
+
 file(READ "${CMAKE_SOURCE_DIR}/version.txt" PROJECT_VERSION_RAW)
 string(STRIP "${PROJECT_VERSION_RAW}" PROJECT_VERSION_RAW)
 
@@ -16,6 +28,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON
 
 #required to make shared and static libs be compatible on some platforms
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+set(CPM_DOWNLOAD_ALL ON)
+set(CPM_USE_NAMED_CACHE_DIRECTORIES ON)
+
+#disable cmake module scanning
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
@@ -39,7 +57,14 @@ add_definitions(-DTRACY_ENABLE)
 if (DEFINED BUILD_TESTING)
     enable_testing()
     include(CTest)
-    find_package(GTest CONFIG REQUIRED)
+    include(FetchContent)
+
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG 6986c2b
+    )
+    FetchContent_MakeAvailable(googletest)
 endif()
 
 #set up engine project
