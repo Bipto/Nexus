@@ -45,7 +45,12 @@ endif()
 
 #set the working directory to the executable directory and startup project to the Demo project
 #this ONLY applies to Visual Studio
-set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+foreach(cfg Debug Release RelWithDebInfo MinSizeRel)
+    set_property(TARGET Demo PROPERTY
+        VS_DEBUGGER_WORKING_DIRECTORY_${cfg}
+        "${CMAKE_CURRENT_BINARY_DIR}/${cfg}"
+    )
+endforeach()
 
 copy_runtime_deps(Demo)
 
