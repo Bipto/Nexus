@@ -117,6 +117,7 @@ jobs:
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-ffmpeg
+            mingw-w64-ucrt-x86_64-flac
 
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
