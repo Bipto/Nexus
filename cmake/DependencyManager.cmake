@@ -1,9 +1,49 @@
 include(FetchContent)
 include(CMakeParseArguments)
+include(ProcessorCount)
 
-function(GenerateConfigFile NAME INSTALL_DIR LIB_FILENAME)
+# -------------------------------------------------------------
+# Global parallelism detection
+# -------------------------------------------------------------
+ProcessorCount(NPROC)
+if(NOT NPROC OR NPROC EQUAL 0)
+    set(NPROC 4)
+endif()
+
+# -------------------------------------------------------------
+# Generate fallback Config.cmake when a project does not install one
+# -------------------------------------------------------------
+function(GenerateConfigFile NAME INSTALL_DIR)
     set(CONFIG_DIR "${INSTALL_DIR}/lib/cmake/${NAME}")
     file(MAKE_DIRECTORY "${CONFIG_DIR}")
+
+    # Try to detect library file (static + shared, cross‑platform)
+    file(GLOB LIB_FILES
+        "${INSTALL_DIR}/lib/lib${NAME}.a"
+        "${INSTALL_DIR}/lib/lib${NAME}.so"
+        "${INSTALL_DIR}/lib/lib${NAME}.dylib"
+        "${INSTALL_DIR}/lib/${NAME}.dll"
+        "${INSTALL_DIR}/lib/${NAME}.lib"
+    )
+
+    if(NOT LIB_FILES)
+        message(WARNING "Could not detect library file for ${NAME}, using lib${NAME}.a")
+        set(LIB_FILENAME "${INSTALL_DIR}/lib/lib${NAME}.a")
+    else()
+        # Prefer shared libs if available
+        set(SHARED_CANDIDATES "")
+        foreach(f ${LIB_FILES})
+            if(f MATCHES "\\.(so|dylib|dll)$")
+                list(APPEND SHARED_CANDIDATES "${f}")
+            endif()
+        endforeach()
+
+        if(SHARED_CANDIDATES)
+            list(GET SHARED_CANDIDATES 0 LIB_FILENAME)
+        else()
+            list(GET LIB_FILES 0 LIB_FILENAME)
+        endif()
+    endif()
 
     set(CONFIG_FILE "${CONFIG_DIR}/${NAME}Config.cmake")
     file(WRITE "${CONFIG_FILE}" "
@@ -11,18 +51,20 @@ function(GenerateConfigFile NAME INSTALL_DIR LIB_FILENAME)
 add_library(${NAME}::${NAME} UNKNOWN IMPORTED)
 set_target_properties(${NAME}::${NAME} PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES \"${INSTALL_DIR}/include\"
-    IMPORTED_LOCATION \"${INSTALL_DIR}/lib/${LIB_FILENAME}\"
+    IMPORTED_LOCATION \"${LIB_FILENAME}\"
 )
 ")
 endfunction()
 
+# -------------------------------------------------------------
+# FetchContentWithCache
+# -------------------------------------------------------------
 function(FetchContentWithCache NAME)
     cmake_policy(PUSH)
     if(POLICY CMP0169)
         cmake_policy(SET CMP0169 OLD)
     endif()
 
-    # --- Parse arguments ---
     set(options FORCE_REBUILD)
     set(oneValueArgs URL GIT_TAG)
     set(multiValueArgs CONFIG_OPTIONS)
@@ -32,13 +74,11 @@ function(FetchContentWithCache NAME)
         message(FATAL_ERROR "FetchContentWithCache requires URL for ${NAME}")
     endif()
 
-    # --- Compute unique hash ---
+    # --- Compute unique hash (URL + tag + config options + arch) ---
     string(CONCAT HASH_INPUT "${FETCH_URL}_${FETCH_GIT_TAG}")
     foreach(opt ${FETCH_CONFIG_OPTIONS})
         string(APPEND HASH_INPUT "_${opt}")
     endforeach()
-    string(APPEND HASH_INPUT "_${CMAKE_C_COMPILER_ID}_${CMAKE_C_COMPILER_VERSION}")
-    string(APPEND HASH_INPUT "_${CMAKE_CXX_COMPILER_ID}_${CMAKE_CXX_COMPILER_VERSION}")
     if(DEFINED CMAKE_SYSTEM_PROCESSOR)
         string(APPEND HASH_INPUT "_${CMAKE_SYSTEM_PROCESSOR}")
     endif()
@@ -46,93 +86,145 @@ function(FetchContentWithCache NAME)
 
     # --- Directories ---
     set(BASE_DIR "${CMAKE_SOURCE_DIR}/cache/${NAME}/${FETCH_HASH}")
-    set(SRC_DIR "${BASE_DIR}/src")
     set(BUILD_DIR "${BASE_DIR}/build")
     set(INSTALL_DIR "${BASE_DIR}/install")
 
-    message(STATUS "Fetching ${NAME} -> ${SRC_DIR}")
+    message(STATUS "Fetching ${NAME}")
     message(STATUS "Cache hash: ${FETCH_HASH}")
     message(STATUS "Install path: ${INSTALL_DIR}")
 
     set(NEED_BUILD TRUE)
 
-    # --- Check cache ---
     if(NOT FETCH_FORCE_REBUILD AND EXISTS "${INSTALL_DIR}/lib/cmake")
-        message(STATUS "Using cached install of ${NAME} at ${INSTALL_DIR}")
+        message(STATUS "Using cached install of ${NAME}")
         set(NEED_BUILD FALSE)
     endif()
 
     if(NEED_BUILD)
         # --- Fetch source ---
-        FetchContent_Declare(${NAME}
-            GIT_REPOSITORY ${FETCH_URL}
-            GIT_TAG ${FETCH_GIT_TAG}
-            GIT_SHALLOW TRUE
-        )
+        if(FETCH_URL MATCHES "\\.git$")
+            FetchContent_Declare(${NAME}
+                GIT_REPOSITORY ${FETCH_URL}
+                GIT_TAG ${FETCH_GIT_TAG}
+                GIT_SHALLOW TRUE
+            )
+        else()
+            FetchContent_Declare(${NAME}
+                URL ${FETCH_URL}
+            )
+        endif()
+
         FetchContent_Populate(${NAME})
 
-        # --- Build & install ---
+        # ---------------------------------------------------------
+        # Robust source directory detection (SDL3-safe)
+        # ---------------------------------------------------------
+        set(SRC_DIR_CANDIDATES "")
+
+        # 1. Exact match
+        if(DEFINED ${NAME}_SOURCE_DIR)
+            list(APPEND SRC_DIR_CANDIDATES "${${NAME}_SOURCE_DIR}")
+        endif()
+
+        # 2. Strip trailing digits (SDL3 → SDL)
+        string(REGEX REPLACE "[0-9]+$" "" NAME_STRIPPED "${NAME}")
+        if(DEFINED ${NAME_STRIPPED}_SOURCE_DIR)
+            list(APPEND SRC_DIR_CANDIDATES "${${NAME_STRIPPED}_SOURCE_DIR}")
+        endif()
+
+        # 3. Lowercase variants
+        string(TOLOWER "${NAME}" NAME_LC)
+        if(DEFINED ${NAME_LC}_SOURCE_DIR)
+            list(APPEND SRC_DIR_CANDIDATES "${${NAME_LC}_SOURCE_DIR}")
+        endif()
+
+        string(TOLOWER "${NAME_STRIPPED}" NAME_STRIPPED_LC)
+        if(DEFINED ${NAME_STRIPPED_LC}_SOURCE_DIR)
+            list(APPEND SRC_DIR_CANDIDATES "${${NAME_STRIPPED_LC}_SOURCE_DIR}")
+        endif()
+
+        # 4. Uppercase variants
+        string(TOUPPER "${NAME}" NAME_UC)
+        if(DEFINED ${NAME_UC}_SOURCE_DIR)
+            list(APPEND SRC_DIR_CANDIDATES "${${NAME_UC}_SOURCE_DIR}")
+        endif()
+
+        string(TOUPPER "${NAME_STRIPPED}" NAME_STRIPPED_UC)
+        if(DEFINED ${NAME_STRIPPED_UC}_SOURCE_DIR)
+            list(APPEND SRC_DIR_CANDIDATES "${${NAME_STRIPPED_UC}_SOURCE_DIR}")
+        endif()
+
+        # 5. Pick the first existing directory
+        set(SRC_DIR "")
+        foreach(candidate ${SRC_DIR_CANDIDATES})
+            if(EXISTS "${candidate}/CMakeLists.txt")
+                set(SRC_DIR "${candidate}")
+                break()
+            endif()
+        endforeach()
+
+        if(NOT SRC_DIR)
+            message(FATAL_ERROR "FetchContent did not produce a valid source directory for ${NAME}. Checked: ${SRC_DIR_CANDIDATES}")
+        endif()
+
+        # --- Configure ---
         file(MAKE_DIRECTORY "${BUILD_DIR}")
         file(MAKE_DIRECTORY "${INSTALL_DIR}")
 
-        if(DEFINED CMAKE_CONFIGURATION_TYPES)
-            set(CONFIGS ${CMAKE_CONFIGURATION_TYPES})
-        else()
-            set(CONFIGS ${CMAKE_BUILD_TYPE})
+        execute_process(
+            COMMAND ${CMAKE_COMMAND}
+                -S ${SRC_DIR}
+                -B ${BUILD_DIR}
+                -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
+                ${FETCH_CONFIG_OPTIONS}
+            RESULT_VARIABLE res
+        )
+        if(NOT res EQUAL 0)
+            message(FATAL_ERROR "CMake configure failed for ${NAME}")
         endif()
 
-        foreach(CONFIG ${CONFIGS})
-            message(STATUS "Configuring ${NAME} for ${CONFIG}...")
-            execute_process(
-                COMMAND ${CMAKE_COMMAND}
-                    -S ${${NAME}_SOURCE_DIR}
-                    -B ${BUILD_DIR}
-                    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
-                    -DCMAKE_BUILD_TYPE=${CONFIG}
-                    ${FETCH_CONFIG_OPTIONS}
-                RESULT_VARIABLE res
-            )
-            if(NOT res EQUAL 0)
-                message(FATAL_ERROR "CMake configure failed for ${NAME} (${CONFIG})")
-            endif()
-
-            message(STATUS "Building and installing ${NAME} for ${CONFIG}...")
+        # --- Build & install (parallel) ---
+        if(CMAKE_GENERATOR MATCHES "Visual Studio|Xcode|Multi-Config")
+            foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+                execute_process(
+                    COMMAND ${CMAKE_COMMAND}
+                        --build ${BUILD_DIR}
+                        --config ${CONFIG}
+                        --target install
+                        --parallel ${NPROC}
+                    RESULT_VARIABLE res2
+                )
+                if(NOT res2 EQUAL 0)
+                    message(FATAL_ERROR "Build/install failed for ${NAME} (${CONFIG})")
+                endif()
+            endforeach()
+        else()
             execute_process(
                 COMMAND ${CMAKE_COMMAND}
                     --build ${BUILD_DIR}
                     --target install
-                    --config ${CONFIG}
-                RESULT_VARIABLE res2
+                    --parallel ${NPROC}
+                RESULT_VARIABLE res3
             )
-            if(NOT res2 EQUAL 0)
-                message(FATAL_ERROR "Build/install failed for ${NAME} (${CONFIG})")
+            if(NOT res3 EQUAL 0)
+                message(FATAL_ERROR "Build/install failed for ${NAME}")
             endif()
-        endforeach()
+        endif()
 
-        file(REMOVE_RECURSE "${BUILD_DIR}")
-
-        # --- Fallback config ---
-        set(CONFIG_DIR "${INSTALL_DIR}/lib/cmake/${NAME}")
-        set(CONFIG_FILE "${CONFIG_DIR}/${NAME}Config.cmake")
-
+        # --- Fallback config if package didn't install one ---
+        set(CONFIG_FILE "${INSTALL_DIR}/lib/cmake/${NAME}/${NAME}Config.cmake")
         if(NOT EXISTS "${CONFIG_FILE}")
-            set(LIB_FILENAME "${NAME}.lib")
-            if(UNIX AND NOT APPLE)
-                set(LIB_FILENAME "lib${NAME}.a")
-            elseif(APPLE)
-                set(LIB_FILENAME "lib${NAME}.dylib")
-            endif()
-
             message(STATUS "Generating fallback Config.cmake for ${NAME}")
-            GenerateConfigFile(${NAME} "${INSTALL_DIR}" "${LIB_FILENAME}")
+            GenerateConfigFile(${NAME} "${INSTALL_DIR}")
         endif()
     endif()
 
-    #make hash publicly accessible
+    # Expose hash
     set(${NAME}_FETCH_HASH "${FETCH_HASH}" PARENT_SCOPE)
-    # --- Always add prefix path ---
+
+    # Append to prefix path
     list(APPEND CMAKE_PREFIX_PATH "${INSTALL_DIR}")
-    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" CACHE STRING "Prefix paths" FORCE)
 
     cmake_policy(POP)
 endfunction()

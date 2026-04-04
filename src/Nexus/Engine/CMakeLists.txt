@@ -231,12 +231,13 @@ if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  FetchContentWithCache(
-	  VulkanMemoryAllocator
-	  URL https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+  CPMAddPackage(
+	  NAME VulkanMemoryAllocator
+	  GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 	  GIT_TAG v3.3.0
+	  OPTIONS
+		  "BUILD_TESTING OFF"
   )
-  find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
