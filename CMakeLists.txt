@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.30)
 
 include(cmake/GetCPM.cmake)
+include(cmake/DependencyManager.cmake)
 
 file(READ "${CMAKE_SOURCE_DIR}/version.txt" PROJECT_VERSION_RAW)
 string(STRIP "${PROJECT_VERSION_RAW}" PROJECT_VERSION_RAW)
