@@ -4,8 +4,8 @@ add_executable(CoreUnitTests
     src/ThreadPoolTests.cpp
     src/UtilsTests.cpp 
     src/AutoReleaseTests.cpp 
-    src/MemorySizeConverterTests.cpp)
-    
+    src/MemorySizeConverterTests.cpp)   
+
 target_link_libraries(CoreUnitTests 
     PRIVATE 
     Nexus-Core 

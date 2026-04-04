@@ -50,12 +50,13 @@ if (DEFINED BUILD_TESTING)
     include(CTest)
     include(FetchContent)
 
-    FetchContent_Declare(
+    FetchContentWithCache(
         googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG 6986c2b
+        URL https://github.com/google/googletest.git
+        GIT_TAG v1.17.0
     )
-    FetchContent_MakeAvailable(googletest)
+
+    find_package(GTest CONFIG REQUIRED)
 endif()
 
 #set up engine project

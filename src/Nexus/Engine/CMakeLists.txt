@@ -340,24 +340,27 @@ add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${stb_lib_SOURCE_DIR})
 target_link_libraries(Nexus PUBLIC stb)
 
-CPMAddPackage(
-	NAME assimp
-	GITHUB_REPOSITORY assimp/assimp
+FetchContentWithCache(
+	assimp
+	URL https://github.com/assimp/assimp.git
 	GIT_TAG v6.0.4
-	OPTIONS
-		"ASSIMP_BUILD_ASSIMP_TOOLS OFF"
-		"ASSIMP_BUILD_SAMPLES OFF"
-		"ASSIMP_BUILD_TESTS OFF"
-		"ASSIMP_BUILD_UNZIP OFF"
-		"ASSIMP_BUILD_ZLIB ON"
+	CONFIG_OPTIONS 
+		-DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+		-DASSIMP_BUILD_SAMPLES=OFF
+		-DASSIMP_BUILD_TESTS=OFF
+		-DASSIMP_BUILD_UNZIP=OFF
+		-DASSIMP_BUILD_ZLIB=ON
 )
+
+find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Nexus PUBLIC assimp::assimp)
 
-CPMAddPackage(
-	NAME yaml_cpp
-	GITHUB_REPOSITORY jbeder/yaml-cpp
+FetchContentWithCache(
+	yaml_cpp
+	URL https://github.com/jbeder/yaml-cpp.git
 	GIT_TAG yaml-cpp-0.9.0
 )
+find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(Nexus PUBLIC yaml-cpp)
 
 CPMAddPackage(
