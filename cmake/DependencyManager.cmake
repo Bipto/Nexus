@@ -17,41 +17,70 @@ function(GenerateConfigFile NAME INSTALL_DIR)
     set(CONFIG_DIR "${INSTALL_DIR}/lib/cmake/${NAME}")
     file(MAKE_DIRECTORY "${CONFIG_DIR}")
 
-    # Try to detect library file (static + shared, cross‑platform)
-    file(GLOB LIB_FILES
-        "${INSTALL_DIR}/lib/lib${NAME}.a"
+    # --- Search for all possible library types ---
+    file(GLOB LIB_SHARED
+        "${INSTALL_DIR}/bin/${NAME}.dll"
+        "${INSTALL_DIR}/lib/${NAME}.dll"
         "${INSTALL_DIR}/lib/lib${NAME}.so"
         "${INSTALL_DIR}/lib/lib${NAME}.dylib"
-        "${INSTALL_DIR}/lib/${NAME}.dll"
-        "${INSTALL_DIR}/lib/${NAME}.lib"
     )
 
-    if(NOT LIB_FILES)
-        message(WARNING "Could not detect library file for ${NAME}, using lib${NAME}.a")
-        set(LIB_FILENAME "${INSTALL_DIR}/lib/lib${NAME}.a")
-    else()
-        # Prefer shared libs if available
-        set(SHARED_CANDIDATES "")
-        foreach(f ${LIB_FILES})
-            if(f MATCHES "\\.(so|dylib|dll)$")
-                list(APPEND SHARED_CANDIDATES "${f}")
-            endif()
-        endforeach()
+    file(GLOB LIB_STATIC
+        "${INSTALL_DIR}/lib/${NAME}.lib"        # static or import
+        "${INSTALL_DIR}/lib/lib${NAME}.a"
+    )
 
-        if(SHARED_CANDIDATES)
-            list(GET SHARED_CANDIDATES 0 LIB_FILENAME)
+    set(IMPORTED_LOCATION "")
+    set(IMPORTED_IMPLIB "")
+
+    # --- Prefer shared libraries ---
+    if(LIB_SHARED)
+        list(GET LIB_SHARED 0 SHARED_LIB)
+
+        if(SHARED_LIB MATCHES "\\.dll$")
+            # DLL case: need both DLL + import lib
+            set(IMPORTED_LOCATION "${SHARED_LIB}")
+
+            # Find import library
+            file(GLOB DLL_IMPLIB
+                "${INSTALL_DIR}/lib/${NAME}.lib"
+                "${INSTALL_DIR}/lib/lib${NAME}.a"
+            )
+            if(DLL_IMPLIB)
+                list(GET DLL_IMPLIB 0 IMPORTED_IMPLIB)
+            endif()
         else()
-            list(GET LIB_FILES 0 LIB_FILENAME)
+            # Unix shared library
+            set(IMPORTED_LOCATION "${SHARED_LIB}")
         endif()
+
+    elseif(LIB_STATIC)
+        # Static library
+        list(GET LIB_STATIC 0 STATIC_LIB)
+        set(IMPORTED_LOCATION "${STATIC_LIB}")
+
+    else()
+        message(WARNING "Could not detect library for ${NAME}, defaulting to lib${NAME}.a")
+        set(IMPORTED_LOCATION "${INSTALL_DIR}/lib/lib${NAME}.a")
     endif()
 
+    # --- Write config file ---
     set(CONFIG_FILE "${CONFIG_DIR}/${NAME}Config.cmake")
     file(WRITE "${CONFIG_FILE}" "
 # Auto-generated config for ${NAME}
 add_library(${NAME}::${NAME} UNKNOWN IMPORTED)
 set_target_properties(${NAME}::${NAME} PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES \"${INSTALL_DIR}/include\"
-    IMPORTED_LOCATION \"${LIB_FILENAME}\"
+    IMPORTED_LOCATION \"${IMPORTED_LOCATION}\"
+")
+
+    if(IMPORTED_IMPLIB)
+        file(APPEND "${CONFIG_FILE}" "
+    IMPORTED_IMPLIB \"${IMPORTED_IMPLIB}\"
+")
+    endif()
+
+    file(APPEND "${CONFIG_FILE}" "
 )
 ")
 endfunction()
