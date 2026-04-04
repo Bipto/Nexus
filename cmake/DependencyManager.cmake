@@ -128,6 +128,8 @@ function(FetchContentWithCache NAME)
         endif()
     endif()
 
+    #make hash publicly accessible
+    set(${NAME}_FETCH_HASH "${FETCH_HASH}" PARENT_SCOPE)
     # --- Always add prefix path ---
     list(APPEND CMAKE_PREFIX_PATH "${INSTALL_DIR}")
     set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)

@@ -231,13 +231,12 @@ if (NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  CPMAddPackage(
-	NAME VulkanMemoryAllocator
-	GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-	GIT_TAG v3.3.0
-	OPTIONS
-		"BUILD_TESTING OFF"
-)
+  FetchContentWithCache(
+	  VulkanMemoryAllocator
+	  URL https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+	  GIT_TAG v3.3.0
+  )
+  find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
@@ -351,7 +350,6 @@ FetchContentWithCache(
 		-DASSIMP_BUILD_UNZIP=OFF
 		-DASSIMP_BUILD_ZLIB=ON
 )
-
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Nexus PUBLIC assimp::assimp)
 
@@ -361,7 +359,7 @@ FetchContentWithCache(
 	GIT_TAG yaml-cpp-0.9.0
 )
 find_package(yaml-cpp CONFIG REQUIRED)
-target_link_libraries(Nexus PUBLIC yaml-cpp)
+target_link_libraries(Nexus PUBLIC yaml-cpp::yaml-cpp)
 
 CPMAddPackage(
 	NAME freetype

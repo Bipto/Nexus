@@ -77,7 +77,7 @@ FetchContentWithCache(
 		-DDENABLE_CMAKE_CONFIG=ON
 )
 
-find_package(sndfile CONFIG REQUIRED)
+find_package(SndFile CONFIG REQUIRED)
 target_link_libraries(Nexus-Audio PRIVATE SndFile::sndfile)
 
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})

@@ -1,6 +1,7 @@
 #include "Nexus-Core/Graphics/Font.hpp"
 
-#include "ft2build.h"
+#include <ft2build.h>
+
 #include FT_FREETYPE_H
 
 void LoadCharacter(char										   character,
