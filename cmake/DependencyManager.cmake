@@ -11,7 +11,45 @@ if(NPROC EQUAL 0)
 endif()
 
 # -------------------------------------------------------------
-# FetchContentWithCache (no fallback config generation)
+# Compatibility table: required flags for known libraries
+# -------------------------------------------------------------
+function(_nexus_get_required_flags NAME OUT_VAR)
+    set(FLAGS "")
+
+    # GoogleTest
+    if(NAME STREQUAL "googletest" OR NAME STREQUAL "gtest")
+        list(APPEND FLAGS
+            -DINSTALL_GTEST=ON
+            -DINSTALL_GMOCK=ON
+            -DBUILD_GMOCK=ON
+        )
+
+    # Assimp
+    elseif(NAME STREQUAL "assimp")
+        list(APPEND FLAGS
+            -DASSIMP_INSTALL=ON
+            -DASSIMP_BUILD_TESTS=OFF
+        )
+
+    # SDL3
+    elseif(NAME STREQUAL "SDL3" OR NAME STREQUAL "SDL")
+        list(APPEND FLAGS
+            -DSDL_INSTALL=ON
+        )
+
+    # Freetype
+    elseif(NAME STREQUAL "freetype")
+        list(APPEND FLAGS
+            -DFT_DISABLE_ZLIB=OFF
+            -DFT_DISABLE_BZIP2=OFF
+        )
+    endif()
+
+    set(${OUT_VAR} "${FLAGS}" PARENT_SCOPE)
+endfunction()
+
+# -------------------------------------------------------------
+# FetchContentWithCache
 # -------------------------------------------------------------
 function(FetchContentWithCache NAME)
     cmake_policy(PUSH)
@@ -49,7 +87,6 @@ function(FetchContentWithCache NAME)
 
     set(NEED_BUILD TRUE)
 
-    # If the package already installed a config file, we consider it valid
     if(NOT FETCH_FORCE_REBUILD AND EXISTS "${INSTALL_DIR}/lib/cmake")
         message(STATUS "Using cached install of ${NAME}")
         set(NEED_BUILD FALSE)
@@ -117,6 +154,10 @@ function(FetchContentWithCache NAME)
             message(FATAL_ERROR "FetchContent did not produce a valid source directory for ${NAME}. Checked: ${SRC_DIR_CANDIDATES}")
         endif()
 
+        # --- Inject required flags for known libraries ---
+        _nexus_get_required_flags(${NAME} REQUIRED_FLAGS)
+        set(EFFECTIVE_CONFIG_OPTIONS ${FETCH_CONFIG_OPTIONS} ${REQUIRED_FLAGS})
+
         # --- Configure ---
         file(MAKE_DIRECTORY "${BUILD_DIR}")
         file(MAKE_DIRECTORY "${INSTALL_DIR}")
@@ -126,7 +167,7 @@ function(FetchContentWithCache NAME)
                 -S ${SRC_DIR}
                 -B ${BUILD_DIR}
                 -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
-                ${FETCH_CONFIG_OPTIONS}
+                ${EFFECTIVE_CONFIG_OPTIONS}
             RESULT_VARIABLE res
         )
         if(NOT res EQUAL 0)
