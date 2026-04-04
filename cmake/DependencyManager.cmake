@@ -6,87 +6,12 @@ include(ProcessorCount)
 # Global parallelism detection
 # -------------------------------------------------------------
 ProcessorCount(NPROC)
-if(NOT NPROC OR NPROC EQUAL 0)
+if(NPROC EQUAL 0)
     set(NPROC 4)
 endif()
 
 # -------------------------------------------------------------
-# Generate fallback Config.cmake when a project does not install one
-# -------------------------------------------------------------
-function(GenerateConfigFile NAME INSTALL_DIR)
-    set(CONFIG_DIR "${INSTALL_DIR}/lib/cmake/${NAME}")
-    file(MAKE_DIRECTORY "${CONFIG_DIR}")
-
-    # --- Search for all possible library types ---
-    file(GLOB LIB_SHARED
-        "${INSTALL_DIR}/bin/${NAME}.dll"
-        "${INSTALL_DIR}/lib/${NAME}.dll"
-        "${INSTALL_DIR}/lib/lib${NAME}.so"
-        "${INSTALL_DIR}/lib/lib${NAME}.dylib"
-    )
-
-    file(GLOB LIB_STATIC
-        "${INSTALL_DIR}/lib/${NAME}.lib"        # static or import
-        "${INSTALL_DIR}/lib/lib${NAME}.a"
-    )
-
-    set(IMPORTED_LOCATION "")
-    set(IMPORTED_IMPLIB "")
-
-    # --- Prefer shared libraries ---
-    if(LIB_SHARED)
-        list(GET LIB_SHARED 0 SHARED_LIB)
-
-        if(SHARED_LIB MATCHES "\\.dll$")
-            # DLL case: need both DLL + import lib
-            set(IMPORTED_LOCATION "${SHARED_LIB}")
-
-            # Find import library
-            file(GLOB DLL_IMPLIB
-                "${INSTALL_DIR}/lib/${NAME}.lib"
-                "${INSTALL_DIR}/lib/lib${NAME}.a"
-            )
-            if(DLL_IMPLIB)
-                list(GET DLL_IMPLIB 0 IMPORTED_IMPLIB)
-            endif()
-        else()
-            # Unix shared library
-            set(IMPORTED_LOCATION "${SHARED_LIB}")
-        endif()
-
-    elseif(LIB_STATIC)
-        # Static library
-        list(GET LIB_STATIC 0 STATIC_LIB)
-        set(IMPORTED_LOCATION "${STATIC_LIB}")
-
-    else()
-        message(WARNING "Could not detect library for ${NAME}, defaulting to lib${NAME}.a")
-        set(IMPORTED_LOCATION "${INSTALL_DIR}/lib/lib${NAME}.a")
-    endif()
-
-    # --- Write config file ---
-    set(CONFIG_FILE "${CONFIG_DIR}/${NAME}Config.cmake")
-    file(WRITE "${CONFIG_FILE}" "
-# Auto-generated config for ${NAME}
-add_library(${NAME}::${NAME} UNKNOWN IMPORTED)
-set_target_properties(${NAME}::${NAME} PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES \"${INSTALL_DIR}/include\"
-    IMPORTED_LOCATION \"${IMPORTED_LOCATION}\"
-")
-
-    if(IMPORTED_IMPLIB)
-        file(APPEND "${CONFIG_FILE}" "
-    IMPORTED_IMPLIB \"${IMPORTED_IMPLIB}\"
-")
-    endif()
-
-    file(APPEND "${CONFIG_FILE}" "
-)
-")
-endfunction()
-
-# -------------------------------------------------------------
-# FetchContentWithCache
+# FetchContentWithCache (no fallback config generation)
 # -------------------------------------------------------------
 function(FetchContentWithCache NAME)
     cmake_policy(PUSH)
@@ -124,6 +49,7 @@ function(FetchContentWithCache NAME)
 
     set(NEED_BUILD TRUE)
 
+    # If the package already installed a config file, we consider it valid
     if(NOT FETCH_FORCE_REBUILD AND EXISTS "${INSTALL_DIR}/lib/cmake")
         message(STATUS "Using cached install of ${NAME}")
         set(NEED_BUILD FALSE)
@@ -150,18 +76,15 @@ function(FetchContentWithCache NAME)
         # ---------------------------------------------------------
         set(SRC_DIR_CANDIDATES "")
 
-        # 1. Exact match
         if(DEFINED ${NAME}_SOURCE_DIR)
             list(APPEND SRC_DIR_CANDIDATES "${${NAME}_SOURCE_DIR}")
         endif()
 
-        # 2. Strip trailing digits (SDL3 → SDL)
         string(REGEX REPLACE "[0-9]+$" "" NAME_STRIPPED "${NAME}")
         if(DEFINED ${NAME_STRIPPED}_SOURCE_DIR)
             list(APPEND SRC_DIR_CANDIDATES "${${NAME_STRIPPED}_SOURCE_DIR}")
         endif()
 
-        # 3. Lowercase variants
         string(TOLOWER "${NAME}" NAME_LC)
         if(DEFINED ${NAME_LC}_SOURCE_DIR)
             list(APPEND SRC_DIR_CANDIDATES "${${NAME_LC}_SOURCE_DIR}")
@@ -172,7 +95,6 @@ function(FetchContentWithCache NAME)
             list(APPEND SRC_DIR_CANDIDATES "${${NAME_STRIPPED_LC}_SOURCE_DIR}")
         endif()
 
-        # 4. Uppercase variants
         string(TOUPPER "${NAME}" NAME_UC)
         if(DEFINED ${NAME_UC}_SOURCE_DIR)
             list(APPEND SRC_DIR_CANDIDATES "${${NAME_UC}_SOURCE_DIR}")
@@ -183,7 +105,6 @@ function(FetchContentWithCache NAME)
             list(APPEND SRC_DIR_CANDIDATES "${${NAME_STRIPPED_UC}_SOURCE_DIR}")
         endif()
 
-        # 5. Pick the first existing directory
         set(SRC_DIR "")
         foreach(candidate ${SRC_DIR_CANDIDATES})
             if(EXISTS "${candidate}/CMakeLists.txt")
@@ -240,11 +161,10 @@ function(FetchContentWithCache NAME)
             endif()
         endif()
 
-        # --- Fallback config if package didn't install one ---
-        set(CONFIG_FILE "${INSTALL_DIR}/lib/cmake/${NAME}/${NAME}Config.cmake")
-        if(NOT EXISTS "${CONFIG_FILE}")
-            message(STATUS "Generating fallback Config.cmake for ${NAME}")
-            GenerateConfigFile(${NAME} "${INSTALL_DIR}")
+        # --- Require a proper CMake package config ---
+        set(CONFIG_DIR "${INSTALL_DIR}/lib/cmake/${NAME}")
+        if(NOT EXISTS "${CONFIG_DIR}")
+            message(FATAL_ERROR "${NAME} did not install a CMake package config. Fix its build options.")
         endif()
     endif()
 
