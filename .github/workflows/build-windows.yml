@@ -88,10 +88,12 @@ jobs:
           install: >
             base-devel
             mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-clang
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-ffmpeg
             mingw-w64-ucrt-x86_64-flac
+
 
       - name: Remove rogue ccache
         run: |
@@ -139,7 +141,6 @@ jobs:
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
-          # Use MSYS2's own prefix variable (works in GitHub Actions)
           if [ "${{ matrix.name }}" = "Clang" ]; then
             export CC="$MINGW_PREFIX/bin/clang"
             export CXX="$MINGW_PREFIX/bin/clang++"
