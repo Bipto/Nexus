@@ -139,9 +139,16 @@ jobs:
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
-          export CC=${{ matrix.c_compiler }}
-          export CXX=${{ matrix.cpp_compiler }}
-          export PATH="/ucrt64/bin:$PATH"
+          # Use MSYS2's own prefix variable (works in GitHub Actions)
+          if [ "${{ matrix.name }}" = "Clang" ]; then
+            export CC="$MINGW_PREFIX/bin/clang"
+            export CXX="$MINGW_PREFIX/bin/clang++"
+          else
+            export CC="$MINGW_PREFIX/bin/gcc"
+            export CXX="$MINGW_PREFIX/bin/g++"
+          fi
+
+          export PATH="$MINGW_PREFIX/bin:$PATH"
 
           cmake -B build \
             -G Ninja \
