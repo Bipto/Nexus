@@ -1,3 +1,5 @@
+include(GoogleTest)
+
 add_executable(EngineUnitTests
     src/CircleTests.cpp
     src/GraphicsTests.cpp
@@ -19,7 +21,4 @@ target_link_libraries(EngineUnitTests
 copy_runtime_deps(EngineUnitTests)
 copy_directory_to_target_output(EngineUnitTests resources)
 
-add_test(
-    NAME EngineUnitTests
-    COMMAND EngineUnitTests
-)
+gtest_discover_tests(EngineUnitTests)
