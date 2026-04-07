@@ -17,7 +17,7 @@
 namespace Nexus
 {
 	/// @brief A class providing an implementation of an interface for loading resources from memory
-	class NX_API MemoryResourceLoader : public IResourceLoader
+	class NX_API MemoryResourceLoader final : public IResourceLoader
 	{
 	  public:
 		/// @brief A defaulted constructor to create a new instance of MemoryResourceLoader
