@@ -350,6 +350,7 @@ CPMAddPackage(
 		"ASSIMP_BUILD_TESTS OFF"
 		"ASSIMP_BUILD_UNZIP OFF"
 		"ASSIMP_BUILD_ZLIB ON"
+		"ASSIMP_WARNINGS_AS_ERRORS OFF"
 )
 
 # Disable Clang's unsafe-buffer-usage warnings for Assimp only
