@@ -26,14 +26,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: MSVC,      c_compiler: cl,        cpp_compiler: cl,        build_type: Release, vcpkg_triplet: x64-windows }
-          - { name: MSVC,      c_compiler: cl,        cpp_compiler: cl,        build_type: Debug,   vcpkg_triplet: x64-windows }
-          - { name: Clang,     c_compiler: clang,     cpp_compiler: clang++,   build_type: Release, vcpkg_triplet: x64-mingw-static }
-          - { name: Clang,     c_compiler: clang,     cpp_compiler: clang++,   build_type: Debug,   vcpkg_triplet: x64-mingw-static }
-          - { name: Clang-CL,  c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Release, vcpkg_triplet: x64-windows }
-          - { name: Clang-CL,  c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Debug,   vcpkg_triplet: x64-windows }
-          - { name: MinGW-UCRT, c_compiler: ucrt64-w64-mingw32-gcc, cpp_compiler: ucrt64-w64-mingw32-g++, build_type: Release, vcpkg_triplet: x64-mingw-static }
-          - { name: MinGW-UCRT, c_compiler: ucrt64-w64-mingw32-gcc, cpp_compiler: ucrt64-w64-mingw32-g++, build_type: Debug,   vcpkg_triplet: x64-mingw-static }
+          - { name: MSVC,       c_compiler: cl,        cpp_compiler: cl,        build_type: Release }
+          - { name: MSVC,       c_compiler: cl,        cpp_compiler: cl,        build_type: Debug }
+          - { name: Clang-CL,   c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Release }
+          - { name: Clang-CL,   c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Debug }
+          - { name: Clang,      c_compiler: clang,     cpp_compiler: clang++,   build_type: Release }
+          - { name: Clang,      c_compiler: clang,     cpp_compiler: clang++,   build_type: Debug }
+          - { name: MinGW-UCRT, c_compiler: ucrt64-w64-mingw32-gcc, cpp_compiler: ucrt64-w64-mingw32-g++, build_type: Release }
+          - { name: MinGW-UCRT, c_compiler: ucrt64-w64-mingw32-gcc, cpp_compiler: ucrt64-w64-mingw32-g++, build_type: Debug }
 
     steps:
       - uses: actions/checkout@v4
@@ -56,12 +56,13 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Install LLVM (Clang-CL)
-        if: matrix.c_compiler == 'clang-cl'
+        if: matrix.name == 'Clang-CL'
         run: |
           choco install llvm
           echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-      - name: Setup Ninja
+      - name: Setup Ninja (Windows Ninja)
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         uses: seanmiddleditch/gha-setup-ninja@v6
 
       - name: Install Windows SDK
@@ -70,11 +71,14 @@ jobs:
           sdk-version: 26100
 
       - name: Setup MSVC
-        if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
         with:
           arch: x64
 
+      # -------------------------
+      # MSYS2 setup for MinGW + Clang
+      # -------------------------
       - name: Install MinGW-UCRT (MSYS2)
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         uses: msys2/setup-msys2@v2
@@ -108,10 +112,10 @@ jobs:
           cache: true
 
       # -------------------------
-      # Configure CMake
+      # Configure CMake (MSVC / Clang-CL)
       # -------------------------
       - name: Configure CMake (MSVC/Clang-CL)
-        if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         shell: bash
         run: |
           cmake -B build \
@@ -128,14 +132,19 @@ jobs:
             -DBUILD_TESTING=ON \
             -S .
 
-      - name: Configure CMake (MSYS2 MinGW-UCRT / Clang)
+      # -------------------------
+      # Configure CMake (MSYS2 MinGW / Clang)
+      # -------------------------
+      - name: Configure CMake (MSYS2)
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
+          export CC=${{ matrix.c_compiler }}
+          export CXX=${{ matrix.cpp_compiler }}
+          export PATH="/ucrt64/bin:$PATH"
+
           cmake -B build \
             -G Ninja \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
@@ -158,8 +167,5 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure --parallel
 
-      # -------------------------
-      # Save sccache stats
-      # -------------------------
       - name: sccache stats
         run: sccache --show-stats || true
