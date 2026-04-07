@@ -80,16 +80,8 @@ jobs:
         if: matrix.c_compiler == 'clang-cl'
         run: choco install llvm
 
-      - name: Install sccache
-        run: choco install sccache
-
-      - name: Cache sccache
-        uses: actions/cache@v4
-        with:
-          path: C:\Users\runneradmin\AppData\Local\sccache
-          key: sccache-windows-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-windows-${{ matrix.c_compiler }}
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
@@ -136,11 +128,7 @@ jobs:
         if: matrix.name != 'MinGW-UCRT' && matrix.name != 'Clang'
         shell: bash
         run: |
-          if [[ "${{ matrix.c_compiler }}" == "cl" ]]; then
-              LAUNCHER_OPTS=""
-          else
-              LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
-          fi
+          LAUNCHER_OPTS="-DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
 
           cmake -B build \
             -G Ninja \

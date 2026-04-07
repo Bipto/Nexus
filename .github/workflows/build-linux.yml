@@ -66,8 +66,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             libgl1-mesa-dev mesa-common-dev \
             libx11-dev xorg-dev \
-            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev \
-            sccache
+            build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
       - name: Install Clang 21
         if: matrix.c_compiler == 'clang'
@@ -76,16 +75,9 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh 21
 
-      - name: Install sccache
-        run: sudo apt-get install -y sccache
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.4
 
-      - name: Cache sccache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/sccache
-          key: sccache-linux-${{ matrix.c_compiler }}-${{ matrix.build_type }}
-          restore-keys: |
-            sccache-linux-${{ matrix.c_compiler }}
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6

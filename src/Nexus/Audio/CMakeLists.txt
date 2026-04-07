@@ -48,14 +48,13 @@ if (DEFINED NX_PLATFORM_OPENAL)
 	  list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENAL_LIBRARY})
 	else()
-		FetchContentWithCache(
-			openal-soft
-			URL https://github.com/kcat/openal-soft.git
-			GIT_TAG 1.25.1
-			CONFIG_OPTIONS "-DBUILD_TESTING=OFF")
-
-		find_package(OpenAL CONFIG REQUIRED)
-
+	  CPMAddPackage(
+		NAME openal-soft
+		GITHUB_REPOSITORY kcat/openal-soft
+		GIT_TAG 1.25.1
+		OPTIONS
+			"BUILD_TESTING OFF"
+	  )
 	  list (APPEND NEXUS_LINKED_LIBRARIES OpenAL::OpenAL)
 	endif()
 endif()
@@ -68,17 +67,14 @@ set_target_properties(Nexus-Audio PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
-FetchContentWithCache(
-	sndfile
-	URL https://github.com/libsndfile/libsndfile.git
+CPMAddPackage(
+	NAME libsndfile
+	GITHUB_REPOSITORY libsndfile/libsndfile
 	GIT_TAG 68f6c16
-	CONFIG_OPTIONS 
-		-DBUILD_TESTING=OFF
-		-DDENABLE_CMAKE_CONFIG=ON
+	OPTIONS
+		"BUILD_TESTING OFF"
 )
-
-find_package(SndFile CONFIG REQUIRED)
-target_link_libraries(Nexus-Audio PRIVATE SndFile::sndfile)
+target_link_libraries(Nexus-Audio PRIVATE sndfile)
 
 target_compile_definitions(Nexus-Audio PUBLIC ${LIBRARY_COMPILE_DEFINITIONS})
 target_include_directories(Nexus-Audio PUBLIC ${PUBLIC_LIBRARY_INCLUDES})

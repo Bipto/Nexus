@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
 include(cmake/GetCPM.cmake)
-include(cmake/DependencyManager.cmake)
 
 file(READ "${CMAKE_SOURCE_DIR}/version.txt" PROJECT_VERSION_RAW)
 string(STRIP "${PROJECT_VERSION_RAW}" PROJECT_VERSION_RAW)
@@ -14,16 +13,49 @@ project(Nexus
 
 message(STATUS "Configuring Nexus version ${PROJECT_VERSION}")
 
-#allow flexible page sizes on Android devices
+# ------------------------------------------------------------
+# MSVC: Use embedded debug info (/Z7) instead of /Zi
+# This is the correct modern CMake way (CMake 3.25+)
+# ------------------------------------------------------------
+if (MSVC)
+    # Apply to Debug and RelWithDebInfo
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
+        "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
+        CACHE STRING "" FORCE)
+
+    # Additional MSVC flags
+    add_compile_options(/EHsc)
+
+    # Optional: profiling
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
+endif()
+
+# ------------------------------------------------------------
+# sccache integration
+# ------------------------------------------------------------
+find_program(SCCACHE_PROGRAM sccache)
+if (SCCACHE_PROGRAM)
+    set(CMAKE_C_COMPILER_LAUNCHER   "${SCCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
+    message(STATUS "Sccache found: ${SCCACHE_PROGRAM}")
+else()
+    message(STATUS "Sccache not found")
+endif()
+
+# ------------------------------------------------------------
+# Global options
+# ------------------------------------------------------------
+
+# Allow flexible page sizes on Android
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
 
-#required to make shared and static libs be compatible on some platforms
+# Required for shared/static compatibility
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CPM_DOWNLOAD_ALL ON)
 set(CPM_USE_NAMED_CACHE_DIRECTORIES ON)
 
-#disable cmake module scanning
+# Disable C++20 module scanning
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 if (EMSCRIPTEN)
@@ -34,35 +66,41 @@ if (MINGW)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 endif()
 
-if (MSVC)
-    #enable exceptions for all targets (MSVC only)
-    add_compile_options(/EHsc)
-
-    #enable profiling support
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
-endif()
-
 add_definitions(-DTRACY_ENABLE)
 
-#testing
+# ------------------------------------------------------------
+# Testing
+# ------------------------------------------------------------
 if (DEFINED BUILD_TESTING)
     enable_testing()
     include(CTest)
     include(FetchContent)
 
-    FetchContentWithCache(
+    FetchContent_Declare(
         googletest
-        URL https://github.com/google/googletest.git
-        GIT_TAG v1.17.0
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG 6986c2b
     )
-
-    find_package(GTest CONFIG REQUIRED)
+    FetchContent_MakeAvailable(googletest)
 endif()
 
-#set up engine project
+# ------------------------------------------------------------
+# Subdirectories
+# ------------------------------------------------------------
 add_subdirectory(src/Nexus)
 
 if (DEFINED NX_BUILD_DEMO)
     add_subdirectory(src/Demo)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
+endif()
+
+# Disable sccache for Assimp if it was fetched by CPM
+if (TARGET assimp)
+    get_target_property(assimp_source_dir assimp SOURCE_DIR)
+    get_filename_component(assimp_dir "${assimp_source_dir}" DIRECTORY)
+
+    message(STATUS "Disabling sccache for Assimp in: ${assimp_dir}")
+
+    set_property(DIRECTORY "${assimp_dir}" PROPERTY RULE_LAUNCH_COMPILE "")
+    set_property(DIRECTORY "${assimp_dir}" PROPERTY RULE_LAUNCH_LINK "")
 endif()

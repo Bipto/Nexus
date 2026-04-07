@@ -33,11 +33,12 @@ endif()
 # Skip Tracy when using MinGW or Clang-cl
 if (NOT MINGW AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC"))
 
-	CPMAddPackage(
-		NAME tracy
-		GITHUB_REPOSITORY wolfpld/tracy
+	FetchContent_Declare(
+		tracy
+		GIT_REPOSITORY https://github.com/wolfpld/tracy.git
 		GIT_TAG v0.13.1
 	)
+	FetchContent_MakeAvailable(tracy)
 
 	if (EMSCRIPTEN)
 		add_library(Tracy-Static

@@ -232,12 +232,12 @@ if (NX_PLATFORM_VULKAN)
   find_package(Vulkan REQUIRED)
 
   CPMAddPackage(
-	  NAME VulkanMemoryAllocator
-	  GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-	  GIT_TAG v3.3.0
-	  OPTIONS
-		  "BUILD_TESTING OFF"
-  )
+	NAME VulkanMemoryAllocator
+	GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+	GIT_TAG v3.3.0
+	OPTIONS
+		"BUILD_TESTING OFF"
+)
 
   list (APPEND NEXUS_COMPILE_DEFINITIONS VK_STATIC_VULKAN_FUNCTIONS=1)
 
@@ -340,27 +340,25 @@ add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${stb_lib_SOURCE_DIR})
 target_link_libraries(Nexus PUBLIC stb)
 
-FetchContentWithCache(
-	assimp
-	URL https://github.com/assimp/assimp.git
-	GIT_TAG v6.0.4
-	CONFIG_OPTIONS 
-		-DASSIMP_BUILD_ASSIMP_TOOLS=OFF
-		-DASSIMP_BUILD_SAMPLES=OFF
-		-DASSIMP_BUILD_TESTS=OFF
-		-DASSIMP_BUILD_UNZIP=OFF
-		-DASSIMP_BUILD_ZLIB=ON
+CPMAddPackage(
+	NAME assimp
+	GITHUB_REPOSITORY Bipto/assimp
+	GIT_TAG 87743b3
+	OPTIONS
+		"ASSIMP_BUILD_ASSIMP_TOOLS OFF"
+		"ASSIMP_BUILD_SAMPLES OFF"
+		"ASSIMP_BUILD_TESTS OFF"
+		"ASSIMP_BUILD_UNZIP OFF"
+		"ASSIMP_BUILD_ZLIB ON"
 )
-find_package(assimp CONFIG REQUIRED)
 target_link_libraries(Nexus PUBLIC assimp::assimp)
 
-FetchContentWithCache(
-	yaml_cpp
-	URL https://github.com/jbeder/yaml-cpp.git
+CPMAddPackage(
+	NAME yaml_cpp
+	GITHUB_REPOSITORY jbeder/yaml-cpp
 	GIT_TAG yaml-cpp-0.9.0
 )
-find_package(yaml-cpp CONFIG REQUIRED)
-target_link_libraries(Nexus PUBLIC yaml-cpp::yaml-cpp)
+target_link_libraries(Nexus PUBLIC yaml-cpp)
 
 CPMAddPackage(
 	NAME freetype
@@ -488,4 +486,3 @@ set_target_properties(Nexus PROPERTIES
 if (BUILD_TESTING)
 	add_subdirectory(tests)
 endif()
-
