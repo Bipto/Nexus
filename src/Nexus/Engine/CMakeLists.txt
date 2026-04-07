@@ -351,6 +351,12 @@ CPMAddPackage(
 		"ASSIMP_BUILD_UNZIP OFF"
 		"ASSIMP_BUILD_ZLIB ON"
 )
+
+# Disable Clang's unsafe-buffer-usage warnings for Assimp only
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(assimp PRIVATE -Wno-unsafe-buffer-usage)
+endif()
+
 target_link_libraries(Nexus PUBLIC assimp::assimp)
 
 CPMAddPackage(
