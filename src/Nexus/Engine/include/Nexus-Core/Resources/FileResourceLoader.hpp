@@ -14,7 +14,7 @@
 namespace Nexus
 {
 	/// @brief A class providing an implementation of an interface for loading resources from disk
-	class NX_API FileResourceLoader : public IResourceLoader
+	class NX_API FileResourceLoader final : public IResourceLoader
 	{
 	  public:
 		/// @brief A constructor to create a new instance of FileResourceLoader
