@@ -74,8 +74,8 @@ namespace Nexus::Graphics
 		// record the commands into the actual vulkan command list
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListVk>									   commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
+			Ref<CommandListVk>									  commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
+			const std::vector<std::unique_ptr<IGraphicsCommand>> &commands	  = commandList->GetCommands();
 			m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
 			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
 			m_CommandExecutor->Reset();

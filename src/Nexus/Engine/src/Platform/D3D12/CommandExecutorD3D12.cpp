@@ -40,12 +40,9 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
 	{
-		const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
+		const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
 
-		for (const auto &element : commands)
-		{
-			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
-		}
+		for (const auto &command : commands) { command->Execute(this, device); }
 
 		m_CurrentFramebuffer = {};
 	}

@@ -52,15 +52,15 @@ namespace Nexus::Graphics
 		// execute commands
 		{
 			NX_PROFILE_SCOPE("CommandExecutorVk::ExecuteCommand");
-			const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
-			m_Commands									   = commands;
+			const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
+			m_Commands													   = commands;
 			for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
 			{
 				NX_PROFILE_SCOPE("CommandExecutorVk Inside Loop");
-				const auto &element = commands.at(m_CurrentCommandIndex);
-				std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
+				const auto &command = commands.at(m_CurrentCommandIndex);
+				command->Execute(this, device);
 			}
-			m_Commands.clear();
+			m_Commands = {};
 		}
 
 		// end
@@ -990,8 +990,14 @@ namespace Nexus::Graphics
 		// order in debuggers
 		else
 		{
-			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
+			/*RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
 			if (std::holds_alternative<WeakRef<IFramebuffer>>(data))
+			{
+				StopRendering();
+			}*/
+
+			const auto &data = m_Commands.data() + m_CurrentCommandIndex;
+			if (auto command = dynamic_cast<SetFramebufferCommandImpl *>(data->get()))
 			{
 				StopRendering();
 			}

@@ -24,11 +24,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		const std::vector<RenderCommandData> &commands = commandList->GetCommandData();
-		for (const auto &command : commands)
-		{
-			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, command);
-		}
+		const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
+		for (const auto &command : commands) { command->Execute(this, device); }
 	}
 
 	void CommandExecutorOpenGL::Reset()

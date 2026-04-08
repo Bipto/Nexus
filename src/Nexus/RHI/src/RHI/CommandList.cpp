@@ -5,248 +5,282 @@
 
 namespace Nexus::Graphics
 {
-	SetVertexBufferCommandImpl::SetVertexBufferCommandImpl(const VertexBufferView &view, uint32_t slot) : m_BufferView(view), m_Slot(slot)
+	SetVertexBufferCommandImpl::SetVertexBufferCommandImpl(const SetVertexBufferCommand &command) : m_Command(command)
 	{
 	}
 
-	void SetVertexBufferCommandImpl::Execute(CommandExecutor *executor) const
+	void SetVertexBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Command, device);
 	}
 
 	SetIndexBufferCommandImpl::SetIndexBufferCommandImpl(const IndexBufferView &view) : m_BufferView(view)
 	{
 	}
 
-	void SetIndexBufferCommandImpl::Execute(CommandExecutor *executor) const
+	void SetIndexBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		SetIndexBufferCommand command {.View = m_BufferView};
+		executor->ExecuteCommand(command, device);
 	}
 
 	SetPipelineCommandImpl::SetPipelineCommandImpl(Ref<Pipeline> pipeline) : m_Pipeline(pipeline)
 	{
 	}
 
-	void SetPipelineCommandImpl::Execute(CommandExecutor *executor) const
+	void SetPipelineCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Pipeline, device);
 	}
 
 	DrawCommandImpl::DrawCommandImpl(const DrawDescription &desc) : m_DrawDesc(desc)
 	{
 	}
 
-	void DrawCommandImpl::Execute(CommandExecutor *executor) const
+	void DrawCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DrawDesc, device);
 	}
 
 	DrawIndexedCommandImpl::DrawIndexedCommandImpl(const DrawIndexedDescription &desc) : m_DrawDesc(desc)
 	{
 	}
 
-	void DrawIndexedCommandImpl::Execute(CommandExecutor *executor) const
+	void DrawIndexedCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DrawDesc, device);
 	}
 
 	DrawIndirectCommandImpl::DrawIndirectCommandImpl(const DrawIndirectDescription &desc) : m_DrawDesc(desc)
 	{
 	}
 
-	void DrawIndirectCommandImpl::Execute(CommandExecutor *executor) const
+	void DrawIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DrawDesc, device);
 	}
 
 	DrawIndexedIndirectCommandImpl::DrawIndexedIndirectCommandImpl(const DrawIndirectIndexedDescription &desc) : m_DrawDesc(desc)
 	{
 	}
 
-	void DrawIndexedIndirectCommandImpl::Execute(CommandExecutor *executor) const
+	void DrawIndexedIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DrawDesc, device);
 	}
 
 	DrawMeshCommandImpl::DrawMeshCommandImpl(const DrawMeshDescription &desc) : m_DrawDesc(desc)
 	{
 	}
 
-	void DrawMeshCommandImpl::Execute(CommandExecutor *executor) const
+	void DrawMeshCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DrawDesc, device);
 	}
 
 	DrawMeshIndirectCommandImpl::DrawMeshIndirectCommandImpl(const DrawMeshIndirectDescription &desc) : m_DrawDesc(desc)
 	{
 	}
 
-	void DrawMeshIndirectCommandImpl::Execute(CommandExecutor *executor) const
+	void DrawMeshIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DrawDesc, device);
 	}
 
 	DispatchCommandImpl::DispatchCommandImpl(const DispatchDescription &desc) : m_DispatchDesc(desc)
 	{
 	}
 
-	void DispatchCommandImpl::Execute(CommandExecutor *executor) const
+	void DispatchCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DispatchDesc, device);
 	}
 
 	DispatchIndirectCommandImpl::DispatchIndirectCommandImpl(const DispatchIndirectDescription &desc) : m_DispatchDesc(desc)
 	{
 	}
 
-	void DispatchIndirectCommandImpl::Execute(CommandExecutor *executor) const
+	void DispatchIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_DispatchDesc, device);
 	}
 
 	TraceRaysCommandImpl::TraceRaysCommandImpl(const TraceRaysDescription &desc) : m_TraceRaysDesc(desc)
 	{
 	}
 
-	void TraceRaysCommandImpl::Execute(CommandExecutor *executor) const
+	void TraceRaysCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_TraceRaysDesc, device);
 	}
 
 	SetResourceSetCommandImpl::SetResourceSetCommandImpl(const ResourceSetBindingDescription &desc) : m_ResourceSetBindings(desc)
 	{
 	}
 
-	void SetResourceSetCommandImpl::Execute(CommandExecutor *executor) const
+	void SetResourceSetCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
-	}
-
-	ICommandList::ICommandList(const CommandListDescription &spec) : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
-	{
+		executor->ExecuteCommand(m_ResourceSetBindings, device);
 	}
 
 	ClearColourTargetCommandImpl::ClearColourTargetCommandImpl(const ClearColorTargetCommand &desc) : m_CommandData(desc)
 	{
 	}
 
-	void ClearColourTargetCommandImpl::Execute(CommandExecutor *executor) const
+	void ClearColourTargetCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_CommandData, device);
 	}
 
 	ClearDepthStencilTargetCommandImpl::ClearDepthStencilTargetCommandImpl(const ClearDepthStencilTargetCommand &desc) : m_CommandData(desc)
 	{
 	}
 
-	void ClearDepthStencilTargetCommandImpl::Execute(CommandExecutor *executor) const
+	void ClearDepthStencilTargetCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_CommandData, device);
 	}
 
 	SetFramebufferCommandImpl::SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer) : m_Framebuffer(framebuffer)
 	{
 	}
 
-	void SetFramebufferCommandImpl::Execute(CommandExecutor *executor) const
+	void SetFramebufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Framebuffer, device);
 	}
 
 	SetViewportCommandImpl::SetViewportCommandImpl(const Viewport &viewport) : m_Viewport(viewport)
 	{
 	}
 
-	void SetViewportCommandImpl::Execute(CommandExecutor *executor) const
+	void SetViewportCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Viewport, device);
 	}
 
 	SetScissorCommandImpl::SetScissorCommandImpl(const Scissor &scissor) : m_Scissor(scissor)
 	{
 	}
 
-	void SetScissorCommandImpl::Execute(CommandExecutor *executor) const
+	void SetScissorCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Scissor, device);
 	}
 
 	ResolveFramebufferCommandImpl::ResolveFramebufferCommandImpl(const ResolveTextureDescription &desc) : m_CommandData(desc)
 	{
 	}
 
-	void ResolveFramebufferCommandImpl::Execute(CommandExecutor *executor) const
+	void ResolveFramebufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_CommandData, device);
 	}
 
 	StartTimingQueryCommandImpl::StartTimingQueryCommandImpl(Ref<ITimingQuery> query) : m_Query(query)
 	{
 	}
 
-	void StartTimingQueryCommandImpl::Execute(CommandExecutor *executor) const
+	void StartTimingQueryCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		StartTimingQueryCommand command {.Query = m_Query};
+		executor->ExecuteCommand(command, device);
 	}
 
 	EndTimingQueryCommandImpl::EndTimingQueryCommandImpl(Ref<ITimingQuery> query) : m_Query(query)
 	{
 	}
 
-	void EndTimingQueryCommandImpl::Execute(CommandExecutor *executor) const
+	void EndTimingQueryCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		StopTimingQueryCommand command {.Query = m_Query};
+		executor->ExecuteCommand(command, device);
 	}
 
 	CopyBufferToBufferCommandImpl::CopyBufferToBufferCommandImpl(const BufferCopyDescription &desc) : m_Desc(desc)
 	{
 	}
 
-	void CopyBufferToBufferCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyBufferToBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		CopyBufferToBufferCommand command {.BufferCopy = m_Desc};
+		executor->ExecuteCommand(command, device);
 	}
 
 	CopyBufferToTextureCommandImpl::CopyBufferToTextureCommandImpl(const BufferTextureCopyDescription &desc) : m_Desc(desc)
 	{
 	}
 
-	void CopyBufferToTextureCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyBufferToTextureCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		CopyBufferToTextureCommand command {.BufferTextureCopy = m_Desc};
+		executor->ExecuteCommand(command, device);
 	}
 
 	CopyTextureToBufferCommandImpl::CopyTextureToBufferCommandImpl(const BufferTextureCopyDescription &desc) : m_Desc(desc)
 	{
 	}
 
-	void CopyTextureToBufferCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyTextureToBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		CopyTextureToBufferCommand command {.TextureBufferCopy = m_Desc};
+		executor->ExecuteCommand(command, device);
 	}
 
 	CopyTextureToTextureCommandImpl::CopyTextureToTextureCommandImpl(const TextureCopyDescription &desc) : m_Desc(desc)
 	{
 	}
 
-	void CopyTextureToTextureCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyTextureToTextureCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		CopyTextureToTextureCommand command {.TextureCopy = m_Desc};
+		executor->ExecuteCommand(command, device);
 	}
 
 	BeginDebugGroupCommandImpl::BeginDebugGroupCommandImpl(const std::string &name) : m_Name(name)
 	{
 	}
 
-	void BeginDebugGroupCommandImpl::Execute(CommandExecutor *executor) const
+	void BeginDebugGroupCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		BeginDebugGroupCommand command {.GroupName = m_Name};
+		executor->ExecuteCommand(command, device);
 	}
 
-	EndDebugGroupCommandImpl::EndDebugGroupCommandImpl()
+	void EndDebugGroupCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
-	}
-
-	void EndDebugGroupCommandImpl::Execute(CommandExecutor *executor) const
-	{
+		EndDebugGroupCommand command {};
+		executor->ExecuteCommand(command, device);
 	}
 
 	InsertDebugMarkerCommandImpl::InsertDebugMarkerCommandImpl(const std::string &name) : m_Name(name)
 	{
 	}
 
-	void InsertDebugMarkerCommandImpl::Execute(CommandExecutor *executor) const
+	void InsertDebugMarkerCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		InsertDebugMarkerCommand command {.MarkerName = m_Name};
+		executor->ExecuteCommand(command, device);
 	}
 
 	SetBlendFactorCommandImpl::SetBlendFactorCommandImpl(const BlendFactorDesc &desc) : m_CommandData(desc)
 	{
 	}
 
-	void SetBlendFactorCommandImpl::Execute(CommandExecutor *executor) const
+	void SetBlendFactorCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		SetBlendFactorCommand command {.BlendFactor = m_CommandData};
+		executor->ExecuteCommand(command, device);
 	}
 
 	SetStencilReferenceCommandImpl::SetStencilReferenceCommandImpl(uint32_t stencilReference) : m_StencilReference(stencilReference)
 	{
 	}
 
-	void SetStencilReferenceCommandImpl::Execute(CommandExecutor *executor) const
+	void SetStencilReferenceCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		SetStencilReferenceCommand command {.StencilReference = m_StencilReference};
+		executor->ExecuteCommand(command, device);
 	}
 
 	BuildAccelerationStructuresCommandImpl::BuildAccelerationStructuresCommandImpl(
@@ -255,8 +289,10 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void BuildAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor) const
+	void BuildAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		BuildAccelerationStructuresCommand command {.BuildDescriptions = m_Description};
+		executor->ExecuteCommand(command, device);
 	}
 
 	CopyAccelerationStructuresCommandImpl::CopyAccelerationStructuresCommandImpl(const AccelerationStructureCopyDescription &description)
@@ -264,8 +300,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CopyAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Description, device);
 	}
 
 	CopyAccelerationStructureToDeviceBufferCommandImpl::CopyAccelerationStructureToDeviceBufferCommandImpl(
@@ -274,8 +311,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CopyAccelerationStructureToDeviceBufferCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyAccelerationStructureToDeviceBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Description, device);
 	}
 
 	CopyDeviceBufferToAccelerationStructureCommandImpl::CopyDeviceBufferToAccelerationStructureCommandImpl(
@@ -284,24 +322,45 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CopyDeviceBufferToAccelerationStructureCommandImpl::Execute(CommandExecutor *executor) const
+	void CopyDeviceBufferToAccelerationStructureCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Description, device);
 	}
 
 	PushConstantsCommandImpl::PushConstantsCommandImpl(const PushConstantsDesc &description) : m_Description(description)
 	{
 	}
 
-	void PushConstantsCommandImpl::Execute(CommandExecutor *executor) const
+	void PushConstantsCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Description, device);
 	}
 
 	SubmitBarriersCommandImpl::SubmitBarriersCommandImpl(const BarrierGroupDescription &description) : m_Description(description)
 	{
 	}
 
-	void SubmitBarriersCommandImpl::Execute(CommandExecutor *executor) const
+	void SubmitBarriersCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
 	{
+		executor->ExecuteCommand(m_Description, device);
+	}
+
+	EndRenderingCommandImpl::EndRenderingCommandImpl(const EndRenderingCommand &command) : m_CommandData(command)
+	{
+	}
+
+	void EndRenderingCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
+	{
+		executor->ExecuteCommand(m_CommandData, device);
+	}
+
+	ICommandList::ICommandList(const CommandListDescription &spec) : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
+	{
+	}
+
+	ICommandList::~ICommandList()
+	{
+		m_CommandImpls.clear();
 	}
 
 	void ICommandList::Begin()
@@ -313,7 +372,7 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.clear();
+		m_CommandImpls.clear();
 		m_Started				   = true;
 		m_DebugGroups			   = 0;
 		m_AutomaticBarrierTracking = m_Description.AutomaticBarrierTransitions;
@@ -366,9 +425,7 @@ namespace Nexus::Graphics
 		command.Slot = slot;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
-		m_CommandImpls.emplace_back(std::make_unique<SetVertexBufferCommandImpl>(vertexBuffer, slot));
+		m_CommandImpls.emplace_back(std::make_unique<SetVertexBufferCommandImpl>(command));
 	}
 
 	void ICommandList::SetIndexBuffer(IndexBufferView indexBuffer)
@@ -384,8 +441,6 @@ namespace Nexus::Graphics
 		command.View = indexBuffer;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetIndexBufferCommandImpl>(indexBuffer));
 	}
 
@@ -399,8 +454,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(pipeline);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetPipelineCommandImpl>(pipeline));
 	}
 
@@ -414,8 +467,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DrawCommandImpl>(desc));
 	}
 
@@ -429,8 +480,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DrawIndexedCommandImpl>(desc));
 	}
 
@@ -444,8 +493,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DrawIndirectCommandImpl>(desc));
 	}
 
@@ -459,8 +506,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DrawIndexedIndirectCommandImpl>(desc));
 	}
 
@@ -474,8 +519,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DispatchCommandImpl>(desc));
 	}
 
@@ -489,8 +532,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DispatchIndirectCommandImpl>(desc));
 	}
 
@@ -504,8 +545,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DrawMeshCommandImpl>(desc));
 	}
 
@@ -519,8 +558,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<DrawMeshIndirectCommandImpl>(desc));
 	}
 
@@ -534,8 +571,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<TraceRaysCommandImpl>(desc));
 	}
 
@@ -620,8 +655,6 @@ namespace Nexus::Graphics
 		FlushBarriers();
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetResourceSetCommandImpl>(desc));
 	}
 
@@ -640,8 +673,6 @@ namespace Nexus::Graphics
 		command.Rect   = clearRect;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
 	}
 
@@ -660,8 +691,6 @@ namespace Nexus::Graphics
 		command.Rect   = std::nullopt;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
 	}
 
@@ -679,8 +708,6 @@ namespace Nexus::Graphics
 		command.Rect  = clearRect;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
 	}
 
@@ -698,8 +725,6 @@ namespace Nexus::Graphics
 		command.Rect  = std::nullopt;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
 	}
 
@@ -789,8 +814,6 @@ namespace Nexus::Graphics
 		m_CurrentFramebuffer = framebuffer;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(framebuffer);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetFramebufferCommandImpl>(framebuffer));
 	}
 
@@ -804,8 +827,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(viewport);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetViewportCommandImpl>(viewport));
 	}
 
@@ -819,8 +840,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(scissor);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetScissorCommandImpl>(scissor));
 	}
 
@@ -863,8 +882,6 @@ namespace Nexus::Graphics
 		}
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(desc);
-
 		m_CommandImpls.emplace_back(std::make_unique<ResolveFramebufferCommandImpl>(desc));
 	}
 
@@ -881,8 +898,6 @@ namespace Nexus::Graphics
 		command.Query = query;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<StartTimingQueryCommandImpl>(query));
 	}
 
@@ -899,8 +914,6 @@ namespace Nexus::Graphics
 		command.Query = query;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<EndTimingQueryCommandImpl>(query));
 	}
 
@@ -917,8 +930,6 @@ namespace Nexus::Graphics
 		command.BufferCopy = bufferCopy;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyBufferToBufferCommandImpl>(bufferCopy));
 	}
 
@@ -953,8 +964,6 @@ namespace Nexus::Graphics
 		command.BufferTextureCopy = bufferTextureCopy;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyBufferToTextureCommandImpl>(bufferTextureCopy));
 	}
 
@@ -989,8 +998,6 @@ namespace Nexus::Graphics
 		command.TextureBufferCopy = textureBufferCopy;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyTextureToBufferCommandImpl>(textureBufferCopy));
 	}
 
@@ -1038,8 +1045,6 @@ namespace Nexus::Graphics
 		command.TextureCopy = textureCopy;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyTextureToTextureCommandImpl>(textureCopy));
 	}
 
@@ -1056,8 +1061,6 @@ namespace Nexus::Graphics
 		command.GroupName = name;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<BeginDebugGroupCommandImpl>(name));
 
 		m_DebugGroups++;
@@ -1075,8 +1078,6 @@ namespace Nexus::Graphics
 		EndDebugGroupCommand command;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<EndDebugGroupCommandImpl>());
 
 		m_DebugGroups--;
@@ -1095,8 +1096,6 @@ namespace Nexus::Graphics
 		command.MarkerName = name;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<InsertDebugMarkerCommandImpl>(name));
 	}
 
@@ -1106,8 +1105,6 @@ namespace Nexus::Graphics
 		command.BlendFactor = blendFactor;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetBlendFactorCommandImpl>(blendFactor));
 	}
 
@@ -1117,8 +1114,6 @@ namespace Nexus::Graphics
 		command.StencilReference = stencilReference;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<SetStencilReferenceCommandImpl>(stencilReference));
 	}
 
@@ -1128,32 +1123,24 @@ namespace Nexus::Graphics
 		command.BuildDescriptions = description;
 
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(command);
-
 		m_CommandImpls.emplace_back(std::make_unique<BuildAccelerationStructuresCommandImpl>(description));
 	}
 
 	void ICommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(description);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructuresCommandImpl>(description));
 	}
 
 	void ICommandList::CopyAccelerationStructureToDeviceBuffer(const AccelerationStructureDeviceBufferCopyDescription &description)
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(description);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructureToDeviceBufferCommandImpl>(description));
 	}
 
 	void ICommandList::CopyDeviceBufferToAccelerationStructure(const DeviceBufferAccelerationStructureCopyDescription &description)
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
-		m_Commands.push_back(description);
-
 		m_CommandImpls.emplace_back(std::make_unique<CopyDeviceBufferToAccelerationStructureCommandImpl>(description));
 	}
 
@@ -1166,8 +1153,6 @@ namespace Nexus::Graphics
 		pushConstantDesc.Offset			   = offset;
 		pushConstantDesc.Data.resize(size);
 		memcpy(pushConstantDesc.Data.data(), data, size);
-		m_Commands.push_back(pushConstantDesc);
-
 		m_CommandImpls.emplace_back(std::make_unique<PushConstantsCommandImpl>(pushConstantDesc));
 	}
 
@@ -1192,23 +1177,19 @@ namespace Nexus::Graphics
 	void ICommandList::FlushBarriers()
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
-
-		m_Commands.push_back(m_Barriers);
 		m_CommandImpls.emplace_back(std::make_unique<SubmitBarriersCommandImpl>(m_Barriers));
-
 		m_Barriers.Clear();
-	}
-
-	const std::vector<RenderCommandData> &ICommandList::GetCommandData() const
-	{
-		std::lock_guard<std::mutex> lock(m_Mutex);
-		return m_Commands;
 	}
 
 	const CommandListDescription &ICommandList::GetDescription()
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
 		return m_Description;
+	}
+
+	const std::vector<std::unique_ptr<IGraphicsCommand>> &ICommandList::GetCommands()
+	{
+		return m_CommandImpls;
 	}
 
 	bool ICommandList::IsRecording() const
@@ -1227,7 +1208,7 @@ namespace Nexus::Graphics
 
 		EndRenderingCommand command = {};
 		command.TargetFramebuffer	= m_CurrentFramebuffer;
-		m_Commands.push_back(command);
+		m_CommandImpls.emplace_back(std::make_unique<EndRenderingCommandImpl>(command));
 
 		if (m_CurrentFramebuffer->IsOwnedBySwapchain())
 		{

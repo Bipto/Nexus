@@ -80,8 +80,8 @@ namespace Nexus::Graphics
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
 
-		std::vector<RenderCommandData> m_Commands			 = {};
-		size_t						   m_CurrentCommandIndex = 0;
+		std::span<const std::unique_ptr<IGraphicsCommand>> m_Commands			 = {};
+		size_t											   m_CurrentCommandIndex = 0;
 	};
 }	 // namespace Nexus::Graphics
 

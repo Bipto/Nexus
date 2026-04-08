@@ -69,13 +69,13 @@ namespace Nexus::Graphics
 
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListD3D12>								   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
-			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7>	   cmdList	   = commandList->GetCommandList();
+			Ref<CommandListD3D12>							   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
+			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> cmdList	   = commandList->GetCommandList();
 
 			commandList->Reset();
 			m_CommandExecutor->SetCommandList(cmdList);
 			m_CommandExecutor->SetCommandQueue(this);
+
 			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
 			commandList->Close();
 
