@@ -59,22 +59,17 @@ macro(copy_runtime_deps target_name)
     endif()
 
 
-    get_target_property(dlls ${target_name} RUNTIME_DLLS)
-
-    if(dlls)
-        add_custom_command(
-            TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E.   copy_if_different
-                ${dlls}
-                $<TARGET_FILE_DIR:${target_name}>
-        )
-    endif()
-
+    add_custom_command(
+        TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            $<TARGET_FILE_DIR:${target_name}>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:${target_name}>
+            $<TARGET_FILE_DIR:${target_name}>
+        COMMAND_EXPAND_LISTS
+    )
 
 endmacro()
-
-
-
 
 macro(import_dll target_name dll_path lib_path)
     add_library(${target_name} SHARED IMPORTED GLOBAL)
