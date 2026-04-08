@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "RHI/AccelerationStructure.hpp"
+#include "RHI/ComputeState.hpp"
 #include "RHI/DeviceBuffer.hpp"
 #include "RHI/Framebuffer.hpp"
 #include "RHI/Pipeline.hpp"
@@ -21,6 +22,8 @@
 
 namespace Nexus::Graphics
 {
+	class CommandExecutor;
+
 	/// @brief A structure representing parameters to set a clear rectangle
 	struct ClearRect
 	{
@@ -596,6 +599,370 @@ namespace Nexus::Graphics
 						 EndRenderingCommand>
 		RenderCommandData;
 
+	class IGraphicsCommand
+	{
+	  public:
+		virtual void Execute(CommandExecutor *executor) const = 0;
+	};
+
+	class SetVertexBufferCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		SetVertexBufferCommandImpl(const VertexBufferView &view, uint32_t slot);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		VertexBufferView m_BufferView = {};
+		uint32_t		 m_Slot		  = {};
+	};
+
+	class SetIndexBufferCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		SetIndexBufferCommandImpl(const IndexBufferView &view);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		IndexBufferView m_BufferView = {};
+	};
+
+	class SetPipelineCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		SetPipelineCommandImpl(Ref<Pipeline> pipeline);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		Ref<Pipeline> m_Pipeline = nullptr;
+	};
+
+	class DrawCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		DrawCommandImpl(const DrawDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DrawDescription m_DrawDesc = {};
+	};
+
+	class DrawIndexedCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		DrawIndexedCommandImpl(const DrawIndexedDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DrawIndexedDescription m_DrawDesc = {};
+	};
+
+	class DrawIndirectCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		DrawIndirectCommandImpl(const DrawIndirectDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DrawIndirectDescription m_DrawDesc = {};
+	};
+
+	class DrawIndexedIndirectCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		DrawIndexedIndirectCommandImpl(const DrawIndirectIndexedDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DrawIndirectIndexedDescription m_DrawDesc = {};
+	};
+
+	class DrawMeshCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		DrawMeshCommandImpl(const DrawMeshDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DrawMeshDescription m_DrawDesc = {};
+	};
+
+	class DrawMeshIndirectCommandImpl final : public IGraphicsCommand
+	{
+	  public:
+		DrawMeshIndirectCommandImpl(const DrawMeshIndirectDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DrawMeshIndirectDescription m_DrawDesc = {};
+	};
+
+	class DispatchCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		DispatchCommandImpl(const DispatchDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DispatchDescription m_DispatchDesc = {};
+	};
+
+	class DispatchIndirectCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		DispatchIndirectCommandImpl(const DispatchIndirectDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DispatchIndirectDescription m_DispatchDesc = {};
+	};
+
+	class TraceRaysCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		TraceRaysCommandImpl(const TraceRaysDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		TraceRaysDescription m_TraceRaysDesc = {};
+	};
+
+	class SetResourceSetCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SetResourceSetCommandImpl(const ResourceSetBindingDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		ResourceSetBindingDescription m_ResourceSetBindings = {};
+	};
+
+	class ClearColourTargetCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		ClearColourTargetCommandImpl(const ClearColorTargetCommand &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		ClearColorTargetCommand m_CommandData = {};
+	};
+
+	class ClearDepthStencilTargetCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		ClearDepthStencilTargetCommandImpl(const ClearDepthStencilTargetCommand &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		ClearDepthStencilTargetCommand m_CommandData = {};
+	};
+
+	class SetFramebufferCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		Ref<IFramebuffer> m_Framebuffer = {};
+	};
+
+	class SetViewportCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SetViewportCommandImpl(const Viewport &viewport);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		Viewport m_Viewport = {};
+	};
+
+	class SetScissorCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SetScissorCommandImpl(const Scissor &scissor);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		Scissor m_Scissor = {};
+	};
+
+	class ResolveFramebufferCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		ResolveFramebufferCommandImpl(const ResolveTextureDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		ResolveTextureDescription m_CommandData = {};
+	};
+
+	class StartTimingQueryCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		StartTimingQueryCommandImpl(Ref<ITimingQuery> query);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		Ref<ITimingQuery> m_Query = nullptr;
+	};
+
+	class EndTimingQueryCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		EndTimingQueryCommandImpl(Ref<ITimingQuery> query);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		Ref<ITimingQuery> m_Query = nullptr;
+	};
+
+	class CopyBufferToBufferCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyBufferToBufferCommandImpl(const BufferCopyDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		BufferCopyDescription m_Desc = {};
+	};
+
+	class CopyBufferToTextureCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyBufferToTextureCommandImpl(const BufferTextureCopyDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		BufferTextureCopyDescription m_Desc = {};
+	};
+
+	class CopyTextureToBufferCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyTextureToBufferCommandImpl(const BufferTextureCopyDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		BufferTextureCopyDescription m_Desc = {};
+	};
+
+	class CopyTextureToTextureCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyTextureToTextureCommandImpl(const TextureCopyDescription &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		TextureCopyDescription m_Desc = {};
+	};
+
+	class BeginDebugGroupCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		BeginDebugGroupCommandImpl(const std::string &name);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		std::string m_Name = {};
+	};
+
+	class EndDebugGroupCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		EndDebugGroupCommandImpl();
+		void Execute(CommandExecutor *executor) const final;
+	};
+
+	class InsertDebugMarkerCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		InsertDebugMarkerCommandImpl(const std::string &name);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		std::string m_Name = {};
+	};
+
+	class SetBlendFactorCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SetBlendFactorCommandImpl(const BlendFactorDesc &desc);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		BlendFactorDesc m_CommandData = {};
+	};
+
+	class SetStencilReferenceCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SetStencilReferenceCommandImpl(uint32_t stencilReference);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		uint32_t m_StencilReference = {};
+	};
+
+	class BuildAccelerationStructuresCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		BuildAccelerationStructuresCommandImpl(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		std::vector<AccelerationStructureGeometryBuildDescription> m_Description = {};
+	};
+
+	class CopyAccelerationStructuresCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyAccelerationStructuresCommandImpl(const AccelerationStructureCopyDescription &description);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		AccelerationStructureCopyDescription m_Description = {};
+	};
+
+	class CopyAccelerationStructureToDeviceBufferCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyAccelerationStructureToDeviceBufferCommandImpl(const AccelerationStructureDeviceBufferCopyDescription &description);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		AccelerationStructureDeviceBufferCopyDescription m_Description = {};
+	};
+
+	class CopyDeviceBufferToAccelerationStructureCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		CopyDeviceBufferToAccelerationStructureCommandImpl(const DeviceBufferAccelerationStructureCopyDescription &description);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		DeviceBufferAccelerationStructureCopyDescription m_Description = {};
+	};
+
+	class PushConstantsCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		PushConstantsCommandImpl(const PushConstantsDesc &description);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		PushConstantsDesc m_Description = {};
+	};
+
+	class SubmitBarriersCommandImpl : public IGraphicsCommand
+	{
+	  public:
+		SubmitBarriersCommandImpl(const BarrierGroupDescription &description);
+		void Execute(CommandExecutor *executor) const final;
+
+	  private:
+		BarrierGroupDescription m_Description = {};
+	};
+
 	struct CommandListDescription
 	{
 		std::string DebugName					= "CommandList";
@@ -734,6 +1101,8 @@ namespace Nexus::Graphics
 		bool							 m_AutomaticBarrierTracking = false;
 		BarrierGroupDescription			 m_Barriers					= {};
 		std::function<void(std::string)> m_CallbackFunction			= {};
+
+		std::vector<std::unique_ptr<IGraphicsCommand>> m_CommandImpls = {};
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

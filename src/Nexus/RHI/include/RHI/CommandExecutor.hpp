@@ -1,8 +1,11 @@
 #pragma once
 
+#include <optional>
+
 #include "RHI/CommandList.hpp"
 #include "RHI/GraphicsDevice.hpp"
 #include "RHI/RHI-Core.hpp"
+#include "RHI/Types.hpp"
 
 namespace Nexus::Graphics
 {
