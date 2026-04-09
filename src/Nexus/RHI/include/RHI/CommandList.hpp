@@ -667,7 +667,7 @@ namespace Nexus::Graphics
 		DrawMeshIndirectDescription m_DrawDesc = {};
 	};
 
-	class DispatchCommandImpl : public IGraphicsCommand
+	class DispatchCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		DispatchCommandImpl(const DispatchDescription &desc);
@@ -678,7 +678,7 @@ namespace Nexus::Graphics
 		DispatchDescription m_DispatchDesc = {};
 	};
 
-	class DispatchIndirectCommandImpl : public IGraphicsCommand
+	class DispatchIndirectCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		DispatchIndirectCommandImpl(const DispatchIndirectDescription &desc);
@@ -689,7 +689,7 @@ namespace Nexus::Graphics
 		DispatchIndirectDescription m_DispatchDesc = {};
 	};
 
-	class TraceRaysCommandImpl : public IGraphicsCommand
+	class TraceRaysCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		TraceRaysCommandImpl(const TraceRaysDescription &desc);
@@ -700,7 +700,7 @@ namespace Nexus::Graphics
 		TraceRaysDescription m_TraceRaysDesc = {};
 	};
 
-	class SetResourceSetCommandImpl : public IGraphicsCommand
+	class SetResourceSetCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SetResourceSetCommandImpl(const ResourceSetBindingDescription &desc);
@@ -711,7 +711,7 @@ namespace Nexus::Graphics
 		ResourceSetBindingDescription m_ResourceSetBindings = {};
 	};
 
-	class ClearColourTargetCommandImpl : public IGraphicsCommand
+	class ClearColourTargetCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		ClearColourTargetCommandImpl(const ClearColorTargetCommand &desc);
@@ -722,7 +722,7 @@ namespace Nexus::Graphics
 		ClearColorTargetCommand m_CommandData = {};
 	};
 
-	class ClearDepthStencilTargetCommandImpl : public IGraphicsCommand
+	class ClearDepthStencilTargetCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		ClearDepthStencilTargetCommandImpl(const ClearDepthStencilTargetCommand &desc);
@@ -733,7 +733,7 @@ namespace Nexus::Graphics
 		ClearDepthStencilTargetCommand m_CommandData = {};
 	};
 
-	class SetFramebufferCommandImpl : public IGraphicsCommand
+	class SetFramebufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer);
@@ -744,7 +744,7 @@ namespace Nexus::Graphics
 		Ref<IFramebuffer> m_Framebuffer = {};
 	};
 
-	class SetViewportCommandImpl : public IGraphicsCommand
+	class SetViewportCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SetViewportCommandImpl(const Viewport &viewport);
@@ -755,7 +755,7 @@ namespace Nexus::Graphics
 		Viewport m_Viewport = {};
 	};
 
-	class SetScissorCommandImpl : public IGraphicsCommand
+	class SetScissorCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SetScissorCommandImpl(const Scissor &scissor);
@@ -766,7 +766,7 @@ namespace Nexus::Graphics
 		Scissor m_Scissor = {};
 	};
 
-	class ResolveFramebufferCommandImpl : public IGraphicsCommand
+	class ResolveFramebufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		ResolveFramebufferCommandImpl(const ResolveTextureDescription &desc);
@@ -777,7 +777,7 @@ namespace Nexus::Graphics
 		ResolveTextureDescription m_CommandData = {};
 	};
 
-	class StartTimingQueryCommandImpl : public IGraphicsCommand
+	class StartTimingQueryCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		StartTimingQueryCommandImpl(ITimingQuery *query);
@@ -788,7 +788,7 @@ namespace Nexus::Graphics
 		ITimingQuery *m_Query = nullptr;
 	};
 
-	class EndTimingQueryCommandImpl : public IGraphicsCommand
+	class EndTimingQueryCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		EndTimingQueryCommandImpl(ITimingQuery *query);
@@ -799,7 +799,7 @@ namespace Nexus::Graphics
 		ITimingQuery *m_Query = nullptr;
 	};
 
-	class CopyBufferToBufferCommandImpl : public IGraphicsCommand
+	class CopyBufferToBufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyBufferToBufferCommandImpl(const BufferCopyDescription &desc);
@@ -810,7 +810,7 @@ namespace Nexus::Graphics
 		BufferCopyDescription m_Desc = {};
 	};
 
-	class CopyBufferToTextureCommandImpl : public IGraphicsCommand
+	class CopyBufferToTextureCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyBufferToTextureCommandImpl(const BufferTextureCopyDescription &desc);
@@ -821,7 +821,7 @@ namespace Nexus::Graphics
 		BufferTextureCopyDescription m_Desc = {};
 	};
 
-	class CopyTextureToBufferCommandImpl : public IGraphicsCommand
+	class CopyTextureToBufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyTextureToBufferCommandImpl(const BufferTextureCopyDescription &desc);
@@ -832,7 +832,7 @@ namespace Nexus::Graphics
 		BufferTextureCopyDescription m_Desc = {};
 	};
 
-	class CopyTextureToTextureCommandImpl : public IGraphicsCommand
+	class CopyTextureToTextureCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyTextureToTextureCommandImpl(const TextureCopyDescription &desc);
@@ -843,7 +843,7 @@ namespace Nexus::Graphics
 		TextureCopyDescription m_Desc = {};
 	};
 
-	class BeginDebugGroupCommandImpl : public IGraphicsCommand
+	class BeginDebugGroupCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		BeginDebugGroupCommandImpl(const std::string &name);
@@ -854,14 +854,14 @@ namespace Nexus::Graphics
 		std::string m_Name = {};
 	};
 
-	class EndDebugGroupCommandImpl : public IGraphicsCommand
+	class EndDebugGroupCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		~EndDebugGroupCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 	};
 
-	class InsertDebugMarkerCommandImpl : public IGraphicsCommand
+	class InsertDebugMarkerCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		InsertDebugMarkerCommandImpl(const std::string &name);
@@ -872,7 +872,7 @@ namespace Nexus::Graphics
 		std::string m_Name = {};
 	};
 
-	class SetBlendFactorCommandImpl : public IGraphicsCommand
+	class SetBlendFactorCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SetBlendFactorCommandImpl(const BlendFactorDesc &desc);
@@ -883,7 +883,7 @@ namespace Nexus::Graphics
 		BlendFactorDesc m_CommandData = {};
 	};
 
-	class SetStencilReferenceCommandImpl : public IGraphicsCommand
+	class SetStencilReferenceCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SetStencilReferenceCommandImpl(uint32_t stencilReference);
@@ -894,7 +894,7 @@ namespace Nexus::Graphics
 		uint32_t m_StencilReference = {};
 	};
 
-	class BuildAccelerationStructuresCommandImpl : public IGraphicsCommand
+	class BuildAccelerationStructuresCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		BuildAccelerationStructuresCommandImpl(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
@@ -905,7 +905,7 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureGeometryBuildDescription> m_Description = {};
 	};
 
-	class CopyAccelerationStructuresCommandImpl : public IGraphicsCommand
+	class CopyAccelerationStructuresCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyAccelerationStructuresCommandImpl(const AccelerationStructureCopyDescription &description);
@@ -916,7 +916,7 @@ namespace Nexus::Graphics
 		AccelerationStructureCopyDescription m_Description = {};
 	};
 
-	class CopyAccelerationStructureToDeviceBufferCommandImpl : public IGraphicsCommand
+	class CopyAccelerationStructureToDeviceBufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyAccelerationStructureToDeviceBufferCommandImpl(const AccelerationStructureDeviceBufferCopyDescription &description);
@@ -927,7 +927,7 @@ namespace Nexus::Graphics
 		AccelerationStructureDeviceBufferCopyDescription m_Description = {};
 	};
 
-	class CopyDeviceBufferToAccelerationStructureCommandImpl : public IGraphicsCommand
+	class CopyDeviceBufferToAccelerationStructureCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		CopyDeviceBufferToAccelerationStructureCommandImpl(const DeviceBufferAccelerationStructureCopyDescription &description);
@@ -938,7 +938,7 @@ namespace Nexus::Graphics
 		DeviceBufferAccelerationStructureCopyDescription m_Description = {};
 	};
 
-	class PushConstantsCommandImpl : public IGraphicsCommand
+	class PushConstantsCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		PushConstantsCommandImpl(const PushConstantsDesc &description);
@@ -949,7 +949,7 @@ namespace Nexus::Graphics
 		PushConstantsDesc m_Description = {};
 	};
 
-	class SubmitBarriersCommandImpl : public IGraphicsCommand
+	class SubmitBarriersCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		SubmitBarriersCommandImpl(const BarrierGroupDescription &description);
@@ -960,7 +960,7 @@ namespace Nexus::Graphics
 		BarrierGroupDescription m_Description = {};
 	};
 
-	class EndRenderingCommandImpl : public IGraphicsCommand
+	class EndRenderingCommandImpl final : public IGraphicsCommand
 	{
 	  public:
 		EndRenderingCommandImpl(const EndRenderingCommand &command);
