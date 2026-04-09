@@ -71,17 +71,15 @@ add_definitions(-DTRACY_ENABLE)
 # ------------------------------------------------------------
 # Testing
 # ------------------------------------------------------------
-if (DEFINED BUILD_TESTING)
+if (BUILD_TESTING)
     enable_testing()
     include(CTest)
-    include(FetchContent)
 
-    FetchContent_Declare(
+    CPMAddPackage(
         googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
+        GITHUB_REPOSITORY google/googletest
         GIT_TAG 6986c2b
     )
-    FetchContent_MakeAvailable(googletest)
 endif()
 
 # ------------------------------------------------------------
