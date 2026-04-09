@@ -139,6 +139,8 @@ namespace Nexus::Graphics
 
 		GladVulkanContext m_Context = {};
 
+		GraphicsAPIInfo m_GraphicsAPIInfo = {};
+
 		friend class SwapchainVk;
 	};
 }	 // namespace Nexus::Graphics

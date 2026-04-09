@@ -47,6 +47,18 @@ namespace Nexus::Graphics
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
+
+		uint32_t version = 0;
+		m_Context.EnumerateInstanceVersion(&version);
+
+		uint32_t major = VK_VERSION_MAJOR(version);
+		uint32_t minor = VK_VERSION_MINOR(version);
+
+		m_GraphicsAPIInfo = {
+			.API   = GraphicsAPI::Vulkan,
+			.Major = major,
+			.Minor = minor,
+		};
 	}
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -218,17 +230,7 @@ namespace Nexus::Graphics
 
 	GraphicsAPIInfo GraphicsDeviceVk::GetGraphicsAPI()
 	{
-		uint32_t version = 0;
-		m_Context.EnumerateInstanceVersion(&version);
-
-		uint32_t major = VK_VERSION_MAJOR(version);
-		uint32_t minor = VK_VERSION_MINOR(version);
-
-		return GraphicsAPIInfo {
-			.API   = GraphicsAPI::Vulkan,
-			.Major = major,
-			.Minor = minor,
-		};
+		return m_GraphicsAPIInfo;
 	}
 
 	void GraphicsDeviceVk::SetObjectName(VkObjectType type, uint64_t handle, const char *name)
