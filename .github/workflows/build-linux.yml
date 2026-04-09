@@ -84,6 +84,19 @@ jobs:
           cache: true
 
       # -------------------------
+      # Restore CPM.cmake dependency cache
+      # -------------------------
+      - name: Restore CPM cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-
+            cpm-${{ runner.os }}-
+
+
+      # -------------------------
       # Configure CMake
       # -------------------------
       - name: Configure CMake
@@ -102,6 +115,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=$CXX \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_STANDARD=23 \
             -DCMAKE_CXX_STANDARD_REQUIRED=ON \

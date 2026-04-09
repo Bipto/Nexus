@@ -114,6 +114,19 @@ jobs:
           cache: true
 
       # -------------------------
+      # Restore CPM.cmake dependency cache
+      # -------------------------
+      - name: Restore CPM cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-
+            cpm-${{ runner.os }}-
+
+
+      # -------------------------
       # Configure CMake (MSVC / Clang-CL)
       # -------------------------
       - name: Configure CMake (MSVC/Clang-CL)
@@ -126,6 +139,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
@@ -154,6 +168,7 @@ jobs:
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
