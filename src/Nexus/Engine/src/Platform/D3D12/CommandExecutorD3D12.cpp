@@ -186,13 +186,15 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{
-			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.IndirectBuffer);
-			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			{
+				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
-			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
-				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW, command.Stride);
+				Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+					GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW, command.Stride);
 
-			m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+				m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			}
 		}
 	}
 
@@ -207,16 +209,18 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{
-			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.IndirectBuffer);
-			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			{
+				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
-			Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline =
-				std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
+				Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline =
+					std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
 
-			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
-				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED, command.Stride);
+				Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+					GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED, command.Stride);
 
-			m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+				m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			}
 		}
 	}
 
@@ -237,9 +241,8 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
+		if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
 		{
-			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
 			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
@@ -266,15 +269,16 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
 		{
-			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
-			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			{
+				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
-			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
-				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH, command.Stride);
+				Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+					GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH, command.Stride);
 
-			m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+				m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			}
 		}
 	}
 
@@ -396,28 +400,33 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query);
-		Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap	   = queryD3D12->GetQueryHeap();
-
-		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
+		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(command.Query))
+		{
+			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
+			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query);
-		Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap	   = queryD3D12->GetQueryHeap();
-
-		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
+		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(command.Query))
+		{
+			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
+			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
-		Ref<DeviceBufferD3D12> source = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Source);
-		Ref<DeviceBufferD3D12> dest	  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Destination);
+		DeviceBufferD3D12 *source = dynamic_cast<DeviceBufferD3D12 *>(command.BufferCopy.Source);
+		DeviceBufferD3D12 *dest	  = dynamic_cast<DeviceBufferD3D12 *>(command.BufferCopy.Destination);
 
-		for (const auto &copy : command.BufferCopy.Copies)
+		if (source && dest)
 		{
-			m_CommandList->CopyBufferRegion(dest->GetHandle().Get(), copy.WriteOffset, source->GetHandle().Get(), copy.ReadOffset, copy.Size);
+			for (const auto &copy : command.BufferCopy.Copies)
+			{
+				m_CommandList->CopyBufferRegion(dest->GetHandle().Get(), copy.WriteOffset, source->GetHandle().Get(), copy.ReadOffset, copy.Size);
+			}
 		}
 	}
 
@@ -466,10 +475,10 @@ namespace Nexus::Graphics
 											&rowSizeInBytes,
 											&totalBytes);
 
-		Ref<IDeviceBuffer>	   stagingBuffer				= CreateStagingBuffer(totalBytes, true, device);
-		Ref<DeviceBufferD3D12> sourceBufferD3D12			= std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferTextureCopy.BufferHandle);
-		Ref<DeviceBufferD3D12> stagingBufferD3D12			= std::dynamic_pointer_cast<DeviceBufferD3D12>(stagingBuffer);
-		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle = stagingBufferD3D12->GetHandle();
+		Ref<IDeviceBuffer>					   stagingBuffer	  = CreateStagingBuffer(totalBytes, true, device);
+		DeviceBufferD3D12					  *sourceBufferD3D12  = dynamic_cast<DeviceBufferD3D12 *>(command.BufferTextureCopy.BufferHandle);
+		Ref<DeviceBufferD3D12>				   stagingBufferD3D12 = std::dynamic_pointer_cast<DeviceBufferD3D12>(stagingBuffer);
+		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle		  = stagingBufferD3D12->GetHandle();
 
 		uint8_t *sourceData	 = sourceBufferD3D12->Map();
 		uint8_t *stagingData = stagingBuffer->Map();
@@ -523,8 +532,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		Ref<DeviceBufferD3D12> buffer  = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.TextureBufferCopy.BufferHandle);
-		Ref<TextureD3D12>	   texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
+		DeviceBufferD3D12 *buffer  = dynamic_cast<DeviceBufferD3D12 *>(command.TextureBufferCopy.BufferHandle);
+		Ref<TextureD3D12>  texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 

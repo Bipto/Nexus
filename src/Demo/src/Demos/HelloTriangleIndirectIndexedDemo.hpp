@@ -108,7 +108,7 @@ namespace Demos
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			Nexus::Graphics::DrawIndirectIndexedDescription drawDesc = {};
-			drawDesc.IndirectBuffer									 = m_IndirectBuffer;
+			drawDesc.IndirectBuffer									 = m_IndirectBuffer.get();
 			drawDesc.Offset											 = 0;
 			drawDesc.DrawCount										 = 1;
 			drawDesc.Stride											 = m_IndirectBuffer->GetStrideInBytes();

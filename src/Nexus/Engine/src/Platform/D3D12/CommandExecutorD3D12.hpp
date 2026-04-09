@@ -23,12 +23,12 @@ namespace Nexus::Graphics
 
 	struct D3D12ReadbackBufferCopyOperation
 	{
-		Ref<DeviceBufferD3D12> ReadbackBuffer	   = nullptr;
-		Ref<DeviceBufferD3D12> TargetBuffer		   = nullptr;
-		uint32_t			   Height			   = 0;
-		uint32_t			   SourceRowPitch	   = 0;
-		uint32_t			   DestinationRowPitch = 0;
-		uint32_t			   NumRows			   = 0;
+		DeviceBufferD3D12 *ReadbackBuffer	   = nullptr;
+		DeviceBufferD3D12 *TargetBuffer		   = nullptr;
+		uint32_t		   Height			   = 0;
+		uint32_t		   SourceRowPitch	   = 0;
+		uint32_t		   DestinationRowPitch = 0;
+		uint32_t		   NumRows			   = 0;
 	};
 
 	class CommandExecutorD3D12 : public CommandExecutor

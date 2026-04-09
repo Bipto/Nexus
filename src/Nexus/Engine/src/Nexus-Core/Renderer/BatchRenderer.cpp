@@ -485,8 +485,8 @@ namespace Nexus::Graphics
 		m_UniformUploadBuffer->SetData(&camera, 0, sizeof(camera));
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = m_UniformUploadBuffer;
-		bufferCopy.Destination							  = m_UniformBuffer;
+		bufferCopy.Source								  = m_UniformUploadBuffer.get();
+		bufferCopy.Destination							  = m_UniformBuffer.get();
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeof(camera)}};
 
 		if (m_UniformUploadBuffer && m_UniformBuffer)
@@ -1222,8 +1222,8 @@ namespace Nexus::Graphics
 		// upload vertex data
 		{
 			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.VertexUploadBuffer;
-			bufferCopy.Destination			 = info.VertexBuffer;
+			bufferCopy.Source				 = info.VertexUploadBuffer.get();
+			bufferCopy.Destination			 = info.VertexBuffer.get();
 			bufferCopy.Copies				 = {{.ReadOffset = 0, .WriteOffset = 0, .Size = info.Vertices.size() * sizeof(info.Vertices[0])}};
 
 			m_CommandList->CopyBufferToBuffer(bufferCopy);
@@ -1233,8 +1233,8 @@ namespace Nexus::Graphics
 		// upload index data
 		{
 			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.IndexUploadBuffer;
-			bufferCopy.Destination			 = info.IndexBuffer;
+			bufferCopy.Source				 = info.IndexUploadBuffer.get();
+			bufferCopy.Destination			 = info.IndexBuffer.get();
 			bufferCopy.Copies				 = {{.ReadOffset = 0, .WriteOffset = 0, .Size = info.Indices.size() * sizeof(info.Indices[0])}};
 
 			m_CommandList->CopyBufferToBuffer(bufferCopy);

@@ -58,10 +58,10 @@ namespace Nexus::Graphics
 	struct BufferCopyDescription
 	{
 		/// @brief A pointer to the buffer to be used as a source
-		Ref<IDeviceBuffer> Source = nullptr;
+		IDeviceBuffer *Source = nullptr;
 
 		/// @brief A pointer to the buffer to be used as the destination
-		Ref<IDeviceBuffer> Destination = nullptr;
+		IDeviceBuffer *Destination = nullptr;
 
 		/// @brief A vector of BufferCopy objects representing the areas of the buffers to be copied
 		std::vector<BufferCopy> Copies = {};
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 	struct BufferTextureCopyDescription
 	{
 		/// @brief A pointer to the buffer to use in the copy operation
-		Ref<IDeviceBuffer> BufferHandle = nullptr;
+		IDeviceBuffer *BufferHandle = nullptr;
 
 		/// @brief An integer representing the offset to read to/write from in the buffer
 		uint64_t BufferOffset = 0;
@@ -253,7 +253,7 @@ namespace Nexus::Graphics
 	struct DrawIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use for the draw call
-		Ref<IDeviceBuffer> IndirectBuffer = nullptr;
+		IDeviceBuffer *IndirectBuffer = nullptr;
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -269,7 +269,7 @@ namespace Nexus::Graphics
 	struct DrawIndirectIndexedDescription
 	{
 		/// @brief A pointer to the indirect buffer to use for the draw call
-		Ref<IDeviceBuffer> IndirectBuffer = nullptr;
+		IDeviceBuffer *IndirectBuffer = nullptr;
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -298,7 +298,7 @@ namespace Nexus::Graphics
 	struct DispatchIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use
-		Ref<IDeviceBuffer> IndirectBuffer = {};
+		IDeviceBuffer *IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -324,7 +324,7 @@ namespace Nexus::Graphics
 	struct DrawMeshIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use
-		Ref<IDeviceBuffer> IndirectBuffer = {};
+		IDeviceBuffer *IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -385,14 +385,14 @@ namespace Nexus::Graphics
 	struct StartTimingQueryCommand
 	{
 		/// @brief A pointer to the timing query to start
-		Ref<ITimingQuery> Query = {};
+		ITimingQuery *Query = nullptr;
 	};
 
 	/// @brief A structure representing a command to stop a timing query
 	struct StopTimingQueryCommand
 	{
 		/// @brief A pointer to the timing query to stop
-		Ref<ITimingQuery> Query = {};
+		ITimingQuery *Query = nullptr;
 	};
 
 	struct CopyBufferToBufferCommand
@@ -760,21 +760,21 @@ namespace Nexus::Graphics
 	class StartTimingQueryCommandImpl : public IGraphicsCommand
 	{
 	  public:
-		StartTimingQueryCommandImpl(Ref<ITimingQuery> query);
+		StartTimingQueryCommandImpl(ITimingQuery *query);
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		Ref<ITimingQuery> m_Query = nullptr;
+		ITimingQuery *m_Query = nullptr;
 	};
 
 	class EndTimingQueryCommandImpl : public IGraphicsCommand
 	{
 	  public:
-		EndTimingQueryCommandImpl(Ref<ITimingQuery> query);
+		EndTimingQueryCommandImpl(ITimingQuery *query);
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		Ref<ITimingQuery> m_Query = nullptr;
+		ITimingQuery *m_Query = nullptr;
 	};
 
 	class CopyBufferToBufferCommandImpl : public IGraphicsCommand
@@ -1009,9 +1009,9 @@ namespace Nexus::Graphics
 
 		void ResolveFramebuffer(const ResolveTextureDescription &desc);
 
-		void StartTimingQuery(Ref<ITimingQuery> query);
+		void StartTimingQuery(ITimingQuery *query);
 
-		void StopTimingQuery(Ref<ITimingQuery> query);
+		void StopTimingQuery(ITimingQuery *query);
 
 		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 

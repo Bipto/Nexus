@@ -91,7 +91,7 @@ namespace Demos
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Nexus::Graphics::DrawIndirectDescription drawDesc = {};
-			drawDesc.IndirectBuffer							  = m_IndirectBuffer;
+			drawDesc.IndirectBuffer							  = m_IndirectBuffer.get();
 			drawDesc.Offset									  = 0;
 			drawDesc.DrawCount								  = 1;
 			drawDesc.Stride									  = m_IndirectBuffer->GetStrideInBytes();

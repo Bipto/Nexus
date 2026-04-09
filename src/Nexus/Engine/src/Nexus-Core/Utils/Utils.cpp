@@ -323,8 +323,8 @@ namespace Nexus::Utils
 		Ref<Graphics::IDeviceBuffer> vertexBuffer			= Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = uploadBuffer;
-		bufferCopy.Destination							  = vertexBuffer;
+		bufferCopy.Source								  = uploadBuffer.get();
+		bufferCopy.Destination							  = vertexBuffer.get();
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
@@ -353,8 +353,8 @@ namespace Nexus::Utils
 		Ref<Graphics::IDeviceBuffer> indexBuffer			= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = uploadBuffer;
-		bufferCopy.Destination							  = indexBuffer;
+		bufferCopy.Source								  = uploadBuffer.get();
+		bufferCopy.Destination							  = indexBuffer.get();
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
@@ -383,8 +383,8 @@ namespace Nexus::Utils
 		Ref<Graphics::IDeviceBuffer> uniformBuffer			= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = uploadBuffer;
-		bufferCopy.Destination							  = uniformBuffer;
+		bufferCopy.Source								  = uploadBuffer.get();
+		bufferCopy.Destination							  = uniformBuffer.get();
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();

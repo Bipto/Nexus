@@ -90,7 +90,7 @@ namespace Demos
 			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::DispatchIndirectDescription dispatchDesc = {};
-			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer;
+			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer.get();
 			dispatchDesc.Offset										  = 0;
 			dispatchDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DispatchIndirect(dispatchDesc);

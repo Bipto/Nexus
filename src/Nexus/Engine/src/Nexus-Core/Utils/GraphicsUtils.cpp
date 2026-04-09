@@ -29,8 +29,8 @@ namespace
 			if (cache.Validate(hash))
 			{
 				const Nexus::Graphics::ShaderModuleDescription &shaderSpec = cache.GetShaderModuleDescription();
-				module														 = device->CreateShaderModule(shaderSpec);
-				shaderCreated												 = true;
+				module													   = device->CreateShaderModule(shaderSpec);
+				shaderCreated											   = true;
 			}
 		}
 
@@ -310,7 +310,7 @@ namespace Nexus::Utils
 		cmdList->Begin();
 
 		Graphics::BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle							= buffer;
+		copyDesc.BufferHandle							= buffer.get();
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
@@ -350,7 +350,7 @@ namespace Nexus::Utils
 		cmdList->Begin();
 
 		Graphics::BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle							= buffer;
+		copyDesc.BufferHandle							= buffer.get();
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
@@ -385,8 +385,8 @@ namespace Nexus::Utils
 		bufferCopy.WriteOffset			= offset;
 
 		Graphics::BufferCopyDescription bufferCopyDesc = {};
-		bufferCopyDesc.Source						   = uploadBuffer;
-		bufferCopyDesc.Destination					   = buffer;
+		bufferCopyDesc.Source						   = uploadBuffer.get();
+		bufferCopyDesc.Destination					   = buffer.get();
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
 		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
@@ -416,8 +416,8 @@ namespace Nexus::Utils
 		bufferCopy.WriteOffset			= 0;
 
 		Graphics::BufferCopyDescription bufferCopyDesc = {};
-		bufferCopyDesc.Source						   = buffer;
-		bufferCopyDesc.Destination					   = readbackBuffer;
+		bufferCopyDesc.Source						   = buffer.get();
+		bufferCopyDesc.Destination					   = readbackBuffer.get();
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
 		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();

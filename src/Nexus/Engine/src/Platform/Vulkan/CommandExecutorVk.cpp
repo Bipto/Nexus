@@ -225,12 +225,13 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		{
+			BindGraphicsPipeline();
 
-		BindGraphicsPipeline();
-
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-		context.CmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
+			context.CmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const DrawIndirectIndexedDescription &command, IGraphicsDevice *device)
@@ -243,12 +244,13 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		{
+			BindGraphicsPipeline();
 
-		BindGraphicsPipeline();
-
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-		context.CmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
+			context.CmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const DispatchDescription &command, IGraphicsDevice *device)
@@ -275,10 +277,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<IDeviceBuffer> buffer = command.IndirectBuffer)
+		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
 		{
-			Ref<DeviceBufferVk>		 indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
-			const GladVulkanContext &context		= m_Device->GetVulkanContext();
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
 		}
 	}
@@ -313,15 +314,20 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
-
-		BindGraphicsPipeline();
-
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-
-		if (context.CmdDrawMeshTasksIndirectEXT)
+		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
 		{
-			context.CmdDrawMeshTasksIndirectEXT(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
+			BindGraphicsPipeline();
+
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+			if (context.CmdDrawMeshTasksIndirectEXT)
+			{
+				context.CmdDrawMeshTasksIndirectEXT(m_CommandBuffer,
+													indirectBuffer->GetVkBuffer(),
+													command.Offset,
+													command.DrawCount,
+													command.Stride);
+			}
 		}
 	}
 
@@ -584,28 +590,37 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
-		Ref<TimingQueryVk>		 queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		context.CmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
-		context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
+		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(command.Query))
+		{
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
+			context.CmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
+			context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
-		Ref<TimingQueryVk>		 queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
+		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(command.Query))
+		{
+			const GladVulkanContext &context = m_Device->GetVulkanContext();
+			context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 
-		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);
-		Ref<DeviceBufferVk> dst = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Destination);
+		DeviceBufferVk *src = dynamic_cast<DeviceBufferVk *>(command.BufferCopy.Source);
+		DeviceBufferVk *dst = dynamic_cast<DeviceBufferVk *>(command.BufferCopy.Destination);
+
+		if (!src || !dst)
+		{
+			return;
+		}
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -654,11 +669,16 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
-		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferTextureCopy.BufferHandle);
+		DeviceBufferVk		 *buffer	  = dynamic_cast<DeviceBufferVk *>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.BufferTextureCopy.TextureHandle);
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
-		const bool copyDepth = 1;
+		if (!buffer)
+		{
+			return;
+		}
+
+		const uint32_t copyDepth = 1;
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
@@ -740,8 +760,14 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
-		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.TextureBufferCopy.BufferHandle);
+		GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
+		DeviceBufferVk	 *buffer   = dynamic_cast<DeviceBufferVk *>(command.TextureBufferCopy.BufferHandle);
+
+		if (!buffer)
+		{
+			return;
+		}
+
 		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.TextureBufferCopy.TextureHandle);
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
