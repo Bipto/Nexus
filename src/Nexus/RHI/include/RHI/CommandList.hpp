@@ -564,6 +564,7 @@ namespace Nexus::Graphics
 	class IGraphicsCommand
 	{
 	  public:
+		virtual ~IGraphicsCommand()													   = default;
 		virtual void Execute(CommandExecutor *executor, IGraphicsDevice *device) const = 0;
 	};
 
@@ -571,6 +572,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetVertexBufferCommandImpl(const SetVertexBufferCommand &command);
+		~SetVertexBufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -581,6 +583,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetIndexBufferCommandImpl(const IndexBufferView &view);
+		~SetIndexBufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -591,6 +594,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetPipelineCommandImpl(Ref<Pipeline> pipeline);
+		~SetPipelineCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -601,6 +605,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DrawCommandImpl(const DrawDescription &desc);
+		~DrawCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -611,6 +616,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DrawIndexedCommandImpl(const DrawIndexedDescription &desc);
+		~DrawIndexedCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -621,6 +627,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DrawIndirectCommandImpl(const DrawIndirectDescription &desc);
+		~DrawIndirectCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -631,6 +638,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DrawIndexedIndirectCommandImpl(const DrawIndirectIndexedDescription &desc);
+		~DrawIndexedIndirectCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -641,6 +649,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DrawMeshCommandImpl(const DrawMeshDescription &desc);
+		~DrawMeshCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -651,6 +660,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DrawMeshIndirectCommandImpl(const DrawMeshIndirectDescription &desc);
+		~DrawMeshIndirectCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -661,6 +671,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DispatchCommandImpl(const DispatchDescription &desc);
+		~DispatchCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -671,6 +682,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		DispatchIndirectCommandImpl(const DispatchIndirectDescription &desc);
+		~DispatchIndirectCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -681,6 +693,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		TraceRaysCommandImpl(const TraceRaysDescription &desc);
+		~TraceRaysCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -691,6 +704,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetResourceSetCommandImpl(const ResourceSetBindingDescription &desc);
+		~SetResourceSetCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -701,6 +715,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ClearColourTargetCommandImpl(const ClearColorTargetCommand &desc);
+		~ClearColourTargetCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -711,6 +726,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ClearDepthStencilTargetCommandImpl(const ClearDepthStencilTargetCommand &desc);
+		~ClearDepthStencilTargetCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -721,6 +737,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer);
+		~SetFramebufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -731,6 +748,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetViewportCommandImpl(const Viewport &viewport);
+		~SetViewportCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -741,6 +759,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetScissorCommandImpl(const Scissor &scissor);
+		~SetScissorCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -751,6 +770,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ResolveFramebufferCommandImpl(const ResolveTextureDescription &desc);
+		~ResolveFramebufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -761,6 +781,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		StartTimingQueryCommandImpl(ITimingQuery *query);
+		~StartTimingQueryCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -771,6 +792,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		EndTimingQueryCommandImpl(ITimingQuery *query);
+		~EndTimingQueryCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -781,6 +803,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyBufferToBufferCommandImpl(const BufferCopyDescription &desc);
+		~CopyBufferToBufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -791,6 +814,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyBufferToTextureCommandImpl(const BufferTextureCopyDescription &desc);
+		~CopyBufferToTextureCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -801,6 +825,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyTextureToBufferCommandImpl(const BufferTextureCopyDescription &desc);
+		~CopyTextureToBufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -811,6 +836,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyTextureToTextureCommandImpl(const TextureCopyDescription &desc);
+		~CopyTextureToTextureCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -821,6 +847,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		BeginDebugGroupCommandImpl(const std::string &name);
+		~BeginDebugGroupCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -830,6 +857,7 @@ namespace Nexus::Graphics
 	class EndDebugGroupCommandImpl : public IGraphicsCommand
 	{
 	  public:
+		~EndDebugGroupCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 	};
 
@@ -837,6 +865,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		InsertDebugMarkerCommandImpl(const std::string &name);
+		~InsertDebugMarkerCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -847,6 +876,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetBlendFactorCommandImpl(const BlendFactorDesc &desc);
+		~SetBlendFactorCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -857,6 +887,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SetStencilReferenceCommandImpl(uint32_t stencilReference);
+		~SetStencilReferenceCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -867,6 +898,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		BuildAccelerationStructuresCommandImpl(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
+		~BuildAccelerationStructuresCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -877,6 +909,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyAccelerationStructuresCommandImpl(const AccelerationStructureCopyDescription &description);
+		~CopyAccelerationStructuresCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -887,6 +920,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyAccelerationStructureToDeviceBufferCommandImpl(const AccelerationStructureDeviceBufferCopyDescription &description);
+		~CopyAccelerationStructureToDeviceBufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -897,6 +931,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		CopyDeviceBufferToAccelerationStructureCommandImpl(const DeviceBufferAccelerationStructureCopyDescription &description);
+		~CopyDeviceBufferToAccelerationStructureCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -907,6 +942,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		PushConstantsCommandImpl(const PushConstantsDesc &description);
+		~PushConstantsCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -917,6 +953,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		SubmitBarriersCommandImpl(const BarrierGroupDescription &description);
+		~SubmitBarriersCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
@@ -927,6 +964,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		EndRenderingCommandImpl(const EndRenderingCommand &command);
+		~EndRenderingCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
