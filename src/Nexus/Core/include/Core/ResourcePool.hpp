@@ -159,26 +159,26 @@ namespace Nexus
 		/// @brief A method that creates a shared handle from an existing resource
 		/// @param resource The resource that should be entered into the resource pool
 		/// @return A shared handle to the resource
-		Shared CreateShared(const T &resource);
+		SharedHandle<T, Handle> CreateShared(const T &resource);
 
 		/// @brief A method that creates a shared handle inline from forwarded arguments
 		/// @tparam ...Args The types of the variables passed into the constructor
 		/// @param ...args The values of the variables passed into the constructor
 		/// @return A shared handle to the resource
 		template<typename... Args>
-		Shared EmplaceShared(Args &&...args);
+		SharedHandle<T, Handle> EmplaceShared(Args &&...args);
 
 		/// @brief A method that creates a unique handle from an existing resource
 		/// @param resource The resource that should be entered into the resource pool
 		/// @return A unique handle to the resource
-		Unique CreateUnique(const T &resource);
+		UniqueHandle<T, Handle> CreateUnique(const T &resource);
 
 		/// @brief A method that creates a unique handle inline from forwarded arguments
 		/// @tparam ...Args The types of the variables passed into the constructor
 		/// @param ...args The values of the variables passed into the constructor
 		/// @return A unique handle to the resource
 		template<typename... Args>
-		Unique EmplaceUnique(Args &&...args);
+		UniqueHandle<T, Handle> EmplaceUnique(Args &&...args);
 
 		/// @brief A method that retrieves a pointer to the resource from within the resource pool
 		/// @param handle The handle of the resource to be retrieved

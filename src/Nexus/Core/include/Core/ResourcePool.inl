@@ -168,34 +168,33 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
-	template<typename... Args>
-	Shared ResourcePool<T, Handle>::CreateShared(const T &resource)
+	SharedHandle<T, Handle> ResourcePool<T, Handle>::CreateShared(const T &resource)
 	{
 		Handle h = Create(resource);
-		return Shared(this, h);
+		return SharedHandle<T, Handle>(this, h);
 	}
 
 	template<typename T, typename Handle>
 	template<typename... Args>
-	Shared ResourcePool<T, Handle>::EmplaceShared(Args &&...args)
+	SharedHandle<T, Handle> ResourcePool<T, Handle>::EmplaceShared(Args &&...args)
 	{
 		Handle h = Emplace(std::forward<Args>(args)...);
-		return Shared(this, h);
+		return SharedHandle<T, Handle>(this, h);
 	}
 
 	template<typename T, typename Handle>
-	Unique ResourcePool<T, Handle>::CreateUnique(const T &resource)
+	UniqueHandle<T, Handle> ResourcePool<T, Handle>::CreateUnique(const T &resource)
 	{
 		Handle h = Create(resource);
-		return Unique(this, h);
+		return UniqueHandle<T, Handle>(this, h);
 	}
 
 	template<typename T, typename Handle>
 	template<typename... Args>
-	Unique ResourcePool<T, Handle>::EmplaceUnique(Args &&...args)
+	UniqueHandle<T, Handle> ResourcePool<T, Handle>::EmplaceUnique(Args &&...args)
 	{
 		Handle h = Emplace(std::forward<Args>(args)...);
-		return Unique(this, h);
+		return UniqueHandle<T, Handle>(this, h);
 	}
 
 	template<typename T, typename Handle>
