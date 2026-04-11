@@ -10,6 +10,8 @@ namespace Nexus
 	struct HandleT
 	{
 	  public:
+		/// @brief A default constructor to initialise an empty object
+		HandleT() = default;
 		/// @brief The constructor of a resource handle
 		/// @param index The index of the resource in a resource pool
 		/// @param generation The generation of the resource in the pool (slots can be reused multiple times)
