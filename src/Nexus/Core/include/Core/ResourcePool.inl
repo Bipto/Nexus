@@ -6,6 +6,104 @@
 namespace Nexus
 {
 	template<typename T, typename Handle>
+	SharedHandle<T, Handle>::SharedHandle(ResourcePool<T, Handle> *pool, Handle handle)
+		: m_Pool(pool),
+		  m_Handle(handle),
+		  m_Control(std::shared_ptr<void>(nullptr, [pool, handle](void *) { pool->Destroy(handle); }))
+	{
+	}
+
+	template<typename T, typename Handle>
+	T *SharedHandle<T, Handle>::operator->()
+	{
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	T &SharedHandle<T, Handle>::operator*()
+	{
+		return *m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	bool SharedHandle<T, Handle>::Valid() const
+	{
+		return m_Pool && m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	Handle SharedHandle<T, Handle>::Raw() const
+	{
+		return m_Handle;
+	}
+
+	template<typename T, typename Handle>
+	UniqueHandle<T, Handle>::UniqueHandle(ResourcePool<T, Handle> *pool, Handle handle) : m_Pool(pool),
+																						  m_Handle(handle)
+	{
+	}
+
+	template<typename T, typename Handle>
+	UniqueHandle<T, Handle>::UniqueHandle(UniqueHandle &&other) noexcept : m_Pool(other.m_Pool),
+																		   m_Handle(other.m_Handle)
+	{
+		other.m_Pool = nullptr;
+	}
+
+	template<typename T, typename Handle>
+	UniqueHandle<T, Handle> &UniqueHandle<T, Handle>::operator=(UniqueHandle &&other) noexcept
+	{
+		if (this != &other)
+		{
+			Reset();
+			m_Pool		 = other.m_Pool;
+			m_Handle	 = other.m_Handle;
+			other.m_Pool = nullptr;
+		}
+		return *this;
+	}
+
+	template<typename T, typename Handle>
+	UniqueHandle<T, Handle>::~UniqueHandle()
+	{
+		Reset();
+	}
+
+	template<typename T, typename Handle>
+	void UniqueHandle<T, Handle>::Reset()
+	{
+		if (m_Pool)
+		{
+			m_Pool->Destroy(m_Handle);
+			m_Pool = nullptr;
+		}
+	}
+
+	template<typename T, typename Handle>
+	T *UniqueHandle<T, Handle>::operator->()
+	{
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	T &UniqueHandle<T, Handle>::operator*()
+	{
+		return *m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	bool UniqueHandle<T, Handle>::Valid() const
+	{
+		return m_Pool && m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	Handle UniqueHandle<T, Handle>::Raw() const
+	{
+		return m_Handle;
+	}
+
+	template<typename T, typename Handle>
 	Handle ResourcePool<T, Handle>::Create(const T &resource)
 	{
 		uint32_t index;
@@ -67,6 +165,37 @@ namespace Nexus
 		entry.alive = false;
 		entry.generation++;
 		m_FreeList.push_back(index);
+	}
+
+	template<typename T, typename Handle>
+	template<typename... Args>
+	Shared ResourcePool<T, Handle>::CreateShared(const T &resource)
+	{
+		Handle h = Create(resource);
+		return Shared(this, h);
+	}
+
+	template<typename T, typename Handle>
+	template<typename... Args>
+	Shared ResourcePool<T, Handle>::EmplaceShared(Args &&...args)
+	{
+		Handle h = Emplace(std::forward<Args>(args)...);
+		return Shared(this, h);
+	}
+
+	template<typename T, typename Handle>
+	Unique ResourcePool<T, Handle>::CreateUnique(const T &resource)
+	{
+		Handle h = Create(resource);
+		return Unique(this, h);
+	}
+
+	template<typename T, typename Handle>
+	template<typename... Args>
+	Unique ResourcePool<T, Handle>::EmplaceUnique(Args &&...args)
+	{
+		Handle h = Emplace(std::forward<Args>(args)...);
+		return Unique(this, h);
 	}
 
 	template<typename T, typename Handle>

@@ -5,12 +5,127 @@
 
 namespace Nexus
 {
+	template<typename T, typename Handle>
+	class ResourcePool;
+
+	/// @brief A class representing a handle into a ResourcePool that can be owned by multiple objects
+	/// @tparam T The resource that is pointed to by the handle
+	/// @tparam Handle The handle that references the resource
+	template<typename T, typename Handle>
+	class SharedHandle
+	{
+	  public:
+		/// @brief A default constructor to create an empty shared handle
+		SharedHandle() = default;
+
+		/// @brief A constructor creating a shared handle from a resource pool and a resource handle
+		/// @param pool A pointer to the resource pool that the handle was created from
+		/// @param handle A handle to the resource within the pool
+		SharedHandle(ResourcePool<T, Handle> *pool, Handle handle);
+
+		/// @brief An operator allowing access to the resource as a pointer
+		/// @return A pointer to the resource
+		T *operator->();
+
+		/// @brief An operator allowing de-referencing the resource
+		/// @return A reference to the resource
+		T &operator*();
+
+		/// @brief A function that checks whether the handle is still valid within the pool
+		/// @return A boolean indicating that the resource is still alive
+		bool Valid() const;
+
+		/// @brief A function that returns the raw handle
+		/// @return The raw handle referencing the resource
+		Handle Raw() const;
+
+	  private:
+		/// @brief The resource pool containing the resource
+		ResourcePool<T, Handle> *m_Pool = nullptr;
+
+		/// @brief A handle referencing the resource
+		Handle m_Handle {};
+
+		/// @brief A shared pointer acting as the control block for the resource
+		std::shared_ptr<void> m_Control {};
+	};
+
+	/// @brief
+	/// @tparam T
+	/// @tparam Handle
+	template<typename T, typename Handle>
+	class UniqueHandle
+	{
+		/// @brief
+	  public:
+		UniqueHandle() = default;
+
+		/// @brief
+		/// @param pool
+		/// @param handle
+		UniqueHandle(ResourcePool<T, Handle> *pool, Handle handle);
+
+		// Move constructor
+
+		/// @brief A move constructor allowing moving ownership of a resource to another owner
+		/// @param other The resource that should be moved into this resource
+		UniqueHandle(UniqueHandle &&other) noexcept;
+
+		// Move assignment A move assignment operator allowing this resource to take ownership of another UniqueHandle
+		UniqueHandle &operator=(UniqueHandle &&other) noexcept;
+
+		/// @brief A deleted copy constructor
+		/// @param The resource to copy
+		UniqueHandle(const UniqueHandle &) = delete;
+
+		/// @brief A deleted copy assignment operator
+		/// @param The resource to copy
+		/// @return A reference to the resource that has been assigned to
+		UniqueHandle &operator=(const UniqueHandle &) = delete;
+
+		/// @brief A destructor to clean up any resources
+		~UniqueHandle();
+
+		/// @brief A function that resets the contained resources
+		void Reset();
+
+		/// @brief An operator allowing access to the resource as a pointer
+		/// @return A pointer to the underlying resource
+		T *operator->();
+
+		/// @brief An operator allowing de-referencing the resource
+		/// @return A reference to the underlying object
+		T &operator*();
+
+		/// @brief A function allowing checking whether the underlying resource is still valid within the pool
+		/// @return A boolean indicating whether the resource is still alive
+		bool Valid() const;
+
+		/// @brief A function that returns the raw resource handle
+		/// @return The resource handle referencing the underlying resource
+		Handle Raw() const;
+
+	  private:
+		/// @brief The resource pool that contains the resource
+		ResourcePool<T, Handle> *m_Pool = nullptr;
+
+		/// @brief A handle referencing the underlying resource
+		Handle m_Handle {};
+	};
+
 	/// @brief A class representing a collection of resources, identified by handles
 	/// @tparam T A template parameter of the resource to store in the pool
 	/// @tparam Handle A template type of a handle type to identify the resource
 	template<typename T, typename Handle>
 	class ResourcePool
 	{
+	  public:
+		/// @brief A using statement to simplify creating a unique handle
+		using Unique = UniqueHandle<T, Handle>;
+
+		/// @brief A using statement to simplify creating a shared handle
+		using Shared = SharedHandle<T, Handle>;
+
 	  public:
 		/// @brief A structure representing a stored resource within the pool
 		struct Entry
@@ -40,6 +155,30 @@ namespace Nexus
 		/// @brief A method that releases an object from within the resource pool
 		/// @param handle The handle of the resource to be freed
 		void Destroy(Handle handle);
+
+		/// @brief A method that creates a shared handle from an existing resource
+		/// @param resource The resource that should be entered into the resource pool
+		/// @return A shared handle to the resource
+		Shared CreateShared(const T &resource);
+
+		/// @brief A method that creates a shared handle inline from forwarded arguments
+		/// @tparam ...Args The types of the variables passed into the constructor
+		/// @param ...args The values of the variables passed into the constructor
+		/// @return A shared handle to the resource
+		template<typename... Args>
+		Shared EmplaceShared(Args &&...args);
+
+		/// @brief A method that creates a unique handle from an existing resource
+		/// @param resource The resource that should be entered into the resource pool
+		/// @return A unique handle to the resource
+		Unique CreateUnique(const T &resource);
+
+		/// @brief A method that creates a unique handle inline from forwarded arguments
+		/// @tparam ...Args The types of the variables passed into the constructor
+		/// @param ...args The values of the variables passed into the constructor
+		/// @return A unique handle to the resource
+		template<typename... Args>
+		Unique EmplaceUnique(Args &&...args);
 
 		/// @brief A method that retrieves a pointer to the resource from within the resource pool
 		/// @param handle The handle of the resource to be retrieved
