@@ -129,3 +129,191 @@ TEST(ResourcePool, DestroyInvalidHandleDoesNotCrash)
 	TestHandle invalid {0, 0, nullptr};
 	pool.Destroy(invalid);
 }
+
+TEST(ResourcePoolHandles, UniqueHandleDestroysOnScopeExit)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	TestHandle raw {};
+
+	{
+		auto unique = pool.EmplaceUnique(123);
+		ASSERT_TRUE(unique.Valid());
+
+		raw = unique.Raw();
+		EXPECT_NE(pool.Get(raw), nullptr);
+		EXPECT_EQ(pool.Get(raw)->value, 123);
+	}
+
+	// UniqueHandle should have destroyed the resource
+	EXPECT_EQ(pool.Get(raw), nullptr);
+}
+
+TEST(ResourcePoolHandles, UniqueHandleMoveTransfersOwnership)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	auto unique1 = pool.EmplaceUnique(55);
+	ASSERT_TRUE(unique1.Valid());
+
+	TestHandle raw = unique1.Raw();
+
+	auto unique2 = std::move(unique1);
+
+	EXPECT_FALSE(unique1.Valid());
+	EXPECT_TRUE(unique2.Valid());
+	EXPECT_EQ(pool.Get(raw)->value, 55);
+}
+
+TEST(ResourcePoolHandles, UniqueHandleResetExplicitlyDestroysResource)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	auto	   unique = pool.EmplaceUnique(77);
+	TestHandle raw	  = unique.Raw();
+
+	ASSERT_TRUE(unique.Valid());
+	unique.Reset();
+
+	EXPECT_FALSE(unique.Valid());
+	EXPECT_EQ(pool.Get(raw), nullptr);
+}
+
+TEST(ResourcePoolHandles, SharedHandleCopiesShareOwnership)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	auto shared1 = pool.EmplaceShared(10);
+	ASSERT_TRUE(shared1.Valid());
+
+	TestHandle raw = shared1.Raw();
+
+	{
+		auto shared2 = shared1;
+		auto shared3 = shared2;
+
+		EXPECT_TRUE(shared1.Valid());
+		EXPECT_TRUE(shared2.Valid());
+		EXPECT_TRUE(shared3.Valid());
+
+		EXPECT_EQ(pool.Get(raw)->value, 10);
+	}
+
+	// shared1 still alive → resource must still exist
+	EXPECT_NE(pool.Get(raw), nullptr);
+
+	// Now destroy last reference
+	shared1 = {};
+	EXPECT_EQ(pool.Get(raw), nullptr);
+}
+
+TEST(ResourcePoolHandles, SharedHandleLastCopyDestroysResource)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	auto	   shared = pool.EmplaceShared(999);
+	TestHandle raw	  = shared.Raw();
+
+	ASSERT_TRUE(shared.Valid());
+	EXPECT_NE(pool.Get(raw), nullptr);
+
+	shared = {};	// drop last reference
+
+	EXPECT_EQ(pool.Get(raw), nullptr);
+}
+
+TEST(ResourcePoolHandles, SharedAndUniqueAreIndependent)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	auto	   shared	 = pool.EmplaceShared(1);
+	TestHandle sharedRaw = shared.Raw();
+
+	{
+		auto unique = pool.EmplaceUnique(2);
+		ASSERT_TRUE(unique.Valid());
+		EXPECT_EQ(unique->value, 2);
+	}
+
+	// Unique destroyed, shared still alive
+	EXPECT_NE(pool.Get(sharedRaw), nullptr);
+	EXPECT_EQ(shared->value, 1);
+}
+
+TEST(ResourcePoolHandles, SharedHandleDoesNotAccessStaleResource)
+{
+	struct TestResource
+	{
+		int value = 0;
+	};
+	struct TestTag
+	{
+	};
+	using TestHandle = Nexus::HandleT<TestTag>;
+
+	Nexus::ResourcePool<TestResource, TestHandle> pool;
+
+	auto	   shared = pool.EmplaceShared(5);
+	TestHandle raw	  = shared.Raw();
+
+	// Destroy underlying resource manually
+	pool.Destroy(raw);
+
+	// SharedHandle should now be invalid
+	EXPECT_FALSE(shared.Valid());
+	EXPECT_EQ(pool.Get(raw), nullptr);
+}
