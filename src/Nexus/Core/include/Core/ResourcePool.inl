@@ -20,13 +20,25 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
+	const T *SharedHandle<T, Handle>::operator->() const
+	{
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
 	T &SharedHandle<T, Handle>::operator*()
 	{
 		return *m_Pool->Get(m_Handle);
 	}
 
 	template<typename T, typename Handle>
-	bool SharedHandle<T, Handle>::Valid() const
+	const T &SharedHandle<T, Handle>::operator*() const
+	{
+		return *m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	bool SharedHandle<T, Handle>::IsValid() const
 	{
 		return m_Pool && m_Pool->Get(m_Handle);
 	}
@@ -35,6 +47,28 @@ namespace Nexus
 	Handle SharedHandle<T, Handle>::Raw() const
 	{
 		return m_Handle;
+	}
+
+	template<typename T, typename Handle>
+	T *SharedHandle<T, Handle>::GetResource()
+	{
+		if (!m_Pool)
+		{
+			return nullptr;
+		}
+
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	const T *SharedHandle<T, Handle>::GetResource() const
+	{
+		if (!m_Pool)
+		{
+			return nullptr;
+		}
+
+		return m_Pool->Get(m_Handle);
 	}
 
 	template<typename T, typename Handle>
@@ -92,7 +126,7 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
-	bool UniqueHandle<T, Handle>::Valid() const
+	bool UniqueHandle<T, Handle>::IsValid() const
 	{
 		return m_Pool && m_Pool->Get(m_Handle);
 	}
@@ -104,7 +138,29 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
-	Handle ResourcePool<T, Handle>::Create(const T &resource)
+	T *UniqueHandle<T, Handle>::GetResource()
+	{
+		if (!m_Pool)
+		{
+			return nullptr;
+		}
+
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	const T *UniqueHandle<T, Handle>::GetResource() const
+	{
+		if (!m_Pool)
+		{
+			return nullptr;
+		}
+
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	Handle ResourcePool<T, Handle>::Create(std::unique_ptr<T> resource)
 	{
 		uint32_t index;
 
@@ -120,7 +176,7 @@ namespace Nexus
 		}
 
 		Entry &entry   = m_Entries[index];
-		entry.resource = resource;
+		entry.resource = std::move(resource);
 		entry.alive	   = true;
 
 		return Handle(index, entry.generation, this);
@@ -144,7 +200,7 @@ namespace Nexus
 		}
 
 		Entry &e   = m_Entries[index];
-		e.resource = T(std::forward<Args>(args)...);
+		e.resource = std::make_unique<T>(std::forward<Args>(args)...);
 		e.alive	   = true;
 
 		return Handle(index, e.generation, this);
@@ -168,9 +224,9 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
-	SharedHandle<T, Handle> ResourcePool<T, Handle>::CreateShared(const T &resource)
+	SharedHandle<T, Handle> ResourcePool<T, Handle>::CreateShared(std::unique_ptr<T> resource)
 	{
-		Handle h = Create(resource);
+		Handle h = Create(std::move(resource));
 		return SharedHandle<T, Handle>(this, h);
 	}
 
@@ -183,9 +239,9 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
-	UniqueHandle<T, Handle> ResourcePool<T, Handle>::CreateUnique(const T &resource)
+	UniqueHandle<T, Handle> ResourcePool<T, Handle>::CreateUnique(std::unique_ptr<T> resource)
 	{
-		Handle h = Create(resource);
+		Handle h = Create(std::move(resource));
 		return UniqueHandle<T, Handle>(this, h);
 	}
 
@@ -219,6 +275,6 @@ namespace Nexus
 			return nullptr;
 		}
 
-		return &e.resource;
+		return e.resource.get();
 	}
 }	 // namespace Nexus

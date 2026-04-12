@@ -27,17 +27,33 @@ namespace Nexus
 		/// @return A pointer to the resource
 		T *operator->();
 
+		/// @brief An operator allowing access to the resource as a const pointer
+		/// @return A pointer to the resource
+		const T *operator->() const;
+
 		/// @brief An operator allowing de-referencing the resource
 		/// @return A reference to the resource
 		T &operator*();
 
+		/// @brief An operator allowing de-referencing the resource
+		/// @return A reference to the resource
+		const T &operator*() const;
+
 		/// @brief A function that checks whether the handle is still valid within the pool
 		/// @return A boolean indicating that the resource is still alive
-		bool Valid() const;
+		bool IsValid() const;
 
 		/// @brief A function that returns the raw handle
 		/// @return The raw handle referencing the resource
 		Handle Raw() const;
+
+		/// @brief A function that returns the underlying resource
+		/// @return The raw handle to the resource
+		T *GetResource();
+
+		/// @brief A const function that returns the underlying resource
+		/// @return The raw handle to the resource
+		const T *GetResource() const;
 
 	  private:
 		/// @brief The resource pool containing the resource
@@ -93,17 +109,33 @@ namespace Nexus
 		/// @return A pointer to the underlying resource
 		T *operator->();
 
+		/// @brief An operator allowing access to the resource as a const pointer
+		/// @return A pointer to the underlying resource
+		const T *operator->() const;
+
 		/// @brief An operator allowing de-referencing the resource
 		/// @return A reference to the underlying object
 		T &operator*();
 
+		/// @brief An operator allowing de-referencing the resource
+		/// @return A reference to the underlying object
+		const T &operator*() const;
+
 		/// @brief A function allowing checking whether the underlying resource is still valid within the pool
 		/// @return A boolean indicating whether the resource is still alive
-		bool Valid() const;
+		bool IsValid() const;
 
 		/// @brief A function that returns the raw resource handle
 		/// @return The resource handle referencing the underlying resource
 		Handle Raw() const;
+
+		/// @brief A function that returns the underlying resource
+		/// @return The raw handle to the resource
+		T *GetResource();
+
+		/// @brief A const function that returns the underlying resource
+		/// @return The raw handle to the resource
+		const T *GetResource() const;
 
 	  private:
 		/// @brief The resource pool that contains the resource
@@ -131,7 +163,7 @@ namespace Nexus
 		struct Entry
 		{
 			/// @brief A template type of the resource
-			T resource {};
+			std::unique_ptr<T> resource = nullptr;
 
 			/// @brief An integer representing the generation that the resource belongs to
 			uint32_t generation = 0;
@@ -143,7 +175,7 @@ namespace Nexus
 		/// @brief A method that enters an existing resource into the resource pool
 		/// @param resource A reference to the resource to copy into the pool
 		/// @return A handle representing the stored resource
-		Handle Create(const T &resource);
+		Handle Create(std::unique_ptr<T> resource);
 
 		/// @brief A method that constructs a resource in-place within the pool
 		/// @tparam ...Args A template of the function parameter types
@@ -159,7 +191,7 @@ namespace Nexus
 		/// @brief A method that creates a shared handle from an existing resource
 		/// @param resource The resource that should be entered into the resource pool
 		/// @return A shared handle to the resource
-		SharedHandle<T, Handle> CreateShared(const T &resource);
+		SharedHandle<T, Handle> CreateShared(std::unique_ptr<T> resource);
 
 		/// @brief A method that creates a shared handle inline from forwarded arguments
 		/// @tparam ...Args The types of the variables passed into the constructor
@@ -171,7 +203,7 @@ namespace Nexus
 		/// @brief A method that creates a unique handle from an existing resource
 		/// @param resource The resource that should be entered into the resource pool
 		/// @return A unique handle to the resource
-		UniqueHandle<T, Handle> CreateUnique(const T &resource);
+		UniqueHandle<T, Handle> CreateUnique(std::unique_ptr<T> resource);
 
 		/// @brief A method that creates a unique handle inline from forwarded arguments
 		/// @tparam ...Args The types of the variables passed into the constructor
