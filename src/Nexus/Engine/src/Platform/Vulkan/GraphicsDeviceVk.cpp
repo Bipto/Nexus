@@ -114,9 +114,11 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferVk>(desc, this);
 	}
 
-	Ref<ISampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
+	SamplerHandle GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
 	{
-		return CreateRef<SamplerVk>(this, spec);
+		// return CreateRef<SamplerVk>(this, spec);
+		auto sampler = std::make_unique<SamplerVk>(this, spec);
+		return m_SamplerPool.CreateShared(std::move(sampler));
 	}
 
 	Ref<ITimingQuery> GraphicsDeviceVk::CreateTimingQuery()

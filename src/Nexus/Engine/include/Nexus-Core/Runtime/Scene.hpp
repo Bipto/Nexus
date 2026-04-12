@@ -35,7 +35,7 @@ namespace Nexus
 	{
 		std::string					CubemapPath		   = {};
 		Ref<Graphics::ITextureView> EnvironmentCubemap = nullptr;
-		Ref<Graphics::ISampler>		CubemapSampler	   = nullptr;
+		Graphics::SamplerHandle		CubemapSampler	   = {};
 		glm::vec4					ClearColour		   = {1.0f, 1.0f, 1.0f, 1.0f};
 	};
 

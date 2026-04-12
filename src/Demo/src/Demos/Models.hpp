@@ -314,7 +314,7 @@ namespace Demos
 		VB_UNIFORM_TRANSFORM_DEMO_MODELS		   m_TransformUniforms		= {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ISampler> m_Sampler = nullptr;
+		Nexus::Graphics::SamplerHandle m_Sampler = {};
 
 		Nexus::FirstPersonCamera m_Camera		= {};
 		bool					 m_CameraActive = false;

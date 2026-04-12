@@ -35,7 +35,7 @@ namespace Nexus::ImGuiUtils
 	{
 		Ref<Graphics::ITextureView> m_Texture	  = nullptr;
 		Ref<Graphics::IResourceSet> m_ResourceSet = nullptr;
-		Ref<Graphics::ISampler>		m_Sampler	  = nullptr;
+		Graphics::SamplerHandle		m_Sampler	  = {};
 	};
 
 	class NX_API ImGuiGraphicsRenderer
@@ -92,9 +92,9 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::IShaderModule> m_VertexShader	= nullptr;
 		Nexus::Ref<Nexus::Graphics::IShaderModule> m_FragmentShader = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ISampler> m_Sampler		  = nullptr;
-		uint64_t							  m_TextureID	  = 0;
-		ImTextureID							  m_FontTextureID = 0;
+		Graphics::SamplerHandle m_Sampler		= {};
+		uint64_t				m_TextureID		= 0;
+		ImTextureID				m_FontTextureID = 0;
 
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer	   = nullptr;
 		uint32_t								   m_VertexBufferCount = 0;

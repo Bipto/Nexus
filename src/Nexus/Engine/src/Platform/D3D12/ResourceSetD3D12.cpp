@@ -212,7 +212,7 @@ namespace Nexus::Graphics
 		device->CreateShaderResourceView(resourceHandle.Get(), &srv, cpuHandle);
 	}
 
-	static void CreateSampler(Microsoft::WRL::ComPtr<ID3D12Device9> device, Ref<SamplerD3D12> sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
+	static void CreateSampler(Microsoft::WRL::ComPtr<ID3D12Device9> device, const SamplerD3D12 *sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
 	{
 		const Graphics::SamplerDescription &desc = sampler->GetSamplerDescription();
 
@@ -360,10 +360,10 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size(); arrayIndex++)
 			{
-				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
+				auto combinedImageSampler = combinedImageSamplers[arrayIndex];
 
 				Ref<TextureViewD3D12> textureView = std::dynamic_pointer_cast<TextureViewD3D12>(combinedImageSampler.ImageTexture);
-				Ref<SamplerD3D12>	  sampler	  = std::dynamic_pointer_cast<SamplerD3D12>(combinedImageSampler.ImageSampler);
+				SamplerD3D12		 *sampler	  = dynamic_cast<SamplerD3D12 *>(combinedImageSampler.ImageSampler.GetResource());
 				if (textureView && sampler)
 				{
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
@@ -405,7 +405,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampler = samplers[arrayIndex];
 
-				if (Ref<SamplerD3D12> samplerD3D12 = std::dynamic_pointer_cast<SamplerD3D12>(sampler))
+				if (const SamplerD3D12 *samplerD3D12 = dynamic_cast<const SamplerD3D12 *>(sampler.GetResource()))
 				{
 					D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
 					CreateSampler(device, samplerD3D12, samplerHandle);

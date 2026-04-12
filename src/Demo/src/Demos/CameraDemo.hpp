@@ -294,7 +294,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITexture>		   m_Texture	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_TextureView = nullptr;
-		Nexus::Ref<Nexus::Graphics::ISampler>		   m_Sampler	 = nullptr;
+		Nexus::Graphics::SamplerHandle				   m_Sampler	 = {};
 		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		Nexus::Ref<Nexus::Graphics::IResourceSet> m_ResourceSet = nullptr;

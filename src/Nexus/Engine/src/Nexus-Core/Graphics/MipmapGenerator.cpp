@@ -86,7 +86,7 @@ namespace Nexus::Graphics
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
-			Ref<ISampler> sampler  = m_Device->CreateSampler(samplerSpec);
+			SamplerHandle sampler  = m_Device->CreateSampler(samplerSpec);
 
 			Nexus::Graphics::TextureViewDescription viewDesc = {};
 			viewDesc.TargetTexture							 = texture;

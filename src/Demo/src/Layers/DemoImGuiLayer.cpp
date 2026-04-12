@@ -29,6 +29,8 @@
 #include "../Demos/TimingDemo.hpp"
 #include "../Demos/UniformBufferDemo.hpp"
 
+#include <print>
+
 namespace
 {
 	std::string GraphicsAPIToString(Nexus::Graphics::GraphicsAPI api)
@@ -118,6 +120,11 @@ void DemoImGuiLayer::OnImGuiRenderer()
 		RenderPerformanceInfo();
 		ImGui::End();
 	}
+
+	std::stringstream ss;
+	float			  fps = ImGui::GetIO().Framerate;
+	ss << "Running at " << std::to_string(fps) << " FPS";
+	std::println("{}", ss.str());
 }
 
 void DemoImGuiLayer::SetDemoSelectedCallback(std::function<void(std::shared_ptr<Demos::Demo>)> function)

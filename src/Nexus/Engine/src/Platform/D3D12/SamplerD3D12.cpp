@@ -19,32 +19,32 @@ namespace Nexus::Graphics
 	{
 	}
 
-	const SamplerDescription &SamplerD3D12::GetSamplerDescription()
+	const SamplerDescription &SamplerD3D12::GetSamplerDescription() const
 	{
 		return m_Description;
 	}
 
-	D3D12_FILTER SamplerD3D12::GetFilter()
+	const D3D12_FILTER SamplerD3D12::GetFilter() const
 	{
 		return m_SamplerFilter;
 	}
 
-	D3D12_TEXTURE_ADDRESS_MODE SamplerD3D12::GetAddressModeU()
+	const D3D12_TEXTURE_ADDRESS_MODE SamplerD3D12::GetAddressModeU() const
 	{
 		return m_AddressModeU;
 	}
 
-	D3D12_TEXTURE_ADDRESS_MODE SamplerD3D12::GetAddressModeV()
+	const D3D12_TEXTURE_ADDRESS_MODE SamplerD3D12::GetAddressModeV() const
 	{
 		return m_AddressModeV;
 	}
 
-	D3D12_TEXTURE_ADDRESS_MODE SamplerD3D12::GetAddressModeW()
+	const D3D12_TEXTURE_ADDRESS_MODE SamplerD3D12::GetAddressModeW() const
 	{
 		return m_AddressModeW;
 	}
 
-	D3D12_COMPARISON_FUNC SamplerD3D12::GetComparisonFunc()
+	const D3D12_COMPARISON_FUNC SamplerD3D12::GetComparisonFunc() const
 	{
 		return m_ComparisonFunc;
 	}

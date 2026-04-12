@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 					if (samplers.size() == 1)
 					{
 						int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), name.c_str());
-						m_ImmutableSamplers[location] = std::dynamic_pointer_cast<SamplerOpenGL>(samplers[0]);
+						m_ImmutableSamplers[location] = dynamic_cast<const SamplerOpenGL *>(samplers[0].GetResource());
 					}
 					else
 					{
@@ -131,7 +131,7 @@ namespace Nexus::Graphics
 							ss << name << "[" << std::to_string(i) << "]";
 
 							int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
-							m_ImmutableSamplers[location] = std::dynamic_pointer_cast<SamplerOpenGL>(samplers[i]);
+							m_ImmutableSamplers[location] = dynamic_cast<const SamplerOpenGL *>(samplers[i].GetResource());
 						}
 					}
 				}
@@ -220,8 +220,7 @@ namespace Nexus::Graphics
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
 				Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture);
-				Ref<SamplerOpenGL>	   sampler	   = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler);
-				if (textureView && sampler)
+				if (textureView && combinedImageSampler.ImageSampler.IsValid())
 				{
 					m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
 				}
@@ -249,7 +248,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampler = samplers[arrayIndex];
 
-				if (Ref<SamplerOpenGL> samplerVk = std::dynamic_pointer_cast<SamplerOpenGL>(sampler))
+				if (sampler.IsValid())
 				{
 					m_BoundResources.Samplers[name][arrayIndex] = sampler;
 				}
@@ -461,7 +460,7 @@ namespace Nexus::Graphics
 				int32_t		bindingIndex		 = bindingPoints.at(arrayIndex);
 
 				Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture);
-				Ref<SamplerOpenGL>	   sampler	   = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler);
+				const SamplerOpenGL	  *sampler	   = dynamic_cast<const SamplerOpenGL *>(combinedImageSampler.ImageSampler.GetResource());
 
 				if (textureView && sampler && bindingIndex != -1)
 				{
@@ -497,9 +496,9 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < samplers.size(); arrayIndex++)
 			{
-				const auto		  &sampler		= samplers[arrayIndex];
-				int32_t			   bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<SamplerOpenGL> samplerGL	= std::dynamic_pointer_cast<SamplerOpenGL>(sampler);
+				const auto			&sampler	  = samplers[arrayIndex];
+				int32_t				 bindingIndex = bindingPoints.at(arrayIndex);
+				const SamplerOpenGL *samplerGL	  = dynamic_cast<const SamplerOpenGL *>(sampler.GetResource());
 
 				if (samplerGL && bindingIndex != -1)
 				{

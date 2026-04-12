@@ -1746,11 +1746,11 @@ namespace Nexus::Vk
 					// create immutable samplers if requested
 					if (resourceSetDesc.ImmutableSamplers.contains(descriptor.Name))
 					{
-						const std::vector<Ref<Graphics::ISampler>> &samplers = resourceSetDesc.ImmutableSamplers.at(descriptor.Name);
+						const std::vector<Graphics::SamplerHandle> &samplers = resourceSetDesc.ImmutableSamplers.at(descriptor.Name);
 
 						for (size_t i = 0; i < samplers.size(); i++)
 						{
-							Ref<Graphics::SamplerVk> vkSampler = std::dynamic_pointer_cast<Graphics::SamplerVk>(samplers.at(i));
+							const Graphics::SamplerVk *vkSampler = dynamic_cast<const Graphics::SamplerVk *>(samplers.at(i).GetResource());
 							vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
 						}
 

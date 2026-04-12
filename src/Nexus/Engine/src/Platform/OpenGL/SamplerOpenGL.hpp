@@ -9,15 +9,15 @@ namespace Nexus::Graphics
 {
 	class GraphicsDeviceOpenGL;
 
-	class SamplerOpenGL : public ISampler
+	class SamplerOpenGL final : public ISampler
 	{
 	  public:
 		SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device);
 		virtual ~SamplerOpenGL();
-		virtual const SamplerDescription &GetSamplerDescription() override;
-		unsigned int					  GetHandle() const;
+		const SamplerDescription &GetSamplerDescription() const final;
+		unsigned int			  GetHandle() const;
 
-		void Bind(uint32_t slot);
+		void Bind(uint32_t slot) const;
 
 	  private:
 		void Setup(bool hasMips, const GladGLContext &context) const;

@@ -165,7 +165,7 @@ namespace Nexus::Graphics
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
-		Ref<ISampler> sampler	 = m_Device->CreateSampler(samplerSpec);
+		SamplerHandle sampler	 = m_Device->CreateSampler(samplerSpec);
 
 		Nexus::Graphics::MeshFactory	  factory(m_Device, m_CommandQueue);
 		Nexus::Ref<Nexus::Graphics::Mesh> cube = factory.CreateCube();

@@ -162,7 +162,7 @@ namespace Nexus::Graphics
 		Nexus::Graphics::IGraphicsDevice		 *m_Device		 = nullptr;
 		Ref<Graphics::ICommandQueue>			  m_CommandQueue = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ISampler>	  m_Sampler		 = nullptr;
+		Graphics::SamplerHandle					  m_Sampler		 = {};
 		bool									  m_IsStarted	 = false;
 
 		Nexus::Ref<Nexus::Graphics::ITexture>	   m_BlankTexture		 = nullptr;

@@ -101,9 +101,10 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferD3D12>(desc, this);
 	}
 
-	Ref<ISampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
+	SamplerHandle GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
-		return CreateRef<SamplerD3D12>(spec);
+		auto sampler = std::make_unique<SamplerD3D12>(spec);
+		return m_SamplerPool.CreateShared(std::move(sampler));
 	}
 
 	Ref<ITimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()

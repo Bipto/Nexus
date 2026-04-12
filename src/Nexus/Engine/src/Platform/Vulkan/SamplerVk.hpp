@@ -8,13 +8,13 @@
 
 namespace Nexus::Graphics
 {
-	class SamplerVk : public ISampler
+	class SamplerVk final : public ISampler
 	{
 	  public:
 		SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec);
 		virtual ~SamplerVk();
-		virtual const SamplerDescription &GetSamplerDescription() override;
-		VkSampler						  GetSampler();
+		const SamplerDescription &GetSamplerDescription() const final;
+		const VkSampler			  GetSampler() const;
 
 	  private:
 		SamplerDescription m_Description;

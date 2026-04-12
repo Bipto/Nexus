@@ -45,9 +45,9 @@ namespace Demos
 			auto [width, height] = m_Window->GetWindowSize();
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
-			samplerSpec.MinimumLOD						  = m_SelectedMip;
-			samplerSpec.MaximumLOD						  = m_SelectedMip;
-			Nexus::Ref<Nexus::Graphics::ISampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+			samplerSpec.MinimumLOD				   = m_SelectedMip;
+			samplerSpec.MaximumLOD				   = m_SelectedMip;
+			Nexus::Graphics::SamplerHandle sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
 			Nexus::Graphics::CombinedImageSampler ciSampler = {};
 			ciSampler.ImageTexture							= m_TextureView;

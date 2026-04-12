@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 	struct CombinedImageSampler
 	{
 		Ref<ITextureView> ImageTexture = {};
-		Ref<ISampler>	  ImageSampler = {};
+		SamplerHandle	  ImageSampler = {};
 	};
 
 	enum class ShaderAccess
@@ -85,7 +85,7 @@ namespace Nexus::Graphics
 	struct ResourceSetDescription
 	{
 		std::vector<ResourceDescriptor>					  Descriptors		= {};
-		std::map<std::string, std::vector<Ref<ISampler>>> ImmutableSamplers = {};
+		std::map<std::string, std::vector<SamplerHandle>> ImmutableSamplers = {};
 	};
 
 	using InlineBlock = std::vector<uint8_t>;
@@ -100,7 +100,7 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<StorageImageView>>			StorageImages		   = {};
 		std::map<std::string, std::vector<CombinedImageSampler>>		CombinedImageSamplers  = {};
 		std::map<std::string, std::vector<Ref<ITextureView>>>			SampledImages		   = {};
-		std::map<std::string, std::vector<Ref<ISampler>>>				Samplers			   = {};
+		std::map<std::string, std::vector<Graphics::SamplerHandle>>		Samplers			   = {};
 		std::map<std::string, std::vector<Ref<IAccelerationStructure>>> AccelerationStructures = {};
 		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			UniformTexelBuffers	   = {};
 		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			StorageTexelBuffers	   = {};
@@ -125,7 +125,7 @@ namespace Nexus::Graphics
 		void WriteStorageImage(const StorageImageView &views, const std::string &name);
 		void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSamplers, const std::string &name);
 		void WriteSampledImage(Ref<ITextureView> textureViews, const std::string &name);
-		void WriteSampler(Ref<ISampler> samplers, const std::string &name);
+		void WriteSampler(SamplerHandle sampler, const std::string &name);
 		void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructures, const std::string &name);
 		void WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name);
 		void WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name);
@@ -141,7 +141,7 @@ namespace Nexus::Graphics
 										size_t						startElement,
 										size_t						count);
 		void WriteSampledImages(Ref<ITextureView> *textureViews, const std::string &name, size_t startElement, size_t count);
-		void WriteSamplers(Ref<ISampler> *samplers, const std::string &name, size_t startElement, size_t count);
+		void WriteSamplers(SamplerHandle *samplers, const std::string &name, size_t startElement, size_t count);
 		void WriteAccelerationStructures(Ref<IAccelerationStructure> *accelerationStructures,
 										 const std::string			 &name,
 										 size_t						  startElement,

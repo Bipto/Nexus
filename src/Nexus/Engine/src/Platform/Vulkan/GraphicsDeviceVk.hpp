@@ -40,7 +40,7 @@ namespace Nexus::Graphics
 
 		Ref<IResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
 		Ref<IFramebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
-		Ref<ISampler>				CreateSampler(const SamplerDescription &spec) final;
+		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;
 		Ref<ITimingQuery>			CreateTimingQuery() final;
 		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
@@ -140,6 +140,8 @@ namespace Nexus::Graphics
 		GladVulkanContext m_Context = {};
 
 		GraphicsAPIInfo m_GraphicsAPIInfo = {};
+
+		ResourcePool<ISampler, SamplerID> m_SamplerPool = {};
 
 		friend class SwapchainVk;
 	};

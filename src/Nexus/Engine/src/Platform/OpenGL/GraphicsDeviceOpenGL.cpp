@@ -252,10 +252,11 @@ namespace Nexus::Graphics
 		return CreateRef<FramebufferOpenGL>(desc, this);
 	}
 
-	Ref<ISampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
+	SamplerHandle GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<SamplerOpenGL>(spec, this);
+		auto sampler = std::unique_ptr<ISampler>(new SamplerOpenGL(spec, this));
+		return m_SamplerPool.CreateShared(std::move(sampler));
 	}
 
 	Ref<ITimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()

@@ -346,7 +346,7 @@ namespace Demos
 		VB_UNIFORM_CAMERA_DEMO_INSTANCING		   m_CameraUniforms		 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ISampler> m_Sampler = nullptr;
+		Nexus::Graphics::SamplerHandle m_Sampler = {};
 
 		Nexus::FirstPersonCamera m_Camera		= {};
 		bool					 m_CameraActive = false;

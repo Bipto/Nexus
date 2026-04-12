@@ -28,6 +28,9 @@
 
 #include "RHI/GraphicsAPICreateInfo.hpp"
 
+#include "Core/ResourceHandle.hpp"
+#include "Core/ResourcePool.hpp"
+
 namespace Nexus::Graphics
 {
 	struct AccelerationStructureProperties
@@ -87,7 +90,7 @@ namespace Nexus::Graphics
 		/// specification
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
-		virtual Ref<ISampler> CreateSampler(const SamplerDescription &spec) = 0;
+		virtual SamplerHandle CreateSampler(const SamplerDescription &spec) = 0;
 
 		virtual Ref<IDeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
