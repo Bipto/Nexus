@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <memory>
+
 #include "Core/ResourcePool.hpp"
 
 #include "Core/ResourcePool.hpp"
@@ -18,7 +20,7 @@ TEST(ResourcePool, CreateAndGet)
 
 	Nexus::ResourcePool<TestResource, TestHandle> pool;
 
-	auto  handle = pool.Create(TestResource {42});
+	auto  handle = pool.Create(std::make_unique<TestResource>(42));
 	auto *res	 = pool.Get(handle);
 
 	ASSERT_NE(res, nullptr);
@@ -38,12 +40,12 @@ TEST(ResourcePool, DestroyMakesSlotReusable)
 
 	Nexus::ResourcePool<TestResource, TestHandle> pool;
 
-	auto h1 = pool.Create(TestResource {});
-	auto h2 = pool.Create(TestResource {});
+	auto h1 = pool.Create(std::make_unique<TestResource>());
+	auto h2 = pool.Create(std::make_unique<TestResource>());
 
 	pool.Destroy(h1);
 
-	auto h3 = pool.Create(TestResource {});
+	auto h3 = pool.Create(std::make_unique<TestResource>());
 
 	EXPECT_EQ(h3.GetIndex(), h1.GetIndex());
 	EXPECT_EQ(h3.GetGeneration(), h1.GetGeneration() + 1);
@@ -61,7 +63,7 @@ TEST(ResourcePool, GetReturnsNullForDestroyedHandle)
 
 	Nexus::ResourcePool<TestResource, TestHandle> pool;
 
-	auto handle = pool.Create(TestResource {});
+	auto handle = pool.Create(std::make_unique<TestResource>());
 	pool.Destroy(handle);
 
 	EXPECT_EQ(pool.Get(handle), nullptr);
@@ -79,9 +81,9 @@ TEST(ResourcePool, GetReturnsNullForStaleHandle)
 
 	Nexus::ResourcePool<TestResource, TestHandle> pool;
 
-	auto h1 = pool.Create(TestResource {});
+	auto h1 = pool.Create(std::make_unique<TestResource>());
 	pool.Destroy(h1);
-	auto h2 = pool.Create(TestResource {});
+	auto h2 = pool.Create(std::make_unique<TestResource>());
 
 	// h1 is now stale: same index, older generation
 	EXPECT_NE(h1.GetGeneration(), h2.GetGeneration());
