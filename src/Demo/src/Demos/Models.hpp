@@ -162,7 +162,7 @@ namespace Demos
 				transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
 				resourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 
-				if (mat.DiffuseTexture)
+				if (mat.DiffuseTexture.IsValid())
 				{
 					Nexus::Graphics::CombinedImageSampler ciSampler = {};
 					ciSampler.ImageTexture							= mat.DiffuseTexture;

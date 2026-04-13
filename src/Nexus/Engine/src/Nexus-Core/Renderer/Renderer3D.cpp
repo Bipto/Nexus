@@ -286,7 +286,7 @@ namespace Nexus::Graphics
 
 		const Environment &environment = m_Scene->SceneEnvironment;
 
-		if (m_Cubemap)
+		if (m_Cubemap.IsValid())
 		{
 			m_CommandList->SetPipeline(m_CubemapPipeline);
 
@@ -385,21 +385,21 @@ namespace Nexus::Graphics
 				transformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
 			}
 
-			Nexus::Ref<Nexus::Graphics::ITextureView> diffuseTexture  = m_DefaultTextureView;
-			Nexus::Ref<Nexus::Graphics::ITextureView> normalTexture	  = m_DefaultTextureView;
-			Nexus::Ref<Nexus::Graphics::ITextureView> specularTexture = m_DefaultTextureView;
+			Graphics::TextureViewHandle diffuseTexture	= m_DefaultTextureView;
+			Graphics::TextureViewHandle normalTexture	= m_DefaultTextureView;
+			Graphics::TextureViewHandle specularTexture = m_DefaultTextureView;
 
-			if (mat.DiffuseTexture)
+			if (mat.DiffuseTexture.IsValid())
 			{
 				diffuseTexture = mat.DiffuseTexture;
 			}
 
-			if (mat.NormalTexture)
+			if (mat.NormalTexture.IsValid())
 			{
 				normalTexture = mat.NormalTexture;
 			}
 
-			if (mat.SpecularTexture)
+			if (mat.SpecularTexture.IsValid())
 			{
 				specularTexture = mat.SpecularTexture;
 			}

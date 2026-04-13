@@ -240,9 +240,9 @@ namespace Nexus::Processors
 				}
 			}
 
-			Nexus::Ref<Nexus::Graphics::ITextureView> diffuseTextureView  = nullptr;
-			Nexus::Ref<Nexus::Graphics::ITextureView> normalTextureView	  = nullptr;
-			Nexus::Ref<Nexus::Graphics::ITextureView> specularTextureView = nullptr;
+			Graphics::TextureViewHandle diffuseTextureView	= {};
+			Graphics::TextureViewHandle normalTextureView	= {};
+			Graphics::TextureViewHandle specularTextureView = {};
 
 			if (diffuseTexture)
 			{

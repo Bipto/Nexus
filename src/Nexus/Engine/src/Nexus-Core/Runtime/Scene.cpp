@@ -306,7 +306,7 @@ namespace Nexus
 		if (!scene->SceneEnvironment.CubemapPath.empty() && std::filesystem::exists(scene->SceneEnvironment.CubemapPath))
 		{
 			Graphics::HdriProcessor		processor(scene->SceneEnvironment.CubemapPath, device, commandQueue);
-			Ref<Graphics::ITextureView> skyboxView = processor.GenerateView(2048);
+			Graphics::TextureViewHandle skyboxView = processor.GenerateView(2048);
 		}
 
 		auto entities = node["Entities"];

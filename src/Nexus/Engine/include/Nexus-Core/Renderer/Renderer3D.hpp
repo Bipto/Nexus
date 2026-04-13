@@ -64,8 +64,8 @@ namespace Nexus::Graphics
 		Ref<IFramebuffer>			 m_RenderTarget	  = {};
 		FullscreenQuad				 m_FullscreenQuad = {};
 
-		Scene			 *m_Scene	= nullptr;
-		Ref<ITextureView> m_Cubemap = nullptr;
+		Scene					   *m_Scene	  = nullptr;
+		Graphics::TextureViewHandle m_Cubemap = {};
 
 		Ref<ICommandList> m_CommandList = nullptr;
 
@@ -87,7 +87,7 @@ namespace Nexus::Graphics
 
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_ClearScreenPipeline = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_DefaultTexture	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_DefaultTextureView = nullptr;
+		Nexus::Ref<Nexus::Graphics::ITexture> m_DefaultTexture	   = nullptr;
+		Graphics::TextureViewHandle			  m_DefaultTextureView = {};
 	};
 }	 // namespace Nexus::Graphics

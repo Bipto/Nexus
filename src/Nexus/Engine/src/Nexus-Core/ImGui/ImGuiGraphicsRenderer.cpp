@@ -208,7 +208,7 @@ namespace Nexus::ImGuiUtils
 		io.Fonts->ClearTexData();
 	}
 
-	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::ITextureView> texture)
+	ImTextureID ImGuiGraphicsRenderer::BindTexture(Graphics::TextureViewHandle texture)
 	{
 		ImTextureID id = (ImTextureID)m_TextureID++;
 

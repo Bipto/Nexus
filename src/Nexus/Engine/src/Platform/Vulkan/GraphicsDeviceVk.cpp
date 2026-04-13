@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 	{
 		// return CreateRef<SamplerVk>(this, spec);
 		auto sampler = std::make_unique<SamplerVk>(this, spec);
-		return m_SamplerPool.CreateShared(std::move(sampler));
+		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
 	Ref<ITimingQuery> GraphicsDeviceVk::CreateTimingQuery()
@@ -210,9 +210,10 @@ namespace Nexus::Graphics
 		return CreateRef<TextureVk>(spec, this);
 	}
 
-	Ref<ITextureView> GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)
+	TextureViewHandle GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return CreateRef<TextureViewVk>(desc, this);
+		auto textureView = std::make_unique<TextureViewVk>(desc, this);
+		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

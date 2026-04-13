@@ -50,12 +50,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	uint32_t TextureViewOpenGL::GetHandle() const
+	const uint32_t TextureViewOpenGL::GetHandle() const
 	{
 		return m_Handle;
 	}
 
-	void TextureViewOpenGL::Bind(uint32_t slot)
+	void TextureViewOpenGL::Bind(uint32_t slot) const
 	{
 		if (m_TextureViewRequired)
 		{
@@ -103,7 +103,7 @@ namespace Nexus::Graphics
 		m_Dirty = false;
 	}
 
-	void TextureViewOpenGL::MarkDirty()
+	void TextureViewOpenGL::MarkDirty() const
 	{
 		m_Dirty = true;
 	}
@@ -153,12 +153,12 @@ namespace Nexus::Graphics
 		m_Handle			  = m_EmulatedTextureView->GetHandle();
 	}
 
-	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context)
+	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context) const
 	{
 		Ref<TextureOpenGL> source = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
 
 		for (uint32_t arrayLayer = m_Description.Range.BaseArrayLayer;
-			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount++;
+			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount;
 			 arrayLayer++)
 		{
 			for (uint32_t mip = m_Description.Range.BaseMipLevel; mip < m_Description.Range.BaseMipLevel + m_Description.Range.LevelCount; mip++)

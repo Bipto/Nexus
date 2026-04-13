@@ -84,6 +84,6 @@ namespace Demos
 		ImTextureID								  m_TextureID				= 0;
 		glm::vec3								  m_RenderTargetClearColour = {0.75f, 0.35f, 0.42f};
 
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_TextureView = nullptr;
+		Nexus::Graphics::TextureViewHandle m_TextureView = {};
 	};
 }	 // namespace Demos

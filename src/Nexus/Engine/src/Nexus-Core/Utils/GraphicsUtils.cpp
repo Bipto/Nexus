@@ -183,7 +183,7 @@ namespace Nexus::Utils
 		return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																							const char					*filepath,
 																							bool						 generateMips,
 																							bool						 srgb)
@@ -201,12 +201,12 @@ namespace Nexus::Utils
 													 .LayerCount	 = texture->GetDepthOrArrayLayers()};
 		std::string viewName					  = filepath + std::string(" - View");
 		viewDesc.DebugName						  = viewName;
-		Ref<Graphics::ITextureView> textureView	  = device->CreateTextureView(viewDesc);
+		Graphics::TextureViewHandle textureView	  = device->CreateTextureView(viewDesc);
 
 		return {texture, textureView};
 	}
 
-	std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																							const std::string			&filepath,
 																							bool						 generateMips,
 																							bool						 srgb)

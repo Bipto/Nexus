@@ -47,12 +47,12 @@ namespace Nexus::Utils
 												   bool							generateMips,
 												   bool							srgb = false);
 
-	NX_API std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	NX_API std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																								   const char				   *filepath,
 																								   bool							generateMips,
 																								   bool							srgb = false);
 
-	NX_API std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	NX_API std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																								   const std::string		   &filepath,
 																								   bool							generateMips,
 																								   bool							srgb = false);

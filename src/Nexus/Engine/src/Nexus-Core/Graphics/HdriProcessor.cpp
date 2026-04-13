@@ -283,7 +283,7 @@ namespace Nexus::Graphics
 		return cubemap;
 	}
 
-	Ref<ITextureView> HdriProcessor::GenerateView(uint32_t size)
+	TextureViewHandle HdriProcessor::GenerateView(uint32_t size)
 	{
 		Ref<ITexture> cubemap = Generate(size);
 

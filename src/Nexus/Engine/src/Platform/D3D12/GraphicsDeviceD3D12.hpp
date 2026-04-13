@@ -58,7 +58,7 @@ namespace Nexus::Graphics
 		}
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
+		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 		DeviceLimits		m_Limits		= {};
 		D3D12DeviceFeatures m_D3D12Features = {};
 
-		ResourcePool<ISampler, SamplerID> m_SamplerPool = {};
+		ResourceManager m_Resources = {};
 
 		std::vector<WeakRef<CommandQueueD3D12>> m_CreatedCommandQueues = {};
 	};

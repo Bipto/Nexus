@@ -1,12 +1,53 @@
 #pragma once
 
-#include "Core/ResourceHandle.hpp"
 #include <cstdint>
 
 namespace Nexus
 {
 	template<typename T, typename Handle>
 	class ResourcePool;
+
+	/// @brief A class representing a unique handle to a resource in a resource pool
+	/// @tparam Tag A template type to customise the resource pointed to by the handle
+	template<typename Tag>
+	struct HandleT
+	{
+	  public:
+		/// @brief A default constructor to initialise an empty object
+		HandleT() = default;
+		/// @brief The constructor of a resource handle
+		/// @param index The index of the resource in a resource pool
+		/// @param generation The generation of the resource in the pool (slots can be reused multiple times)
+		/// @param parent The parent resource pool of the handle
+		HandleT(uint32_t index, uint32_t generation, void *parent);
+
+		/// @brief A method to return the index of the handle
+		/// @return An integer representing the index of the handle
+		uint32_t GetIndex() const;
+
+		/// @brief A method to return the generation of the handle
+		/// @return An integer representing the generation of the handle
+		uint32_t GetGeneration() const;
+
+		/// @brief A method that returns a pointer to the parent object of this handle
+		/// @return A pointer to the parent object
+		void *GetParent() const;
+
+		/// @brief A defaulted spaceship operator to handle comparisons between handles
+		/// @param A const reference to a handle to compare against
+		/// @return A comparison type to compare the handles
+		auto operator<=>(const HandleT &) const = default;
+
+	  private:
+		/// @brief An integer containing the index of the handle
+		uint32_t m_Index = 0;
+
+		/// @brief An integer containing the generation of the handle
+		uint32_t m_Generation = 0;
+
+		/// @brief A pointer to the parent resource pool of the handle
+		void *m_Parent = nullptr;
+	};
 
 	/// @brief A class representing a handle into a ResourcePool that can be owned by multiple objects
 	/// @tparam T The resource that is pointed to by the handle
@@ -54,6 +95,11 @@ namespace Nexus
 		/// @brief A const function that returns the underlying resource
 		/// @return The raw handle to the resource
 		const T *GetResource() const;
+
+		/// @brief A defaulted spaceship operator to handle comparisons between handles
+		/// @param A const reference to a handle to compare against
+		/// @return A comparison type to compare the handles
+		auto operator<=>(const SharedHandle &) const = default;
 
 	  private:
 		/// @brief The resource pool containing the resource
@@ -136,6 +182,11 @@ namespace Nexus
 		/// @brief A const function that returns the underlying resource
 		/// @return The raw handle to the resource
 		const T *GetResource() const;
+
+		/// @brief A defaulted spaceship operator to handle comparisons between handles
+		/// @param A const reference to a handle to compare against
+		/// @return A comparison type to compare the handles
+		auto operator<=>(const UniqueHandle &) const = default;
 
 	  private:
 		/// @brief The resource pool that contains the resource

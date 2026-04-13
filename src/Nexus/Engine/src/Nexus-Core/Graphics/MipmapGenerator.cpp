@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 																.BaseArrayLayer = 0,
 																.LayerCount		= texture->GetDepthOrArrayLayers()};
 			viewDesc.DebugName								 = "Mipmap Generator Texture View";
-			Ref<ITextureView> textureView					 = m_Device->CreateTextureView(viewDesc);
+			TextureViewHandle textureView					 = m_Device->CreateTextureView(viewDesc);
 
 			Nexus::Graphics::CombinedImageSampler ciSampler = {};
 			ciSampler.ImageTexture							= textureView;

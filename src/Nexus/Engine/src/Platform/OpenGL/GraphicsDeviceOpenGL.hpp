@@ -37,7 +37,7 @@ namespace Nexus::Graphics
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
+		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
@@ -94,10 +94,9 @@ namespace Nexus::Graphics
 		std::string							  m_RendererName   = {};
 		std::shared_ptr<PhysicalDeviceOpenGL> m_PhysicalDevice = nullptr;
 
-		DeviceFeatures m_Features = {};
-		DeviceLimits   m_Limits	  = {};
-
-		ResourcePool<ISampler, SamplerID> m_SamplerPool = {};
+		DeviceFeatures	m_Features	= {};
+		DeviceLimits	m_Limits	= {};
+		ResourceManager m_Resources = {};
 	};
 }	 // namespace Nexus::Graphics
 

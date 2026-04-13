@@ -33,7 +33,7 @@ namespace Nexus::ImGuiUtils
 
 	struct ImGuiDescriptorInfo
 	{
-		Ref<Graphics::ITextureView> m_Texture	  = nullptr;
+		Graphics::TextureViewHandle m_Texture	  = {};
 		Ref<Graphics::IResourceSet> m_ResourceSet = nullptr;
 		Graphics::SamplerHandle		m_Sampler	  = {};
 	};
@@ -45,7 +45,7 @@ namespace Nexus::ImGuiUtils
 		virtual ~ImGuiGraphicsRenderer();
 		void RebuildFontAtlas();
 
-		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::ITextureView> texture);
+		ImTextureID BindTexture(Graphics::TextureViewHandle texture);
 		void		UnbindTexture(ImTextureID id);
 
 		void BeforeLayout(Nexus::TimeSpan gameTime);
@@ -83,7 +83,7 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline		 = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITexture>		   m_FontTexture	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_FontTextureView = nullptr;
+		Graphics::TextureViewHandle					   m_FontTextureView = {};
 
 		ImGuiContext *m_Context = nullptr;
 

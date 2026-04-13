@@ -336,11 +336,11 @@ namespace Demos
 
 		Nexus::Ref<Nexus::Graphics::IResourceSet> m_ResourceSet		= nullptr;
 		Nexus::Ref<Nexus::Graphics::ITexture>	  m_DiffuseMap		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_DiffuseMapView	= nullptr;
+		Nexus::Graphics::TextureViewHandle		  m_DiffuseMapView	= {};
 		Nexus::Ref<Nexus::Graphics::ITexture>	  m_NormalMap		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_NormalMapView	= nullptr;
+		Nexus::Graphics::TextureViewHandle		  m_NormalMapView	= {};
 		Nexus::Ref<Nexus::Graphics::ITexture>	  m_SpecularMap		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_SpecularMapView = nullptr;
+		Nexus::Graphics::TextureViewHandle		  m_SpecularMapView = {};
 		glm::vec3								  m_ClearColour		= {0.7f, 0.2f, 0.3f};
 
 		VB_UNIFORM_CAMERA_DEMO_INSTANCING		   m_CameraUniforms		 = {};

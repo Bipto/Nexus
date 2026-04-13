@@ -12,14 +12,14 @@ namespace Nexus::Graphics
 		TextureViewOpenGL(const TextureViewDescription &desc, GraphicsDeviceOpenGL *device);
 		virtual ~TextureViewOpenGL();
 		const TextureViewDescription &GetDescription() const final;
-		uint32_t					  GetHandle() const;
-		void						  Bind(uint32_t slot);
-		void						  MarkDirty();
+		const uint32_t				  GetHandle() const;
+		void						  Bind(uint32_t slot) const;
+		void						  MarkDirty() const;
 
 	  private:
 		void CreateTextureView(const GladGLContext &context);
 		void CreateEmulatedView(const GladGLContext &context);
-		void UpdateEmulatedView(const GladGLContext &context);
+		void UpdateEmulatedView(const GladGLContext &context) const;
 
 	  private:
 		TextureViewDescription m_Description		 = {};
@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		Ref<TextureOpenGL>	   m_EmulatedTextureView = nullptr;
 		GLenum				   m_ViewType			 = 0;
 
-		bool m_TextureViewRequired = false;
-		bool m_Dirty			   = true;
+		bool		 m_TextureViewRequired = false;
+		mutable bool m_Dirty			   = true;
 	};
 }	 // namespace Nexus::Graphics

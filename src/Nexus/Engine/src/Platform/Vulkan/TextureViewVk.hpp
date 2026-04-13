@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 		TextureViewVk(const TextureViewDescription &desc, GraphicsDeviceVk *device);
 		virtual ~TextureViewVk();
 		const TextureViewDescription &GetDescription() const final;
-		VkImageView					  GetVkImageView();
+		const VkImageView			  GetVkImageView() const;
 
 	  private:
 		TextureViewDescription m_Description = {};

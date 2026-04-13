@@ -256,7 +256,7 @@ namespace Nexus::Graphics
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto sampler = std::unique_ptr<ISampler>(new SamplerOpenGL(spec, this));
-		return m_SamplerPool.CreateShared(std::move(sampler));
+		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
 	Ref<ITimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
@@ -404,12 +404,12 @@ namespace Nexus::Graphics
 		return CreateRef<TextureOpenGL>(spec, this);
 	}
 
-	Ref<ITextureView> GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
+	TextureViewHandle GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
 	{
-		Ref<TextureOpenGL>	   texture = std::dynamic_pointer_cast<TextureOpenGL>(desc.TargetTexture);
-		Ref<TextureViewOpenGL> view	   = CreateRef<TextureViewOpenGL>(desc, this);
-		texture->AddView(view);
-		return view;
+		Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(desc.TargetTexture);
+
+		auto textureView = std::make_unique<TextureViewOpenGL>(desc, this);
+		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

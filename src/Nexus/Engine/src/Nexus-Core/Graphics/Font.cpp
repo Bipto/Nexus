@@ -174,7 +174,7 @@ namespace Nexus::Graphics
 		return m_Texture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITextureView> Font::GetTextureView()
+	Graphics::TextureViewHandle Font::GetTextureView()
 	{
 		return m_TextureView;
 	}

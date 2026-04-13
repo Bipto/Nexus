@@ -591,7 +591,7 @@ namespace Nexus::Graphics
 			{
 				for (const CombinedImageSampler &ciSampler : ciSamplers)
 				{
-					Ref<ITextureView>			  textureView = ciSampler.ImageTexture;
+					TextureViewHandle			  textureView = ciSampler.ImageTexture;
 					const TextureViewDescription &viewDesc	  = textureView->GetDescription();
 
 					TextureBarrierDesc barrier					   = {};
@@ -611,7 +611,7 @@ namespace Nexus::Graphics
 
 			for (const auto &[name, imageViews] : boundResources.SampledImages)
 			{
-				for (Ref<ITextureView> imageView : imageViews)
+				for (TextureViewHandle imageView : imageViews)
 				{
 					const TextureViewDescription &viewDesc = imageView->GetDescription();
 

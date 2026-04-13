@@ -104,7 +104,7 @@ namespace Nexus::Graphics
 	SamplerHandle GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
 		auto sampler = std::make_unique<SamplerD3D12>(spec);
-		return m_SamplerPool.CreateShared(std::move(sampler));
+		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
 	Ref<ITimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
@@ -200,9 +200,10 @@ namespace Nexus::Graphics
 		return CreateRef<TextureD3D12>(spec, this);
 	}
 
-	Ref<ITextureView> GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
+	TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return CreateRef<TextureViewD3D12>(desc);
+		auto textureView = std::make_unique<TextureViewD3D12>(desc);
+		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
 	Ref<IFence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)

@@ -49,9 +49,9 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> Pipeline	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::IResourceSet>	   ResourceSet = nullptr;
 
-		std::vector<Nexus::Graphics::BatchVertex>			   Vertices;
-		std::vector<uint32_t>								   Indices;
-		std::vector<Nexus::Ref<Nexus::Graphics::ITextureView>> Textures;
+		std::vector<Nexus::Graphics::BatchVertex> Vertices;
+		std::vector<uint32_t>					  Indices;
+		std::vector<TextureViewHandle>			  Textures;
 
 		uint32_t ShapeCount	 = 0;
 		uint32_t VertexCount = 0;
@@ -72,12 +72,12 @@ namespace Nexus::Graphics
 		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
 
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
-		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<ITextureView> texture);
-		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor);
+		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, TextureViewHandle texture);
+		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, TextureViewHandle texture, float tilingFactor);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color);
-		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<ITextureView> texture);
-		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor);
-		void DrawQuadFill(const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id);
+		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, TextureViewHandle texture);
+		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, TextureViewHandle texture, float tilingFactor);
+		void DrawQuadFill(const glm::vec4 &color, TextureViewHandle texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id);
 		void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
 		void DrawQuad(const Rectangle<float> &rectangle, const glm::vec4 &color, float thickness);
 		void DrawCharacter(char character, const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, Font *font);
@@ -100,7 +100,7 @@ namespace Nexus::Graphics
 								  uint32_t			numberOfPoints,
 								  float				startAngle,
 								  float				fillAngle,
-								  Ref<ITextureView> texture);
+								  TextureViewHandle texture);
 
 		void DrawCircleRegionFill(const glm::vec2  &position,
 								  float				radius,
@@ -108,17 +108,17 @@ namespace Nexus::Graphics
 								  uint32_t			numberOfPoints,
 								  float				startAngle,
 								  float				fillAngle,
-								  Ref<ITextureView> texture,
+								  TextureViewHandle texture,
 								  float				tilingFactor);
 
-		void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<ITextureView> texture);
+		void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, TextureViewHandle texture);
 		void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints);
-		void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<ITextureView> texture);
+		void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, TextureViewHandle texture);
 
 		void DrawCircleFill(const Circle<float> &circle,
 							const glm::vec4		&color,
 							uint32_t			 numberOfPoints,
-							Ref<ITextureView>	 texture,
+							TextureViewHandle	 texture,
 							float				 tilingFactor);
 
 		void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
@@ -137,18 +137,18 @@ namespace Nexus::Graphics
 						  const glm::vec3  &pos2,
 						  const glm::vec2  &uv2,
 						  const glm::vec4  &color,
-						  Ref<ITextureView> texture);
+						  TextureViewHandle texture);
 
 		void DrawTriangle(const Graphics::Triangle2D &tri, const glm::vec4 &color);
 		void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color);
-		void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<ITextureView> texture);
-		void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<ITextureView> texture, float tilingFactor);
+		void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, TextureViewHandle texture);
+		void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, TextureViewHandle texture, float tilingFactor);
 		void DrawRoundedRectangle(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, float thickness);
 		void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color);
-		void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<ITextureView> texture);
+		void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, TextureViewHandle texture);
 		void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle,
 									  const glm::vec4		 &color,
-									  Ref<ITextureView>		  texture,
+									  TextureViewHandle		  texture,
 									  float					  tilingFactor);
 		void End();
 
@@ -166,7 +166,7 @@ namespace Nexus::Graphics
 		bool									  m_IsStarted	 = false;
 
 		Nexus::Ref<Nexus::Graphics::ITexture>	   m_BlankTexture		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>  m_BlankTextureView	 = nullptr;
+		Graphics::TextureViewHandle				   m_BlankTextureView	 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformUploadBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformBuffer		 = nullptr;
 

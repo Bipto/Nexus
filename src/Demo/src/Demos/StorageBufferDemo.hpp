@@ -176,7 +176,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::ITexture>		   m_Texture	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_TextureView = nullptr;
+		Nexus::Graphics::TextureViewHandle			   m_TextureView = {};
 		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_ResourceSet = nullptr;
 		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
 		Nexus::Graphics::SamplerHandle				   m_Sampler	 = {};

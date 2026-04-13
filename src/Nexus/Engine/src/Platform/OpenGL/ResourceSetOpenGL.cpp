@@ -219,7 +219,7 @@ namespace Nexus::Graphics
 			{
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture);
+				const TextureViewOpenGL *textureView = dynamic_cast<const TextureViewOpenGL *>(combinedImageSampler.ImageTexture.GetResource());
 				if (textureView && combinedImageSampler.ImageSampler.IsValid())
 				{
 					m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
@@ -234,7 +234,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
-				if (Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(sampledImage))
+				if (const TextureViewOpenGL *textureView = dynamic_cast<const TextureViewOpenGL *>(sampledImage.GetResource()))
 				{
 					m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
 				}
@@ -459,8 +459,8 @@ namespace Nexus::Graphics
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 				int32_t		bindingIndex		 = bindingPoints.at(arrayIndex);
 
-				Ref<TextureViewOpenGL> textureView = std::dynamic_pointer_cast<TextureViewOpenGL>(combinedImageSampler.ImageTexture);
-				const SamplerOpenGL	  *sampler	   = dynamic_cast<const SamplerOpenGL *>(combinedImageSampler.ImageSampler.GetResource());
+				const TextureViewOpenGL *textureView = dynamic_cast<const TextureViewOpenGL *>(combinedImageSampler.ImageTexture.GetResource());
+				const SamplerOpenGL		*sampler	 = dynamic_cast<const SamplerOpenGL *>(combinedImageSampler.ImageSampler.GetResource());
 
 				if (textureView && sampler && bindingIndex != -1)
 				{
@@ -478,9 +478,9 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < sampledImages.size(); arrayIndex++)
 			{
-				const auto			  &sampledImage = sampledImages[arrayIndex];
-				int32_t				   bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<TextureViewOpenGL> textureView	= std::dynamic_pointer_cast<TextureViewOpenGL>(sampledImage);
+				const auto				&sampledImage = sampledImages[arrayIndex];
+				int32_t					 bindingIndex = bindingPoints.at(arrayIndex);
+				const TextureViewOpenGL *textureView  = dynamic_cast<const TextureViewOpenGL *>(sampledImage.GetResource());
 
 				if (textureView && bindingIndex != -1)
 				{

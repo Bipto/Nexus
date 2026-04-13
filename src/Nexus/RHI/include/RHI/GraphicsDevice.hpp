@@ -28,7 +28,6 @@
 
 #include "RHI/GraphicsAPICreateInfo.hpp"
 
-#include "Core/ResourceHandle.hpp"
 #include "Core/ResourcePool.hpp"
 
 namespace Nexus::Graphics
@@ -51,6 +50,12 @@ namespace Nexus::Graphics
 		uint32_t MaxRayDispatchInvocationCount		= 0;
 		uint32_t ShaderGroupHandleAlignment			= 0;
 		uint32_t MaxRayHitAttributeSize				= 0;
+	};
+
+	struct ResourceManager
+	{
+		SamplerPool		Samplers	 = {};
+		TextureViewPool TextureViews = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -122,7 +127,7 @@ namespace Nexus::Graphics
 
 		virtual Ref<ITexture> CreateTexture(const TextureDescription &spec) = 0;
 
-		virtual Ref<ITextureView> CreateTextureView(const TextureViewDescription &desc) = 0;
+		virtual TextureViewHandle CreateTextureView(const TextureViewDescription &desc) = 0;
 
 		virtual Ref<IFence> CreateFence(const FenceDescription &desc) = 0;
 

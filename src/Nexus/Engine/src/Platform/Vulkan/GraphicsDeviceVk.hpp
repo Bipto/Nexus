@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
+		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
@@ -141,7 +141,7 @@ namespace Nexus::Graphics
 
 		GraphicsAPIInfo m_GraphicsAPIInfo = {};
 
-		ResourcePool<ISampler, SamplerID> m_SamplerPool = {};
+		ResourceManager m_Resources = {};
 
 		friend class SwapchainVk;
 	};

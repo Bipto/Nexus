@@ -4,7 +4,6 @@
 
 #include "SamplerState.hpp"
 
-#include "Core/ResourceHandle.hpp"
 #include "Core/ResourcePool.hpp"
 
 namespace Nexus::Graphics
@@ -23,4 +22,5 @@ namespace Nexus::Graphics
 	};
 	using SamplerID		= Nexus::HandleT<SamplerTag>;
 	using SamplerHandle = SharedHandle<ISampler, SamplerID>;
+	using SamplerPool	= ResourcePool<ISampler, SamplerID>;
 }	 // namespace Nexus::Graphics

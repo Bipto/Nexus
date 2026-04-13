@@ -420,8 +420,8 @@ namespace Nexus::Graphics
 			{
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
-				const SamplerVk	  *sampler	   = dynamic_cast<const SamplerVk *>(combinedImageSampler.ImageSampler.GetResource());
+				const TextureViewVk *textureView = dynamic_cast<const TextureViewVk *>(combinedImageSampler.ImageTexture.GetResource());
+				const SamplerVk		*sampler	 = dynamic_cast<const SamplerVk *>(combinedImageSampler.ImageSampler.GetResource());
 				if (textureView && sampler)
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
@@ -449,7 +449,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
-				if (Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(sampledImage))
+				if (const TextureViewVk *textureView = dynamic_cast<const TextureViewVk *>(sampledImage.GetResource()))
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 

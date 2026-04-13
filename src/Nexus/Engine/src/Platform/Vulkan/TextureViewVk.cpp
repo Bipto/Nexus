@@ -40,7 +40,7 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	VkImageView TextureViewVk::GetVkImageView()
+	const VkImageView TextureViewVk::GetVkImageView() const
 	{
 		return m_ImageView;
 	}

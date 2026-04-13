@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 		HdriProcessor(const std::string &filepath, IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
 		~HdriProcessor() = default;
 		Ref<ITexture>	  Generate(uint32_t size);
-		Ref<ITextureView> GenerateView(uint32_t size);
+		TextureViewHandle GenerateView(uint32_t size);
 		Ref<ITexture>	  GetLoadedTexture() const;
 
 	  private:
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 		int32_t			 m_Height = 0;
 
 		Nexus::Ref<Nexus::Graphics::ITexture>	   m_HdriImage	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>  m_HdriView	  = nullptr;
+		Graphics::TextureViewHandle				   m_HdriView	  = {};
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	};
 }	 // namespace Nexus::Graphics

@@ -1,10 +1,34 @@
 #pragma once
 
-#include "Core/ResourceHandle.hpp"
 #include "Core/ResourcePool.hpp"
 
 namespace Nexus
 {
+	template<typename Tag>
+	HandleT<Tag>::HandleT(uint32_t index, uint32_t generation, void *parent) : m_Index(index),
+																			   m_Generation(generation),
+																			   m_Parent(parent)
+	{
+	}
+
+	template<typename Tag>
+	uint32_t HandleT<Tag>::GetIndex() const
+	{
+		return m_Index;
+	}
+
+	template<typename Tag>
+	uint32_t HandleT<Tag>::GetGeneration() const
+	{
+		return m_Generation;
+	}
+
+	template<typename Tag>
+	inline void *HandleT<Tag>::GetParent() const
+	{
+		return m_Parent;
+	}
+
 	template<typename T, typename Handle>
 	SharedHandle<T, Handle>::SharedHandle(ResourcePool<T, Handle> *pool, Handle handle)
 		: m_Pool(pool),
@@ -120,7 +144,19 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
+	const T *UniqueHandle<T, Handle>::operator->() const
+	{
+		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
 	T &UniqueHandle<T, Handle>::operator*()
+	{
+		return *m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	const T &UniqueHandle<T, Handle>::operator*() const
 	{
 		return *m_Pool->Get(m_Handle);
 	}

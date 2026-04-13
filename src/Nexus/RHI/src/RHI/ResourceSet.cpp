@@ -102,7 +102,7 @@ namespace Nexus::Graphics
 		for (auto &[name, buffers] : DynamicStorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
 		for (auto &[name, images] : StorageImages) { std::fill(images.begin(), images.end(), Graphics::StorageImageView {}); }
 		for (auto &[name, ciSamplers] : CombinedImageSamplers) { std::fill(ciSamplers.begin(), ciSamplers.end(), Graphics::CombinedImageSampler {}); }
-		for (auto &[name, images] : SampledImages) { std::fill(images.begin(), images.end(), nullptr); }
+		for (auto &[name, images] : SampledImages) { std::fill(images.begin(), images.end(), Graphics::TextureViewHandle {}); }
 		for (auto &[name, samplers] : Samplers) { std::fill(samplers.begin(), samplers.end(), Graphics::SamplerHandle {}); }
 		for (auto &[name, accelerationStructures] : AccelerationStructures)
 		{
@@ -160,7 +160,7 @@ namespace Nexus::Graphics
 		WriteCombinedImageSamplers(&combinedImageSamplers, name, 0, 1);
 	}
 
-	void IResourceSet::WriteSampledImage(Ref<ITextureView> textureViews, const std::string &name)
+	void IResourceSet::WriteSampledImage(TextureViewHandle textureViews, const std::string &name)
 	{
 		WriteSampledImages(&textureViews, name, 0, 1);
 	}
@@ -242,7 +242,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteSampledImages(Ref<ITextureView> *textureViews, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteSampledImages(TextureViewHandle *textureViews, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{
