@@ -52,9 +52,10 @@ namespace Nexus::Graphics
 		uint32_t MaxRayHitAttributeSize				= 0;
 	};
 
-	struct ResourceManager
+	struct GraphicsResourceManager
 	{
 		SamplerPool		Samplers	 = {};
+		TexturePool		Textures	 = {};
 		TextureViewPool TextureViews = {};
 	};
 
