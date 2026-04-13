@@ -151,17 +151,17 @@ namespace Nexus::Graphics
 		WriteSamplers(&sampler, name, 0, 1);
 	}
 
-	void IResourceSet::WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructures, const std::string &name)
+	void IResourceSet::WriteAccelerationStructure(AccelerationStructureHandle accelerationStructure, const std::string &name)
 	{
-		WriteAccelerationStructures(&accelerationStructures, name, 0, 1);
+		WriteAccelerationStructures(&accelerationStructure, name, 0, 1);
 	}
 
-	void IResourceSet::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name)
+	void IResourceSet::WriteUniformTexelBuffer(TexelBufferHandle texelBuffers, const std::string &name)
 	{
 		WriteUniformTexelBuffers(&texelBuffers, name, 0, 1);
 	}
 
-	void IResourceSet::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name)
+	void IResourceSet::WriteStorageTexelBuffer(TexelBufferHandle texelBuffers, const std::string &name)
 	{
 		WriteStorageTexelBuffers(&texelBuffers, name, 0, 1);
 	}
@@ -241,7 +241,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteAccelerationStructures(Ref<IAccelerationStructure> *accelerationStructures,
+	void IResourceSet::WriteAccelerationStructures(AccelerationStructureHandle *accelerationStructures,
 												   const std::string		   &name,
 												   size_t						startElement,
 												   size_t						count)
@@ -253,7 +253,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteUniformTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteUniformTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{
@@ -262,7 +262,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteStorageTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteStorageTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{

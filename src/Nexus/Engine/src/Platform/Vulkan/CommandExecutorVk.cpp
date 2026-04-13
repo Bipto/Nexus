@@ -1109,12 +1109,12 @@ namespace Nexus::Graphics
 		for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : command.BuildDescriptions)
 		{
 			// validate that required members have been filled in correctly
-			NX_VALIDATE(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
+			NX_VALIDATE(buildGeometryInfo.Destination.IsValid(), "Acceleration structure build must have a destination");
 			NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
 
 			if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
 			{
-				NX_VALIDATE(buildGeometryInfo.Source, "Acceleration structure update must have a source");
+				NX_VALIDATE(buildGeometryInfo.Source.IsValid(), "Acceleration structure update must have a source");
 			}
 
 			// create a new vector to hold the information for the individual build

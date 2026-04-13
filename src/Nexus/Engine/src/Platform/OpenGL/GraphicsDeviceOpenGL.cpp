@@ -271,14 +271,15 @@ namespace Nexus::Graphics
 		return CreateRef<DeviceBufferOpenGL>(desc, this);
 	}
 
-	Ref<IAccelerationStructure> GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	AccelerationStructureHandle GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ITexelBuffer> GraphicsDeviceOpenGL::CreateTexelBuffer(const TexelBufferDescription &desc)
+	TexelBufferHandle GraphicsDeviceOpenGL::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return nullptr;
+		auto texelBuffer = std::make_unique<TexelBufferOpenGL>(desc, this);
+		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
 	}
 
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const

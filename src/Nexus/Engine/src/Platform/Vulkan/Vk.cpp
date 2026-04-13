@@ -965,17 +965,17 @@ namespace Nexus::Vk
 		buildInfo.srcAccelerationStructure					  = VK_NULL_HANDLE;
 		buildInfo.dstAccelerationStructure					  = VK_NULL_HANDLE;
 
-		if (description.Source)
+		if (description.Source.IsValid())
 		{
-			Ref<Graphics::AccelerationStructureVk> accelerationStructure =
-				std::dynamic_pointer_cast<Graphics::AccelerationStructureVk>(description.Source);
+			const Graphics::AccelerationStructureVk *accelerationStructure =
+				dynamic_cast<const Graphics::AccelerationStructureVk *>(description.Source.GetResource());
 			buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
 		}
 
-		if (description.Destination)
+		if (description.Destination.IsValid())
 		{
-			Ref<Graphics::AccelerationStructureVk> accelerationStructure =
-				std::dynamic_pointer_cast<Graphics::AccelerationStructureVk>(description.Destination);
+			const Graphics::AccelerationStructureVk *accelerationStructure =
+				dynamic_cast<const Graphics::AccelerationStructureVk *>(description.Destination.GetResource());
 			buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
 		}
 

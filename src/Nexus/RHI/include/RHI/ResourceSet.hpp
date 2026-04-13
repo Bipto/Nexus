@@ -101,9 +101,9 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<CombinedImageSampler>>		CombinedImageSamplers  = {};
 		std::map<std::string, std::vector<TextureViewHandle>>			SampledImages		   = {};
 		std::map<std::string, std::vector<Graphics::SamplerHandle>>		Samplers			   = {};
-		std::map<std::string, std::vector<Ref<IAccelerationStructure>>> AccelerationStructures = {};
-		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			UniformTexelBuffers	   = {};
-		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			StorageTexelBuffers	   = {};
+		std::map<std::string, std::vector<AccelerationStructureHandle>> AccelerationStructures = {};
+		std::map<std::string, std::vector<TexelBufferHandle>>			UniformTexelBuffers	   = {};
+		std::map<std::string, std::vector<TexelBufferHandle>>			StorageTexelBuffers	   = {};
 	};
 
 	class Pipeline;
@@ -124,9 +124,9 @@ namespace Nexus::Graphics
 		void WriteCombinedImageSampler(const CombinedImageSampler &combinedImageSamplers, const std::string &name);
 		void WriteSampledImage(TextureViewHandle textureView, const std::string &name);
 		void WriteSampler(SamplerHandle sampler, const std::string &name);
-		void WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructures, const std::string &name);
-		void WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name);
-		void WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name);
+		void WriteAccelerationStructure(AccelerationStructureHandle accelerationStructure, const std::string &name);
+		void WriteUniformTexelBuffer(TexelBufferHandle texelBuffer, const std::string &name);
+		void WriteStorageTexelBuffer(TexelBufferHandle texelBuffer, const std::string &name);
 
 		// arrays
 		void WriteUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count);
@@ -140,12 +140,12 @@ namespace Nexus::Graphics
 										size_t						count);
 		void WriteSampledImages(TextureViewHandle *textureViews, const std::string &name, size_t startElement, size_t count);
 		void WriteSamplers(SamplerHandle *samplers, const std::string &name, size_t startElement, size_t count);
-		void WriteAccelerationStructures(Ref<IAccelerationStructure> *accelerationStructures,
+		void WriteAccelerationStructures(AccelerationStructureHandle *accelerationStructures,
 										 const std::string			 &name,
 										 size_t						  startElement,
 										 size_t						  count);
-		void WriteUniformTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count);
-		void WriteStorageTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count);
+		void WriteUniformTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count);
+		void WriteStorageTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count);
 
 		virtual void Flush() = 0;
 

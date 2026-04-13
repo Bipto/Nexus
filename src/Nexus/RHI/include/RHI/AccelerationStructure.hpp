@@ -3,17 +3,39 @@
 #include <optional>
 #include <variant>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/DeviceBuffer.hpp"
 
 namespace Nexus::Graphics
 {
-	class IAccelerationStructure;
-
 	enum class AccelerationStructureType
 	{
 		BottomLevel,
 		TopLevel
 	};
+
+	struct AccelerationStructureDescription
+	{
+		AccelerationStructureType Type		= AccelerationStructureType::BottomLevel;
+		std::string				  DebugName = "Acceleration Structure";
+		Ref<IDeviceBuffer>		  Buffer	= nullptr;
+		size_t					  Offset	= 0;
+		size_t					  Size		= 0;
+	};
+
+	class IAccelerationStructure
+	{
+	  public:
+		virtual ~IAccelerationStructure()
+		{
+		}
+
+		virtual const AccelerationStructureDescription &GetDescription() const				  = 0;
+		virtual DeviceAddress							GetDeviceAddress(size_t offset) const = 0;
+	};
+
+	DEFINE_RESOURCE(AccelerationStructure, IAccelerationStructure);
 
 	enum class GeometryType
 	{
@@ -130,15 +152,6 @@ namespace Nexus::Graphics
 		Deserialize
 	};
 
-	struct AccelerationStructureDescription
-	{
-		AccelerationStructureType Type		= AccelerationStructureType::BottomLevel;
-		std::string				  DebugName = "Acceleration Structure";
-		Ref<IDeviceBuffer>		  Buffer	= nullptr;
-		size_t					  Offset	= 0;
-		size_t					  Size		= 0;
-	};
-
 	struct AccelerationStructureBuildRange
 	{
 		uint32_t PrimitiveCount	 = 0;
@@ -154,8 +167,8 @@ namespace Nexus::Graphics
 		std::vector<AccelerationStructureGeometryDescription> Geometry		  = {};
 		std::vector<uint32_t>								  PrimitiveCounts = {};
 		AccelerationStructureBuildMode						  Mode			  = AccelerationStructureBuildMode::Build;
-		Ref<IAccelerationStructure>							  Source		  = {};
-		Ref<IAccelerationStructure>							  Destination	  = {};
+		AccelerationStructureHandle							  Source		  = {};
+		AccelerationStructureHandle							  Destination	  = {};
 		DeviceAddress										  ScratchBuffer	  = {};
 	};
 
@@ -186,17 +199,6 @@ namespace Nexus::Graphics
 		size_t AccelerationStructureSize = 0;
 		size_t UpdateScratchSize		 = 0;
 		size_t BuildScratchSize			 = 0;
-	};
-
-	class IAccelerationStructure
-	{
-	  public:
-		virtual ~IAccelerationStructure()
-		{
-		}
-
-		virtual const AccelerationStructureDescription &GetDescription() const				  = 0;
-		virtual DeviceAddress							GetDeviceAddress(size_t offset) const = 0;
 	};
 
 }	 // namespace Nexus::Graphics

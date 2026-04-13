@@ -698,12 +698,12 @@ namespace Nexus::Graphics
 			D3D12_GPU_VIRTUAL_ADDRESS destAddress	 = 0;
 			D3D12_GPU_VIRTUAL_ADDRESS scratchAddress = accelerationStructureBuildDesc.ScratchBuffer;
 
-			if (accelerationStructureBuildDesc.Source)
+			if (accelerationStructureBuildDesc.Source.IsValid())
 			{
 				srcAddress = accelerationStructureBuildDesc.Source->GetDeviceAddress(0);
 			}
 
-			if (accelerationStructureBuildDesc.Destination)
+			if (accelerationStructureBuildDesc.Destination.IsValid())
 			{
 				destAddress = accelerationStructureBuildDesc.Destination->GetDeviceAddress(0);
 			}

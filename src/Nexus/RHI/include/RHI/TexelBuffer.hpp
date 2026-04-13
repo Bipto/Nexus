@@ -20,4 +20,6 @@ namespace Nexus::Graphics
 		virtual ~ITexelBuffer()										 = default;
 		virtual const TexelBufferDescription &GetDescription() const = 0;
 	};
+
+	DEFINE_RESOURCE(TexelBuffer, ITexelBuffer);
 }	 // namespace Nexus::Graphics

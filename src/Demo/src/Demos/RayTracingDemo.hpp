@@ -82,8 +82,8 @@ namespace Demos
 				geometryBuildDesc.Flags			= 0;
 				geometryBuildDesc.Geometry		= {geometryDesc};
 				geometryBuildDesc.Mode			= Nexus::Graphics::AccelerationStructureBuildMode::Build;
-				geometryBuildDesc.Source		= nullptr;
-				geometryBuildDesc.Destination	= nullptr;
+				geometryBuildDesc.Source		= {};
+				geometryBuildDesc.Destination	= {};
 				geometryBuildDesc.ScratchBuffer = {};
 
 				Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
@@ -116,7 +116,7 @@ namespace Demos
 				accelerationStructureDesc.Offset											= 0;
 				m_BLAS = m_GraphicsDevice->CreateAccelerationStructure(accelerationStructureDesc);
 
-				geometryBuildDesc.Source	  = nullptr;
+				geometryBuildDesc.Source	  = {};
 				geometryBuildDesc.Destination = m_BLAS;
 
 				const uint64_t align			= accelerationStructureProperties.MinAccelerationStructureScratchOffsetAlignment;
@@ -181,8 +181,8 @@ namespace Demos
 				geometryBuildDesc.Geometry		  = {geometryDesc};
 				geometryBuildDesc.PrimitiveCounts = {1};
 				geometryBuildDesc.Mode			  = Nexus::Graphics::AccelerationStructureBuildMode::Build;
-				geometryBuildDesc.Source		  = nullptr;
-				geometryBuildDesc.Destination	  = nullptr;
+				geometryBuildDesc.Source		  = {};
+				geometryBuildDesc.Destination	  = {};
 				geometryBuildDesc.ScratchBuffer	  = {};
 
 				Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
@@ -215,7 +215,7 @@ namespace Demos
 				accelerationStructureDesc.Offset											= 0;
 				m_TLAS = m_GraphicsDevice->CreateAccelerationStructure(accelerationStructureDesc);
 
-				geometryBuildDesc.Source	  = nullptr;
+				geometryBuildDesc.Source	  = {};
 				geometryBuildDesc.Destination = m_TLAS;
 
 				const uint64_t align			= accelerationStructureProperties.MinAccelerationStructureScratchOffsetAlignment;
@@ -428,11 +428,11 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndexBuffer	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>			m_BLASBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IAccelerationStructure> m_BLAS		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	 m_BLASBuffer = nullptr;
+		Nexus::Graphics::AccelerationStructureHandle m_BLAS		  = {};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>			m_TLASBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IAccelerationStructure> m_TLAS		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	 m_TLASBuffer = nullptr;
+		Nexus::Graphics::AccelerationStructureHandle m_TLAS		  = {};
 
 		Nexus::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>		 m_SBT		   = nullptr;
@@ -444,7 +444,7 @@ namespace Demos
 		Nexus::Graphics::StridedDeviceAddressRegion m_CallableRegion = {};
 
 		Nexus::Graphics::TextureHandle	   m_StorageTexture		= {};
-		Nexus::Graphics::TextureViewHandle	  m_StorageTextureView = {};
+		Nexus::Graphics::TextureViewHandle m_StorageTextureView = {};
 
 		ImTextureID m_BoundImGuiTextureID = 0;
 

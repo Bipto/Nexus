@@ -54,9 +54,11 @@ namespace Nexus::Graphics
 
 	struct GraphicsResourceManager
 	{
-		SamplerPool		Samplers	 = {};
-		TexturePool		Textures	 = {};
-		TextureViewPool TextureViews = {};
+		SamplerPool				  Samplers				 = {};
+		TexturePool				  Textures				 = {};
+		TextureViewPool			  TextureViews			 = {};
+		TexelBufferPool			  TexelBuffers			 = {};
+		AccelerationStructurePool AccelerationStructures = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -102,9 +104,9 @@ namespace Nexus::Graphics
 
 		virtual Ref<ITimingQuery> CreateTimingQuery() = 0;
 
-		virtual Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
+		virtual AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
 
-		virtual Ref<ITexelBuffer> CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
+		virtual TexelBufferHandle CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
 		/// the supported shading language of the backend

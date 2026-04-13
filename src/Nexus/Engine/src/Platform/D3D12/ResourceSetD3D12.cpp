@@ -423,7 +423,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferD3D12> texelBufferD3D12 = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
+				if (const TexelBufferD3D12 *texelBufferD3D12 = dynamic_cast<const TexelBufferD3D12 *>(texelBuffer.GetResource()))
 				{
 					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
 
@@ -452,7 +452,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferD3D12> texelBufferD3D12 = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
+				if (const TexelBufferD3D12 *texelBufferD3D12 = dynamic_cast<const TexelBufferD3D12 *>(texelBuffer.GetResource()))
 				{
 					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
 

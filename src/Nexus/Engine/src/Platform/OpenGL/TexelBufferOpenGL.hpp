@@ -11,8 +11,8 @@ namespace Nexus::Graphics
 		TexelBufferOpenGL(const TexelBufferDescription &desc, GraphicsDeviceOpenGL *device);
 		virtual ~TexelBufferOpenGL();
 		const TexelBufferDescription &GetDescription() const final;
-		uint32_t					  GetTexelBufferHandle() const;
-		void						  Bind(uint32_t slot);
+		const uint32_t				  GetTexelBufferHandle() const;
+		void						  Bind(uint32_t slot) const;
 
 	  private:
 		TexelBufferDescription m_Description = {};

@@ -38,12 +38,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	uint32_t TexelBufferOpenGL::GetTexelBufferHandle() const
+	const uint32_t TexelBufferOpenGL::GetTexelBufferHandle() const
 	{
 		return m_Handle;
 	}
 
-	void TexelBufferOpenGL::Bind(uint32_t slot)
+	void TexelBufferOpenGL::Bind(uint32_t slot) const
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)

@@ -502,7 +502,8 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < accelerationStructures.size(); arrayIndex++)
 			{
 				const auto &accelerationStructure = accelerationStructures[arrayIndex];
-				if (Ref<AccelerationStructureVk> accelerationStructureVk = std::dynamic_pointer_cast<AccelerationStructureVk>(accelerationStructure))
+				if (const AccelerationStructureVk *accelerationStructureVk =
+						dynamic_cast<const AccelerationStructureVk *>(accelerationStructure.GetResource()))
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -525,7 +526,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+				if (const TexelBufferVk *texelBufferVk = dynamic_cast<const TexelBufferVk *>(texelBuffer.GetResource()))
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -548,7 +549,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+				if (const TexelBufferVk *texelBufferVk = dynamic_cast<const TexelBufferVk *>(texelBuffer.GetResource()))
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 

@@ -117,14 +117,16 @@ namespace Nexus::Graphics
 		return CreateRef<DeviceBufferD3D12>(desc, this);
 	}
 
-	Ref<IAccelerationStructure> GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	AccelerationStructureHandle GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return CreateRef<AccelerationStructureD3D12>(desc, this);
+		auto accelerationStructure = std::make_unique<AccelerationStructureD3D12>(desc, this);
+		return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
 	}
 
-	Ref<ITexelBuffer> GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
+	TexelBufferHandle GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return CreateRef<TexelBufferD3D12>(desc);
+		auto texelBuffer = std::make_unique<TexelBufferD3D12>(desc);
+		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
 	}
 
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()

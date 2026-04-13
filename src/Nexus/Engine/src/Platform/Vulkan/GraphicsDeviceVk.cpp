@@ -131,14 +131,16 @@ namespace Nexus::Graphics
 		return CreateRef<DeviceBufferVk>(desc, this);
 	}
 
-	Ref<IAccelerationStructure> GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	AccelerationStructureHandle GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return CreateRef<AccelerationStructureVk>(desc, this);
+		auto accelerationStructure = std::make_unique<AccelerationStructureVk>(desc, this);
+		return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
 	}
 
-	Ref<ITexelBuffer> GraphicsDeviceVk::CreateTexelBuffer(const TexelBufferDescription &desc)
+	TexelBufferHandle GraphicsDeviceVk::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return CreateRef<TexelBufferVk>(desc, this);
+		auto texelBuffer = std::make_unique<TexelBufferVk>(desc, this);
+		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const

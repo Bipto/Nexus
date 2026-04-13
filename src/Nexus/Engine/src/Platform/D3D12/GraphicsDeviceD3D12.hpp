@@ -39,8 +39,8 @@ namespace Nexus::Graphics
 		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;
 		Ref<ITimingQuery>			CreateTimingQuery() final;
 		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
-		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
-		Ref<ITexelBuffer>			CreateTexelBuffer(const TexelBufferDescription &desc) final;
+		AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
+		TexelBufferHandle			CreateTexelBuffer(const TexelBufferDescription &desc) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final
 		{

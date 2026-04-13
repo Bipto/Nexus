@@ -261,7 +261,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferOpenGL> texelBufferVk = std::dynamic_pointer_cast<TexelBufferOpenGL>(texelBuffer))
+				if (const TexelBufferOpenGL *texelBufferVk = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource()))
 				{
 					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
 				}
@@ -274,7 +274,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferOpenGL> texelBufferVk = std::dynamic_pointer_cast<TexelBufferOpenGL>(texelBuffer))
+				if (const TexelBufferOpenGL *texelBufferVk = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource()))
 				{
 					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
 				}
@@ -513,9 +513,9 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
-				const auto			  &texelBuffer	 = texelBuffers[arrayIndex];
-				int32_t				   bindingIndex	 = bindingPoints.at(arrayIndex);
-				Ref<TexelBufferOpenGL> texelBufferGL = std::dynamic_pointer_cast<TexelBufferOpenGL>(texelBuffer);
+				const auto				&texelBuffer   = texelBuffers[arrayIndex];
+				int32_t					 bindingIndex  = bindingPoints.at(arrayIndex);
+				const TexelBufferOpenGL *texelBufferGL = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource());
 
 				if (texelBufferGL && bindingIndex != -1)
 				{
@@ -531,9 +531,9 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
-				const auto			  &texelBuffer	 = texelBuffers[arrayIndex];
-				int32_t				   bindingIndex	 = bindingPoints.at(arrayIndex);
-				Ref<TexelBufferOpenGL> texelBufferGL = std::dynamic_pointer_cast<TexelBufferOpenGL>(texelBuffer);
+				const auto				&texelBuffer   = texelBuffers[arrayIndex];
+				int32_t					 bindingIndex  = bindingPoints.at(arrayIndex);
+				const TexelBufferOpenGL *texelBufferGL = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource());
 
 				if (texelBufferGL && bindingIndex != -1)
 				{
