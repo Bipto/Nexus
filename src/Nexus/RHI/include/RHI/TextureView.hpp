@@ -26,10 +26,5 @@ namespace Nexus::Graphics
 		}
 	};
 
-	struct TextureViewTag
-	{
-	};
-	using TextureViewID		= Nexus::HandleT<TextureViewTag>;
-	using TextureViewHandle = SharedHandle<ITextureView, TextureViewID>;
-	using TextureViewPool	= ResourcePool<ITextureView, TextureViewID>;
+	DEFINE_RESOURCE(TextureView, ITextureView);
 }	 // namespace Nexus::Graphics
