@@ -472,9 +472,6 @@ namespace Nexus::Graphics
 				}
 			}
 		}
-
-		// reset the resource queue
-		m_QueuedResources.Reset();
 	}
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetSamplerDescriptorHeap()

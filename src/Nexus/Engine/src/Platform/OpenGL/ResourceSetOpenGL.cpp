@@ -283,9 +283,6 @@ namespace Nexus::Graphics
 
 		// immutable samplers
 		for (const auto &[location, sampler] : m_ImmutableSamplers) { sampler->Bind(location); }
-
-		// reset the resource queue
-		m_QueuedResources.Reset();
 	}
 
 	void ResourceSetOpenGL::Bind(const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle, const GladGLContext &context)

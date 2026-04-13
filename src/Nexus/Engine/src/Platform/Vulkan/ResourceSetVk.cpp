@@ -567,9 +567,6 @@ namespace Nexus::Graphics
 
 		// perform the descriptor set update
 		context.UpdateDescriptorSets(m_Device->GetVkDevice(), descriptorSetWrites.size(), descriptorSetWrites.data(), 0, nullptr);
-
-		// reset the resource queue
-		m_QueuedResources.Reset();
 	}
 
 	void ResourceSetVk::Bind(const GladVulkanContext							&context,

@@ -93,25 +93,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetDescriptors::Reset()
-	{
-		for (auto &[name, buffers] : UniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
-		for (auto &[name, buffers] : DynamicUniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
-		for (auto &[name, buffers] : InlineUniformBlocks) { std::fill(buffers.begin(), buffers.end(), 0); }
-		for (auto &[name, buffers] : StorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
-		for (auto &[name, buffers] : DynamicStorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
-		for (auto &[name, images] : StorageImages) { std::fill(images.begin(), images.end(), Graphics::StorageImageView {}); }
-		for (auto &[name, ciSamplers] : CombinedImageSamplers) { std::fill(ciSamplers.begin(), ciSamplers.end(), Graphics::CombinedImageSampler {}); }
-		for (auto &[name, images] : SampledImages) { std::fill(images.begin(), images.end(), Graphics::TextureViewHandle {}); }
-		for (auto &[name, samplers] : Samplers) { std::fill(samplers.begin(), samplers.end(), Graphics::SamplerHandle {}); }
-		for (auto &[name, accelerationStructures] : AccelerationStructures)
-		{
-			std::fill(accelerationStructures.begin(), accelerationStructures.end(), nullptr);
-		}
-		for (auto &[name, buffers] : UniformTexelBuffers) { std::fill(buffers.begin(), buffers.end(), nullptr); }
-		for (auto &[name, buffers] : StorageTexelBuffers) { std::fill(buffers.begin(), buffers.end(), nullptr); }
-	}
-
 	IResourceSet::IResourceSet(Ref<Pipeline> pipeline) : m_Pipeline(pipeline)
 	{
 		m_ShaderResources							  = pipeline->GetRequiredShaderResources();
