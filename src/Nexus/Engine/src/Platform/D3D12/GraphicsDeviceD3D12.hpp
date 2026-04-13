@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 		DeviceLimits		m_Limits		= {};
 		D3D12DeviceFeatures m_D3D12Features = {};
 
-		ResourceManager m_Resources = {};
+		GraphicsResourceManager m_Resources = {};
 
 		std::vector<WeakRef<CommandQueueD3D12>> m_CreatedCommandQueues = {};
 	};

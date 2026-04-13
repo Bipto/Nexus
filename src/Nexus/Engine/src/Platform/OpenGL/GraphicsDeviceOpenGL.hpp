@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 
 		DeviceFeatures	m_Features	= {};
 		DeviceLimits	m_Limits	= {};
-		ResourceManager m_Resources = {};
+		GraphicsResourceManager m_Resources = {};
 	};
 }	 // namespace Nexus::Graphics
 

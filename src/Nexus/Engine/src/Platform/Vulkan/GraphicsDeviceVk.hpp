@@ -141,7 +141,7 @@ namespace Nexus::Graphics
 
 		GraphicsAPIInfo m_GraphicsAPIInfo = {};
 
-		ResourceManager m_Resources = {};
+		GraphicsResourceManager m_Resources = {};
 
 		friend class SwapchainVk;
 	};
