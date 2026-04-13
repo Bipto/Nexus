@@ -17,10 +17,5 @@ namespace Nexus::Graphics
 		virtual const SamplerDescription &GetSamplerDescription() const = 0;
 	};
 
-	struct SamplerTag
-	{
-	};
-	using SamplerID		= Nexus::HandleT<SamplerTag>;
-	using SamplerHandle = SharedHandle<ISampler, SamplerID>;
-	using SamplerPool	= ResourcePool<ISampler, SamplerID>;
+	DEFINE_RESOURCE(Sampler, ISampler);
 }	 // namespace Nexus::Graphics
