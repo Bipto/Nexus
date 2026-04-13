@@ -19,9 +19,9 @@ namespace Nexus::Graphics
 		void				 SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
 		SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const final;
 
-		DXGI_FORMAT GetFormat();
+		const DXGI_FORMAT GetFormat() const;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
+		const Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle() const;
 
 		/// @brief This is a function to force all ComPtr handles to be released, used when resizing a swapchain
 		/// @param waitForIdle A boolean value indicating whether the handle should be released after the device is idle or immediately

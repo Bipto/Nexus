@@ -551,7 +551,7 @@ namespace Nexus::GL
 
 	GLenum GetViewType(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::ITexture> texture = desc.TargetTexture;
+		Graphics::TextureHandle texture = desc.TargetTexture;
 
 		switch (texture->GetType())
 		{
@@ -761,7 +761,7 @@ namespace Nexus::GL
 		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
 		GLenum attachmentType = GL::GetAttachmentType(isDepth, colourIndex);
 
-		Ref<Graphics::TextureOpenGL> texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(desc.TargetTexture);
+		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(desc.TargetTexture.GetResource());
 
 		uint32_t				textureHandle  = texture->GetHandle();
 		GLenum					textureTarget  = texture->GetTextureType();
@@ -1195,8 +1195,8 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		Ref<Graphics::TextureOpenGL>  texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
-		Graphics::DeviceBufferOpenGL *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
+		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.BufferTextureCopy.TextureHandle.GetResource());
+		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
@@ -1366,8 +1366,8 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureNonDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		Ref<Graphics::TextureOpenGL>  texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
-		Graphics::DeviceBufferOpenGL *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
+		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.BufferTextureCopy.TextureHandle.GetResource());
+		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
@@ -1534,8 +1534,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		Ref<Graphics::TextureOpenGL>  texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
-		Graphics::DeviceBufferOpenGL *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
+		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.TextureBufferCopy.TextureHandle.GetResource());
+		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (!texture || !buffer)
 		{
@@ -1555,7 +1555,7 @@ namespace Nexus::GL
 		size_t bufferOffset = command.TextureBufferCopy.BufferOffset;
 
 		Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-		framebufferTextureDesc.TargetTexture						   = texture;
+		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.TextureHandle;
 		framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
 		framebufferTextureDesc.BaseArrayLayer						   = command.TextureBufferCopy.TextureOffset.Z;
 		framebufferTextureDesc.LayerCount							   = 1;
@@ -1585,8 +1585,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferNonDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		Ref<Graphics::TextureOpenGL>  texture = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
-		Graphics::DeviceBufferOpenGL *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
+		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.TextureBufferCopy.TextureHandle.GetResource());
+		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (!texture || !buffer)
 		{
@@ -1610,7 +1610,7 @@ namespace Nexus::GL
 		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
 
 		Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-		framebufferTextureDesc.TargetTexture						   = texture;
+		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.TextureHandle;
 		framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
 		framebufferTextureDesc.BaseArrayLayer						   = command.TextureBufferCopy.TextureOffset.Z;
 		framebufferTextureDesc.LayerCount							   = 1;
@@ -1648,8 +1648,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToTextureDSA(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context)
 	{
-		Ref<Graphics::TextureOpenGL> source		 = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(copyDesc.Source);
-		Ref<Graphics::TextureOpenGL> destination = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(copyDesc.Destination);
+		const Graphics::TextureOpenGL *source	   = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Source.GetResource());
+		const Graphics::TextureOpenGL *destination = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Destination.GetResource());
 		NX_VALIDATE(source, "Source texture must be valid");
 
 		GLuint sourceFramebufferHandle = 0;
@@ -1658,7 +1658,7 @@ namespace Nexus::GL
 		// set up source framebuffer
 		{
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = source;
+			framebufferTextureDesc.TargetTexture						   = copyDesc.Source;
 			framebufferTextureDesc.MipLevel								   = copyDesc.SourceMipLevel;
 			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.SourceOffset.Z;
 			framebufferTextureDesc.LayerCount							   = 1;
@@ -1671,7 +1671,7 @@ namespace Nexus::GL
 		if (destination)
 		{
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = destination;
+			framebufferTextureDesc.TargetTexture						   = copyDesc.Destination;
 			framebufferTextureDesc.MipLevel								   = copyDesc.DestinationMipLevel;
 			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.DestinationOffset.Z;
 			framebufferTextureDesc.LayerCount							   = 1;
@@ -1707,8 +1707,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToTextureNonDSA(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context)
 	{
-		Ref<Graphics::TextureOpenGL> source		 = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(copyDesc.Source);
-		Ref<Graphics::TextureOpenGL> destination = std::dynamic_pointer_cast<Graphics::TextureOpenGL>(copyDesc.Destination);
+		const Graphics::TextureOpenGL *source	   = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Source.GetResource());
+		const Graphics::TextureOpenGL *destination = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Destination.GetResource());
 		NX_VALIDATE(source, "Source texture must be valid");
 
 		GLuint sourceFramebufferHandle = 0;
@@ -1717,7 +1717,7 @@ namespace Nexus::GL
 		// set up source framebuffer
 		{
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = source;
+			framebufferTextureDesc.TargetTexture						   = copyDesc.Source;
 			framebufferTextureDesc.MipLevel								   = copyDesc.SourceMipLevel;
 			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.SourceOffset.Z;
 			framebufferTextureDesc.LayerCount							   = 1;
@@ -1732,7 +1732,7 @@ namespace Nexus::GL
 		if (destination)
 		{
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = destination;
+			framebufferTextureDesc.TargetTexture						   = copyDesc.Destination;
 			framebufferTextureDesc.MipLevel								   = copyDesc.DestinationMipLevel;
 			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.DestinationOffset.Z;
 			framebufferTextureDesc.LayerCount							   = 1;

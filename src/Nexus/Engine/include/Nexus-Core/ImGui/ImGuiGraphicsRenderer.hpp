@@ -82,7 +82,7 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::ICommandQueue>	   m_CommandQueue	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		   m_FontTexture	 = nullptr;
+		Graphics::TextureHandle						   m_FontTexture	 = {};
 		Graphics::TextureViewHandle					   m_FontTextureView = {};
 
 		ImGuiContext *m_Context = nullptr;

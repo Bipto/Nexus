@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 		TextureViewDescription m_Description		 = {};
 		GraphicsDeviceOpenGL  *m_Device				 = nullptr;
 		uint32_t			   m_Handle				 = 0;
-		Ref<TextureOpenGL>	   m_EmulatedTextureView = nullptr;
+		TextureHandle		   m_EmulatedTextureView = {};
 		GLenum				   m_ViewType			 = 0;
 
 		bool		 m_TextureViewRequired = false;

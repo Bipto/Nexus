@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 
 	Image Image::FromTexture(IGraphicsDevice   *device,
 							 Ref<ICommandQueue> commandQueue,
-							 Ref<ITexture>		texture,
+							 TextureHandle		texture,
 							 uint32_t			arrayLayer,
 							 uint32_t			mipLevel,
 							 uint32_t			x,

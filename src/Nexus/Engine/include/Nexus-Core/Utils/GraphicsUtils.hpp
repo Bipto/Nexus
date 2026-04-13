@@ -34,7 +34,7 @@ namespace Nexus::Utils
 	/// @brief A method that loads a new texture from a image stored on disk
 	/// @param filepath The filepath to load the image from
 	/// @return A pointer to a texture
-	NX_API Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue,
+	NX_API Graphics::TextureHandle CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue,
 												   const char				   *filepath,
 												   bool							generateMips,
 												   bool							srgb = false);
@@ -42,17 +42,17 @@ namespace Nexus::Utils
 	/// @brief A method that loads a new texture from an image stored on disk
 	/// @param filepath The filepath to load the image from
 	/// @return A pointer to a texture
-	NX_API Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue,
+	NX_API Graphics::TextureHandle CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue,
 												   const std::string		   &filepath,
 												   bool							generateMips,
 												   bool							srgb = false);
 
-	NX_API std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	NX_API std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																								   const char				   *filepath,
 																								   bool							generateMips,
 																								   bool							srgb = false);
 
-	NX_API std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	NX_API std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																								   const std::string		   &filepath,
 																								   bool							generateMips,
 																								   bool							srgb = false);
@@ -61,7 +61,7 @@ namespace Nexus::Utils
 														 const Graphics::FramebufferTextureCreateDescription &desc);
 
 	NX_API void WriteToTexture(Ref<Graphics::ICommandQueue> commandQueue,
-							   Ref<Graphics::ITexture>		texture,
+							   Graphics::TextureHandle		texture,
 							   uint32_t						mipLevel,
 							   uint32_t						x,
 							   uint32_t						y,
@@ -72,7 +72,7 @@ namespace Nexus::Utils
 							   size_t						size);
 
 	NX_API std::vector<char> ReadFromTexture(Ref<Graphics::ICommandQueue> commandQueue,
-											 Ref<Graphics::ITexture>	  texture,
+											 Graphics::TextureHandle	  texture,
 											 uint32_t					  mipLevel,
 											 uint32_t					  x,
 											 uint32_t					  y,

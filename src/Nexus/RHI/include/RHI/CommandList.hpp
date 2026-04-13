@@ -83,7 +83,7 @@ namespace Nexus::Graphics
 		uint64_t BufferImageHeight = 0;
 
 		/// @brief A pointer to the texture to use in the copy operation
-		Ref<ITexture> TextureHandle = nullptr;
+		TextureHandle TextureHandle = {};
 
 		/// @brief A structure containing parameters specifying the offset into the textures
 		Offset3D TextureOffset = {};
@@ -99,10 +99,10 @@ namespace Nexus::Graphics
 	struct TextureCopyDescription
 	{
 		/// @brief A pointer to the source texture for the copy operation
-		Ref<ITexture> Source = nullptr;
+		TextureHandle Source = {};
 
 		/// @brief A pointer to the destination texture for the copy operation
-		Ref<ITexture> Destination = nullptr;
+		TextureHandle Destination = {};
 
 		/// @brief A set of parameters specifying the offset into the source texture
 		Offset3D SourceOffset = {};
@@ -363,10 +363,10 @@ namespace Nexus::Graphics
 	struct ResolveTextureDescription
 	{
 		/// @brief A pointer to the source texture for the resolve operation
-		Ref<ITexture> Source = nullptr;
+		TextureHandle Source = {};
 
 		/// @brief A pointer to the destination texture for the resolve operation
-		Ref<ITexture> Destination = nullptr;
+		TextureHandle Destination = {};
 
 		/// @brief An integer representing which array layer of the source texture to resolve from
 		uint32_t SourceArrayLayer = 0;
@@ -515,13 +515,13 @@ namespace Nexus::Graphics
 
 	struct TextureBarrierDesc
 	{
-		Ref<Graphics::ITexture> Texture					= nullptr;
-		TextureLayout			Layout					= {};
-		BarrierAccess			BeforeAccess			= {};
-		BarrierAccess			AfterAccess				= {};
-		BarrierPipelineStage	BeforeStage				= {};
-		BarrierPipelineStage	AfterStage				= {};
-		SubresourceRange		TextureSubresourceRange = {};
+		TextureHandle		 Texture				 = {};
+		TextureLayout		 Layout					 = {};
+		BarrierAccess		 BeforeAccess			 = {};
+		BarrierAccess		 AfterAccess			 = {};
+		BarrierPipelineStage BeforeStage			 = {};
+		BarrierPipelineStage AfterStage				 = {};
+		SubresourceRange	 TextureSubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc

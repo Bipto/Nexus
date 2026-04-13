@@ -195,9 +195,10 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<ITexture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
+	TextureHandle GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
-		return CreateRef<TextureD3D12>(spec, this);
+		auto texture = std::make_unique<TextureD3D12>(spec, this);
+		return m_Resources.Textures.CreateShared(std::move(texture));
 	}
 
 	TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)

@@ -2542,7 +2542,7 @@ namespace Nexus::Vk
 
 	VkImageViewType GetImageViewType(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::ITexture> texture = desc.TargetTexture;
+		Graphics::TextureHandle texture = desc.TargetTexture;
 
 		switch (texture->GetType())
 		{

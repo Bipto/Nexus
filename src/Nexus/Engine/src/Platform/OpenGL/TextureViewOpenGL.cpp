@@ -89,14 +89,15 @@ namespace Nexus::Graphics
 						// otherwise bind the emulated texture view
 						else
 						{
-							m_EmulatedTextureView->Bind(slot);
+							const TextureOpenGL *texture = dynamic_cast<const TextureOpenGL *>(m_EmulatedTextureView.GetResource());
+							texture->Bind(slot);
 						}
 					}
 				});
 		}
 		else
 		{
-			Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
+			const TextureOpenGL *texture = dynamic_cast<const TextureOpenGL *>(m_Description.TargetTexture.GetResource());
 			texture->Bind(slot);
 		}
 
@@ -110,7 +111,7 @@ namespace Nexus::Graphics
 
 	void TextureViewOpenGL::CreateTextureView(const GladGLContext &context)
 	{
-		Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
+		const TextureOpenGL *texture = dynamic_cast<const TextureOpenGL *>(m_Description.TargetTexture.GetResource());
 
 		GLenum internalFormat = GL::GetSizedInternalFormat(m_Description.Format);
 		GLenum m_ViewType	  = GL::GetViewType(m_Description);
@@ -149,13 +150,15 @@ namespace Nexus::Graphics
 		textureDesc.Usage			   = originalDesc.Usage;
 		textureDesc.DebugName		   = m_Description.DebugName;
 
-		m_EmulatedTextureView = CreateRef<TextureOpenGL>(textureDesc, m_Device);
-		m_Handle			  = m_EmulatedTextureView->GetHandle();
+		m_EmulatedTextureView = m_Device->CreateTexture(textureDesc);
+
+		const TextureOpenGL *emulatedTexture = dynamic_cast<const TextureOpenGL *>(m_EmulatedTextureView.GetResource());
+		m_Handle							 = emulatedTexture->GetHandle();
 	}
 
 	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context) const
 	{
-		Ref<TextureOpenGL> source = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
+		const TextureOpenGL *source = dynamic_cast<const TextureOpenGL *>(m_Description.TargetTexture.GetResource());
 
 		for (uint32_t arrayLayer = m_Description.Range.BaseArrayLayer;
 			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount;

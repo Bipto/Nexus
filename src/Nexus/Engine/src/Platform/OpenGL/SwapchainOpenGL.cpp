@@ -49,7 +49,7 @@ namespace Nexus::Graphics
 					// context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, "SwapchainOpenGL::SwapBuffers");
 				}
 
-				m_ViewContext->Swap(std::dynamic_pointer_cast<TextureOpenGL>(m_Framebuffer->GetColorTextureHandle(0)), presentDesc);
+				m_ViewContext->Swap(m_Framebuffer->GetColorTextureHandle(0), presentDesc);
 
 				if (context.PopDebugGroup)
 				{

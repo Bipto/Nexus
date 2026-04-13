@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Ref<ITexture> TextureHandle = nullptr;
+		TextureHandle TextureHandle = {};
 		uint32_t	  ArrayLayer	= 0;
 		uint32_t	  MipLevel		= 0;
 		ShaderAccess  Access		= ShaderAccess::Read;

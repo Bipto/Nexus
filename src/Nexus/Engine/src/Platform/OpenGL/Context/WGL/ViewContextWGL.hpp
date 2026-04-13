@@ -14,7 +14,7 @@ namespace Nexus::GL
 		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextDescription &spec);
 		virtual ~ViewContextWGL();
 		bool					  MakeCurrent() final;
-		void					  Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc) final;
+		void					  Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc) final;
 		void					  SetVSync(bool enabled) final;
 		const ContextDescription &GetDescription() const final;
 		bool					  Validate() final;

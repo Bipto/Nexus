@@ -205,7 +205,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImage.TextureHandle))
+				if (storageImage.TextureHandle.IsValid())
 				{
 					m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
 				}
@@ -420,9 +420,11 @@ namespace Nexus::Graphics
 			const std::vector<int32_t> &bindingPoints = m_BindingLocations.at(name);
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
-				const auto		  &storageImage = storageImages[arrayIndex];
-				int32_t			   bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<TextureOpenGL> texture		= std::dynamic_pointer_cast<TextureOpenGL>(storageImage.TextureHandle);
+				const auto &storageImage = storageImages[arrayIndex];
+				int32_t		bindingIndex = bindingPoints.at(arrayIndex);
+
+				TextureHandle  textureHandle = storageImage.TextureHandle;
+				TextureOpenGL *texture		 = dynamic_cast<TextureOpenGL *>(textureHandle.GetResource());
 
 				if (texture && bindingIndex != -1)
 				{

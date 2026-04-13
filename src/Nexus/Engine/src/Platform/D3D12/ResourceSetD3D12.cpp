@@ -204,7 +204,7 @@ namespace Nexus::Graphics
 									 const TextureViewD3D12				  *textureView,
 									 D3D12_CPU_DESCRIPTOR_HANDLE		   cpuHandle)
 	{
-		Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(textureView->GetTexture());
+		const TextureD3D12 *texture = dynamic_cast<const TextureD3D12 *>(textureView->GetTexture().GetResource());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(textureView->GetDescription());
 
@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(storageImage.TextureHandle))
+				if (const TextureD3D12 *texture = dynamic_cast<const TextureD3D12 *>(storageImage.TextureHandle.GetResource()))
 				{
 					D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(storageImage);
 

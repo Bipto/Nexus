@@ -219,7 +219,9 @@ namespace Nexus::Graphics
 			swapchainTextureDesc.Format								 = PixelFormat::R8_G8_B8_A8_UNorm;
 			swapchainTextureDesc.Usage								 = Graphics::TextureUsage_ColourAttachment;
 			swapchainTextureDesc.DebugName							 = "Swapchain Colour Texture";
-			Ref<TextureD3D12> swapchainTexture						 = CreateRef<TextureD3D12>(buffer, swapchainTextureDesc, m_Device);
+
+			auto		  swapchainTexture		 = std::make_unique<TextureD3D12>(buffer, swapchainTextureDesc, m_Device);
+			TextureHandle swapchainTextureHandle = m_Device->m_Resources.Textures.CreateShared(std::move(swapchainTexture));
 
 			Graphics::TextureDescription depthAttachmentDesc = {};
 			depthAttachmentDesc.Width						 = m_SwapchainWidth;
@@ -230,7 +232,7 @@ namespace Nexus::Graphics
 			depthAttachmentDesc.Format						 = PixelFormat::D24_UNorm_S8_UInt;
 			depthAttachmentDesc.Usage						 = Graphics::TextureUsage_DepthStencilAttachment;
 			depthAttachmentDesc.DebugName					 = "Swapchain Depth Texture";
-			Ref<TextureD3D12> depthAttachment				 = CreateRef<TextureD3D12>(depthAttachmentDesc, m_Device);
+			TextureHandle depthAttachment					 = m_Device->CreateTexture(depthAttachmentDesc);
 
 			Graphics::FramebufferTextureSetDescription framebufferDesc = {};
 
@@ -241,13 +243,15 @@ namespace Nexus::Graphics
 				Graphics::TextureDescription multisampledDesc = swapchainTextureDesc;
 				multisampledDesc.Samples					  = m_Description.Samples;
 				multisampledDesc.DebugName					  = "Swapchain Multisampled Colour Texture";
-				Ref<TextureD3D12> multisampledTexture		  = CreateRef<TextureD3D12>(multisampledDesc, m_Device);
+				TextureHandle multisampledTexture			  = m_Device->CreateTexture(multisampledDesc);
 
 				framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription {
 					.ColourAttachment =
 						FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = multisampledTexture},
-					.ResolveAttachment =
-						FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTexture}}};
+					.ResolveAttachment = FramebufferTextureDescription {.BaseArrayLayer = 0,
+																		.LayerCount		= 1,
+																		.MipLevel		= 0,
+																		.TargetTexture	= swapchainTextureHandle}}};
 				framebufferDesc.DepthAttachment	  = {
 					  FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
 
@@ -259,7 +263,7 @@ namespace Nexus::Graphics
 			else
 			{
 				framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription {
-					.ColourAttachment {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTexture}}};
+					.ColourAttachment {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle}}};
 				framebufferDesc.DepthAttachment	  = {
 					  FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
 

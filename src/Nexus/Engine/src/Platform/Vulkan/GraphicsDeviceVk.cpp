@@ -205,9 +205,10 @@ namespace Nexus::Graphics
 		NX_VALIDATE(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Ref<ITexture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
+	TextureHandle GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
-		return CreateRef<TextureVk>(spec, this);
+		auto texture = std::make_unique<TextureVk>(spec, this);
+		return m_Resources.Textures.CreateShared(std::move(texture));
 	}
 
 	TextureViewHandle GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)

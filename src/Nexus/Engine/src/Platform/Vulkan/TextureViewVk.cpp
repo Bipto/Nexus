@@ -7,8 +7,8 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = device->GetVulkanContext();
 
-		Ref<TextureVk>	texture = std::dynamic_pointer_cast<TextureVk>(desc.TargetTexture);
-		VkImageViewType type	= Vk::GetImageViewType(desc);
+		const TextureVk *texture = dynamic_cast<const TextureVk *>(desc.TargetTexture.GetResource());
+		VkImageViewType	 type	 = Vk::GetImageViewType(desc);
 
 		VkImageViewCreateInfo createInfo = {};
 		createInfo.sType				 = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

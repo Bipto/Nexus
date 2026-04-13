@@ -127,7 +127,7 @@ namespace Nexus::Utils
 		return GetOrCreateCachedShaderFromSpirvSource(graphicsDevice, source, filepath, outputDirectory, stage);
 	}
 
-	Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb)
+	Graphics::TextureHandle CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb)
 	{
 		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -156,7 +156,7 @@ namespace Nexus::Utils
 			spec.MipLevels	  = mipCount;
 		}
 
-		auto   texture	  = Ref<Graphics::ITexture>(device->CreateTexture(spec));
+		auto   texture	  = device->CreateTexture(spec);
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 
 		Utils::WriteToTexture(commandQueue, texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
@@ -178,19 +178,19 @@ namespace Nexus::Utils
 		return texture;
 	}
 
-	Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
+	Graphics::TextureHandle CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
 	{
 		return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																							const char					*filepath,
 																							bool						 generateMips,
 																							bool						 srgb)
 	{
 		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
-		Ref<Graphics::ITexture> texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
+		Graphics::TextureHandle texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
 
 		Graphics::TextureViewDescription viewDesc = {};
 		viewDesc.TargetTexture					  = texture;
@@ -206,7 +206,7 @@ namespace Nexus::Utils
 		return {texture, textureView};
 	}
 
-	std::pair<Ref<Graphics::ITexture>, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
 																							const std::string			&filepath,
 																							bool						 generateMips,
 																							bool						 srgb)
@@ -230,7 +230,7 @@ namespace Nexus::Utils
 			textureDesc.Samples						 = desc.Samples;
 			textureDesc.Format						 = format;
 
-			Ref<Graphics::ITexture> colourAttachment = device->CreateTexture(textureDesc);
+			Graphics::TextureHandle colourAttachment = device->CreateTexture(textureDesc);
 
 			Graphics::FramebufferColourAttachmentDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
 			framebufferTextureDesc.ColourAttachment.TargetTexture					 = colourAttachment;
@@ -249,7 +249,7 @@ namespace Nexus::Utils
 				resolveTextureDesc.Samples						= 1;
 				resolveTextureDesc.Format						= format;
 
-				Ref<Graphics::ITexture> resolveAttachment = device->CreateTexture(resolveTextureDesc);
+				Graphics::TextureHandle resolveAttachment = device->CreateTexture(resolveTextureDesc);
 
 				Graphics::FramebufferTextureDescription resolveAttachmentDesc = {};
 				resolveAttachmentDesc.TargetTexture							  = resolveAttachment;
@@ -270,7 +270,7 @@ namespace Nexus::Utils
 			textureDesc.Samples						 = desc.Samples;
 			textureDesc.Format						 = desc.DepthAttachmentFormat.value();
 
-			Ref<Graphics::ITexture> texture = device->CreateTexture(textureDesc);
+			Graphics::TextureHandle texture = device->CreateTexture(textureDesc);
 
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 			framebufferTextureDesc.TargetTexture						   = texture;
@@ -285,7 +285,7 @@ namespace Nexus::Utils
 	}
 
 	void WriteToTexture(Ref<Graphics::ICommandQueue> commandQueue,
-						Ref<Graphics::ITexture>		 texture,
+						Graphics::TextureHandle		 texture,
 						uint32_t					 mipLevel,
 						uint32_t					 x,
 						uint32_t					 y,
@@ -326,7 +326,7 @@ namespace Nexus::Utils
 	}
 
 	std::vector<char> ReadFromTexture(Ref<Graphics::ICommandQueue> commandQueue,
-									  Ref<Graphics::ITexture>	   texture,
+									  Graphics::TextureHandle	   texture,
 									  uint32_t					   mipLevel,
 									  uint32_t					   x,
 									  uint32_t					   y,

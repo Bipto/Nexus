@@ -272,9 +272,10 @@ namespace Nexus::Graphics
 			desc.Usage						  = Graphics::TextureUsage_ColourAttachment;
 			desc.Samples					  = 1;
 			desc.Format						  = Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
-			Ref<TextureVk> texture			  = CreateRef<TextureVk>(image, desc, m_GraphicsDevice, false);
 
-			m_ColourAttachments.push_back(texture);
+			TextureHandle handle =
+				m_GraphicsDevice->m_Resources.Textures.CreateShared(std::make_unique<TextureVk>(image, desc, m_GraphicsDevice, false));
+			m_ColourAttachments.push_back(handle);
 		}
 
 		return true;
@@ -292,7 +293,7 @@ namespace Nexus::Graphics
 		depthDesc.Samples			 = m_Description.Samples;
 		depthDesc.Format			 = m_DepthFormat;
 
-		m_DepthAttachment = std::dynamic_pointer_cast<TextureVk>(m_GraphicsDevice->CreateTexture(depthDesc));
+		m_DepthAttachment = m_GraphicsDevice->CreateTexture(depthDesc);
 	}
 
 	void SwapchainVk::CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice)
@@ -307,7 +308,7 @@ namespace Nexus::Graphics
 		resolveDesc.Samples			   = m_Description.Samples;
 		resolveDesc.Format			   = Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
 
-		m_ResolveAttachment = std::dynamic_pointer_cast<TextureVk>(m_GraphicsDevice->CreateTexture(resolveDesc));
+		m_ResolveAttachment = m_GraphicsDevice->CreateTexture(resolveDesc);
 	}
 
 	void SwapchainVk::CreateSemaphores()

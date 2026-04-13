@@ -126,7 +126,7 @@ namespace Nexus::Graphics
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Ref<ITexture> CreateTexture(const TextureDescription &spec) = 0;
+		virtual TextureHandle CreateTexture(const TextureDescription &spec) = 0;
 
 		virtual TextureViewHandle CreateTextureView(const TextureViewDescription &desc) = 0;
 

@@ -527,8 +527,12 @@ namespace Nexus::Graphics
 
 				GL::CopyTextureToTexture(copyDesc, context);
 
-				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.Destination);
-				buffer->MarkDirty();
+				TextureHandle  handle  = command.Destination;
+				TextureOpenGL *texture = dynamic_cast<Graphics::TextureOpenGL *>(handle.GetResource());
+				if (texture)
+				{
+					texture->MarkDirty();
+				}
 			});
 	}
 
@@ -584,34 +588,38 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device)
 	{
-		DeviceBufferOpenGL *buffer		  = dynamic_cast<DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
-		Ref<TextureOpenGL>	textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
+		Graphics::TextureHandle textureHandle = command.BufferTextureCopy.TextureHandle;
 
-		if (buffer && textureOpenGL)
+		DeviceBufferOpenGL *buffer = dynamic_cast<DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
+
+		if (buffer && textureHandle.IsValid())
 		{
+			TextureOpenGL *texture = dynamic_cast<TextureOpenGL *>(textureHandle.GetResource());
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
-
-			Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 			texture->MarkDirty();
 		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
 	{
-		DeviceBufferOpenGL *buffer		  = dynamic_cast<DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
-		Ref<TextureOpenGL>	textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
+		Graphics::TextureHandle textureHandle = command.TextureBufferCopy.TextureHandle;
+		DeviceBufferOpenGL	   *buffer		  = dynamic_cast<DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
-		if (buffer && textureOpenGL)
+		if (buffer && textureHandle.IsValid())
 		{
+			TextureOpenGL *textureOpenGL = dynamic_cast<TextureOpenGL *>(textureHandle.GetResource());
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
 		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
 	{
-		Ref<TextureOpenGL>			  sourceTexture = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Source);
-		Ref<TextureOpenGL>			  destTexture	= std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
-		const TextureCopyDescription &copyDesc		= command.TextureCopy;
+		Graphics::TextureHandle dstHandle = command.TextureCopy.Destination;
+
+		const TextureOpenGL *sourceTexture = dynamic_cast<const TextureOpenGL *>(command.TextureCopy.Source.GetResource());
+		TextureOpenGL		*destTexture   = dynamic_cast<TextureOpenGL *>(dstHandle.GetResource());
+
+		const TextureCopyDescription &copyDesc = command.TextureCopy;
 
 		const bool copyDepth = 1;
 
@@ -642,8 +650,7 @@ namespace Nexus::Graphics
 				}
 			});
 
-		Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
-		texture->MarkDirty();
+		destTexture->MarkDirty();
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
@@ -755,9 +762,9 @@ namespace Nexus::Graphics
 
 		// update texture layouts
 		// enumerate through all texture barriers and create the required subresource ranges
-		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
+		for (TextureBarrierDesc textureBarrier : command.TextureBarriers)
 		{
-			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(textureBarrier.Texture);
+			TextureOpenGL *textureGL = dynamic_cast<TextureOpenGL *>(textureBarrier.Texture.GetResource());
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;

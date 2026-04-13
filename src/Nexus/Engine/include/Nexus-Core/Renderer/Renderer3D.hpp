@@ -87,7 +87,7 @@ namespace Nexus::Graphics
 
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_ClearScreenPipeline = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::ITexture> m_DefaultTexture	   = nullptr;
-		Graphics::TextureViewHandle			  m_DefaultTextureView = {};
+		Graphics::TextureHandle		m_DefaultTexture	 = {};
+		Graphics::TextureViewHandle m_DefaultTextureView = {};
 	};
 }	 // namespace Nexus::Graphics

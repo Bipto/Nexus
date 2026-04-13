@@ -128,12 +128,12 @@ namespace Nexus::Graphics
 		m_Allocation = VK_NULL_HANDLE;
 	}
 
-	VkImage TextureVk::GetImage()
+	const VkImage TextureVk::GetImage() const
 	{
 		return m_Image;
 	}
 
-	VkImageView TextureVk::GetImageView(const VulkanTextureViewInfo &desc)
+	const VkImageView TextureVk::GetImageView(const VulkanTextureViewInfo &desc) const
 	{
 		if (m_ImageViews.find(desc) != m_ImageViews.end())
 		{

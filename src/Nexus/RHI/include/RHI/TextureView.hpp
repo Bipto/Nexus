@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	struct TextureViewDescription
 	{
-		Ref<ITexture>	 TargetTexture = nullptr;
+		TextureHandle	 TargetTexture = {};
 		PixelFormat		 Format		   = PixelFormat::Invalid;
 		SubresourceRange Range		   = {};
 		std::string		 DebugName	   = "TextureView";
@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 	  public:
 		virtual ~ITextureView()										 = default;
 		virtual const TextureViewDescription &GetDescription() const = 0;
-		Ref<ITexture>						  GetTexture() const
+		TextureHandle						  GetTexture() const
 		{
 			return GetDescription().TargetTexture;
 		}

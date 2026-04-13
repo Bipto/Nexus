@@ -387,7 +387,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(storageImage.TextureHandle))
+				if (const TextureVk *texture = dynamic_cast<const TextureVk *>(storageImage.TextureHandle.GetResource()))
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 

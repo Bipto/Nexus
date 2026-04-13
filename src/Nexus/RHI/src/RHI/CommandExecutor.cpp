@@ -182,21 +182,21 @@ namespace Nexus::Graphics
 	{
 		bool valid = true;
 
-		if (!command.Source)
+		if (!command.Source.IsValid())
 		{
 			throw std::runtime_error("Attempting to resolve from an invalid framebuffer");
 			valid = false;
 		}
 
-		if (!command.Destination)
+		if (!command.Destination.IsValid())
 		{
 			throw std::runtime_error("Attempting to resolve to an invalid swapchain");
 			valid = false;
 		}
 
-		Ref<ITexture> source = command.Source;
-		Ref<ITexture> dest	 = command.Destination;
-		if (source && dest)
+		TextureHandle source = command.Source;
+		TextureHandle dest	 = command.Destination;
+		if (source.IsValid() && dest.IsValid())
 		{
 			if (source->GetWidth() != dest->GetWidth())
 			{

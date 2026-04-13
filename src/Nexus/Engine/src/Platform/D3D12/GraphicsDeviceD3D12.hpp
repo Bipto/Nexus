@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 			return -1.0f;
 		}
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
-		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
+		TextureHandle				 CreateTexture(const TextureDescription &spec) final;
 		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
@@ -123,6 +123,8 @@ namespace Nexus::Graphics
 		GraphicsResourceManager m_Resources = {};
 
 		std::vector<WeakRef<CommandQueueD3D12>> m_CreatedCommandQueues = {};
+
+		friend class SwapchainD3D12;
 	};
 }	 // namespace Nexus::Graphics
 #endif

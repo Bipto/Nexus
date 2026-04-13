@@ -65,7 +65,7 @@ namespace Nexus::Graphics
 		m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<char> MipmapGenerator::GenerateMip(Ref<ITexture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
+	std::vector<char> MipmapGenerator::GenerateMip(TextureHandle texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
 	{
 		std::vector<char> pixels = {};
 
@@ -158,7 +158,7 @@ namespace Nexus::Graphics
 			m_CommandQueue->SubmitCommandList(m_CommandList);
 			m_Device->WaitForIdle();
 
-			Ref<ITexture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
+			TextureHandle framebufferTexture = framebuffer->GetColorTextureHandle(0);
 			pixels							 = Utils::ReadFromTexture(m_CommandQueue, framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 

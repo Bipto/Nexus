@@ -7,6 +7,7 @@
 	#include "PipelineD3D12.hpp"
 	#include "ShaderModuleD3D12.hpp"
 	#include "StreamStateBuilder.hpp"
+	#include "TextureD3D12.hpp"
 
 namespace Nexus::D3D12
 {
@@ -855,7 +856,7 @@ namespace Nexus::D3D12
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::ITexture> texture = desc.TargetTexture;
+		const Graphics::TextureD3D12 *texture = dynamic_cast<const Graphics::TextureD3D12 *>(desc.TargetTexture.GetResource());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -949,7 +950,7 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		Ref<Graphics::ITexture>				texture		= view.TextureHandle;
+		const Graphics::TextureD3D12	   *texture		= dynamic_cast<const Graphics::TextureD3D12 *>(view.TextureHandle.GetResource());
 		const Graphics::TextureDescription &textureDesc = texture->GetDescription();
 		uav.Format										= D3D12::GetD3D12PixelFormat(textureDesc.Format);
 

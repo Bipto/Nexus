@@ -165,7 +165,7 @@ namespace Nexus::Graphics
 		Graphics::SamplerHandle					  m_Sampler		 = {};
 		bool									  m_IsStarted	 = false;
 
-		Nexus::Ref<Nexus::Graphics::ITexture>	   m_BlankTexture		 = nullptr;
+		Graphics::TextureHandle					   m_BlankTexture		 = {};
 		Graphics::TextureViewHandle				   m_BlankTextureView	 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformUploadBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformBuffer		 = nullptr;

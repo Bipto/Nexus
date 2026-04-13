@@ -2,12 +2,12 @@
 
 #include "Nexus-Core/nxpch.hpp"
 #include "RHI/PixelFormat.hpp"
+#include "RHI/Texture.hpp"
 
 namespace Nexus::Graphics
 {
 	class IGraphicsDevice;
 	class ICommandQueue;
-	class ITexture;
 
 	struct Image
 	{
@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 
 		static Image FromTexture(IGraphicsDevice   *device,
 								 Ref<ICommandQueue> commandQueue,
-								 Ref<ITexture>		texture,
+								 TextureHandle		texture,
 								 uint32_t			arrayLayer,
 								 uint32_t			mipLevel,
 								 uint32_t			x,

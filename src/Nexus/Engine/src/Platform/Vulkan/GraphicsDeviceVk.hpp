@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 		Ref<ITexelBuffer>			CreateTexelBuffer(const TexelBufferDescription &desc) final;
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
-		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
+		TextureHandle				 CreateTexture(const TextureDescription &spec) final;
 		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
 		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;

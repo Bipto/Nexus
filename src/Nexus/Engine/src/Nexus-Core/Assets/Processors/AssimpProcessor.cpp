@@ -94,9 +94,9 @@ namespace Nexus::Processors
 		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, materials, meshData, device); }
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITexture> LoadEmbeddedTexture(const aiTexture				   *texture,
-															  Nexus::Graphics::IGraphicsDevice *device,
-															  Ref<Graphics::ICommandQueue>		commandQueue)
+	static Graphics::TextureHandle LoadEmbeddedTexture(const aiTexture					*texture,
+													   Nexus::Graphics::IGraphicsDevice *device,
+													   Ref<Graphics::ICommandQueue>		 commandQueue)
 	{
 		std::vector<unsigned char> pixels;
 		pixels.reserve(texture->mWidth * texture->mHeight * 4);
@@ -112,7 +112,7 @@ namespace Nexus::Processors
 		textureSpec.Type								= Nexus::Graphics::TextureType::Texture2D;
 		textureSpec.Usage								= Nexus::Graphics::TextureUsage_Sampled;
 
-		Nexus::Ref<Nexus::Graphics::ITexture> createdTexture = Nexus::Ref<Nexus::Graphics::ITexture>(device->CreateTexture(textureSpec));
+		Graphics::TextureHandle createdTexture = device->CreateTexture(textureSpec);
 
 		Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access							 = Graphics::BufferMemoryAccess::Upload;
@@ -126,15 +126,15 @@ namespace Nexus::Processors
 		return createdTexture;
 	}
 
-	static Nexus::Ref<Nexus::Graphics::ITexture> LoadTextureFile(const std::string				  &filename,
-																 const std::string				  &directory,
-																 bool							   generateMips,
-																 Nexus::Graphics::IGraphicsDevice *device,
-																 Ref<Graphics::ICommandQueue>	   commandQueue)
+	static Graphics::TextureHandle LoadTextureFile(const std::string				&filename,
+												   const std::string				&directory,
+												   bool								 generateMips,
+												   Nexus::Graphics::IGraphicsDevice *device,
+												   Ref<Graphics::ICommandQueue>		 commandQueue)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
-		Nexus::Ref<Nexus::Graphics::ITexture> texture = nullptr;
+		Graphics::TextureHandle texture = {};
 
 		if (std::filesystem::is_regular_file(texturePath))
 		{
@@ -200,9 +200,9 @@ namespace Nexus::Processors
 				specularColour.a = assimpSpecularColour.a;
 			}
 
-			Nexus::Ref<Nexus::Graphics::ITexture> diffuseTexture  = nullptr;
-			Nexus::Ref<Nexus::Graphics::ITexture> normalTexture	  = nullptr;
-			Nexus::Ref<Nexus::Graphics::ITexture> specularTexture = nullptr;
+			Graphics::TextureHandle diffuseTexture	= {};
+			Graphics::TextureHandle normalTexture	= {};
+			Graphics::TextureHandle specularTexture = {};
 
 			if (hasDiffuseTexture)
 			{
@@ -244,7 +244,7 @@ namespace Nexus::Processors
 			Graphics::TextureViewHandle normalTextureView	= {};
 			Graphics::TextureViewHandle specularTextureView = {};
 
-			if (diffuseTexture)
+			if (diffuseTexture.IsValid())
 			{
 				Nexus::Graphics::TextureViewDescription diffuseViewDesc = {};
 				diffuseViewDesc.TargetTexture							= diffuseTexture;
@@ -257,7 +257,7 @@ namespace Nexus::Processors
 				diffuseTextureView										= device->CreateTextureView(diffuseViewDesc);
 			}
 
-			if (normalTexture)
+			if (normalTexture.IsValid())
 			{
 				Nexus::Graphics::TextureViewDescription normalViewDesc = {};
 				normalViewDesc.TargetTexture						   = normalTexture;
@@ -270,7 +270,7 @@ namespace Nexus::Processors
 				normalTextureView									   = device->CreateTextureView(normalViewDesc);
 			}
 
-			if (specularTexture)
+			if (specularTexture.IsValid())
 			{
 				Nexus::Graphics::TextureViewDescription specularViewDesc = {};
 				specularViewDesc.TargetTexture							 = specularTexture;

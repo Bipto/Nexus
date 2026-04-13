@@ -29,8 +29,8 @@ namespace Nexus::Graphics
 		TextureVk(VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device, bool owned = false);
 		virtual ~TextureVk();
 
-		VkImage		GetImage();
-		VkImageView GetImageView(const VulkanTextureViewInfo &desc);
+		const VkImage	  GetImage() const;
+		const VkImageView GetImageView(const VulkanTextureViewInfo &desc) const;
 
 		TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
 		void		  SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
@@ -44,8 +44,8 @@ namespace Nexus::Graphics
 
 		bool m_Owned = true;
 
-		std::vector<TextureLayout>					 m_TextureLayouts = {};
-		std::map<VulkanTextureViewInfo, VkImageView> m_ImageViews	  = {};
+		std::vector<TextureLayout>							 m_TextureLayouts = {};
+		mutable std::map<VulkanTextureViewInfo, VkImageView> m_ImageViews	  = {};
 	};
 }	 // namespace Nexus::Graphics
 

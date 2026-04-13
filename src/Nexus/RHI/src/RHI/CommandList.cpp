@@ -591,21 +591,24 @@ namespace Nexus::Graphics
 			{
 				for (const CombinedImageSampler &ciSampler : ciSamplers)
 				{
-					TextureViewHandle			  textureView = ciSampler.ImageTexture;
-					const TextureViewDescription &viewDesc	  = textureView->GetDescription();
+					if (ciSampler.ImageSampler.IsValid() && ciSampler.ImageTexture.IsValid())
+					{
+						TextureViewHandle			  textureView = ciSampler.ImageTexture;
+						const TextureViewDescription &viewDesc	  = textureView->GetDescription();
 
-					TextureBarrierDesc barrier					   = {};
-					barrier.BeforeAccess						   = BarrierAccess::NoAccess;
-					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
-					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
-					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
-					barrier.Texture								   = textureView->GetTexture();
-					barrier.Layout								   = TextureLayout::ShaderReadOnlyOptimal;
-					barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
-					barrier.TextureSubresourceRange.LayerCount	   = viewDesc.Range.LayerCount;
-					barrier.TextureSubresourceRange.BaseMipLevel   = viewDesc.Range.BaseMipLevel;
-					barrier.TextureSubresourceRange.LevelCount	   = viewDesc.Range.LevelCount;
-					SubmitTextureBarrier(barrier);
+						TextureBarrierDesc barrier					   = {};
+						barrier.BeforeAccess						   = BarrierAccess::NoAccess;
+						barrier.AfterAccess							   = BarrierAccess::ShaderRead;
+						barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
+						barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
+						barrier.Texture								   = textureView->GetTexture();
+						barrier.Layout								   = TextureLayout::ShaderReadOnlyOptimal;
+						barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+						barrier.TextureSubresourceRange.LayerCount	   = viewDesc.Range.LayerCount;
+						barrier.TextureSubresourceRange.BaseMipLevel   = viewDesc.Range.BaseMipLevel;
+						barrier.TextureSubresourceRange.LevelCount	   = viewDesc.Range.LevelCount;
+						SubmitTextureBarrier(barrier);
+					}
 				}
 			}
 
@@ -634,14 +637,12 @@ namespace Nexus::Graphics
 			{
 				for (const StorageImageView &storageImage : storageImages)
 				{
-					Ref<ITexture> texture = storageImage.TextureHandle;
-
 					TextureBarrierDesc barrier					   = {};
 					barrier.BeforeAccess						   = BarrierAccess::NoAccess;
 					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
 					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
 					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
-					barrier.Texture								   = texture;
+					barrier.Texture								   = storageImage.TextureHandle;
 					barrier.Layout								   = TextureLayout::General;
 					barrier.TextureSubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
 					barrier.TextureSubresourceRange.LayerCount	   = 1;

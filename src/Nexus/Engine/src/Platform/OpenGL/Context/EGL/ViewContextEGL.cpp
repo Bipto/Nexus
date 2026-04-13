@@ -166,7 +166,7 @@ namespace Nexus::GL
 		return eglMakeCurrent(m_EGLDisplay, m_Surface, m_Surface, m_Context);
 	}
 
-	void ViewContextEGL::Swap(Ref<Graphics::TextureOpenGL> texture, const Graphics::SwapchainPresentDescription &presentDesc)
+	void ViewContextEGL::Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc)
 	{
 		NX_VALIDATE(texture, "Texture cannot be null");
 
@@ -234,13 +234,11 @@ namespace Nexus::GL
 			for (size_t i = 0; i < presentDesc.PresentRects.size(); i++)
 			{
 				const auto &presentRect = presentDesc.PresentRects.at(i);
-				presentRects[i]			= {
-							.x		= static_cast<EGLint>(presentRect.X),
-							.y		= static_cast<EGLint>(presentRect.Y),
-							.width	= static_cast<EGLint>(presentRect.Width),
-							.height = static_cast<EGLint>(presentRect.Height)
-			};
-  }
+				presentRects[i]			= {.x	   = static_cast<EGLint>(presentRect.X),
+										   .y	   = static_cast<EGLint>(presentRect.Y),
+										   .width  = static_cast<EGLint>(presentRect.Width),
+										   .height = static_cast<EGLint>(presentRect.Height)};
+			}
 			eglSwapBuffersWithDamageKHR(m_EGLDisplay, m_Surface, &presentRects[0].x, presentRects.size());
 		}
 		else
