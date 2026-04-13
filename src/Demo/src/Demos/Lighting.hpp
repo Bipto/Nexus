@@ -335,11 +335,11 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::Mesh>			   m_CubeMesh	 = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::IResourceSet> m_ResourceSet		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_DiffuseMap		= nullptr;
+		Nexus::Graphics::TextureHandle			  m_DiffuseMap		= {};
 		Nexus::Graphics::TextureViewHandle		  m_DiffuseMapView	= {};
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_NormalMap		= nullptr;
+		Nexus::Graphics::TextureHandle			  m_NormalMap		= {};
 		Nexus::Graphics::TextureViewHandle		  m_NormalMapView	= {};
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_SpecularMap		= nullptr;
+		Nexus::Graphics::TextureHandle			  m_SpecularMap		= {};
 		Nexus::Graphics::TextureViewHandle		  m_SpecularMapView = {};
 		glm::vec3								  m_ClearColour		= {0.7f, 0.2f, 0.3f};
 

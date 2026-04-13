@@ -443,7 +443,7 @@ namespace Demos
 		Nexus::Graphics::StridedDeviceAddressRegion m_HitRegion		 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_CallableRegion = {};
 
-		Nexus::Ref<Nexus::Graphics::ITexture> m_StorageTexture	   = nullptr;
+		Nexus::Graphics::TextureHandle	   m_StorageTexture		= {};
 		Nexus::Graphics::TextureViewHandle	  m_StorageTextureView = {};
 
 		ImTextureID m_BoundImGuiTextureID = 0;

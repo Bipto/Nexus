@@ -278,7 +278,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_Cubemap		= nullptr;
+		Nexus::Graphics::TextureHandle			  m_Cubemap		= {};
 		Nexus::Graphics::TextureViewHandle		  m_CubemapView = {};
 		Nexus::Graphics::SamplerHandle			  m_Sampler		= {};
 		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};

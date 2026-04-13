@@ -32,7 +32,7 @@ namespace Demos
 			framebufferDesc.Samples					= 1;
 			m_Framebuffer							= Nexus::Utils::CreateFramebuffer(m_GraphicsDevice, framebufferDesc);
 
-			Nexus::Ref<Nexus::Graphics::ITexture> texture = m_Framebuffer->GetColorTextureHandle(0);
+			Nexus::Graphics::TextureHandle texture = m_Framebuffer->GetColorTextureHandle(0);
 
 			Nexus::Graphics::TextureViewDescription viewDesc = {};
 			viewDesc.TargetTexture							 = texture;

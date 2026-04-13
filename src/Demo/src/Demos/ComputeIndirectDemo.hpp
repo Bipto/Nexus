@@ -142,7 +142,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_IndirectBuffer		= nullptr;
 		Nexus::Ref<Nexus::Graphics::IComputePipeline> m_ComputePipeline		= nullptr;
 		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet			= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture				= nullptr;
+		Nexus::Graphics::TextureHandle				  m_Texture				= {};
 		Nexus::Graphics::TextureViewHandle			  m_TextureView			= {};
 		glm::vec3									  m_ClearColour			= {0.7f, 0.2f, 0.3f};
 		ImTextureID									  m_ImGuiTextureBinding = 0;
