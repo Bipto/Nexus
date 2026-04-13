@@ -112,31 +112,40 @@ namespace Nexus::Audio
 		alSourcef(m_Source.Get(), AL_BYTE_OFFSET, bytes);
 	}
 
-	void AudioSourceOpenAL::SetStaticSourceBuffer(std::shared_ptr<AudioBuffer> buffer)
+	void AudioSourceOpenAL::SetStaticSourceBuffer(AudioBufferHandle buffer)
 	{
-		std::shared_ptr<AudioBufferOpenAL> alBuffer = std::dynamic_pointer_cast<AudioBufferOpenAL>(buffer);
-		alSourcei(m_Source.Get(), AL_BUFFER, (ALint)alBuffer->GetHandle());
-		m_StaticBuffer = buffer;
+		const AudioBufferOpenAL *alBuffer = dynamic_cast<const AudioBufferOpenAL *>(buffer.GetResource());
+		if (alBuffer)
+		{
+			alSourcei(m_Source.Get(), AL_BUFFER, (ALint)alBuffer->GetHandle());
+			m_StaticBuffer = buffer;
+		}
 	}
 
-	void AudioSourceOpenAL::QueueBuffer(std::shared_ptr<AudioBuffer> buffer)
+	void AudioSourceOpenAL::QueueBuffer(AudioBufferHandle buffer)
 	{
-		std::shared_ptr<AudioBufferOpenAL> alBuffer = std::dynamic_pointer_cast<AudioBufferOpenAL>(buffer);
-		ALuint							   handle	= alBuffer->GetHandle();
-		alSourceQueueBuffers(m_Source.Get(), 1, &handle);
+		const AudioBufferOpenAL *alBuffer = dynamic_cast<const AudioBufferOpenAL *>(buffer.GetResource());
+		if (alBuffer)
+		{
+			ALuint handle = alBuffer->GetHandle();
+			alSourceQueueBuffers(m_Source.Get(), 1, &handle);
+		}
 	}
 
-	void AudioSourceOpenAL::UnqueueBuffer(std::shared_ptr<AudioBuffer> buffer)
+	void AudioSourceOpenAL::UnqueueBuffer(AudioBufferHandle buffer)
 	{
-		std::shared_ptr<AudioBufferOpenAL> alBuffer = std::dynamic_pointer_cast<AudioBufferOpenAL>(buffer);
-		ALuint							   handle	= alBuffer->GetHandle();
-		alSourceUnqueueBuffers(m_Source.Get(), 1, &handle);
+		const AudioBufferOpenAL *alBuffer = dynamic_cast<const AudioBufferOpenAL *>(buffer.GetResource());
+		if (alBuffer)
+		{
+			ALuint handle = alBuffer->GetHandle();
+			alSourceUnqueueBuffers(m_Source.Get(), 1, &handle);
+		}
 	}
 
 	void AudioSourceOpenAL::ClearAllBuffers()
 	{
 		alSourcei(m_Source.Get(), AL_BUFFER, AL_NONE);
-		m_StaticBuffer = nullptr;
+		m_StaticBuffer = {};
 	}
 
 	float AudioSourceOpenAL::GetPitch() const
@@ -288,7 +297,7 @@ namespace Nexus::Audio
 		return position;
 	}
 
-	std::shared_ptr<AudioBuffer> AudioSourceOpenAL::GetStaticSourceBuffer() const
+	AudioBufferHandle AudioSourceOpenAL::GetStaticSourceBuffer() const
 	{
 		return m_StaticBuffer;
 	}

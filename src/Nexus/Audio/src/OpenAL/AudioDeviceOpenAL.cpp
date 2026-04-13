@@ -23,37 +23,51 @@ namespace Nexus::Audio
 		alcMakeContextCurrent(m_Context.get());
 	}
 
-	std::shared_ptr<AudioBuffer> AudioDeviceOpenAL::CreateAudioBuffer()
+	AudioBufferHandle AudioDeviceOpenAL::CreateAudioBuffer()
 	{
-		return std::make_shared<AudioBufferOpenAL>(this);
+		auto buffer = std::make_unique<AudioBufferOpenAL>(this);
+		return m_Resources.AudioBuffers.CreateShared(std::move(buffer));
 	}
 
-	std::shared_ptr<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource()
+	AudioSourceHandle AudioDeviceOpenAL::CreateAudioSource()
 	{
-		return std::make_shared<AudioSourceOpenAL>();
+		auto source = std::make_unique<AudioSourceOpenAL>();
+		return m_Resources.AudioSources.CreateShared(std::move(source));
 	}
 
-	void AudioDeviceOpenAL::Play(std::shared_ptr<AudioSource> source)
+	void AudioDeviceOpenAL::Play(AudioSourceHandle source)
 	{
-		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
-		alSourcePlay(alSource->GetSource());
+		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
+		if (alSource)
+		{
+			alSourcePlay(alSource->GetSource());
+		}
 	}
 
-	void AudioDeviceOpenAL::Pause(std::shared_ptr<AudioSource> source)
+	void AudioDeviceOpenAL::Pause(AudioSourceHandle source)
 	{
-		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
-		alSourcePause(alSource->GetSource());
+		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
+		if (alSource)
+		{
+			alSourcePause(alSource->GetSource());
+		}
 	}
 
-	void AudioDeviceOpenAL::Stop(std::shared_ptr<AudioSource> source)
+	void AudioDeviceOpenAL::Stop(AudioSourceHandle source)
 	{
-		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
-		alSourceStop(alSource->GetSource());
+		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
+		if (alSource)
+		{
+			alSourceStop(alSource->GetSource());
+		}
 	}
 
-	void AudioDeviceOpenAL::Rewind(std::shared_ptr<AudioSource> source)
+	void AudioDeviceOpenAL::Rewind(AudioSourceHandle source)
 	{
-		std::shared_ptr<AudioSourceOpenAL> alSource = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
-		alSourceRewind(alSource->GetSource());
+		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
+		if (alSource)
+		{
+			alSourceRewind(alSource->GetSource());
+		}
 	}
 }	 // namespace Nexus::Audio
