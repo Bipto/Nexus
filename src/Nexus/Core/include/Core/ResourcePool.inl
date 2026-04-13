@@ -293,7 +293,7 @@ namespace Nexus
 	T *ResourcePool<T, Handle>::Get(Handle handle)
 	{
 		// we need to validate that this resource handle belongs to this pool
-		if (handle.GetParent() != this)
+		if (handle.GetParent() == nullptr || handle.GetParent() != this)
 		{
 			return nullptr;
 		}

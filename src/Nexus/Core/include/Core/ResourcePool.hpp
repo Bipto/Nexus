@@ -1,6 +1,16 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+#include <vector>
+
+#define DEFINE_RESOURCE(ResourceName, ResourceType)                                                                                                  \
+	struct ResourceName##Tag                                                                                                                         \
+	{                                                                                                                                                \
+	};                                                                                                                                               \
+	using ResourceName##ID	   = Nexus::HandleT<ResourceName##Tag>;                                                                                  \
+	using ResourceName##Handle = SharedHandle<ResourceType, ResourceName##ID>;                                                                       \
+	using ResourceName##Pool   = ResourcePool<ResourceType, ResourceName##ID>;
 
 namespace Nexus
 {
@@ -64,6 +74,9 @@ namespace Nexus
 		/// @param handle A handle to the resource within the pool
 		SharedHandle(ResourcePool<T, Handle> *pool, Handle handle);
 
+		/// @brief A destructor to clean up any resources
+		~SharedHandle() = default;
+
 		/// @brief An operator allowing access to the resource as a pointer
 		/// @return A pointer to the resource
 		T *operator->();
@@ -126,8 +139,6 @@ namespace Nexus
 		/// @param pool
 		/// @param handle
 		UniqueHandle(ResourcePool<T, Handle> *pool, Handle handle);
-
-		// Move constructor
 
 		/// @brief A move constructor allowing moving ownership of a resource to another owner
 		/// @param other The resource that should be moved into this resource
