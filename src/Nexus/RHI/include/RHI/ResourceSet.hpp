@@ -104,8 +104,6 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<Ref<IAccelerationStructure>>> AccelerationStructures = {};
 		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			UniformTexelBuffers	   = {};
 		std::map<std::string, std::vector<Ref<ITexelBuffer>>>			StorageTexelBuffers	   = {};
-
-		void Reset();
 	};
 
 	class Pipeline;
