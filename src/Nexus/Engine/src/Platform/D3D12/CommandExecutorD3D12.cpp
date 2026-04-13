@@ -400,7 +400,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(queryHandle.GetResource()))
 		{
 			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
 			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
@@ -409,7 +410,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(queryHandle.GetResource()))
 		{
 			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
 			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);

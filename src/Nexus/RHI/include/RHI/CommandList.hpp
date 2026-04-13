@@ -385,14 +385,14 @@ namespace Nexus::Graphics
 	struct StartTimingQueryCommand
 	{
 		/// @brief A pointer to the timing query to start
-		ITimingQuery *Query = nullptr;
+		TimingQueryHandle Query = {};
 	};
 
 	/// @brief A structure representing a command to stop a timing query
 	struct StopTimingQueryCommand
 	{
 		/// @brief A pointer to the timing query to stop
-		ITimingQuery *Query = nullptr;
+		TimingQueryHandle Query = {};
 	};
 
 	struct CopyBufferToBufferCommand
@@ -780,23 +780,23 @@ namespace Nexus::Graphics
 	class StartTimingQueryCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		StartTimingQueryCommandImpl(ITimingQuery *query);
+		StartTimingQueryCommandImpl(TimingQueryHandle query);
 		~StartTimingQueryCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		ITimingQuery *m_Query = nullptr;
+		TimingQueryHandle m_Query = {};
 	};
 
 	class EndTimingQueryCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		EndTimingQueryCommandImpl(ITimingQuery *query);
+		EndTimingQueryCommandImpl(TimingQueryHandle query);
 		~EndTimingQueryCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		ITimingQuery *m_Query = nullptr;
+		TimingQueryHandle m_Query = {};
 	};
 
 	class CopyBufferToBufferCommandImpl final : public IGraphicsCommand
@@ -1047,9 +1047,9 @@ namespace Nexus::Graphics
 
 		void ResolveFramebuffer(const ResolveTextureDescription &desc);
 
-		void StartTimingQuery(ITimingQuery *query);
+		void StartTimingQuery(TimingQueryHandle query);
 
-		void StopTimingQuery(ITimingQuery *query);
+		void StopTimingQuery(TimingQueryHandle query);
 
 		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 

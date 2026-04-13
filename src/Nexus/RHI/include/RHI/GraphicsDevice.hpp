@@ -59,6 +59,7 @@ namespace Nexus::Graphics
 		TextureViewPool			  TextureViews			 = {};
 		TexelBufferPool			  TexelBuffers			 = {};
 		AccelerationStructurePool AccelerationStructures = {};
+		TimingQueryPool			  TimingQueries			 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -102,7 +103,7 @@ namespace Nexus::Graphics
 
 		virtual Ref<IDeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
-		virtual Ref<ITimingQuery> CreateTimingQuery() = 0;
+		virtual TimingQueryHandle CreateTimingQuery() = 0;
 
 		virtual AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
 

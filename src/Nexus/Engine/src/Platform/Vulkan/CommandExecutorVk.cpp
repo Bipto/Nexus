@@ -591,7 +591,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(queryHandle.GetResource()))
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
@@ -603,7 +604,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(queryHandle.GetResource()))
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);

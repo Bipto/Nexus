@@ -121,9 +121,10 @@ namespace Nexus::Graphics
 		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
-	Ref<ITimingQuery> GraphicsDeviceVk::CreateTimingQuery()
+	TimingQueryHandle GraphicsDeviceVk::CreateTimingQuery()
 	{
-		return CreateRef<TimingQueryVk>(this);
+		auto timingQuery = std::make_unique<TimingQueryVk>(this);
+		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
 	Ref<IDeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)

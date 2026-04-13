@@ -37,7 +37,7 @@ namespace Nexus::Graphics
 
 		Ref<IFramebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
 		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;
-		Ref<ITimingQuery>			CreateTimingQuery() final;
+		TimingQueryHandle			CreateTimingQuery() final;
 		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
 		AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
 		TexelBufferHandle			CreateTexelBuffer(const TexelBufferDescription &desc) final;

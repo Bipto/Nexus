@@ -538,13 +538,14 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		if (!command.Query)
+		if (!command.Query.IsValid())
 		{
 			NX_ERROR("Attempting to write a timestamp to an invalid query object");
 			return;
 		}
 
-		if (TimingQueryOpenGL *query = dynamic_cast<TimingQueryOpenGL *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryOpenGL *query = dynamic_cast<TimingQueryOpenGL *>(queryHandle.GetResource()))
 		{
 			GL::ExecuteGLCommands(
 				[&](const GladGLContext &context)
@@ -563,13 +564,14 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		if (!command.Query)
+		if (!command.Query.IsValid())
 		{
 			NX_ERROR("Attempting to write a timestamp to an invalid query object");
 			return;
 		}
 
-		if (TimingQueryOpenGL *query = dynamic_cast<TimingQueryOpenGL *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryOpenGL *query = dynamic_cast<TimingQueryOpenGL *>(queryHandle.GetResource()))
 		{
 			GL::ExecuteGLCommands(
 				[&](const GladGLContext &context)

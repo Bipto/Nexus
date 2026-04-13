@@ -177,7 +177,7 @@ namespace Nexus::Graphics
 		executor->ExecuteCommand(m_CommandData, device);
 	}
 
-	StartTimingQueryCommandImpl::StartTimingQueryCommandImpl(ITimingQuery *query) : m_Query(query)
+	StartTimingQueryCommandImpl::StartTimingQueryCommandImpl(TimingQueryHandle query) : m_Query(query)
 	{
 	}
 
@@ -187,7 +187,7 @@ namespace Nexus::Graphics
 		executor->ExecuteCommand(command, device);
 	}
 
-	EndTimingQueryCommandImpl::EndTimingQueryCommandImpl(ITimingQuery *query) : m_Query(query)
+	EndTimingQueryCommandImpl::EndTimingQueryCommandImpl(TimingQueryHandle query) : m_Query(query)
 	{
 	}
 
@@ -886,7 +886,7 @@ namespace Nexus::Graphics
 		m_CommandImpls.emplace_back(std::make_unique<ResolveFramebufferCommandImpl>(desc));
 	}
 
-	void Nexus::Graphics::ICommandList::StartTimingQuery(ITimingQuery *query)
+	void Nexus::Graphics::ICommandList::StartTimingQuery(TimingQueryHandle query)
 	{
 		if (!m_Started)
 		{
@@ -902,7 +902,7 @@ namespace Nexus::Graphics
 		m_CommandImpls.emplace_back(std::make_unique<StartTimingQueryCommandImpl>(query));
 	}
 
-	void Nexus::Graphics::ICommandList::StopTimingQuery(ITimingQuery *query)
+	void Nexus::Graphics::ICommandList::StopTimingQuery(TimingQueryHandle query)
 	{
 		if (!m_Started)
 		{

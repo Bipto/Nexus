@@ -259,10 +259,11 @@ namespace Nexus::Graphics
 		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
-	Ref<ITimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
+	TimingQueryHandle GraphicsDeviceOpenGL::CreateTimingQuery()
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<TimingQueryOpenGL>();
+		auto timingQuery = std::make_unique<TimingQueryOpenGL>();
+		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
 	Ref<IDeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
