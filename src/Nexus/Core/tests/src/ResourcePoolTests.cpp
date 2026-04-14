@@ -149,7 +149,7 @@ TEST(ResourcePoolHandles, UniqueHandleDestroysOnScopeExit)
 
 	{
 		auto unique = pool.EmplaceUnique(123);
-		ASSERT_TRUE(unique.Valid());
+		ASSERT_TRUE(unique.IsValid());
 
 		raw = unique.Raw();
 		EXPECT_NE(pool.Get(raw), nullptr);
@@ -174,14 +174,14 @@ TEST(ResourcePoolHandles, UniqueHandleMoveTransfersOwnership)
 	Nexus::ResourcePool<TestResource, TestHandle> pool;
 
 	auto unique1 = pool.EmplaceUnique(55);
-	ASSERT_TRUE(unique1.Valid());
+	ASSERT_TRUE(unique1.IsValid());
 
 	TestHandle raw = unique1.Raw();
 
 	auto unique2 = std::move(unique1);
 
-	EXPECT_FALSE(unique1.Valid());
-	EXPECT_TRUE(unique2.Valid());
+	EXPECT_FALSE(unique1.IsValid());
+	EXPECT_TRUE(unique2.IsValid());
 	EXPECT_EQ(pool.Get(raw)->value, 55);
 }
 
@@ -201,10 +201,10 @@ TEST(ResourcePoolHandles, UniqueHandleResetExplicitlyDestroysResource)
 	auto	   unique = pool.EmplaceUnique(77);
 	TestHandle raw	  = unique.Raw();
 
-	ASSERT_TRUE(unique.Valid());
+	ASSERT_TRUE(unique.IsValid());
 	unique.Reset();
 
-	EXPECT_FALSE(unique.Valid());
+	EXPECT_FALSE(unique.IsValid());
 	EXPECT_EQ(pool.Get(raw), nullptr);
 }
 
@@ -222,7 +222,7 @@ TEST(ResourcePoolHandles, SharedHandleCopiesShareOwnership)
 	Nexus::ResourcePool<TestResource, TestHandle> pool;
 
 	auto shared1 = pool.EmplaceShared(10);
-	ASSERT_TRUE(shared1.Valid());
+	ASSERT_TRUE(shared1.IsValid());
 
 	TestHandle raw = shared1.Raw();
 
@@ -230,9 +230,9 @@ TEST(ResourcePoolHandles, SharedHandleCopiesShareOwnership)
 		auto shared2 = shared1;
 		auto shared3 = shared2;
 
-		EXPECT_TRUE(shared1.Valid());
-		EXPECT_TRUE(shared2.Valid());
-		EXPECT_TRUE(shared3.Valid());
+		EXPECT_TRUE(shared1.IsValid());
+		EXPECT_TRUE(shared2.IsValid());
+		EXPECT_TRUE(shared3.IsValid());
 
 		EXPECT_EQ(pool.Get(raw)->value, 10);
 	}
@@ -261,7 +261,7 @@ TEST(ResourcePoolHandles, SharedHandleLastCopyDestroysResource)
 	auto	   shared = pool.EmplaceShared(999);
 	TestHandle raw	  = shared.Raw();
 
-	ASSERT_TRUE(shared.Valid());
+	ASSERT_TRUE(shared.IsValid());
 	EXPECT_NE(pool.Get(raw), nullptr);
 
 	shared = {};	// drop last reference
@@ -287,7 +287,7 @@ TEST(ResourcePoolHandles, SharedAndUniqueAreIndependent)
 
 	{
 		auto unique = pool.EmplaceUnique(2);
-		ASSERT_TRUE(unique.Valid());
+		ASSERT_TRUE(unique.IsValid());
 		EXPECT_EQ(unique->value, 2);
 	}
 
@@ -316,6 +316,6 @@ TEST(ResourcePoolHandles, SharedHandleDoesNotAccessStaleResource)
 	pool.Destroy(raw);
 
 	// SharedHandle should now be invalid
-	EXPECT_FALSE(shared.Valid());
+	EXPECT_FALSE(shared.IsValid());
 	EXPECT_EQ(pool.Get(raw), nullptr);
 }
