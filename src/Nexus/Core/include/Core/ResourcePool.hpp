@@ -109,6 +109,18 @@ namespace Nexus
 		/// @return The raw handle to the resource
 		const T *GetResource() const;
 
+		/// @brief A function that returns a resource as a derived type
+		/// @tparam Derived The derived type to return
+		/// @return A pointer to the derived type
+		template<typename Derived>
+		Derived *AsDerived();
+
+		/// @brief A function that returns a resource as a derived type
+		/// @tparam Derived The derived type to return
+		/// @return A pointer to the derived type
+		template<typename Derived>
+		const Derived *AsDerived() const;
+
 		/// @brief A defaulted spaceship operator to handle comparisons between handles
 		/// @param A const reference to a handle to compare against
 		/// @return A comparison type to compare the handles
@@ -193,6 +205,18 @@ namespace Nexus
 		/// @brief A const function that returns the underlying resource
 		/// @return The raw handle to the resource
 		const T *GetResource() const;
+
+		/// @brief A function that returns a resource as a derived type
+		/// @tparam Derived The derived type to return
+		/// @return A pointer to the derived type
+		template<typename Derived>
+		Derived *AsDerived();
+
+		/// @brief A function that returns a resource as a derived type
+		/// @tparam Derived The derived type to return
+		/// @return A pointer to the derived type
+		template<typename Derived>
+		const Derived *AsDerived() const;
 
 		/// @brief A defaulted spaceship operator to handle comparisons between handles
 		/// @param A const reference to a handle to compare against

@@ -96,6 +96,24 @@ namespace Nexus
 	}
 
 	template<typename T, typename Handle>
+	template<typename Derived>
+	Derived *SharedHandle<T, Handle>::AsDerived()
+	{
+		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
+		T *ptr = m_Pool->Get(m_Handle);
+		return static_cast<Derived *>(ptr);
+	}
+
+	template<typename T, typename Handle>
+	template<typename Derived>
+	const Derived *SharedHandle<T, Handle>::AsDerived() const
+	{
+		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
+		T *ptr = m_Pool->Get(m_Handle);
+		return static_cast<Derived *>(ptr);
+	}
+
+	template<typename T, typename Handle>
 	UniqueHandle<T, Handle>::UniqueHandle(ResourcePool<T, Handle> *pool, Handle handle) : m_Pool(pool),
 																						  m_Handle(handle)
 	{
@@ -182,6 +200,24 @@ namespace Nexus
 		}
 
 		return m_Pool->Get(m_Handle);
+	}
+
+	template<typename T, typename Handle>
+	template<typename Derived>
+	Derived *UniqueHandle<T, Handle>::AsDerived()
+	{
+		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
+		T *ptr = m_Pool->Get(m_Handle);
+		return static_cast<Derived *>(ptr);
+	}
+
+	template<typename T, typename Handle>
+	template<typename Derived>
+	const Derived *UniqueHandle<T, Handle>::AsDerived() const
+	{
+		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
+		T *ptr = m_Pool->Get(m_Handle);
+		return static_cast<Derived *>(ptr);
 	}
 
 	template<typename T, typename Handle>
