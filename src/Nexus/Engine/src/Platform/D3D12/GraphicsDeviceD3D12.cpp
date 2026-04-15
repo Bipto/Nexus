@@ -210,18 +210,19 @@ namespace Nexus::Graphics
 		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
-	Ref<IFence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+	FenceHandle GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
-		return CreateRef<FenceD3D12>(desc, this);
+		auto fence = std::make_unique<FenceD3D12>(desc, this);
+		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
 
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<HANDLE> eventHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
-			eventHandles[i]		  = fence->GetFenceEvent();
+			FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
+			eventHandles[i]	  = fence->GetFenceEvent();
 		}
 
 		uint64_t timeoutMS = timeoutNS / 1000000ULL;
@@ -265,11 +266,11 @@ namespace Nexus::Graphics
 		return commandQueue;
 	}
 
-	void GraphicsDeviceD3D12::ResetFences(Ref<IFence> *fences, uint32_t count)
+	void GraphicsDeviceD3D12::ResetFences(FenceHandle *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
+			FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
 			fence->Reset();
 		}
 	}

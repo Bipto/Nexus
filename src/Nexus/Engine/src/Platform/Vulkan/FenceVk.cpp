@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	VkFence FenceVk::GetHandle()
+	VkFence FenceVk::GetHandle() const
 	{
 		return m_Fence;
 	}

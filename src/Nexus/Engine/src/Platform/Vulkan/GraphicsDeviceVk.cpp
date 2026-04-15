@@ -155,18 +155,19 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<IFence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
+	FenceHandle GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
 	{
-		return CreateRef<FenceVk>(desc, this);
+		auto fence = std::make_unique<FenceVk>(desc, this);
+		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
 
-	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceVk> fence = std::dynamic_pointer_cast<FenceVk>(fences[i]);
-			fenceHandles[i]	   = fence->GetHandle();
+			const FenceVk *fence = fences[i].AsDerived<const FenceVk>();
+			fenceHandles[i]		 = fence->GetHandle();
 		}
 
 		VkResult result = m_Context.WaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeoutNS);
@@ -195,13 +196,13 @@ namespace Nexus::Graphics
 		return CreateRef<CommandQueueVk>(this, description);
 	}
 
-	void GraphicsDeviceVk::ResetFences(Ref<IFence> *fences, uint32_t count)
+	void GraphicsDeviceVk::ResetFences(FenceHandle *fences, uint32_t count)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceVk> fence = std::dynamic_pointer_cast<FenceVk>(fences[i]);
-			fenceHandles[i]	   = fence->GetHandle();
+			const FenceVk *fence = fences[i].AsDerived<const FenceVk>();
+			fenceHandles[i]		 = fence->GetHandle();
 		}
 
 		VkResult result = m_Context.ResetFences(m_Device, fenceHandles.size(), fenceHandles.data());

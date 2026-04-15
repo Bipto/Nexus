@@ -297,19 +297,20 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<IFence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
+	FenceHandle GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<FenceOpenGL>(desc, this);
+		auto fence = std::make_unique<FenceOpenGL>(desc, this);
+		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
 
-	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
+	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<FenceWaitResult> success(count);
 
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
+			FenceOpenGL *fence = fences[i].AsDerived<FenceOpenGL>();
 
 			GLenum result = fence->Wait(timeoutNS);
 			if (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED)
@@ -390,12 +391,12 @@ namespace Nexus::Graphics
 		return CreateRef<CommandQueueOpenGL>(this, description);
 	}
 
-	void GraphicsDeviceOpenGL::ResetFences(Ref<IFence> *fences, uint32_t count)
+	void GraphicsDeviceOpenGL::ResetFences(FenceHandle *fences, uint32_t count)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
+			FenceOpenGL *fence = fences[i].AsDerived<FenceOpenGL>();
 			fence->Reset();
 		}
 	}

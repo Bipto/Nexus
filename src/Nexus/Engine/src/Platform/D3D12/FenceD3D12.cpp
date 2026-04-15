@@ -37,12 +37,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12Fence1> FenceD3D12::GetHandle()
+	Microsoft::WRL::ComPtr<ID3D12Fence1> FenceD3D12::GetHandle() const
 	{
 		return m_Fence;
 	}
 
-	HANDLE FenceD3D12::GetFenceEvent()
+	HANDLE FenceD3D12::GetFenceEvent() const
 	{
 		return m_FenceEvent;
 	}

@@ -59,11 +59,11 @@ namespace Nexus::Graphics
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		TextureHandle				 CreateTexture(const TextureDescription &spec) final;
 		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
-		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
+		FenceHandle					 CreateFence(const FenceDescription &desc) final;
+		FenceWaitResult				 WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
-		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;
+		void						 ResetFences(FenceHandle *fences, uint32_t count) final;
 		bool						 IsUVOriginTopLeft() final
 		{
 			return true;

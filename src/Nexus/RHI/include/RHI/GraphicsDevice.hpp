@@ -60,6 +60,7 @@ namespace Nexus::Graphics
 		TexelBufferPool			  TexelBuffers			 = {};
 		AccelerationStructurePool AccelerationStructures = {};
 		TimingQueryPool			  TimingQueries			 = {};
+		FencePool				  Fences				 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -133,13 +134,13 @@ namespace Nexus::Graphics
 
 		virtual TextureViewHandle CreateTextureView(const TextureViewDescription &desc) = 0;
 
-		virtual Ref<IFence> CreateFence(const FenceDescription &desc) = 0;
+		virtual FenceHandle CreateFence(const FenceDescription &desc) = 0;
 
-		virtual FenceWaitResult WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) = 0;
+		virtual FenceWaitResult WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) = 0;
 
 		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
 
-		virtual void ResetFences(Ref<IFence> *fences, uint32_t count) = 0;
+		virtual void ResetFences(FenceHandle *fences, uint32_t count) = 0;
 
 		virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
 

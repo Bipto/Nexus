@@ -49,11 +49,11 @@ namespace Nexus::Graphics
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
 		TextureHandle				 CreateTexture(const TextureDescription &spec) final;
 		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
-		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
+		FenceHandle					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
+		FenceWaitResult				 WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
-		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;
+		void						 ResetFences(FenceHandle *fences, uint32_t count) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final;
 		bool		   IsBufferUsageSupported(BufferUsage usage) final;
