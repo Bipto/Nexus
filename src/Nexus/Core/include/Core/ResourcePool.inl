@@ -101,7 +101,7 @@ namespace Nexus
 	{
 		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
 		T *ptr = m_Pool->Get(m_Handle);
-		return static_cast<Derived *>(ptr);
+		return dynamic_cast<Derived *>(ptr);
 	}
 
 	template<typename T, typename Handle>
@@ -110,7 +110,7 @@ namespace Nexus
 	{
 		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
 		T *ptr = m_Pool->Get(m_Handle);
-		return static_cast<Derived *>(ptr);
+		return dynamic_cast<Derived *>(ptr);
 	}
 
 	template<typename T, typename Handle>
