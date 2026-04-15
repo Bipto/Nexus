@@ -68,8 +68,8 @@ namespace Nexus::Graphics
 	  public:
 		BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount);
 
-		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor);
-		void Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
+		void Begin(FramebufferHandle target, Viewport viewport, Scissor scissor);
+		void Begin(FramebufferHandle target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
 
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, TextureViewHandle texture);
@@ -170,14 +170,14 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformUploadBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformBuffer		 = nullptr;
 
-		Ref<IFramebuffer> m_RenderTarget;
+		FramebufferHandle m_RenderTarget = {};
 
-		Nexus::Graphics::Viewport m_Viewport;
-		Nexus::Graphics::Scissor  m_ScissorRectangle;
+		Nexus::Graphics::Viewport m_Viewport		 = {};
+		Nexus::Graphics::Scissor  m_ScissorRectangle = {};
 
-		BatchInfo m_TextureBatchInfo;
-		BatchInfo m_SDFBatchInfo;
-		BatchInfo m_FontBatchInfo;
+		BatchInfo m_TextureBatchInfo = {};
+		BatchInfo m_SDFBatchInfo	 = {};
+		BatchInfo m_FontBatchInfo	 = {};
 
 		bool m_UseDepthTest = false;
 	};

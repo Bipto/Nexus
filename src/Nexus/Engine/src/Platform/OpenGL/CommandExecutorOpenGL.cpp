@@ -459,14 +459,14 @@ namespace Nexus::Graphics
 			});
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
 	{
 		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
 
-		if (Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.lock()))
+		if (FramebufferOpenGL *framebuffer = command.AsDerived<FramebufferOpenGL>())
 		{
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
-			m_CurrentRenderTarget = framebuffer;
+			m_CurrentRenderTarget = command;
 		}
 	}
 

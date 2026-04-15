@@ -141,7 +141,7 @@ namespace Nexus::Graphics
 		executor->ExecuteCommand(m_CommandData, device);
 	}
 
-	SetFramebufferCommandImpl::SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer) : m_Framebuffer(framebuffer)
+	SetFramebufferCommandImpl::SetFramebufferCommandImpl(FramebufferHandle framebuffer) : m_Framebuffer(framebuffer)
 	{
 	}
 
@@ -730,7 +730,7 @@ namespace Nexus::Graphics
 	}
 
 	static void TransitionFramebufferLayouts(ICommandList	  *commandList,
-											 Ref<IFramebuffer> framebuffer,
+											 FramebufferHandle framebuffer,
 											 TextureLayout	   colourLayout,
 											 TextureLayout	   depthLayout)
 	{
@@ -800,7 +800,7 @@ namespace Nexus::Graphics
 		commandList->FlushBarriers();
 	}
 
-	void ICommandList::SetFramebuffer(Ref<IFramebuffer> framebuffer)
+	void ICommandList::SetFramebuffer(FramebufferHandle framebuffer)
 	{
 		if (!m_Started)
 		{
@@ -1202,7 +1202,7 @@ namespace Nexus::Graphics
 
 	void ICommandList::EndRendering()
 	{
-		if (!m_CurrentFramebuffer)
+		if (!m_CurrentFramebuffer.IsValid())
 		{
 			return;
 		}
@@ -1216,7 +1216,7 @@ namespace Nexus::Graphics
 			TransitionFramebufferLayouts(this, m_CurrentFramebuffer, TextureLayout::PresentSrc, TextureLayout::DepthStencilAttachmentOptimal);
 		}
 
-		m_CurrentFramebuffer = nullptr;
+		m_CurrentFramebuffer = {};
 	}
 
 	void ICommandList::PushError(const std::string &message)

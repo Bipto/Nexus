@@ -60,7 +60,7 @@ namespace Nexus::Graphics
 		GL::SetCurrentContext(m_Device->GetOffscreenContext());
 	}
 
-	Ref<IFramebuffer> SwapchainOpenGL::GetCurrentFramebuffer()
+	FramebufferHandle SwapchainOpenGL::GetCurrentFramebuffer()
 	{
 		return m_Framebuffer;
 	}
@@ -128,7 +128,7 @@ namespace Nexus::Graphics
 		return m_ViewContext.get();
 	}
 
-	Ref<IFramebuffer> SwapchainOpenGL::GetFramebuffer()
+	FramebufferHandle SwapchainOpenGL::GetFramebuffer()
 	{
 		return m_Framebuffer;
 	}
@@ -143,7 +143,7 @@ namespace Nexus::Graphics
 		framebufferDesc.Samples								= m_Description.Samples;
 		framebufferDesc.ColourAttachmentFormats				= {m_ColourFormat};
 		framebufferDesc.DepthAttachmentFormat				= m_DepthFormat;
-		m_Framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(Utils::CreateFramebuffer(m_Device, framebufferDesc));
+		m_Framebuffer										= Utils::CreateFramebuffer(m_Device, framebufferDesc);
 	}
 }	 // namespace Nexus::Graphics
 

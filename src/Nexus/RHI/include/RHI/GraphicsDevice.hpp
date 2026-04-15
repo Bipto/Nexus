@@ -61,6 +61,7 @@ namespace Nexus::Graphics
 		AccelerationStructurePool AccelerationStructures = {};
 		TimingQueryPool			  TimingQueries			 = {};
 		FencePool				  Fences				 = {};
+		FramebufferPool			  Framebuffers			 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -88,7 +89,7 @@ namespace Nexus::Graphics
 
 		virtual Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
-		virtual Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
+		virtual FramebufferHandle CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
 		/// @brief A pure virtual method that creates a new resource set from a given
 		/// specification

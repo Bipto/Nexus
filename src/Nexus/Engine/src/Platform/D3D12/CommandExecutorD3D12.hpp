@@ -59,7 +59,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device) final;
@@ -83,7 +83,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
-		void SetFramebuffer(WeakRef<IFramebuffer> framebuffer, IGraphicsDevice *device);
+		void SetFramebuffer(FramebufferHandle framebuffer, IGraphicsDevice *device);
 		void ResetPreviousRenderTargets(IGraphicsDevice *device);
 
 		void CreateDrawIndirectSignatureCommand();
@@ -108,7 +108,7 @@ namespace Nexus::Graphics
 
 		Ref<ResourceSetD3D12> m_CurrentlyBoundResourceSet = nullptr;
 
-		Ref<IFramebuffer>			 m_CurrentFramebuffer	  = {};
+		FramebufferHandle			 m_CurrentFramebuffer	  = {};
 		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};
 
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;

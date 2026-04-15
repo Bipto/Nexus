@@ -103,7 +103,7 @@ namespace Nexus::Graphics
 		AcquireBackbufferIndex();
 	}
 
-	Ref<IFramebuffer> SwapchainD3D12::GetCurrentFramebuffer()
+	FramebufferHandle SwapchainD3D12::GetCurrentFramebuffer()
 	{
 		return m_SwapchainFramebuffers.at(m_CurrentBufferIndex);
 	}
@@ -170,7 +170,8 @@ namespace Nexus::Graphics
 
 		for (const auto &framebuffer : m_SwapchainFramebuffers)
 		{
-			Ref<FramebufferD3D12> framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(framebuffer);
+			FramebufferHandle handle		   = framebuffer;
+			FramebufferD3D12 *framebufferD3D12 = handle.AsDerived<FramebufferD3D12>();
 			framebufferD3D12->Flush();
 		}
 

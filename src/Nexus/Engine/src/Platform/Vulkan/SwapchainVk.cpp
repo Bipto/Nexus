@@ -104,7 +104,7 @@ namespace Nexus::Graphics
 		AcquireNextImage();
 	}
 
-	Ref<IFramebuffer> SwapchainVk::GetCurrentFramebuffer()
+	FramebufferHandle SwapchainVk::GetCurrentFramebuffer()
 	{
 		return m_Framebuffers.at(m_CurrentFrameIndex);
 	}
@@ -375,7 +375,7 @@ namespace Nexus::Graphics
 			desc.DepthAttachment  = depthAttachmentDesc;
 			desc.OwnedBySwapchain = true;
 
-			Ref<FramebufferVk> framebuffer = CreateRef<FramebufferVk>(desc, m_GraphicsDevice);
+			FramebufferHandle framebuffer = m_GraphicsDevice->CreateFramebuffer(desc);
 			m_Framebuffers.push_back(framebuffer);
 		}
 	}

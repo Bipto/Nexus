@@ -558,7 +558,7 @@ namespace Nexus::Graphics
 
 	struct EndRenderingCommand
 	{
-		Ref<IFramebuffer> TargetFramebuffer = nullptr;
+		FramebufferHandle TargetFramebuffer = {};
 	};
 
 	class IGraphicsCommand
@@ -736,12 +736,12 @@ namespace Nexus::Graphics
 	class SetFramebufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer);
+		SetFramebufferCommandImpl(FramebufferHandle framebuffer);
 		~SetFramebufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		Ref<IFramebuffer> m_Framebuffer = {};
+		FramebufferHandle m_Framebuffer = {};
 	};
 
 	class SetViewportCommandImpl final : public IGraphicsCommand
@@ -1039,7 +1039,7 @@ namespace Nexus::Graphics
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value);
 
-		void SetFramebuffer(Ref<IFramebuffer> framebuffer);
+		void SetFramebuffer(FramebufferHandle framebuffer);
 
 		void SetViewport(const Viewport &viewport);
 
@@ -1102,7 +1102,7 @@ namespace Nexus::Graphics
 		mutable std::mutex				 m_Mutex					= {};
 		std::atomic<bool>				 m_Started					= false;
 		std::atomic<uint32_t>			 m_DebugGroups				= 0;
-		Ref<IFramebuffer>				 m_CurrentFramebuffer		= nullptr;
+		FramebufferHandle				 m_CurrentFramebuffer		= {};
 		bool							 m_AutomaticBarrierTracking = false;
 		BarrierGroupDescription			 m_Barriers					= {};
 		std::function<void(std::string)> m_CallbackFunction			= {};

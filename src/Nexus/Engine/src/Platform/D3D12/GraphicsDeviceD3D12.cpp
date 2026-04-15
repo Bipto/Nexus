@@ -96,9 +96,10 @@ namespace Nexus::Graphics
 		return CreateRef<ResourceSetD3D12>(pipeline, this);
 	}
 
-	Ref<IFramebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferD3D12>(desc, this);
+		auto framebuffer = std::make_unique<FramebufferD3D12>(desc, this);
+		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
 	}
 
 	SamplerHandle GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)

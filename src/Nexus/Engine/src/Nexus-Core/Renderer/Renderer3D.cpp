@@ -190,7 +190,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, Ref<IFramebuffer> target, Nexus::TimeSpan time)
+	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, FramebufferHandle target, Nexus::TimeSpan time)
 	{
 		m_Scene			 = scene;
 		m_RenderTarget	 = target;

@@ -6,11 +6,11 @@
 
 namespace Nexus::Graphics
 {
-	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, Ref<IFramebuffer> renderTarget)
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, FramebufferHandle renderTarget)
 	{
 		bool valid = true;
 
-		if (!renderTarget)
+		if (!renderTarget.IsValid())
 		{
 			throw std::runtime_error("Attempting to execute graphics command without a bound render target");
 			valid = false;
@@ -44,17 +44,17 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(Ref<IFramebuffer> target, uint32_t colourIndex)
+	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(FramebufferHandle target, uint32_t colourIndex)
 	{
 		bool valid = true;
 
-		if (!target)
+		if (!target.IsValid())
 		{
 			throw std::runtime_error("Attempting to clear a colour target but no render target is bound");
 			valid = false;
 		}
 
-		if (target)
+		if (target.IsValid())
 		{
 			if (colourIndex > target->GetColorTextureCount())
 			{
@@ -69,17 +69,17 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForClearDepth(Ref<IFramebuffer> target)
+	bool CommandExecutor::ValidateForClearDepth(FramebufferHandle target)
 	{
 		bool valid = true;
 
-		if (!target)
+		if (!target.IsValid())
 		{
 			throw std::runtime_error("Attempting to clear a depth/stencil target but none is bound");
 			valid = false;
 		}
 
-		if (target)
+		if (target.IsValid())
 		{
 			if (!target->HasDepthTexture())
 			{
@@ -92,11 +92,11 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForSetViewport(Ref<IFramebuffer> target, const Viewport &viewport)
+	bool CommandExecutor::ValidateForSetViewport(FramebufferHandle target, const Viewport &viewport)
 	{
 		bool valid = true;
 
-		if (!target)
+		if (!target.IsValid())
 		{
 			throw std::runtime_error("Attempting to set viewport but no render target has been specified");
 			valid = false;
@@ -114,7 +114,7 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (target)
+		if (target.IsValid())
 		{
 			auto [renderTargetWidth, renderTargetHeight] = target->GetSize();
 
@@ -136,11 +136,11 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForSetScissor(Ref<IFramebuffer> target, const Scissor &scissor)
+	bool CommandExecutor::ValidateForSetScissor(FramebufferHandle target, const Scissor &scissor)
 	{
 		bool valid = true;
 
-		if (!target)
+		if (!target.IsValid())
 		{
 			throw std::runtime_error("Attempting to set scissor but no render target has been specified");
 			valid = false;
@@ -158,7 +158,7 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (target)
+		if (target.IsValid())
 		{
 			if (scissor.X + scissor.Width > target->GetWidth())
 			{

@@ -17,12 +17,12 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) = 0;
 		virtual void Reset()																 = 0;
 
-		bool ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, Ref<IFramebuffer> renderTarget);
+		bool ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, FramebufferHandle renderTarget);
 		bool ValidateForComputeCall(std::optional<WeakRef<Pipeline>> pipeline);
-		bool ValidateForClearColour(Ref<IFramebuffer> target, uint32_t colourIndex);
-		bool ValidateForClearDepth(Ref<IFramebuffer> target);
-		bool ValidateForSetViewport(Ref<IFramebuffer> target, const Viewport &viewport);
-		bool ValidateForSetScissor(Ref<IFramebuffer> target, const Scissor &scissor);
+		bool ValidateForClearColour(FramebufferHandle target, uint32_t colourIndex);
+		bool ValidateForClearDepth(FramebufferHandle target);
+		bool ValidateForSetViewport(FramebufferHandle target, const Viewport &viewport);
+		bool ValidateForSetScissor(FramebufferHandle target, const Scissor &scissor);
 		bool ValidateForResolve(const ResolveTextureDescription &command);
 
 		virtual void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)							  = 0;
@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)						  = 0;
 		virtual void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)						  = 0;
 		virtual void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device)					  = 0;
-		virtual void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)									  = 0;
+		virtual void ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)										  = 0;
 		virtual void ExecuteCommand(const Viewport &command, IGraphicsDevice *device)										  = 0;
 		virtual void ExecuteCommand(const Scissor &command, IGraphicsDevice *device)										  = 0;
 		virtual void ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)						  = 0;

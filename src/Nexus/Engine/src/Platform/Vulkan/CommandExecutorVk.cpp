@@ -428,15 +428,15 @@ namespace Nexus::Graphics
 		context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 		StopRendering();
 
-		if (auto framebuffer = command.lock())
+		if (const FramebufferVk *framebuffer = command.AsDerived<const FramebufferVk>())
 		{
-			StartRenderingToFramebuffer(framebuffer);
-			m_CurrentRenderTarget = framebuffer;
+			StartRenderingToFramebuffer(command);
+			m_CurrentRenderTarget = command;
 			m_RenderSize		  = {framebuffer->GetWidth(), framebuffer->GetHeight()};
 		}
 	}
@@ -1441,7 +1441,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	static void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	static void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -1504,8 +1504,9 @@ namespace Nexus::Graphics
 		if (framebuffer->HasDepthTexture())
 		{
 			FramebufferTextureDescription textureBinding = framebuffer->GetDepthTextureBinding().value();
+			FramebufferVk				 *framebufferVk	 = framebuffer.AsDerived<FramebufferVk>();
 
-			const TextureVk *texture = framebuffer->GetVulkanDepthTexture();
+			const TextureVk *texture = framebufferVk->GetVulkanDepthTexture();
 			TextureLayout	 layout	 = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
 
 			FramebufferTextureDescription depthAttachmentDesc = framebuffer->GetDepthTextureBinding().value();
@@ -1545,15 +1546,17 @@ namespace Nexus::Graphics
 		context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);
 	}
 
-	static void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	static void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer)
 	{
 		NX_PROFILE_FUNCTION();
+
+		const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>();
 
 		VkRenderPassBeginInfo beginInfo = {};
 		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		beginInfo.pNext					= nullptr;
-		beginInfo.renderPass			= framebuffer->GetRenderPass();
-		beginInfo.framebuffer			= framebuffer->GetFramebuffer();
+		beginInfo.renderPass			= framebufferVk->GetRenderPass();
+		beginInfo.framebuffer			= framebufferVk->GetFramebuffer();
 		beginInfo.renderArea.offset		= {0, 0};
 		beginInfo.renderArea.extent		= {framebuffer->GetWidth(), framebuffer->GetHeight()};
 		beginInfo.clearValueCount		= 0;
@@ -1564,20 +1567,18 @@ namespace Nexus::Graphics
 		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
-	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<IFramebuffer> framebuffer)
+	void CommandExecutorVk::StartRenderingToFramebuffer(FramebufferHandle framebuffer)
 	{
 		NX_PROFILE_FUNCTION();
-
-		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 
 		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 		if (features.DynamicRenderingAvailable)
 		{
-			BeginDynamicRenderingToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
+			BeginDynamicRenderingToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
 		}
 		else
 		{
-			BeginRenderPassToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
+			BeginRenderPassToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
 		}
 
 		m_Rendering = true;
@@ -1625,15 +1626,15 @@ namespace Nexus::Graphics
 		auto						vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock());
 		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
 
-		if (m_CurrentRenderTarget)
+		if (m_CurrentRenderTarget.IsValid())
 		{
 			VkRenderPass renderPass = VK_NULL_HANDLE;
 
 			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 			if (!features.DynamicRenderingAvailable)
 			{
-				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget);
-				renderPass						 = framebufferVk->GetRenderPass();
+				FramebufferVk *framebufferVk = m_CurrentRenderTarget.AsDerived<FramebufferVk>();
+				renderPass					 = framebufferVk->GetRenderPass();
 				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 			}
 		}
@@ -1649,7 +1650,7 @@ namespace Nexus::Graphics
 
 		if (!m_Rendering)
 		{
-			if (m_CurrentRenderTarget)
+			if (m_CurrentRenderTarget.IsValid())
 			{
 				StartRenderingToFramebuffer(m_CurrentRenderTarget);
 			}

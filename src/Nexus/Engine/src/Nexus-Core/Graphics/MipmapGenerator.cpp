@@ -81,7 +81,7 @@ namespace Nexus::Graphics
 			framebufferTextureDesc.Width												= mipWidth;
 			framebufferTextureDesc.Height												= mipHeight;
 
-			Ref<IFramebuffer> framebuffer = Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
+			FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
 
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;

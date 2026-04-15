@@ -246,10 +246,12 @@ namespace Nexus::Graphics
 		return CreateRef<ResourceSetOpenGL>(pipeline, this);
 	}
 
-	Ref<IFramebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	FramebufferHandle GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<FramebufferOpenGL>(desc, this);
+
+		auto framebuffer = std::make_unique<FramebufferOpenGL>(desc, this);
+		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
 	}
 
 	SamplerHandle GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)

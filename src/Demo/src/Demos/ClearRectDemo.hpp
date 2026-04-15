@@ -39,8 +39,8 @@ namespace Demos
 
 				m_CommandList->Begin();
 
-				Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-				Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+				Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Graphics::FramebufferHandle		framebuffer = swapchain->GetCurrentFramebuffer();
 				m_CommandList->SetFramebuffer(framebuffer);
 
 				{

@@ -114,7 +114,7 @@ namespace Nexus::Graphics
 		framebufferSpec.ColourAttachmentFormats								 = {PixelFormat::R32_G32_B32_A32_Float};
 		framebufferSpec.DepthAttachmentFormat								 = PixelFormat::D24_UNorm_S8_UInt;
 
-		Ref<IFramebuffer> framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
+		FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
 		Ref<ICommandList> commandList = m_CommandQueue->CreateCommandList();
 
 		Graphics::TextureDescription cubemapSpec = {};

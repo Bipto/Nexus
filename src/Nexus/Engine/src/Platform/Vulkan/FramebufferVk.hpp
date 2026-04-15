@@ -17,12 +17,12 @@ namespace Nexus::Graphics
 
 		const FramebufferTextureSetDescription GetTextureSetDescription() const final;
 
-		const TextureVk *GetVulkanColourTexture(uint32_t index = 0);
-		const TextureVk *GetVulkanDepthTexture();
-		const TextureVk *GetVulkanResolveTexture(uint32_t index = 0);
+		const TextureVk *GetVulkanColourTexture(uint32_t index = 0) const;
+		const TextureVk *GetVulkanDepthTexture() const;
+		const TextureVk *GetVulkanResolveTexture(uint32_t index = 0) const;
 
-		VkRenderPass  GetRenderPass();
-		VkFramebuffer GetFramebuffer();
+		VkRenderPass  GetRenderPass() const;
+		VkFramebuffer GetFramebuffer() const;
 
 	  private:
 		void CreateFramebuffer();

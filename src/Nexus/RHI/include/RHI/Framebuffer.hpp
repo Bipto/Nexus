@@ -4,6 +4,8 @@
 #include <optional>
 #include <utility>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/PixelFormat.hpp"
 #include "RHI/Texture.hpp"
 
@@ -255,4 +257,6 @@ namespace Nexus::Graphics
 			return desc.OwnedBySwapchain;
 		}
 	};
+
+	DEFINE_RESOURCE(Framebuffer, IFramebuffer);
 }	 // namespace Nexus::Graphics

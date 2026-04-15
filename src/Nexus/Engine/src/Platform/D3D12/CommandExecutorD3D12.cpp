@@ -351,7 +351,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
 	{
 		SetFramebuffer(command, device);
 	}
@@ -962,7 +962,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
-		Ref<IFramebuffer> framebuffer = command.TargetFramebuffer;
+		FramebufferHandle framebuffer = command.TargetFramebuffer;
 
 		if (framebuffer->GetSampleCount() > 1)
 		{
@@ -1070,24 +1070,24 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::SetFramebuffer(WeakRef<IFramebuffer> framebuffer, IGraphicsDevice *device)
+	void CommandExecutorD3D12::SetFramebuffer(FramebufferHandle framebuffer, IGraphicsDevice *device)
 	{
 		ResetPreviousRenderTargets(device);
 		GraphicsDeviceD3D12 *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
 
-		if (auto fb = framebuffer.lock())
+		if (framebuffer.IsValid())
 		{
-			Ref<FramebufferD3D12> framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(fb);
+			FramebufferD3D12 *framebufferD3D12 = framebuffer.AsDerived<FramebufferD3D12>();
 
 			m_DescriptorHandles = framebufferD3D12->GetColourAttachmentCPUHandles();
 			m_DepthHandle		= framebufferD3D12->GetDepthAttachmentCPUHandle();
 
-			if (!fb->HasDepthTexture())
+			if (!framebufferD3D12->HasDepthTexture())
 			{
 				m_DepthHandle = {};
 			}
 
-			if (fb->HasDepthTexture())
+			if (framebufferD3D12->HasDepthTexture())
 			{
 				m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, &m_DepthHandle);
 			}
@@ -1096,7 +1096,7 @@ namespace Nexus::Graphics
 				m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, nullptr);
 			}
 
-			m_CurrentFramebuffer = fb;
+			m_CurrentFramebuffer = framebuffer;
 		}
 	}
 

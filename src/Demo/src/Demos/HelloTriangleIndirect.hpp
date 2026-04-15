@@ -62,8 +62,8 @@ namespace Demos
 			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle		framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;

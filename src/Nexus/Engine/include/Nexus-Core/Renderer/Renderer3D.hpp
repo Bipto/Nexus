@@ -44,7 +44,7 @@ namespace Nexus::Graphics
 		Renderer3D(IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
 		~Renderer3D();
 
-		void Begin(Scene *scene, Ref<IFramebuffer> target, Nexus::TimeSpan time);
+		void Begin(Scene *scene, FramebufferHandle target, Nexus::TimeSpan time);
 		void End();
 
 		const Nexus::FirstPersonCamera GetCamera() const;
@@ -61,7 +61,7 @@ namespace Nexus::Graphics
 	  private:
 		IGraphicsDevice				*m_Device		  = nullptr;
 		Ref<Graphics::ICommandQueue> m_CommandQueue	  = nullptr;
-		Ref<IFramebuffer>			 m_RenderTarget	  = {};
+		FramebufferHandle			 m_RenderTarget	  = {};
 		FullscreenQuad				 m_FullscreenQuad = {};
 
 		Scene					   *m_Scene	  = nullptr;

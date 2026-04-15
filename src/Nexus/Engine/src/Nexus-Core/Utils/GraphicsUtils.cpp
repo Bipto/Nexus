@@ -214,7 +214,7 @@ namespace Nexus::Utils
 		return CreateTexture2DWithView(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	Ref<Graphics::IFramebuffer> CreateFramebuffer(Graphics::IGraphicsDevice *device, const Graphics::FramebufferTextureCreateDescription &desc)
+	Graphics::FramebufferHandle CreateFramebuffer(Graphics::IGraphicsDevice *device, const Graphics::FramebufferTextureCreateDescription &desc)
 	{
 		Graphics::FramebufferTextureSetDescription framebufferDesc = {};
 

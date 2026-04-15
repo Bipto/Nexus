@@ -27,27 +27,27 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	const TextureVk *FramebufferVk::GetVulkanColourTexture(uint32_t index)
+	const TextureVk *FramebufferVk::GetVulkanColourTexture(uint32_t index) const
 	{
 		return m_ColourAttachments.at(index);
 	}
 
-	const TextureVk *FramebufferVk::GetVulkanDepthTexture()
+	const TextureVk *FramebufferVk::GetVulkanDepthTexture() const
 	{
 		return m_DepthAttachment;
 	}
 
-	const TextureVk *FramebufferVk::GetVulkanResolveTexture(uint32_t index)
+	const TextureVk *FramebufferVk::GetVulkanResolveTexture(uint32_t index) const
 	{
 		return m_ResolveAttachments.at(index);
 	}
 
-	VkRenderPass FramebufferVk::GetRenderPass()
+	VkRenderPass FramebufferVk::GetRenderPass() const
 	{
 		return m_RenderPass;
 	}
 
-	VkFramebuffer FramebufferVk::GetFramebuffer()
+	VkFramebuffer FramebufferVk::GetFramebuffer() const
 	{
 		return m_Framebuffer;
 	}

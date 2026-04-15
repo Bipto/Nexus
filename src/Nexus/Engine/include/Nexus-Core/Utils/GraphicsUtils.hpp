@@ -57,7 +57,7 @@ namespace Nexus::Utils
 																								   bool							generateMips,
 																								   bool							srgb = false);
 
-	NX_API Ref<Graphics::IFramebuffer> CreateFramebuffer(Graphics::IGraphicsDevice							 *device,
+	NX_API Graphics::FramebufferHandle CreateFramebuffer(Graphics::IGraphicsDevice							 *device,
 														 const Graphics::FramebufferTextureCreateDescription &desc);
 
 	NX_API void WriteToTexture(Ref<Graphics::ICommandQueue> commandQueue,

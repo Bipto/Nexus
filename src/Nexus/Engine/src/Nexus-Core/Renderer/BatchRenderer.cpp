@@ -459,13 +459,13 @@ namespace Nexus::Graphics
 		m_Sampler				 = m_Device->CreateSampler(samplerSpec);
 	}
 
-	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor)
+	void BatchRenderer::Begin(FramebufferHandle target, Viewport viewport, Scissor scissor)
 	{
 		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
 		Begin(target, viewport, scissor, projection);
 	}
 
-	void BatchRenderer::Begin(Ref<IFramebuffer> target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
+	void BatchRenderer::Begin(FramebufferHandle target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
 	{
 		if (m_IsStarted)
 		{

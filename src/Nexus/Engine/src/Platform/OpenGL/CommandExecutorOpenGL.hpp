@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device) final;
@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 
 	  private:
 		std::optional<Ref<Pipeline>>				 m_CurrentlyBoundPipeline	   = {};
-		Ref<IFramebuffer>							 m_CurrentRenderTarget		   = {};
+		FramebufferHandle							 m_CurrentRenderTarget		   = {};
 		std::map<uint32_t, VertexBufferView>		 m_CurrentlyBoundVertexBuffers = {};
 		std::optional<IndexBufferView>				 m_BoundIndexBuffer			   = {};
 		std::optional<ResourceSetBindingDescription> m_BoundResourceSet			   = {};
