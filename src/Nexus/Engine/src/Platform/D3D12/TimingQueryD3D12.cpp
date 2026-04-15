@@ -40,7 +40,7 @@ namespace Nexus::Graphics
 		return m_ElapsedTime;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12QueryHeap> TimingQueryD3D12::GetQueryHeap()
+	const Microsoft::WRL::ComPtr<ID3D12QueryHeap> TimingQueryD3D12::GetQueryHeap() const
 	{
 		return m_QueryHeap;
 	}

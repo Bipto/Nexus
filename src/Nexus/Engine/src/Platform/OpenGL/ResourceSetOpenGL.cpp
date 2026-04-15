@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 					if (samplers.size() == 1)
 					{
 						int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), name.c_str());
-						m_ImmutableSamplers[location] = dynamic_cast<const SamplerOpenGL *>(samplers[0].GetResource());
+						m_ImmutableSamplers[location] = samplers[0].AsDerived<const SamplerOpenGL>();
 					}
 					else
 					{
@@ -131,7 +131,7 @@ namespace Nexus::Graphics
 							ss << name << "[" << std::to_string(i) << "]";
 
 							int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
-							m_ImmutableSamplers[location] = dynamic_cast<const SamplerOpenGL *>(samplers[i].GetResource());
+							m_ImmutableSamplers[location] = samplers[i].AsDerived<const SamplerOpenGL>();
 						}
 					}
 				}
@@ -219,7 +219,7 @@ namespace Nexus::Graphics
 			{
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				const TextureViewOpenGL *textureView = dynamic_cast<const TextureViewOpenGL *>(combinedImageSampler.ImageTexture.GetResource());
+				const TextureViewOpenGL *textureView = combinedImageSampler.ImageTexture.AsDerived<const TextureViewOpenGL>();
 				if (textureView && combinedImageSampler.ImageSampler.IsValid())
 				{
 					m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
@@ -234,7 +234,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
-				if (const TextureViewOpenGL *textureView = dynamic_cast<const TextureViewOpenGL *>(sampledImage.GetResource()))
+				if (const TextureViewOpenGL *textureView = sampledImage.AsDerived<const TextureViewOpenGL>())
 				{
 					m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
 				}
@@ -261,7 +261,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (const TexelBufferOpenGL *texelBufferVk = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource()))
+				if (const TexelBufferOpenGL *texelBufferVk = texelBuffer.AsDerived<const TexelBufferOpenGL>())
 				{
 					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
 				}
@@ -274,7 +274,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (const TexelBufferOpenGL *texelBufferVk = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource()))
+				if (const TexelBufferOpenGL *texelBufferVk = texelBuffer.AsDerived<const TexelBufferOpenGL>())
 				{
 					m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
 				}
@@ -424,7 +424,7 @@ namespace Nexus::Graphics
 				int32_t		bindingIndex = bindingPoints.at(arrayIndex);
 
 				TextureHandle  textureHandle = storageImage.TextureHandle;
-				TextureOpenGL *texture		 = dynamic_cast<TextureOpenGL *>(textureHandle.GetResource());
+				TextureOpenGL *texture		 = textureHandle.AsDerived<TextureOpenGL>();
 
 				if (texture && bindingIndex != -1)
 				{
@@ -458,8 +458,8 @@ namespace Nexus::Graphics
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 				int32_t		bindingIndex		 = bindingPoints.at(arrayIndex);
 
-				const TextureViewOpenGL *textureView = dynamic_cast<const TextureViewOpenGL *>(combinedImageSampler.ImageTexture.GetResource());
-				const SamplerOpenGL		*sampler	 = dynamic_cast<const SamplerOpenGL *>(combinedImageSampler.ImageSampler.GetResource());
+				const TextureViewOpenGL *textureView = combinedImageSampler.ImageTexture.AsDerived<const TextureViewOpenGL>();
+				const SamplerOpenGL		*sampler	 = combinedImageSampler.ImageSampler.AsDerived<const SamplerOpenGL>();
 
 				if (textureView && sampler && bindingIndex != -1)
 				{
@@ -479,7 +479,7 @@ namespace Nexus::Graphics
 			{
 				const auto				&sampledImage = sampledImages[arrayIndex];
 				int32_t					 bindingIndex = bindingPoints.at(arrayIndex);
-				const TextureViewOpenGL *textureView  = dynamic_cast<const TextureViewOpenGL *>(sampledImage.GetResource());
+				const TextureViewOpenGL *textureView  = sampledImage.AsDerived<const TextureViewOpenGL>();
 
 				if (textureView && bindingIndex != -1)
 				{
@@ -497,7 +497,7 @@ namespace Nexus::Graphics
 			{
 				const auto			&sampler	  = samplers[arrayIndex];
 				int32_t				 bindingIndex = bindingPoints.at(arrayIndex);
-				const SamplerOpenGL *samplerGL	  = dynamic_cast<const SamplerOpenGL *>(sampler.GetResource());
+				const SamplerOpenGL *samplerGL	  = sampler.AsDerived<const SamplerOpenGL>();
 
 				if (samplerGL && bindingIndex != -1)
 				{
@@ -515,7 +515,7 @@ namespace Nexus::Graphics
 			{
 				const auto				&texelBuffer   = texelBuffers[arrayIndex];
 				int32_t					 bindingIndex  = bindingPoints.at(arrayIndex);
-				const TexelBufferOpenGL *texelBufferGL = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource());
+				const TexelBufferOpenGL *texelBufferGL = texelBuffer.AsDerived<const TexelBufferOpenGL>();
 
 				if (texelBufferGL && bindingIndex != -1)
 				{
@@ -533,7 +533,7 @@ namespace Nexus::Graphics
 			{
 				const auto				&texelBuffer   = texelBuffers[arrayIndex];
 				int32_t					 bindingIndex  = bindingPoints.at(arrayIndex);
-				const TexelBufferOpenGL *texelBufferGL = dynamic_cast<const TexelBufferOpenGL *>(texelBuffer.GetResource());
+				const TexelBufferOpenGL *texelBufferGL = texelBuffer.AsDerived<const TexelBufferOpenGL>();
 
 				if (texelBufferGL && bindingIndex != -1)
 				{

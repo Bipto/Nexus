@@ -967,16 +967,20 @@ namespace Nexus::Vk
 
 		if (description.Source.IsValid())
 		{
-			const Graphics::AccelerationStructureVk *accelerationStructure =
-				dynamic_cast<const Graphics::AccelerationStructureVk *>(description.Source.GetResource());
-			buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
+			if (const Graphics::AccelerationStructureVk *accelerationStructure =
+					description.Source.AsDerived<const Graphics::AccelerationStructureVk>())
+			{
+				buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
+			}
 		}
 
 		if (description.Destination.IsValid())
 		{
-			const Graphics::AccelerationStructureVk *accelerationStructure =
-				dynamic_cast<const Graphics::AccelerationStructureVk *>(description.Destination.GetResource());
-			buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
+			if (const Graphics::AccelerationStructureVk *accelerationStructure =
+					description.Destination.AsDerived<const Graphics::AccelerationStructureVk>())
+			{
+				buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
+			}
 		}
 
 		VkDeviceOrHostAddressKHR deviceAddress = {.deviceAddress = description.ScratchBuffer};
@@ -1750,8 +1754,10 @@ namespace Nexus::Vk
 
 						for (size_t i = 0; i < samplers.size(); i++)
 						{
-							const Graphics::SamplerVk *vkSampler = dynamic_cast<const Graphics::SamplerVk *>(samplers.at(i).GetResource());
-							vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
+							if (const Graphics::SamplerVk *vkSampler = samplers.at(i).AsDerived<const Graphics::SamplerVk>())
+							{
+								vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
+							}
 						}
 
 						layoutBinding.pImmutableSamplers = vulkanImmutableSamplers[descriptor.Name].data();

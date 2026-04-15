@@ -494,8 +494,8 @@ namespace Nexus::Graphics
 
 		StopRendering();
 
-		auto source		 = dynamic_cast<const TextureVk *>(command.Source.GetResource());
-		auto destination = dynamic_cast<const TextureVk *>(command.Destination.GetResource());
+		auto source		 = command.Source.AsDerived<const TextureVk>();
+		auto destination = command.Destination.AsDerived<const TextureVk>();
 
 		Point2D<uint32_t> size = Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
@@ -592,7 +592,7 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		TimingQueryHandle queryHandle = command.Query;
-		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(queryHandle.GetResource()))
+		if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
@@ -605,7 +605,7 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		TimingQueryHandle queryHandle = command.Query;
-		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(queryHandle.GetResource()))
+		if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
@@ -672,7 +672,7 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
 		DeviceBufferVk		 *buffer	  = dynamic_cast<DeviceBufferVk *>(command.BufferTextureCopy.BufferHandle);
-		const TextureVk		 *texture	  = dynamic_cast<const TextureVk *>(command.BufferTextureCopy.TextureHandle.GetResource());
+		const TextureVk		 *texture	  = command.BufferTextureCopy.TextureHandle.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		if (!buffer)
@@ -770,7 +770,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		const TextureVk		 *texture	  = dynamic_cast<const TextureVk *>(command.TextureBufferCopy.TextureHandle.GetResource());
+		const TextureVk		 *texture	  = command.TextureBufferCopy.TextureHandle.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
@@ -856,8 +856,8 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		GraphicsDeviceVk *deviceVk	 = (GraphicsDeviceVk *)device;
-		const TextureVk	 *srcTexture = dynamic_cast<const TextureVk *>(command.TextureCopy.Source.GetResource());
-		const TextureVk	 *dstTexture = dynamic_cast<const TextureVk *>(command.TextureCopy.Destination.GetResource());
+		const TextureVk	 *srcTexture = command.TextureCopy.Source.AsDerived<const TextureVk>();
+		const TextureVk	 *dstTexture = command.TextureCopy.Destination.AsDerived<const TextureVk>();
 
 		VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(srcTexture->IsDepth());
 		VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(dstTexture->IsDepth());
@@ -1230,7 +1230,7 @@ namespace Nexus::Graphics
 		// enumerate through all texture barriers and create the required subresource ranges
 		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			const TextureVk *textureVk = dynamic_cast<const TextureVk *>(textureBarrier.Texture.GetResource());
+			const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
@@ -1273,7 +1273,7 @@ namespace Nexus::Graphics
 			for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 			{
 				VkImageLayout	 layout	   = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-				const TextureVk *textureVk = dynamic_cast<const TextureVk *>(textureBarrier.Texture.GetResource());
+				const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 				Vk::CreateTextureBarrier2(m_Device,
 										  textureVk->GetImage(),
 										  textureBarrier.BeforeAccess,
@@ -1327,7 +1327,7 @@ namespace Nexus::Graphics
 			for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 			{
 				VkImageLayout	 layout	   = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-				const TextureVk *textureVk = dynamic_cast<const TextureVk *>(textureBarrier.Texture.GetResource());
+				const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 				Vk::CreateTextureBarrier(m_Device,
 										 textureVk->GetImage(),
 										 textureBarrier.BeforeAccess,
@@ -1368,7 +1368,7 @@ namespace Nexus::Graphics
 		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
 			TextureHandle handle	= textureBarrier.Texture;
-			TextureVk	 *textureVk = dynamic_cast<TextureVk *>(handle.GetResource());
+			TextureVk	 *textureVk = handle.AsDerived<TextureVk>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
@@ -1458,7 +1458,7 @@ namespace Nexus::Graphics
 		{
 			FramebufferColourAttachmentDescription textureBinding = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
 
-			const TextureVk *texture = dynamic_cast<const TextureVk *>(textureBinding.ColourAttachment.TargetTexture.GetResource());
+			const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture.AsDerived<const TextureVk>();
 			TextureLayout	 layout =
 				texture->GetTextureLayout(textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel);
 
@@ -1482,7 +1482,7 @@ namespace Nexus::Graphics
 			if (colourAttachmentDesc.ResolveAttachment.has_value())
 			{
 				FramebufferTextureDescription resolveDesc		= colourAttachmentDesc.ResolveAttachment.value();
-				const TextureVk				 *resolveAttachment = dynamic_cast<const TextureVk *>(resolveDesc.TargetTexture.GetResource());
+				const TextureVk				 *resolveAttachment = resolveDesc.TargetTexture.AsDerived<const TextureVk>();
 				TextureLayout				  resolveLayout = resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
 
 				VulkanTextureViewInfo viewInfo = {};

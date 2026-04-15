@@ -856,7 +856,7 @@ namespace Nexus::D3D12
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc)
 	{
-		const Graphics::TextureD3D12 *texture = dynamic_cast<const Graphics::TextureD3D12 *>(desc.TargetTexture.GetResource());
+		const Graphics::TextureD3D12 *texture = desc.TargetTexture.AsDerived<const Graphics::TextureD3D12>();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -950,7 +950,7 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		const Graphics::TextureD3D12	   *texture		= dynamic_cast<const Graphics::TextureD3D12 *>(view.TextureHandle.GetResource());
+		const Graphics::TextureD3D12	   *texture		= view.TextureHandle.AsDerived<const Graphics::TextureD3D12>();
 		const Graphics::TextureDescription &textureDesc = texture->GetDescription();
 		uav.Format										= D3D12::GetD3D12PixelFormat(textureDesc.Format);
 

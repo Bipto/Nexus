@@ -89,7 +89,7 @@ namespace Nexus::Graphics
 						// otherwise bind the emulated texture view
 						else
 						{
-							const TextureOpenGL *texture = dynamic_cast<const TextureOpenGL *>(m_EmulatedTextureView.GetResource());
+							const TextureOpenGL *texture = m_EmulatedTextureView.AsDerived<const TextureOpenGL>();
 							texture->Bind(slot);
 						}
 					}
@@ -97,7 +97,7 @@ namespace Nexus::Graphics
 		}
 		else
 		{
-			const TextureOpenGL *texture = dynamic_cast<const TextureOpenGL *>(m_Description.TargetTexture.GetResource());
+			const TextureOpenGL *texture = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 			texture->Bind(slot);
 		}
 
@@ -111,7 +111,7 @@ namespace Nexus::Graphics
 
 	void TextureViewOpenGL::CreateTextureView(const GladGLContext &context)
 	{
-		const TextureOpenGL *texture = dynamic_cast<const TextureOpenGL *>(m_Description.TargetTexture.GetResource());
+		const TextureOpenGL *texture = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
 		GLenum internalFormat = GL::GetSizedInternalFormat(m_Description.Format);
 		GLenum m_ViewType	  = GL::GetViewType(m_Description);
@@ -152,13 +152,13 @@ namespace Nexus::Graphics
 
 		m_EmulatedTextureView = m_Device->CreateTexture(textureDesc);
 
-		const TextureOpenGL *emulatedTexture = dynamic_cast<const TextureOpenGL *>(m_EmulatedTextureView.GetResource());
+		const TextureOpenGL *emulatedTexture = m_EmulatedTextureView.AsDerived<const TextureOpenGL>();
 		m_Handle							 = emulatedTexture->GetHandle();
 	}
 
 	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context) const
 	{
-		const TextureOpenGL *source = dynamic_cast<const TextureOpenGL *>(m_Description.TargetTexture.GetResource());
+		const TextureOpenGL *source = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
 		for (uint32_t arrayLayer = m_Description.Range.BaseArrayLayer;
 			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount;

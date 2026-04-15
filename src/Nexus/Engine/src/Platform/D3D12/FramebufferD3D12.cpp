@@ -167,19 +167,19 @@ namespace Nexus::Graphics
 		for (const auto &colourAttachment : m_Description.ColourAttachments)
 		{
 			Graphics::TextureHandle colourHandle = colourAttachment.ColourAttachment.TargetTexture;
-			m_ColourAttachments.push_back(dynamic_cast<TextureD3D12 *>(colourHandle.GetResource()));
+			m_ColourAttachments.push_back(colourHandle.AsDerived<TextureD3D12>());
 
 			if (colourAttachment.ResolveAttachment.has_value())
 			{
 				Graphics::TextureHandle resolveHandle = colourAttachment.ResolveAttachment.value().TargetTexture;
-				m_ResolveAttachments.push_back(dynamic_cast<TextureD3D12 *>(resolveHandle.GetResource()));
+				m_ResolveAttachments.push_back(resolveHandle.AsDerived<TextureD3D12>());
 			}
 		}
 
 		if (m_Description.DepthAttachment.has_value())
 		{
 			Graphics::TextureHandle depthHandle = m_Description.DepthAttachment.value().TargetTexture;
-			m_DepthAttachment					= dynamic_cast<TextureD3D12 *>(depthHandle.GetResource());
+			m_DepthAttachment					= depthHandle.AsDerived<TextureD3D12>();
 		}
 	}	 // namespace Nexus::Graphics
 }	 // namespace Nexus::Graphics

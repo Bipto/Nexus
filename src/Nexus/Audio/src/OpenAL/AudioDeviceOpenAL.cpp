@@ -37,8 +37,7 @@ namespace Nexus::Audio
 
 	void AudioDeviceOpenAL::Play(AudioSourceHandle source)
 	{
-		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
-		if (alSource)
+		if (const AudioSourceOpenAL *alSource = source.AsDerived<AudioSourceOpenAL>())
 		{
 			alSourcePlay(alSource->GetSource());
 		}
@@ -46,8 +45,7 @@ namespace Nexus::Audio
 
 	void AudioDeviceOpenAL::Pause(AudioSourceHandle source)
 	{
-		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
-		if (alSource)
+		if (const AudioSourceOpenAL *alSource = source.AsDerived<AudioSourceOpenAL>())
 		{
 			alSourcePause(alSource->GetSource());
 		}
@@ -55,8 +53,7 @@ namespace Nexus::Audio
 
 	void AudioDeviceOpenAL::Stop(AudioSourceHandle source)
 	{
-		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
-		if (alSource)
+		if (const AudioSourceOpenAL *alSource = source.AsDerived<AudioSourceOpenAL>())
 		{
 			alSourceStop(alSource->GetSource());
 		}
@@ -64,8 +61,7 @@ namespace Nexus::Audio
 
 	void AudioDeviceOpenAL::Rewind(AudioSourceHandle source)
 	{
-		const AudioSourceOpenAL *alSource = dynamic_cast<const Audio::AudioSourceOpenAL *>(source.GetResource());
-		if (alSource)
+		if (const AudioSourceOpenAL *alSource = source.AsDerived<AudioSourceOpenAL>())
 		{
 			alSourceRewind(alSource->GetSource());
 		}

@@ -387,7 +387,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (const TextureVk *texture = dynamic_cast<const TextureVk *>(storageImage.TextureHandle.GetResource()))
+				if (const TextureVk *texture = storageImage.TextureHandle.AsDerived<const TextureVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -420,8 +420,8 @@ namespace Nexus::Graphics
 			{
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				const TextureViewVk *textureView = dynamic_cast<const TextureViewVk *>(combinedImageSampler.ImageTexture.GetResource());
-				const SamplerVk		*sampler	 = dynamic_cast<const SamplerVk *>(combinedImageSampler.ImageSampler.GetResource());
+				const TextureViewVk *textureView = combinedImageSampler.ImageTexture.AsDerived<const TextureViewVk>();
+				const SamplerVk		*sampler	 = combinedImageSampler.ImageSampler.AsDerived<const SamplerVk>();
 				if (textureView && sampler)
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
@@ -449,7 +449,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
-				if (const TextureViewVk *textureView = dynamic_cast<const TextureViewVk *>(sampledImage.GetResource()))
+				if (const TextureViewVk *textureView = sampledImage.AsDerived<const TextureViewVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -476,7 +476,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampler = samplers[arrayIndex];
 
-				if (const SamplerVk *samplerVk = dynamic_cast<const SamplerVk *>(sampler.GetResource()))
+				if (const SamplerVk *samplerVk = sampler.AsDerived<const SamplerVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -502,8 +502,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < accelerationStructures.size(); arrayIndex++)
 			{
 				const auto &accelerationStructure = accelerationStructures[arrayIndex];
-				if (const AccelerationStructureVk *accelerationStructureVk =
-						dynamic_cast<const AccelerationStructureVk *>(accelerationStructure.GetResource()))
+				if (const AccelerationStructureVk *accelerationStructureVk = accelerationStructure.AsDerived<const AccelerationStructureVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -526,7 +525,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (const TexelBufferVk *texelBufferVk = dynamic_cast<const TexelBufferVk *>(texelBuffer.GetResource()))
+				if (const TexelBufferVk *texelBufferVk = texelBuffer.AsDerived<const TexelBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -549,7 +548,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (const TexelBufferVk *texelBufferVk = dynamic_cast<const TexelBufferVk *>(texelBuffer.GetResource()))
+				if (const TexelBufferVk *texelBufferVk = texelBuffer.AsDerived<const TexelBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 

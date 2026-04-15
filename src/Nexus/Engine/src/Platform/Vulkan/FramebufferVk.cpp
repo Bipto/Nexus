@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		for (int i = 0; i < m_Description.ColourAttachments.size(); i++)
 		{
 			const auto &colourAttachment = m_Description.ColourAttachments.at(i);
-			m_ColourAttachments.push_back(dynamic_cast<const TextureVk *>(colourAttachment.ColourAttachment.TargetTexture.GetResource()));
+			m_ColourAttachments.push_back(colourAttachment.ColourAttachment.TargetTexture.AsDerived<const TextureVk>());
 		}
 	}
 
@@ -79,7 +79,7 @@ namespace Nexus::Graphics
 		if (m_Description.DepthAttachment.has_value())
 		{
 			TextureHandle texture = m_Description.DepthAttachment.value().TargetTexture;
-			m_DepthAttachment	  = dynamic_cast<const TextureVk *>(texture.GetResource());
+			m_DepthAttachment	  = dynamic_cast<const TextureVk *>(texture.AsDerived<const TextureVk>());
 		}
 	}
 
@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 				if (colourAttachmentDesc.ResolveAttachment.has_value())
 				{
 					TextureHandle resolveTexture = colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
-					m_ResolveAttachments.push_back(dynamic_cast<const TextureVk *>(resolveTexture.GetResource()));
+					m_ResolveAttachments.push_back(resolveTexture.AsDerived<const TextureVk>());
 				}
 				// otherwise, we bind a placeholder to preserve alignment
 				else

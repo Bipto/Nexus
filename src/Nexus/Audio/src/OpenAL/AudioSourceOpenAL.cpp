@@ -114,8 +114,7 @@ namespace Nexus::Audio
 
 	void AudioSourceOpenAL::SetStaticSourceBuffer(AudioBufferHandle buffer)
 	{
-		const AudioBufferOpenAL *alBuffer = dynamic_cast<const AudioBufferOpenAL *>(buffer.GetResource());
-		if (alBuffer)
+		if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
 		{
 			alSourcei(m_Source.Get(), AL_BUFFER, (ALint)alBuffer->GetHandle());
 			m_StaticBuffer = buffer;
@@ -124,8 +123,7 @@ namespace Nexus::Audio
 
 	void AudioSourceOpenAL::QueueBuffer(AudioBufferHandle buffer)
 	{
-		const AudioBufferOpenAL *alBuffer = dynamic_cast<const AudioBufferOpenAL *>(buffer.GetResource());
-		if (alBuffer)
+		if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
 		{
 			ALuint handle = alBuffer->GetHandle();
 			alSourceQueueBuffers(m_Source.Get(), 1, &handle);
@@ -134,8 +132,7 @@ namespace Nexus::Audio
 
 	void AudioSourceOpenAL::UnqueueBuffer(AudioBufferHandle buffer)
 	{
-		const AudioBufferOpenAL *alBuffer = dynamic_cast<const AudioBufferOpenAL *>(buffer.GetResource());
-		if (alBuffer)
+		if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
 		{
 			ALuint handle = alBuffer->GetHandle();
 			alSourceUnqueueBuffers(m_Source.Get(), 1, &handle);

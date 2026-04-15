@@ -761,7 +761,7 @@ namespace Nexus::GL
 		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
 		GLenum attachmentType = GL::GetAttachmentType(isDepth, colourIndex);
 
-		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(desc.TargetTexture.GetResource());
+		const Graphics::TextureOpenGL *texture = desc.TargetTexture.AsDerived<const Graphics::TextureOpenGL>();
 
 		uint32_t				textureHandle  = texture->GetHandle();
 		GLenum					textureTarget  = texture->GetTextureType();
@@ -1195,7 +1195,7 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.BufferTextureCopy.TextureHandle.GetResource());
+		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
@@ -1366,7 +1366,7 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureNonDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.BufferTextureCopy.TextureHandle.GetResource());
+		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
@@ -1534,7 +1534,7 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.TextureBufferCopy.TextureHandle.GetResource());
+		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (!texture || !buffer)
@@ -1585,7 +1585,7 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferNonDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = dynamic_cast<const Graphics::TextureOpenGL *>(command.TextureBufferCopy.TextureHandle.GetResource());
+		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (!texture || !buffer)
@@ -1648,8 +1648,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToTextureDSA(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *source	   = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Source.GetResource());
-		const Graphics::TextureOpenGL *destination = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Destination.GetResource());
+		const Graphics::TextureOpenGL *source	   = copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::TextureOpenGL *destination = copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
 		NX_VALIDATE(source, "Source texture must be valid");
 
 		GLuint sourceFramebufferHandle = 0;
@@ -1707,8 +1707,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToTextureNonDSA(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *source	   = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Source.GetResource());
-		const Graphics::TextureOpenGL *destination = dynamic_cast<const Graphics::TextureOpenGL *>(copyDesc.Destination.GetResource());
+		const Graphics::TextureOpenGL *source	   = copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::TextureOpenGL *destination = copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
 		NX_VALIDATE(source, "Source texture must be valid");
 
 		GLuint sourceFramebufferHandle = 0;

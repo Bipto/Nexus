@@ -13,9 +13,9 @@ namespace Nexus::Graphics
 	  public:
 		TimingQueryD3D12(GraphicsDeviceD3D12 *device);
 		virtual ~TimingQueryD3D12();
-		virtual void							Resolve() override;
-		virtual float							GetElapsedMilliseconds() override;
-		Microsoft::WRL::ComPtr<ID3D12QueryHeap> GetQueryHeap();
+		virtual void								  Resolve() override;
+		virtual float								  GetElapsedMilliseconds() override;
+		const Microsoft::WRL::ComPtr<ID3D12QueryHeap> GetQueryHeap() const;
 
 	  private:
 		void CreateQueryHeap();

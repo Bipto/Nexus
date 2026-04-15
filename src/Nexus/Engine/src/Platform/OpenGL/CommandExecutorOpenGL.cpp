@@ -528,7 +528,7 @@ namespace Nexus::Graphics
 				GL::CopyTextureToTexture(copyDesc, context);
 
 				TextureHandle  handle  = command.Destination;
-				TextureOpenGL *texture = dynamic_cast<Graphics::TextureOpenGL *>(handle.GetResource());
+				TextureOpenGL *texture = handle.AsDerived<TextureOpenGL>();
 				if (texture)
 				{
 					texture->MarkDirty();
@@ -545,7 +545,7 @@ namespace Nexus::Graphics
 		}
 
 		TimingQueryHandle queryHandle = command.Query;
-		if (TimingQueryOpenGL *query = dynamic_cast<TimingQueryOpenGL *>(queryHandle.GetResource()))
+		if (TimingQueryOpenGL *query = queryHandle.AsDerived<TimingQueryOpenGL>())
 		{
 			GL::ExecuteGLCommands(
 				[&](const GladGLContext &context)
@@ -571,7 +571,7 @@ namespace Nexus::Graphics
 		}
 
 		TimingQueryHandle queryHandle = command.Query;
-		if (TimingQueryOpenGL *query = dynamic_cast<TimingQueryOpenGL *>(queryHandle.GetResource()))
+		if (TimingQueryOpenGL *query = queryHandle.AsDerived<TimingQueryOpenGL>())
 		{
 			GL::ExecuteGLCommands(
 				[&](const GladGLContext &context)
@@ -596,7 +596,7 @@ namespace Nexus::Graphics
 
 		if (buffer && textureHandle.IsValid())
 		{
-			TextureOpenGL *texture = dynamic_cast<TextureOpenGL *>(textureHandle.GetResource());
+			TextureOpenGL *texture = textureHandle.AsDerived<TextureOpenGL>();
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
 			texture->MarkDirty();
 		}
@@ -609,7 +609,7 @@ namespace Nexus::Graphics
 
 		if (buffer && textureHandle.IsValid())
 		{
-			TextureOpenGL *textureOpenGL = dynamic_cast<TextureOpenGL *>(textureHandle.GetResource());
+			TextureOpenGL *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
 		}
 	}
@@ -618,8 +618,8 @@ namespace Nexus::Graphics
 	{
 		Graphics::TextureHandle dstHandle = command.TextureCopy.Destination;
 
-		const TextureOpenGL *sourceTexture = dynamic_cast<const TextureOpenGL *>(command.TextureCopy.Source.GetResource());
-		TextureOpenGL		*destTexture   = dynamic_cast<TextureOpenGL *>(dstHandle.GetResource());
+		const TextureOpenGL *sourceTexture = command.TextureCopy.Source.AsDerived<const TextureOpenGL>();
+		TextureOpenGL		*destTexture   = dstHandle.AsDerived<TextureOpenGL>();
 
 		const TextureCopyDescription &copyDesc = command.TextureCopy;
 
@@ -766,7 +766,7 @@ namespace Nexus::Graphics
 		// enumerate through all texture barriers and create the required subresource ranges
 		for (TextureBarrierDesc textureBarrier : command.TextureBarriers)
 		{
-			TextureOpenGL *textureGL = dynamic_cast<TextureOpenGL *>(textureBarrier.Texture.GetResource());
+			TextureOpenGL *textureGL = textureBarrier.Texture.AsDerived<TextureOpenGL>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;

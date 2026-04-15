@@ -380,28 +380,31 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
 	{
-		const TextureD3D12 *source			  = dynamic_cast<const TextureD3D12 *>(command.Source.GetResource());
-		uint32_t			sourceSubresource = Utils::CalculateSubresource(command.SourceMipLevel, command.SourceArrayLayer, source->GetMipLevels());
-		Microsoft::WRL::ComPtr<ID3D12Resource2> sourceHandle = source->GetHandle();
+		if (const TextureD3D12 *const source = command.Source.AsDerived<const TextureD3D12>())
+		{
+			uint32_t sourceSubresource = Utils::CalculateSubresource(command.SourceMipLevel, command.SourceArrayLayer, source->GetMipLevels());
+			Microsoft::WRL::ComPtr<ID3D12Resource2> sourceHandle = source->GetHandle();
 
-		const TextureD3D12 *dest = dynamic_cast<const TextureD3D12 *>(command.Destination.GetResource());
-		uint32_t			destinationSubresource =
-			Utils::CalculateSubresource(command.DestinationMipLevel, command.DestinationArrayLayer, dest->GetMipLevels());
-		Microsoft::WRL::ComPtr<ID3D12Resource2> destHandle = dest->GetHandle();
+			if (const TextureD3D12 *dest = command.Destination.AsDerived<const TextureD3D12>())
+			{
+				uint32_t destinationSubresource =
+					Utils::CalculateSubresource(command.DestinationMipLevel, command.DestinationArrayLayer, dest->GetMipLevels());
+				Microsoft::WRL::ComPtr<ID3D12Resource2> destHandle = dest->GetHandle();
 
-		PixelFormat destFormat = dest->GetPixelFormat();
+				PixelFormat destFormat = dest->GetPixelFormat();
 
-		m_CommandList->ResolveSubresource(destHandle.Get(),
-										  destinationSubresource,
-										  sourceHandle.Get(),
-										  sourceSubresource,
-										  D3D12::GetD3D12PixelFormat(destFormat));
+				m_CommandList->ResolveSubresource(destHandle.Get(),
+												  destinationSubresource,
+												  sourceHandle.Get(),
+												  sourceSubresource,
+												  D3D12::GetD3D12PixelFormat(destFormat));
+			}
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		TimingQueryHandle queryHandle = command.Query;
-		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(queryHandle.GetResource()))
+		if (const TimingQueryD3D12 *queryD3D12 = command.Query.AsDerived<const TimingQueryD3D12>())
 		{
 			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
 			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
@@ -410,8 +413,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		TimingQueryHandle queryHandle = command.Query;
-		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(queryHandle.GetResource()))
+		if (const TimingQueryD3D12 *queryD3D12 = command.Query.AsDerived<const TimingQueryD3D12>())
 		{
 			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
 			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
@@ -437,7 +439,13 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		const TextureD3D12					  *texture = dynamic_cast<const TextureD3D12 *>(command.BufferTextureCopy.TextureHandle.GetResource());
+		const TextureD3D12 *texture = command.BufferTextureCopy.TextureHandle.AsDerived<const TextureD3D12>();
+
+		if (!texture)
+		{
+			return;
+		}
+
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
 		const bool layeredTexture	= texture->IsLayeredTexture();
@@ -535,7 +543,12 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
 		DeviceBufferD3D12  *buffer	= dynamic_cast<DeviceBufferD3D12 *>(command.TextureBufferCopy.BufferHandle);
-		const TextureD3D12 *texture = dynamic_cast<const TextureD3D12 *>(command.TextureBufferCopy.TextureHandle.GetResource());
+		const TextureD3D12 *texture = command.TextureBufferCopy.TextureHandle.AsDerived<const TextureD3D12>();
+
+		if (!texture)
+		{
+			return;
+		}
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
@@ -598,8 +611,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		const TextureD3D12 *srcTexture = dynamic_cast<const TextureD3D12 *>(command.TextureCopy.Source.GetResource());
-		const TextureD3D12 *dstTexture = dynamic_cast<const TextureD3D12 *>(command.TextureCopy.Destination.GetResource());
+		const TextureD3D12 *srcTexture = command.TextureCopy.Source.AsDerived<const TextureD3D12>();
+		const TextureD3D12 *dstTexture = command.TextureCopy.Destination.AsDerived<const TextureD3D12>();
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> srcHandle = srcTexture->GetHandle();
 		Microsoft::WRL::ComPtr<ID3D12Resource2> dstHandle = dstTexture->GetHandle();
@@ -772,7 +785,7 @@ namespace Nexus::Graphics
 			// texture barriers
 			for (const auto &textureBarrier : command.TextureBarriers)
 			{
-				const TextureD3D12					   *texture = dynamic_cast<const TextureD3D12 *>(textureBarrier.Texture.GetResource());
+				const TextureD3D12					   *texture = textureBarrier.Texture.AsDerived<const TextureD3D12>();
 				Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 				D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(textureBarrier.BeforeStage);
@@ -873,7 +886,7 @@ namespace Nexus::Graphics
 
 			for (const auto &textureBarrier : command.TextureBarriers)
 			{
-				const TextureD3D12					   *texture = dynamic_cast<const TextureD3D12 *>(textureBarrier.Texture.GetResource());
+				const TextureD3D12					   *texture = textureBarrier.Texture.AsDerived<const TextureD3D12>();
 				Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 				for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
@@ -927,7 +940,7 @@ namespace Nexus::Graphics
 		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
 			TextureHandle textureHandle = textureBarrier.Texture;
-			TextureD3D12 *textureD3D12	= dynamic_cast<TextureD3D12 *>(textureHandle.GetResource());
+			TextureD3D12 *textureD3D12	= textureHandle.AsDerived<TextureD3D12>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
@@ -1160,7 +1173,7 @@ namespace Nexus::Graphics
 	void CommandExecutorD3D12::InsertResourceBarrier(const TextureBarrierDesc &command)
 	{
 		TextureHandle							textureHandle = command.Texture;
-		TextureD3D12						   *texture		  = dynamic_cast<TextureD3D12 *>(textureHandle.GetResource());
+		TextureD3D12						   *texture		  = textureHandle.AsDerived<TextureD3D12>();
 		Microsoft::WRL::ComPtr<ID3D12Resource2> handle		  = texture->GetHandle();
 		std::vector<D3D12_RESOURCE_BARRIER>		barriers	  = {};
 
@@ -1213,7 +1226,7 @@ namespace Nexus::Graphics
 	void CommandExecutorD3D12::InsertTextureBarrier(const TextureBarrierDesc &command)
 	{
 		TextureHandle							textureHandle = command.Texture;
-		TextureD3D12						   *texture		  = dynamic_cast<TextureD3D12 *>(textureHandle.GetResource());
+		TextureD3D12						   *texture		  = textureHandle.AsDerived<TextureD3D12>();
 		Microsoft::WRL::ComPtr<ID3D12Resource2> handle		  = texture->GetHandle();
 
 		bool		  transitionEachSubresourceSeparately = false;
