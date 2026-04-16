@@ -387,7 +387,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (const TextureVk *texture = storageImage.TextureHandle.AsDerived<const TextureVk>())
+				if (const TextureVk *texture = storageImage.Texture.AsDerived<const TextureVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 

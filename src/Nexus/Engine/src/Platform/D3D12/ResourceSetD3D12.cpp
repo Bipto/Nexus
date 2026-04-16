@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (const TextureD3D12 *texture = storageImage.TextureHandle.AsDerived<const TextureD3D12>())
+				if (const TextureD3D12 *texture = storageImage.Texture.AsDerived<const TextureD3D12>())
 				{
 					D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(storageImage);
 

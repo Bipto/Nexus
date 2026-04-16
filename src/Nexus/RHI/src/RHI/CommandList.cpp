@@ -642,7 +642,7 @@ namespace Nexus::Graphics
 					barrier.AfterAccess							   = BarrierAccess::ShaderRead;
 					barrier.BeforeStage							   = BarrierPipelineStage::NoStage;
 					barrier.AfterStage							   = BarrierPipelineStage::AllGraphics;
-					barrier.Texture								   = storageImage.TextureHandle;
+					barrier.Texture								   = storageImage.Texture;
 					barrier.Layout								   = TextureLayout::General;
 					barrier.TextureSubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
 					barrier.TextureSubresourceRange.LayerCount	   = 1;

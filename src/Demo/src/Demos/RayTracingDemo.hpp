@@ -312,7 +312,7 @@ namespace Demos
 					m_ResourceSet->WriteAccelerationStructure(m_TLAS, "topLevelAS");
 
 					Nexus::Graphics::StorageImageView storageImageView = {};
-					storageImageView.TextureHandle					   = m_StorageTexture;
+					storageImageView.Texture						   = m_StorageTexture;
 					storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
 					storageImageView.ArrayLayer						   = 0;
 					storageImageView.MipLevel						   = 0;

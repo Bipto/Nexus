@@ -205,7 +205,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (storageImage.TextureHandle.IsValid())
+				if (storageImage.Texture.IsValid())
 				{
 					m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
 				}
@@ -423,12 +423,12 @@ namespace Nexus::Graphics
 				const auto &storageImage = storageImages[arrayIndex];
 				int32_t		bindingIndex = bindingPoints.at(arrayIndex);
 
-				TextureHandle  textureHandle = storageImage.TextureHandle;
+				TextureHandle  textureHandle = storageImage.Texture;
 				TextureOpenGL *texture		 = textureHandle.AsDerived<TextureOpenGL>();
 
 				if (texture && bindingIndex != -1)
 				{
-					GLenum format	 = GL::GetSizedInternalFormat(storageImage.TextureHandle->GetDescription().Format);
+					GLenum format	 = GL::GetSizedInternalFormat(texture->GetDescription().Format);
 					GLenum access	 = GL::GetAccessMask(storageImage.Access);
 					bool   isLayered = storageImage.ArrayLayer != 0;
 

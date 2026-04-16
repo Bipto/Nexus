@@ -57,7 +57,7 @@ namespace Demos
 			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_TextureView);
 
 			Nexus::Graphics::StorageImageView storageImageView = {};
-			storageImageView.TextureHandle					   = m_Texture;
+			storageImageView.Texture						   = m_Texture;
 			storageImageView.MipLevel						   = 0;
 			storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
 			m_ResourceSet->WriteStorageImage(storageImageView, "u_Image");

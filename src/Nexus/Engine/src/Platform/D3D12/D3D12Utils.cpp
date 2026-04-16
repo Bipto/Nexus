@@ -950,7 +950,7 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		const Graphics::TextureD3D12	   *texture		= view.TextureHandle.AsDerived<const Graphics::TextureD3D12>();
+		const Graphics::TextureD3D12	   *texture		= view.Texture.AsDerived<const Graphics::TextureD3D12>();
 		const Graphics::TextureDescription &textureDesc = texture->GetDescription();
 		uav.Format										= D3D12::GetD3D12PixelFormat(textureDesc.Format);
 

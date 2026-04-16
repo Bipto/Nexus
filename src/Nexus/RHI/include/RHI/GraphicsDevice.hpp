@@ -1,4 +1,5 @@
 #pragma once
+
 #include "RHI/APIVersion.hpp"
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/CommandList.hpp"
