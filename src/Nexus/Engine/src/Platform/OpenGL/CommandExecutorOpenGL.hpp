@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
@@ -65,7 +65,7 @@ namespace Nexus::Graphics
 									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
-		std::optional<Ref<Pipeline>>				 m_CurrentlyBoundPipeline	   = {};
+		std::optional<Ref<IPipeline>>				 m_CurrentlyBoundPipeline	   = {};
 		FramebufferHandle							 m_CurrentRenderTarget		   = {};
 		std::map<uint32_t, VertexBufferView>		 m_CurrentlyBoundVertexBuffers = {};
 		std::optional<IndexBufferView>				 m_BoundIndexBuffer			   = {};

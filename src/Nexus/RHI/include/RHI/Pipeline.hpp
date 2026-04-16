@@ -244,10 +244,10 @@ namespace Nexus::Graphics
 		return output;
 	}
 
-	class Pipeline
+	class IPipeline
 	{
 	  public:
-		virtual ~Pipeline()
+		virtual ~IPipeline()
 		{
 		}
 
@@ -292,7 +292,7 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A pure virtual class representing an API specific pipeline
-	class IGraphicsPipeline : public Pipeline
+	class IGraphicsPipeline : public IPipeline
 	{
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
@@ -362,7 +362,7 @@ namespace Nexus::Graphics
 		GraphicsPipelineDescription m_Description = {};
 	};
 
-	class IComputePipeline : public Pipeline
+	class IComputePipeline : public IPipeline
 	{
 	  public:
 		IComputePipeline(const ComputePipelineDescription &description) : m_Description(description)
@@ -407,7 +407,7 @@ namespace Nexus::Graphics
 		ComputePipelineDescription m_Description = {};
 	};
 
-	class IMeshletPipeline : public Pipeline
+	class IMeshletPipeline : public IPipeline
 	{
 	  public:
 		IMeshletPipeline(const MeshletPipelineDescription &description) : m_Description(description)
@@ -460,7 +460,7 @@ namespace Nexus::Graphics
 		MeshletPipelineDescription m_Description = {};
 	};
 
-	class IRayTracingPipeline : public Pipeline
+	class IRayTracingPipeline : public IPipeline
 	{
 	  public:
 		IRayTracingPipeline(const RayTracingPipelineDescription &description) : m_Description(description)

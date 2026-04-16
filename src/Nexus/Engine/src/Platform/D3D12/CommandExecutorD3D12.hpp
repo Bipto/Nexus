@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 	  private:
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
@@ -109,7 +109,7 @@ namespace Nexus::Graphics
 		ResourceSetD3D12 *m_CurrentlyBoundResourceSet = nullptr;
 
 		FramebufferHandle			 m_CurrentFramebuffer	  = {};
-		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};
+		std::optional<Ref<IPipeline>> m_CurrentlyBoundPipeline = {};
 
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndexedIndirectCommandSignature = nullptr;

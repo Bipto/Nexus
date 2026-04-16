@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<Pipeline>> pipeline, FramebufferHandle renderTarget)
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<IPipeline>> pipeline, FramebufferHandle renderTarget)
 	{
 		bool valid = true;
 
@@ -25,15 +25,15 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForComputeCall(std::optional<WeakRef<Pipeline>> pipeline)
+	bool CommandExecutor::ValidateForComputeCall(std::optional<WeakRef<IPipeline>> pipeline)
 	{
 		if (!pipeline.has_value())
 		{
 			return false;
 		}
 
-		WeakRef<Pipeline> pl = pipeline.value();
-		if (Ref<Pipeline> pipeline = pl.lock())
+		WeakRef<IPipeline> pl = pipeline.value();
+		if (Ref<IPipeline> pipeline = pl.lock())
 		{
 			if (pipeline->GetType() != PipelineType::Compute)
 			{

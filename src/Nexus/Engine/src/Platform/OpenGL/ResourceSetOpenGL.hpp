@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class ResourceSetOpenGL final : public IResourceSet
 	{
 	  public:
-		ResourceSetOpenGL(Ref<Pipeline> pipeline, GraphicsDeviceOpenGL *device);
+		ResourceSetOpenGL(Ref<IPipeline> pipeline, GraphicsDeviceOpenGL *device);
 		void Flush() final;
 
 		void Bind(const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle, const GladGLContext &context);

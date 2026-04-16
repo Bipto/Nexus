@@ -13,7 +13,7 @@
 
 namespace Nexus::Graphics
 {
-	static void CreateDynamicOffsetDataAndStageFlags(Pipeline														*pipeline,
+	static void CreateDynamicOffsetDataAndStageFlags(IPipeline														*pipeline,
 													 std::map<uint32_t, std::vector<uint32_t>>						&offsetData,
 													 std::map<std::string, ResourceSetVk::DynamicOffsetDescription> &memberOffsets,
 													 VkShaderStageFlags												&pipelineStages,
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 		for (const auto &[setIndex, dynamicOffsetCount] : setCounts) { offsetData[setIndex].resize(dynamicOffsetCount); }
 	}
 
-	ResourceSetVk::ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
+	ResourceSetVk::ResourceSetVk(Ref<IPipeline> pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
 	{
 		const GladVulkanContext &context		= m_Device->GetVulkanContext();
 		Ref<PipelineVk>			 vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);

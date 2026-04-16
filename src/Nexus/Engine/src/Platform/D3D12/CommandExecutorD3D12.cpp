@@ -142,9 +142,9 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)
 	{
-		Ref<Pipeline> pipeline = std::dynamic_pointer_cast<Pipeline>(command.lock());
+		Ref<IPipeline> pipeline = std::dynamic_pointer_cast<IPipeline>(command.lock());
 
 		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
 		d3d12Pipeline->Bind(m_CommandList);

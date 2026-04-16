@@ -144,7 +144,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 		TryStartRendering();
@@ -155,7 +155,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<Pipeline> pipeline = command.lock())
+		if (Ref<IPipeline> pipeline = command.lock())
 		{
 			m_CurrentlyBoundPipeline   = pipeline;
 			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 		TryStartRendering();
 
-		WeakRef<Pipeline> pl = m_CurrentlyBoundPipeline.lock();
+		WeakRef<IPipeline> pl = m_CurrentlyBoundPipeline.lock();
 		if (auto pipeline = pl.lock())
 		{
 			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);

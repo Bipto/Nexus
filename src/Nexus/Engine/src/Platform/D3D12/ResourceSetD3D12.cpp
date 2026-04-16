@@ -12,7 +12,7 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
+	ResourceSetD3D12::ResourceSetD3D12(Ref<IPipeline> pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
 	{
 		Ref<PipelineD3D12> pipelineD3D12				= std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
 		m_RootSignatureBindingLocations					= pipelineD3D12->GetRootSignatureBindingLocations();

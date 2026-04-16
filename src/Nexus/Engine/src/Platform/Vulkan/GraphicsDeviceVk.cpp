@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 		return CreateRef<RayTracingPipelineVk>(description, this);
 	}
 
-	ResourceSetHandle GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceVk::CreateResourceSet(Ref<IPipeline> pipeline)
 	{
 		auto resourceSet = std::make_unique<ResourceSetVk>(pipeline, this);
 		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));

@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 		m_BoundIndexBuffer = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)
 	{
 		if (command.expired())
 		{
@@ -64,7 +64,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<Pipeline> pipeline = std::dynamic_pointer_cast<Pipeline>(command.lock()))
+		if (Ref<IPipeline> pipeline = std::dynamic_pointer_cast<IPipeline>(command.lock()))
 		{
 			m_CurrentlyBoundPipeline = pipeline;
 		}
@@ -111,7 +111,7 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
@@ -145,7 +145,7 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
 
 			if (pipeline->GetType() == PipelineType::Graphics && m_BoundIndexBuffer)
 			{
@@ -186,7 +186,7 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
 	#if !defined(__EMSCRIPTEN__)
@@ -234,7 +234,7 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
 
 			if (pipeline->GetType() == PipelineType::Graphics && m_BoundIndexBuffer)
 			{
@@ -691,7 +691,7 @@ namespace Nexus::Graphics
 	{
 		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
 				Ref<GraphicsPipelineOpenGL> pipelineGL = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline);

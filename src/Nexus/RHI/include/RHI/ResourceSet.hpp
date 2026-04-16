@@ -108,12 +108,12 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<TexelBufferHandle>>			StorageTexelBuffers	   = {};
 	};
 
-	class Pipeline;
+	class IPipeline;
 
 	class NX_RHI_API IResourceSet
 	{
 	  public:
-		IResourceSet(Ref<Pipeline> pipeline);
+		IResourceSet(Ref<IPipeline> pipeline);
 		virtual ~IResourceSet();
 
 		// single descriptors
@@ -154,7 +154,7 @@ namespace Nexus::Graphics
 		const ResourceSetDescriptors &GetBoundResources() const;
 
 	  protected:
-		WeakRef<Pipeline> m_Pipeline = {};
+		WeakRef<IPipeline> m_Pipeline = {};
 
 		std::map<std::string, Nexus::Graphics::ShaderResource> m_ShaderResources;
 

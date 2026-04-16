@@ -241,7 +241,7 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
-	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(Ref<IPipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto resourceSet = std::make_unique<ResourceSetOpenGL>(pipeline, this);

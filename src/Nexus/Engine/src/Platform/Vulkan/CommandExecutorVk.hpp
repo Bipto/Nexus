@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 	  private:
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
@@ -70,7 +70,7 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
 
-		WeakRef<Pipeline>	 m_CurrentlyBoundPipeline	 = {};
+		WeakRef<IPipeline>	 m_CurrentlyBoundPipeline	 = {};
 		const ResourceSetVk *m_CurrentlyBoundResourceSet = nullptr;
 		bool				 m_Rendering				 = false;
 		VkExtent2D			 m_RenderSize				 = {0, 0};

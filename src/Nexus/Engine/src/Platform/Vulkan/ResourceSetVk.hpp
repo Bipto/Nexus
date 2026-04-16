@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		};
 
 	  public:
-		ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device);
+		ResourceSetVk(Ref<IPipeline> pipeline, GraphicsDeviceVk *device);
 		~ResourceSetVk();
 		void Flush() final;
 
@@ -41,7 +41,7 @@ namespace Nexus::Graphics
 		std::map<uint32_t, std::vector<uint32_t>>		m_DynamicOffsets   = {};
 		std::map<std::string, DynamicOffsetDescription> m_DynamicOffsetMap = {};
 
-		Ref<Pipeline> m_Pipeline = nullptr;
+		Ref<IPipeline> m_Pipeline = nullptr;
 
 		GraphicsDeviceVk						 *m_Device			   = nullptr;
 		std::map<std::string, VkShaderStageFlags> m_PushConstantRanges = {};

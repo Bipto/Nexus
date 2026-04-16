@@ -1541,7 +1541,7 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device)
+	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device)
 	{
 		std::map<std::string, VkShaderStageFlags> pushConstants = {};
 
@@ -1701,7 +1701,7 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
+	VkPipelineLayout CreatePipelineLayout(Graphics::IPipeline						*pipeline,
 										  Graphics::GraphicsDeviceVk				*device,
 										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts)

@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetOpenGL::ResourceSetOpenGL(Ref<Pipeline> pipeline, GraphicsDeviceOpenGL *device) : IResourceSet(pipeline)
+	ResourceSetOpenGL::ResourceSetOpenGL(Ref<IPipeline> pipeline, GraphicsDeviceOpenGL *device) : IResourceSet(pipeline)
 	{
 		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
@@ -543,7 +543,7 @@ namespace Nexus::Graphics
 		}
 
 		// set up iummutable samplers
-		if (Ref<Pipeline> pipeline = m_Pipeline.lock())
+		if (Ref<IPipeline> pipeline = m_Pipeline.lock())
 		{
 			const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 		}

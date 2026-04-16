@@ -144,9 +144,9 @@ namespace Nexus::Vk
 
 	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(const Nexus::Graphics::ShaderModuleVk *module);
 
-	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device);
+	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device);
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
+	VkPipelineLayout CreatePipelineLayout(Graphics::IPipeline						*pipeline,
 										  Graphics::GraphicsDeviceVk				*device,
 										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts);
