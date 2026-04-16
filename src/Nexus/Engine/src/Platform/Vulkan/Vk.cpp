@@ -1530,7 +1530,7 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module)
+	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(const Nexus::Graphics::ShaderModuleVk *module)
 	{
 		VkPipelineShaderStageCreateInfo createInfo = {};
 		createInfo.sType						   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

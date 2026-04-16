@@ -89,8 +89,8 @@ namespace Nexus::ImGuiUtils
 
 		std::map<ImTextureID, ImGuiDescriptorInfo> m_Descriptors = {};
 
-		Nexus::Ref<Nexus::Graphics::IShaderModule> m_VertexShader	= nullptr;
-		Nexus::Ref<Nexus::Graphics::IShaderModule> m_FragmentShader = nullptr;
+		Nexus::Graphics::ShaderModuleHandle m_VertexShader	 = {};
+		Nexus::Graphics::ShaderModuleHandle m_FragmentShader = {};
 
 		Graphics::SamplerHandle m_Sampler		= {};
 		uint64_t				m_TextureID		= 0;

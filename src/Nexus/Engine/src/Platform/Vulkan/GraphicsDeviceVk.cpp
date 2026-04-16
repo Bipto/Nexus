@@ -79,9 +79,10 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
+	ShaderModuleHandle GraphicsDeviceVk::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
 	{
-		return CreateRef<ShaderModuleVk>(moduleSpec, this);
+		auto shader = std::make_unique<ShaderModuleVk>(moduleSpec, this);
+		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
 	Ref<IGraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)

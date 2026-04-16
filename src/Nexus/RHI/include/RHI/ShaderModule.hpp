@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/RHI-Core.hpp"
 #include "RHI/ResourceSet.hpp"
 #include "RHI/ShaderDataType.hpp"
@@ -43,4 +45,6 @@ namespace Nexus::Graphics
 	  protected:
 		ShaderModuleDescription m_ModuleDescription;
 	};
+
+	DEFINE_RESOURCE(ShaderModule, IShaderModule);
 }	 // namespace Nexus::Graphics

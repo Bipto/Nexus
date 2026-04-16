@@ -81,10 +81,11 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->GetOffscreenContext();
 	}
 
-	Ref<IShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleDescription &moduleDesc)
+	ShaderModuleHandle GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleDescription &moduleDesc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ShaderModuleOpenGL>(moduleDesc, this);
+		auto shader = std::make_unique<ShaderModuleOpenGL>(moduleDesc, this);
+		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
 	std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(const GladGLContext &context)

@@ -62,6 +62,7 @@ namespace Nexus::Graphics
 		TimingQueryPool			  TimingQueries			 = {};
 		FencePool				  Fences				 = {};
 		FramebufferPool			  Framebuffers			 = {};
+		ShaderModulePool		  ShaderModules			 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -139,7 +140,7 @@ namespace Nexus::Graphics
 
 		virtual FenceWaitResult WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) = 0;
 
-		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
+		virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
 
 		virtual void ResetFences(FenceHandle *fences, uint32_t count) = 0;
 

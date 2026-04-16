@@ -9,19 +9,19 @@
 
 namespace
 {
-	Nexus::Ref<Nexus::Graphics::IShaderModule> TryLoadCachedShader(Nexus::Graphics::IGraphicsDevice *device,
-																   const std::string				&source,
-																   const std::string				&name,
-																   Nexus::Graphics::ShaderStage		 stage,
-																   const std::string				&outputDirectory,
-																   Nexus::Graphics::ShaderLanguage	 language)
+	Nexus::Graphics::ShaderModuleHandle TryLoadCachedShader(Nexus::Graphics::IGraphicsDevice *device,
+															const std::string				 &source,
+															const std::string				 &name,
+															Nexus::Graphics::ShaderStage	  stage,
+															const std::string				 &outputDirectory,
+															Nexus::Graphics::ShaderLanguage	  language)
 	{
 		std::size_t hash		   = std::hash<std::string> {}(source);
 		std::string languageString = ShaderLanguageToString(language);
 		std::string filepath	   = outputDirectory + std::string("/cache/shaders/") + languageString + "/" + name;
 
-		bool									   shaderCreated = false;
-		Nexus::Ref<Nexus::Graphics::IShaderModule> module		 = nullptr;
+		bool								shaderCreated = false;
+		Nexus::Graphics::ShaderModuleHandle module		  = {};
 
 		if (std::filesystem::exists(filepath))
 		{
@@ -60,7 +60,7 @@ namespace Nexus::Utils
 		throw std::runtime_error("Failed to create surface for window: Unsupported platform");
 	}
 
-	Ref<Graphics::IShaderModule> CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																 const std::string		   &filepath,
 																 const std::string		   &outputDirectory,
 																 Graphics::ShaderStage		stage)
@@ -69,7 +69,7 @@ namespace Nexus::Utils
 		return CreateShaderModuleFromSpirvSource(graphicsDevice, shaderSource, filepath, outputDirectory, stage);
 	}
 
-	Ref<Graphics::IShaderModule> CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
 																   const std::string		 &source,
 																   const std::string		 &name,
 																   const std::string		 &outputDirectory,
@@ -108,7 +108,7 @@ namespace Nexus::Utils
 		return graphicsDevice->CreateShaderModule(moduleSpec);
 	}
 
-	Ref<Graphics::IShaderModule> GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
 																		const std::string		  &source,
 																		const std::string		  &name,
 																		const std::string		  &outputDirectory,
@@ -118,7 +118,7 @@ namespace Nexus::Utils
 		return TryLoadCachedShader(graphicsDevice, source, name, stage, outputDirectory, language);
 	}
 
-	Ref<Graphics::IShaderModule> GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																	  const std::string			&filepath,
 																	  const std::string			&outputDirectory,
 																	  Graphics::ShaderStage		 stage)

@@ -9,24 +9,24 @@
 namespace Nexus::Utils
 {
 	NX_API Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window);
-	NX_API Ref<Graphics::IShaderModule> CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+	NX_API Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																		const std::string		  &filepath,
 																		const std::string		  &outputDirectory,
 																		Graphics::ShaderStage	   stage);
 
-	NX_API Ref<Graphics::IShaderModule> CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+	NX_API Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
 																		  const std::string			&source,
 																		  const std::string			&name,
 																		  const std::string			&outputDirectory,
 																		  Graphics::ShaderStage		 stage);
 
-	NX_API Ref<Graphics::IShaderModule> GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+	NX_API Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
 																			   const std::string		 &source,
 																			   const std::string		 &name,
 																			   const std::string		 &outputDirectory,
 																			   Graphics::ShaderStage	  stage);
 
-	NX_API Ref<Graphics::IShaderModule> GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+	NX_API Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																			 const std::string		   &filepath,
 																			 const std::string		   &outputDirectory,
 																			 Graphics::ShaderStage		stage);

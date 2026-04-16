@@ -142,7 +142,7 @@ namespace Nexus::Vk
 								 std::vector<VkVertexInputAttributeDescription>	 &attributeDescriptions,
 								 std::vector<VkVertexInputBindingDescription>	 &inputBindingDescriptions);
 
-	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module);
+	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(const Nexus::Graphics::ShaderModuleVk *module);
 
 	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device);
 

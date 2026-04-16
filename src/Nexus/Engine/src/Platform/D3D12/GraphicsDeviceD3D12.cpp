@@ -66,9 +66,10 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
+	ShaderModuleHandle GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
 	{
-		return CreateRef<ShaderModuleD3D12>(moduleSpec);
+		auto shader = std::make_unique<ShaderModuleD3D12>(moduleSpec);
+		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
 	Ref<IGraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)

@@ -81,39 +81,39 @@ namespace Nexus::Graphics
 	{
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
-		if (m_Description.FragmentModule)
+		if (m_Description.FragmentModule.IsValid())
 		{
-			auto vulkanFragmentModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.FragmentModule);
+			auto vulkanFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanFragmentModule));
 		}
 
-		if (m_Description.GeometryModule)
+		if (m_Description.GeometryModule.IsValid())
 		{
-			auto vulkanGeometryModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.GeometryModule);
+			auto vulkanGeometryModule = m_Description.GeometryModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanGeometryModule));
 		}
 
-		if (m_Description.TesselationControlModule)
+		if (m_Description.TesselationControlModule.IsValid())
 		{
-			auto vulkanTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.TesselationControlModule);
+			auto vulkanTesselationControlModule = m_Description.TesselationControlModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
 						"Shader module is not a tesselation control shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanTesselationControlModule));
 		}
 
-		if (m_Description.TesselationEvaluationModule)
+		if (m_Description.TesselationEvaluationModule.IsValid())
 		{
-			auto vulkanTesselationEvaluation = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.TesselationEvaluationModule);
+			auto vulkanTesselationEvaluation = m_Description.TesselationEvaluationModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanTesselationEvaluation->GetShaderStage() == ShaderStage::TessellationEvaluation,
 						"Shader module is not a tesselation evaluation shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanTesselationEvaluation));
 		}
 
-		if (m_Description.VertexModule)
+		if (m_Description.VertexModule.IsValid())
 		{
-			auto vulkanVertexModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.VertexModule);
+			auto vulkanVertexModule = m_Description.VertexModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanVertexModule));
 		}
@@ -197,23 +197,23 @@ namespace Nexus::Graphics
 	{
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
-		if (m_Description.FragmentModule)
+		if (m_Description.FragmentModule.IsValid())
 		{
-			auto vulkanFragmentModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.FragmentModule);
+			auto vulkanFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanFragmentModule));
 		}
 
-		if (m_Description.MeshModule)
+		if (m_Description.MeshModule.IsValid())
 		{
-			auto vulkanMeshModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);
+			auto vulkanMeshModule = m_Description.MeshModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanMeshModule->GetShaderStage() == ShaderStage::Mesh, "Shader module is not a mesh shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanMeshModule));
 		}
 
-		if (m_Description.TaskModule)
+		if (m_Description.TaskModule.IsValid())
 		{
-			auto vulkanTaskModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);
+			auto vulkanTaskModule = m_Description.MeshModule.AsDerived<ShaderModuleVk>();
 			NX_VALIDATE(vulkanTaskModule->GetShaderStage() == ShaderStage::Task, "Shader module is not a task shader");
 			shaderStages.push_back(Vk::CreateShaderStageCreateInfo(vulkanTaskModule));
 		}
@@ -235,7 +235,7 @@ namespace Nexus::Graphics
 			graphicsDevice->SetObjectName(VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t)m_PipelineLayout, debugName.c_str());
 		}
 
-		Ref<ShaderModuleVk> shaderModule = std::dynamic_pointer_cast<ShaderModuleVk>(description.ComputeShader);
+		const ShaderModuleVk *shaderModule = description.ComputeShader.AsDerived<const ShaderModuleVk>();
 
 		VkPipelineShaderStageCreateInfo shaderStageInfo = {};
 		shaderStageInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -305,9 +305,9 @@ namespace Nexus::Graphics
 			std::vector<VkPipelineShaderStageCreateInfo>	  shaderStages = {};
 			std::vector<VkRayTracingShaderGroupCreateInfoKHR> shaderGroups = {};
 
-			for (const Ref<IShaderModule> &shaderModule : description.Shaders)
+			for (const ShaderModuleHandle &shaderModule : description.Shaders)
 			{
-				Ref<ShaderModuleVk> vulkanShader = std::dynamic_pointer_cast<ShaderModuleVk>(shaderModule);
+				const ShaderModuleVk *vulkanShader = shaderModule.AsDerived<const ShaderModuleVk>();
 
 				VkPipelineShaderStageCreateInfo &shaderInfo = shaderStages.emplace_back();
 				shaderInfo									= Vk::CreateShaderStageCreateInfo(vulkanShader);
