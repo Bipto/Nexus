@@ -65,6 +65,7 @@ namespace Nexus::Graphics
 		FramebufferPool			  Framebuffers			 = {};
 		ShaderModulePool		  ShaderModules			 = {};
 		ResourceSetPool			  ResourceSets			 = {};
+		PipelinePool			  Pipelines				 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -84,13 +85,13 @@ namespace Nexus::Graphics
 		/// description
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
-		virtual Ref<IGraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
+		virtual PipelineHandle CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
 
-		virtual Ref<IComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
+		virtual PipelineHandle CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
-		virtual Ref<IMeshletPipeline> CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
+		virtual PipelineHandle CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
 
-		virtual Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
+		virtual PipelineHandle CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
 		virtual FramebufferHandle CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
@@ -98,7 +99,7 @@ namespace Nexus::Graphics
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set
 		/// @return A pointer to a resource set
-		virtual ResourceSetHandle CreateResourceSet(Ref<IPipeline> pipeline) = 0;
+		virtual ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) = 0;
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification

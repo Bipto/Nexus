@@ -120,9 +120,9 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::IMeshletPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_IndirectBuffer;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList	= {};
+		Nexus::Graphics::PipelineHandle			   m_Pipeline		= {};
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndirectBuffer = {};
+		glm::vec3								   m_ClearColour	= {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

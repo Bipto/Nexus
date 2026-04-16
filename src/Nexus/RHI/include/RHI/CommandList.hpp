@@ -593,12 +593,12 @@ namespace Nexus::Graphics
 	class SetPipelineCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		SetPipelineCommandImpl(Ref<IPipeline> pipeline);
+		SetPipelineCommandImpl(PipelineHandle pipeline);
 		~SetPipelineCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		Ref<IPipeline> m_Pipeline = nullptr;
+		PipelineHandle m_Pipeline = {};
 	};
 
 	class DrawCommandImpl final : public IGraphicsCommand
@@ -1009,7 +1009,7 @@ namespace Nexus::Graphics
 
 		/// @brief A method to bind a pipeline to a command list
 		/// @param pipeline The pointer to the pipeline to bind
-		void SetPipeline(Ref<IPipeline> pipeline);
+		void SetPipeline(PipelineHandle pipeline);
 
 		void Draw(const DrawDescription &desc);
 

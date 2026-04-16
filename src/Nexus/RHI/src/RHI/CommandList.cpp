@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 		executor->ExecuteCommand(command, device);
 	}
 
-	SetPipelineCommandImpl::SetPipelineCommandImpl(Ref<IPipeline> pipeline) : m_Pipeline(pipeline)
+	SetPipelineCommandImpl::SetPipelineCommandImpl(PipelineHandle pipeline) : m_Pipeline(pipeline)
 	{
 	}
 
@@ -444,7 +444,7 @@ namespace Nexus::Graphics
 		m_CommandImpls.emplace_back(std::make_unique<SetIndexBufferCommandImpl>(indexBuffer));
 	}
 
-	void ICommandList::SetPipeline(Ref<IPipeline> pipeline)
+	void ICommandList::SetPipeline(PipelineHandle pipeline)
 	{
 		if (!m_Started)
 		{

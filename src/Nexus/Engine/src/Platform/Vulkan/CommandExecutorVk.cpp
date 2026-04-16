@@ -144,25 +144,24 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 		TryStartRendering();
 
-		if (command.expired())
+		if (!command.IsValid())
 		{
 			NX_ERROR("Attempting to bind an invalid pipeline");
 			return;
 		}
 
-		if (Ref<IPipeline> pipeline = command.lock())
+		if (PipelineVk *pipeline = command.AsDerived<PipelineVk>())
 		{
-			m_CurrentlyBoundPipeline   = pipeline;
-			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+			m_CurrentlyBoundPipeline = command;
 
-			if (pipeline->GetType() != PipelineType::Graphics && pipeline->GetType() != PipelineType::Meshlet)
+			if (command->GetType() != PipelineType::Graphics && command->GetType() != PipelineType::Meshlet)
 			{
-				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+				pipeline->Bind(m_CommandBuffer, VK_NULL_HANDLE);
 			}
 			else
 			{
@@ -172,7 +171,7 @@ namespace Nexus::Graphics
 				const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
 				if (deviceFeatures.DynamicRenderingAvailable)
 				{
-					pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+					pipeline->Bind(m_CommandBuffer, VK_NULL_HANDLE);
 				}
 			}
 		}
@@ -336,11 +335,9 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 		TryStartRendering();
 
-		WeakRef<IPipeline> pl = m_CurrentlyBoundPipeline.lock();
-		if (auto pipeline = pl.lock())
+		if (PipelineVk *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
 		{
-			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
-			pipelineVk->SetResourceSet(m_CommandBuffer, desc);
+			pipeline->SetResourceSet(m_CommandBuffer, desc);
 
 			const ResourceSetVk *resourceSet = desc.TargetResourceSet.AsDerived<const ResourceSetVk>();
 			m_CurrentlyBoundResourceSet		 = resourceSet;
@@ -1169,7 +1166,7 @@ namespace Nexus::Graphics
 		if (!stageFlags.has_value())
 			return;
 
-		if (Ref<PipelineVk> pipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock()))
+		if (PipelineVk *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -1623,24 +1620,26 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		auto						vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock());
 		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
 
-		if (m_CurrentRenderTarget.IsValid())
+		if (PipelineVk *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
 		{
-			VkRenderPass renderPass = VK_NULL_HANDLE;
-
-			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
-			if (!features.DynamicRenderingAvailable)
+			if (m_CurrentRenderTarget.IsValid())
 			{
-				FramebufferVk *framebufferVk = m_CurrentRenderTarget.AsDerived<FramebufferVk>();
-				renderPass					 = framebufferVk->GetRenderPass();
-				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
+				VkRenderPass renderPass = VK_NULL_HANDLE;
+
+				const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+				if (!features.DynamicRenderingAvailable)
+				{
+					FramebufferVk *framebufferVk = m_CurrentRenderTarget.AsDerived<FramebufferVk>();
+					renderPass					 = framebufferVk->GetRenderPass();
+					pipeline->Bind(m_CommandBuffer, renderPass);
+				}
 			}
-		}
-		else
-		{
-			throw std::runtime_error("Failed to find a valid render target type");
+			else
+			{
+				throw std::runtime_error("Failed to find a valid render target type");
+			}
 		}
 	}
 

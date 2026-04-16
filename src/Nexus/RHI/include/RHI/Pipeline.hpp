@@ -3,7 +3,9 @@
 #include <array>
 #include <vector>
 
-#include "RHI/ResourceSet.hpp"
+#include "RHI/PixelFormat.hpp"
+#include "RHI/ResourceDeclarations.hpp"
+#include "RHI/ResourceSetDescription.hpp"
 #include "RHI/Scissor.hpp"
 #include "RHI/ShaderModule.hpp"
 #include "RHI/ShaderResources.hpp"
@@ -314,7 +316,7 @@ namespace Nexus::Graphics
 		/// @return A const reference to a pipelinedescription
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const = 0;
 
-		virtual PipelineType GetType() const final
+		PipelineType GetType() const final
 		{
 			return PipelineType::Graphics;
 		}
@@ -386,7 +388,7 @@ namespace Nexus::Graphics
 			return desc.ResourceDescription;
 		}
 
-		virtual PipelineType GetType() const final
+		PipelineType GetType() const final
 		{
 			return PipelineType::Compute;
 		}
@@ -429,7 +431,7 @@ namespace Nexus::Graphics
 			return desc.ResourceDescription;
 		}
 
-		virtual PipelineType GetType() const final
+		PipelineType GetType() const final
 		{
 			return PipelineType::Compute;
 		}
@@ -482,7 +484,7 @@ namespace Nexus::Graphics
 			return desc.ResourceDescription;
 		}
 
-		virtual PipelineType GetType() const final
+		PipelineType GetType() const final
 		{
 			return PipelineType::RayTracing;
 		}

@@ -22,8 +22,8 @@ namespace Nexus::Graphics
 		Ref<IShaderModule> m_VertexModule	= nullptr;
 		Ref<IShaderModule> m_FragmentModule = nullptr;
 
-		Ref<IGraphicsPipeline> m_Pipeline	 = nullptr;
-		ResourceSetHandle	   m_ResourceSet = {};
+		PipelineHandle	  m_Pipeline	= {};
+		ResourceSetHandle m_ResourceSet = {};
 
 		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
 	};

@@ -217,31 +217,33 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IGraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<GraphicsPipelineOpenGL>(description, this);
+		auto pipeline = std::make_unique<GraphicsPipelineOpenGL>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IComputePipeline> GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ComputePipelineOpenGL>(description, this);
+		auto pipeline = std::make_unique<ComputePipelineOpenGL>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IMeshletPipeline> GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		NX_VALIDATE(false, "Meshlet pipelines are not supported by OpenGL");
-		return nullptr;
+		return {};
 	}
 
-	Ref<IRayTracingPipeline> GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
 		NX_VALIDATE(false, "Ray tracing pipelines are not supported by OpenGL");
-		return nullptr;
+		return {};
 	}
 
-	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(Ref<IPipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(PipelineHandle pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto resourceSet = std::make_unique<ResourceSetOpenGL>(pipeline, this);

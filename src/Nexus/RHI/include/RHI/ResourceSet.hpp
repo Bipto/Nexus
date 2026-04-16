@@ -1,94 +1,13 @@
 #pragma once
 
-#include <map>
-
-#include "Core/ResourcePool.hpp"
-
 #include "RHI/AccelerationStructure.hpp"
-#include "RHI/DeviceBuffer.hpp"
-#include "RHI/Sampler.hpp"
+#include "RHI/ResourceDeclarations.hpp"
+#include "RHI/ResourceSetDescription.hpp"
 #include "RHI/ShaderResources.hpp"
 #include "RHI/TexelBuffer.hpp"
-#include "RHI/Texture.hpp"
-#include "RHI/TextureView.hpp"
-#include "RHI/Types.hpp"
 
 namespace Nexus::Graphics
 {
-	struct CombinedImageSampler
-	{
-		TextureViewHandle ImageTexture = {};
-		SamplerHandle	  ImageSampler = {};
-	};
-
-	enum class ShaderAccess
-	{
-		Read,
-		ReadWrite
-	};
-
-	struct StorageImageView
-	{
-		TextureHandle Texture	 = {};
-		uint32_t	  ArrayLayer = 0;
-		uint32_t	  MipLevel	 = 0;
-		ShaderAccess  Access	 = ShaderAccess::Read;
-	};
-
-	struct StorageBufferView
-	{
-		Ref<IDeviceBuffer> BufferHandle = nullptr;
-		size_t			   Offset		= 0;
-		size_t			   SizeInBytes	= 0;
-		ShaderAccess	   Access		= ShaderAccess::Read;
-	};
-
-	struct BindingInfo
-	{
-		uint32_t Set	 = 0;
-		uint32_t Binding = 0;
-	};
-
-	enum class ResourceDescriptorType
-	{
-		PushConstants,
-		UniformBuffer,
-		DynamicUniformBuffer,
-		InlineUniformBlock,
-		StorageBuffer,
-		DynamicStorageBuffer,
-		StorageImage,
-		CombinedImageSampler,
-		SampledImage,
-		Sampler,
-		AccelerationStructure,
-		UniformTexelBuffer,
-		StorageTexelBuffer
-	};
-
-	inline bool IsBuffer(ResourceDescriptorType type)
-	{
-		bool isBuffer = type == Graphics::ResourceDescriptorType::UniformBuffer || type == Graphics::ResourceDescriptorType::DynamicUniformBuffer ||
-						type == Graphics::ResourceDescriptorType::InlineUniformBlock || type == Graphics::ResourceDescriptorType::StorageBuffer ||
-						type == Graphics::ResourceDescriptorType::DynamicStorageBuffer ||
-						type == Graphics::ResourceDescriptorType::UniformTexelBuffer ||
-						type == Graphics::ResourceDescriptorType::StorageTexelBuffer || type == Graphics::ResourceDescriptorType::PushConstants;
-
-		return isBuffer;
-	}
-
-	struct ResourceDescriptor
-	{
-		std::string			   Name				  = "Resource";
-		ResourceDescriptorType Type				  = ResourceDescriptorType::UniformBuffer;
-		uint32_t			   CountOrSizeInBytes = 0;
-	};
-
-	struct ResourceSetDescription
-	{
-		std::vector<ResourceDescriptor>					  Descriptors		= {};
-		std::map<std::string, std::vector<SamplerHandle>> ImmutableSamplers = {};
-	};
 
 	using InlineBlock = std::vector<uint8_t>;
 
@@ -108,12 +27,10 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<TexelBufferHandle>>			StorageTexelBuffers	   = {};
 	};
 
-	class IPipeline;
-
 	class NX_RHI_API IResourceSet
 	{
 	  public:
-		IResourceSet(Ref<IPipeline> pipeline);
+		IResourceSet(PipelineHandle pipeline);
 		virtual ~IResourceSet();
 
 		// single descriptors
@@ -154,13 +71,11 @@ namespace Nexus::Graphics
 		const ResourceSetDescriptors &GetBoundResources() const;
 
 	  protected:
-		WeakRef<IPipeline> m_Pipeline = {};
+		PipelineHandle m_Pipeline = {};
 
 		std::map<std::string, Nexus::Graphics::ShaderResource> m_ShaderResources;
 
 		ResourceSetDescriptors m_BoundResources	 = {};
 		ResourceSetDescriptors m_QueuedResources = {};
 	};
-
-	DEFINE_RESOURCE(ResourceSet, IResourceSet);
 }	 // namespace Nexus::Graphics

@@ -329,10 +329,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList	= nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline		= nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>			   m_CubeMesh		= nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_InstanceBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList	= nullptr;
+		Nexus::Graphics::PipelineHandle			   m_Pipeline		= {};
+		Nexus::Ref<Nexus::Graphics::Mesh>		   m_CubeMesh		= nullptr;
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_InstanceBuffer = nullptr;
 
 		Nexus::Graphics::ResourceSetHandle m_ResourceSet	 = {};
 		Nexus::Graphics::TextureHandle	   m_DiffuseMap		 = {};

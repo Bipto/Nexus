@@ -12,9 +12,9 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetD3D12::ResourceSetD3D12(Ref<IPipeline> pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
+	ResourceSetD3D12::ResourceSetD3D12(PipelineHandle pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
 	{
-		Ref<PipelineD3D12> pipelineD3D12				= std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
+		const PipelineD3D12 *pipelineD3D12				= pipeline.AsDerived<const PipelineD3D12>();
 		m_RootSignatureBindingLocations					= pipelineD3D12->GetRootSignatureBindingLocations();
 		m_DescriptorHandleInfo							= pipelineD3D12->GetDescriptorHandleInfo();
 		Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice = m_Device->GetD3D12Device();

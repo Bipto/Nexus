@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 	class ResourceSetD3D12 final : public IResourceSet
 	{
 	  public:
-		ResourceSetD3D12(Ref<IPipeline> pipeline, GraphicsDeviceD3D12 *device);
+		ResourceSetD3D12(PipelineHandle pipeline, GraphicsDeviceD3D12 *device);
 		void Flush() final;
 
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSamplerDescriptorHeap();

@@ -73,19 +73,19 @@ namespace Nexus::Graphics
 
 		Nexus::FirstPersonCamera m_Camera = {};
 
-		Graphics::SamplerHandle						   m_CubemapSampler		  = {};
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_CubemapPipeline	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_CubemapUniformBuffer = nullptr;
-		Nexus::Graphics::ResourceSetHandle			   m_CubemapResourceSet	  = {};
+		Graphics::SamplerHandle					   m_CubemapSampler		  = {};
+		PipelineHandle							   m_CubemapPipeline	  = {};
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CubemapUniformBuffer = nullptr;
+		Nexus::Graphics::ResourceSetHandle		   m_CubemapResourceSet	  = {};
 
 		Graphics::SamplerHandle																	 m_ModelSampler					= {};
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline>											 m_ModelPipeline				= nullptr;
+		Graphics::PipelineHandle																 m_ModelPipeline				= {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>												 m_ModelCameraUniformBuffer		= nullptr;
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::IDeviceBuffer>> m_ModelTransformUniformBuffers = {};
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, ResourceSetHandle>							 m_ModelResourceSets			= {};
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							 m_ModelIDs						= {};
 
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_ClearScreenPipeline = nullptr;
+		PipelineHandle m_ClearScreenPipeline = {};
 
 		Graphics::TextureHandle		m_DefaultTexture	 = {};
 		Graphics::TextureViewHandle m_DefaultTextureView = {};

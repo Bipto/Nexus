@@ -324,7 +324,8 @@ namespace Demos
 
 			// SBT
 			// ray tracing shaders can only be compiled to SPIRV atm, HLSL is not supported
-			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
+			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan &&
+				m_Pipeline->GetType() == Nexus::Graphics::PipelineType::RayTracing)
 			{
 				Nexus::Graphics::RayTracingDeviceDescription deviceRayTracingDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
 				const uint32_t								 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;	   // e.g., 32
@@ -332,7 +333,8 @@ namespace Demos
 				const uint32_t								 groupCount	  = 3;	  // raygen, miss, hit
 				const uint32_t								 sbtSize	  = groupCount * recordStride;
 
-				std::vector<uint8_t> handles = m_Pipeline->GetRayTracingShaderGroupHandles();	 // size == groupCount * handleSize
+				const Nexus::Graphics::IRayTracingPipeline *pipeline = m_Pipeline.AsDerived<const Nexus::Graphics::IRayTracingPipeline>();
+				std::vector<uint8_t> handles = pipeline->GetRayTracingShaderGroupHandles();	   // size == groupCount * handleSize
 
 				Nexus::Graphics::DeviceBufferDescription sbtDesc = {};
 				sbtDesc.SizeInBytes								 = sbtSize;
@@ -434,9 +436,9 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	 m_TLASBuffer = nullptr;
 		Nexus::Graphics::AccelerationStructureHandle m_TLAS		  = {};
 
-		Nexus::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>		 m_SBT		   = nullptr;
-		Nexus::Graphics::ResourceSetHandle				 m_ResourceSet = {};
+		Nexus::Graphics::PipelineHandle			   m_Pipeline	 = {};
+		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_SBT		 = nullptr;
+		Nexus::Graphics::ResourceSetHandle		   m_ResourceSet = {};
 
 		Nexus::Graphics::DeviceAddressRegion		m_RaygenRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_MissRegion	 = {};

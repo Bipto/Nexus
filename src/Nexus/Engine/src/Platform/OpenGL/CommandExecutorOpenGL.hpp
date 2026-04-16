@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(PipelineHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
@@ -57,15 +57,15 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
 		void BindResourceSet(const GladGLContext &context);
-		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,
-									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
-									std::optional<Nexus::Graphics::IndexBufferView>											indexBuffer,
-									uint32_t																				vertexOffset,
-									uint32_t																				instanceOffset,
-									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall);
+		void ExecuteGraphicsCommand(GraphicsPipelineOpenGL															   *pipeline,
+									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>						   &vertexBuffers,
+									std::optional<Nexus::Graphics::IndexBufferView>										indexBuffer,
+									uint32_t																			vertexOffset,
+									uint32_t																			instanceOffset,
+									std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
-		std::optional<Ref<IPipeline>>				 m_CurrentlyBoundPipeline	   = {};
+		PipelineHandle								 m_CurrentlyBoundPipeline	   = {};
 		FramebufferHandle							 m_CurrentRenderTarget		   = {};
 		std::map<uint32_t, VertexBufferView>		 m_CurrentlyBoundVertexBuffers = {};
 		std::optional<IndexBufferView>				 m_BoundIndexBuffer			   = {};

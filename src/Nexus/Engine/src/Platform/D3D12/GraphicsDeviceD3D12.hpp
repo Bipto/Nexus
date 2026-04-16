@@ -29,11 +29,11 @@ namespace Nexus::Graphics
 
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<IComputePipeline>	 CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<IMeshletPipeline>	 CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
-		Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
-		ResourceSetHandle		 CreateResourceSet(Ref<IPipeline> pipeline) final;
+		PipelineHandle	  CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		PipelineHandle	  CreateComputePipeline(const ComputePipelineDescription &description) final;
+		PipelineHandle	  CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		PipelineHandle	  CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) final;
 
 		FramebufferHandle			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
 		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;

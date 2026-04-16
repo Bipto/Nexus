@@ -85,27 +85,31 @@ namespace Nexus::Graphics
 		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
-	Ref<IGraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<GraphicsPipelineVk>(description, this);
+		auto pipeline = std::make_unique<GraphicsPipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return CreateRef<ComputePipelineVk>(description, this);
+		auto pipeline = std::make_unique<ComputePipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IMeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
-		return CreateRef<MeshletPipelineVk>(description, this);
+		auto pipeline = std::make_unique<MeshletPipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IRayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return CreateRef<RayTracingPipelineVk>(description, this);
+		auto pipeline = std::make_unique<RayTracingPipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	ResourceSetHandle GraphicsDeviceVk::CreateResourceSet(Ref<IPipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceVk::CreateResourceSet(PipelineHandle pipeline)
 	{
 		auto resourceSet = std::make_unique<ResourceSetVk>(pipeline, this);
 		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));

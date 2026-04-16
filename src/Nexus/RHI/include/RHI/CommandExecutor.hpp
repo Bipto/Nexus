@@ -17,8 +17,8 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) = 0;
 		virtual void Reset()																 = 0;
 
-		bool ValidateForGraphicsCall(std::optional<WeakRef<IPipeline>> pipeline, FramebufferHandle renderTarget);
-		bool ValidateForComputeCall(std::optional<WeakRef<IPipeline>> pipeline);
+		bool ValidateForGraphicsCall(PipelineHandle pipeline, FramebufferHandle renderTarget);
+		bool ValidateForComputeCall(PipelineHandle pipeline);
 		bool ValidateForClearColour(FramebufferHandle target, uint32_t colourIndex);
 		bool ValidateForClearDepth(FramebufferHandle target);
 		bool ValidateForSetViewport(FramebufferHandle target, const Viewport &viewport);
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 
 		virtual void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)							  = 0;
 		virtual void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device)							  = 0;
-		virtual void ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)										  = 0;
+		virtual void ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)										  = 0;
 		virtual void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)								  = 0;
 		virtual void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device)							  = 0;
 		virtual void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device)						  = 0;

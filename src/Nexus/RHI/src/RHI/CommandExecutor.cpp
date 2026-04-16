@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<WeakRef<IPipeline>> pipeline, FramebufferHandle renderTarget)
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(PipelineHandle pipeline, FramebufferHandle renderTarget)
 	{
 		bool valid = true;
 
@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (!pipeline.has_value())
+		if (!pipeline.IsValid())
 		{
 			throw std::runtime_error("Attempting to execute graphics command without a bound pipeline");
 			valid = false;
@@ -25,17 +25,16 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
-	bool CommandExecutor::ValidateForComputeCall(std::optional<WeakRef<IPipeline>> pipeline)
+	bool CommandExecutor::ValidateForComputeCall(PipelineHandle pipeline)
 	{
-		if (!pipeline.has_value())
+		if (!pipeline.IsValid())
 		{
 			return false;
 		}
 
-		WeakRef<IPipeline> pl = pipeline.value();
-		if (Ref<IPipeline> pipeline = pl.lock())
+		if (IPipeline *pl = pipeline.GetResource())
 		{
-			if (pipeline->GetType() != PipelineType::Compute)
+			if (pl->GetType() != PipelineType::Compute)
 			{
 				return false;
 			}

@@ -110,11 +110,11 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
-			Ref<GraphicsPipelineD3D12> pipeline			 = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
-			Ref<DeviceBufferD3D12>	   d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
-			const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
+			const GraphicsPipelineD3D12 *pipeline		   = m_CurrentlyBoundPipeline.AsDerived<const GraphicsPipelineD3D12>();
+			Ref<DeviceBufferD3D12>		 d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
+			const auto					&bufferLayout	   = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
 			D3D12_VERTEX_BUFFER_VIEW bufferView = {};
 			bufferView.BufferLocation			= d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
@@ -142,13 +142,11 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)
 	{
-		Ref<IPipeline> pipeline = std::dynamic_pointer_cast<IPipeline>(command.lock());
-
-		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
-		d3d12Pipeline->Bind(m_CommandList);
-		m_CurrentlyBoundPipeline = pipeline;
+		PipelineD3D12 *pipeline = command.AsDerived<PipelineD3D12>();
+		pipeline->Bind(m_CommandList);
+		m_CurrentlyBoundPipeline = command;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
@@ -184,7 +182,7 @@ namespace Nexus::Graphics
 
 		NX_VALIDATE(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage_Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
-		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
 			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
 			{
@@ -207,14 +205,11 @@ namespace Nexus::Graphics
 
 		NX_VALIDATE(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage_Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
-		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
 			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
-
-				Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline =
-					std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
 
 				Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
 					GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED, command.Stride);
@@ -284,7 +279,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
-		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
+		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline->GetType();
 
 		ResourceSetHandle	 handle			  = desc.TargetResourceSet;
 		ResourceSetD3D12	*d3d12ResourceSet = handle.AsDerived<ResourceSetD3D12>();
@@ -747,10 +742,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
-		if (!m_CurrentlyBoundResourceSet && !m_CurrentlyBoundPipeline.has_value())
+		if (!m_CurrentlyBoundResourceSet && !m_CurrentlyBoundPipeline.IsValid())
 			return;
 
-		bool isGraphics = m_CurrentlyBoundPipeline.value()->GetType() != PipelineType::Compute;
+		bool isGraphics = m_CurrentlyBoundPipeline->GetType() != PipelineType::Compute;
 
 		m_CurrentlyBoundResourceSet
 			->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size(), isGraphics, m_CommandList);

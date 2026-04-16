@@ -71,10 +71,10 @@ namespace Nexus::Graphics
 		for (const auto &[setIndex, dynamicOffsetCount] : setCounts) { offsetData[setIndex].resize(dynamicOffsetCount); }
 	}
 
-	ResourceSetVk::ResourceSetVk(Ref<IPipeline> pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
+	ResourceSetVk::ResourceSetVk(PipelineHandle pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
 	{
 		const GladVulkanContext &context		= m_Device->GetVulkanContext();
-		Ref<PipelineVk>			 vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+		PipelineVk				*vulkanPipeline = pipeline.AsDerived<PipelineVk>();
 
 		// calculate required descriptor pool size
 		std::vector<VkDescriptorPoolSize> sizes = {};
@@ -119,8 +119,8 @@ namespace Nexus::Graphics
 			}
 		}
 
-		m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.get(), device);
-		CreateDynamicOffsetDataAndStageFlags(pipeline.get(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources);
+		m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.GetResource(), device);
+		CreateDynamicOffsetDataAndStageFlags(pipeline.GetResource(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources);
 	}
 
 	ResourceSetVk::~ResourceSetVk()

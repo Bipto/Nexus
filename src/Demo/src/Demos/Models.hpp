@@ -301,10 +301,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::Model>			   m_Model		 = nullptr;
-		glm::vec3									   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = nullptr;
+		Nexus::Graphics::PipelineHandle			  m_Pipeline	= {};
+		Nexus::Ref<Nexus::Graphics::Model>		  m_Model		= nullptr;
+		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		std::vector<Nexus::Graphics::ResourceSetHandle> m_ResourceSets = {};
 

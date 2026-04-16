@@ -93,7 +93,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	IResourceSet::IResourceSet(Ref<IPipeline> pipeline) : m_Pipeline(pipeline)
+	IResourceSet::IResourceSet(PipelineHandle pipeline) : m_Pipeline(pipeline)
 	{
 		m_ShaderResources							  = pipeline->GetRequiredShaderResources();
 		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();

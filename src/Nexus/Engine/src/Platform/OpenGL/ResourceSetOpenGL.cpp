@@ -7,14 +7,14 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetOpenGL::ResourceSetOpenGL(Ref<IPipeline> pipeline, GraphicsDeviceOpenGL *device) : IResourceSet(pipeline)
+	ResourceSetOpenGL::ResourceSetOpenGL(PipelineHandle pipeline, GraphicsDeviceOpenGL *device) : IResourceSet(pipeline)
 	{
 		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				Ref<PipelineOpenGL> pipelineGL = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
+				const PipelineOpenGL *pipelineGL = pipeline.AsDerived<const PipelineOpenGL>();
 
 				for (const ResourceDescriptor &descriptor : resourceSetDesc.Descriptors)
 				{
@@ -543,7 +543,7 @@ namespace Nexus::Graphics
 		}
 
 		// set up iummutable samplers
-		if (Ref<IPipeline> pipeline = m_Pipeline.lock())
+		if (const IPipeline *pipeline = m_Pipeline.AsDerived<const IPipeline>())
 		{
 			const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 		}

@@ -150,14 +150,14 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
-		Nexus::Graphics::ResourceSetHandle			   m_ResourceSet = {};
-		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
-		Nexus::Graphics::TextureHandle				   m_Texture	 = {};
-		Nexus::Graphics::TextureViewHandle			   m_TextureView = {};
-		Nexus::Graphics::SamplerHandle				   m_Sampler	 = {};
-		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = {};
+		Nexus::Graphics::PipelineHandle			  m_Pipeline	= {};
+		Nexus::Graphics::ResourceSetHandle		  m_ResourceSet = {};
+		Nexus::Ref<Nexus::Graphics::Mesh>		  m_Mesh		= {};
+		Nexus::Graphics::TextureHandle			  m_Texture		= {};
+		Nexus::Graphics::TextureViewHandle		  m_TextureView = {};
+		Nexus::Graphics::SamplerHandle			  m_Sampler		= {};
+		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID = 0;
 	};	  // namespace Demos

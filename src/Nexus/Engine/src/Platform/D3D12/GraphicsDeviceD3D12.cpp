@@ -72,27 +72,30 @@ namespace Nexus::Graphics
 		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
-	Ref<IGraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<GraphicsPipelineD3D12>(this, description);
+		auto pipeline = std::make_unique<GraphicsPipelineD3D12>(this, description);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return CreateRef<ComputePipelineD3D12>(this, description);
+		auto pipeline = std::make_unique<ComputePipelineD3D12>(this, description);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IMeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
-		return CreateRef<MeshletPipelineD3D12>(this, description);
+		auto pipeline = std::make_unique<MeshletPipelineD3D12>(this, description);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IRayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return Ref<IRayTracingPipeline>();
+		return {};
 	}
 
-	ResourceSetHandle GraphicsDeviceD3D12::CreateResourceSet(Ref<IPipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceD3D12::CreateResourceSet(PipelineHandle pipeline)
 	{
 		auto resourceSet = std::make_unique<ResourceSetD3D12>(pipeline, this);
 		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));

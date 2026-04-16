@@ -56,27 +56,23 @@ namespace Nexus::Graphics
 		m_BoundIndexBuffer = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<IPipeline> command, IGraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)
 	{
-		if (command.expired())
+		if (!command.IsValid())
 		{
 			NX_ERROR("Attempting to bind an invalid pipeline");
 			return;
 		}
 
-		if (Ref<IPipeline> pipeline = std::dynamic_pointer_cast<IPipeline>(command.lock()))
-		{
-			m_CurrentlyBoundPipeline = pipeline;
-		}
+		m_CurrentlyBoundPipeline = command;
 	}
 
-	void CommandExecutorOpenGL::ExecuteGraphicsCommand(
-		Ref<GraphicsPipelineOpenGL>																pipeline,
-		const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
-		std::optional<Nexus::Graphics::IndexBufferView>											indexBuffer,
-		uint32_t																				vertexOffset,
-		uint32_t																				instanceOffset,
-		std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall)
+	void CommandExecutorOpenGL::ExecuteGraphicsCommand(GraphicsPipelineOpenGL									   *pipeline,
+													   const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
+													   std::optional<Nexus::Graphics::IndexBufferView>				indexBuffer,
+													   uint32_t														vertexOffset,
+													   uint32_t														instanceOffset,
+													   std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall)
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -109,17 +105,17 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_CurrentlyBoundPipeline.has_value())
+		if (m_CurrentlyBoundPipeline.IsValid())
 		{
-			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
-			if (pipeline->GetType() == PipelineType::Graphics)
+			if (m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 			{
-				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+				GraphicsPipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
+				ExecuteGraphicsCommand(pipeline,
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
 									   command.VertexStart,
 									   command.InstanceStart,
-									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+									   [&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
 									   {
 										   GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
 
@@ -143,9 +139,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_CurrentlyBoundPipeline.has_value())
+		if (m_CurrentlyBoundPipeline.IsValid())
 		{
-			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			GraphicsPipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
 
 			if (pipeline->GetType() == PipelineType::Graphics && m_BoundIndexBuffer)
 			{
@@ -155,12 +151,12 @@ namespace Nexus::Graphics
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
 				ExecuteGraphicsCommand(
-					std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+					pipeline,
 					m_CurrentlyBoundVertexBuffers,
 					m_BoundIndexBuffer,
 					command.VertexStart,
 					command.InstanceStart,
-					[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+					[&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
 					{
 						GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
 
@@ -184,21 +180,22 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_CurrentlyBoundPipeline.has_value())
+		if (m_CurrentlyBoundPipeline.IsValid())
 		{
-			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			GraphicsPipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
+
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
 	#if !defined(__EMSCRIPTEN__)
 				if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
 				{
 					ExecuteGraphicsCommand(
-						std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+						pipeline,
 						m_CurrentlyBoundVertexBuffers,
 						m_BoundIndexBuffer,
 						0,
 						0,
-						[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+						[&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
 						{
 							context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 							GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
@@ -232,9 +229,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_CurrentlyBoundPipeline.has_value())
+		if (m_CurrentlyBoundPipeline.IsValid())
 		{
-			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			GraphicsPipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
 
 			if (pipeline->GetType() == PipelineType::Graphics && m_BoundIndexBuffer)
 			{
@@ -245,12 +242,12 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 				if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
 				{
-					ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+					ExecuteGraphicsCommand(pipeline,
 										   m_CurrentlyBoundVertexBuffers,
 										   m_BoundIndexBuffer,
 										   0,
 										   0,
-										   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+										   [&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
 										   {
 											   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 											   GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
@@ -296,7 +293,7 @@ namespace Nexus::Graphics
 			[&](const GladGLContext &context)
 			{
 	#if !defined(__EMSCRIPTEN__)
-				Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+				PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 				pipeline->Bind(context);
 				BindResourceSet(context);
 				context.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
@@ -313,7 +310,7 @@ namespace Nexus::Graphics
 		}
 
 	#if !defined(__EMSCRIPTEN__)
-		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -341,7 +338,7 @@ namespace Nexus::Graphics
 		}
 
 	#if !defined(__EMSCRIPTEN__)
-		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
@@ -366,7 +363,7 @@ namespace Nexus::Graphics
 		}
 
 	#if !defined(__EMSCRIPTEN__)
-		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 		if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
 		{
 			GL::ExecuteGLCommands(
@@ -689,12 +686,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
 	{
-		if (m_CurrentlyBoundPipeline.has_value())
+		if (m_CurrentlyBoundPipeline.IsValid())
 		{
-			Ref<IPipeline> pipeline = m_CurrentlyBoundPipeline.value();
-			if (pipeline->GetType() == PipelineType::Graphics)
+			if (GraphicsPipelineOpenGL *pipelineGL = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>())
 			{
-				Ref<GraphicsPipelineOpenGL> pipelineGL = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline);
 				GL::ExecuteGLCommands([&](const GladGLContext &context) { pipelineGL->SetStencilReference(context, command.StencilReference); });
 			}
 		}
@@ -792,7 +787,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::BindResourceSet(const GladGLContext &context)
 	{
-		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 		if (!pipeline)
 			return;
 

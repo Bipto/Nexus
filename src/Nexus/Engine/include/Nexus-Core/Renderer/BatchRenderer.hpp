@@ -46,8 +46,8 @@ namespace Nexus::Graphics
 
 	struct BatchInfo
 	{
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> Pipeline	   = nullptr;
-		Nexus::Graphics::ResourceSetHandle			   ResourceSet = {};
+		PipelineHandle	  Pipeline	  = {};
+		ResourceSetHandle ResourceSet = {};
 
 		std::vector<Nexus::Graphics::BatchVertex> Vertices;
 		std::vector<uint32_t>					  Indices;

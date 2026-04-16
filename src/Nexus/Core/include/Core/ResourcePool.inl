@@ -99,7 +99,6 @@ namespace Nexus
 	template<typename Derived>
 	Derived *SharedHandle<T, Handle>::AsDerived()
 	{
-		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
 		T *ptr = m_Pool->Get(m_Handle);
 		return dynamic_cast<Derived *>(ptr);
 	}
@@ -108,7 +107,6 @@ namespace Nexus
 	template<typename Derived>
 	const Derived *SharedHandle<T, Handle>::AsDerived() const
 	{
-		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
 		T *ptr = m_Pool->Get(m_Handle);
 		return dynamic_cast<Derived *>(ptr);
 	}
@@ -206,7 +204,6 @@ namespace Nexus
 	template<typename Derived>
 	Derived *UniqueHandle<T, Handle>::AsDerived()
 	{
-		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
 		T *ptr = m_Pool->Get(m_Handle);
 		return static_cast<Derived *>(ptr);
 	}
@@ -215,7 +212,6 @@ namespace Nexus
 	template<typename Derived>
 	const Derived *UniqueHandle<T, Handle>::AsDerived() const
 	{
-		static_assert(std::is_base_of<T, Derived>::value, "Derived must inherit from T");
 		T *ptr = m_Pool->Get(m_Handle);
 		return static_cast<Derived *>(ptr);
 	}
