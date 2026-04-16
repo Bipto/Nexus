@@ -18,7 +18,6 @@ jobs:
 
     env:
       SCCACHE_DIR: /home/runner/.cache/sccache
-      SCCACHE_LOG: debug
       SCCACHE_ERROR_LOG: /home/runner/sccache-error.log
       SCCACHE_IDLE_TIMEOUT: 1200
 
