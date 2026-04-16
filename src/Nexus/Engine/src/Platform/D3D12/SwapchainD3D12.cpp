@@ -9,11 +9,11 @@
 
 namespace Nexus::Graphics
 {
-	static std::expected<Ref<SurfaceD3D12>, std::string> GetD3D12Surface(Ref<ISurface> surface)
+	static std::expected<SurfaceD3D12 *, std::string> GetD3D12Surface(SurfaceHandle surface)
 	{
-		if (auto d3d12Surface = std::dynamic_pointer_cast<SurfaceD3D12>(surface))
+		if (SurfaceD3D12 *surfaceD3D12 = surface.AsDerived<SurfaceD3D12>())
 		{
-			return d3d12Surface;
+			return surfaceD3D12;
 		}
 		else
 		{
@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 		m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
 
 		// assign the surface
-		m_Surface = std::dynamic_pointer_cast<SurfaceD3D12>(m_Description.Surface);
+		m_Surface = m_Description.Surface.AsDerived<SurfaceD3D12>();
 
 		// set up size of swapchain
 		m_SwapchainWidth  = swapchainSpec.Width;
@@ -291,7 +291,7 @@ namespace Nexus::Graphics
 
 		auto value =
 			GetD3D12Surface(m_Description.Surface)
-				.and_then([&](Ref<SurfaceD3D12> surface) { return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get()); })
+				.and_then([&](SurfaceD3D12 *surface) { return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get()); })
 				.and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) { return QuerySwapchainComInterface(swapchain); });
 
 		if (value.has_value())

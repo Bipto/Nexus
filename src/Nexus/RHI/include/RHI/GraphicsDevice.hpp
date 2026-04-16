@@ -66,6 +66,7 @@ namespace Nexus::Graphics
 		ShaderModulePool		  ShaderModules			 = {};
 		ResourceSetPool			  ResourceSets			 = {};
 		PipelinePool			  Pipelines				 = {};
+		SurfacePool				  Surfaces				 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -165,11 +166,11 @@ namespace Nexus::Graphics
 		virtual RayTracingDeviceDescription		GetRayTracingDeviceDescription() const	   = 0;
 		virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;
 
-		virtual Ref<ISurface> CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const = 0;
-		virtual Ref<ISurface> CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const  = 0;
-		virtual Ref<ISurface> CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const			   = 0;
-		virtual Ref<ISurface> CreateSurfaceFromAndroid(uintptr_t nativeWindow) const						   = 0;
-		virtual Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const						   = 0;
+		virtual SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) = 0;
+		virtual SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)	 = 0;
+		virtual SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)			 = 0;
+		virtual SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow)							 = 0;
+		virtual SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId)						 = 0;
 
 	  protected:
 		Ref<ICommandList> m_ImmediateCommandList = nullptr;

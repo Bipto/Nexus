@@ -168,7 +168,7 @@ namespace Nexus::GL
 
 	void ViewContextEGL::Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc)
 	{
-		NX_VALIDATE(texture, "Texture cannot be null");
+		NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
 		// retrieve the previous context
 		GL::IGLContext *previousContext = GL::GetCurrentContext();

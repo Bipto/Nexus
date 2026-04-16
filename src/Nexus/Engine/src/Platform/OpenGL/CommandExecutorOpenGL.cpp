@@ -587,7 +587,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device)
 	{
-		Graphics::TextureHandle textureHandle = command.BufferTextureCopy.TextureHandle;
+		Graphics::TextureHandle textureHandle = command.BufferTextureCopy.Texture;
 
 		DeviceBufferOpenGL *buffer = dynamic_cast<DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 
@@ -601,7 +601,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
 	{
-		Graphics::TextureHandle textureHandle = command.TextureBufferCopy.TextureHandle;
+		Graphics::TextureHandle textureHandle = command.TextureBufferCopy.Texture;
 		DeviceBufferOpenGL	   *buffer		  = dynamic_cast<DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (buffer && textureHandle.IsValid())

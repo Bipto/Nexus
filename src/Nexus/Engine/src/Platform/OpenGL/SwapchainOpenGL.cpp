@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 		m_SwapchainWidth  = swapchainSpec.Width;
 		m_SwapchainHeight = swapchainSpec.Height;
 
-		if (auto surface = std::dynamic_pointer_cast<SurfaceOpenGL>(swapchainSpec.Surface))
+		if (const SurfaceOpenGL *surface = swapchainSpec.Surface.AsDerived<const SurfaceOpenGL>())
 		{
 			GL::ContextDescription contextDesc = {};
 			m_ViewContext					   = surface->CreateOpenGLContext(graphicsDevice, contextDesc);

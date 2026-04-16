@@ -946,7 +946,7 @@ namespace Nexus::Graphics
 		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc barrierDesc = {};
-			barrierDesc.Texture						 = bufferTextureCopy.TextureHandle;
+			barrierDesc.Texture						 = bufferTextureCopy.Texture;
 			barrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
 			barrierDesc.AfterAccess					 = BarrierAccess::TransferWrite;
 			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;
@@ -980,7 +980,7 @@ namespace Nexus::Graphics
 		if (m_AutomaticBarrierTracking)
 		{
 			Graphics::TextureBarrierDesc barrierDesc = {};
-			barrierDesc.Texture						 = textureBufferCopy.TextureHandle;
+			barrierDesc.Texture						 = textureBufferCopy.Texture;
 			barrierDesc.BeforeAccess				 = BarrierAccess::NoAccess;
 			barrierDesc.AfterAccess					 = BarrierAccess::TransferRead;
 			barrierDesc.BeforeStage					 = BarrierPipelineStage::Copy;

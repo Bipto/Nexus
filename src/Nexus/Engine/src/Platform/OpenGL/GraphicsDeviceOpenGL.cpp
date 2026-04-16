@@ -179,37 +179,39 @@ namespace Nexus::Graphics
 		return AccelerationStructureProperties();
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
 	{
 	#if defined(WIN32)
-		return CreateRef<SurfaceWGL>(hwnd, hdc, hinstance, this);
+		auto surface = std::make_unique<SurfaceWGL>(hwnd, hdc, hinstance, this);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 	#else
-		return nullptr;
+		return {};
 	#endif
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
 	{
 	#if defined(__linux__)
-		return CreateRef<SurfaceEGL>(display, screen, window, this);
+		auto surface = std::make_unique<SurfaceEGL>(display, screen, window, this);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 	#else
-		return nullptr;
+		return {};
 	#endif
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromHTML(const std::string &canvasId) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromHTML(const std::string &canvasId)
 	{
-		return nullptr;
+		return {};
 	}
 
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()

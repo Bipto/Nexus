@@ -43,7 +43,7 @@ namespace Nexus
 			}
 		}
 
-		Ref<Graphics::ISurface> surface			   = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
+		Graphics::SurfaceHandle surface			   = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
 		m_Description.SwapchainDescription.Surface = surface;
 
 		// hack, this probably needs removing at some point

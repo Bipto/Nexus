@@ -800,37 +800,39 @@ namespace Nexus::Graphics
 		return properties;
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
 	{
 #if defined(WIN32)
-		return CreateRef<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
+		auto surface = std::make_unique<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 #else
 		return nullptr;
 #endif
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
 	{
 #if defined(__linux__)
-		return CreateRef<SurfaceX11_Vk>(display, screen, window);
+		auto surface = std::make_unique<SurfaceX11_Vk>(display, screen, window);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 #else
-		return nullptr;
+		return {};
 #endif
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromHTML(const std::string &canvasId) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromHTML(const std::string &canvasId)
 	{
-		return nullptr;
+		return {};
 	}
 
 	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const

@@ -435,7 +435,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		const TextureD3D12 *texture = command.BufferTextureCopy.TextureHandle.AsDerived<const TextureD3D12>();
+		const TextureD3D12 *texture = command.BufferTextureCopy.Texture.AsDerived<const TextureD3D12>();
 
 		if (!texture)
 		{
@@ -447,7 +447,7 @@ namespace Nexus::Graphics
 		const bool layeredTexture	= texture->IsLayeredTexture();
 		uint32_t   subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
 																  layeredTexture ? command.BufferTextureCopy.TextureOffset.Z : 0,
-																  command.BufferTextureCopy.TextureHandle->GetMipLevels());
+																  command.BufferTextureCopy.Texture->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureOffset.X;
@@ -539,7 +539,7 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
 		DeviceBufferD3D12  *buffer	= dynamic_cast<DeviceBufferD3D12 *>(command.TextureBufferCopy.BufferHandle);
-		const TextureD3D12 *texture = command.TextureBufferCopy.TextureHandle.AsDerived<const TextureD3D12>();
+		const TextureD3D12 *texture = command.TextureBufferCopy.Texture.AsDerived<const TextureD3D12>();
 
 		if (!texture)
 		{
@@ -548,11 +548,11 @@ namespace Nexus::Graphics
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
-		bool arrayedTexture = command.TextureBufferCopy.TextureHandle->GetType() == TextureType::Texture3D ||
-							  command.TextureBufferCopy.TextureHandle->GetType() == TextureType::TextureCube;
+		bool arrayedTexture = command.TextureBufferCopy.Texture->GetType() == TextureType::Texture3D ||
+							  command.TextureBufferCopy.Texture->GetType() == TextureType::TextureCube;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.TextureBufferCopy.MipLevel,
 																arrayedTexture ? command.TextureBufferCopy.TextureOffset.Z : 0,
-																command.TextureBufferCopy.TextureHandle->GetMipLevels());
+																command.TextureBufferCopy.Texture->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.TextureBufferCopy.TextureOffset.X;

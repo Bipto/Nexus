@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 
 	struct SwapchainDescription
 	{
-		Ref<ISurface> Surface = nullptr;
+		Graphics::SurfaceHandle Surface = {};
 
 		/// @brief Whether the application should use VSync
 		PresentMode ImagePresentMode = PresentMode::Fifo;

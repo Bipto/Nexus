@@ -669,7 +669,7 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
 		DeviceBufferVk		 *buffer	  = dynamic_cast<DeviceBufferVk *>(command.BufferTextureCopy.BufferHandle);
-		const TextureVk		 *texture	  = command.BufferTextureCopy.TextureHandle.AsDerived<const TextureVk>();
+		const TextureVk		 *texture	  = command.BufferTextureCopy.Texture.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		if (!buffer)
@@ -767,7 +767,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		const TextureVk		 *texture	  = command.TextureBufferCopy.TextureHandle.AsDerived<const TextureVk>();
+		const TextureVk		 *texture	  = command.TextureBufferCopy.Texture.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;

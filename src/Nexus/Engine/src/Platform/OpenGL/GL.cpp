@@ -1195,7 +1195,7 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
@@ -1366,7 +1366,7 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureNonDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
@@ -1534,7 +1534,7 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (!texture || !buffer)
@@ -1555,7 +1555,7 @@ namespace Nexus::GL
 		size_t bufferOffset = command.TextureBufferCopy.BufferOffset;
 
 		Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.TextureHandle;
+		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.Texture;
 		framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
 		framebufferTextureDesc.BaseArrayLayer						   = command.TextureBufferCopy.TextureOffset.Z;
 		framebufferTextureDesc.LayerCount							   = 1;
@@ -1585,7 +1585,7 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferNonDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.TextureHandle.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
 		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
 
 		if (!texture || !buffer)
@@ -1610,7 +1610,7 @@ namespace Nexus::GL
 		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
 
 		Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.TextureHandle;
+		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.Texture;
 		framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
 		framebufferTextureDesc.BaseArrayLayer						   = command.TextureBufferCopy.TextureOffset.Z;
 		framebufferTextureDesc.LayerCount							   = 1;

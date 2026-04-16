@@ -346,31 +346,34 @@ namespace Nexus::Graphics
 		return properties;
 	}
 
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
 	{
 	#if defined(WIN32)
-		return CreateRef<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
+		auto surface = std::make_unique<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 	#else
 		throw std::runtime_error("Unsupported platform");
 		return nullptr;
 	#endif
 	}
 
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
 	{
-		return nullptr;
+		return {};
 	}
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
 	{
-		return nullptr;
+		return {};
 	}
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
 	{
-		return nullptr;
+		return {};
 	}
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId) const
+
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId)
 	{
-		return nullptr;
+		return {};
 	}
 
 	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)

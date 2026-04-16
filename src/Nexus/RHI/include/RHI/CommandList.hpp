@@ -83,7 +83,7 @@ namespace Nexus::Graphics
 		uint64_t BufferImageHeight = 0;
 
 		/// @brief A pointer to the texture to use in the copy operation
-		TextureHandle TextureHandle = {};
+		TextureHandle Texture = {};
 
 		/// @brief A structure containing parameters specifying the offset into the textures
 		Offset3D TextureOffset = {};

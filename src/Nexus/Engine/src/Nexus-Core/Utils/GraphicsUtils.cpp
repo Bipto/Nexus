@@ -47,7 +47,7 @@ namespace
 
 namespace Nexus::Utils
 {
-	Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
+	Graphics::SurfaceHandle CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
 	{
 #if defined(WIN32)
 		auto win32Info = window->GetWin32Info();
@@ -314,7 +314,7 @@ namespace Nexus::Utils
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
-		copyDesc.TextureHandle							= texture;
+		copyDesc.Texture								= texture;
 		copyDesc.TextureOffset							= {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent							= {.Width = width, .Height = height};
 		copyDesc.MipLevel								= mipLevel;
@@ -354,7 +354,7 @@ namespace Nexus::Utils
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
-		copyDesc.TextureHandle							= texture;
+		copyDesc.Texture								= texture;
 		copyDesc.TextureOffset							= {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent							= {.Width = width, .Height = height};
 		copyDesc.MipLevel								= mipLevel;

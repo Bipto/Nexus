@@ -46,7 +46,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					   *m_Device	   = nullptr;
 		ICommandQueue						   *m_CommandQueue = nullptr;
 
-		Ref<SurfaceD3D12> m_Surface = nullptr;
+		SurfaceD3D12 *m_Surface = nullptr;
 
 		uint32_t m_SwapchainWidth  = 0;
 		uint32_t m_SwapchainHeight = 0;

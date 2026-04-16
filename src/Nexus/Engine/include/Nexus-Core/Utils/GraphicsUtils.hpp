@@ -8,7 +8,7 @@
 
 namespace Nexus::Utils
 {
-	NX_API Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window);
+	NX_API Graphics::SurfaceHandle CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window);
 	NX_API Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																		const std::string		  &filepath,
 																		const std::string		  &outputDirectory,
