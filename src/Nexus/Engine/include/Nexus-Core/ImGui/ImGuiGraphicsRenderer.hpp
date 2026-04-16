@@ -34,7 +34,7 @@ namespace Nexus::ImGuiUtils
 	struct ImGuiDescriptorInfo
 	{
 		Graphics::TextureViewHandle m_Texture	  = {};
-		Ref<Graphics::IResourceSet> m_ResourceSet = nullptr;
+		Graphics::ResourceSetHandle m_ResourceSet = {};
 		Graphics::SamplerHandle		m_Sampler	  = {};
 	};
 

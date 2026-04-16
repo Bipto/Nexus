@@ -159,7 +159,7 @@ namespace Nexus::Graphics
 												 .CountOrSizeInBytes = 1}};
 
 		Ref<IGraphicsPipeline> pipeline	   = m_Device->CreateGraphicsPipeline(pipelineDescription);
-		Ref<IResourceSet>	   resourceSet = m_Device->CreateResourceSet(pipeline);
+		ResourceSetHandle	   resourceSet = m_Device->CreateResourceSet(pipeline);
 
 		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;

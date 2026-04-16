@@ -106,7 +106,7 @@ namespace Nexus::Graphics
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle		 = {};
 
-		Ref<ResourceSetD3D12> m_CurrentlyBoundResourceSet = nullptr;
+		ResourceSetD3D12 *m_CurrentlyBoundResourceSet = nullptr;
 
 		FramebufferHandle			 m_CurrentFramebuffer	  = {};
 		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};

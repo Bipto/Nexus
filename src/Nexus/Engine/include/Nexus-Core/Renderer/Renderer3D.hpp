@@ -76,13 +76,13 @@ namespace Nexus::Graphics
 		Graphics::SamplerHandle						   m_CubemapSampler		  = {};
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_CubemapPipeline	  = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_CubemapUniformBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_CubemapResourceSet	  = nullptr;
+		Nexus::Graphics::ResourceSetHandle			   m_CubemapResourceSet	  = {};
 
 		Graphics::SamplerHandle																	 m_ModelSampler					= {};
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline>											 m_ModelPipeline				= nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>												 m_ModelCameraUniformBuffer		= nullptr;
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::IDeviceBuffer>> m_ModelTransformUniformBuffers = {};
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::IResourceSet>>	 m_ModelResourceSets			= {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, ResourceSetHandle>							 m_ModelResourceSets			= {};
 		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							 m_ModelIDs						= {};
 
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_ClearScreenPipeline = nullptr;

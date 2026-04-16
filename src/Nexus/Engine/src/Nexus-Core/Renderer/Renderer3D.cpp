@@ -366,13 +366,13 @@ namespace Nexus::Graphics
 			{
 				if (m_ModelResourceSets.find(model) == m_ModelResourceSets.end())
 				{
-					Ref<IResourceSet> resourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
+					ResourceSetHandle resourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
 					m_ModelResourceSets[model]	  = resourceSet;
 				}
 			}
 
 			Ref<IDeviceBuffer> transformUniformBuffer = m_ModelTransformUniformBuffers[model];
-			Ref<IResourceSet>  resourceSet			  = m_ModelResourceSets[model];
+			ResourceSetHandle  resourceSet			  = m_ModelResourceSets[model];
 
 			// copy data into the uniform buffer
 			{

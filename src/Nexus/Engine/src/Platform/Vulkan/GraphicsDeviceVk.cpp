@@ -105,9 +105,10 @@ namespace Nexus::Graphics
 		return CreateRef<RayTracingPipelineVk>(description, this);
 	}
 
-	Ref<IResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		return CreateRef<ResourceSetVk>(pipeline, this);
+		auto resourceSet = std::make_unique<ResourceSetVk>(pipeline, this);
+		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
 	FramebufferHandle GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)

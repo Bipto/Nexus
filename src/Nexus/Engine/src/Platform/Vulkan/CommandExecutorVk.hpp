@@ -70,10 +70,10 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
 
-		WeakRef<Pipeline>  m_CurrentlyBoundPipeline	   = {};
-		Ref<ResourceSetVk> m_CurrentlyBoundResourceSet = nullptr;
-		bool			   m_Rendering				   = false;
-		VkExtent2D		   m_RenderSize				   = {0, 0};
+		WeakRef<Pipeline>	 m_CurrentlyBoundPipeline	 = {};
+		const ResourceSetVk *m_CurrentlyBoundResourceSet = nullptr;
+		bool				 m_Rendering				 = false;
+		VkExtent2D			 m_RenderSize				 = {0, 0};
 
 		uint32_t		  m_DepthAttachmentIndex = 0;
 		FramebufferHandle m_CurrentRenderTarget	 = {};

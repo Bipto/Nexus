@@ -443,7 +443,7 @@ namespace Nexus::Graphics
 
 	struct ResourceSetBindingDescription
 	{
-		Ref<IResourceSet>							 TargetResourceSet = nullptr;
+		ResourceSetHandle							 TargetResourceSet = {};
 		std::map<std::string, std::vector<uint32_t>> DynamicOffsets	   = {};
 	};
 

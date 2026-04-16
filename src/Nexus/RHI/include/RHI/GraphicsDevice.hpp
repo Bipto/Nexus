@@ -64,6 +64,7 @@ namespace Nexus::Graphics
 		FencePool				  Fences				 = {};
 		FramebufferPool			  Framebuffers			 = {};
 		ShaderModulePool		  ShaderModules			 = {};
+		ResourceSetPool			  ResourceSets			 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -97,7 +98,7 @@ namespace Nexus::Graphics
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set
 		/// @return A pointer to a resource set
-		virtual Ref<IResourceSet> CreateResourceSet(Ref<Pipeline> pipeline) = 0;
+		virtual ResourceSetHandle CreateResourceSet(Ref<Pipeline> pipeline) = 0;
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification

@@ -342,8 +342,8 @@ namespace Nexus::Graphics
 			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
 			pipelineVk->SetResourceSet(m_CommandBuffer, desc);
 
-			Ref<ResourceSetVk> resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
-			m_CurrentlyBoundResourceSet	   = resourceSet;
+			const ResourceSetVk *resourceSet = desc.TargetResourceSet.AsDerived<const ResourceSetVk>();
+			m_CurrentlyBoundResourceSet		 = resourceSet;
 		}
 	}
 

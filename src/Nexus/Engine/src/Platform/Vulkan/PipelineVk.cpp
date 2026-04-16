@@ -70,7 +70,9 @@ namespace Nexus::Graphics
 	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
 		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
-		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+		ResourceSetHandle		 handle		 = desc.TargetResourceSet;
+		ResourceSetVk			*resourceSet = handle.AsDerived<ResourceSetVk>();
+
 		if (resourceSet)
 		{
 			resourceSet->Bind(context, cmd, this, VK_PIPELINE_BIND_POINT_GRAPHICS, desc.DynamicOffsets);
@@ -178,7 +180,8 @@ namespace Nexus::Graphics
 	void MeshletPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
 		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
-		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+		ResourceSetHandle		 handle		 = desc.TargetResourceSet;
+		ResourceSetVk			*resourceSet = handle.AsDerived<ResourceSetVk>();
 
 		if (resourceSet)
 		{
@@ -281,7 +284,8 @@ namespace Nexus::Graphics
 	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
 		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
-		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+		ResourceSetHandle		 handle		 = desc.TargetResourceSet;
+		ResourceSetVk			*resourceSet = handle.AsDerived<ResourceSetVk>();
 
 		if (resourceSet)
 		{
@@ -382,7 +386,8 @@ namespace Nexus::Graphics
 	void RayTracingPipelineVk::SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc)
 	{
 		const GladVulkanContext &context	 = m_GraphicsDevice->GetVulkanContext();
-		Ref<ResourceSetVk>		 resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
+		ResourceSetHandle		 handle		 = desc.TargetResourceSet;
+		ResourceSetVk			*resourceSet = handle.AsDerived<ResourceSetVk>();
 
 		if (resourceSet)
 		{

@@ -212,7 +212,7 @@ namespace Nexus::ImGuiUtils
 	{
 		ImTextureID id = (ImTextureID)m_TextureID++;
 
-		Ref<Graphics::IResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+		Graphics::ResourceSetHandle resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
 		ImGuiDescriptorInfo &info = m_Descriptors[id];
 		info.m_Texture			  = texture;

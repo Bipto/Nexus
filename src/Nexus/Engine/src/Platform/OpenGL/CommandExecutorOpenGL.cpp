@@ -396,14 +396,14 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
-		if (!desc.TargetResourceSet)
+		if (!desc.TargetResourceSet.IsValid())
 		{
 			NX_ERROR("Attempting to update pipeline with invalid resources");
 			return;
 		}
 
-		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(desc.TargetResourceSet);
-		m_BoundResourceSet				   = desc;
+		const ResourceSetOpenGL *resourceSet = desc.TargetResourceSet.AsDerived<const ResourceSetOpenGL>();
+		m_BoundResourceSet					 = desc;
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)
@@ -720,7 +720,7 @@ namespace Nexus::Graphics
 	{
 		if (m_BoundResourceSet.has_value())
 		{
-			Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(m_BoundResourceSet.value().TargetResourceSet);
+			ResourceSetOpenGL *resourceSet = m_BoundResourceSet.value().TargetResourceSet.AsDerived<ResourceSetOpenGL>();
 			resourceSet->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size());
 		}
 	}
@@ -801,7 +801,7 @@ namespace Nexus::Graphics
 		if (m_BoundResourceSet.has_value())
 		{
 			ResourceSetBindingDescription bindingDescription = m_BoundResourceSet.value();
-			Ref<ResourceSetOpenGL>		  resourceSet		 = std::dynamic_pointer_cast<ResourceSetOpenGL>(bindingDescription.TargetResourceSet);
+			ResourceSetOpenGL			 *resourceSet		 = bindingDescription.TargetResourceSet.AsDerived<ResourceSetOpenGL>();
 			if (resourceSet)
 			{
 				resourceSet->Bind(bindingDescription, pipeline->GetShaderHandle(), context);

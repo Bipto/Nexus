@@ -286,8 +286,9 @@ namespace Nexus::Graphics
 	{
 		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
 
-		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(desc.TargetResourceSet);
-		GraphicsDeviceD3D12	 *deviceD3D12	   = (GraphicsDeviceD3D12 *)device;
+		ResourceSetHandle	 handle			  = desc.TargetResourceSet;
+		ResourceSetD3D12	*d3d12ResourceSet = handle.AsDerived<ResourceSetD3D12>();
+		GraphicsDeviceD3D12 *deviceD3D12	  = (GraphicsDeviceD3D12 *)device;
 
 		if (d3d12ResourceSet)
 		{

@@ -92,9 +92,10 @@ namespace Nexus::Graphics
 		return Ref<IRayTracingPipeline>();
 	}
 
-	Ref<IResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		return CreateRef<ResourceSetD3D12>(pipeline, this);
+		auto resourceSet = std::make_unique<ResourceSetD3D12>(pipeline, this);
+		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
 	FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)

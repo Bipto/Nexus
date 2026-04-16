@@ -436,7 +436,7 @@ namespace Demos
 
 		Nexus::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline	   = nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>		 m_SBT		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>		 m_ResourceSet = nullptr;
+		Nexus::Graphics::ResourceSetHandle				 m_ResourceSet = {};
 
 		Nexus::Graphics::DeviceAddressRegion		m_RaygenRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_MissRegion	 = {};

@@ -241,10 +241,11 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
-	Ref<IResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ResourceSetOpenGL>(pipeline, this);
+		auto resourceSet = std::make_unique<ResourceSetOpenGL>(pipeline, this);
+		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
 	FramebufferHandle GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)

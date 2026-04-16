@@ -148,7 +148,7 @@ namespace Demos
 			{
 				const auto &mesh		= meshes[i];
 				const auto &mat			= mesh->GetMaterial();
-				const auto &resourceSet = m_ResourceSets[i];
+				auto		resourceSet = m_ResourceSets[i];
 
 				Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
 				cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer;
@@ -295,7 +295,7 @@ namespace Demos
 
 			for (size_t i = 0; i < m_Model->GetMeshes().size(); i++)
 			{
-				Nexus::Ref<Nexus::Graphics::IResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+				Nexus::Graphics::ResourceSetHandle resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 				m_ResourceSets.push_back(resourceSet);
 			}
 		}
@@ -306,7 +306,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::Model>			   m_Model		 = nullptr;
 		glm::vec3									   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-		std::vector<Nexus::Ref<Nexus::Graphics::IResourceSet>> m_ResourceSets = {};
+		std::vector<Nexus::Graphics::ResourceSetHandle> m_ResourceSets = {};
 
 		VB_UNIFORM_CAMERA_DEMO_MODELS			   m_CameraUniforms		 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;

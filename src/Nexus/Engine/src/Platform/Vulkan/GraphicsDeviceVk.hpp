@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		Ref<IMeshletPipeline>	 CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
 		Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		Ref<IResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
+		ResourceSetHandle			CreateResourceSet(Ref<Pipeline> pipeline) final;
 		FramebufferHandle			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
 		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;
 		TimingQueryHandle			CreateTimingQuery() final;

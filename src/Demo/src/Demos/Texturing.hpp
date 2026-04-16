@@ -152,7 +152,7 @@ namespace Demos
 	  private:
 		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
 		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_ResourceSet = nullptr;
+		Nexus::Graphics::ResourceSetHandle			   m_ResourceSet = {};
 		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
 		Nexus::Graphics::TextureHandle				   m_Texture	 = {};
 		Nexus::Graphics::TextureViewHandle			   m_TextureView = {};

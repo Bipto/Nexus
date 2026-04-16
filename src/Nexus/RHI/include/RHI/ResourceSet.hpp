@@ -2,6 +2,8 @@
 
 #include <map>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/DeviceBuffer.hpp"
 #include "RHI/Sampler.hpp"
@@ -27,10 +29,10 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		TextureHandle Texture = {};
-		uint32_t	  ArrayLayer	= 0;
-		uint32_t	  MipLevel		= 0;
-		ShaderAccess  Access		= ShaderAccess::Read;
+		TextureHandle Texture	 = {};
+		uint32_t	  ArrayLayer = 0;
+		uint32_t	  MipLevel	 = 0;
+		ShaderAccess  Access	 = ShaderAccess::Read;
 	};
 
 	struct StorageBufferView
@@ -159,4 +161,6 @@ namespace Nexus::Graphics
 		ResourceSetDescriptors m_BoundResources	 = {};
 		ResourceSetDescriptors m_QueuedResources = {};
 	};
+
+	DEFINE_RESOURCE(ResourceSet, IResourceSet);
 }	 // namespace Nexus::Graphics

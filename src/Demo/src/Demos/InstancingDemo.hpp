@@ -334,14 +334,14 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::Mesh>			   m_CubeMesh		= nullptr;
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	   m_InstanceBuffer = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::IResourceSet> m_ResourceSet		= nullptr;
-		Nexus::Graphics::TextureHandle			  m_DiffuseMap		= {};
-		Nexus::Graphics::TextureViewHandle		  m_DiffuseMapView	= {};
-		Nexus::Graphics::TextureHandle			  m_NormalMap		= {};
-		Nexus::Graphics::TextureViewHandle		  m_NormalMapView	= {};
-		Nexus::Graphics::TextureHandle			  m_SpecularMap		= {};
-		Nexus::Graphics::TextureViewHandle		  m_SpecularMapView = {};
-		glm::vec3								  m_ClearColour		= {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::ResourceSetHandle m_ResourceSet	 = {};
+		Nexus::Graphics::TextureHandle	   m_DiffuseMap		 = {};
+		Nexus::Graphics::TextureViewHandle m_DiffuseMapView	 = {};
+		Nexus::Graphics::TextureHandle	   m_NormalMap		 = {};
+		Nexus::Graphics::TextureViewHandle m_NormalMapView	 = {};
+		Nexus::Graphics::TextureHandle	   m_SpecularMap	 = {};
+		Nexus::Graphics::TextureViewHandle m_SpecularMapView = {};
+		glm::vec3						   m_ClearColour	 = {0.7f, 0.2f, 0.3f};
 
 		VB_UNIFORM_CAMERA_DEMO_INSTANCING		   m_CameraUniforms		 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
