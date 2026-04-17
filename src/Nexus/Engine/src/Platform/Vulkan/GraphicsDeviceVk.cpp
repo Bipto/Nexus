@@ -807,7 +807,7 @@ namespace Nexus::Graphics
 		auto surface = std::make_unique<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
 		return m_Resources.Surfaces.CreateShared(std::move(surface));
 #else
-		return nullptr;
+		return {};
 #endif
 	}
 
