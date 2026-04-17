@@ -59,6 +59,8 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
 	{
+		// release all resources before cleaning up the vulkan device
+		m_Resources = {};
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const

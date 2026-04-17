@@ -63,6 +63,9 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
 	{
+		// release all resources before cleaning up the vulkan device
+		m_Resources = {};
+
 		// cleanup allocators
 		{
 			vmaDestroyAllocator(m_Allocator);

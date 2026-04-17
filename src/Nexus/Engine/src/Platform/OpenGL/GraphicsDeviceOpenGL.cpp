@@ -69,6 +69,8 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
 	{
+		// release all resources before cleaning up the vulkan device
+		m_Resources = {};
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceOpenGL::GetPhysicalDevice() const

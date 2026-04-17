@@ -290,7 +290,8 @@ namespace Nexus
 			return;
 		}
 
-		Entry &entry = m_Entries[index];
+		Entry &entry   = m_Entries[index];
+		entry.resource = nullptr;
 
 		entry.alive = false;
 		entry.generation++;

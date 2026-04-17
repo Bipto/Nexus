@@ -29,22 +29,22 @@ namespace Nexus::Graphics
 		return m_Resources.Swapchains.CreateShared(std::move(swapchain));
 	}
 
-	void CommandQueueOpenGL::SubmitCommandList(Ref<ICommandList> commandList)
+	void CommandQueueOpenGL::SubmitCommandList(CommandListHandle commandList)
 	{
 		SubmitCommandList(commandList, nullptr);
 	}
 
-	void CommandQueueOpenGL::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
+	void CommandQueueOpenGL::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
 	{
 		SubmitCommandLists(&commandList, 1, fence);
 	}
 
-	void CommandQueueOpenGL::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
+	void CommandQueueOpenGL::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
 	{
 		SubmitCommandLists(commandLists, numCommandLists, nullptr);
 	}
 
-	void CommandQueueOpenGL::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
+	void CommandQueueOpenGL::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
 
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListOpenGL> commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
+			CommandListOpenGL *commandList = commandLists[i].AsDerived<CommandListOpenGL>();
 			m_CommandExecutor.ExecuteCommands(commandList, m_Device);
 			m_CommandExecutor.Reset();
 		}
@@ -70,8 +70,9 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	Ref<ICommandList> CommandQueueOpenGL::CreateCommandList(const CommandListDescription &spec)
+	CommandListHandle CommandQueueOpenGL::CreateCommandList(const CommandListDescription &spec)
 	{
-		return CreateRef<CommandListOpenGL>(spec);
+		auto commandList = std::make_unique<CommandListOpenGL>(spec);
+		return m_Resources.CommandLists.CreateShared(std::move(commandList));
 	}
 }	 // namespace Nexus::Graphics

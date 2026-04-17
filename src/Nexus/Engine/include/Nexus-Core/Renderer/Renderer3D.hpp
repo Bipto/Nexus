@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		Scene					   *m_Scene	  = nullptr;
 		Graphics::TextureViewHandle m_Cubemap = {};
 
-		Ref<ICommandList> m_CommandList = nullptr;
+		CommandListHandle m_CommandList = {};
 
 		Ref<Nexus::Graphics::Mesh> m_Cube = nullptr;
 

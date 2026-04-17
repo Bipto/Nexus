@@ -21,7 +21,7 @@ namespace Nexus
 		Nexus::Application								  *m_Application		= nullptr;
 		std::unique_ptr<ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer		= nullptr;
 		Graphics::CommandQueueHandle					   m_CommandQueue		= {};
-		Nexus::Ref<Graphics::ICommandList>				   m_CommandList		= nullptr;
+		Graphics::CommandListHandle						   m_CommandList		= {};
 		bool											   m_IsAnyWindowHovered = false;
 	};
 }	 // namespace Nexus

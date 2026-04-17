@@ -313,7 +313,7 @@ namespace Nexus::Utils
 														  Graphics::CommandQueueHandle commandQueue)
 	{
 		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::ICommandList>	 commandList  = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle	 commandList  = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
@@ -343,7 +343,7 @@ namespace Nexus::Utils
 														 Graphics::CommandQueueHandle commandQueue)
 	{
 		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::ICommandList>	 commandList  = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle	 commandList  = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
@@ -373,7 +373,7 @@ namespace Nexus::Utils
 														   Graphics::CommandQueueHandle commandQueue)
 	{
 		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
-		Ref<Graphics::ICommandList>	 commandList  = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle	 commandList  = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;

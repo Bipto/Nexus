@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 	  public:
 		CommandExecutorOpenGL() = default;
 		virtual ~CommandExecutorOpenGL();
-		void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device);
+		void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device);
 		void Reset();
 
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;

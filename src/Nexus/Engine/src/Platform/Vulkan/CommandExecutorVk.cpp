@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 

@@ -67,10 +67,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Graphics::TimingQueryHandle m_TimingQuery;
+		Nexus::Graphics::TimingQueryHandle m_TimingQuery  = {};
 		float							   m_Timing		  = 0;
 		float							   m_TimerCounter = 1.0f;
 	};

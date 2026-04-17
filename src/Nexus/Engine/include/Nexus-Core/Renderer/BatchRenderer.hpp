@@ -159,11 +159,11 @@ namespace Nexus::Graphics
 		void PerformDraw(BatchInfo &info);
 
 	  private:
-		Nexus::Graphics::IGraphicsDevice		 *m_Device		 = nullptr;
-		Graphics::CommandQueueHandle			  m_CommandQueue = {};
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList	 = nullptr;
-		Graphics::SamplerHandle					  m_Sampler		 = {};
-		bool									  m_IsStarted	 = false;
+		Nexus::Graphics::IGraphicsDevice *m_Device		 = nullptr;
+		Graphics::CommandQueueHandle	  m_CommandQueue = {};
+		Graphics::CommandListHandle		  m_CommandList	 = {};
+		Graphics::SamplerHandle			  m_Sampler		 = {};
+		bool							  m_IsStarted	 = false;
 
 		Graphics::TextureHandle					   m_BlankTexture		 = {};
 		Graphics::TextureViewHandle				   m_BlankTextureView	 = {};

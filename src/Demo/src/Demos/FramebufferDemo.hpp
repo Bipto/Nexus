@@ -77,8 +77,8 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = nullptr;
-		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Graphics::FramebufferHandle m_Framebuffer			 = {};
 		ImTextureID						   m_TextureID				 = 0;

@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 	  public:
 		explicit CommandExecutorVk(GraphicsDeviceVk *device);
 		virtual ~CommandExecutorVk();
-		void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) final;
+		void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device) final;
 		void Reset() final;
 
 		void SetCommandBuffer(VkCommandBuffer commandBuffer);

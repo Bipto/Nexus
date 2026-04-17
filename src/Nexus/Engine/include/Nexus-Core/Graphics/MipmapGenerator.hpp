@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 
 	  private:
 		IGraphicsDevice	 *m_Device		= nullptr;
-		Ref<ICommandList> m_CommandList = nullptr;
+		CommandListHandle m_CommandList = {};
 		FullscreenQuad	  m_Quad {};
 
 		Ref<IShaderModule> m_VertexModule	= nullptr;

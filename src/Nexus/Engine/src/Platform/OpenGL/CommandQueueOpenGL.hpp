@@ -19,13 +19,13 @@ namespace Nexus::Graphics
 		virtual ~CommandQueueOpenGL();
 		const CommandQueueDescription &GetDescription() const final;
 		SwapchainHandle				   CreateSwapchain(const SwapchainDescription &spec) final;
-		void						   SubmitCommandList(Ref<ICommandList> commandList) final;
-		void						   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence) final;
-		void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) final;
-		virtual void				   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
+		void						   SubmitCommandList(CommandListHandle commandList) final;
+		void						   SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence) final;
+		void						   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists) final;
+		virtual void				   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
 		IGraphicsDevice				  *GetGraphicsDevice() final;
 		bool						   WaitForIdle() final;
-		Ref<ICommandList>			   CreateCommandList(const CommandListDescription &spec = {}) final;
+		CommandListHandle			   CreateCommandList(const CommandListDescription &spec = {}) final;
 
 	  private:
 		GraphicsDeviceOpenGL   *m_Device		  = nullptr;

@@ -14,8 +14,8 @@ namespace Nexus::Graphics
 	  public:
 		CommandExecutor() = default;
 		virtual ~CommandExecutor() {};
-		virtual void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) = 0;
-		virtual void Reset()																 = 0;
+		virtual void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device) = 0;
+		virtual void Reset()															 = 0;
 
 		bool ValidateForGraphicsCall(PipelineHandle pipeline, FramebufferHandle renderTarget);
 		bool ValidateForComputeCall(PipelineHandle pipeline);

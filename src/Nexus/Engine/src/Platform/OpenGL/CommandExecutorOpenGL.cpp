@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		Reset();
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 

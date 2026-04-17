@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 	  public:
 		CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device);
 		virtual ~CommandExecutorD3D12();
-		void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) final;
+		void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device) final;
 		void Reset() final;
 
 		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);

@@ -138,7 +138,7 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList		 = nullptr;
+		Nexus::Graphics::CommandListHandle		   m_CommandList		 = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndirectBuffer		 = nullptr;
 		Nexus::Graphics::PipelineHandle			   m_ComputePipeline	 = {};
 		Nexus::Graphics::ResourceSetHandle		   m_ResourceSet		 = {};

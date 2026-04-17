@@ -127,12 +127,12 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList			= nullptr;
-		Nexus::Graphics::PipelineHandle			  m_ComputePipeline		= {};
-		Nexus::Graphics::ResourceSetHandle		  m_ResourceSet			= {};
-		Nexus::Graphics::TextureHandle			  m_Texture				= {};
-		Nexus::Graphics::TextureViewHandle		  m_TextureView			= {};
-		glm::vec3								  m_ClearColour			= {0.7f, 0.2f, 0.3f};
-		ImTextureID								  m_ImGuiTextureBinding = 0;
+		Nexus::Graphics::CommandListHandle m_CommandList		 = {};
+		Nexus::Graphics::PipelineHandle	   m_ComputePipeline	 = {};
+		Nexus::Graphics::ResourceSetHandle m_ResourceSet		 = {};
+		Nexus::Graphics::TextureHandle	   m_Texture			 = {};
+		Nexus::Graphics::TextureViewHandle m_TextureView		 = {};
+		glm::vec3						   m_ClearColour		 = {0.7f, 0.2f, 0.3f};
+		ImTextureID						   m_ImGuiTextureBinding = 0;
 	};
 }	 // namespace Demos

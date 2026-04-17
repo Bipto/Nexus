@@ -303,7 +303,7 @@ namespace Nexus::Utils
 		bufferDesc.SizeInBytes						 = size;
 		bufferDesc.StrideInBytes					 = size;
 		Ref<Graphics::IDeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
-		Ref<Graphics::ICommandList>	 cmdList		 = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle	 cmdList		 = commandQueue->CreateCommandList();
 
 		buffer->SetData(data, 0, size);
 
@@ -345,7 +345,7 @@ namespace Nexus::Utils
 		bufferDesc.StrideInBytes					 = footprint.Size;
 
 		Ref<Graphics::IDeviceBuffer> buffer	 = device->CreateDeviceBuffer(bufferDesc);
-		Ref<Graphics::ICommandList>	 cmdList = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle	 cmdList = commandQueue->CreateCommandList();
 
 		cmdList->Begin();
 
@@ -389,7 +389,7 @@ namespace Nexus::Utils
 		bufferCopyDesc.Destination					   = buffer.get();
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
-		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();
 		cmdList->Begin();
 		cmdList->CopyBufferToBuffer(bufferCopyDesc);
 		cmdList->End();
@@ -420,7 +420,7 @@ namespace Nexus::Utils
 		bufferCopyDesc.Destination					   = readbackBuffer.get();
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
-		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();
 		cmdList->Begin();
 		cmdList->CopyBufferToBuffer(bufferCopyDesc);
 		cmdList->End();

@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		m_PixModule = NULL;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
 		const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
 

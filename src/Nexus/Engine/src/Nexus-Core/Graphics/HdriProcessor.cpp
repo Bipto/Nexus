@@ -115,7 +115,7 @@ namespace Nexus::Graphics
 		framebufferSpec.DepthAttachmentFormat								 = PixelFormat::D24_UNorm_S8_UInt;
 
 		FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
-		Ref<ICommandList> commandList = m_CommandQueue->CreateCommandList();
+		CommandListHandle commandList = m_CommandQueue->CreateCommandList();
 
 		Graphics::TextureDescription cubemapSpec = {};
 		cubemapSpec.Type						 = Graphics::TextureType::TextureCube;

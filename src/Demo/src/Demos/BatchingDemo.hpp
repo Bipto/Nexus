@@ -143,12 +143,12 @@ namespace Demos
 		};
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 
-		std::vector<QuadInfo> m_Quads;
+		std::vector<QuadInfo> m_Quads		= {};
 		int					  m_QuadCount	= 50;
 		float				  m_MinQuadSize = 5;
 		float				  m_MaxQuadSize = 50;

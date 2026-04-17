@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/ComputeState.hpp"
 #include "RHI/DeviceBuffer.hpp"
@@ -1110,13 +1112,12 @@ namespace Nexus::Graphics
 		std::vector<std::unique_ptr<IGraphicsCommand>> m_CommandImpls = {};
 	};
 
-	/// @brief A typedef to simplify creating function pointers to render commands
-	typedef void (*RenderCommand)(Ref<ICommandList> commandList);
+	DEFINE_RESOURCE(CommandList, ICommandList);
 
 	class ScopedDebugGroup
 	{
 	  public:
-		ScopedDebugGroup(const std::string &name, Ref<ICommandList> commandList) : m_CommandList(commandList)
+		ScopedDebugGroup(const std::string &name, CommandListHandle commandList) : m_CommandList(commandList)
 		{
 			if (m_CommandList->IsRecording())
 			{
@@ -1136,6 +1137,6 @@ namespace Nexus::Graphics
 		ScopedDebugGroup &operator=(const ScopedDebugGroup &) = delete;
 
 	  private:
-		Ref<ICommandList> m_CommandList = nullptr;
+		CommandListHandle m_CommandList = {};
 	};
 }	 // namespace Nexus::Graphics

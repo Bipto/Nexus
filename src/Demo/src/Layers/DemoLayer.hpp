@@ -14,8 +14,8 @@ class DemoLayer final : public Nexus::ILayer
 	void SetDemo(std::shared_ptr<Demos::Demo> demo);
 
   protected:
-	Nexus::Application						 *m_Application	 = nullptr;
-	Nexus::Graphics::CommandQueueHandle		  m_CommandQueue = {};
-	Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList	 = nullptr;
-	std::shared_ptr<Demos::Demo>			  m_Demo		 = nullptr;
+	Nexus::Application				   *m_Application  = nullptr;
+	Nexus::Graphics::CommandQueueHandle m_CommandQueue = {};
+	Nexus::Graphics::CommandListHandle	m_CommandList  = {};
+	std::shared_ptr<Demos::Demo>		m_Demo		   = nullptr;
 };

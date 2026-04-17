@@ -175,6 +175,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
 	{
+		m_GraphicsDevice->WaitForIdle();
+
 		auto		  &io = ImGui::GetIO();
 		unsigned char *pixels;
 		int			   width, height, channels;
@@ -230,6 +232,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UnbindTexture(ImTextureID id)
 	{
+		m_GraphicsDevice->WaitForIdle();
 		if (m_Descriptors.contains(id))
 		{
 			m_Descriptors.erase(id);

@@ -159,11 +159,11 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-		Nexus::Graphics::CatmullRom<float>			 m_Spline;
+		Nexus::Graphics::CatmullRom<float>			 m_Spline		 = {};
 		int											 m_SelectedPoint = 0;
 	};
 }	 // namespace Demos

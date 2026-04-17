@@ -49,29 +49,31 @@ namespace Nexus::Graphics
 		return m_Resources.Swapchains.CreateShared(std::move(swapchain));
 	}
 
-	void CommandQueueD3D12::SubmitCommandList(Ref<ICommandList> commandList)
+	void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList)
 	{
 		SubmitCommandList(commandList, nullptr);
 	}
 
-	void CommandQueueD3D12::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
+	void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
 	{
 		SubmitCommandLists(&commandList, 1, fence);
 	}
 
-	void CommandQueueD3D12::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
+	void CommandQueueD3D12::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
 	{
 		SubmitCommandLists(commandLists, numCommandLists, nullptr);
 	}
 
-	void CommandQueueD3D12::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
+	void CommandQueueD3D12::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
 
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListD3D12>							   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
+			CommandListD3D12								  *commandList = commandLists[i].AsDerived<CommandListD3D12>();
 			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> cmdList	   = commandList->GetCommandList();
+
+			m_Device->WaitForIdle();
 
 			commandList->Reset();
 			m_CommandExecutor->SetCommandList(cmdList);
@@ -109,9 +111,10 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	Ref<ICommandList> CommandQueueD3D12::CreateCommandList(const CommandListDescription &spec)
+	CommandListHandle CommandQueueD3D12::CreateCommandList(const CommandListDescription &spec)
 	{
-		return CreateRef<CommandListD3D12>(m_Device, spec);
+		auto commandList = std::make_unique<CommandListD3D12>(m_Device, spec);
+		return m_Resources.CommandLists.CreateShared(std::move(commandList));
 	}
 
 	void CommandQueueD3D12::SignalAndWait()

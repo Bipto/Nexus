@@ -134,7 +134,7 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList  = {};
+		Nexus::Graphics::CommandListHandle		   m_CommandList  = {};
 		Nexus::Graphics::PipelineHandle			   m_Pipeline	  = {};
 		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer = {};
 		glm::vec3								   m_ClearColour  = {0.0f, 0.0f, 0.0f};
