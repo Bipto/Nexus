@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/CommandList.hpp"
 #include "RHI/Fence.hpp"
 #include "RHI/RHI-Core.hpp"
@@ -60,4 +62,6 @@ namespace Nexus::Graphics
 		/// @return A pointer to a command list
 		virtual Ref<ICommandList> CreateCommandList(const CommandListDescription &spec = {}) = 0;
 	};
+
+	DEFINE_RESOURCE(CommandQueue, ICommandQueue);
 }	 // namespace Nexus::Graphics

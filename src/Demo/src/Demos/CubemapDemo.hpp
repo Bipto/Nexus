@@ -16,10 +16,10 @@ namespace Demos
 	class CubemapDemo : public Demo
 	{
 	  public:
-		CubemapDemo(const std::string						  &name,
-					Nexus::Application						  *app,
-					Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-					Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		CubemapDemo(const std::string						 &name,
+					Nexus::Application						 *app,
+					Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+					Nexus::Graphics::CommandQueueHandle		  commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 			auto [width, height] = m_Window->GetWindowSizeInPixels();

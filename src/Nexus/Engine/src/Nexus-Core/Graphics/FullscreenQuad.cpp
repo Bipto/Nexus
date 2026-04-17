@@ -4,7 +4,7 @@
 
 namespace Nexus::Graphics
 {
-	FullscreenQuad::FullscreenQuad(IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool hasUv)
+	FullscreenQuad::FullscreenQuad(IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv)
 		: m_GraphicsDevice(device),
 		  m_CommandQueue(commandQueue),
 		  m_HasUV(hasUv)

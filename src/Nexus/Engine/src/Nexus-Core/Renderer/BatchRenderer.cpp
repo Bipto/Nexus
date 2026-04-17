@@ -383,7 +383,7 @@ namespace Nexus::Graphics
 		info.IndexBuffer								   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, CommandQueueHandle commandQueue, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_CommandList(commandQueue->CreateCommandList()),

@@ -71,7 +71,7 @@ static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformI
 
 namespace Nexus::ImGuiUtils
 {
-	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue)
 		: m_Application(app),
 		  m_CommandQueue(commandQueue)
 	{

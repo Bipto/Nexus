@@ -45,7 +45,7 @@ namespace
 	}
 }	 // namespace
 
-DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue)
 	: Nexus::ImGuiLayer(app, commandQueue),
 	  m_GraphicsDevice(commandQueue->GetGraphicsDevice())
 {

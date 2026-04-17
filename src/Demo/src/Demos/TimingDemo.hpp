@@ -9,10 +9,10 @@ namespace Demos
 	class TimingDemo : public Demo
 	{
 	  public:
-		TimingDemo(const std::string						 &name,
-				   Nexus::Application						 *app,
-				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		TimingDemo(const std::string						&name,
+				   Nexus::Application						*app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+				   Nexus::Graphics::CommandQueueHandle		 commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}

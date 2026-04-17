@@ -41,7 +41,7 @@ namespace Nexus::Graphics
 		FenceHandle					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
+		CommandQueueHandle			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(FenceHandle *fences, uint32_t count) final;
 		ShaderLanguage				 GetSupportedShaderFormat() final;
 		bool						 IsBufferUsageSupported(BufferUsage usage) final;

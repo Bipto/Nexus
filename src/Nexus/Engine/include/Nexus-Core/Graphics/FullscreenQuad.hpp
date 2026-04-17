@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RHI/CommandQueue.hpp"
 #include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
@@ -8,7 +9,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		FullscreenQuad() = default;
-		explicit FullscreenQuad(IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool hasUv);
+		explicit FullscreenQuad(IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv);
 
 		Ref<IDeviceBuffer> GetVertexBuffer();
 		Ref<IDeviceBuffer> GetIndexBuffer();
@@ -21,7 +22,7 @@ namespace Nexus::Graphics
 
 	  private:
 		IGraphicsDevice	  *m_GraphicsDevice = nullptr;
-		Ref<ICommandQueue> m_CommandQueue	= nullptr;
+		CommandQueueHandle m_CommandQueue	= {};
 		Ref<IDeviceBuffer> m_VertexBuffer	= nullptr;
 		Ref<IDeviceBuffer> m_IndexBuffer	= nullptr;
 		bool			   m_HasUV			= false;

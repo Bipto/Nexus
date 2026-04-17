@@ -6,9 +6,7 @@
 
 #include "Profiling/Profiler.hpp"
 
-DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
-	: m_Application(app),
-	  m_CommandQueue(commandQueue)
+DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue) : m_Application(app), m_CommandQueue(commandQueue)
 {
 	m_CommandList = m_CommandQueue->CreateCommandList();
 }

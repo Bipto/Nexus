@@ -62,7 +62,7 @@ namespace Nexus::Graphics
 		FenceHandle					 CreateFence(const FenceDescription &desc) final;
 		FenceWaitResult				 WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
+		CommandQueueHandle			 CreateCommandQueue(const CommandQueueDescription &description) final;
 		void						 ResetFences(FenceHandle *fences, uint32_t count) final;
 		bool						 IsUVOriginTopLeft() final
 		{
@@ -122,7 +122,7 @@ namespace Nexus::Graphics
 
 		GraphicsResourceManager m_Resources = {};
 
-		std::vector<WeakRef<CommandQueueD3D12>> m_CreatedCommandQueues = {};
+		std::vector<CommandQueueHandle> m_CreatedCommandQueues = {};
 
 		friend class SwapchainD3D12;
 	};

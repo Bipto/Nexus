@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	SceneRenderer::SceneRenderer(Graphics::IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	SceneRenderer::SceneRenderer(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue)
 	{

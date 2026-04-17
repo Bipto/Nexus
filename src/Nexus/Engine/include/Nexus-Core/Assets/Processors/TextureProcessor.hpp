@@ -16,7 +16,7 @@ namespace Nexus::Processors
 		virtual ~TextureProcessor() = default;
 		GUID			 Process(const std::string			 &filepath,
 								 Graphics::IGraphicsDevice	 *device,
-								 Ref<Graphics::ICommandQueue> commandQueue,
+								 Graphics::CommandQueueHandle commandQueue,
 								 Project					 *project) final;
 		virtual std::any Import(const std::string &filepath) final;
 		void			 SetSrgb(bool useSrgb);

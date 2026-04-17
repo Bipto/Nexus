@@ -19,7 +19,7 @@ namespace Nexus
 		/// @brief A constructor taking in a reference counted pointer to a graphics
 		/// device
 		/// @param graphicsDevice A pointer to a graphics device
-		AssetManager(Graphics::IGraphicsDevice *graphicsDevice, Ref<Graphics::ICommandQueue> commandQueue, Project *project)
+		AssetManager(Graphics::IGraphicsDevice *graphicsDevice, Graphics::CommandQueueHandle commandQueue, Project *project)
 			: m_GraphicsDevice(graphicsDevice),
 			  m_CommandQueue(commandQueue),
 			  m_Project(project)
@@ -51,7 +51,7 @@ namespace Nexus
 		/// @brief A reference counted pointer to a graphics device
 		Graphics::IGraphicsDevice *m_GraphicsDevice = nullptr;
 
-		Ref<Graphics::ICommandQueue> m_CommandQueue = nullptr;
+		Graphics::CommandQueueHandle m_CommandQueue = {};
 
 		Project *m_Project = nullptr;
 	};

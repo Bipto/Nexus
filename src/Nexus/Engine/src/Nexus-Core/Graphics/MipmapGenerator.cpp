@@ -24,7 +24,7 @@ const std::string c_MipmapFragmentSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	MipmapGenerator::MipmapGenerator(IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+	MipmapGenerator::MipmapGenerator(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_Quad(device, commandQueue, true)

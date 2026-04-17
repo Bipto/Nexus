@@ -310,7 +310,7 @@ namespace Nexus::Utils
 														  size_t					   sizeInBytes,
 														  size_t					   strideInBytes,
 														  Graphics::IGraphicsDevice	  *device,
-														  Ref<Graphics::ICommandQueue> commandQueue)
+														  Graphics::CommandQueueHandle commandQueue)
 	{
 		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
 		Ref<Graphics::ICommandList>	 commandList  = commandQueue->CreateCommandList();
@@ -340,7 +340,7 @@ namespace Nexus::Utils
 														 size_t						  sizeInBytes,
 														 size_t						  strideInBytes,
 														 Graphics::IGraphicsDevice	 *device,
-														 Ref<Graphics::ICommandQueue> commandQueue)
+														 Graphics::CommandQueueHandle commandQueue)
 	{
 		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
 		Ref<Graphics::ICommandList>	 commandList  = commandQueue->CreateCommandList();
@@ -370,7 +370,7 @@ namespace Nexus::Utils
 														   size_t						sizeInBytes,
 														   size_t						strideInBytes,
 														   Graphics::IGraphicsDevice   *device,
-														   Ref<Graphics::ICommandQueue> commandQueue)
+														   Graphics::CommandQueueHandle commandQueue)
 	{
 		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
 		Ref<Graphics::ICommandList>	 commandList  = commandQueue->CreateCommandList();

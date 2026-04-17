@@ -6,6 +6,8 @@
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime/Camera.hpp"
 #include "Nexus-Core/Runtime/Scene.hpp"
+
+#include "RHI/CommandQueue.hpp"
 #include "RHI/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
@@ -41,7 +43,7 @@ namespace Nexus::Graphics
 	class NX_API Renderer3D
 	{
 	  public:
-		Renderer3D(IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue);
+		Renderer3D(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
 		~Renderer3D();
 
 		void Begin(Scene *scene, FramebufferHandle target, Nexus::TimeSpan time);
@@ -60,7 +62,7 @@ namespace Nexus::Graphics
 
 	  private:
 		IGraphicsDevice				*m_Device		  = nullptr;
-		Ref<Graphics::ICommandQueue> m_CommandQueue	  = nullptr;
+		Graphics::CommandQueueHandle m_CommandQueue	  = {};
 		FramebufferHandle			 m_RenderTarget	  = {};
 		FullscreenQuad				 m_FullscreenQuad = {};
 

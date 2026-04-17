@@ -21,7 +21,7 @@ namespace Nexus
 {
 	struct CommandQueueGroup
 	{
-		Ref<Graphics::ICommandQueue> GraphicsQueue = nullptr;
+		Graphics::CommandQueueHandle GraphicsQueue = {};
 	};
 
 	/// @brief A class representing an application
@@ -105,7 +105,7 @@ namespace Nexus
 		/// @return A pointer to a graphics device
 		Graphics::IGraphicsDevice *GetGraphicsDevice();
 
-		Ref<Graphics::ICommandQueue> GetGraphicsCommandQueue();
+		Graphics::CommandQueueHandle GetGraphicsCommandQueue();
 
 		/// @brief A method that returns a pointer to the application's audio device
 		/// @return A pointer to an audio device

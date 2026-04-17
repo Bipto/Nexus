@@ -7,10 +7,10 @@ namespace Demos
 	class GeometryShaderDemo : public Demo
 	{
 	  public:
-		GeometryShaderDemo(const std::string						 &name,
-						   Nexus::Application						 *app,
-						   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-						   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		GeometryShaderDemo(const std::string						&name,
+						   Nexus::Application						*app,
+						   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+						   Nexus::Graphics::CommandQueueHandle		 commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}

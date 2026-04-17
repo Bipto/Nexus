@@ -62,7 +62,7 @@ namespace Nexus::Graphics
 		glm::mat4 Projection = {};
 	};
 
-	HdriProcessor::HdriProcessor(const std::string &filepath, IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+	HdriProcessor::HdriProcessor(const std::string &filepath, IGraphicsDevice *device, CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue)
 	{

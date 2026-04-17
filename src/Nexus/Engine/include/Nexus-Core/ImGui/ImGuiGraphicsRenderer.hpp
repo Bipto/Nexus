@@ -41,7 +41,7 @@ namespace Nexus::ImGuiUtils
 	class NX_API ImGuiGraphicsRenderer
 	{
 	  public:
-		ImGuiGraphicsRenderer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+		ImGuiGraphicsRenderer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue);
 		virtual ~ImGuiGraphicsRenderer();
 		void RebuildFontAtlas();
 
@@ -77,13 +77,13 @@ namespace Nexus::ImGuiUtils
 		void SetupHandlers();
 
 	  private:
-		Nexus::Application						  *m_Application	 = nullptr;
-		Nexus::Graphics::IGraphicsDevice		  *m_GraphicsDevice	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ICommandList>  m_CommandList	 = nullptr;
-		Graphics::PipelineHandle				   m_Pipeline		 = {};
-		Graphics::TextureHandle					   m_FontTexture	 = {};
-		Graphics::TextureViewHandle				   m_FontTextureView = {};
+		Nexus::Application						 *m_Application		= nullptr;
+		Nexus::Graphics::IGraphicsDevice		 *m_GraphicsDevice	= nullptr;
+		Graphics::CommandQueueHandle			  m_CommandQueue	= {};
+		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList		= nullptr;
+		Graphics::PipelineHandle				  m_Pipeline		= {};
+		Graphics::TextureHandle					  m_FontTexture		= {};
+		Graphics::TextureViewHandle				  m_FontTextureView = {};
 
 		ImGuiContext *m_Context = nullptr;
 

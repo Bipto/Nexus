@@ -22,7 +22,7 @@ namespace Nexus::Processors
 		virtual ~IProcessor()								 = default;
 		virtual GUID	 Process(const std::string			 &filepath,
 								 Graphics::IGraphicsDevice	 *device,
-								 Ref<Graphics::ICommandQueue> commandQueue,
+								 Graphics::CommandQueueHandle commandQueue,
 								 Project					 *project)			 = 0;
 		virtual std::any Import(const std::string &filepath) = 0;
 

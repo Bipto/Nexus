@@ -198,9 +198,10 @@ namespace Nexus::Graphics
 		return m_QueueFamilies;
 	}
 
-	Ref<ICommandQueue> GraphicsDeviceVk::CreateCommandQueue(const CommandQueueDescription &description)
+	CommandQueueHandle GraphicsDeviceVk::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return CreateRef<CommandQueueVk>(this, description);
+		auto commandQueue = std::make_unique<CommandQueueVk>(this, description);
+		return m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
 	}
 
 	void GraphicsDeviceVk::ResetFences(FenceHandle *fences, uint32_t count)

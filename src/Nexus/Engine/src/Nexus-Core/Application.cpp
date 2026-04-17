@@ -133,7 +133,7 @@ namespace Nexus
 		return m_GraphicsDevice.get();
 	}
 
-	Ref<Graphics::ICommandQueue> Application::GetGraphicsCommandQueue()
+	Graphics::CommandQueueHandle Application::GetGraphicsCommandQueue()
 	{
 		return m_CommandQueueGroup.GraphicsQueue;
 	}

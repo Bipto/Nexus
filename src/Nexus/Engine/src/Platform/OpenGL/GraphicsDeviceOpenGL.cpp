@@ -394,9 +394,10 @@ namespace Nexus::Graphics
 		return queueFamilies;
 	}
 
-	Ref<ICommandQueue> GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
+	CommandQueueHandle GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return CreateRef<CommandQueueOpenGL>(this, description);
+		auto commandQueue = std::make_unique<CommandQueueOpenGL>(this, description);
+		return m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
 	}
 
 	void GraphicsDeviceOpenGL::ResetFences(FenceHandle *fences, uint32_t count)

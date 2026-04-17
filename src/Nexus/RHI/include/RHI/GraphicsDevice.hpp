@@ -67,6 +67,7 @@ namespace Nexus::Graphics
 		ResourceSetPool			  ResourceSets			 = {};
 		PipelinePool			  Pipelines				 = {};
 		SurfacePool				  Surfaces				 = {};
+		CommandQueuePool		  CommandQueues			 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -150,7 +151,7 @@ namespace Nexus::Graphics
 
 		virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
 
-		virtual Ref<ICommandQueue> CreateCommandQueue(const CommandQueueDescription &description) = 0;
+		virtual CommandQueueHandle CreateCommandQueue(const CommandQueueDescription &description) = 0;
 
 		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;

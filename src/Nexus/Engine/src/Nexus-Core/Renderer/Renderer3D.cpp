@@ -152,7 +152,7 @@ void main()
 
 namespace Nexus::Graphics
 {
-	Renderer3D::Renderer3D(IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	Renderer3D::Renderer3D(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_Camera(m_Device),

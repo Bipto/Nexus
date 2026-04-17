@@ -9,10 +9,10 @@ namespace Demos
 	class FramebufferDemo : public Demo
 	{
 	  public:
-		FramebufferDemo(const std::string						  &name,
-						Nexus::Application						  *app,
-						Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-						Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		FramebufferDemo(const std::string						 &name,
+						Nexus::Application						 *app,
+						Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+						Nexus::Graphics::CommandQueueHandle		  commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}

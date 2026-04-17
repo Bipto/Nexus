@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		HdriProcessor() = delete;
-		HdriProcessor(const std::string &filepath, IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+		HdriProcessor(const std::string &filepath, IGraphicsDevice *device, CommandQueueHandle commandQueue);
 		~HdriProcessor() = default;
 		TextureHandle	  Generate(uint32_t size);
 		TextureViewHandle GenerateView(uint32_t size);
@@ -26,8 +26,8 @@ namespace Nexus::Graphics
 		int32_t			 m_Width  = 0;
 		int32_t			 m_Height = 0;
 
-		TextureHandle							   m_HdriImage	  = {};
-		Graphics::TextureViewHandle				   m_HdriView	  = {};
-		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
+		TextureHandle				m_HdriImage	   = {};
+		Graphics::TextureViewHandle m_HdriView	   = {};
+		CommandQueueHandle			m_CommandQueue = {};
 	};
 }	 // namespace Nexus::Graphics

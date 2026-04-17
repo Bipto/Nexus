@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		MipmapGenerator() = default;
-		explicit MipmapGenerator(IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+		explicit MipmapGenerator(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
 		std::vector<char> GenerateMip(TextureHandle texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer);
 
 		static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
@@ -25,6 +25,6 @@ namespace Nexus::Graphics
 		PipelineHandle	  m_Pipeline	= {};
 		ResourceSetHandle m_ResourceSet = {};
 
-		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
+		Graphics::CommandQueueHandle m_CommandQueue = {};
 	};
 }	 // namespace Nexus::Graphics

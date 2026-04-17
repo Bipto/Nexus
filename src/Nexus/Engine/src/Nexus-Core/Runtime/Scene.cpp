@@ -282,7 +282,7 @@ namespace Nexus
 							  const std::string			  &sceneDirectory,
 							  Project					  *project,
 							  Graphics::IGraphicsDevice	  *device,
-							  Ref<Graphics::ICommandQueue> commandQueue)
+							  Graphics::CommandQueueHandle commandQueue)
 	{
 		std::string filepath = sceneDirectory + info.Name + std::string(".scene");
 

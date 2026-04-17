@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 	class NX_API BatchRenderer
 	{
 	  public:
-		BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Ref<ICommandQueue> commandQueue, bool useDepthTest, uint32_t sampleCount);
+		BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue, bool useDepthTest, uint32_t sampleCount);
 
 		void Begin(FramebufferHandle target, Viewport viewport, Scissor scissor);
 		void Begin(FramebufferHandle target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
@@ -160,7 +160,7 @@ namespace Nexus::Graphics
 
 	  private:
 		Nexus::Graphics::IGraphicsDevice		 *m_Device		 = nullptr;
-		Ref<Graphics::ICommandQueue>			  m_CommandQueue = nullptr;
+		Graphics::CommandQueueHandle			  m_CommandQueue = {};
 		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList	 = nullptr;
 		Graphics::SamplerHandle					  m_Sampler		 = {};
 		bool									  m_IsStarted	 = false;

@@ -96,7 +96,7 @@ namespace Nexus::Processors
 
 	static Graphics::TextureHandle LoadEmbeddedTexture(const aiTexture					*texture,
 													   Nexus::Graphics::IGraphicsDevice *device,
-													   Ref<Graphics::ICommandQueue>		 commandQueue)
+													   Graphics::CommandQueueHandle		 commandQueue)
 	{
 		std::vector<unsigned char> pixels;
 		pixels.reserve(texture->mWidth * texture->mHeight * 4);
@@ -130,7 +130,7 @@ namespace Nexus::Processors
 												   const std::string				&directory,
 												   bool								 generateMips,
 												   Nexus::Graphics::IGraphicsDevice *device,
-												   Ref<Graphics::ICommandQueue>		 commandQueue)
+												   Graphics::CommandQueueHandle		 commandQueue)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
@@ -147,7 +147,7 @@ namespace Nexus::Processors
 	static std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene					   *scene,
 																  const std::string				   &directory,
 																  Nexus::Graphics::IGraphicsDevice *device,
-																  Ref<Graphics::ICommandQueue>		commandQueue)
+																  Graphics::CommandQueueHandle		commandQueue)
 	{
 		std::vector<Nexus::Graphics::Material> materials;
 		materials.reserve(scene->mNumMaterials);
@@ -321,7 +321,7 @@ namespace Nexus::Processors
 
 	ModelImportData AssimpProcessor::LoadModel(const std::string		   &filepath,
 											   Graphics::IGraphicsDevice   *device,
-											   Ref<Graphics::ICommandQueue> commandQueue)
+											   Graphics::CommandQueueHandle commandQueue)
 	{
 		Assimp::Importer	  importer = {};
 		std::filesystem::path path	   = filepath;
@@ -358,7 +358,7 @@ namespace Nexus::Processors
 
 	Ref<Graphics::Model> AssimpProcessor::Import(const std::string			 &filepath,
 												 Graphics::IGraphicsDevice	 *device,
-												 Ref<Graphics::ICommandQueue> commandQueue)
+												 Graphics::CommandQueueHandle commandQueue)
 	{
 		ModelImportData					 importData = LoadModel(filepath, device, commandQueue);
 		std::vector<Ref<Graphics::Mesh>> meshes;
@@ -391,7 +391,7 @@ namespace Nexus::Processors
 
 	GUID AssimpProcessor::Process(const std::string			  &filepath,
 								  Graphics::IGraphicsDevice	  *device,
-								  Ref<Graphics::ICommandQueue> commandQueue,
+								  Graphics::CommandQueueHandle commandQueue,
 								  Project					  *project)
 	{
 		ModelImportData importData = LoadModel(filepath, device, commandQueue);

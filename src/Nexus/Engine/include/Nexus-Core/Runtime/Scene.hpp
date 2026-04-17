@@ -66,7 +66,7 @@ namespace Nexus
 								  const std::string			  &sceneDirectory,
 								  Project					  *project,
 								  Graphics::IGraphicsDevice	  *device,
-								  Ref<Graphics::ICommandQueue> commandQueue);
+								  Graphics::CommandQueueHandle commandQueue);
 
 	  public:
 		GUID		  Guid			   = {};

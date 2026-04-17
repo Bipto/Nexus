@@ -160,20 +160,17 @@ namespace Nexus::Graphics
 	{
 		for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
 		{
-			WeakRef<CommandQueueD3D12> commandQueue = m_CreatedCommandQueues.at(i);
+			CommandQueueD3D12 *commandQueue = m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
 
 			// check if the command queue pointer has expired, if it has remove it and continue iterating
-			if (commandQueue.expired())
+			if (commandQueue)
 			{
 				m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
 				i--;
 				continue;
 			}
 
-			if (Ref<CommandQueueD3D12> lockedQueue = commandQueue.lock())
-			{
-				lockedQueue->WaitForIdle();
-			}
+			commandQueue->WaitForIdle();
 		}
 	}
 
@@ -261,15 +258,12 @@ namespace Nexus::Graphics
 		return queueFamilies;
 	}
 
-	Ref<ICommandQueue> GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
+	CommandQueueHandle GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		Ref<ICommandQueue>	   commandQueue		 = CreateRef<CommandQueueD3D12>(this, description);
-		Ref<CommandQueueD3D12> commandQueueD3D12 = std::dynamic_pointer_cast<CommandQueueD3D12>(commandQueue);
-
-		WeakRef<CommandQueueD3D12> commandQueueWeakRef = commandQueueD3D12;
-		m_CreatedCommandQueues.push_back(commandQueueWeakRef);
-
-		return commandQueue;
+		auto			   commandQueue = std::make_unique<CommandQueueD3D12>(this, description);
+		CommandQueueHandle handle		= m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
+		m_CreatedCommandQueues.push_back(handle);
+		return handle;
 	}
 
 	void GraphicsDeviceD3D12::ResetFences(FenceHandle *fences, uint32_t count)
