@@ -192,7 +192,7 @@ namespace Nexus::GL
 						copyDesc.SourceMipLevel = 0;
 
 						// backbuffer
-						copyDesc.Destination		 = nullptr;
+						copyDesc.Destination		 = {};
 						copyDesc.DestinationMipLevel = 0;
 						copyDesc.DestinationOffset	 = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
@@ -211,7 +211,7 @@ namespace Nexus::GL
 					copyDesc.SourceMipLevel = 0;
 
 					// backbuffer
-					copyDesc.Destination		 = nullptr;
+					copyDesc.Destination		 = {};
 					copyDesc.DestinationMipLevel = 0;
 					copyDesc.DestinationOffset	 = {0, 0, 0};
 					copyDesc.Extent				 = {texture->GetWidth(), texture->GetHeight()};
