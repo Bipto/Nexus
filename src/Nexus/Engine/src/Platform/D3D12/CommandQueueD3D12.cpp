@@ -43,9 +43,10 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<ISwapchain> CommandQueueD3D12::CreateSwapchain(const SwapchainDescription &spec)
+	SwapchainHandle CommandQueueD3D12::CreateSwapchain(const SwapchainDescription &spec)
 	{
-		return CreateRef<SwapchainD3D12>(m_Device, this, spec);
+		auto swapchain = std::make_unique<SwapchainD3D12>(m_Device, this, spec);
+		return m_Resources.Swapchains.CreateShared(std::move(swapchain));
 	}
 
 	void CommandQueueD3D12::SubmitCommandList(Ref<ICommandList> commandList)

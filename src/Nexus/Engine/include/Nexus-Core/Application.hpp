@@ -82,7 +82,7 @@ namespace Nexus
 		/// @return A handle to the application's main window
 		Nexus::IWindow *GetPrimaryWindow();
 
-		Ref<Nexus::Graphics::ISwapchain> GetPrimarySwapchain();
+		Graphics::SwapchainHandle GetPrimarySwapchain();
 
 		/// @brief A method that returns whether the application's window has focus
 		/// @return A boolean value representing whether the window is focussed
@@ -139,7 +139,7 @@ namespace Nexus
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;
 
-		Ref<Nexus::Graphics::ISwapchain> m_Swapchain = nullptr;
+		Graphics::SwapchainHandle m_Swapchain = {};
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};

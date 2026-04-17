@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		CommandQueueOpenGL(GraphicsDeviceOpenGL *device, const CommandQueueDescription &description);
 		virtual ~CommandQueueOpenGL();
 		const CommandQueueDescription &GetDescription() const final;
-		Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec) final;
+		SwapchainHandle				   CreateSwapchain(const SwapchainDescription &spec) final;
 		void						   SubmitCommandList(Ref<ICommandList> commandList) final;
 		void						   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence) final;
 		void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) final;
@@ -31,5 +31,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL   *m_Device		  = nullptr;
 		CommandQueueDescription m_Description	  = {};
 		CommandExecutorOpenGL	m_CommandExecutor = {};
+
+		CommandQueueResourceManager m_Resources = {};
 	};
 }	 // namespace Nexus::Graphics

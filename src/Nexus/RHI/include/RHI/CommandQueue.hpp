@@ -45,12 +45,17 @@ namespace Nexus::Graphics
 
 	class IGraphicsDevice;
 
+	struct CommandQueueResourceManager
+	{
+		SwapchainPool Swapchains = {};
+	};
+
 	class NX_RHI_API ICommandQueue
 	{
 	  public:
 		virtual ~ICommandQueue()																							 = default;
 		virtual const CommandQueueDescription &GetDescription() const														 = 0;
-		virtual Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec)							 = 0;
+		virtual SwapchainHandle				   CreateSwapchain(const SwapchainDescription &spec)							 = 0;
 		virtual void						   SubmitCommandList(Ref<ICommandList> commandList)								 = 0;
 		virtual void						   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)			 = 0;
 		virtual void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) = 0;

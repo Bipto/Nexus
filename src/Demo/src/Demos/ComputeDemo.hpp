@@ -84,8 +84,8 @@ namespace Demos
 			dispatchDesc.WorkGroupCountZ					  = 1;
 			m_CommandList->Dispatch(dispatchDesc);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Graphics::FramebufferHandle		framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;

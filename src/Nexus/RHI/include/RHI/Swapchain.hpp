@@ -2,6 +2,8 @@
 
 #include <expected>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/Framebuffer.hpp"
 #include "RHI/PixelFormat.hpp"
 #include "RHI/Structures.hpp"
@@ -39,4 +41,6 @@ namespace Nexus::Graphics
 	  private:
 		friend class IGraphicsDevice;
 	};
+
+	DEFINE_RESOURCE(Swapchain, ISwapchain);
 }	 // namespace Nexus::Graphics

@@ -33,8 +33,8 @@ void DemoLayer::OnRender(Nexus::TimeSpan time, Nexus::IWindow *window)
 		NX_PROFILE_SCOPE("Clear Screen");
 		m_CommandList->Begin();
 
-		Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
-		Nexus::Graphics::FramebufferHandle		framebuffer = swapchain->GetCurrentFramebuffer();
+		Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+		Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 		m_CommandList->SetFramebuffer(framebuffer);
 		m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 

@@ -44,7 +44,7 @@ namespace Nexus
 
 	void ImGuiLayer::OnRender(Nexus::TimeSpan time, IWindow *window)
 	{
-		Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+		Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
 
 		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 

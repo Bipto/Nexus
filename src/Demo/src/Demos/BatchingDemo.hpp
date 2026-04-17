@@ -23,11 +23,11 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t								sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList										= m_CommandQueue->CreateCommandList();
-			m_BatchRenderer										= Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
+			Nexus::Graphics::SwapchainHandle swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			uint32_t						 sampleCount = swapchain->GetDescription().Samples;
+			m_CommandList								 = m_CommandQueue->CreateCommandList();
+			m_BatchRenderer								 = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+				 new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
 			GenerateShapes();
 		}
 
@@ -61,8 +61,8 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Graphics::FramebufferHandle		framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});

@@ -273,12 +273,12 @@ namespace Nexus::ImGuiUtils
 
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
-					Nexus::IWindow					*window	   = info->Window;
-					Ref<Nexus::Graphics::ISwapchain> swapchain = info->Swapchain;
+					Nexus::IWindow			 *window	= info->Window;
+					Graphics::SwapchainHandle swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())
 					{
-						if (swapchain)
+						if (swapchain.IsValid())
 						{
 							RenderDrawData(platform_io.Viewports[i]->DrawData);
 							swapchain->SwapBuffers(Graphics::SwapchainPresentDescription {});
@@ -622,7 +622,7 @@ namespace Nexus::ImGuiUtils
 
 		m_CommandList->SetPipeline(m_Pipeline);
 
-		Ref<Graphics::ISwapchain> swapchain = info->Swapchain;
+		Graphics::SwapchainHandle swapchain = info->Swapchain;
 		m_CommandList->SetFramebuffer(swapchain->GetCurrentFramebuffer());
 
 		Graphics::VertexBufferView vertexBufferView = {};
@@ -806,7 +806,7 @@ namespace Nexus::ImGuiUtils
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
-			info->Swapchain		  = nullptr;
+			info->Swapchain		  = {};
 
 			vp->PlatformUserData = info;
 			vp->RendererUserData = info;
@@ -987,7 +987,7 @@ namespace Nexus::ImGuiUtils
 			swapchainDesc.ImagePresentMode				 = Graphics::PresentMode::Immediate;
 			swapchainDesc.Samples						 = app->GetPrimarySwapchain()->GetDescription().Samples;
 
-			Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(swapchainDesc);
+			Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(swapchainDesc);
 
 			info->Swapchain = swapchain;
 		};
@@ -995,7 +995,7 @@ namespace Nexus::ImGuiUtils
 		platformIo.Renderer_DestroyWindow = [](ImGuiViewport *vp)
 		{
 			ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-			info->Swapchain		  = nullptr;
+			info->Swapchain		  = {};
 		};
 
 		platformIo.Renderer_SetWindowSize = [](ImGuiViewport *vp, ImVec2 size)

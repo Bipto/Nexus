@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		CommandQueueVk(GraphicsDeviceVk *device, const CommandQueueDescription &description);
 		virtual ~CommandQueueVk();
 		const CommandQueueDescription &GetDescription() const final;
-		Ref<ISwapchain>				   CreateSwapchain(const SwapchainDescription &spec) final;
+		SwapchainHandle				   CreateSwapchain(const SwapchainDescription &spec) final;
 		void						   SubmitCommandList(Ref<ICommandList> commandList) final;
 		void						   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence) final;
 		void						   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) final;
@@ -33,5 +33,7 @@ namespace Nexus::Graphics
 		CommandQueueDescription			   m_Description	 = {};
 		VkQueue							   m_Queue			 = VK_NULL_HANDLE;
 		std::unique_ptr<CommandExecutorVk> m_CommandExecutor = nullptr;
+
+		CommandQueueResourceManager m_Resources = {};
 	};
 }	 // namespace Nexus::Graphics
