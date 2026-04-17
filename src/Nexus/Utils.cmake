@@ -59,19 +59,26 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
+    set(_dlls $<TARGET_RUNTIME_DLLS:${target_name}>)
+    set(_outdir $<TARGET_FILE_DIR:${target_name}>)
+    set(_stamp ${CMAKE_CURRENT_BINARY_DIR}/${target_name}_copy_runtime_deps.stamp)
+
     add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory
-            $<TARGET_FILE_DIR:${target_name}>
-        COMMAND
-            $<$<BOOL:$<TARGET_RUNTIME_DLLS:${target_name}>>:
-                ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${target_name}>
-                $<TARGET_FILE_DIR:${target_name}>
-            >
+        OUTPUT ${_stamp}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${_outdir}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_dlls} ${_outdir}
+        COMMAND ${CMAKE_COMMAND} -E touch ${_stamp}
+        DEPENDS ${target_name}
         COMMAND_EXPAND_LISTS
     )
+
+    add_custom_target(${target_name}_runtime_deps ALL
+        DEPENDS ${_stamp}
+    )
 endmacro()
+
+
+
 
 
 macro(import_dll target_name dll_path lib_path)
