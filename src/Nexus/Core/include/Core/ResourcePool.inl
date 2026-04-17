@@ -284,7 +284,13 @@ namespace Nexus
 		}
 
 		uint64_t index = handle.GetIndex();
-		Entry	&entry = m_Entries[index];
+
+		if (index >= m_Entries.size())
+		{
+			return;
+		}
+
+		Entry &entry = m_Entries[index];
 
 		entry.alive = false;
 		entry.generation++;
