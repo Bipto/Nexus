@@ -53,11 +53,10 @@ macro(copy_runtime_deps target_name)
     if(NOT (
         (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
          AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-        OR MSVC
+        OR (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     ))
         return()
     endif()
-
 
     add_custom_command(
         TARGET ${target_name} POST_BUILD
@@ -68,7 +67,6 @@ macro(copy_runtime_deps target_name)
             $<TARGET_FILE_DIR:${target_name}>
         COMMAND_EXPAND_LISTS
     )
-
 endmacro()
 
 macro(import_dll target_name dll_path lib_path)
