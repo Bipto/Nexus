@@ -50,12 +50,9 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    # Only MSVC or Clang-CL
-    if(NOT (
-        (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
-         AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-        OR (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    ))
+    # Only MSVC
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        message(STATUS "Skipping runtime dep copy for ${target_name} (not MSVC)")
         return()
     endif()
 
@@ -76,9 +73,6 @@ macro(copy_runtime_deps target_name)
         DEPENDS ${_stamp}
     )
 endmacro()
-
-
-
 
 
 macro(import_dll target_name dll_path lib_path)
