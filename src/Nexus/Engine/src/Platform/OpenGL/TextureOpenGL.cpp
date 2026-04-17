@@ -268,18 +268,19 @@ namespace Nexus::Graphics
 		return m_GLInternalTextureFormat;
 	}
 
-	void TextureOpenGL::AddView(WeakRef<TextureViewOpenGL> view)
+	void TextureOpenGL::AddView(TextureViewHandle view)
 	{
 		m_Views.push_back(view);
 	}
 
 	void TextureOpenGL::MarkDirty()
 	{
-		for (WeakRef<TextureViewOpenGL> &view : m_Views)
+		for (TextureViewHandle view : m_Views)
 		{
-			if (Ref<TextureViewOpenGL> lockedView = view.lock())
+			TextureViewOpenGL *glView = view.AsDerived<TextureViewOpenGL>();
+			if (view.IsValid() && glView)
 			{
-				lockedView->MarkDirty();
+				glView->MarkDirty();
 			}
 		}
 	}
