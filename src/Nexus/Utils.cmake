@@ -50,6 +50,7 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
+    # Only MSVC or Clang-CL
     if(NOT (
         (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
          AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
@@ -62,12 +63,16 @@ macro(copy_runtime_deps target_name)
         TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory
             $<TARGET_FILE_DIR:${target_name}>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${target_name}>
-            $<TARGET_FILE_DIR:${target_name}>
+        COMMAND
+            $<$<BOOL:$<TARGET_RUNTIME_DLLS:${target_name}>>:
+                ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${target_name}>
+                $<TARGET_FILE_DIR:${target_name}>
+            >
         COMMAND_EXPAND_LISTS
     )
 endmacro()
+
 
 macro(import_dll target_name dll_path lib_path)
     add_library(${target_name} SHARED IMPORTED GLOBAL)
