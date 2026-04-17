@@ -1,4 +1,3 @@
-include(FetchContent)
 include(Utils.cmake)
 
 if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
