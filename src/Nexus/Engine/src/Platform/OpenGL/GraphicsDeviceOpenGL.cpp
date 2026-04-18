@@ -276,10 +276,13 @@ namespace Nexus::Graphics
 		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
-	Ref<IDeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	DeviceBufferHandle GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<DeviceBufferOpenGL>(desc, this);
+		// return CreateRef<DeviceBufferOpenGL>(desc, this);
+
+		auto deviceBuffer = std::make_unique<DeviceBufferOpenGL>(desc, this);
+		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
 	}
 
 	AccelerationStructureHandle GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)

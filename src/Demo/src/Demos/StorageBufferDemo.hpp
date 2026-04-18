@@ -184,7 +184,7 @@ namespace Demos
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
-		glm::mat4								   m_TransformUniforms = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_StorageBuffer	   = {};
+		glm::mat4							m_TransformUniforms = {};
+		Nexus::Graphics::DeviceBufferHandle m_StorageBuffer		= {};
 	};
 }	 // namespace Demos

@@ -150,7 +150,7 @@ namespace Demos
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			pipelineDescription.ColourTargetCount = 1;
 			pipelineDescription.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
@@ -187,7 +187,7 @@ namespace Demos
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
-		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO   m_TransformUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
+		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO m_TransformUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle		 m_TransformUniformBuffer = {};
 	};
 }	 // namespace Demos

@@ -308,11 +308,11 @@ namespace Demos
 
 		std::vector<Nexus::Graphics::ResourceSetHandle> m_ResourceSets = {};
 
-		VB_UNIFORM_CAMERA_DEMO_MODELS			   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_MODELS		m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
-		VB_UNIFORM_TRANSFORM_DEMO_MODELS		   m_TransformUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
+		VB_UNIFORM_TRANSFORM_DEMO_MODELS	m_TransformUniforms		 = {};
+		Nexus::Graphics::DeviceBufferHandle m_TransformUniformBuffer = {};
 
 		Nexus::Graphics::SamplerHandle m_Sampler = {};
 

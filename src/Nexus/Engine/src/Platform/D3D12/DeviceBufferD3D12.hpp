@@ -23,8 +23,8 @@ namespace Nexus::Graphics
 		void				   Unmap() final;
 		void				   FlushRange(BufferRange range) final;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
-		size_t									GetBufferSizeInBytes();
+		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle() const;
+		size_t									GetBufferSizeInBytes() const;
 
 	  private:
 		DeviceBufferDescription						m_BufferDescription = {};

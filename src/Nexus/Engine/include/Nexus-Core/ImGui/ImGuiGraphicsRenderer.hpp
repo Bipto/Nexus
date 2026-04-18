@@ -96,11 +96,11 @@ namespace Nexus::ImGuiUtils
 		uint64_t				m_TextureID		= 0;
 		ImTextureID				m_FontTextureID = 0;
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer	   = nullptr;
-		uint32_t								   m_VertexBufferCount = 0;
+		Graphics::DeviceBufferHandle m_VertexBuffer		 = {};
+		uint32_t					 m_VertexBufferCount = 0;
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndexBuffer	  = nullptr;
-		uint32_t								   m_IndexBufferCount = 0;
+		Graphics::DeviceBufferHandle m_IndexBuffer		= {};
+		uint32_t					 m_IndexBufferCount = 0;
 
 		std::vector<int> m_Keys;
 		ImGuiMouseCursor m_PreviousCursor = ImGuiMouseCursor_Arrow;

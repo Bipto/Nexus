@@ -91,10 +91,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer			vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
-		VkDeviceSize		offsets[]		= {command.View.Offset};
-		VkDeviceSize		sizes[]			= {command.View.Size};
+		const DeviceBufferVk *vertexBufferVk  = command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
+		VkBuffer			  vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
+		VkDeviceSize		  offsets[]		  = {command.View.Offset};
+		VkDeviceSize		  sizes[]		  = {command.View.Size};
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -122,11 +122,11 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer			indexBufferHandle = indexBufferVk->GetVkBuffer();
-		VkIndexType			indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
-		VkDeviceSize		offset			  = command.View.Offset;
-		VkDeviceSize		size			  = command.View.Size;
+		const DeviceBufferVk *indexBufferVk		= command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
+		VkBuffer			  indexBufferHandle = indexBufferVk->GetVkBuffer();
+		VkIndexType			  indexType			= Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
+		VkDeviceSize		  offset			= command.View.Offset;
+		VkDeviceSize		  size				= command.View.Size;
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -224,7 +224,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			BindGraphicsPipeline();
 
@@ -243,7 +243,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			BindGraphicsPipeline();
 
@@ -276,7 +276,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
@@ -313,7 +313,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			BindGraphicsPipeline();
 
@@ -613,8 +613,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		DeviceBufferVk *src = dynamic_cast<DeviceBufferVk *>(command.BufferCopy.Source);
-		DeviceBufferVk *dst = dynamic_cast<DeviceBufferVk *>(command.BufferCopy.Destination);
+		const DeviceBufferVk *src = command.BufferCopy.Source.AsDerived<const DeviceBufferVk>();
+		const DeviceBufferVk *dst = command.BufferCopy.Destination.AsDerived<const DeviceBufferVk>();
 
 		if (!src || !dst)
 		{
@@ -668,7 +668,7 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
-		DeviceBufferVk		 *buffer	  = dynamic_cast<DeviceBufferVk *>(command.BufferTextureCopy.BufferHandle);
+		const DeviceBufferVk *buffer	  = command.BufferTextureCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
 		const TextureVk		 *texture	  = command.BufferTextureCopy.Texture.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
@@ -759,8 +759,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
-		DeviceBufferVk	 *buffer   = dynamic_cast<DeviceBufferVk *>(command.TextureBufferCopy.BufferHandle);
+		GraphicsDeviceVk	 *deviceVk = (GraphicsDeviceVk *)device;
+		const DeviceBufferVk *buffer   = command.TextureBufferCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
 
 		if (!buffer)
 		{

@@ -133,21 +133,21 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	Ref<Graphics::IDeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
+	Graphics::DeviceBufferHandle CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledVertexBuffer(const void				  *data,
+	Graphics::DeviceBufferHandle CreateFilledVertexBuffer(const void				  *data,
 														  size_t					   sizeInBytes,
 														  size_t					   strideInBytes,
 														  Graphics::IGraphicsDevice	  *device,
 														  Graphics::CommandQueueHandle commandQueue);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledIndexBuffer(const void					 *data,
+	Graphics::DeviceBufferHandle CreateFilledIndexBuffer(const void					 *data,
 														 size_t						  sizeInBytes,
 														 size_t						  strideInBytes,
 														 Graphics::IGraphicsDevice	 *devic,
 														 Graphics::CommandQueueHandle commandQueuee);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledUniformBuffer(const void				   *data,
+	Graphics::DeviceBufferHandle CreateFilledUniformBuffer(const void				   *data,
 														   size_t						sizeInBytes,
 														   size_t						strideInBytes,
 														   Graphics::IGraphicsDevice   *device,

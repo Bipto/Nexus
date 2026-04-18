@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 			// requiring OpenGL 4.5 functionality i.e. is cross platform
 			const auto &layout = m_Description.Layouts.at(slot);
 
-			Ref<DeviceBufferOpenGL> vertexBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(vertexBufferView.BufferHandle);
+			const DeviceBufferOpenGL *vertexBufferOpenGL = vertexBufferView.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
 
 			uint32_t offset = 0;
 			size_t	 stride = layout.GetStride();
@@ -100,9 +100,9 @@ namespace Nexus::Graphics
 
 			if (indexBuffer)
 			{
-				IndexBufferView		   &view			   = indexBuffer.value();
-				Ref<DeviceBufferOpenGL> deviceBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
-				context.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, deviceBufferOpenGL->GetHandle());
+				IndexBufferView			 &view				= indexBuffer.value();
+				const DeviceBufferOpenGL *indexBufferOpenGL = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
+				context.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferOpenGL->GetHandle());
 			}
 		}
 	}

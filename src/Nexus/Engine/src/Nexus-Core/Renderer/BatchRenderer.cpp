@@ -359,28 +359,28 @@ namespace Nexus::Graphics
 		vertexUploadDesc.Usage									  = Graphics::BufferUsage_None;
 		vertexUploadDesc.StrideInBytes							  = sizeof(BatchVertex);
 		vertexUploadDesc.SizeInBytes							  = info.Vertices.size() * sizeof(BatchVertex);
-		info.VertexUploadBuffer									  = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
+		info.VertexUploadBuffer									  = device->CreateDeviceBuffer(vertexUploadDesc);
 
 		Nexus::Graphics::DeviceBufferDescription vertexDesc = {};
 		vertexDesc.Access									= Graphics::BufferMemoryAccess::Default;
 		vertexDesc.Usage									= Graphics::BufferUsage_Vertex;
 		vertexDesc.StrideInBytes							= sizeof(BatchVertex);
 		vertexDesc.SizeInBytes								= info.Vertices.size() * sizeof(BatchVertex);
-		info.VertexBuffer									= Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
+		info.VertexBuffer									= device->CreateDeviceBuffer(vertexDesc);
 
 		Nexus::Graphics::DeviceBufferDescription indexUploadDesc = {};
 		indexUploadDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
 		indexUploadDesc.Usage									 = Graphics::BufferUsage_None;
 		indexUploadDesc.StrideInBytes							 = sizeof(uint32_t);
 		indexUploadDesc.SizeInBytes								 = info.Indices.size() * sizeof(uint32_t);
-		info.IndexUploadBuffer									 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
+		info.IndexUploadBuffer									 = device->CreateDeviceBuffer(indexUploadDesc);
 
 		Nexus::Graphics::DeviceBufferDescription indexDesc = {};
 		indexDesc.Access								   = Graphics::BufferMemoryAccess::Default;
 		indexDesc.Usage									   = Graphics::BufferUsage_Index;
 		indexDesc.StrideInBytes							   = sizeof(uint32_t);
 		indexDesc.SizeInBytes							   = info.Indices.size() * sizeof(uint32_t);
-		info.IndexBuffer								   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
+		info.IndexBuffer								   = device->CreateDeviceBuffer(indexDesc);
 	}
 
 	BatchRenderer::BatchRenderer(Nexus::Graphics::IGraphicsDevice *device, CommandQueueHandle commandQueue, bool useDepthTest, uint32_t sampleCount)
@@ -441,14 +441,14 @@ namespace Nexus::Graphics
 		uniformUploadDesc.Usage									   = Graphics::BufferUsage_None;
 		uniformUploadDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformUploadDesc.SizeInBytes							   = sizeof(glm::mat4);
-		m_UniformUploadBuffer									   = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
+		m_UniformUploadBuffer									   = device->CreateDeviceBuffer(uniformUploadDesc);
 
 		Nexus::Graphics::DeviceBufferDescription uniformDesc = {};
 		uniformDesc.Access									 = Graphics::BufferMemoryAccess::Default;
 		uniformDesc.Usage									 = Graphics::BufferUsage_Uniform;
 		uniformDesc.StrideInBytes							 = sizeof(glm::mat4);
 		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
-		m_UniformBuffer										 = Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
+		m_UniformBuffer										 = device->CreateDeviceBuffer(uniformDesc);
 
 		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
@@ -481,11 +481,11 @@ namespace Nexus::Graphics
 		m_UniformUploadBuffer->SetData(&camera, 0, sizeof(camera));
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = m_UniformUploadBuffer.get();
-		bufferCopy.Destination							  = m_UniformBuffer.get();
+		bufferCopy.Source								  = m_UniformUploadBuffer;
+		bufferCopy.Destination							  = m_UniformBuffer;
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeof(camera)}};
 
-		if (m_UniformUploadBuffer && m_UniformBuffer)
+		if (m_UniformUploadBuffer.IsValid() && m_UniformBuffer.IsValid())
 		{
 			m_CommandList->Begin();
 			m_CommandList->CopyBufferToBuffer(bufferCopy);
@@ -1218,8 +1218,8 @@ namespace Nexus::Graphics
 		// upload vertex data
 		{
 			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.VertexUploadBuffer.get();
-			bufferCopy.Destination			 = info.VertexBuffer.get();
+			bufferCopy.Source				 = info.VertexUploadBuffer;
+			bufferCopy.Destination			 = info.VertexBuffer;
 			bufferCopy.Copies				 = {{.ReadOffset = 0, .WriteOffset = 0, .Size = info.Vertices.size() * sizeof(info.Vertices[0])}};
 
 			m_CommandList->CopyBufferToBuffer(bufferCopy);
@@ -1229,8 +1229,8 @@ namespace Nexus::Graphics
 		// upload index data
 		{
 			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.IndexUploadBuffer.get();
-			bufferCopy.Destination			 = info.IndexBuffer.get();
+			bufferCopy.Source				 = info.IndexUploadBuffer;
+			bufferCopy.Destination			 = info.IndexBuffer;
 			bufferCopy.Copies				 = {{.ReadOffset = 0, .WriteOffset = 0, .Size = info.Indices.size() * sizeof(info.Indices[0])}};
 
 			m_CommandList->CopyBufferToBuffer(bufferCopy);

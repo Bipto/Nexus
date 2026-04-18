@@ -125,14 +125,14 @@ namespace Nexus::Graphics
 			m_CommandList->SetViewport(viewport);
 			m_CommandList->SetScissor(scissor);
 
-			Ref<IDeviceBuffer> vertexBuffer		= m_Quad.GetVertexBuffer();
+			DeviceBufferHandle vertexBuffer		= m_Quad.GetVertexBuffer();
 			VertexBufferView   vertexBufferView = {};
 			vertexBufferView.BufferHandle		= vertexBuffer;
 			vertexBufferView.Offset				= 0;
 			vertexBufferView.Size				= vertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			Ref<IDeviceBuffer> indexBuffer	   = m_Quad.GetIndexBuffer();
+			DeviceBufferHandle indexBuffer	   = m_Quad.GetIndexBuffer();
 			IndexBufferView	   indexBufferView = {};
 			indexBufferView.BufferHandle	   = indexBuffer;
 			indexBufferView.Offset			   = 0;

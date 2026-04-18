@@ -90,7 +90,7 @@ namespace Demos
 			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::DispatchIndirectDescription dispatchDesc = {};
-			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer.get();
+			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer;
 			dispatchDesc.Offset										  = 0;
 			dispatchDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DispatchIndirect(dispatchDesc);
@@ -138,13 +138,13 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Graphics::CommandListHandle		   m_CommandList		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndirectBuffer		 = nullptr;
-		Nexus::Graphics::PipelineHandle			   m_ComputePipeline	 = {};
-		Nexus::Graphics::ResourceSetHandle		   m_ResourceSet		 = {};
-		Nexus::Graphics::TextureHandle			   m_Texture			 = {};
-		Nexus::Graphics::TextureViewHandle		   m_TextureView		 = {};
-		glm::vec3								   m_ClearColour		 = {0.7f, 0.2f, 0.3f};
-		ImTextureID								   m_ImGuiTextureBinding = 0;
+		Nexus::Graphics::CommandListHandle	m_CommandList		  = {};
+		Nexus::Graphics::DeviceBufferHandle m_IndirectBuffer	  = {};
+		Nexus::Graphics::PipelineHandle		m_ComputePipeline	  = {};
+		Nexus::Graphics::ResourceSetHandle	m_ResourceSet		  = {};
+		Nexus::Graphics::TextureHandle		m_Texture			  = {};
+		Nexus::Graphics::TextureViewHandle	m_TextureView		  = {};
+		glm::vec3							m_ClearColour		  = {0.7f, 0.2f, 0.3f};
+		ImTextureID							m_ImGuiTextureBinding = 0;
 	};
 }	 // namespace Demos

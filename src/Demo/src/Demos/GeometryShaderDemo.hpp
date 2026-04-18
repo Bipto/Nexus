@@ -30,7 +30,7 @@ namespace Demos
 			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage_Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
 			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
 			CreatePipeline();
@@ -134,9 +134,9 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Graphics::CommandListHandle		   m_CommandList  = {};
-		Nexus::Graphics::PipelineHandle			   m_Pipeline	  = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer = {};
-		glm::vec3								   m_ClearColour  = {0.0f, 0.0f, 0.0f};
+		Nexus::Graphics::CommandListHandle	m_CommandList  = {};
+		Nexus::Graphics::PipelineHandle		m_Pipeline	   = {};
+		Nexus::Graphics::DeviceBufferHandle m_VertexBuffer = {};
+		glm::vec3							m_ClearColour  = {0.0f, 0.0f, 0.0f};
 	};
 }	 // namespace Demos

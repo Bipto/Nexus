@@ -288,8 +288,8 @@ namespace Demos
 
 		Nexus::Ref<Nexus::Graphics::Mesh> m_Cube = nullptr;
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA		m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
 		Nexus::FirstPersonCamera m_Camera		= {};
 		bool					 m_CameraActive = false;

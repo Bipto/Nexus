@@ -266,7 +266,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -292,7 +292,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -335,7 +335,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -361,7 +361,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 

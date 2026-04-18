@@ -75,17 +75,17 @@ namespace Nexus::Graphics
 
 		Nexus::FirstPersonCamera m_Camera = {};
 
-		Graphics::SamplerHandle					   m_CubemapSampler		  = {};
-		PipelineHandle							   m_CubemapPipeline	  = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CubemapUniformBuffer = nullptr;
-		Nexus::Graphics::ResourceSetHandle		   m_CubemapResourceSet	  = {};
+		Graphics::SamplerHandle			   m_CubemapSampler		  = {};
+		PipelineHandle					   m_CubemapPipeline	  = {};
+		DeviceBufferHandle				   m_CubemapUniformBuffer = {};
+		Nexus::Graphics::ResourceSetHandle m_CubemapResourceSet	  = {};
 
-		Graphics::SamplerHandle																	 m_ModelSampler					= {};
-		Graphics::PipelineHandle																 m_ModelPipeline				= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>												 m_ModelCameraUniformBuffer		= nullptr;
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, Nexus::Ref<Nexus::Graphics::IDeviceBuffer>> m_ModelTransformUniformBuffers = {};
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, ResourceSetHandle>							 m_ModelResourceSets			= {};
-		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>							 m_ModelIDs						= {};
+		Graphics::SamplerHandle													   m_ModelSampler				  = {};
+		Graphics::PipelineHandle												   m_ModelPipeline				  = {};
+		Graphics::DeviceBufferHandle											   m_ModelCameraUniformBuffer	  = {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, Graphics::DeviceBufferHandle> m_ModelTransformUniformBuffers = {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, ResourceSetHandle>			   m_ModelResourceSets			  = {};
+		std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData>			   m_ModelIDs					  = {};
 
 		PipelineHandle m_ClearScreenPipeline = {};
 

@@ -81,11 +81,11 @@ namespace Nexus::Utils
 											 uint32_t					  height);
 
 	NX_API void WriteToBuffer(Graphics::CommandQueueHandle commandQueue,
-							  Ref<Graphics::IDeviceBuffer> buffer,
+							  Graphics::DeviceBufferHandle buffer,
 							  const void				  *data,
 							  size_t					   offset,
 							  size_t					   size);
 
-	NX_API std::vector<char> ReadFromBuffer(Graphics::CommandQueueHandle commandQueue, Ref<Graphics::IDeviceBuffer> buffer, size_t offset);
+	NX_API std::vector<char> ReadFromBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, size_t offset);
 
 }	 // namespace Nexus::Utils

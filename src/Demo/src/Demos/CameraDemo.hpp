@@ -55,7 +55,7 @@ namespace Demos
 			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
-			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
+			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
@@ -299,11 +299,11 @@ namespace Demos
 
 		Nexus::Graphics::ResourceSetHandle m_ResourceSet = {};
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA		m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
-		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		   m_TransformUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
+		VB_UNIFORM_TRANSFORM_DEMO_CAMERA	m_TransformUniforms		 = {};
+		Nexus::Graphics::DeviceBufferHandle m_TransformUniformBuffer = {};
 
 		Nexus::FirstPersonCamera m_Camera;
 		bool					 m_CameraActive = false;

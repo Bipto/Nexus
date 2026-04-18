@@ -1195,8 +1195,8 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
+		const Graphics::TextureOpenGL	   *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::DeviceBufferOpenGL *buffer	= command.BufferTextureCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
 
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
@@ -1366,8 +1366,8 @@ namespace Nexus::GL
 
 	static void CopyBufferToTextureNonDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
+		const Graphics::TextureOpenGL	   *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::DeviceBufferOpenGL *buffer	= command.BufferTextureCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
 		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
 
 		bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
@@ -1534,8 +1534,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
+		const Graphics::TextureOpenGL	   *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::DeviceBufferOpenGL *buffer	= command.TextureBufferCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
 
 		if (!texture || !buffer)
 		{
@@ -1585,8 +1585,8 @@ namespace Nexus::GL
 
 	static void CopyTextureToBufferNonDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context)
 	{
-		const Graphics::TextureOpenGL *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		Graphics::DeviceBufferOpenGL  *buffer  = dynamic_cast<Graphics::DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
+		const Graphics::TextureOpenGL	   *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
+		const Graphics::DeviceBufferOpenGL *buffer	= command.TextureBufferCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
 
 		if (!texture || !buffer)
 		{

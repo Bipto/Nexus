@@ -93,9 +93,9 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
 
 	  private:
-		void			   InsertResourceBarrier(const TextureBarrierDesc &command);
-		void			   InsertTextureBarrier(const TextureBarrierDesc &command);
-		Ref<IDeviceBuffer> CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device);
+		void								InsertResourceBarrier(const TextureBarrierDesc &command);
+		void								InsertTextureBarrier(const TextureBarrierDesc &command);
+		Nexus::Graphics::DeviceBufferHandle CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
@@ -122,7 +122,7 @@ namespace Nexus::Graphics
 		PIXEndEventFn	m_PIXEndEvent	= NULL;
 		PIXSetMarkerFn	m_PIXSetMarker	= NULL;
 
-		std::vector<Ref<IDeviceBuffer>>				  m_UploadBuffers  = {};
+		std::vector<DeviceBufferHandle>				  m_UploadBuffers  = {};
 		std::vector<D3D12ReadbackBufferCopyOperation> m_ReadbackCopies = {};
 	};
 }	 // namespace Nexus::Graphics

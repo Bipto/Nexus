@@ -98,7 +98,7 @@ namespace Demos
 				scratchBufferDesc.SizeInBytes							   = scratchBufferSize;
 				scratchBufferDesc.StrideInBytes							   = scratchBufferSize;
 				scratchBufferDesc.Usage									   = Nexus::Graphics::BufferUsage_Storage;
-				Nexus::Ref<Nexus::Graphics::IDeviceBuffer> scratchBuffer   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
+				Nexus::Graphics::DeviceBufferHandle scratchBuffer		   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
 
 				Nexus::Graphics::DeviceBufferDescription accelerationBufferDesc = {};
 				accelerationBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
@@ -197,7 +197,7 @@ namespace Demos
 				scratchBufferDesc.SizeInBytes							   = scratchBufferSize;
 				scratchBufferDesc.StrideInBytes							   = scratchBufferSize;
 				scratchBufferDesc.Usage									   = Nexus::Graphics::BufferUsage_Storage;
-				Nexus::Ref<Nexus::Graphics::IDeviceBuffer> scratchBuffer   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
+				Nexus::Graphics::DeviceBufferHandle scratchBuffer		   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
 
 				Nexus::Graphics::DeviceBufferDescription accelerationBufferDesc = {};
 				accelerationBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
@@ -426,19 +426,19 @@ namespace Demos
 		Nexus::Graphics::CommandListHandle m_CommandList = {};
 		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndexBuffer	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformBuffer = nullptr;
+		Nexus::Graphics::DeviceBufferHandle m_VertexBuffer	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_IndexBuffer	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_TransformBuffer = {};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	 m_BLASBuffer = nullptr;
+		Nexus::Graphics::DeviceBufferHandle			 m_BLASBuffer = {};
 		Nexus::Graphics::AccelerationStructureHandle m_BLAS		  = {};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	 m_TLASBuffer = nullptr;
+		Nexus::Graphics::DeviceBufferHandle			 m_TLASBuffer = {};
 		Nexus::Graphics::AccelerationStructureHandle m_TLAS		  = {};
 
-		Nexus::Graphics::PipelineHandle			   m_Pipeline	 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_SBT		 = nullptr;
-		Nexus::Graphics::ResourceSetHandle		   m_ResourceSet = {};
+		Nexus::Graphics::PipelineHandle		m_Pipeline	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_SBT		  = {};
+		Nexus::Graphics::ResourceSetHandle	m_ResourceSet = {};
 
 		Nexus::Graphics::DeviceAddressRegion		m_RaygenRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_MissRegion	 = {};

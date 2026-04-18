@@ -293,7 +293,7 @@ namespace Nexus::Utils
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 	}
 
-	Ref<Graphics::IDeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device)
+	Graphics::DeviceBufferHandle CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device)
 	{
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Access									= Graphics::BufferMemoryAccess::Upload;
@@ -301,18 +301,18 @@ namespace Nexus::Utils
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
 
-		Ref<Graphics::IDeviceBuffer> buffer = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle buffer = device->CreateDeviceBuffer(bufferDesc);
 		buffer->SetData(data, 0, sizeInBytes);
 		return buffer;
 	}
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledVertexBuffer(const void				  *data,
+	Graphics::DeviceBufferHandle CreateFilledVertexBuffer(const void				  *data,
 														  size_t					   sizeInBytes,
 														  size_t					   strideInBytes,
 														  Graphics::IGraphicsDevice	  *device,
 														  Graphics::CommandQueueHandle commandQueue)
 	{
-		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Graphics::DeviceBufferHandle uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
 		Graphics::CommandListHandle	 commandList  = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
@@ -320,11 +320,11 @@ namespace Nexus::Utils
 		bufferDesc.Usage									= Graphics::BufferUsage_Vertex;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
-		Ref<Graphics::IDeviceBuffer> vertexBuffer			= Ref<Graphics::IDeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+		Graphics::DeviceBufferHandle vertexBuffer			= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = uploadBuffer.get();
-		bufferCopy.Destination							  = vertexBuffer.get();
+		bufferCopy.Source								  = uploadBuffer;
+		bufferCopy.Destination							  = vertexBuffer;
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
@@ -336,13 +336,13 @@ namespace Nexus::Utils
 		return vertexBuffer;
 	}	 // namespace Nexus::Utils
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledIndexBuffer(const void					 *data,
+	Graphics::DeviceBufferHandle CreateFilledIndexBuffer(const void					 *data,
 														 size_t						  sizeInBytes,
 														 size_t						  strideInBytes,
 														 Graphics::IGraphicsDevice	 *device,
 														 Graphics::CommandQueueHandle commandQueue)
 	{
-		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Graphics::DeviceBufferHandle uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
 		Graphics::CommandListHandle	 commandList  = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
@@ -350,11 +350,11 @@ namespace Nexus::Utils
 		bufferDesc.Usage									= Graphics::BufferUsage_Index;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
-		Ref<Graphics::IDeviceBuffer> indexBuffer			= device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle indexBuffer			= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = uploadBuffer.get();
-		bufferCopy.Destination							  = indexBuffer.get();
+		bufferCopy.Source								  = uploadBuffer;
+		bufferCopy.Destination							  = indexBuffer;
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();
@@ -366,13 +366,13 @@ namespace Nexus::Utils
 		return indexBuffer;
 	}
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledUniformBuffer(const void				   *data,
+	Graphics::DeviceBufferHandle CreateFilledUniformBuffer(const void				   *data,
 														   size_t						sizeInBytes,
 														   size_t						strideInBytes,
 														   Graphics::IGraphicsDevice   *device,
 														   Graphics::CommandQueueHandle commandQueue)
 	{
-		Ref<Graphics::IDeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Graphics::DeviceBufferHandle uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
 		Graphics::CommandListHandle	 commandList  = commandQueue->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
@@ -380,11 +380,11 @@ namespace Nexus::Utils
 		bufferDesc.Usage									= Graphics::BufferUsage_Uniform;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
-		Ref<Graphics::IDeviceBuffer> uniformBuffer			= device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle uniformBuffer			= device->CreateDeviceBuffer(bufferDesc);
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = uploadBuffer.get();
-		bufferCopy.Destination							  = uniformBuffer.get();
+		bufferCopy.Source								  = uploadBuffer;
+		bufferCopy.Destination							  = uniformBuffer;
 		bufferCopy.Copies								  = {{.ReadOffset = 0, .WriteOffset = 0, .Size = sizeInBytes}};
 
 		commandList->Begin();

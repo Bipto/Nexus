@@ -34,7 +34,7 @@ namespace Demos
 			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage_Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
 			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
 			CreatePipeline();
@@ -50,7 +50,7 @@ namespace Demos
 			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Indirect;
 			indirectBufferDesc.StrideInBytes							= sizeof(Nexus::Graphics::IndirectDrawArguments);
 			indirectBufferDesc.SizeInBytes								= sizeof(Nexus::Graphics::IndirectDrawArguments);
-			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));
+			m_IndirectBuffer											= m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc);
 			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}
 
@@ -91,7 +91,7 @@ namespace Demos
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Nexus::Graphics::DrawIndirectDescription drawDesc = {};
-			drawDesc.IndirectBuffer							  = m_IndirectBuffer.get();
+			drawDesc.IndirectBuffer							  = m_IndirectBuffer;
 			drawDesc.Offset									  = 0;
 			drawDesc.DrawCount								  = 1;
 			drawDesc.Stride									  = m_IndirectBuffer->GetStrideInBytes();
@@ -143,10 +143,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Graphics::CommandListHandle		   m_CommandList	= {};
-		Nexus::Graphics::PipelineHandle			   m_Pipeline		= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer	= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndirectBuffer = {};
-		glm::vec3								   m_ClearColour	= {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle	m_CommandList	 = {};
+		Nexus::Graphics::PipelineHandle		m_Pipeline		 = {};
+		Nexus::Graphics::DeviceBufferHandle m_VertexBuffer	 = {};
+		Nexus::Graphics::DeviceBufferHandle m_IndirectBuffer = {};
+		glm::vec3							m_ClearColour	 = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

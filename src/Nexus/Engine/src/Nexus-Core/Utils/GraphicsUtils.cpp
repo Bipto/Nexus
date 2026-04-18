@@ -302,7 +302,7 @@ namespace Nexus::Utils
 		bufferDesc.Usage							 = Graphics::BufferUsage_None;
 		bufferDesc.SizeInBytes						 = size;
 		bufferDesc.StrideInBytes					 = size;
-		Ref<Graphics::IDeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle buffer			 = device->CreateDeviceBuffer(bufferDesc);
 		Graphics::CommandListHandle	 cmdList		 = commandQueue->CreateCommandList();
 
 		buffer->SetData(data, 0, size);
@@ -310,7 +310,7 @@ namespace Nexus::Utils
 		cmdList->Begin();
 
 		Graphics::BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle							= buffer.get();
+		copyDesc.BufferHandle							= buffer;
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
@@ -344,13 +344,13 @@ namespace Nexus::Utils
 		bufferDesc.SizeInBytes						 = footprint.Size;
 		bufferDesc.StrideInBytes					 = footprint.Size;
 
-		Ref<Graphics::IDeviceBuffer> buffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle buffer	 = device->CreateDeviceBuffer(bufferDesc);
 		Graphics::CommandListHandle	 cmdList = commandQueue->CreateCommandList();
 
 		cmdList->Begin();
 
 		Graphics::BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle							= buffer.get();
+		copyDesc.BufferHandle							= buffer;
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
@@ -367,7 +367,7 @@ namespace Nexus::Utils
 		return buffer->GetData(0, footprint.Size);
 	}
 
-	void WriteToBuffer(Graphics::CommandQueueHandle commandQueue, Ref<Graphics::IDeviceBuffer> buffer, const void *data, size_t offset, size_t size)
+	void WriteToBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, const void *data, size_t offset, size_t size)
 	{
 		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -375,7 +375,7 @@ namespace Nexus::Utils
 		bufferDesc.Access							 = Nexus::Graphics::BufferMemoryAccess::Upload;
 		bufferDesc.SizeInBytes						 = size;
 		bufferDesc.StrideInBytes					 = size;
-		Ref<Graphics::IDeviceBuffer> uploadBuffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle uploadBuffer	 = device->CreateDeviceBuffer(bufferDesc);
 
 		uploadBuffer->SetData(data, 0, size);
 
@@ -385,8 +385,8 @@ namespace Nexus::Utils
 		bufferCopy.WriteOffset			= offset;
 
 		Graphics::BufferCopyDescription bufferCopyDesc = {};
-		bufferCopyDesc.Source						   = uploadBuffer.get();
-		bufferCopyDesc.Destination					   = buffer.get();
+		bufferCopyDesc.Source						   = uploadBuffer;
+		bufferCopyDesc.Destination					   = buffer;
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
 		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();
@@ -398,7 +398,7 @@ namespace Nexus::Utils
 		device->WaitForIdle();
 	}
 
-	std::vector<char> ReadFromBuffer(Graphics::CommandQueueHandle commandQueue, Ref<Graphics::IDeviceBuffer> buffer, size_t offset)
+	std::vector<char> ReadFromBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, size_t offset)
 	{
 		size_t dataSize = buffer->GetSizeInBytes() - offset;
 
@@ -408,7 +408,7 @@ namespace Nexus::Utils
 		bufferDesc.Access							 = Nexus::Graphics::BufferMemoryAccess::Readback;
 		bufferDesc.SizeInBytes						 = dataSize;
 		bufferDesc.StrideInBytes					 = dataSize;
-		Ref<Graphics::IDeviceBuffer> readbackBuffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle readbackBuffer	 = device->CreateDeviceBuffer(bufferDesc);
 
 		Graphics::BufferCopy bufferCopy = {};
 		bufferCopy.Size					= dataSize;
@@ -416,8 +416,8 @@ namespace Nexus::Utils
 		bufferCopy.WriteOffset			= 0;
 
 		Graphics::BufferCopyDescription bufferCopyDesc = {};
-		bufferCopyDesc.Source						   = buffer.get();
-		bufferCopyDesc.Destination					   = readbackBuffer.get();
+		bufferCopyDesc.Source						   = buffer;
+		bufferCopyDesc.Destination					   = readbackBuffer;
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
 		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();

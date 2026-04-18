@@ -329,10 +329,10 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Graphics::CommandListHandle		   m_CommandList	= {};
-		Nexus::Graphics::PipelineHandle			   m_Pipeline		= {};
-		Nexus::Ref<Nexus::Graphics::Mesh>		   m_CubeMesh		= nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_InstanceBuffer = nullptr;
+		Nexus::Graphics::CommandListHandle	m_CommandList	 = {};
+		Nexus::Graphics::PipelineHandle		m_Pipeline		 = {};
+		Nexus::Ref<Nexus::Graphics::Mesh>	m_CubeMesh		 = nullptr;
+		Nexus::Graphics::DeviceBufferHandle m_InstanceBuffer = {};
 
 		Nexus::Graphics::ResourceSetHandle m_ResourceSet	 = {};
 		Nexus::Graphics::TextureHandle	   m_DiffuseMap		 = {};
@@ -343,8 +343,8 @@ namespace Demos
 		Nexus::Graphics::TextureViewHandle m_SpecularMapView = {};
 		glm::vec3						   m_ClearColour	 = {0.7f, 0.2f, 0.3f};
 
-		VB_UNIFORM_CAMERA_DEMO_INSTANCING		   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_INSTANCING	m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
 		Nexus::Graphics::SamplerHandle m_Sampler = {};
 

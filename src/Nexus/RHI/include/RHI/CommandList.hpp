@@ -60,10 +60,10 @@ namespace Nexus::Graphics
 	struct BufferCopyDescription
 	{
 		/// @brief A pointer to the buffer to be used as a source
-		IDeviceBuffer *Source = nullptr;
+		DeviceBufferHandle Source = {};
 
 		/// @brief A pointer to the buffer to be used as the destination
-		IDeviceBuffer *Destination = nullptr;
+		DeviceBufferHandle Destination = {};
 
 		/// @brief A vector of BufferCopy objects representing the areas of the buffers to be copied
 		std::vector<BufferCopy> Copies = {};
@@ -73,7 +73,7 @@ namespace Nexus::Graphics
 	struct BufferTextureCopyDescription
 	{
 		/// @brief A pointer to the buffer to use in the copy operation
-		IDeviceBuffer *BufferHandle = nullptr;
+		DeviceBufferHandle BufferHandle = {};
 
 		/// @brief An integer representing the offset to read to/write from in the buffer
 		uint64_t BufferOffset = 0;
@@ -255,7 +255,7 @@ namespace Nexus::Graphics
 	struct DrawIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use for the draw call
-		IDeviceBuffer *IndirectBuffer = nullptr;
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -271,7 +271,7 @@ namespace Nexus::Graphics
 	struct DrawIndirectIndexedDescription
 	{
 		/// @brief A pointer to the indirect buffer to use for the draw call
-		IDeviceBuffer *IndirectBuffer = nullptr;
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -300,7 +300,7 @@ namespace Nexus::Graphics
 	struct DispatchIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use
-		IDeviceBuffer *IndirectBuffer = {};
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -326,7 +326,7 @@ namespace Nexus::Graphics
 	struct DrawMeshIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use
-		IDeviceBuffer *IndirectBuffer = {};
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;

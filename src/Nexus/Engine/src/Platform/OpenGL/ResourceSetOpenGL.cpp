@@ -146,7 +146,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle))
+				if (const DeviceBufferOpenGL *buffer = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>())
 				{
 					m_BoundResources.UniformBuffers[name][arrayIndex] = view;
 				}
@@ -159,7 +159,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle))
+				if (const DeviceBufferOpenGL *buffer = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>())
 				{
 					m_BoundResources.DynamicUniformBuffers[name][arrayIndex] = view;
 				}
@@ -179,7 +179,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle))
+				if (const DeviceBufferOpenGL *buffer = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>())
 				{
 					m_BoundResources.StorageBuffers[name][arrayIndex] = view;
 				}
@@ -192,7 +192,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle))
+				if (const DeviceBufferOpenGL *buffer = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>())
 				{
 					m_BoundResources.DynamicStorageBuffers[name][arrayIndex] = view;
 				}
@@ -311,8 +311,8 @@ namespace Nexus::Graphics
 			{
 				const auto &view = views[arrayIndex];
 
-				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+				int32_t					  bindingIndex = bindingPoints.at(arrayIndex);
+				const DeviceBufferOpenGL *buffer	   = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
 
 				if (buffer && bindingIndex != -1)
 				{
@@ -333,8 +333,8 @@ namespace Nexus::Graphics
 			{
 				const auto &view = views[arrayIndex];
 
-				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+				int32_t					  bindingIndex = bindingPoints.at(arrayIndex);
+				const DeviceBufferOpenGL *buffer	   = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
 
 				uint32_t dynamicOffset = 0;
 				if (arrayIndex < dynamicOffsets.size())
@@ -371,8 +371,8 @@ namespace Nexus::Graphics
 			{
 				const auto &view = views[arrayIndex];
 
-				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+				int32_t					  bindingIndex = bindingPoints.at(arrayIndex);
+				const DeviceBufferOpenGL *buffer	   = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
 
 				if (buffer && bindingIndex != -1)
 				{
@@ -391,9 +391,9 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
-				const auto			   &view		 = views[arrayIndex];
-				int32_t					bindingIndex = bindingPoints.at(arrayIndex);
-				Ref<DeviceBufferOpenGL> buffer		 = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
+				const auto				 &view		   = views[arrayIndex];
+				int32_t					  bindingIndex = bindingPoints.at(arrayIndex);
+				const DeviceBufferOpenGL *buffer	   = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
 
 				uint32_t dynamicOffset = 0;
 				if (arrayIndex < dynamicOffsets.size())

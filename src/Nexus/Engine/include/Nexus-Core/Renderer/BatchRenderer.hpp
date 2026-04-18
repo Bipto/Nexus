@@ -57,10 +57,10 @@ namespace Nexus::Graphics
 		uint32_t VertexCount = 0;
 		uint32_t IndexCount	 = 0;
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> VertexUploadBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> VertexBuffer		  = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> IndexUploadBuffer  = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> IndexBuffer		  = nullptr;
+		Graphics::DeviceBufferHandle VertexUploadBuffer = {};
+		Graphics::DeviceBufferHandle VertexBuffer		= {};
+		Graphics::DeviceBufferHandle IndexUploadBuffer	= {};
+		Graphics::DeviceBufferHandle IndexBuffer		= {};
 	};
 
 	class NX_API BatchRenderer
@@ -165,10 +165,10 @@ namespace Nexus::Graphics
 		Graphics::SamplerHandle			  m_Sampler		 = {};
 		bool							  m_IsStarted	 = false;
 
-		Graphics::TextureHandle					   m_BlankTexture		 = {};
-		Graphics::TextureViewHandle				   m_BlankTextureView	 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformUploadBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_UniformBuffer		 = nullptr;
+		Graphics::TextureHandle		 m_BlankTexture		   = {};
+		Graphics::TextureViewHandle	 m_BlankTextureView	   = {};
+		Graphics::DeviceBufferHandle m_UniformUploadBuffer = {};
+		Graphics::DeviceBufferHandle m_UniformBuffer	   = {};
 
 		FramebufferHandle m_RenderTarget = {};
 

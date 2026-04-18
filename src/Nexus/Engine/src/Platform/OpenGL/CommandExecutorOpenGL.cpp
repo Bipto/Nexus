@@ -187,7 +187,7 @@ namespace Nexus::Graphics
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
 	#if !defined(__EMSCRIPTEN__)
-				if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
+				if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 				{
 					ExecuteGraphicsCommand(
 						pipeline,
@@ -240,7 +240,7 @@ namespace Nexus::Graphics
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
 	#if !defined(__EMSCRIPTEN__)
-				if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
+				if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 				{
 					ExecuteGraphicsCommand(pipeline,
 										   m_CurrentlyBoundVertexBuffers,
@@ -318,7 +318,7 @@ namespace Nexus::Graphics
 				pipeline->Bind(context);
 				BindResourceSet(context);
 
-				if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
+				if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 				{
 					context.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 					context.DispatchComputeIndirect(command.Offset);
@@ -364,7 +364,7 @@ namespace Nexus::Graphics
 
 	#if !defined(__EMSCRIPTEN__)
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
-		if (DeviceBufferOpenGL *indirectBuffer = dynamic_cast<DeviceBufferOpenGL *>(command.IndirectBuffer))
+		if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 		{
 			GL::ExecuteGLCommands(
 				[&](const GladGLContext &context)
@@ -589,9 +589,7 @@ namespace Nexus::Graphics
 	{
 		Graphics::TextureHandle textureHandle = command.BufferTextureCopy.Texture;
 
-		DeviceBufferOpenGL *buffer = dynamic_cast<DeviceBufferOpenGL *>(command.BufferTextureCopy.BufferHandle);
-
-		if (buffer && textureHandle.IsValid())
+		if (textureHandle.IsValid())
 		{
 			TextureOpenGL *texture = textureHandle.AsDerived<TextureOpenGL>();
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
@@ -601,10 +599,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
 	{
-		Graphics::TextureHandle textureHandle = command.TextureBufferCopy.Texture;
-		DeviceBufferOpenGL	   *buffer		  = dynamic_cast<DeviceBufferOpenGL *>(command.TextureBufferCopy.BufferHandle);
+		Graphics::TextureHandle		 textureHandle = command.TextureBufferCopy.Texture;
+		Graphics::DeviceBufferHandle bufferHandle  = command.TextureBufferCopy.BufferHandle;
 
-		if (buffer && textureHandle.IsValid())
+		if (bufferHandle.IsValid() && textureHandle.IsValid())
 		{
 			TextureOpenGL *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
 			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });

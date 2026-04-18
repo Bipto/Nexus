@@ -343,11 +343,11 @@ namespace Demos
 		Nexus::Graphics::TextureViewHandle m_SpecularMapView = {};
 		glm::vec3						   m_ClearColour	 = {0.7f, 0.2f, 0.3f};
 
-		VB_UNIFORM_CAMERA_DEMO_LIGHTING			   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_LIGHTING		m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
-		VB_UNIFORM_TRANSFORM_DEMO_LIGHTING		   m_TransformUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
+		VB_UNIFORM_TRANSFORM_DEMO_LIGHTING	m_TransformUniforms		 = {};
+		Nexus::Graphics::DeviceBufferHandle m_TransformUniformBuffer = {};
 
 		Nexus::Graphics::SamplerHandle m_Sampler = {};
 

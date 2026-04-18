@@ -6,7 +6,7 @@ namespace Nexus::Graphics
 		: m_Description(desc),
 		  m_Device(device)
 	{
-		Ref<DeviceBufferVk>			   destinationBuffer		 = std::dynamic_pointer_cast<DeviceBufferVk>(desc.Buffer);
+		const DeviceBufferVk		  *destinationBuffer		 = desc.Buffer.AsDerived<const DeviceBufferVk>();
 		VkAccelerationStructureTypeKHR accelerationStructureType = Vk::GetAccelerationStructureType(desc.Type);
 
 		VkAccelerationStructureCreateInfoKHR createInfo = {};

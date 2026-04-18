@@ -119,7 +119,7 @@ namespace Nexus::Processors
 		bufferDesc.Usage							 = Graphics::BufferUsage_None;
 		bufferDesc.SizeInBytes						 = pixels.size();
 		bufferDesc.StrideInBytes					 = pixels.size();
-		Ref<Graphics::IDeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle buffer			 = device->CreateDeviceBuffer(bufferDesc);
 
 		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();
 
@@ -367,19 +367,17 @@ namespace Nexus::Processors
 		{
 			const Graphics::MeshData &data = importData.meshes[i];
 
-			Nexus::Ref<Nexus::Graphics::IDeviceBuffer> vertexBuffer =
-				Nexus::Utils::CreateFilledVertexBuffer(data.vertices.data(),
-													   data.vertices.size() * sizeof(data.vertices[0]),
-													   sizeof(data.vertices[0]),
-													   device,
-													   commandQueue);
+			Graphics::DeviceBufferHandle vertexBuffer = Nexus::Utils::CreateFilledVertexBuffer(data.vertices.data(),
+																							   data.vertices.size() * sizeof(data.vertices[0]),
+																							   sizeof(data.vertices[0]),
+																							   device,
+																							   commandQueue);
 
-			Nexus::Ref<Nexus::Graphics::IDeviceBuffer> indexBuffer =
-				Nexus::Utils::CreateFilledIndexBuffer(data.indices.data(),
-													  data.indices.size() * sizeof(data.indices[0]),
-													  sizeof(data.indices[0]),
-													  device,
-													  commandQueue);
+			Graphics::DeviceBufferHandle indexBuffer = Nexus::Utils::CreateFilledIndexBuffer(data.indices.data(),
+																							 data.indices.size() * sizeof(data.indices[0]),
+																							 sizeof(data.indices[0]),
+																							 device,
+																							 commandQueue);
 
 			Graphics::Material		   material = importData.materials[data.materialIndex];
 			Nexus::Ref<Graphics::Mesh> mesh		= CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, material, data.name);

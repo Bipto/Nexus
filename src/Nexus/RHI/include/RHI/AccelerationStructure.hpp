@@ -17,11 +17,11 @@ namespace Nexus::Graphics
 
 	struct AccelerationStructureDescription
 	{
-		AccelerationStructureType Type		= AccelerationStructureType::BottomLevel;
-		std::string				  DebugName = "Acceleration Structure";
-		Ref<IDeviceBuffer>		  Buffer	= nullptr;
-		size_t					  Offset	= 0;
-		size_t					  Size		= 0;
+		AccelerationStructureType			Type	  = AccelerationStructureType::BottomLevel;
+		std::string							DebugName = "Acceleration Structure";
+		Nexus::Graphics::DeviceBufferHandle Buffer	  = {};
+		size_t								Offset	  = 0;
+		size_t								Size	  = 0;
 	};
 
 	class IAccelerationStructure

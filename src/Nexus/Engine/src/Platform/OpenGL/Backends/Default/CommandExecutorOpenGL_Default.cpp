@@ -10,8 +10,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL  *deviceGL			= (GraphicsDeviceOpenGL *)device;
 		GL::IOffscreenContext *offscreenContext = deviceGL->GetOffscreenContext();
 
-		DeviceBufferOpenGL *src = dynamic_cast<DeviceBufferOpenGL *>(command.BufferCopy.Source);
-		DeviceBufferOpenGL *dst = dynamic_cast<DeviceBufferOpenGL *>(command.BufferCopy.Destination);
+		const DeviceBufferOpenGL *src = command.BufferCopy.Source.AsDerived<const DeviceBufferOpenGL>();
+		const DeviceBufferOpenGL *dst = command.BufferCopy.Destination.AsDerived<const DeviceBufferOpenGL>();
 
 		if (src && dst)
 		{

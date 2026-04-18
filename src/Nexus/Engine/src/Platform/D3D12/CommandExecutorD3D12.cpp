@@ -113,7 +113,7 @@ namespace Nexus::Graphics
 		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
 			const GraphicsPipelineD3D12 *pipeline		   = m_CurrentlyBoundPipeline.AsDerived<const GraphicsPipelineD3D12>();
-			Ref<DeviceBufferD3D12>		 d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
+			const DeviceBufferD3D12		*d3d12VertexBuffer = command.View.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 			const auto					&bufferLayout	   = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
 			D3D12_VERTEX_BUFFER_VIEW bufferView = {};
@@ -132,7 +132,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
+		const DeviceBufferD3D12 *d3d12IndexBuffer = command.View.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
 		D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
 		indexBufferView.BufferLocation			= d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
@@ -184,7 +184,7 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
-			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -207,7 +207,7 @@ namespace Nexus::Graphics
 
 		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
-			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -236,7 +236,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+		if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 		{
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -265,7 +265,7 @@ namespace Nexus::Graphics
 		}
 
 		{
-			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -418,8 +418,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
-		DeviceBufferD3D12 *source = dynamic_cast<DeviceBufferD3D12 *>(command.BufferCopy.Source);
-		DeviceBufferD3D12 *dest	  = dynamic_cast<DeviceBufferD3D12 *>(command.BufferCopy.Destination);
+		const DeviceBufferD3D12 *source = command.BufferCopy.Source.AsDerived<const DeviceBufferD3D12>();
+		const DeviceBufferD3D12 *dest	= command.BufferCopy.Destination.AsDerived<const DeviceBufferD3D12>();
 
 		if (source && dest)
 		{
@@ -481,9 +481,10 @@ namespace Nexus::Graphics
 											&rowSizeInBytes,
 											&totalBytes);
 
-		Ref<IDeviceBuffer>					   stagingBuffer	  = CreateStagingBuffer(totalBytes, true, device);
-		DeviceBufferD3D12					  *sourceBufferD3D12  = dynamic_cast<DeviceBufferD3D12 *>(command.BufferTextureCopy.BufferHandle);
-		Ref<DeviceBufferD3D12>				   stagingBufferD3D12 = std::dynamic_pointer_cast<DeviceBufferD3D12>(stagingBuffer);
+		DeviceBufferHandle					   stagingBuffer	  = CreateStagingBuffer(totalBytes, true, device);
+		DeviceBufferHandle					   destHandle		  = command.BufferTextureCopy.BufferHandle;
+		DeviceBufferD3D12					  *sourceBufferD3D12  = destHandle.AsDerived<DeviceBufferD3D12>();
+		const DeviceBufferD3D12				  *stagingBufferD3D12 = stagingBuffer.AsDerived<const DeviceBufferD3D12>();
 		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle		  = stagingBufferD3D12->GetHandle();
 
 		uint8_t *sourceData	 = sourceBufferD3D12->Map();
@@ -538,7 +539,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		DeviceBufferD3D12  *buffer	= dynamic_cast<DeviceBufferD3D12 *>(command.TextureBufferCopy.BufferHandle);
+		DeviceBufferHandle	handle	= command.TextureBufferCopy.BufferHandle;
+		DeviceBufferD3D12  *buffer	= handle.AsDerived<DeviceBufferD3D12>();
 		const TextureD3D12 *texture = command.TextureBufferCopy.Texture.AsDerived<const TextureD3D12>();
 
 		if (!texture)
@@ -1354,9 +1356,9 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<IDeviceBuffer> CommandExecutorD3D12::CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device)
+	Nexus::Graphics::DeviceBufferHandle CommandExecutorD3D12::CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device)
 	{
-		Ref<IDeviceBuffer> &buffer = m_UploadBuffers.emplace_back();
+		DeviceBufferHandle &buffer = m_UploadBuffers.emplace_back();
 
 		DeviceBufferDescription description = {};
 		upload ? description.Access = BufferMemoryAccess::Upload : description.Access = BufferMemoryAccess::Readback;

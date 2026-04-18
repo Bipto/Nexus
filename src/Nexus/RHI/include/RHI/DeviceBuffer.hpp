@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/DeviceAddress.hpp"
 #include "RHI/RHI-Core.hpp"
 #include "RHI/Types.hpp"
@@ -144,16 +146,18 @@ namespace Nexus::Graphics
 		}
 	};
 
+	DEFINE_RESOURCE(DeviceBuffer, IDeviceBuffer);
+
 	struct VertexBufferView
 	{
-		Ref<IDeviceBuffer> BufferHandle = {};
+		DeviceBufferHandle BufferHandle = {};
 		size_t			   Offset		= 0;
 		size_t			   Size			= 0;
 	};
 
 	struct IndexBufferView
 	{
-		Ref<IDeviceBuffer> BufferHandle = {};
+		DeviceBufferHandle BufferHandle = {};
 		size_t			   Offset		= 0;
 		size_t			   Size			= 0;
 		IndexFormat		   BufferFormat = IndexFormat::UInt32;
@@ -161,7 +165,7 @@ namespace Nexus::Graphics
 
 	struct UniformBufferView
 	{
-		Ref<IDeviceBuffer> BufferHandle = {};
+		DeviceBufferHandle BufferHandle = {};
 		size_t			   Offset		= 0;
 		size_t			   Size			= 0;
 	};

@@ -11,8 +11,8 @@ namespace Nexus::Graphics
 		FullscreenQuad() = default;
 		explicit FullscreenQuad(IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv);
 
-		Ref<IDeviceBuffer> GetVertexBuffer();
-		Ref<IDeviceBuffer> GetIndexBuffer();
+		DeviceBufferHandle GetVertexBuffer();
+		DeviceBufferHandle GetIndexBuffer();
 
 		Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
 
@@ -23,8 +23,8 @@ namespace Nexus::Graphics
 	  private:
 		IGraphicsDevice	  *m_GraphicsDevice = nullptr;
 		CommandQueueHandle m_CommandQueue	= {};
-		Ref<IDeviceBuffer> m_VertexBuffer	= nullptr;
-		Ref<IDeviceBuffer> m_IndexBuffer	= nullptr;
+		DeviceBufferHandle m_VertexBuffer	= {};
+		DeviceBufferHandle m_IndexBuffer	= {};
 		bool			   m_HasUV			= false;
 	};
 }	 // namespace Nexus::Graphics

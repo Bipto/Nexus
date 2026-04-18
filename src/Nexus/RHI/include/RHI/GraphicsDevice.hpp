@@ -68,6 +68,7 @@ namespace Nexus::Graphics
 		PipelinePool			  Pipelines				 = {};
 		SurfacePool				  Surfaces				 = {};
 		CommandQueuePool		  CommandQueues			 = {};
+		DeviceBufferPool		  DeviceBuffers			 = {};
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
@@ -109,7 +110,7 @@ namespace Nexus::Graphics
 		/// @return A pointer to a sampler
 		virtual SamplerHandle CreateSampler(const SamplerDescription &spec) = 0;
 
-		virtual Ref<IDeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
+		virtual DeviceBufferHandle CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
 		virtual TimingQueryHandle CreateTimingQuery() = 0;
 

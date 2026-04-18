@@ -19,12 +19,12 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<IDeviceBuffer> FullscreenQuad::GetVertexBuffer()
+	DeviceBufferHandle FullscreenQuad::GetVertexBuffer()
 	{
 		return m_VertexBuffer;
 	}
 
-	Ref<IDeviceBuffer> FullscreenQuad::GetIndexBuffer()
+	DeviceBufferHandle FullscreenQuad::GetIndexBuffer()
 	{
 		return m_IndexBuffer;
 	}

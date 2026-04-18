@@ -121,9 +121,10 @@ namespace Nexus::Graphics
 		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
-	Ref<IDeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	DeviceBufferHandle GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return CreateRef<DeviceBufferD3D12>(desc, this);
+		auto deviceBuffer = std::make_unique<DeviceBufferD3D12>(desc, this);
+		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
 	}
 
 	AccelerationStructureHandle GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)

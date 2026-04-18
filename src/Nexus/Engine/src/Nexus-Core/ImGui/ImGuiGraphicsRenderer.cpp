@@ -609,10 +609,10 @@ namespace Nexus::ImGuiUtils
 		if (drawData->TotalVtxCount == 0)
 			return;
 
-		if (!m_VertexBuffer)
+		if (!m_VertexBuffer.IsValid())
 			return;
 
-		if (!m_IndexBuffer)
+		if (!m_IndexBuffer.IsValid())
 			return;
 
 		ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
