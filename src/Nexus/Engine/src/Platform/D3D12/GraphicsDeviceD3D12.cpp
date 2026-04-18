@@ -165,7 +165,7 @@ namespace Nexus::Graphics
 			CommandQueueD3D12 *commandQueue = m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
 
 			// check if the command queue pointer has expired, if it has remove it and continue iterating
-			if (commandQueue)
+			if (!commandQueue)
 			{
 				m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
 				i--;
