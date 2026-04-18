@@ -425,7 +425,7 @@ namespace Nexus::Graphics
 				const auto &texelBuffer = texelBuffers[arrayIndex];
 				if (const TexelBufferD3D12 *texelBufferD3D12 = texelBuffer.AsDerived<const TexelBufferD3D12>())
 				{
-					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
+					const DeviceBufferD3D12 *buffer = texelBufferD3D12->GetDescription().Buffer.AsDerived<const DeviceBufferD3D12>();
 
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
 					DXGI_FORMAT					pixelFormat	  = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
@@ -454,7 +454,7 @@ namespace Nexus::Graphics
 				const auto &texelBuffer = texelBuffers[arrayIndex];
 				if (const TexelBufferD3D12 *texelBufferD3D12 = texelBuffer.AsDerived<const TexelBufferD3D12>())
 				{
-					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
+					const DeviceBufferD3D12 *buffer = texelBufferD3D12->GetDescription().Buffer.AsDerived<const DeviceBufferD3D12>();
 
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
 					DXGI_FORMAT					pixelFormat	  = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);

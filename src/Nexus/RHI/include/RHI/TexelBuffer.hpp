@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 {
 	struct TexelBufferDescription
 	{
-		Ref<IDeviceBuffer> Buffer	   = nullptr;
+		DeviceBufferHandle Buffer	   = {};
 		size_t			   Offset	   = 0;
 		size_t			   SizeInBytes = 0;
 		PixelFormat		   Format	   = {};
