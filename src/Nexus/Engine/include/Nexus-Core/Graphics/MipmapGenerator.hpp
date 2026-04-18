@@ -19,9 +19,6 @@ namespace Nexus::Graphics
 		CommandListHandle m_CommandList = {};
 		FullscreenQuad	  m_Quad {};
 
-		Ref<IShaderModule> m_VertexModule	= nullptr;
-		Ref<IShaderModule> m_FragmentModule = nullptr;
-
 		PipelineHandle	  m_Pipeline	= {};
 		ResourceSetHandle m_ResourceSet = {};
 
