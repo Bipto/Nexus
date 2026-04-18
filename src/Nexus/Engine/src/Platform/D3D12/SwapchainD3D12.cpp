@@ -9,11 +9,11 @@
 
 namespace Nexus::Graphics
 {
-	static std::expected<Ref<SurfaceD3D12>, std::string> GetD3D12Surface(Ref<ISurface> surface)
+	static std::expected<SurfaceD3D12 *, std::string> GetD3D12Surface(SurfaceHandle surface)
 	{
-		if (auto d3d12Surface = std::dynamic_pointer_cast<SurfaceD3D12>(surface))
+		if (SurfaceD3D12 *surfaceD3D12 = surface.AsDerived<SurfaceD3D12>())
 		{
-			return d3d12Surface;
+			return surfaceD3D12;
 		}
 		else
 		{
@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 		m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
 
 		// assign the surface
-		m_Surface = std::dynamic_pointer_cast<SurfaceD3D12>(m_Description.Surface);
+		m_Surface = m_Description.Surface.AsDerived<SurfaceD3D12>();
 
 		// set up size of swapchain
 		m_SwapchainWidth  = swapchainSpec.Width;
@@ -103,7 +103,7 @@ namespace Nexus::Graphics
 		AcquireBackbufferIndex();
 	}
 
-	Ref<IFramebuffer> SwapchainD3D12::GetCurrentFramebuffer()
+	FramebufferHandle SwapchainD3D12::GetCurrentFramebuffer()
 	{
 		return m_SwapchainFramebuffers.at(m_CurrentBufferIndex);
 	}
@@ -170,7 +170,8 @@ namespace Nexus::Graphics
 
 		for (const auto &framebuffer : m_SwapchainFramebuffers)
 		{
-			Ref<FramebufferD3D12> framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(framebuffer);
+			FramebufferHandle handle		   = framebuffer;
+			FramebufferD3D12 *framebufferD3D12 = handle.AsDerived<FramebufferD3D12>();
 			framebufferD3D12->Flush();
 		}
 
@@ -219,7 +220,9 @@ namespace Nexus::Graphics
 			swapchainTextureDesc.Format								 = PixelFormat::R8_G8_B8_A8_UNorm;
 			swapchainTextureDesc.Usage								 = Graphics::TextureUsage_ColourAttachment;
 			swapchainTextureDesc.DebugName							 = "Swapchain Colour Texture";
-			Ref<TextureD3D12> swapchainTexture						 = CreateRef<TextureD3D12>(buffer, swapchainTextureDesc, m_Device);
+
+			auto		  swapchainTexture		 = std::make_unique<TextureD3D12>(buffer, swapchainTextureDesc, m_Device);
+			TextureHandle swapchainTextureHandle = m_Device->m_Resources.Textures.CreateShared(std::move(swapchainTexture));
 
 			Graphics::TextureDescription depthAttachmentDesc = {};
 			depthAttachmentDesc.Width						 = m_SwapchainWidth;
@@ -230,7 +233,7 @@ namespace Nexus::Graphics
 			depthAttachmentDesc.Format						 = PixelFormat::D24_UNorm_S8_UInt;
 			depthAttachmentDesc.Usage						 = Graphics::TextureUsage_DepthStencilAttachment;
 			depthAttachmentDesc.DebugName					 = "Swapchain Depth Texture";
-			Ref<TextureD3D12> depthAttachment				 = CreateRef<TextureD3D12>(depthAttachmentDesc, m_Device);
+			TextureHandle depthAttachment					 = m_Device->CreateTexture(depthAttachmentDesc);
 
 			Graphics::FramebufferTextureSetDescription framebufferDesc = {};
 
@@ -241,13 +244,15 @@ namespace Nexus::Graphics
 				Graphics::TextureDescription multisampledDesc = swapchainTextureDesc;
 				multisampledDesc.Samples					  = m_Description.Samples;
 				multisampledDesc.DebugName					  = "Swapchain Multisampled Colour Texture";
-				Ref<TextureD3D12> multisampledTexture		  = CreateRef<TextureD3D12>(multisampledDesc, m_Device);
+				TextureHandle multisampledTexture			  = m_Device->CreateTexture(multisampledDesc);
 
 				framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription {
 					.ColourAttachment =
 						FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = multisampledTexture},
-					.ResolveAttachment =
-						FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTexture}}};
+					.ResolveAttachment = FramebufferTextureDescription {.BaseArrayLayer = 0,
+																		.LayerCount		= 1,
+																		.MipLevel		= 0,
+																		.TargetTexture	= swapchainTextureHandle}}};
 				framebufferDesc.DepthAttachment	  = {
 					  FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
 
@@ -259,7 +264,7 @@ namespace Nexus::Graphics
 			else
 			{
 				framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription {
-					.ColourAttachment {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTexture}}};
+					.ColourAttachment {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle}}};
 				framebufferDesc.DepthAttachment	  = {
 					  FramebufferTextureDescription {.BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
 
@@ -286,7 +291,7 @@ namespace Nexus::Graphics
 
 		auto value =
 			GetD3D12Surface(m_Description.Surface)
-				.and_then([&](Ref<SurfaceD3D12> surface) { return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get()); })
+				.and_then([&](SurfaceD3D12 *surface) { return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get()); })
 				.and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) { return QuerySwapchainComInterface(swapchain); });
 
 		if (value.has_value())

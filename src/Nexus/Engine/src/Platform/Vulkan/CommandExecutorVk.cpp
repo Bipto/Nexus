@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorVk::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -91,10 +91,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer			vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
-		VkDeviceSize		offsets[]		= {command.View.Offset};
-		VkDeviceSize		sizes[]			= {command.View.Size};
+		const DeviceBufferVk *vertexBufferVk  = command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
+		VkBuffer			  vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
+		VkDeviceSize		  offsets[]		  = {command.View.Offset};
+		VkDeviceSize		  sizes[]		  = {command.View.Size};
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -122,11 +122,11 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer			indexBufferHandle = indexBufferVk->GetVkBuffer();
-		VkIndexType			indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
-		VkDeviceSize		offset			  = command.View.Offset;
-		VkDeviceSize		size			  = command.View.Size;
+		const DeviceBufferVk *indexBufferVk		= command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
+		VkBuffer			  indexBufferHandle = indexBufferVk->GetVkBuffer();
+		VkIndexType			  indexType			= Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
+		VkDeviceSize		  offset			= command.View.Offset;
+		VkDeviceSize		  size				= command.View.Size;
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -144,25 +144,24 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 		TryStartRendering();
 
-		if (command.expired())
+		if (!command.IsValid())
 		{
 			NX_ERROR("Attempting to bind an invalid pipeline");
 			return;
 		}
 
-		if (Ref<Pipeline> pipeline = command.lock())
+		if (PipelineVk *pipeline = command.AsDerived<PipelineVk>())
 		{
-			m_CurrentlyBoundPipeline   = pipeline;
-			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+			m_CurrentlyBoundPipeline = command;
 
-			if (pipeline->GetType() != PipelineType::Graphics && pipeline->GetType() != PipelineType::Meshlet)
+			if (command->GetType() != PipelineType::Graphics && command->GetType() != PipelineType::Meshlet)
 			{
-				pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+				pipeline->Bind(m_CommandBuffer, VK_NULL_HANDLE);
 			}
 			else
 			{
@@ -172,7 +171,7 @@ namespace Nexus::Graphics
 				const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
 				if (deviceFeatures.DynamicRenderingAvailable)
 				{
-					pipelineVk->Bind(m_CommandBuffer, VK_NULL_HANDLE);
+					pipeline->Bind(m_CommandBuffer, VK_NULL_HANDLE);
 				}
 			}
 		}
@@ -225,7 +224,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			BindGraphicsPipeline();
 
@@ -244,7 +243,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			BindGraphicsPipeline();
 
@@ -277,7 +276,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
@@ -314,7 +313,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferVk *indirectBuffer = dynamic_cast<DeviceBufferVk *>(command.IndirectBuffer))
+		if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
 		{
 			BindGraphicsPipeline();
 
@@ -336,14 +335,12 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 		TryStartRendering();
 
-		WeakRef<Pipeline> pl = m_CurrentlyBoundPipeline.lock();
-		if (auto pipeline = pl.lock())
+		if (PipelineVk *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
 		{
-			Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
-			pipelineVk->SetResourceSet(m_CommandBuffer, desc);
+			pipeline->SetResourceSet(m_CommandBuffer, desc);
 
-			Ref<ResourceSetVk> resourceSet = std::dynamic_pointer_cast<ResourceSetVk>(desc.TargetResourceSet);
-			m_CurrentlyBoundResourceSet	   = resourceSet;
+			const ResourceSetVk *resourceSet = desc.TargetResourceSet.AsDerived<const ResourceSetVk>();
+			m_CurrentlyBoundResourceSet		 = resourceSet;
 		}
 	}
 
@@ -428,15 +425,15 @@ namespace Nexus::Graphics
 		context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
 	{
 		NX_PROFILE_FUNCTION();
 		StopRendering();
 
-		if (auto framebuffer = command.lock())
+		if (const FramebufferVk *framebuffer = command.AsDerived<const FramebufferVk>())
 		{
-			StartRenderingToFramebuffer(framebuffer);
-			m_CurrentRenderTarget = framebuffer;
+			StartRenderingToFramebuffer(command);
+			m_CurrentRenderTarget = command;
 			m_RenderSize		  = {framebuffer->GetWidth(), framebuffer->GetHeight()};
 		}
 	}
@@ -494,8 +491,8 @@ namespace Nexus::Graphics
 
 		StopRendering();
 
-		auto source		 = std::dynamic_pointer_cast<TextureVk>(command.Source);
-		auto destination = std::dynamic_pointer_cast<TextureVk>(command.Destination);
+		auto source		 = command.Source.AsDerived<const TextureVk>();
+		auto destination = command.Destination.AsDerived<const TextureVk>();
 
 		Point2D<uint32_t> size = Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
@@ -591,7 +588,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
@@ -603,7 +601,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		if (TimingQueryVk *queryVk = dynamic_cast<TimingQueryVk *>(command.Query))
+		TimingQueryHandle queryHandle = command.Query;
+		if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 			context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
@@ -614,8 +613,8 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		DeviceBufferVk *src = dynamic_cast<DeviceBufferVk *>(command.BufferCopy.Source);
-		DeviceBufferVk *dst = dynamic_cast<DeviceBufferVk *>(command.BufferCopy.Destination);
+		const DeviceBufferVk *src = command.BufferCopy.Source.AsDerived<const DeviceBufferVk>();
+		const DeviceBufferVk *dst = command.BufferCopy.Destination.AsDerived<const DeviceBufferVk>();
 
 		if (!src || !dst)
 		{
@@ -669,8 +668,8 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
-		DeviceBufferVk		 *buffer	  = dynamic_cast<DeviceBufferVk *>(command.BufferTextureCopy.BufferHandle);
-		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.BufferTextureCopy.TextureHandle);
+		const DeviceBufferVk *buffer	  = command.BufferTextureCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
+		const TextureVk		 *texture	  = command.BufferTextureCopy.Texture.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		if (!buffer)
@@ -760,15 +759,15 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
-		DeviceBufferVk	 *buffer   = dynamic_cast<DeviceBufferVk *>(command.TextureBufferCopy.BufferHandle);
+		GraphicsDeviceVk	 *deviceVk = (GraphicsDeviceVk *)device;
+		const DeviceBufferVk *buffer   = command.TextureBufferCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
 
 		if (!buffer)
 		{
 			return;
 		}
 
-		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.TextureBufferCopy.TextureHandle);
+		const TextureVk		 *texture	  = command.TextureBufferCopy.Texture.AsDerived<const TextureVk>();
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
@@ -854,8 +853,8 @@ namespace Nexus::Graphics
 		NX_PROFILE_FUNCTION();
 
 		GraphicsDeviceVk *deviceVk	 = (GraphicsDeviceVk *)device;
-		Ref<TextureVk>	  srcTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Source);
-		Ref<TextureVk>	  dstTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Destination);
+		const TextureVk	 *srcTexture = command.TextureCopy.Source.AsDerived<const TextureVk>();
+		const TextureVk	 *dstTexture = command.TextureCopy.Destination.AsDerived<const TextureVk>();
 
 		VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(srcTexture->IsDepth());
 		VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(dstTexture->IsDepth());
@@ -1109,12 +1108,12 @@ namespace Nexus::Graphics
 		for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : command.BuildDescriptions)
 		{
 			// validate that required members have been filled in correctly
-			NX_VALIDATE(buildGeometryInfo.Destination, "Acceleration structure build must have a destination");
+			NX_VALIDATE(buildGeometryInfo.Destination.IsValid(), "Acceleration structure build must have a destination");
 			NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
 
 			if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
 			{
-				NX_VALIDATE(buildGeometryInfo.Source, "Acceleration structure update must have a source");
+				NX_VALIDATE(buildGeometryInfo.Source.IsValid(), "Acceleration structure update must have a source");
 			}
 
 			// create a new vector to hold the information for the individual build
@@ -1167,7 +1166,7 @@ namespace Nexus::Graphics
 		if (!stageFlags.has_value())
 			return;
 
-		if (Ref<PipelineVk> pipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock()))
+		if (PipelineVk *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
 		{
 			const GladVulkanContext &context = m_Device->GetVulkanContext();
 
@@ -1228,7 +1227,7 @@ namespace Nexus::Graphics
 		// enumerate through all texture barriers and create the required subresource ranges
 		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+			const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
@@ -1270,8 +1269,8 @@ namespace Nexus::Graphics
 
 			for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 			{
-				VkImageLayout  layout	 = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-				Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+				VkImageLayout	 layout	   = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+				const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 				Vk::CreateTextureBarrier2(m_Device,
 										  textureVk->GetImage(),
 										  textureBarrier.BeforeAccess,
@@ -1324,8 +1323,8 @@ namespace Nexus::Graphics
 
 			for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 			{
-				VkImageLayout  layout	 = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-				Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+				VkImageLayout	 layout	   = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+				const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 				Vk::CreateTextureBarrier(m_Device,
 										 textureVk->GetImage(),
 										 textureBarrier.BeforeAccess,
@@ -1365,7 +1364,8 @@ namespace Nexus::Graphics
 		// enumerate through all texture barriers and create the required subresource ranges
 		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(textureBarrier.Texture);
+			TextureHandle handle	= textureBarrier.Texture;
+			TextureVk	 *textureVk = handle.AsDerived<TextureVk>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
@@ -1438,7 +1438,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	static void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	static void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -1455,8 +1455,8 @@ namespace Nexus::Graphics
 		{
 			FramebufferColourAttachmentDescription textureBinding = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
 
-			Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(textureBinding.ColourAttachment.TargetTexture);
-			TextureLayout  layout =
+			const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture.AsDerived<const TextureVk>();
+			TextureLayout	 layout =
 				texture->GetTextureLayout(textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel);
 
 			FramebufferColourAttachmentDescription colourAttachmentDesc = framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
@@ -1479,7 +1479,7 @@ namespace Nexus::Graphics
 			if (colourAttachmentDesc.ResolveAttachment.has_value())
 			{
 				FramebufferTextureDescription resolveDesc		= colourAttachmentDesc.ResolveAttachment.value();
-				Ref<TextureVk>				  resolveAttachment = std::dynamic_pointer_cast<TextureVk>(resolveDesc.TargetTexture);
+				const TextureVk				 *resolveAttachment = resolveDesc.TargetTexture.AsDerived<const TextureVk>();
 				TextureLayout				  resolveLayout = resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
 
 				VulkanTextureViewInfo viewInfo = {};
@@ -1501,9 +1501,10 @@ namespace Nexus::Graphics
 		if (framebuffer->HasDepthTexture())
 		{
 			FramebufferTextureDescription textureBinding = framebuffer->GetDepthTextureBinding().value();
+			FramebufferVk				 *framebufferVk	 = framebuffer.AsDerived<FramebufferVk>();
 
-			Ref<TextureVk> texture = framebuffer->GetVulkanDepthTexture();
-			TextureLayout  layout  = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
+			const TextureVk *texture = framebufferVk->GetVulkanDepthTexture();
+			TextureLayout	 layout	 = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
 
 			FramebufferTextureDescription depthAttachmentDesc = framebuffer->GetDepthTextureBinding().value();
 
@@ -1542,15 +1543,17 @@ namespace Nexus::Graphics
 		context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);
 	}
 
-	static void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	static void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer)
 	{
 		NX_PROFILE_FUNCTION();
+
+		const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>();
 
 		VkRenderPassBeginInfo beginInfo = {};
 		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		beginInfo.pNext					= nullptr;
-		beginInfo.renderPass			= framebuffer->GetRenderPass();
-		beginInfo.framebuffer			= framebuffer->GetFramebuffer();
+		beginInfo.renderPass			= framebufferVk->GetRenderPass();
+		beginInfo.framebuffer			= framebufferVk->GetFramebuffer();
 		beginInfo.renderArea.offset		= {0, 0};
 		beginInfo.renderArea.extent		= {framebuffer->GetWidth(), framebuffer->GetHeight()};
 		beginInfo.clearValueCount		= 0;
@@ -1561,20 +1564,18 @@ namespace Nexus::Graphics
 		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
-	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<IFramebuffer> framebuffer)
+	void CommandExecutorVk::StartRenderingToFramebuffer(FramebufferHandle framebuffer)
 	{
 		NX_PROFILE_FUNCTION();
-
-		Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 
 		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
 		if (features.DynamicRenderingAvailable)
 		{
-			BeginDynamicRenderingToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
+			BeginDynamicRenderingToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
 		}
 		else
 		{
-			BeginRenderPassToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
+			BeginRenderPassToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
 		}
 
 		m_Rendering = true;
@@ -1619,24 +1620,26 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		auto						vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock());
 		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
 
-		if (m_CurrentRenderTarget)
+		if (PipelineVk *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
 		{
-			VkRenderPass renderPass = VK_NULL_HANDLE;
-
-			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
-			if (!features.DynamicRenderingAvailable)
+			if (m_CurrentRenderTarget.IsValid())
 			{
-				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget);
-				renderPass						 = framebufferVk->GetRenderPass();
-				vulkanPipeline->Bind(m_CommandBuffer, renderPass);
+				VkRenderPass renderPass = VK_NULL_HANDLE;
+
+				const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+				if (!features.DynamicRenderingAvailable)
+				{
+					FramebufferVk *framebufferVk = m_CurrentRenderTarget.AsDerived<FramebufferVk>();
+					renderPass					 = framebufferVk->GetRenderPass();
+					pipeline->Bind(m_CommandBuffer, renderPass);
+				}
 			}
-		}
-		else
-		{
-			throw std::runtime_error("Failed to find a valid render target type");
+			else
+			{
+				throw std::runtime_error("Failed to find a valid render target type");
+			}
 		}
 	}
 
@@ -1646,7 +1649,7 @@ namespace Nexus::Graphics
 
 		if (!m_Rendering)
 		{
-			if (m_CurrentRenderTarget)
+			if (m_CurrentRenderTarget.IsValid())
 			{
 				StartRenderingToFramebuffer(m_CurrentRenderTarget);
 			}

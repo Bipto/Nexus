@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 			// requiring OpenGL 4.5 functionality i.e. is cross platform
 			const auto &layout = m_Description.Layouts.at(slot);
 
-			Ref<DeviceBufferOpenGL> vertexBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(vertexBufferView.BufferHandle);
+			const DeviceBufferOpenGL *vertexBufferOpenGL = vertexBufferView.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
 
 			uint32_t offset = 0;
 			size_t	 stride = layout.GetStride();
@@ -100,9 +100,9 @@ namespace Nexus::Graphics
 
 			if (indexBuffer)
 			{
-				IndexBufferView		   &view			   = indexBuffer.value();
-				Ref<DeviceBufferOpenGL> deviceBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
-				context.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, deviceBufferOpenGL->GetHandle());
+				IndexBufferView			 &view				= indexBuffer.value();
+				const DeviceBufferOpenGL *indexBufferOpenGL = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
+				context.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferOpenGL->GetHandle());
 			}
 		}
 	}
@@ -343,41 +343,41 @@ namespace Nexus::Graphics
 			{
 				m_ShaderHandle = context.CreateProgram();
 
-				std::vector<Ref<ShaderModuleOpenGL>> modules;
+				std::vector<const ShaderModuleOpenGL *> modules;
 
-				if (m_Description.FragmentModule)
+				if (m_Description.FragmentModule.IsValid())
 				{
-					auto glFragmentModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.FragmentModule);
+					auto glFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleOpenGL>();
 					NX_VALIDATE(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
 					modules.push_back(glFragmentModule);
 				}
 
-				if (m_Description.GeometryModule)
+				if (m_Description.GeometryModule.IsValid())
 				{
-					auto glGeometryModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.GeometryModule);
+					auto glGeometryModule = m_Description.GeometryModule.AsDerived<ShaderModuleOpenGL>();
 					NX_VALIDATE(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
 					modules.push_back(glGeometryModule);
 				}
 
-				if (m_Description.TesselationControlModule)
+				if (m_Description.TesselationControlModule.IsValid())
 				{
-					auto glTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationControlModule);
+					auto glTesselationControlModule = m_Description.TesselationControlModule.AsDerived<ShaderModuleOpenGL>();
 					NX_VALIDATE(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
 								"Shader module is not a tesselation control shader");
 					modules.push_back(glTesselationControlModule);
 				}
 
-				if (m_Description.TesselationEvaluationModule)
+				if (m_Description.TesselationEvaluationModule.IsValid())
 				{
-					auto glEvaluationModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationEvaluationModule);
+					auto glEvaluationModule = m_Description.TesselationEvaluationModule.AsDerived<ShaderModuleOpenGL>();
 					NX_VALIDATE(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
 								"Shader module is not a tesselation evaluation shader");
 					modules.push_back(glEvaluationModule);
 				}
 
-				if (m_Description.VertexModule)
+				if (m_Description.VertexModule.IsValid())
 				{
-					auto glVertexModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.VertexModule);
+					auto glVertexModule = m_Description.VertexModule.AsDerived<ShaderModuleOpenGL>();
 					NX_VALIDATE(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
 					modules.push_back(glVertexModule);
 				}
@@ -425,8 +425,7 @@ namespace Nexus::Graphics
 	{
 		NX_VALIDATE(m_Description.ComputeShader->GetShaderStage() == ShaderStage::Compute, "Compute Pipeline shader must be ShaderStage::Compute");
 
-		Nexus::Ref<Nexus::Graphics::ShaderModuleOpenGL> computeShader =
-			std::dynamic_pointer_cast<Nexus::Graphics::ShaderModuleOpenGL>(m_Description.ComputeShader);
+		const Nexus::Graphics::ShaderModuleOpenGL *computeShader = m_Description.ComputeShader.AsDerived<const Nexus::Graphics::ShaderModuleOpenGL>();
 
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)

@@ -23,29 +23,29 @@ namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
 	{
-		Nexus::IWindow					*Window				 = nullptr;
-		Ref<Nexus::Graphics::ISwapchain> Swapchain			 = nullptr;
-		uint32_t						 LastSwapchainWidth	 = 0;
-		uint32_t						 LastSwapchainHeight = 0;
-		uint32_t						 LastWindowWidth	 = 0;
-		uint32_t						 LastWindowHeight	 = 0;
+		Nexus::IWindow			 *Window			  = nullptr;
+		Graphics::SwapchainHandle Swapchain			  = {};
+		uint32_t				  LastSwapchainWidth  = 0;
+		uint32_t				  LastSwapchainHeight = 0;
+		uint32_t				  LastWindowWidth	  = 0;
+		uint32_t				  LastWindowHeight	  = 0;
 	};
 
 	struct ImGuiDescriptorInfo
 	{
-		Ref<Graphics::ITextureView> m_Texture	  = nullptr;
-		Ref<Graphics::IResourceSet> m_ResourceSet = nullptr;
-		Ref<Graphics::ISampler>		m_Sampler	  = nullptr;
+		Graphics::TextureViewHandle m_Texture	  = {};
+		Graphics::ResourceSetHandle m_ResourceSet = {};
+		Graphics::SamplerHandle		m_Sampler	  = {};
 	};
 
 	class NX_API ImGuiGraphicsRenderer
 	{
 	  public:
-		ImGuiGraphicsRenderer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+		ImGuiGraphicsRenderer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue);
 		virtual ~ImGuiGraphicsRenderer();
 		void RebuildFontAtlas();
 
-		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::ITextureView> texture);
+		ImTextureID BindTexture(Graphics::TextureViewHandle texture);
 		void		UnbindTexture(ImTextureID id);
 
 		void BeforeLayout(Nexus::TimeSpan gameTime);
@@ -77,30 +77,30 @@ namespace Nexus::ImGuiUtils
 		void SetupHandlers();
 
 	  private:
-		Nexus::Application							  *m_Application	 = nullptr;
-		Nexus::Graphics::IGraphicsDevice			  *m_GraphicsDevice	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ICommandQueue>	   m_CommandQueue	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		   m_FontTexture	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_FontTextureView = nullptr;
+		Nexus::Application				 *m_Application		= nullptr;
+		Nexus::Graphics::IGraphicsDevice *m_GraphicsDevice	= nullptr;
+		Graphics::CommandQueueHandle	  m_CommandQueue	= {};
+		Graphics::CommandListHandle		  m_CommandList		= {};
+		Graphics::PipelineHandle		  m_Pipeline		= {};
+		Graphics::TextureHandle			  m_FontTexture		= {};
+		Graphics::TextureViewHandle		  m_FontTextureView = {};
 
 		ImGuiContext *m_Context = nullptr;
 
 		std::map<ImTextureID, ImGuiDescriptorInfo> m_Descriptors = {};
 
-		Nexus::Ref<Nexus::Graphics::IShaderModule> m_VertexShader	= nullptr;
-		Nexus::Ref<Nexus::Graphics::IShaderModule> m_FragmentShader = nullptr;
+		Nexus::Graphics::ShaderModuleHandle m_VertexShader	 = {};
+		Nexus::Graphics::ShaderModuleHandle m_FragmentShader = {};
 
-		Nexus::Ref<Nexus::Graphics::ISampler> m_Sampler		  = nullptr;
-		uint64_t							  m_TextureID	  = 0;
-		ImTextureID							  m_FontTextureID = 0;
+		Graphics::SamplerHandle m_Sampler		= {};
+		uint64_t				m_TextureID		= 0;
+		ImTextureID				m_FontTextureID = 0;
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer	   = nullptr;
-		uint32_t								   m_VertexBufferCount = 0;
+		Graphics::DeviceBufferHandle m_VertexBuffer		 = {};
+		uint32_t					 m_VertexBufferCount = 0;
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndexBuffer	  = nullptr;
-		uint32_t								   m_IndexBufferCount = 0;
+		Graphics::DeviceBufferHandle m_IndexBuffer		= {};
+		uint32_t					 m_IndexBufferCount = 0;
 
 		std::vector<int> m_Keys;
 		ImGuiMouseCursor m_PreviousCursor = ImGuiMouseCursor_Arrow;

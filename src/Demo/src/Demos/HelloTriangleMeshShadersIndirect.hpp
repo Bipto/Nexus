@@ -7,10 +7,10 @@ namespace Demos
 	class HelloTriangleMeshShadersIndirect : public Demo
 	{
 	  public:
-		HelloTriangleMeshShadersIndirect(const std::string						   &name,
-										 Nexus::Application						   *app,
-										 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-										 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		HelloTriangleMeshShadersIndirect(const std::string						  &name,
+										 Nexus::Application						  *app,
+										 Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+										 Nexus::Graphics::CommandQueueHandle	   commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -34,7 +34,7 @@ namespace Demos
 			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage_Indirect;
 			indirectBufferDesc.StrideInBytes							= sizeof(Nexus::Graphics::IndirectDrawArguments);
 			indirectBufferDesc.SizeInBytes								= sizeof(Nexus::Graphics::IndirectDrawArguments);
-			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));
+			m_IndirectBuffer											= m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc);
 			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}
 
@@ -46,8 +46,8 @@ namespace Demos
 			Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
 
 			m_CommandList->SetPipeline(m_Pipeline);
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -69,7 +69,7 @@ namespace Demos
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			Nexus::Graphics::DrawMeshIndirectDescription drawDesc = {};
-			drawDesc.IndirectBuffer								  = m_IndirectBuffer.get();
+			drawDesc.IndirectBuffer								  = m_IndirectBuffer;
 			drawDesc.Offset										  = 0;
 			drawDesc.DrawCount									  = 1;
 			drawDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
@@ -120,9 +120,9 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::IMeshletPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_IndirectBuffer;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle	m_CommandList	 = {};
+		Nexus::Graphics::PipelineHandle		m_Pipeline		 = {};
+		Nexus::Graphics::DeviceBufferHandle m_IndirectBuffer = {};
+		glm::vec3							m_ClearColour	 = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

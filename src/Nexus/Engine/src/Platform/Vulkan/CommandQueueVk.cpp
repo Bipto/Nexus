@@ -28,9 +28,9 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<ISwapchain> CommandQueueVk::CreateSwapchain(const SwapchainDescription &spec)
+	SwapchainHandle CommandQueueVk::CreateSwapchain(const SwapchainDescription &spec)
 	{
-		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(m_Device, this, spec);
+		auto							  swapchain		   = std::make_unique<SwapchainVk>(m_Device, this, spec);
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
 
 		const GladVulkanContext &context = m_Device->GetVulkanContext();
@@ -46,25 +46,25 @@ namespace Nexus::Graphics
 			throw std::runtime_error("Device is unable to present to this swapchain");
 		}
 
-		return swapchain;
+		return m_Resources.Swapchains.CreateShared(std::move(swapchain));
 	}
 
-	void CommandQueueVk::SubmitCommandList(Ref<ICommandList> commandList)
+	void CommandQueueVk::SubmitCommandList(CommandListHandle commandList)
 	{
 		SubmitCommandList(commandList, nullptr);
 	}
 
-	void CommandQueueVk::SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence)
+	void CommandQueueVk::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
 	{
 		SubmitCommandLists(&commandList, 1, fence);
 	}
 
-	void CommandQueueVk::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists)
+	void CommandQueueVk::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
 	{
 		SubmitCommandLists(commandLists, numCommandLists, nullptr);
 	}
 
-	void CommandQueueVk::SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
+	void CommandQueueVk::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
 	{
 		NX_PROFILE_FUNCTION();
 
@@ -74,7 +74,7 @@ namespace Nexus::Graphics
 		// record the commands into the actual vulkan command list
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
-			Ref<CommandListVk>									  commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
+			CommandListVk										 *commandList = commandLists[i].AsDerived<CommandListVk>();
 			const std::vector<std::unique_ptr<IGraphicsCommand>> &commands	  = commandList->GetCommands();
 			m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
 			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
@@ -118,8 +118,9 @@ namespace Nexus::Graphics
 		return m_Queue;
 	}
 
-	Ref<ICommandList> CommandQueueVk::CreateCommandList(const CommandListDescription &spec)
+	CommandListHandle CommandQueueVk::CreateCommandList(const CommandListDescription &spec)
 	{
-		return CreateRef<CommandListVk>(m_Device, this, spec);
+		auto commandList = std::make_unique<CommandListVk>(m_Device, this, spec);
+		return m_Resources.CommandLists.CreateShared(std::move(commandList));
 	}
 }	 // namespace Nexus::Graphics

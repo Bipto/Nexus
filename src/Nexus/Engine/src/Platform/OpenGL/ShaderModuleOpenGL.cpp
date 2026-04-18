@@ -46,12 +46,12 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteShader(m_Handle); });
 	}
 
-	GLenum ShaderModuleOpenGL::GetGLShaderStage()
+	GLenum ShaderModuleOpenGL::GetGLShaderStage() const
 	{
 		return m_ShaderStage;
 	}
 
-	uint32_t ShaderModuleOpenGL::GetHandle()
+	uint32_t ShaderModuleOpenGL::GetHandle() const
 	{
 		return m_Handle;
 	}

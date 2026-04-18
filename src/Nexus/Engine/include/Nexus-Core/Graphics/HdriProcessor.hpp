@@ -12,11 +12,11 @@ namespace Nexus::Graphics
 	{
 	  public:
 		HdriProcessor() = delete;
-		HdriProcessor(const std::string &filepath, IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+		HdriProcessor(const std::string &filepath, IGraphicsDevice *device, CommandQueueHandle commandQueue);
 		~HdriProcessor() = default;
-		Ref<ITexture>	  Generate(uint32_t size);
-		Ref<ITextureView> GenerateView(uint32_t size);
-		Ref<ITexture>	  GetLoadedTexture() const;
+		TextureHandle	  Generate(uint32_t size);
+		TextureViewHandle GenerateView(uint32_t size);
+		TextureHandle	  GetLoadedTexture() const;
 
 	  private:
 		void GetDirection(uint32_t faceIndex, float &yaw, float &pitch, bool yUp);
@@ -26,8 +26,8 @@ namespace Nexus::Graphics
 		int32_t			 m_Width  = 0;
 		int32_t			 m_Height = 0;
 
-		Nexus::Ref<Nexus::Graphics::ITexture>	   m_HdriImage	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>  m_HdriView	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::ICommandQueue> m_CommandQueue = nullptr;
+		TextureHandle				m_HdriImage	   = {};
+		Graphics::TextureViewHandle m_HdriView	   = {};
+		CommandQueueHandle			m_CommandQueue = {};
 	};
 }	 // namespace Nexus::Graphics

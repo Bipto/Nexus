@@ -141,12 +141,12 @@ namespace Nexus::Graphics
 		return footprint;
 	}
 
-	DXGI_FORMAT TextureD3D12::GetFormat()
+	const DXGI_FORMAT TextureD3D12::GetFormat() const
 	{
 		return m_TextureFormat;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12Resource2> TextureD3D12::GetHandle()
+	const Microsoft::WRL::ComPtr<ID3D12Resource2> TextureD3D12::GetHandle() const
 	{
 		return m_Texture;
 	}

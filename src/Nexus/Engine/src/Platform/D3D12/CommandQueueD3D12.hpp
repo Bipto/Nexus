@@ -18,14 +18,14 @@ namespace Nexus::Graphics
 		virtual ~CommandQueueD3D12();
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetHandle();
 		const CommandQueueDescription			  &GetDescription() const final;
-		Ref<ISwapchain>							   CreateSwapchain(const SwapchainDescription &spec) final;
-		void									   SubmitCommandList(Ref<ICommandList> commandList) final;
-		void									   SubmitCommandList(Ref<ICommandList> commandList, Ref<IFence> fence) final;
-		void									   SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists) final;
-		void			  SubmitCommandLists(Ref<ICommandList> *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
+		SwapchainHandle							   CreateSwapchain(const SwapchainDescription &spec) final;
+		void									   SubmitCommandList(CommandListHandle commandList) final;
+		void									   SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence) final;
+		void									   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists) final;
+		void			  SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
 		IGraphicsDevice	 *GetGraphicsDevice() final;
 		bool			  WaitForIdle() final;
-		Ref<ICommandList> CreateCommandList(const CommandListDescription &spec = {}) final;
+		CommandListHandle CreateCommandList(const CommandListDescription &spec = {}) final;
 
 	  private:
 		void SignalAndWait();
@@ -39,5 +39,7 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Fence1> m_Fence	  = nullptr;
 		uint64_t							 m_FenceValue = 0;
 		HANDLE								 m_FenceEvent = nullptr;
+
+		CommandQueueResourceManager m_Resources = {};
 	};
 }	 // namespace Nexus::Graphics

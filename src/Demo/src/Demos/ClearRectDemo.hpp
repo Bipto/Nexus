@@ -8,10 +8,10 @@ namespace Demos
 	class ClearRectDemo : public Demo
 	{
 	  public:
-		ClearRectDemo(const std::string							&name,
-					  Nexus::Application						*app,
-					  Nexus::ImGuiUtils::ImGuiGraphicsRenderer	*imGuiRenderer,
-					  Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		ClearRectDemo(const std::string						   &name,
+					  Nexus::Application					   *app,
+					  Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+					  Nexus::Graphics::CommandQueueHandle		commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -39,8 +39,8 @@ namespace Demos
 
 				m_CommandList->Begin();
 
-				Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-				Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+				Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 				m_CommandList->SetFramebuffer(framebuffer);
 
 				{
@@ -100,7 +100,7 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

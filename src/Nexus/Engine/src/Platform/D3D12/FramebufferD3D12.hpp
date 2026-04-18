@@ -17,8 +17,8 @@ namespace Nexus::Graphics
 		virtual ~FramebufferD3D12();
 		const FramebufferTextureSetDescription GetTextureSetDescription() const final;
 
-		Ref<TextureD3D12> GetD3D12ColourTexture(uint32_t index = 0);
-		Ref<TextureD3D12> GetD3D12DepthTexture();
+		const TextureD3D12 *GetD3D12ColourTexture(uint32_t index = 0);
+		const TextureD3D12 *GetD3D12DepthTexture();
 
 		const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &GetColourAttachmentCPUHandles();
 		D3D12_CPU_DESCRIPTOR_HANDLE						GetDepthAttachmentCPUHandle();
@@ -39,9 +39,9 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_ColorDescriptorHeap		= nullptr;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthDescriptorHeap		= nullptr;
 
-		std::vector<Ref<TextureD3D12>> m_ColourAttachments;
-		std::vector<Ref<TextureD3D12>> m_ResolveAttachments;
-		Ref<TextureD3D12>			   m_DepthAttachment = nullptr;
+		std::vector<TextureD3D12 *> m_ColourAttachments;
+		std::vector<TextureD3D12 *> m_ResolveAttachments;
+		TextureD3D12			   *m_DepthAttachment = nullptr;
 
 		friend class SwapchainD3D12;
 	};

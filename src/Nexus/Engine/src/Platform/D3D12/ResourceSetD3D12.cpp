@@ -12,9 +12,9 @@
 
 namespace Nexus::Graphics
 {
-	ResourceSetD3D12::ResourceSetD3D12(Ref<Pipeline> pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
+	ResourceSetD3D12::ResourceSetD3D12(PipelineHandle pipeline, GraphicsDeviceD3D12 *device) : IResourceSet(pipeline), m_Device(device)
 	{
-		Ref<PipelineD3D12> pipelineD3D12				= std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
+		const PipelineD3D12 *pipelineD3D12				= pipeline.AsDerived<const PipelineD3D12>();
 		m_RootSignatureBindingLocations					= pipelineD3D12->GetRootSignatureBindingLocations();
 		m_DescriptorHandleInfo							= pipelineD3D12->GetDescriptorHandleInfo();
 		Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice = m_Device->GetD3D12Device();
@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 	}
 
 	static void CreateConstantBufferView(Microsoft::WRL::ComPtr<ID3D12Device9> device,
-										 Ref<DeviceBufferD3D12>				   buffer,
+										 const DeviceBufferD3D12			  *buffer,
 										 size_t								   offset,
 										 size_t								   sizeInBytes,
 										 D3D12_CPU_DESCRIPTOR_HANDLE		   cpuHandle)
@@ -201,10 +201,10 @@ namespace Nexus::Graphics
 	}
 
 	static void CreateSrvTextureView(Microsoft::WRL::ComPtr<ID3D12Device9> device,
-									 Ref<TextureViewD3D12>				   textureView,
+									 const TextureViewD3D12				  *textureView,
 									 D3D12_CPU_DESCRIPTOR_HANDLE		   cpuHandle)
 	{
-		Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(textureView->GetTexture());
+		const TextureD3D12 *texture = textureView->GetTexture().AsDerived<const TextureD3D12>();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(textureView->GetDescription());
 
@@ -212,7 +212,7 @@ namespace Nexus::Graphics
 		device->CreateShaderResourceView(resourceHandle.Get(), &srv, cpuHandle);
 	}
 
-	static void CreateSampler(Microsoft::WRL::ComPtr<ID3D12Device9> device, Ref<SamplerD3D12> sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
+	static void CreateSampler(Microsoft::WRL::ComPtr<ID3D12Device9> device, const SamplerD3D12 *sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
 	{
 		const Graphics::SamplerDescription &desc = sampler->GetSamplerDescription();
 
@@ -249,7 +249,7 @@ namespace Nexus::Graphics
 			{
 				const auto &view = views[arrayIndex];
 
-				if (Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(view.BufferHandle))
+				if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
 				{
 					CreateConstantBufferView(device, buffer, view.Offset, view.Size, descriptorHandles.at(arrayIndex));
 					m_BoundResources.UniformBuffers[name][arrayIndex] = view;
@@ -263,7 +263,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(view.BufferHandle))
+				if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
 				{
 					m_BoundResources.DynamicUniformBuffers[name][arrayIndex] = view;
 				}
@@ -279,7 +279,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(view.BufferHandle))
+				if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
 				{
 					StorageResourceAccess access	  = m_DescriptorHandleInfo.StorageBuffers.at(name);
 					bool				  readonly	  = false;
@@ -321,7 +321,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(view.BufferHandle))
+				if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
 				{
 					m_BoundResources.DynamicStorageBuffers[name][arrayIndex] = view;
 				}
@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(storageImage.TextureHandle))
+				if (const TextureD3D12 *texture = storageImage.Texture.AsDerived<const TextureD3D12>())
 				{
 					D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(storageImage);
 
@@ -360,10 +360,10 @@ namespace Nexus::Graphics
 
 			for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size(); arrayIndex++)
 			{
-				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
+				auto combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				Ref<TextureViewD3D12> textureView = std::dynamic_pointer_cast<TextureViewD3D12>(combinedImageSampler.ImageTexture);
-				Ref<SamplerD3D12>	  sampler	  = std::dynamic_pointer_cast<SamplerD3D12>(combinedImageSampler.ImageSampler);
+				const TextureViewD3D12 *textureView = combinedImageSampler.ImageTexture.AsDerived<const TextureViewD3D12>();
+				SamplerD3D12		   *sampler		= combinedImageSampler.ImageSampler.AsDerived<SamplerD3D12>();
 				if (textureView && sampler)
 				{
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
@@ -386,7 +386,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
-				if (Ref<TextureViewD3D12> textureView = std::dynamic_pointer_cast<TextureViewD3D12>(sampledImage))
+				if (const TextureViewD3D12 *textureView = sampledImage.AsDerived<const TextureViewD3D12>())
 				{
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
 					CreateSrvTextureView(device, textureView, textureHandle);
@@ -405,7 +405,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampler = samplers[arrayIndex];
 
-				if (Ref<SamplerD3D12> samplerD3D12 = std::dynamic_pointer_cast<SamplerD3D12>(sampler))
+				if (const SamplerD3D12 *samplerD3D12 = sampler.AsDerived<const SamplerD3D12>())
 				{
 					D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
 					CreateSampler(device, samplerD3D12, samplerHandle);
@@ -423,9 +423,9 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferD3D12> texelBufferD3D12 = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
+				if (const TexelBufferD3D12 *texelBufferD3D12 = texelBuffer.AsDerived<const TexelBufferD3D12>())
 				{
-					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
+					const DeviceBufferD3D12 *buffer = texelBufferD3D12->GetDescription().Buffer.AsDerived<const DeviceBufferD3D12>();
 
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
 					DXGI_FORMAT					pixelFormat	  = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
@@ -452,9 +452,9 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferD3D12> texelBufferD3D12 = std::dynamic_pointer_cast<TexelBufferD3D12>(texelBuffer))
+				if (const TexelBufferD3D12 *texelBufferD3D12 = texelBuffer.AsDerived<const TexelBufferD3D12>())
 				{
-					Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(texelBufferD3D12->GetDescription().Buffer);
+					const DeviceBufferD3D12 *buffer = texelBufferD3D12->GetDescription().Buffer.AsDerived<const DeviceBufferD3D12>();
 
 					D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
 					DXGI_FORMAT					pixelFormat	  = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
@@ -472,9 +472,6 @@ namespace Nexus::Graphics
 				}
 			}
 		}
-
-		// reset the resource queue
-		m_QueuedResources.Reset();
 	}
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetSamplerDescriptorHeap()
@@ -591,7 +588,7 @@ namespace Nexus::Graphics
 					for (size_t uniformBufferIndex = 0; uniformBufferIndex < dynamicUniformBuffers.size(); uniformBufferIndex++)
 					{
 						const UniformBufferView &uboView	   = dynamicUniformBuffers.at(uniformBufferIndex);
-						Ref<DeviceBufferD3D12>	 uniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uboView.BufferHandle);
+						const DeviceBufferD3D12 *uniformBuffer = uboView.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
 						uint32_t offset = 0;
 						if (dynamicOffsets.contains(name))
@@ -626,7 +623,7 @@ namespace Nexus::Graphics
 					for (size_t storageBufferIndex = 0; storageBufferIndex < dynamicStorageBuffers.size(); storageBufferIndex++)
 					{
 						const StorageBufferView &sboView	   = dynamicStorageBuffers.at(storageBufferIndex);
-						Ref<DeviceBufferD3D12>	 storageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(sboView.BufferHandle);
+						const DeviceBufferD3D12 *storageBuffer = sboView.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
 						uint32_t offset = 0;
 						if (dynamicOffsets.contains(name))
@@ -661,7 +658,7 @@ namespace Nexus::Graphics
 					for (size_t storageBufferIndex = 0; storageBufferIndex < dynamicStorageBuffers.size(); storageBufferIndex++)
 					{
 						const StorageBufferView &sboView	   = dynamicStorageBuffers.at(storageBufferIndex);
-						Ref<DeviceBufferD3D12>	 storageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(sboView.BufferHandle);
+						const DeviceBufferD3D12 *storageBuffer = sboView.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
 						uint32_t offset = 0;
 						if (dynamicOffsets.contains(name))

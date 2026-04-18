@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		virtual ~SwapchainVk();
 
 		void						  SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>			  GetCurrentFramebuffer() final;
+		FramebufferHandle			  GetCurrentFramebuffer() final;
 		void						  SetPresentMode(PresentMode presentMode) final;
 		std::pair<uint32_t, uint32_t> GetSize() final;
 
@@ -83,10 +83,10 @@ namespace Nexus::Graphics
 		VkSurfaceFormatKHR		 m_SurfaceFormat	   = {};
 		VkExtent2D				 m_SwapchainSize	   = {};
 
-		std::vector<Ref<ITexture>>	   m_ColourAttachments = {};
-		Ref<ITexture>				   m_DepthAttachment   = {};
-		Ref<ITexture>				   m_ResolveAttachment = {};
-		std::vector<Ref<IFramebuffer>> m_Framebuffers	   = {};
+		std::vector<TextureHandle>	   m_ColourAttachments = {};
+		TextureHandle				   m_DepthAttachment   = {};
+		TextureHandle				   m_ResolveAttachment = {};
+		std::vector<FramebufferHandle> m_Framebuffers	   = {};
 
 		GraphicsDeviceVk *m_GraphicsDevice;
 

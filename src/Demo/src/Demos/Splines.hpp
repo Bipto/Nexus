@@ -10,10 +10,10 @@ namespace Demos
 	class Splines : public Demo
 	{
 	  public:
-		Splines(const std::string						  &name,
-				Nexus::Application						  *app,
-				Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-				Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		Splines(const std::string						 &name,
+				Nexus::Application						 *app,
+				Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+				Nexus::Graphics::CommandQueueHandle		  commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -24,11 +24,11 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t								sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList										= m_CommandQueue->CreateCommandList();
-			m_BatchRenderer										= Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
+			Nexus::Graphics::SwapchainHandle swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			uint32_t						 sampleCount = swapchain->GetDescription().Samples;
+			m_CommandList								 = m_CommandQueue->CreateCommandList();
+			m_BatchRenderer								 = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+				 new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
 
 			m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
 			m_Spline.SetLooped(true);
@@ -86,8 +86,8 @@ namespace Demos
 			auto [width, height] = m_Window->GetWindowSize();
 
 			m_CommandList->Begin();
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
@@ -159,11 +159,11 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-		Nexus::Graphics::CatmullRom<float>			 m_Spline;
+		Nexus::Graphics::CatmullRom<float>			 m_Spline		 = {};
 		int											 m_SelectedPoint = 0;
 	};
 }	 // namespace Demos

@@ -2,12 +2,13 @@
 
 #include <utility>
 
+#include "Core/ResourcePool.hpp"
+#include "Core/Utils.hpp"
+
 #include "RHI/PixelFormat.hpp"
 #include "RHI/RHI-Core.hpp"
 #include "RHI/SamplerState.hpp"
 #include "RHI/Types.hpp"
-
-#include "Core/Utils.hpp"
 
 namespace Nexus::Graphics
 {
@@ -172,5 +173,7 @@ namespace Nexus::Graphics
 	  protected:
 		TextureDescription m_Description = {};
 	};
+
+	DEFINE_RESOURCE(Texture, ITexture);
 
 }	 // namespace Nexus::Graphics

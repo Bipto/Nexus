@@ -7,10 +7,10 @@ namespace Demos
 	class ComputeIndirectDemo : public Demo
 	{
 	  public:
-		ComputeIndirectDemo(const std::string						  &name,
-							Nexus::Application						  *app,
-							Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-							Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		ComputeIndirectDemo(const std::string						 &name,
+							Nexus::Application						 *app,
+							Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+							Nexus::Graphics::CommandQueueHandle		  commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -56,7 +56,7 @@ namespace Demos
 			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_TextureView);
 
 			Nexus::Graphics::StorageImageView storageImageView = {};
-			storageImageView.TextureHandle					   = m_Texture;
+			storageImageView.Texture						   = m_Texture;
 			storageImageView.MipLevel						   = 0;
 			storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
 			m_ResourceSet->WriteStorageImage(storageImageView, "u_Image");
@@ -90,13 +90,13 @@ namespace Demos
 			m_CommandList->SetResourceSet(resourceBindingDesc);
 
 			Nexus::Graphics::DispatchIndirectDescription dispatchDesc = {};
-			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer.get();
+			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer;
 			dispatchDesc.Offset										  = 0;
 			dispatchDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DispatchIndirect(dispatchDesc);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -138,13 +138,13 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList			= nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>	  m_IndirectBuffer		= nullptr;
-		Nexus::Ref<Nexus::Graphics::IComputePipeline> m_ComputePipeline		= nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	  m_ResourceSet			= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		  m_Texture				= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	  m_TextureView			= nullptr;
-		glm::vec3									  m_ClearColour			= {0.7f, 0.2f, 0.3f};
-		ImTextureID									  m_ImGuiTextureBinding = 0;
+		Nexus::Graphics::CommandListHandle	m_CommandList		  = {};
+		Nexus::Graphics::DeviceBufferHandle m_IndirectBuffer	  = {};
+		Nexus::Graphics::PipelineHandle		m_ComputePipeline	  = {};
+		Nexus::Graphics::ResourceSetHandle	m_ResourceSet		  = {};
+		Nexus::Graphics::TextureHandle		m_Texture			  = {};
+		Nexus::Graphics::TextureViewHandle	m_TextureView		  = {};
+		glm::vec3							m_ClearColour		  = {0.7f, 0.2f, 0.3f};
+		ImTextureID							m_ImGuiTextureBinding = 0;
 	};
 }	 // namespace Demos

@@ -222,12 +222,12 @@ namespace Nexus
 
 	struct SpriteRendererComponent
 	{
-		std::string						   TexturePath		 = {};
-		GUID							   TextureID		 = GUID(0);
-		Ref<Graphics::ITexture>			   SpriteTexture	 = nullptr;
-		Nexus::Ref<Graphics::ITextureView> SpriteTextureView = nullptr;
-		glm::vec4						   SpriteColour		 = {1.0f, 1.0f, 1.0f, 1.0f};
-		float							   Tiling			 = 1.0f;
+		std::string					TexturePath		  = {};
+		GUID						TextureID		  = GUID(0);
+		Graphics::TextureHandle		SpriteTexture	  = {};
+		Graphics::TextureViewHandle SpriteTextureView = {};
+		glm::vec4					SpriteColour	  = {1.0f, 1.0f, 1.0f, 1.0f};
+		float						Tiling			  = 1.0f;
 
 		friend std::ostream &operator<<(std::ostream &os, const SpriteRendererComponent &component)
 		{

@@ -10,9 +10,9 @@
 
 struct DemoInfo
 {
-	std::string Name																		  = {};
+	std::string Name																   = {};
 	Demos::Demo *(*CreationFunction)(Nexus::Application *,
-									 const std::string						   &name,
-									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) = nullptr;
+									 const std::string						  &name,
+									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+									 Nexus::Graphics::CommandQueueHandle	   commandQueue) = nullptr;
 };

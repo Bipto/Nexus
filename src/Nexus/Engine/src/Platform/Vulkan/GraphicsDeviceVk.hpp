@@ -33,27 +33,27 @@ namespace Nexus::Graphics
 
 		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		Ref<IGraphicsPipeline>	 CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		Ref<IComputePipeline>	 CreateComputePipeline(const ComputePipelineDescription &description) final;
-		Ref<IMeshletPipeline>	 CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
-		Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
+		PipelineHandle CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+		PipelineHandle CreateComputePipeline(const ComputePipelineDescription &description) final;
+		PipelineHandle CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+		PipelineHandle CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
-		Ref<IResourceSet>			CreateResourceSet(Ref<Pipeline> pipeline) final;
-		Ref<IFramebuffer>			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
-		Ref<ISampler>				CreateSampler(const SamplerDescription &spec) final;
-		Ref<ITimingQuery>			CreateTimingQuery() final;
-		Ref<IDeviceBuffer>			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
-		Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
-		Ref<ITexelBuffer>			CreateTexelBuffer(const TexelBufferDescription &desc) final;
+		ResourceSetHandle			CreateResourceSet(PipelineHandle pipeline) final;
+		FramebufferHandle			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
+		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;
+		TimingQueryHandle			CreateTimingQuery() final;
+		DeviceBufferHandle			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+		AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
+		TexelBufferHandle			CreateTexelBuffer(const TexelBufferDescription &desc) final;
 
 		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
-		Ref<ITexture>				 CreateTexture(const TextureDescription &spec) final;
-		Ref<ITextureView>			 CreateTextureView(const TextureViewDescription &desc) final;
-		Ref<IFence>					 CreateFence(const FenceDescription &desc) final;
+		TextureHandle				 CreateTexture(const TextureDescription &spec) final;
+		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
+		FenceHandle					 CreateFence(const FenceDescription &desc) final;
 		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		FenceWaitResult				 WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
-		Ref<ICommandQueue>			 CreateCommandQueue(const CommandQueueDescription &description) final;
-		void						 ResetFences(Ref<IFence> *fences, uint32_t count) final;
+		FenceWaitResult				 WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
+		CommandQueueHandle			 CreateCommandQueue(const CommandQueueDescription &description) final;
+		void						 ResetFences(FenceHandle *fences, uint32_t count) final;
 
 		ShaderLanguage GetSupportedShaderFormat() final;
 		bool		   IsBufferUsageSupported(BufferUsage usage) final;
@@ -93,11 +93,11 @@ namespace Nexus::Graphics
 		RayTracingDeviceDescription		GetRayTracingDeviceDescription() const final;
 		AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
-		Ref<ISurface> CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const final;
-		Ref<ISurface> CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const final;
-		Ref<ISurface> CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const final;
-		Ref<ISurface> CreateSurfaceFromAndroid(uintptr_t nativeWindow) const final;
-		Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const final;
+		SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) final;
+		SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) final;
+		SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) final;
+		SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow) final;
+		SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId) final;
 
 		bool IsExtensionSupported(const char *extension) const;
 		bool IsVersionGreaterThan(uint32_t version) const;
@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 		const GladVulkanContext &GetVulkanContext() const;
 
 		// vulkan functions
-		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleDescription &moduleSpec) override;
+		virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleSpec) override;
 
 	  private:
 		void RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
@@ -140,6 +140,8 @@ namespace Nexus::Graphics
 		GladVulkanContext m_Context = {};
 
 		GraphicsAPIInfo m_GraphicsAPIInfo = {};
+
+		GraphicsResourceManager m_Resources = {};
 
 		friend class SwapchainVk;
 	};

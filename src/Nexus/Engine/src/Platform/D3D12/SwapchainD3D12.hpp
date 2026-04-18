@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		SwapchainD3D12(IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec);
 		virtual ~SwapchainD3D12();
 		void							 SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
-		Ref<IFramebuffer>				 GetCurrentFramebuffer();
+		FramebufferHandle				 GetCurrentFramebuffer();
 		void							 SetPresentMode(PresentMode presentMode) final;
 		std::pair<uint32_t, uint32_t>	 GetSize() final;
 		PixelFormat						 GetColourFormat() final;
@@ -46,14 +46,14 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					   *m_Device	   = nullptr;
 		ICommandQueue						   *m_CommandQueue = nullptr;
 
-		Ref<SurfaceD3D12> m_Surface = nullptr;
+		SurfaceD3D12 *m_Surface = nullptr;
 
 		uint32_t m_SwapchainWidth  = 0;
 		uint32_t m_SwapchainHeight = 0;
 
 		uint32_t m_CurrentBufferIndex = 0;
 
-		std::vector<Ref<IFramebuffer>> m_SwapchainFramebuffers = {};
+		std::vector<FramebufferHandle> m_SwapchainFramebuffers = {};
 		UINT						   m_SyncInterval		   = 0;
 	};
 }	 // namespace Nexus::Graphics

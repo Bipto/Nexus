@@ -9,10 +9,10 @@ namespace Demos
 	class TimingDemo : public Demo
 	{
 	  public:
-		TimingDemo(const std::string						 &name,
-				   Nexus::Application						 *app,
-				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		TimingDemo(const std::string						&name,
+				   Nexus::Application						*app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+				   Nexus::Graphics::CommandQueueHandle		 commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -31,14 +31,14 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 
-			m_CommandList->StartTimingQuery(m_TimingQuery.get());
+			m_CommandList->StartTimingQuery(m_TimingQuery);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_CommandList->StopTimingQuery(m_TimingQuery.get());
+			m_CommandList->StopTimingQuery(m_TimingQuery);
 			m_CommandList->End();
 
 			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -67,11 +67,11 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::ITimingQuery> m_TimingQuery;
-		float									  m_Timing		 = 0;
-		float									  m_TimerCounter = 1.0f;
+		Nexus::Graphics::TimingQueryHandle m_TimingQuery  = {};
+		float							   m_Timing		  = 0;
+		float							   m_TimerCounter = 1.0f;
 	};
 }	 // namespace Demos

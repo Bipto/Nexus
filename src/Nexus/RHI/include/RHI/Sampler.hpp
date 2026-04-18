@@ -1,6 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include "SamplerState.hpp"
+
+#include "Core/ResourcePool.hpp"
 
 namespace Nexus::Graphics
 {
@@ -10,6 +14,8 @@ namespace Nexus::Graphics
 		virtual ~ISampler()
 		{
 		}
-		virtual const SamplerDescription &GetSamplerDescription() = 0;
+		virtual const SamplerDescription &GetSamplerDescription() const = 0;
 	};
+
+	DEFINE_RESOURCE(Sampler, ISampler);
 }	 // namespace Nexus::Graphics

@@ -6,8 +6,8 @@ set(CORE_SOURCES
 	include/Core/MemorySize.hpp
 	include/Core/NamedJThread.hpp
 	include/Core/NamedJThread.inl
-	include/Core/ResourceHandle.hpp
 	include/Core/ResourcePool.hpp
+	include/Core/ResourcePool.inl
 	include/Core/ThreadPool.hpp
 	include/Core/ThreadPool.inl
 	include/Profiling/Profiler.hpp

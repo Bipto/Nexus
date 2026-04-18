@@ -63,6 +63,9 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
 	{
+		// release all resources before cleaning up the vulkan device
+		m_Resources = {};
+
 		// cleanup allocators
 		{
 			vmaDestroyAllocator(m_Allocator);
@@ -79,64 +82,77 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
+	ShaderModuleHandle GraphicsDeviceVk::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
 	{
-		return CreateRef<ShaderModuleVk>(moduleSpec, this);
+		auto shader = std::make_unique<ShaderModuleVk>(moduleSpec, this);
+		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
-	Ref<IGraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<GraphicsPipelineVk>(description, this);
+		auto pipeline = std::make_unique<GraphicsPipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return CreateRef<ComputePipelineVk>(description, this);
+		auto pipeline = std::make_unique<ComputePipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IMeshletPipeline> GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
-		return CreateRef<MeshletPipelineVk>(description, this);
+		auto pipeline = std::make_unique<MeshletPipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IRayTracingPipeline> GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	PipelineHandle GraphicsDeviceVk::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return CreateRef<RayTracingPipelineVk>(description, this);
+		auto pipeline = std::make_unique<RayTracingPipelineVk>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IResourceSet> GraphicsDeviceVk::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceVk::CreateResourceSet(PipelineHandle pipeline)
 	{
-		return CreateRef<ResourceSetVk>(pipeline, this);
+		auto resourceSet = std::make_unique<ResourceSetVk>(pipeline, this);
+		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
-	Ref<IFramebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	FramebufferHandle GraphicsDeviceVk::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferVk>(desc, this);
+		auto framebuffer = std::make_unique<FramebufferVk>(desc, this);
+		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
 	}
 
-	Ref<ISampler> GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
+	SamplerHandle GraphicsDeviceVk::CreateSampler(const SamplerDescription &spec)
 	{
-		return CreateRef<SamplerVk>(this, spec);
+		// return CreateRef<SamplerVk>(this, spec);
+		auto sampler = std::make_unique<SamplerVk>(this, spec);
+		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
-	Ref<ITimingQuery> GraphicsDeviceVk::CreateTimingQuery()
+	TimingQueryHandle GraphicsDeviceVk::CreateTimingQuery()
 	{
-		return CreateRef<TimingQueryVk>(this);
+		auto timingQuery = std::make_unique<TimingQueryVk>(this);
+		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
-	Ref<IDeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	DeviceBufferHandle GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return CreateRef<DeviceBufferVk>(desc, this);
+		auto deviceBuffer = std::make_unique<DeviceBufferVk>(desc, this);
+		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
 	}
 
-	Ref<IAccelerationStructure> GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	AccelerationStructureHandle GraphicsDeviceVk::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return CreateRef<AccelerationStructureVk>(desc, this);
+		auto accelerationStructure = std::make_unique<AccelerationStructureVk>(desc, this);
+		return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
 	}
 
-	Ref<ITexelBuffer> GraphicsDeviceVk::CreateTexelBuffer(const TexelBufferDescription &desc)
+	TexelBufferHandle GraphicsDeviceVk::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return CreateRef<TexelBufferVk>(desc, this);
+		auto texelBuffer = std::make_unique<TexelBufferVk>(desc, this);
+		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
@@ -150,18 +166,19 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<IFence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
+	FenceHandle GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
 	{
-		return CreateRef<FenceVk>(desc, this);
+		auto fence = std::make_unique<FenceVk>(desc, this);
+		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
 
-	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceVk> fence = std::dynamic_pointer_cast<FenceVk>(fences[i]);
-			fenceHandles[i]	   = fence->GetHandle();
+			const FenceVk *fence = fences[i].AsDerived<const FenceVk>();
+			fenceHandles[i]		 = fence->GetHandle();
 		}
 
 		VkResult result = m_Context.WaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeoutNS);
@@ -185,32 +202,35 @@ namespace Nexus::Graphics
 		return m_QueueFamilies;
 	}
 
-	Ref<ICommandQueue> GraphicsDeviceVk::CreateCommandQueue(const CommandQueueDescription &description)
+	CommandQueueHandle GraphicsDeviceVk::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return CreateRef<CommandQueueVk>(this, description);
+		auto commandQueue = std::make_unique<CommandQueueVk>(this, description);
+		return m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
 	}
 
-	void GraphicsDeviceVk::ResetFences(Ref<IFence> *fences, uint32_t count)
+	void GraphicsDeviceVk::ResetFences(FenceHandle *fences, uint32_t count)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceVk> fence = std::dynamic_pointer_cast<FenceVk>(fences[i]);
-			fenceHandles[i]	   = fence->GetHandle();
+			const FenceVk *fence = fences[i].AsDerived<const FenceVk>();
+			fenceHandles[i]		 = fence->GetHandle();
 		}
 
 		VkResult result = m_Context.ResetFences(m_Device, fenceHandles.size(), fenceHandles.data());
 		NX_VALIDATE(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Ref<ITexture> GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
+	TextureHandle GraphicsDeviceVk::CreateTexture(const TextureDescription &spec)
 	{
-		return CreateRef<TextureVk>(spec, this);
+		auto texture = std::make_unique<TextureVk>(spec, this);
+		return m_Resources.Textures.CreateShared(std::move(texture));
 	}
 
-	Ref<ITextureView> GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)
+	TextureViewHandle GraphicsDeviceVk::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return CreateRef<TextureViewVk>(desc, this);
+		auto textureView = std::make_unique<TextureViewVk>(desc, this);
+		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
@@ -785,37 +805,39 @@ namespace Nexus::Graphics
 		return properties;
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
 	{
 #if defined(WIN32)
-		return CreateRef<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
+		auto surface = std::make_unique<SurfaceWin32_Vk>(hwnd, hdc, hinstance);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 #else
-		return nullptr;
+		return {};
 #endif
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
 	{
 #if defined(__linux__)
-		return CreateRef<SurfaceX11_Vk>(display, screen, window);
+		auto surface = std::make_unique<SurfaceX11_Vk>(display, screen, window);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 #else
-		return nullptr;
+		return {};
 #endif
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceVk::CreateSurfaceFromHTML(const std::string &canvasId) const
+	SurfaceHandle GraphicsDeviceVk::CreateSurfaceFromHTML(const std::string &canvasId)
 	{
-		return nullptr;
+		return {};
 	}
 
 	bool GraphicsDeviceVk::IsExtensionSupported(const char *extension) const

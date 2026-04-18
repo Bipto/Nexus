@@ -50,11 +50,7 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    if(NOT (
-        (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
-         AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-        OR MSVC
-    ))
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         return()
     endif()
 

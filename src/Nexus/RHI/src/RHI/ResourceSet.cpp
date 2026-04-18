@@ -93,26 +93,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetDescriptors::Reset()
-	{
-		for (auto &[name, buffers] : UniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
-		for (auto &[name, buffers] : DynamicUniformBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::UniformBufferView {}); }
-		for (auto &[name, buffers] : InlineUniformBlocks) { std::fill(buffers.begin(), buffers.end(), 0); }
-		for (auto &[name, buffers] : StorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
-		for (auto &[name, buffers] : DynamicStorageBuffers) { std::fill(buffers.begin(), buffers.end(), Graphics::StorageBufferView {}); }
-		for (auto &[name, images] : StorageImages) { std::fill(images.begin(), images.end(), Graphics::StorageImageView {}); }
-		for (auto &[name, ciSamplers] : CombinedImageSamplers) { std::fill(ciSamplers.begin(), ciSamplers.end(), Graphics::CombinedImageSampler {}); }
-		for (auto &[name, images] : SampledImages) { std::fill(images.begin(), images.end(), nullptr); }
-		for (auto &[name, samplers] : Samplers) { std::fill(samplers.begin(), samplers.end(), nullptr); }
-		for (auto &[name, accelerationStructures] : AccelerationStructures)
-		{
-			std::fill(accelerationStructures.begin(), accelerationStructures.end(), nullptr);
-		}
-		for (auto &[name, buffers] : UniformTexelBuffers) { std::fill(buffers.begin(), buffers.end(), nullptr); }
-		for (auto &[name, buffers] : StorageTexelBuffers) { std::fill(buffers.begin(), buffers.end(), nullptr); }
-	}
-
-	IResourceSet::IResourceSet(Ref<Pipeline> pipeline) : m_Pipeline(pipeline)
+	IResourceSet::IResourceSet(PipelineHandle pipeline) : m_Pipeline(pipeline)
 	{
 		m_ShaderResources							  = pipeline->GetRequiredShaderResources();
 		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
@@ -160,27 +141,27 @@ namespace Nexus::Graphics
 		WriteCombinedImageSamplers(&combinedImageSamplers, name, 0, 1);
 	}
 
-	void IResourceSet::WriteSampledImage(Ref<ITextureView> textureViews, const std::string &name)
+	void IResourceSet::WriteSampledImage(TextureViewHandle textureViews, const std::string &name)
 	{
 		WriteSampledImages(&textureViews, name, 0, 1);
 	}
 
-	void IResourceSet::WriteSampler(Ref<ISampler> samplers, const std::string &name)
+	void IResourceSet::WriteSampler(SamplerHandle sampler, const std::string &name)
 	{
-		WriteSamplers(&samplers, name, 0, 1);
+		WriteSamplers(&sampler, name, 0, 1);
 	}
 
-	void IResourceSet::WriteAccelerationStructure(Ref<IAccelerationStructure> accelerationStructures, const std::string &name)
+	void IResourceSet::WriteAccelerationStructure(AccelerationStructureHandle accelerationStructure, const std::string &name)
 	{
-		WriteAccelerationStructures(&accelerationStructures, name, 0, 1);
+		WriteAccelerationStructures(&accelerationStructure, name, 0, 1);
 	}
 
-	void IResourceSet::WriteUniformTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name)
+	void IResourceSet::WriteUniformTexelBuffer(TexelBufferHandle texelBuffers, const std::string &name)
 	{
 		WriteUniformTexelBuffers(&texelBuffers, name, 0, 1);
 	}
 
-	void IResourceSet::WriteStorageTexelBuffer(Ref<ITexelBuffer> texelBuffers, const std::string &name)
+	void IResourceSet::WriteStorageTexelBuffer(TexelBufferHandle texelBuffers, const std::string &name)
 	{
 		WriteStorageTexelBuffers(&texelBuffers, name, 0, 1);
 	}
@@ -242,7 +223,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteSampledImages(Ref<ITextureView> *textureViews, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteSampledImages(TextureViewHandle *textureViews, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{
@@ -251,7 +232,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteSamplers(Ref<ISampler> *samplers, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteSamplers(SamplerHandle *samplers, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{
@@ -260,7 +241,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteAccelerationStructures(Ref<IAccelerationStructure> *accelerationStructures,
+	void IResourceSet::WriteAccelerationStructures(AccelerationStructureHandle *accelerationStructures,
 												   const std::string		   &name,
 												   size_t						startElement,
 												   size_t						count)
@@ -272,7 +253,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteUniformTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteUniformTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{
@@ -281,7 +262,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void IResourceSet::WriteStorageTexelBuffers(Ref<ITexelBuffer> *texelBuffers, const std::string &name, size_t startElement, size_t count)
+	void IResourceSet::WriteStorageTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count)
 	{
 		for (size_t index = startElement; index < startElement + count; index++)
 		{

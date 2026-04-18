@@ -50,12 +50,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	uint32_t TextureViewOpenGL::GetHandle() const
+	const uint32_t TextureViewOpenGL::GetHandle() const
 	{
 		return m_Handle;
 	}
 
-	void TextureViewOpenGL::Bind(uint32_t slot)
+	void TextureViewOpenGL::Bind(uint32_t slot) const
 	{
 		if (m_TextureViewRequired)
 		{
@@ -89,28 +89,29 @@ namespace Nexus::Graphics
 						// otherwise bind the emulated texture view
 						else
 						{
-							m_EmulatedTextureView->Bind(slot);
+							const TextureOpenGL *texture = m_EmulatedTextureView.AsDerived<const TextureOpenGL>();
+							texture->Bind(slot);
 						}
 					}
 				});
 		}
 		else
 		{
-			Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
+			const TextureOpenGL *texture = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 			texture->Bind(slot);
 		}
 
 		m_Dirty = false;
 	}
 
-	void TextureViewOpenGL::MarkDirty()
+	void TextureViewOpenGL::MarkDirty() const
 	{
 		m_Dirty = true;
 	}
 
 	void TextureViewOpenGL::CreateTextureView(const GladGLContext &context)
 	{
-		Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
+		const TextureOpenGL *texture = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
 		GLenum internalFormat = GL::GetSizedInternalFormat(m_Description.Format);
 		GLenum m_ViewType	  = GL::GetViewType(m_Description);
@@ -149,16 +150,18 @@ namespace Nexus::Graphics
 		textureDesc.Usage			   = originalDesc.Usage;
 		textureDesc.DebugName		   = m_Description.DebugName;
 
-		m_EmulatedTextureView = CreateRef<TextureOpenGL>(textureDesc, m_Device);
-		m_Handle			  = m_EmulatedTextureView->GetHandle();
+		m_EmulatedTextureView = m_Device->CreateTexture(textureDesc);
+
+		const TextureOpenGL *emulatedTexture = m_EmulatedTextureView.AsDerived<const TextureOpenGL>();
+		m_Handle							 = emulatedTexture->GetHandle();
 	}
 
-	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context)
+	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context) const
 	{
-		Ref<TextureOpenGL> source = std::dynamic_pointer_cast<TextureOpenGL>(m_Description.TargetTexture);
+		const TextureOpenGL *source = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
 		for (uint32_t arrayLayer = m_Description.Range.BaseArrayLayer;
-			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount++;
+			 arrayLayer < m_Description.Range.BaseArrayLayer + m_Description.Range.LayerCount;
 			 arrayLayer++)
 		{
 			for (uint32_t mip = m_Description.Range.BaseMipLevel; mip < m_Description.Range.BaseMipLevel + m_Description.Range.LevelCount; mip++)

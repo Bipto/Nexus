@@ -42,17 +42,17 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GraphicsPipelineD3D12::GetRootSignature()
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> GraphicsPipelineD3D12::GetRootSignature() const
 	{
 		return m_RootSignature;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GraphicsPipelineD3D12::GetPipelineState()
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> GraphicsPipelineD3D12::GetPipelineState() const
 	{
 		return m_PipelineStateObject;
 	}
 
-	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology()
+	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology() const
 	{
 		return m_PrimitiveTopology;
 	}
@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 	}
 
-	const D3D12::DescriptorHandleInfo &GraphicsPipelineD3D12::GetDescriptorHandleInfo()
+	const D3D12::DescriptorHandleInfo &GraphicsPipelineD3D12::GetDescriptorHandleInfo() const
 	{
 		return m_DescriptorHandleInfo;
 	}
@@ -95,17 +95,17 @@ namespace Nexus::Graphics
 	{
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> MeshletPipelineD3D12::GetRootSignature()
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> MeshletPipelineD3D12::GetRootSignature() const
 	{
 		return m_RootSignature;
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> MeshletPipelineD3D12::GetPipelineState()
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> MeshletPipelineD3D12::GetPipelineState() const
 	{
 		return m_PipelineStateObject;
 	}
 
-	D3D_PRIMITIVE_TOPOLOGY MeshletPipelineD3D12::GetD3DPrimitiveTopology()
+	D3D_PRIMITIVE_TOPOLOGY MeshletPipelineD3D12::GetD3DPrimitiveTopology() const
 	{
 		return m_PrimitiveTopology;
 	}
@@ -122,7 +122,7 @@ namespace Nexus::Graphics
 		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 	}
 
-	const D3D12::DescriptorHandleInfo &MeshletPipelineD3D12::GetDescriptorHandleInfo()
+	const D3D12::DescriptorHandleInfo &MeshletPipelineD3D12::GetDescriptorHandleInfo() const
 	{
 		return m_DescriptorHandleInfo;
 	}
@@ -153,7 +153,7 @@ namespace Nexus::Graphics
 		commandList->SetComputeRootSignature(m_RootSignature.Get());
 	}
 
-	const D3D12::DescriptorHandleInfo &ComputePipelineD3D12::GetDescriptorHandleInfo()
+	const D3D12::DescriptorHandleInfo &ComputePipelineD3D12::GetDescriptorHandleInfo() const
 	{
 		return m_DescriptorHandleInfo;
 	}

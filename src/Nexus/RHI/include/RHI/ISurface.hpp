@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/RHI-Core.hpp"
 
 namespace Nexus::Graphics
@@ -9,4 +11,6 @@ namespace Nexus::Graphics
 	  public:
 		virtual ~ISurface() = default;
 	};
+
+	DEFINE_RESOURCE(Surface, ISurface);
 }	 // namespace Nexus::Graphics

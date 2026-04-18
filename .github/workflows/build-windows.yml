@@ -18,7 +18,6 @@ jobs:
 
     env:
       SCCACHE_DIR: C:\Users\runneradmin\.cache\sccache
-      SCCACHE_LOG: debug
       SCCACHE_ERROR_LOG: C:\Users\runneradmin\sccache-error.log
       SCCACHE_IDLE_TIMEOUT: 1200
 

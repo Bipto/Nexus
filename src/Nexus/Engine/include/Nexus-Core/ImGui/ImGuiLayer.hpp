@@ -9,7 +9,7 @@ namespace Nexus
 	class NX_API ImGuiLayer : public ILayer
 	{
 	  public:
-		ImGuiLayer(Nexus::Application *app, Nexus::Ref<Graphics::ICommandQueue> commandQueue);
+		ImGuiLayer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue);
 		virtual ~ImGuiLayer() = default;
 		bool		 OnEvent(const Event &event) final;
 		void		 OnRender(Nexus::TimeSpan time, IWindow *window) final;
@@ -20,8 +20,8 @@ namespace Nexus
 	  protected:
 		Nexus::Application								  *m_Application		= nullptr;
 		std::unique_ptr<ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer		= nullptr;
-		Nexus::Ref<Graphics::ICommandQueue>				   m_CommandQueue		= nullptr;
-		Nexus::Ref<Graphics::ICommandList>				   m_CommandList		= nullptr;
+		Graphics::CommandQueueHandle					   m_CommandQueue		= {};
+		Graphics::CommandListHandle						   m_CommandList		= {};
 		bool											   m_IsAnyWindowHovered = false;
 	};
 }	 // namespace Nexus

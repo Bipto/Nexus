@@ -1,4 +1,5 @@
 #pragma once
+
 #include "RHI/APIVersion.hpp"
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/CommandList.hpp"
@@ -28,6 +29,8 @@
 
 #include "RHI/GraphicsAPICreateInfo.hpp"
 
+#include "Core/ResourcePool.hpp"
+
 namespace Nexus::Graphics
 {
 	struct AccelerationStructureProperties
@@ -50,6 +53,24 @@ namespace Nexus::Graphics
 		uint32_t MaxRayHitAttributeSize				= 0;
 	};
 
+	struct GraphicsResourceManager
+	{
+		SamplerPool				  Samplers				 = {};
+		TexturePool				  Textures				 = {};
+		TextureViewPool			  TextureViews			 = {};
+		TexelBufferPool			  TexelBuffers			 = {};
+		AccelerationStructurePool AccelerationStructures = {};
+		TimingQueryPool			  TimingQueries			 = {};
+		FencePool				  Fences				 = {};
+		FramebufferPool			  Framebuffers			 = {};
+		ShaderModulePool		  ShaderModules			 = {};
+		ResourceSetPool			  ResourceSets			 = {};
+		PipelinePool			  Pipelines				 = {};
+		SurfacePool				  Surfaces				 = {};
+		CommandQueuePool		  CommandQueues			 = {};
+		DeviceBufferPool		  DeviceBuffers			 = {};
+	};
+
 	/// @brief A class representing an abstraction over a graphics API
 	class NX_RHI_API IGraphicsDevice
 	{
@@ -67,35 +88,35 @@ namespace Nexus::Graphics
 		/// description
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
-		virtual Ref<IGraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
+		virtual PipelineHandle CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
 
-		virtual Ref<IComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
+		virtual PipelineHandle CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
-		virtual Ref<IMeshletPipeline> CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
+		virtual PipelineHandle CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
 
-		virtual Ref<IRayTracingPipeline> CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
+		virtual PipelineHandle CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
-		virtual Ref<IFramebuffer> CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
+		virtual FramebufferHandle CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
 		/// @brief A pure virtual method that creates a new resource set from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set
 		/// @return A pointer to a resource set
-		virtual Ref<IResourceSet> CreateResourceSet(Ref<Pipeline> pipeline) = 0;
+		virtual ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) = 0;
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
-		virtual Ref<ISampler> CreateSampler(const SamplerDescription &spec) = 0;
+		virtual SamplerHandle CreateSampler(const SamplerDescription &spec) = 0;
 
-		virtual Ref<IDeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
+		virtual DeviceBufferHandle CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
-		virtual Ref<ITimingQuery> CreateTimingQuery() = 0;
+		virtual TimingQueryHandle CreateTimingQuery() = 0;
 
-		virtual Ref<IAccelerationStructure> CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
+		virtual AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) = 0;
 
-		virtual Ref<ITexelBuffer> CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
+		virtual TexelBufferHandle CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
 		/// the supported shading language of the backend
@@ -117,21 +138,21 @@ namespace Nexus::Graphics
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Ref<ITexture> CreateTexture(const TextureDescription &spec) = 0;
+		virtual TextureHandle CreateTexture(const TextureDescription &spec) = 0;
 
-		virtual Ref<ITextureView> CreateTextureView(const TextureViewDescription &desc) = 0;
+		virtual TextureViewHandle CreateTextureView(const TextureViewDescription &desc) = 0;
 
-		virtual Ref<IFence> CreateFence(const FenceDescription &desc) = 0;
+		virtual FenceHandle CreateFence(const FenceDescription &desc) = 0;
 
-		virtual FenceWaitResult WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) = 0;
+		virtual FenceWaitResult WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) = 0;
 
-		virtual Ref<IShaderModule> CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
+		virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
 
-		virtual void ResetFences(Ref<IFence> *fences, uint32_t count) = 0;
+		virtual void ResetFences(FenceHandle *fences, uint32_t count) = 0;
 
 		virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
 
-		virtual Ref<ICommandQueue> CreateCommandQueue(const CommandQueueDescription &description) = 0;
+		virtual CommandQueueHandle CreateCommandQueue(const CommandQueueDescription &description) = 0;
 
 		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
@@ -147,11 +168,11 @@ namespace Nexus::Graphics
 		virtual RayTracingDeviceDescription		GetRayTracingDeviceDescription() const	   = 0;
 		virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;
 
-		virtual Ref<ISurface> CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const = 0;
-		virtual Ref<ISurface> CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const  = 0;
-		virtual Ref<ISurface> CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const			   = 0;
-		virtual Ref<ISurface> CreateSurfaceFromAndroid(uintptr_t nativeWindow) const						   = 0;
-		virtual Ref<ISurface> CreateSurfaceFromHTML(const std::string &canvasId) const						   = 0;
+		virtual SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) = 0;
+		virtual SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)	 = 0;
+		virtual SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)			 = 0;
+		virtual SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow)							 = 0;
+		virtual SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId)						 = 0;
 
 	  protected:
 		Ref<ICommandList> m_ImmediateCommandList = nullptr;

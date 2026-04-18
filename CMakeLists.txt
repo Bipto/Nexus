@@ -87,6 +87,10 @@ endif()
 # ------------------------------------------------------------
 add_subdirectory(src/Nexus)
 
+if (DEFINED NX_BUILD_EDITOR)
+    add_subdirectory(src/Editor)
+endif()
+
 if (DEFINED NX_BUILD_DEMO)
     add_subdirectory(src/Demo)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)

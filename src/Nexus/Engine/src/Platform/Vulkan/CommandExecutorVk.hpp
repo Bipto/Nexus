@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 	  public:
 		explicit CommandExecutorVk(GraphicsDeviceVk *device);
 		virtual ~CommandExecutorVk();
-		void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) final;
+		void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device) final;
 		void Reset() final;
 
 		void SetCommandBuffer(VkCommandBuffer commandBuffer);
@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 	  private:
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(PipelineHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device) final;
@@ -60,7 +60,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
-		void StartRenderingToFramebuffer(Ref<IFramebuffer> framebuffer);
+		void StartRenderingToFramebuffer(FramebufferHandle framebuffer);
 		void StopRendering();
 		bool ValidateIsRendering();
 
@@ -70,13 +70,13 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
 
-		WeakRef<Pipeline>  m_CurrentlyBoundPipeline	   = {};
-		Ref<ResourceSetVk> m_CurrentlyBoundResourceSet = nullptr;
-		bool			   m_Rendering				   = false;
-		VkExtent2D		   m_RenderSize				   = {0, 0};
+		PipelineHandle		 m_CurrentlyBoundPipeline	 = {};
+		const ResourceSetVk *m_CurrentlyBoundResourceSet = nullptr;
+		bool				 m_Rendering				 = false;
+		VkExtent2D			 m_RenderSize				 = {0, 0};
 
 		uint32_t		  m_DepthAttachmentIndex = 0;
-		Ref<IFramebuffer> m_CurrentRenderTarget	 = nullptr;
+		FramebufferHandle m_CurrentRenderTarget	 = {};
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
 

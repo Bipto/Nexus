@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		/// @param vertexBuffer A set of vertices to use for the mesh
 		/// @param indexBuffer A set of indices to use for the mesh
 		/// @param name A string representing the name of the mesh
-		Mesh(Ref<IDeviceBuffer> vertexBuffer, Ref<IDeviceBuffer> indexBuffer, const Material &material, const std::string &name = "Mesh")
+		Mesh(DeviceBufferHandle vertexBuffer, DeviceBufferHandle indexBuffer, const Material &material, const std::string &name = "Mesh")
 			: m_VertexBuffer(vertexBuffer),
 			  m_IndexBuffer(indexBuffer),
 			  m_Material(material),
@@ -34,14 +34,14 @@ namespace Nexus::Graphics
 
 		/// @brief A method that returns a const reference to the meshes vertex buffer
 		/// @return A const reference to the vertex buffer
-		Ref<IDeviceBuffer> GetVertexBuffer()
+		Graphics::DeviceBufferHandle GetVertexBuffer()
 		{
 			return m_VertexBuffer;
 		}
 
 		/// @brief A method that returns a const reference to the meshes index buffer
 		/// @return A const reference to the index buffer
-		Ref<IDeviceBuffer> GetIndexBuffer()
+		Graphics::DeviceBufferHandle GetIndexBuffer()
 		{
 			return m_IndexBuffer;
 		}
@@ -63,10 +63,10 @@ namespace Nexus::Graphics
 
 	  private:
 		/// @brief A reference counted pointer to a vertex buffer
-		Ref<IDeviceBuffer> m_VertexBuffer = nullptr;
+		Graphics::DeviceBufferHandle m_VertexBuffer = {};
 
 		/// @brief A reference counted pointer to an index buffer
-		Ref<IDeviceBuffer> m_IndexBuffer = nullptr;
+		Graphics::DeviceBufferHandle m_IndexBuffer = {};
 
 		Material m_Material = {};
 

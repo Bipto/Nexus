@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 	  public:
 		CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device);
 		virtual ~CommandExecutorD3D12();
-		void ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device) final;
+		void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device) final;
 		void Reset() final;
 
 		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);
@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 	  private:
 		void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(PipelineHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device) final;
@@ -59,7 +59,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device) final;
-		void ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device) final;
+		void ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Viewport &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const Scissor &command, IGraphicsDevice *device) final;
 		void ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device) final;
@@ -83,7 +83,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
-		void SetFramebuffer(WeakRef<IFramebuffer> framebuffer, IGraphicsDevice *device);
+		void SetFramebuffer(FramebufferHandle framebuffer, IGraphicsDevice *device);
 		void ResetPreviousRenderTargets(IGraphicsDevice *device);
 
 		void CreateDrawIndirectSignatureCommand();
@@ -93,9 +93,9 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
 
 	  private:
-		void			   InsertResourceBarrier(const TextureBarrierDesc &command);
-		void			   InsertTextureBarrier(const TextureBarrierDesc &command);
-		Ref<IDeviceBuffer> CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device);
+		void								InsertResourceBarrier(const TextureBarrierDesc &command);
+		void								InsertTextureBarrier(const TextureBarrierDesc &command);
+		Nexus::Graphics::DeviceBufferHandle CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
@@ -106,10 +106,10 @@ namespace Nexus::Graphics
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle		 = {};
 
-		Ref<ResourceSetD3D12> m_CurrentlyBoundResourceSet = nullptr;
+		ResourceSetD3D12 *m_CurrentlyBoundResourceSet = nullptr;
 
-		Ref<IFramebuffer>			 m_CurrentFramebuffer	  = {};
-		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};
+		FramebufferHandle m_CurrentFramebuffer	   = {};
+		PipelineHandle	  m_CurrentlyBoundPipeline = {};
 
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndexedIndirectCommandSignature = nullptr;
@@ -122,7 +122,7 @@ namespace Nexus::Graphics
 		PIXEndEventFn	m_PIXEndEvent	= NULL;
 		PIXSetMarkerFn	m_PIXSetMarker	= NULL;
 
-		std::vector<Ref<IDeviceBuffer>>				  m_UploadBuffers  = {};
+		std::vector<DeviceBufferHandle>				  m_UploadBuffers  = {};
 		std::vector<D3D12ReadbackBufferCopyOperation> m_ReadbackCopies = {};
 	};
 }	 // namespace Nexus::Graphics

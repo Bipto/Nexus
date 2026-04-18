@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		context.DestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_ShaderModule, nullptr);
 	}
 
-	VkShaderModule ShaderModuleVk::GetShaderModule()
+	VkShaderModule ShaderModuleVk::GetShaderModule() const
 	{
 		return m_ShaderModule;
 	}

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/ComputeState.hpp"
 #include "RHI/DeviceBuffer.hpp"
@@ -58,10 +60,10 @@ namespace Nexus::Graphics
 	struct BufferCopyDescription
 	{
 		/// @brief A pointer to the buffer to be used as a source
-		IDeviceBuffer *Source = nullptr;
+		DeviceBufferHandle Source = {};
 
 		/// @brief A pointer to the buffer to be used as the destination
-		IDeviceBuffer *Destination = nullptr;
+		DeviceBufferHandle Destination = {};
 
 		/// @brief A vector of BufferCopy objects representing the areas of the buffers to be copied
 		std::vector<BufferCopy> Copies = {};
@@ -71,7 +73,7 @@ namespace Nexus::Graphics
 	struct BufferTextureCopyDescription
 	{
 		/// @brief A pointer to the buffer to use in the copy operation
-		IDeviceBuffer *BufferHandle = nullptr;
+		DeviceBufferHandle BufferHandle = {};
 
 		/// @brief An integer representing the offset to read to/write from in the buffer
 		uint64_t BufferOffset = 0;
@@ -83,7 +85,7 @@ namespace Nexus::Graphics
 		uint64_t BufferImageHeight = 0;
 
 		/// @brief A pointer to the texture to use in the copy operation
-		Ref<ITexture> TextureHandle = nullptr;
+		TextureHandle Texture = {};
 
 		/// @brief A structure containing parameters specifying the offset into the textures
 		Offset3D TextureOffset = {};
@@ -99,10 +101,10 @@ namespace Nexus::Graphics
 	struct TextureCopyDescription
 	{
 		/// @brief A pointer to the source texture for the copy operation
-		Ref<ITexture> Source = nullptr;
+		TextureHandle Source = {};
 
 		/// @brief A pointer to the destination texture for the copy operation
-		Ref<ITexture> Destination = nullptr;
+		TextureHandle Destination = {};
 
 		/// @brief A set of parameters specifying the offset into the source texture
 		Offset3D SourceOffset = {};
@@ -253,7 +255,7 @@ namespace Nexus::Graphics
 	struct DrawIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use for the draw call
-		IDeviceBuffer *IndirectBuffer = nullptr;
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -269,7 +271,7 @@ namespace Nexus::Graphics
 	struct DrawIndirectIndexedDescription
 	{
 		/// @brief A pointer to the indirect buffer to use for the draw call
-		IDeviceBuffer *IndirectBuffer = nullptr;
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -298,7 +300,7 @@ namespace Nexus::Graphics
 	struct DispatchIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use
-		IDeviceBuffer *IndirectBuffer = {};
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -324,7 +326,7 @@ namespace Nexus::Graphics
 	struct DrawMeshIndirectDescription
 	{
 		/// @brief A pointer to the indirect buffer to use
-		IDeviceBuffer *IndirectBuffer = {};
+		DeviceBufferHandle IndirectBuffer = {};
 
 		/// @brief An integer representing the offset into the indirect buffer to read from
 		size_t Offset = 0;
@@ -363,10 +365,10 @@ namespace Nexus::Graphics
 	struct ResolveTextureDescription
 	{
 		/// @brief A pointer to the source texture for the resolve operation
-		Ref<ITexture> Source = nullptr;
+		TextureHandle Source = {};
 
 		/// @brief A pointer to the destination texture for the resolve operation
-		Ref<ITexture> Destination = nullptr;
+		TextureHandle Destination = {};
 
 		/// @brief An integer representing which array layer of the source texture to resolve from
 		uint32_t SourceArrayLayer = 0;
@@ -385,14 +387,14 @@ namespace Nexus::Graphics
 	struct StartTimingQueryCommand
 	{
 		/// @brief A pointer to the timing query to start
-		ITimingQuery *Query = nullptr;
+		TimingQueryHandle Query = {};
 	};
 
 	/// @brief A structure representing a command to stop a timing query
 	struct StopTimingQueryCommand
 	{
 		/// @brief A pointer to the timing query to stop
-		ITimingQuery *Query = nullptr;
+		TimingQueryHandle Query = {};
 	};
 
 	struct CopyBufferToBufferCommand
@@ -443,7 +445,7 @@ namespace Nexus::Graphics
 
 	struct ResourceSetBindingDescription
 	{
-		Ref<IResourceSet>							 TargetResourceSet = nullptr;
+		ResourceSetHandle							 TargetResourceSet = {};
 		std::map<std::string, std::vector<uint32_t>> DynamicOffsets	   = {};
 	};
 
@@ -515,13 +517,13 @@ namespace Nexus::Graphics
 
 	struct TextureBarrierDesc
 	{
-		Ref<Graphics::ITexture> Texture					= nullptr;
-		TextureLayout			Layout					= {};
-		BarrierAccess			BeforeAccess			= {};
-		BarrierAccess			AfterAccess				= {};
-		BarrierPipelineStage	BeforeStage				= {};
-		BarrierPipelineStage	AfterStage				= {};
-		SubresourceRange		TextureSubresourceRange = {};
+		TextureHandle		 Texture				 = {};
+		TextureLayout		 Layout					 = {};
+		BarrierAccess		 BeforeAccess			 = {};
+		BarrierAccess		 AfterAccess			 = {};
+		BarrierPipelineStage BeforeStage			 = {};
+		BarrierPipelineStage AfterStage				 = {};
+		SubresourceRange	 TextureSubresourceRange = {};
 	};
 
 	struct BufferBarrierDesc
@@ -558,7 +560,7 @@ namespace Nexus::Graphics
 
 	struct EndRenderingCommand
 	{
-		Ref<IFramebuffer> TargetFramebuffer = nullptr;
+		FramebufferHandle TargetFramebuffer = {};
 	};
 
 	class IGraphicsCommand
@@ -593,12 +595,12 @@ namespace Nexus::Graphics
 	class SetPipelineCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		SetPipelineCommandImpl(Ref<Pipeline> pipeline);
+		SetPipelineCommandImpl(PipelineHandle pipeline);
 		~SetPipelineCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		Ref<Pipeline> m_Pipeline = nullptr;
+		PipelineHandle m_Pipeline = {};
 	};
 
 	class DrawCommandImpl final : public IGraphicsCommand
@@ -736,12 +738,12 @@ namespace Nexus::Graphics
 	class SetFramebufferCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		SetFramebufferCommandImpl(Ref<IFramebuffer> framebuffer);
+		SetFramebufferCommandImpl(FramebufferHandle framebuffer);
 		~SetFramebufferCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		Ref<IFramebuffer> m_Framebuffer = {};
+		FramebufferHandle m_Framebuffer = {};
 	};
 
 	class SetViewportCommandImpl final : public IGraphicsCommand
@@ -780,23 +782,23 @@ namespace Nexus::Graphics
 	class StartTimingQueryCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		StartTimingQueryCommandImpl(ITimingQuery *query);
+		StartTimingQueryCommandImpl(TimingQueryHandle query);
 		~StartTimingQueryCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		ITimingQuery *m_Query = nullptr;
+		TimingQueryHandle m_Query = {};
 	};
 
 	class EndTimingQueryCommandImpl final : public IGraphicsCommand
 	{
 	  public:
-		EndTimingQueryCommandImpl(ITimingQuery *query);
+		EndTimingQueryCommandImpl(TimingQueryHandle query);
 		~EndTimingQueryCommandImpl() final = default;
 		void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
 	  private:
-		ITimingQuery *m_Query = nullptr;
+		TimingQueryHandle m_Query = {};
 	};
 
 	class CopyBufferToBufferCommandImpl final : public IGraphicsCommand
@@ -1009,7 +1011,7 @@ namespace Nexus::Graphics
 
 		/// @brief A method to bind a pipeline to a command list
 		/// @param pipeline The pointer to the pipeline to bind
-		void SetPipeline(Ref<Pipeline> pipeline);
+		void SetPipeline(PipelineHandle pipeline);
 
 		void Draw(const DrawDescription &desc);
 
@@ -1039,7 +1041,7 @@ namespace Nexus::Graphics
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value);
 
-		void SetFramebuffer(Ref<IFramebuffer> framebuffer);
+		void SetFramebuffer(FramebufferHandle framebuffer);
 
 		void SetViewport(const Viewport &viewport);
 
@@ -1047,9 +1049,9 @@ namespace Nexus::Graphics
 
 		void ResolveFramebuffer(const ResolveTextureDescription &desc);
 
-		void StartTimingQuery(ITimingQuery *query);
+		void StartTimingQuery(TimingQueryHandle query);
 
-		void StopTimingQuery(ITimingQuery *query);
+		void StopTimingQuery(TimingQueryHandle query);
 
 		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 
@@ -1102,7 +1104,7 @@ namespace Nexus::Graphics
 		mutable std::mutex				 m_Mutex					= {};
 		std::atomic<bool>				 m_Started					= false;
 		std::atomic<uint32_t>			 m_DebugGroups				= 0;
-		Ref<IFramebuffer>				 m_CurrentFramebuffer		= nullptr;
+		FramebufferHandle				 m_CurrentFramebuffer		= {};
 		bool							 m_AutomaticBarrierTracking = false;
 		BarrierGroupDescription			 m_Barriers					= {};
 		std::function<void(std::string)> m_CallbackFunction			= {};
@@ -1110,13 +1112,12 @@ namespace Nexus::Graphics
 		std::vector<std::unique_ptr<IGraphicsCommand>> m_CommandImpls = {};
 	};
 
-	/// @brief A typedef to simplify creating function pointers to render commands
-	typedef void (*RenderCommand)(Ref<ICommandList> commandList);
+	DEFINE_RESOURCE(CommandList, ICommandList);
 
 	class ScopedDebugGroup
 	{
 	  public:
-		ScopedDebugGroup(const std::string &name, Ref<ICommandList> commandList) : m_CommandList(commandList)
+		ScopedDebugGroup(const std::string &name, CommandListHandle commandList) : m_CommandList(commandList)
 		{
 			if (m_CommandList->IsRecording())
 			{
@@ -1136,6 +1137,6 @@ namespace Nexus::Graphics
 		ScopedDebugGroup &operator=(const ScopedDebugGroup &) = delete;
 
 	  private:
-		Ref<ICommandList> m_CommandList = nullptr;
+		CommandListHandle m_CommandList = {};
 	};
 }	 // namespace Nexus::Graphics

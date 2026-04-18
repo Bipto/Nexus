@@ -36,15 +36,17 @@ namespace Nexus::Audio
 	  public:
 		AudioDeviceOpenAL();
 		~AudioDeviceOpenAL() final = default;
-		std::shared_ptr<AudioBuffer> CreateAudioBuffer() final;
-		std::shared_ptr<AudioSource> CreateAudioSource() final;
-		void						 Play(std::shared_ptr<AudioSource> source) final;
-		void						 Pause(std::shared_ptr<AudioSource> source) final;
-		void						 Stop(std::shared_ptr<AudioSource> source) final;
-		void						 Rewind(std::shared_ptr<AudioSource> source) final;
+		AudioBufferHandle CreateAudioBuffer() final;
+		AudioSourceHandle CreateAudioSource() final;
+		void			  Play(AudioSourceHandle source) final;
+		void			  Pause(AudioSourceHandle source) final;
+		void			  Stop(AudioSourceHandle source) final;
+		void			  Rewind(AudioSourceHandle source) final;
 
 	  private:
 		std::unique_ptr<ALCdevice, ALCdeviceDeleter>   m_Device	 = nullptr;
 		std::unique_ptr<ALCcontext, ALCcontextDeleter> m_Context = nullptr;
+
+		AudioResourceManager m_Resources = {};
 	};
 }	 // namespace Nexus::Audio

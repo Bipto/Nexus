@@ -12,7 +12,7 @@
 class DemoImGuiLayer : public Nexus::ImGuiLayer
 {
   public:
-	DemoImGuiLayer(Nexus::Application *app, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue);
+	DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue);
 	virtual ~DemoImGuiLayer() override = default;
 	void OnImGuiRenderer() final;
 	void SetDemoSelectedCallback(std::function<void(std::shared_ptr<Demos::Demo>)> function);
@@ -27,10 +27,10 @@ class DemoImGuiLayer : public Nexus::ImGuiLayer
 	{
 		DemoInfo &info		  = m_DemoInfos[menuName].emplace_back();
 		info.Name			  = name;
-		info.CreationFunction = [](Nexus::Application						 *app,
-								   const std::string						 &name,
-								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-								   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue) -> Demos::Demo *
+		info.CreationFunction = [](Nexus::Application						*app,
+								   const std::string						&name,
+								   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+								   Nexus::Graphics::CommandQueueHandle		 commandQueue) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer, commandQueue); };
 	}
 

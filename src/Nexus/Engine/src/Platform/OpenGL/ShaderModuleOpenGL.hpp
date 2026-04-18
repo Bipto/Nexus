@@ -14,8 +14,8 @@ namespace Nexus::Graphics
 	  public:
 		ShaderModuleOpenGL(const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceOpenGL *device);
 		virtual ~ShaderModuleOpenGL();
-		GLenum				 GetGLShaderStage();
-		uint32_t			 GetHandle();
+		GLenum				 GetGLShaderStage() const;
+		uint32_t			 GetHandle() const;
 		ShaderReflectionData Reflect() const final;
 
 	  private:

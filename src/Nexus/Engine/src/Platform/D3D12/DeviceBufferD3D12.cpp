@@ -162,12 +162,12 @@ namespace Nexus::Graphics
 	{
 	}
 
-	Microsoft::WRL::ComPtr<ID3D12Resource2> DeviceBufferD3D12::GetHandle()
+	Microsoft::WRL::ComPtr<ID3D12Resource2> DeviceBufferD3D12::GetHandle() const
 	{
 		return m_BufferHandle;
 	}
 
-	size_t DeviceBufferD3D12::GetBufferSizeInBytes()
+	size_t DeviceBufferD3D12::GetBufferSizeInBytes() const
 	{
 		return m_BufferSize;
 	}

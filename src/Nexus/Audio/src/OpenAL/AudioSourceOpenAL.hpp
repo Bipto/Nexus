@@ -8,10 +8,11 @@
 #include "Core/AutoRelease.hpp"
 
 #include "OpenAL.hpp"
+#include <Audio/AudioTypes.hpp>
 
 namespace Nexus::Audio
 {
-	class NX_AUDIO_API AudioSourceOpenAL final : public AudioSource
+	class NX_AUDIO_API AudioSourceOpenAL final : public IAudioSource
 	{
 	  public:
 		AudioSourceOpenAL();
@@ -35,9 +36,9 @@ namespace Nexus::Audio
 		void SetPlaybackPositionInSeconds(float seconds) final;
 		void SetPlaybackPositionInSamples(float samples) final;
 		void SetPlaybackPositionInBytes(float bytes) final;
-		void SetStaticSourceBuffer(std::shared_ptr<AudioBuffer> buffer) final;
-		void QueueBuffer(std::shared_ptr<AudioBuffer> buffer) final;
-		void UnqueueBuffer(std::shared_ptr<AudioBuffer> buffer) final;
+		void SetStaticSourceBuffer(AudioBufferHandle buffer) final;
+		void QueueBuffer(AudioBufferHandle buffer) final;
+		void UnqueueBuffer(AudioBufferHandle buffer) final;
 		void ClearAllBuffers() final;
 
 		float							GetPitch() const final;
@@ -59,7 +60,7 @@ namespace Nexus::Audio
 		float							GetPlaybackPositionInSeconds() const final;
 		float							GetPlaybackPositionInSamples() const final;
 		float							GetPlaybackPositionInBytes() const final;
-		std::shared_ptr<AudioBuffer>	GetStaticSourceBuffer() const final;
+		AudioBufferHandle				GetStaticSourceBuffer() const final;
 		SourceState						GetSourceState() const final;
 		size_t							GetNumQueuedBuffers() const final;
 		size_t							GetNumProcessedBuffers() const final;
@@ -67,7 +68,7 @@ namespace Nexus::Audio
 		ALuint GetSource() const;
 
 	  private:
-		std::shared_ptr<AudioBuffer>						m_StaticBuffer = nullptr;
-		AutoRelease<ALuint, 0, std::function<void(ALuint)>> m_Source;
+		AudioBufferHandle									m_StaticBuffer = {};
+		AutoRelease<ALuint, 0, std::function<void(ALuint)>> m_Source	   = {};
 	};
 }	 // namespace Nexus::Audio

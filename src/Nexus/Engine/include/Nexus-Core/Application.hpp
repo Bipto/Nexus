@@ -21,7 +21,7 @@ namespace Nexus
 {
 	struct CommandQueueGroup
 	{
-		Ref<Graphics::ICommandQueue> GraphicsQueue = nullptr;
+		Graphics::CommandQueueHandle GraphicsQueue = {};
 	};
 
 	/// @brief A class representing an application
@@ -82,7 +82,7 @@ namespace Nexus
 		/// @return A handle to the application's main window
 		Nexus::IWindow *GetPrimaryWindow();
 
-		Ref<Nexus::Graphics::ISwapchain> GetPrimarySwapchain();
+		Graphics::SwapchainHandle GetPrimarySwapchain();
 
 		/// @brief A method that returns whether the application's window has focus
 		/// @return A boolean value representing whether the window is focussed
@@ -105,7 +105,7 @@ namespace Nexus
 		/// @return A pointer to a graphics device
 		Graphics::IGraphicsDevice *GetGraphicsDevice();
 
-		Ref<Graphics::ICommandQueue> GetGraphicsCommandQueue();
+		Graphics::CommandQueueHandle GetGraphicsCommandQueue();
 
 		/// @brief A method that returns a pointer to the application's audio device
 		/// @return A pointer to an audio device
@@ -139,7 +139,7 @@ namespace Nexus
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;
 
-		Ref<Nexus::Graphics::ISwapchain> m_Swapchain = nullptr;
+		Graphics::SwapchainHandle m_Swapchain = {};
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};

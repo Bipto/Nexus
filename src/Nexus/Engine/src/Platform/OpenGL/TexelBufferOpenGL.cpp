@@ -4,8 +4,8 @@ namespace Nexus::Graphics
 {
 	Nexus::Graphics::TexelBufferOpenGL::TexelBufferOpenGL(const TexelBufferDescription &desc, GraphicsDeviceOpenGL *device)
 	{
-		GLenum					internalFormat = GL::GetSizedInternalFormat(desc.Format);
-		Ref<DeviceBufferOpenGL> buffer		   = std::dynamic_pointer_cast<DeviceBufferOpenGL>(desc.Buffer);
+		GLenum					  internalFormat = GL::GetSizedInternalFormat(desc.Format);
+		const DeviceBufferOpenGL *buffer		 = desc.Buffer.AsDerived<const DeviceBufferOpenGL>();
 
 		NX_VALIDATE(buffer, "Invalid buffer supplied when attempting to create texel buffer");
 
@@ -38,12 +38,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	uint32_t TexelBufferOpenGL::GetTexelBufferHandle() const
+	const uint32_t TexelBufferOpenGL::GetTexelBufferHandle() const
 	{
 		return m_Handle;
 	}
 
-	void TexelBufferOpenGL::Bind(uint32_t slot)
+	void TexelBufferOpenGL::Bind(uint32_t slot) const
 	{
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)

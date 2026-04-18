@@ -9,11 +9,11 @@ namespace Nexus::Processors
 {
 	GUID TextureProcessor::Process(const std::string		   &filepath,
 								   Graphics::IGraphicsDevice   *device,
-								   Ref<Graphics::ICommandQueue> commandQueue,
+								   Graphics::CommandQueueHandle commandQueue,
 								   Project					   *project)
 	{
 		std::vector<Graphics::Image> mips	 = {};
-		Ref<Graphics::ITexture>		 texture = Utils::CreateTexture2D(commandQueue, filepath.c_str(), m_GenerateMips, m_Srgb);
+		Graphics::TextureHandle		 texture = Utils::CreateTexture2D(commandQueue, filepath.c_str(), m_GenerateMips, m_Srgb);
 
 		for (uint32_t arrayLayer = 0; arrayLayer < texture->GetDescription().DepthOrArrayLayers; arrayLayer++)
 		{

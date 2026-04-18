@@ -5,7 +5,7 @@
 
 namespace Nexus
 {
-	Ref<Graphics::ITexture> AssetManager::GetTexture(const std::string &filepath)
+	Graphics::TextureHandle AssetManager::GetTexture(const std::string &filepath)
 	{
 		return Utils::CreateTexture2D(m_CommandQueue, filepath.c_str(), false);
 	}

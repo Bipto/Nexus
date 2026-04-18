@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 				for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 				{
 					const Graphics::FramebufferColourAttachmentDescription &colourAttachment = m_Description.ColourAttachments.at(i);
-					Ref<ITexture>											texture			 = colourAttachment.ColourAttachment.TargetTexture;
+					TextureHandle											texture			 = colourAttachment.ColourAttachment.TargetTexture;
 					GL::AttachTexture(m_FBO, colourAttachment.ColourAttachment, texture->IsDepth(), i, context);
 				}
 
@@ -77,7 +77,7 @@ namespace Nexus::Graphics
 				if (m_Description.DepthAttachment.has_value())
 				{
 					Graphics::FramebufferTextureDescription depthAttachment = m_Description.DepthAttachment.value();
-					Ref<ITexture>							texture			= depthAttachment.TargetTexture;
+					TextureHandle							texture			= depthAttachment.TargetTexture;
 					GL::AttachTexture(m_FBO, depthAttachment, texture->IsDepth(), 0, context);
 				}
 

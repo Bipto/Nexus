@@ -13,7 +13,7 @@
 
 namespace Nexus::Graphics
 {
-	static void CreateDynamicOffsetDataAndStageFlags(Pipeline														*pipeline,
+	static void CreateDynamicOffsetDataAndStageFlags(IPipeline														*pipeline,
 													 std::map<uint32_t, std::vector<uint32_t>>						&offsetData,
 													 std::map<std::string, ResourceSetVk::DynamicOffsetDescription> &memberOffsets,
 													 VkShaderStageFlags												&pipelineStages,
@@ -71,10 +71,10 @@ namespace Nexus::Graphics
 		for (const auto &[setIndex, dynamicOffsetCount] : setCounts) { offsetData[setIndex].resize(dynamicOffsetCount); }
 	}
 
-	ResourceSetVk::ResourceSetVk(Ref<Pipeline> pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
+	ResourceSetVk::ResourceSetVk(PipelineHandle pipeline, GraphicsDeviceVk *device) : IResourceSet(pipeline), m_Pipeline(pipeline), m_Device(device)
 	{
 		const GladVulkanContext &context		= m_Device->GetVulkanContext();
-		Ref<PipelineVk>			 vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+		PipelineVk				*vulkanPipeline = pipeline.AsDerived<PipelineVk>();
 
 		// calculate required descriptor pool size
 		std::vector<VkDescriptorPoolSize> sizes = {};
@@ -119,8 +119,8 @@ namespace Nexus::Graphics
 			}
 		}
 
-		m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.get(), device);
-		CreateDynamicOffsetDataAndStageFlags(pipeline.get(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources);
+		m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.GetResource(), device);
+		CreateDynamicOffsetDataAndStageFlags(pipeline.GetResource(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources);
 	}
 
 	ResourceSetVk::~ResourceSetVk()
@@ -266,7 +266,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -292,7 +292,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -335,7 +335,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -361,7 +361,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
 			{
 				const auto &view = views[arrayIndex];
-				if (Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(view.BufferHandle))
+				if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -387,7 +387,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
 			{
 				const auto &storageImage = storageImages[arrayIndex];
-				if (Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(storageImage.TextureHandle))
+				if (const TextureVk *texture = storageImage.Texture.AsDerived<const TextureVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -420,8 +420,8 @@ namespace Nexus::Graphics
 			{
 				const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-				Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(combinedImageSampler.ImageTexture);
-				Ref<SamplerVk>	   sampler	   = std::dynamic_pointer_cast<SamplerVk>(combinedImageSampler.ImageSampler);
+				const TextureViewVk *textureView = combinedImageSampler.ImageTexture.AsDerived<const TextureViewVk>();
+				const SamplerVk		*sampler	 = combinedImageSampler.ImageSampler.AsDerived<const SamplerVk>();
 				if (textureView && sampler)
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
@@ -449,7 +449,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampledImage = sampledImages[arrayIndex];
 
-				if (Ref<TextureViewVk> textureView = std::dynamic_pointer_cast<TextureViewVk>(sampledImage))
+				if (const TextureViewVk *textureView = sampledImage.AsDerived<const TextureViewVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -476,7 +476,7 @@ namespace Nexus::Graphics
 			{
 				const auto &sampler = samplers[arrayIndex];
 
-				if (Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler))
+				if (const SamplerVk *samplerVk = sampler.AsDerived<const SamplerVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -502,7 +502,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < accelerationStructures.size(); arrayIndex++)
 			{
 				const auto &accelerationStructure = accelerationStructures[arrayIndex];
-				if (Ref<AccelerationStructureVk> accelerationStructureVk = std::dynamic_pointer_cast<AccelerationStructureVk>(accelerationStructure))
+				if (const AccelerationStructureVk *accelerationStructureVk = accelerationStructure.AsDerived<const AccelerationStructureVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -525,7 +525,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+				if (const TexelBufferVk *texelBufferVk = texelBuffer.AsDerived<const TexelBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -548,7 +548,7 @@ namespace Nexus::Graphics
 			for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
 			{
 				const auto &texelBuffer = texelBuffers[arrayIndex];
-				if (Ref<TexelBufferVk> texelBufferVk = std::dynamic_pointer_cast<TexelBufferVk>(texelBuffer))
+				if (const TexelBufferVk *texelBufferVk = texelBuffer.AsDerived<const TexelBufferVk>())
 				{
 					const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -567,9 +567,6 @@ namespace Nexus::Graphics
 
 		// perform the descriptor set update
 		context.UpdateDescriptorSets(m_Device->GetVkDevice(), descriptorSetWrites.size(), descriptorSetWrites.data(), 0, nullptr);
-
-		// reset the resource queue
-		m_QueuedResources.Reset();
 	}
 
 	void ResourceSetVk::Bind(const GladVulkanContext							&context,

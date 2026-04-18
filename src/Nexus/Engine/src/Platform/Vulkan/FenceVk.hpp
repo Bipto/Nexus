@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 		bool					IsSignalled() const final;
 		const FenceDescription &GetDescription() const final;
 
-		VkFence GetHandle();
+		VkFence GetHandle() const;
 
 	  private:
 		FenceDescription  m_Description = {};

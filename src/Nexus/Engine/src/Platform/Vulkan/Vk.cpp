@@ -965,18 +965,22 @@ namespace Nexus::Vk
 		buildInfo.srcAccelerationStructure					  = VK_NULL_HANDLE;
 		buildInfo.dstAccelerationStructure					  = VK_NULL_HANDLE;
 
-		if (description.Source)
+		if (description.Source.IsValid())
 		{
-			Ref<Graphics::AccelerationStructureVk> accelerationStructure =
-				std::dynamic_pointer_cast<Graphics::AccelerationStructureVk>(description.Source);
-			buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
+			if (const Graphics::AccelerationStructureVk *accelerationStructure =
+					description.Source.AsDerived<const Graphics::AccelerationStructureVk>())
+			{
+				buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
+			}
 		}
 
-		if (description.Destination)
+		if (description.Destination.IsValid())
 		{
-			Ref<Graphics::AccelerationStructureVk> accelerationStructure =
-				std::dynamic_pointer_cast<Graphics::AccelerationStructureVk>(description.Destination);
-			buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
+			if (const Graphics::AccelerationStructureVk *accelerationStructure =
+					description.Destination.AsDerived<const Graphics::AccelerationStructureVk>())
+			{
+				buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
+			}
 		}
 
 		VkDeviceOrHostAddressKHR deviceAddress = {.deviceAddress = description.ScratchBuffer};
@@ -1526,7 +1530,7 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module)
+	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(const Nexus::Graphics::ShaderModuleVk *module)
 	{
 		VkPipelineShaderStageCreateInfo createInfo = {};
 		createInfo.sType						   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -1537,7 +1541,7 @@ namespace Nexus::Vk
 		return createInfo;
 	}
 
-	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::Pipeline *pipeline, Graphics::GraphicsDeviceVk *device)
+	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device)
 	{
 		std::map<std::string, VkShaderStageFlags> pushConstants = {};
 
@@ -1697,7 +1701,7 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::Pipeline						*pipeline,
+	VkPipelineLayout CreatePipelineLayout(Graphics::IPipeline						*pipeline,
 										  Graphics::GraphicsDeviceVk				*device,
 										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
 										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts)
@@ -1746,12 +1750,14 @@ namespace Nexus::Vk
 					// create immutable samplers if requested
 					if (resourceSetDesc.ImmutableSamplers.contains(descriptor.Name))
 					{
-						const std::vector<Ref<Graphics::ISampler>> &samplers = resourceSetDesc.ImmutableSamplers.at(descriptor.Name);
+						const std::vector<Graphics::SamplerHandle> &samplers = resourceSetDesc.ImmutableSamplers.at(descriptor.Name);
 
 						for (size_t i = 0; i < samplers.size(); i++)
 						{
-							Ref<Graphics::SamplerVk> vkSampler = std::dynamic_pointer_cast<Graphics::SamplerVk>(samplers.at(i));
-							vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
+							if (const Graphics::SamplerVk *vkSampler = samplers.at(i).AsDerived<const Graphics::SamplerVk>())
+							{
+								vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
+							}
 						}
 
 						layoutBinding.pImmutableSamplers = vulkanImmutableSamplers[descriptor.Name].data();
@@ -2542,7 +2548,7 @@ namespace Nexus::Vk
 
 	VkImageViewType GetImageViewType(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::ITexture> texture = desc.TargetTexture;
+		Graphics::TextureHandle texture = desc.TargetTexture;
 
 		switch (texture->GetType())
 		{

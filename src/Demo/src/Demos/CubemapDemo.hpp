@@ -16,10 +16,10 @@ namespace Demos
 	class CubemapDemo : public Demo
 	{
 	  public:
-		CubemapDemo(const std::string						  &name,
-					Nexus::Application						  *app,
-					Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-					Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		CubemapDemo(const std::string						 &name,
+					Nexus::Application						 *app,
+					Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+					Nexus::Graphics::CommandQueueHandle		  commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 			auto [width, height] = m_Window->GetWindowSizeInPixels();
@@ -132,8 +132,8 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -277,19 +277,19 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_Cubemap		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_CubemapView = nullptr;
-		Nexus::Ref<Nexus::Graphics::ISampler>	  m_Sampler		= nullptr;
-		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		Nexus::Graphics::TextureHandle	   m_Cubemap	 = {};
+		Nexus::Graphics::TextureViewHandle m_CubemapView = {};
+		Nexus::Graphics::SamplerHandle	   m_Sampler	 = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_ResourceSet = nullptr;
+		Nexus::Graphics::PipelineHandle	   m_Pipeline	 = {};
+		Nexus::Graphics::ResourceSetHandle m_ResourceSet = {};
 
 		Nexus::Ref<Nexus::Graphics::Mesh> m_Cube = nullptr;
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA		m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
 		Nexus::FirstPersonCamera m_Camera		= {};
 		bool					 m_CameraActive = false;

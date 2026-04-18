@@ -69,6 +69,8 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
 	{
+		// release all resources before cleaning up the vulkan device
+		m_Resources = {};
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceOpenGL::GetPhysicalDevice() const
@@ -81,10 +83,11 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->GetOffscreenContext();
 	}
 
-	Ref<IShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleDescription &moduleDesc)
+	ShaderModuleHandle GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleDescription &moduleDesc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ShaderModuleOpenGL>(moduleDesc, this);
+		auto shader = std::make_unique<ShaderModuleOpenGL>(moduleDesc, this);
+		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
 	std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(const GladGLContext &context)
@@ -178,37 +181,39 @@ namespace Nexus::Graphics
 		return AccelerationStructureProperties();
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
 	{
 	#if defined(WIN32)
-		return CreateRef<SurfaceWGL>(hwnd, hdc, hinstance, this);
+		auto surface = std::make_unique<SurfaceWGL>(hwnd, hdc, hinstance, this);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 	#else
-		return nullptr;
+		return {};
 	#endif
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
 	{
 	#if defined(__linux__)
-		return CreateRef<SurfaceEGL>(display, screen, window, this);
+		auto surface = std::make_unique<SurfaceEGL>(display, screen, window, this);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 	#else
-		return nullptr;
+		return {};
 	#endif
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ISurface> GraphicsDeviceOpenGL::CreateSurfaceFromHTML(const std::string &canvasId) const
+	SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromHTML(const std::string &canvasId)
 	{
-		return nullptr;
+		return {};
 	}
 
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()
@@ -216,68 +221,79 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IGraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<GraphicsPipelineOpenGL>(description, this);
+		auto pipeline = std::make_unique<GraphicsPipelineOpenGL>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IComputePipeline> GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ComputePipelineOpenGL>(description, this);
+		auto pipeline = std::make_unique<ComputePipelineOpenGL>(description, this);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IMeshletPipeline> GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
 		NX_VALIDATE(false, "Meshlet pipelines are not supported by OpenGL");
-		return nullptr;
+		return {};
 	}
 
-	Ref<IRayTracingPipeline> GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	PipelineHandle GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
 		NX_VALIDATE(false, "Ray tracing pipelines are not supported by OpenGL");
-		return nullptr;
+		return {};
 	}
 
-	Ref<IResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(PipelineHandle pipeline)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<ResourceSetOpenGL>(pipeline, this);
+		auto resourceSet = std::make_unique<ResourceSetOpenGL>(pipeline, this);
+		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
-	Ref<IFramebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	FramebufferHandle GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<FramebufferOpenGL>(desc, this);
+
+		auto framebuffer = std::make_unique<FramebufferOpenGL>(desc, this);
+		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
 	}
 
-	Ref<ISampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
+	SamplerHandle GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<SamplerOpenGL>(spec, this);
+		auto sampler = std::unique_ptr<ISampler>(new SamplerOpenGL(spec, this));
+		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
-	Ref<ITimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
+	TimingQueryHandle GraphicsDeviceOpenGL::CreateTimingQuery()
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<TimingQueryOpenGL>();
+		auto timingQuery = std::make_unique<TimingQueryOpenGL>();
+		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
-	Ref<IDeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	DeviceBufferHandle GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<DeviceBufferOpenGL>(desc, this);
+		// return CreateRef<DeviceBufferOpenGL>(desc, this);
+
+		auto deviceBuffer = std::make_unique<DeviceBufferOpenGL>(desc, this);
+		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
 	}
 
-	Ref<IAccelerationStructure> GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	AccelerationStructureHandle GraphicsDeviceOpenGL::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return nullptr;
+		return {};
 	}
 
-	Ref<ITexelBuffer> GraphicsDeviceOpenGL::CreateTexelBuffer(const TexelBufferDescription &desc)
+	TexelBufferHandle GraphicsDeviceOpenGL::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return nullptr;
+		auto texelBuffer = std::make_unique<TexelBufferOpenGL>(desc, this);
+		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
 	}
 
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
@@ -294,19 +310,20 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<IFence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
+	FenceHandle GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<FenceOpenGL>(desc, this);
+		auto fence = std::make_unique<FenceOpenGL>(desc, this);
+		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
 
-	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
+	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<FenceWaitResult> success(count);
 
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
+			FenceOpenGL *fence = fences[i].AsDerived<FenceOpenGL>();
 
 			GLenum result = fence->Wait(timeoutNS);
 			if (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED)
@@ -382,33 +399,34 @@ namespace Nexus::Graphics
 		return queueFamilies;
 	}
 
-	Ref<ICommandQueue> GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
+	CommandQueueHandle GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		return CreateRef<CommandQueueOpenGL>(this, description);
+		auto commandQueue = std::make_unique<CommandQueueOpenGL>(this, description);
+		return m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
 	}
 
-	void GraphicsDeviceOpenGL::ResetFences(Ref<IFence> *fences, uint32_t count)
+	void GraphicsDeviceOpenGL::ResetFences(FenceHandle *fences, uint32_t count)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
+			FenceOpenGL *fence = fences[i].AsDerived<FenceOpenGL>();
 			fence->Reset();
 		}
 	}
 
-	Ref<ITexture> GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
+	TextureHandle GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
 	{
 		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		return CreateRef<TextureOpenGL>(spec, this);
+
+		auto texture = std::make_unique<TextureOpenGL>(spec, this);
+		return m_Resources.Textures.CreateShared(std::move(texture));
 	}
 
-	Ref<ITextureView> GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
+	TextureViewHandle GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
 	{
-		Ref<TextureOpenGL>	   texture = std::dynamic_pointer_cast<TextureOpenGL>(desc.TargetTexture);
-		Ref<TextureViewOpenGL> view	   = CreateRef<TextureViewOpenGL>(desc, this);
-		texture->AddView(view);
-		return view;
+		auto textureView = std::make_unique<TextureViewOpenGL>(desc, this);
+		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

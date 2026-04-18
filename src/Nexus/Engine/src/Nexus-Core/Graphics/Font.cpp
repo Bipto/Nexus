@@ -158,23 +158,23 @@ namespace Nexus::Graphics
 													 .LayerCount	 = m_Texture->GetDepthOrArrayLayers()};
 		viewDesc.DebugName						  = "Font Texture View";
 
-		DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Access				   = BufferMemoryAccess::Upload;
-		bufferDesc.Usage				   = Graphics::BufferUsage_None;
-		bufferDesc.SizeInBytes			   = pixels.GetSizeInBytes();
-		bufferDesc.StrideInBytes		   = pixels.GetSizeInBytes();
-		Ref<IDeviceBuffer> buffer		   = device->CreateDeviceBuffer(bufferDesc);
+		DeviceBufferDescription bufferDesc		   = {};
+		bufferDesc.Access						   = BufferMemoryAccess::Upload;
+		bufferDesc.Usage						   = Graphics::BufferUsage_None;
+		bufferDesc.SizeInBytes					   = pixels.GetSizeInBytes();
+		bufferDesc.StrideInBytes				   = pixels.GetSizeInBytes();
+		Nexus::Graphics::DeviceBufferHandle buffer = device->CreateDeviceBuffer(bufferDesc);
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITexture> Font::GetTexture()
+	TextureHandle Font::GetTexture()
 	{
 		return m_Texture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::ITextureView> Font::GetTextureView()
+	Graphics::TextureViewHandle Font::GetTextureView()
 	{
 		return m_TextureView;
 	}

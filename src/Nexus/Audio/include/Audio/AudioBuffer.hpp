@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include "Core/ResourcePool.hpp"
+
 #include "Audio-Core.hpp"
 #include "AudioBuffer.hpp"
 #include "AudioTypes.hpp"
@@ -9,11 +11,11 @@
 namespace Nexus::Audio
 {
 	/// @brief A pure virtual class representing a buffer of audio data
-	class NX_AUDIO_API AudioBuffer
+	class NX_AUDIO_API IAudioBuffer
 	{
 	  public:
 		/// @brief A virtual destructor to allow resources to be cleaned up
-		virtual ~AudioBuffer() = default;
+		virtual ~IAudioBuffer() = default;
 
 		/// @brief A virtual method that sets the data of an audio buffer, the size of the data does not have to match the previous size of the
 		/// buffer, it is able to dynamically resize
@@ -39,4 +41,6 @@ namespace Nexus::Audio
 		/// @return The size of the buffer in bytes
 		virtual size_t GetSize() const = 0;
 	};
+
+	DEFINE_RESOURCE(AudioBuffer, IAudioBuffer);
 }	 // namespace Nexus::Audio

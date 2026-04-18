@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class ResourceSetOpenGL final : public IResourceSet
 	{
 	  public:
-		ResourceSetOpenGL(Ref<Pipeline> pipeline, GraphicsDeviceOpenGL *device);
+		ResourceSetOpenGL(PipelineHandle pipeline, GraphicsDeviceOpenGL *device);
 		void Flush() final;
 
 		void Bind(const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle, const GladGLContext &context);
@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 		std::map<std::string, std::vector<int32_t>>	   m_BindingLocations			 = {};
 		std::map<std::string, Ref<DeviceBufferOpenGL>> m_EmulatedPushConstants		 = {};
 		std::map<std::string, Ref<DeviceBufferOpenGL>> m_EmulatedInlineUniformBlocks = {};
-		std::map<int32_t, Ref<SamplerOpenGL>>		   m_ImmutableSamplers			 = {};
+		std::map<int32_t, const SamplerOpenGL *>	   m_ImmutableSamplers			 = {};
 	};
 }	 // namespace Nexus::Graphics
 

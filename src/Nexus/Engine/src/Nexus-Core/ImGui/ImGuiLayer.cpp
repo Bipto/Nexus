@@ -4,7 +4,7 @@
 
 namespace Nexus
 {
-	ImGuiLayer::ImGuiLayer(Nexus::Application *app, Nexus::Ref<Graphics::ICommandQueue> commandQueue)
+	ImGuiLayer::ImGuiLayer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue)
 		: m_ImGuiRenderer(std::make_unique<ImGuiUtils::ImGuiGraphicsRenderer>(app, commandQueue)),
 		  m_CommandQueue(commandQueue),
 		  m_Application(app)
@@ -44,7 +44,7 @@ namespace Nexus
 
 	void ImGuiLayer::OnRender(Nexus::TimeSpan time, IWindow *window)
 	{
-		Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+		Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
 
 		m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
 

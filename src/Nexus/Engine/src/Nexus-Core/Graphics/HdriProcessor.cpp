@@ -62,7 +62,7 @@ namespace Nexus::Graphics
 		glm::mat4 Projection = {};
 	};
 
-	HdriProcessor::HdriProcessor(const std::string &filepath, IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+	HdriProcessor::HdriProcessor(const std::string &filepath, IGraphicsDevice *device, CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue)
 	{
@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 		m_HdriView										 = m_Device->CreateTextureView(cubemapViewDesc);
 	}
 
-	Ref<ITexture> HdriProcessor::Generate(uint32_t size)
+	TextureHandle HdriProcessor::Generate(uint32_t size)
 	{
 		Nexus::Graphics::FramebufferTextureCreateDescription framebufferSpec = {};
 		framebufferSpec.Width												 = size;
@@ -114,8 +114,8 @@ namespace Nexus::Graphics
 		framebufferSpec.ColourAttachmentFormats								 = {PixelFormat::R32_G32_B32_A32_Float};
 		framebufferSpec.DepthAttachmentFormat								 = PixelFormat::D24_UNorm_S8_UInt;
 
-		Ref<IFramebuffer> framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
-		Ref<ICommandList> commandList = m_CommandQueue->CreateCommandList();
+		FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
+		CommandListHandle commandList = m_CommandQueue->CreateCommandList();
 
 		Graphics::TextureDescription cubemapSpec = {};
 		cubemapSpec.Type						 = Graphics::TextureType::TextureCube;
@@ -126,7 +126,7 @@ namespace Nexus::Graphics
 		cubemapSpec.MipLevels					 = 1;
 		cubemapSpec.DepthOrArrayLayers			 = 6;
 		cubemapSpec.DebugName					 = "Cubemap";
-		Ref<ITexture> cubemap					 = m_Device->CreateTexture(cubemapSpec);
+		TextureHandle cubemap					 = m_Device->CreateTexture(cubemapSpec);
 
 		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
@@ -158,14 +158,14 @@ namespace Nexus::Graphics
 												 .Type				 = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
 												 .CountOrSizeInBytes = 1}};
 
-		Ref<IGraphicsPipeline> pipeline	   = m_Device->CreateGraphicsPipeline(pipelineDescription);
-		Ref<IResourceSet>	   resourceSet = m_Device->CreateResourceSet(pipeline);
+		PipelineHandle	  pipeline	  = m_Device->CreateGraphicsPipeline(pipelineDescription);
+		ResourceSetHandle resourceSet = m_Device->CreateResourceSet(pipeline);
 
 		Nexus::Graphics::SamplerDescription samplerSpec {};
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
 		samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
-		Ref<ISampler> sampler	 = m_Device->CreateSampler(samplerSpec);
+		SamplerHandle sampler	 = m_Device->CreateSampler(samplerSpec);
 
 		Nexus::Graphics::MeshFactory	  factory(m_Device, m_CommandQueue);
 		Nexus::Ref<Nexus::Graphics::Mesh> cube = factory.CreateCube();
@@ -177,7 +177,7 @@ namespace Nexus::Graphics
 		cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Uniform;
 		cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
 		cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-		Ref<IDeviceBuffer> uniformBuffer								 = m_Device->CreateDeviceBuffer(cameraUniformBufferDesc);
+		Graphics::DeviceBufferHandle uniformBuffer						 = m_Device->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 		for (uint32_t i = 0; i < 6; i++)
 		{
@@ -274,7 +274,7 @@ namespace Nexus::Graphics
 			m_CommandQueue->SubmitCommandLists(&commandList, 1, nullptr);
 			m_Device->WaitForIdle();
 
-			Ref<ITexture>	  colourTexture = framebuffer->GetColorTextureHandle(0);
+			TextureHandle	  colourTexture = framebuffer->GetColorTextureHandle(0);
 			std::vector<char> pixels		= Utils::ReadFromTexture(m_CommandQueue, colourTexture, 0, 0, 0, 0, size, size);
 
 			Utils::WriteToTexture(m_CommandQueue, cubemap, 0, 0, 0, i, size, size, pixels.data(), pixels.size());
@@ -283,9 +283,9 @@ namespace Nexus::Graphics
 		return cubemap;
 	}
 
-	Ref<ITextureView> HdriProcessor::GenerateView(uint32_t size)
+	TextureViewHandle HdriProcessor::GenerateView(uint32_t size)
 	{
-		Ref<ITexture> cubemap = Generate(size);
+		TextureHandle cubemap = Generate(size);
 
 		Graphics::TextureViewDescription cubemapViewDesc = {
 			.TargetTexture = cubemap,
@@ -296,7 +296,7 @@ namespace Nexus::Graphics
 		return m_Device->CreateTextureView(cubemapViewDesc);
 	}
 
-	Ref<ITexture> HdriProcessor::GetLoadedTexture() const
+	TextureHandle HdriProcessor::GetLoadedTexture() const
 	{
 		return m_HdriImage;
 	}

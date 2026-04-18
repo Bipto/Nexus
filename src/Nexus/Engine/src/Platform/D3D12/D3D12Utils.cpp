@@ -7,6 +7,7 @@
 	#include "PipelineD3D12.hpp"
 	#include "ShaderModuleD3D12.hpp"
 	#include "StreamStateBuilder.hpp"
+	#include "TextureD3D12.hpp"
 
 namespace Nexus::D3D12
 {
@@ -341,9 +342,9 @@ namespace Nexus::D3D12
 		pipelineDesc.GS.BytecodeLength	= 0;
 		pipelineDesc.GS.pShaderBytecode = nullptr;
 
-		if (description.FragmentModule)
+		if (description.FragmentModule.IsValid())
 		{
-			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
+			auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
 			auto blob = d3d12FragmentModule->GetBlob();
 
@@ -351,9 +352,9 @@ namespace Nexus::D3D12
 			pipelineDesc.PS.pShaderBytecode = blob->GetBufferPointer();
 		}
 
-		if (description.GeometryModule)
+		if (description.GeometryModule.IsValid())
 		{
-			auto d3d12GeometryModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.GeometryModule);
+			auto d3d12GeometryModule = description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
 			auto blob = d3d12GeometryModule->GetBlob();
 
@@ -361,9 +362,9 @@ namespace Nexus::D3D12
 			pipelineDesc.GS.pShaderBytecode = blob->GetBufferPointer();
 		}
 
-		if (description.TesselationControlModule)
+		if (description.TesselationControlModule.IsValid())
 		{
-			auto d3d12TesselationControlModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationControlModule);
+			auto d3d12TesselationControlModule = description.TesselationControlModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
 						"Shader module is not a tesselation control shader");
 			auto blob = d3d12TesselationControlModule->GetBlob();
@@ -372,9 +373,9 @@ namespace Nexus::D3D12
 			pipelineDesc.HS.pShaderBytecode = blob->GetBufferPointer();
 		}
 
-		if (description.TesselationEvaluationModule)
+		if (description.TesselationEvaluationModule.IsValid())
 		{
-			auto d3d12TesselationEvaluationModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationEvaluationModule);
+			auto d3d12TesselationEvaluationModule = description.TesselationEvaluationModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12TesselationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
 						"Shader module is not a tesselation evaluation shader");
 			auto blob = d3d12TesselationEvaluationModule->GetBlob();
@@ -383,9 +384,9 @@ namespace Nexus::D3D12
 			pipelineDesc.DS.pShaderBytecode = blob->GetBufferPointer();
 		}
 
-		if (description.VertexModule)
+		if (description.VertexModule.IsValid())
 		{
-			auto d3d12VertexModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.VertexModule);
+			auto d3d12VertexModule = description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
 			auto blob = d3d12VertexModule->GetBlob();
 
@@ -440,9 +441,9 @@ namespace Nexus::D3D12
 		ID3D12RootSignature		 *rootSignaturePtr = rootSignature.Get();
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
 
-		if (description.VertexModule)
+		if (description.VertexModule.IsValid())
 		{
-			auto d3d12VertexModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.VertexModule);
+			auto d3d12VertexModule = description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex, "Shader module is not a vertex shader");
 			auto blob = d3d12VertexModule->GetBlob();
 
@@ -452,9 +453,9 @@ namespace Nexus::D3D12
 			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS, byteCode);
 		}
 
-		if (description.FragmentModule)
+		if (description.FragmentModule.IsValid())
 		{
-			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
+			auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
 			auto blob = d3d12FragmentModule->GetBlob();
 
@@ -464,9 +465,9 @@ namespace Nexus::D3D12
 			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS, byteCode);
 		}
 
-		if (description.TesselationEvaluationModule)
+		if (description.TesselationEvaluationModule.IsValid())
 		{
-			auto d3d12TessellationEvaluationModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationEvaluationModule);
+			auto d3d12TessellationEvaluationModule = description.TesselationEvaluationModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12TessellationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
 						"Shader module is not a tessellation evaluation shader");
 			auto blob = d3d12TessellationEvaluationModule->GetBlob();
@@ -477,9 +478,9 @@ namespace Nexus::D3D12
 			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS, byteCode);
 		}
 
-		if (description.TesselationControlModule)
+		if (description.TesselationControlModule.IsValid())
 		{
-			auto d3d12TessellationControlModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TesselationControlModule);
+			auto d3d12TessellationControlModule = description.TesselationControlModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
 						"Shader module is not a tessellation control shader");
 			auto blob = d3d12TessellationControlModule->GetBlob();
@@ -490,9 +491,9 @@ namespace Nexus::D3D12
 			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS, byteCode);
 		}
 
-		if (description.GeometryModule)
+		if (description.GeometryModule.IsValid())
 		{
-			auto d3d12GeometryModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.GeometryModule);
+			auto d3d12GeometryModule = description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry, "Shader module is not a geometry shader");
 			auto blob = d3d12GeometryModule->GetBlob();
 
@@ -598,7 +599,7 @@ namespace Nexus::D3D12
 																			const Graphics::ComputePipelineDescription &description,
 																			Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
 	{
-		auto d3d12ComputeShader = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.ComputeShader);
+		auto d3d12ComputeShader = description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
 		NX_VALIDATE(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
 					"Shader provided to ComputePipelineDescription is not a compute shader");
 
@@ -644,7 +645,7 @@ namespace Nexus::D3D12
 																				 const Graphics::ComputePipelineDescription &description,
 																				 Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
 	{
-		auto d3d12ComputeShader = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.ComputeShader);
+		auto d3d12ComputeShader = description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
 		NX_VALIDATE(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
 					"Shader provided to ComputePipelineDescription is not a compute shader");
 
@@ -701,9 +702,9 @@ namespace Nexus::D3D12
 		ID3D12RootSignature		 *rootSignaturePtr = rootSignature.Get();
 		builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
 
-		if (description.TaskModule)
+		if (description.TaskModule.IsValid())
 		{
-			auto d3d12TaskModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.TaskModule);
+			auto d3d12TaskModule = description.TaskModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task, "Shader module is not a task shader");
 			auto blob = d3d12TaskModule->GetBlob();
 
@@ -713,9 +714,9 @@ namespace Nexus::D3D12
 			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_AS, byteCode);
 		}
 
-		if (description.MeshModule)
+		if (description.MeshModule.IsValid())
 		{
-			auto d3d12MeshModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.MeshModule);
+			auto d3d12MeshModule = description.MeshModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh, "Shader module is not a mesh shader");
 			auto blob = d3d12MeshModule->GetBlob();
 
@@ -725,9 +726,9 @@ namespace Nexus::D3D12
 			builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MS, byteCode);
 		}
 
-		if (description.FragmentModule)
+		if (description.FragmentModule.IsValid())
 		{
-			auto d3d12FragmentModule = std::dynamic_pointer_cast<Graphics::ShaderModuleD3D12>(description.FragmentModule);
+			auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
 			NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment, "Shader module is not a fragment shader");
 			auto blob = d3d12FragmentModule->GetBlob();
 
@@ -855,7 +856,7 @@ namespace Nexus::D3D12
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc)
 	{
-		Ref<Graphics::ITexture> texture = desc.TargetTexture;
+		const Graphics::TextureD3D12 *texture = desc.TargetTexture.AsDerived<const Graphics::TextureD3D12>();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -949,7 +950,7 @@ namespace Nexus::D3D12
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-		Ref<Graphics::ITexture>				texture		= view.TextureHandle;
+		const Graphics::TextureD3D12	   *texture		= view.Texture.AsDerived<const Graphics::TextureD3D12>();
 		const Graphics::TextureDescription &textureDesc = texture->GetDescription();
 		uav.Format										= D3D12::GetD3D12PixelFormat(textureDesc.Format);
 

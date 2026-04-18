@@ -12,7 +12,7 @@ namespace Nexus::Audio
 {
 	class AudioDeviceOpenAL;
 
-	class AudioBufferOpenAL final : public AudioBuffer
+	class AudioBufferOpenAL final : public IAudioBuffer
 	{
 	  public:
 		AudioBufferOpenAL(AudioDeviceOpenAL *device);

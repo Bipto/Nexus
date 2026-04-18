@@ -8,10 +8,10 @@ namespace Demos
 	class MipmapDemo : public Demo
 	{
 	  public:
-		MipmapDemo(const std::string						 &name,
-				   Nexus::Application						 *app,
-				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		MipmapDemo(const std::string						&name,
+				   Nexus::Application						*app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+				   Nexus::Graphics::CommandQueueHandle		 commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -45,9 +45,9 @@ namespace Demos
 			auto [width, height] = m_Window->GetWindowSize();
 
 			Nexus::Graphics::SamplerDescription samplerSpec {};
-			samplerSpec.MinimumLOD						  = m_SelectedMip;
-			samplerSpec.MaximumLOD						  = m_SelectedMip;
-			Nexus::Ref<Nexus::Graphics::ISampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+			samplerSpec.MinimumLOD				   = m_SelectedMip;
+			samplerSpec.MaximumLOD				   = m_SelectedMip;
+			Nexus::Graphics::SamplerHandle sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
 			Nexus::Graphics::CombinedImageSampler ciSampler = {};
 			ciSampler.ImageTexture							= m_TextureView;
@@ -58,8 +58,8 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -158,13 +158,13 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>	   m_ResourceSet = nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		   m_Texture	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_TextureView = nullptr;
-		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		Nexus::Graphics::PipelineHandle	   m_Pipeline	 = {};
+		Nexus::Graphics::ResourceSetHandle m_ResourceSet = {};
+		Nexus::Ref<Nexus::Graphics::Mesh>  m_Mesh		 = {};
+		Nexus::Graphics::TextureHandle	   m_Texture	 = {};
+		Nexus::Graphics::TextureViewHandle m_TextureView = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID	  = 0;
 		int			m_SelectedMip = 0;

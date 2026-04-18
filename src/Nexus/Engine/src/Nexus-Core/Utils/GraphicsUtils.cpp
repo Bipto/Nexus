@@ -9,19 +9,19 @@
 
 namespace
 {
-	Nexus::Ref<Nexus::Graphics::IShaderModule> TryLoadCachedShader(Nexus::Graphics::IGraphicsDevice *device,
-																   const std::string				&source,
-																   const std::string				&name,
-																   Nexus::Graphics::ShaderStage		 stage,
-																   const std::string				&outputDirectory,
-																   Nexus::Graphics::ShaderLanguage	 language)
+	Nexus::Graphics::ShaderModuleHandle TryLoadCachedShader(Nexus::Graphics::IGraphicsDevice *device,
+															const std::string				 &source,
+															const std::string				 &name,
+															Nexus::Graphics::ShaderStage	  stage,
+															const std::string				 &outputDirectory,
+															Nexus::Graphics::ShaderLanguage	  language)
 	{
 		std::size_t hash		   = std::hash<std::string> {}(source);
 		std::string languageString = ShaderLanguageToString(language);
 		std::string filepath	   = outputDirectory + std::string("/cache/shaders/") + languageString + "/" + name;
 
-		bool									   shaderCreated = false;
-		Nexus::Ref<Nexus::Graphics::IShaderModule> module		 = nullptr;
+		bool								shaderCreated = false;
+		Nexus::Graphics::ShaderModuleHandle module		  = {};
 
 		if (std::filesystem::exists(filepath))
 		{
@@ -47,7 +47,7 @@ namespace
 
 namespace Nexus::Utils
 {
-	Ref<Graphics::ISurface> CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
+	Graphics::SurfaceHandle CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
 	{
 #if defined(WIN32)
 		auto win32Info = window->GetWin32Info();
@@ -60,7 +60,7 @@ namespace Nexus::Utils
 		throw std::runtime_error("Failed to create surface for window: Unsupported platform");
 	}
 
-	Ref<Graphics::IShaderModule> CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																 const std::string		   &filepath,
 																 const std::string		   &outputDirectory,
 																 Graphics::ShaderStage		stage)
@@ -69,7 +69,7 @@ namespace Nexus::Utils
 		return CreateShaderModuleFromSpirvSource(graphicsDevice, shaderSource, filepath, outputDirectory, stage);
 	}
 
-	Ref<Graphics::IShaderModule> CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
 																   const std::string		 &source,
 																   const std::string		 &name,
 																   const std::string		 &outputDirectory,
@@ -108,7 +108,7 @@ namespace Nexus::Utils
 		return graphicsDevice->CreateShaderModule(moduleSpec);
 	}
 
-	Ref<Graphics::IShaderModule> GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
 																		const std::string		  &source,
 																		const std::string		  &name,
 																		const std::string		  &outputDirectory,
@@ -118,7 +118,7 @@ namespace Nexus::Utils
 		return TryLoadCachedShader(graphicsDevice, source, name, stage, outputDirectory, language);
 	}
 
-	Ref<Graphics::IShaderModule> GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+	Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
 																	  const std::string			&filepath,
 																	  const std::string			&outputDirectory,
 																	  Graphics::ShaderStage		 stage)
@@ -127,7 +127,7 @@ namespace Nexus::Utils
 		return GetOrCreateCachedShaderFromSpirvSource(graphicsDevice, source, filepath, outputDirectory, stage);
 	}
 
-	Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const char *filepath, bool generateMips, bool srgb)
+	Graphics::TextureHandle CreateTexture2D(Graphics::CommandQueueHandle commandQueue, const char *filepath, bool generateMips, bool srgb)
 	{
 		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -156,7 +156,7 @@ namespace Nexus::Utils
 			spec.MipLevels	  = mipCount;
 		}
 
-		auto   texture	  = Ref<Graphics::ITexture>(device->CreateTexture(spec));
+		auto   texture	  = device->CreateTexture(spec);
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 
 		Utils::WriteToTexture(commandQueue, texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
@@ -178,19 +178,19 @@ namespace Nexus::Utils
 		return texture;
 	}
 
-	Ref<Graphics::ITexture> CreateTexture2D(Ref<Graphics::ICommandQueue> commandQueue, const std::string &filepath, bool generateMips, bool srgb)
+	Graphics::TextureHandle CreateTexture2D(Graphics::CommandQueueHandle commandQueue, const std::string &filepath, bool generateMips, bool srgb)
 	{
 		return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(Graphics::CommandQueueHandle commandQueue,
 																							const char					*filepath,
 																							bool						 generateMips,
 																							bool						 srgb)
 	{
 		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
-		Ref<Graphics::ITexture> texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
+		Graphics::TextureHandle texture = CreateTexture2D(commandQueue, filepath, generateMips, srgb);
 
 		Graphics::TextureViewDescription viewDesc = {};
 		viewDesc.TargetTexture					  = texture;
@@ -201,12 +201,12 @@ namespace Nexus::Utils
 													 .LayerCount	 = texture->GetDepthOrArrayLayers()};
 		std::string viewName					  = filepath + std::string(" - View");
 		viewDesc.DebugName						  = viewName;
-		Ref<Graphics::ITextureView> textureView	  = device->CreateTextureView(viewDesc);
+		Graphics::TextureViewHandle textureView	  = device->CreateTextureView(viewDesc);
 
 		return {texture, textureView};
 	}
 
-	std::pair<Ref<Graphics::ITexture>, Ref<Graphics::ITextureView>> CreateTexture2DWithView(Ref<Graphics::ICommandQueue> commandQueue,
+	std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(Graphics::CommandQueueHandle commandQueue,
 																							const std::string			&filepath,
 																							bool						 generateMips,
 																							bool						 srgb)
@@ -214,7 +214,7 @@ namespace Nexus::Utils
 		return CreateTexture2DWithView(commandQueue, filepath.c_str(), generateMips, srgb);
 	}
 
-	Ref<Graphics::IFramebuffer> CreateFramebuffer(Graphics::IGraphicsDevice *device, const Graphics::FramebufferTextureCreateDescription &desc)
+	Graphics::FramebufferHandle CreateFramebuffer(Graphics::IGraphicsDevice *device, const Graphics::FramebufferTextureCreateDescription &desc)
 	{
 		Graphics::FramebufferTextureSetDescription framebufferDesc = {};
 
@@ -230,7 +230,7 @@ namespace Nexus::Utils
 			textureDesc.Samples						 = desc.Samples;
 			textureDesc.Format						 = format;
 
-			Ref<Graphics::ITexture> colourAttachment = device->CreateTexture(textureDesc);
+			Graphics::TextureHandle colourAttachment = device->CreateTexture(textureDesc);
 
 			Graphics::FramebufferColourAttachmentDescription &framebufferTextureDesc = framebufferDesc.ColourAttachments.emplace_back();
 			framebufferTextureDesc.ColourAttachment.TargetTexture					 = colourAttachment;
@@ -249,7 +249,7 @@ namespace Nexus::Utils
 				resolveTextureDesc.Samples						= 1;
 				resolveTextureDesc.Format						= format;
 
-				Ref<Graphics::ITexture> resolveAttachment = device->CreateTexture(resolveTextureDesc);
+				Graphics::TextureHandle resolveAttachment = device->CreateTexture(resolveTextureDesc);
 
 				Graphics::FramebufferTextureDescription resolveAttachmentDesc = {};
 				resolveAttachmentDesc.TargetTexture							  = resolveAttachment;
@@ -270,7 +270,7 @@ namespace Nexus::Utils
 			textureDesc.Samples						 = desc.Samples;
 			textureDesc.Format						 = desc.DepthAttachmentFormat.value();
 
-			Ref<Graphics::ITexture> texture = device->CreateTexture(textureDesc);
+			Graphics::TextureHandle texture = device->CreateTexture(textureDesc);
 
 			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
 			framebufferTextureDesc.TargetTexture						   = texture;
@@ -284,8 +284,8 @@ namespace Nexus::Utils
 		return device->CreateFramebuffer(framebufferDesc);
 	}
 
-	void WriteToTexture(Ref<Graphics::ICommandQueue> commandQueue,
-						Ref<Graphics::ITexture>		 texture,
+	void WriteToTexture(Graphics::CommandQueueHandle commandQueue,
+						Graphics::TextureHandle		 texture,
 						uint32_t					 mipLevel,
 						uint32_t					 x,
 						uint32_t					 y,
@@ -302,19 +302,19 @@ namespace Nexus::Utils
 		bufferDesc.Usage							 = Graphics::BufferUsage_None;
 		bufferDesc.SizeInBytes						 = size;
 		bufferDesc.StrideInBytes					 = size;
-		Ref<Graphics::IDeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
-		Ref<Graphics::ICommandList>	 cmdList		 = commandQueue->CreateCommandList();
+		Graphics::DeviceBufferHandle buffer			 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::CommandListHandle	 cmdList		 = commandQueue->CreateCommandList();
 
 		buffer->SetData(data, 0, size);
 
 		cmdList->Begin();
 
 		Graphics::BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle							= buffer.get();
+		copyDesc.BufferHandle							= buffer;
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
-		copyDesc.TextureHandle							= texture;
+		copyDesc.Texture								= texture;
 		copyDesc.TextureOffset							= {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent							= {.Width = width, .Height = height};
 		copyDesc.MipLevel								= mipLevel;
@@ -325,8 +325,8 @@ namespace Nexus::Utils
 		device->WaitForIdle();
 	}
 
-	std::vector<char> ReadFromTexture(Ref<Graphics::ICommandQueue> commandQueue,
-									  Ref<Graphics::ITexture>	   texture,
+	std::vector<char> ReadFromTexture(Graphics::CommandQueueHandle commandQueue,
+									  Graphics::TextureHandle	   texture,
 									  uint32_t					   mipLevel,
 									  uint32_t					   x,
 									  uint32_t					   y,
@@ -344,17 +344,17 @@ namespace Nexus::Utils
 		bufferDesc.SizeInBytes						 = footprint.Size;
 		bufferDesc.StrideInBytes					 = footprint.Size;
 
-		Ref<Graphics::IDeviceBuffer> buffer	 = device->CreateDeviceBuffer(bufferDesc);
-		Ref<Graphics::ICommandList>	 cmdList = commandQueue->CreateCommandList();
+		Graphics::DeviceBufferHandle buffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::CommandListHandle	 cmdList = commandQueue->CreateCommandList();
 
 		cmdList->Begin();
 
 		Graphics::BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle							= buffer.get();
+		copyDesc.BufferHandle							= buffer;
 		copyDesc.BufferOffset							= 0;
 		copyDesc.BufferRowLength						= 0;
 		copyDesc.BufferImageHeight						= 0;
-		copyDesc.TextureHandle							= texture;
+		copyDesc.Texture								= texture;
 		copyDesc.TextureOffset							= {.X = (int32_t)x, .Y = (int32_t)y, .Z = (int32_t)z};
 		copyDesc.TextureExtent							= {.Width = width, .Height = height};
 		copyDesc.MipLevel								= mipLevel;
@@ -367,7 +367,7 @@ namespace Nexus::Utils
 		return buffer->GetData(0, footprint.Size);
 	}
 
-	void WriteToBuffer(Ref<Graphics::ICommandQueue> commandQueue, Ref<Graphics::IDeviceBuffer> buffer, const void *data, size_t offset, size_t size)
+	void WriteToBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, const void *data, size_t offset, size_t size)
 	{
 		Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -375,7 +375,7 @@ namespace Nexus::Utils
 		bufferDesc.Access							 = Nexus::Graphics::BufferMemoryAccess::Upload;
 		bufferDesc.SizeInBytes						 = size;
 		bufferDesc.StrideInBytes					 = size;
-		Ref<Graphics::IDeviceBuffer> uploadBuffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle uploadBuffer	 = device->CreateDeviceBuffer(bufferDesc);
 
 		uploadBuffer->SetData(data, 0, size);
 
@@ -385,11 +385,11 @@ namespace Nexus::Utils
 		bufferCopy.WriteOffset			= offset;
 
 		Graphics::BufferCopyDescription bufferCopyDesc = {};
-		bufferCopyDesc.Source						   = uploadBuffer.get();
-		bufferCopyDesc.Destination					   = buffer.get();
+		bufferCopyDesc.Source						   = uploadBuffer;
+		bufferCopyDesc.Destination					   = buffer;
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
-		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();
 		cmdList->Begin();
 		cmdList->CopyBufferToBuffer(bufferCopyDesc);
 		cmdList->End();
@@ -398,7 +398,7 @@ namespace Nexus::Utils
 		device->WaitForIdle();
 	}
 
-	std::vector<char> ReadFromBuffer(Ref<Graphics::ICommandQueue> commandQueue, Ref<Graphics::IDeviceBuffer> buffer, size_t offset)
+	std::vector<char> ReadFromBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, size_t offset)
 	{
 		size_t dataSize = buffer->GetSizeInBytes() - offset;
 
@@ -408,7 +408,7 @@ namespace Nexus::Utils
 		bufferDesc.Access							 = Nexus::Graphics::BufferMemoryAccess::Readback;
 		bufferDesc.SizeInBytes						 = dataSize;
 		bufferDesc.StrideInBytes					 = dataSize;
-		Ref<Graphics::IDeviceBuffer> readbackBuffer	 = device->CreateDeviceBuffer(bufferDesc);
+		Graphics::DeviceBufferHandle readbackBuffer	 = device->CreateDeviceBuffer(bufferDesc);
 
 		Graphics::BufferCopy bufferCopy = {};
 		bufferCopy.Size					= dataSize;
@@ -416,11 +416,11 @@ namespace Nexus::Utils
 		bufferCopy.WriteOffset			= 0;
 
 		Graphics::BufferCopyDescription bufferCopyDesc = {};
-		bufferCopyDesc.Source						   = buffer.get();
-		bufferCopyDesc.Destination					   = readbackBuffer.get();
+		bufferCopyDesc.Source						   = buffer;
+		bufferCopyDesc.Destination					   = readbackBuffer;
 		bufferCopyDesc.Copies						   = {bufferCopy};
 
-		Ref<Graphics::ICommandList> cmdList = commandQueue->CreateCommandList();
+		Graphics::CommandListHandle cmdList = commandQueue->CreateCommandList();
 		cmdList->Begin();
 		cmdList->CopyBufferToBuffer(bufferCopyDesc);
 		cmdList->End();

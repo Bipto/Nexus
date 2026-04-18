@@ -97,26 +97,26 @@ namespace Nexus::Graphics
 	  public:
 		Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, IGraphicsDevice *device);
 
-		Nexus::Ref<Nexus::Graphics::ITexture>	  GetTexture();
-		Nexus::Ref<Nexus::Graphics::ITextureView> GetTextureView();
-		const Character							 &GetCharacter(char character);
-		uint32_t								  GetSize() const;
-		Nexus::Point2D<float>					  MeasureString(const std::string &text, uint32_t size);
-		const uint32_t							  GetLineHeight() const;
-		const Point2D<uint32_t>					  GetMaxCharacterSize() const;
-		const FontType							  GetFontType() const;
+		TextureHandle				GetTexture();
+		Graphics::TextureViewHandle GetTextureView();
+		const Character			   &GetCharacter(char character);
+		uint32_t					GetSize() const;
+		Nexus::Point2D<float>		MeasureString(const std::string &text, uint32_t size);
+		const uint32_t				GetLineHeight() const;
+		const Point2D<uint32_t>		GetMaxCharacterSize() const;
+		const FontType				GetFontType() const;
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_Texture		= nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_TextureView = nullptr;
-		std::vector<CharacterRange>				  m_CharacterRanges;
-		std::map<char, Character>				  m_Characters;
-		uint32_t								  m_TextureWidth	  = 0;
-		uint32_t								  m_TextureHeight	  = 0;
-		uint32_t								  m_FontSize		  = 96;
-		uint32_t								  m_LineSpacing		  = 0;
-		uint32_t								  m_UnderlinePosition = 0;
-		Point2D<uint32_t>						  m_MaxCharacterSize  = {0, 0};
-		FontType								  m_Type;
+		Graphics::TextureHandle		m_Texture	  = {};
+		Graphics::TextureViewHandle m_TextureView = {};
+		std::vector<CharacterRange> m_CharacterRanges;
+		std::map<char, Character>	m_Characters;
+		uint32_t					m_TextureWidth		= 0;
+		uint32_t					m_TextureHeight		= 0;
+		uint32_t					m_FontSize			= 96;
+		uint32_t					m_LineSpacing		= 0;
+		uint32_t					m_UnderlinePosition = 0;
+		Point2D<uint32_t>			m_MaxCharacterSize	= {0, 0};
+		FontType					m_Type;
 	};
 }	 // namespace Nexus::Graphics

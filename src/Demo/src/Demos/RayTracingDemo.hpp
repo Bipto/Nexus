@@ -9,10 +9,10 @@ namespace Demos
 	class RayTracingDemo : public Demo
 	{
 	  public:
-		RayTracingDemo(const std::string						 &name,
-					   Nexus::Application						 *app,
-					   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-					   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		RayTracingDemo(const std::string						&name,
+					   Nexus::Application						*app,
+					   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+					   Nexus::Graphics::CommandQueueHandle		 commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -82,8 +82,8 @@ namespace Demos
 				geometryBuildDesc.Flags			= 0;
 				geometryBuildDesc.Geometry		= {geometryDesc};
 				geometryBuildDesc.Mode			= Nexus::Graphics::AccelerationStructureBuildMode::Build;
-				geometryBuildDesc.Source		= nullptr;
-				geometryBuildDesc.Destination	= nullptr;
+				geometryBuildDesc.Source		= {};
+				geometryBuildDesc.Destination	= {};
 				geometryBuildDesc.ScratchBuffer = {};
 
 				Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
@@ -98,7 +98,7 @@ namespace Demos
 				scratchBufferDesc.SizeInBytes							   = scratchBufferSize;
 				scratchBufferDesc.StrideInBytes							   = scratchBufferSize;
 				scratchBufferDesc.Usage									   = Nexus::Graphics::BufferUsage_Storage;
-				Nexus::Ref<Nexus::Graphics::IDeviceBuffer> scratchBuffer   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
+				Nexus::Graphics::DeviceBufferHandle scratchBuffer		   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
 
 				Nexus::Graphics::DeviceBufferDescription accelerationBufferDesc = {};
 				accelerationBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
@@ -116,7 +116,7 @@ namespace Demos
 				accelerationStructureDesc.Offset											= 0;
 				m_BLAS = m_GraphicsDevice->CreateAccelerationStructure(accelerationStructureDesc);
 
-				geometryBuildDesc.Source	  = nullptr;
+				geometryBuildDesc.Source	  = {};
 				geometryBuildDesc.Destination = m_BLAS;
 
 				const uint64_t align			= accelerationStructureProperties.MinAccelerationStructureScratchOffsetAlignment;
@@ -181,8 +181,8 @@ namespace Demos
 				geometryBuildDesc.Geometry		  = {geometryDesc};
 				geometryBuildDesc.PrimitiveCounts = {1};
 				geometryBuildDesc.Mode			  = Nexus::Graphics::AccelerationStructureBuildMode::Build;
-				geometryBuildDesc.Source		  = nullptr;
-				geometryBuildDesc.Destination	  = nullptr;
+				geometryBuildDesc.Source		  = {};
+				geometryBuildDesc.Destination	  = {};
 				geometryBuildDesc.ScratchBuffer	  = {};
 
 				Nexus::Graphics::AccelerationStructureBuildSizeDescription buildSize =
@@ -197,7 +197,7 @@ namespace Demos
 				scratchBufferDesc.SizeInBytes							   = scratchBufferSize;
 				scratchBufferDesc.StrideInBytes							   = scratchBufferSize;
 				scratchBufferDesc.Usage									   = Nexus::Graphics::BufferUsage_Storage;
-				Nexus::Ref<Nexus::Graphics::IDeviceBuffer> scratchBuffer   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
+				Nexus::Graphics::DeviceBufferHandle scratchBuffer		   = m_GraphicsDevice->CreateDeviceBuffer(scratchBufferDesc);
 
 				Nexus::Graphics::DeviceBufferDescription accelerationBufferDesc = {};
 				accelerationBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
@@ -215,7 +215,7 @@ namespace Demos
 				accelerationStructureDesc.Offset											= 0;
 				m_TLAS = m_GraphicsDevice->CreateAccelerationStructure(accelerationStructureDesc);
 
-				geometryBuildDesc.Source	  = nullptr;
+				geometryBuildDesc.Source	  = {};
 				geometryBuildDesc.Destination = m_TLAS;
 
 				const uint64_t align			= accelerationStructureProperties.MinAccelerationStructureScratchOffsetAlignment;
@@ -312,7 +312,7 @@ namespace Demos
 					m_ResourceSet->WriteAccelerationStructure(m_TLAS, "topLevelAS");
 
 					Nexus::Graphics::StorageImageView storageImageView = {};
-					storageImageView.TextureHandle					   = m_StorageTexture;
+					storageImageView.Texture						   = m_StorageTexture;
 					storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
 					storageImageView.ArrayLayer						   = 0;
 					storageImageView.MipLevel						   = 0;
@@ -324,7 +324,8 @@ namespace Demos
 
 			// SBT
 			// ray tracing shaders can only be compiled to SPIRV atm, HLSL is not supported
-			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
+			if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan &&
+				m_Pipeline->GetType() == Nexus::Graphics::PipelineType::RayTracing)
 			{
 				Nexus::Graphics::RayTracingDeviceDescription deviceRayTracingDesc = m_GraphicsDevice->GetRayTracingDeviceDescription();
 				const uint32_t								 handleSize			  = deviceRayTracingDesc.ShaderGroupHandleSize;	   // e.g., 32
@@ -332,7 +333,8 @@ namespace Demos
 				const uint32_t								 groupCount	  = 3;	  // raygen, miss, hit
 				const uint32_t								 sbtSize	  = groupCount * recordStride;
 
-				std::vector<uint8_t> handles = m_Pipeline->GetRayTracingShaderGroupHandles();	 // size == groupCount * handleSize
+				const Nexus::Graphics::IRayTracingPipeline *pipeline = m_Pipeline.AsDerived<const Nexus::Graphics::IRayTracingPipeline>();
+				std::vector<uint8_t> handles = pipeline->GetRayTracingShaderGroupHandles();	   // size == groupCount * handleSize
 
 				Nexus::Graphics::DeviceBufferDescription sbtDesc = {};
 				sbtDesc.SizeInBytes								 = sbtSize;
@@ -374,8 +376,8 @@ namespace Demos
 				NX_PROFILE_SCOPE("Command recording");
 
 				m_CommandList->Begin();
-				Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-				Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+				Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+				Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 				m_CommandList->SetFramebuffer(framebuffer);
 				m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 				m_CommandList->End();
@@ -421,30 +423,30 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_VertexBuffer	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_IndexBuffer	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformBuffer = nullptr;
+		Nexus::Graphics::DeviceBufferHandle m_VertexBuffer	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_IndexBuffer	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_TransformBuffer = {};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>			m_BLASBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IAccelerationStructure> m_BLAS		 = nullptr;
+		Nexus::Graphics::DeviceBufferHandle			 m_BLASBuffer = {};
+		Nexus::Graphics::AccelerationStructureHandle m_BLAS		  = {};
 
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>			m_TLASBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IAccelerationStructure> m_TLAS		 = nullptr;
+		Nexus::Graphics::DeviceBufferHandle			 m_TLASBuffer = {};
+		Nexus::Graphics::AccelerationStructureHandle m_TLAS		  = {};
 
-		Nexus::Ref<Nexus::Graphics::IRayTracingPipeline> m_Pipeline	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer>		 m_SBT		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::IResourceSet>		 m_ResourceSet = nullptr;
+		Nexus::Graphics::PipelineHandle		m_Pipeline	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_SBT		  = {};
+		Nexus::Graphics::ResourceSetHandle	m_ResourceSet = {};
 
 		Nexus::Graphics::DeviceAddressRegion		m_RaygenRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_MissRegion	 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_HitRegion		 = {};
 		Nexus::Graphics::StridedDeviceAddressRegion m_CallableRegion = {};
 
-		Nexus::Ref<Nexus::Graphics::ITexture>	  m_StorageTexture	   = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView> m_StorageTextureView = nullptr;
+		Nexus::Graphics::TextureHandle	   m_StorageTexture		= {};
+		Nexus::Graphics::TextureViewHandle m_StorageTextureView = {};
 
 		ImTextureID m_BoundImGuiTextureID = 0;
 

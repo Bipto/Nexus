@@ -24,19 +24,19 @@ const std::string c_MipmapFragmentSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	MipmapGenerator::MipmapGenerator(IGraphicsDevice *device, Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+	MipmapGenerator::MipmapGenerator(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_Quad(device, commandQueue, true)
 	{
 		m_CommandList = m_CommandQueue->CreateCommandList();
 
-		Ref<IShaderModule> m_VertexModule	= Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+		ShaderModuleHandle m_VertexModule	= Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
 																								   c_MipmapVertexSource,
 																								   "Mipmap-Gen.vert",
 																								   Nexus::GetApplication()->GetApplicationPath(),
 																								   Nexus::Graphics::ShaderStage::Vertex);
-		Ref<IShaderModule> m_FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
+		ShaderModuleHandle m_FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(m_Device,
 																								   c_MipmapFragmentSource,
 																								   "Mipmap-Gen.frag",
 																								   Nexus::GetApplication()->GetApplicationPath(),
@@ -65,7 +65,7 @@ namespace Nexus::Graphics
 		m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<char> MipmapGenerator::GenerateMip(Ref<ITexture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
+	std::vector<char> MipmapGenerator::GenerateMip(TextureHandle texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer)
 	{
 		std::vector<char> pixels = {};
 
@@ -81,12 +81,12 @@ namespace Nexus::Graphics
 			framebufferTextureDesc.Width												= mipWidth;
 			framebufferTextureDesc.Height												= mipHeight;
 
-			Ref<IFramebuffer> framebuffer = Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
+			FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
 
 			Nexus::Graphics::SamplerDescription samplerSpec;
 			samplerSpec.MinimumLOD = levelToGenerateFrom;
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
-			Ref<ISampler> sampler  = m_Device->CreateSampler(samplerSpec);
+			SamplerHandle sampler  = m_Device->CreateSampler(samplerSpec);
 
 			Nexus::Graphics::TextureViewDescription viewDesc = {};
 			viewDesc.TargetTexture							 = texture;
@@ -96,7 +96,7 @@ namespace Nexus::Graphics
 																.BaseArrayLayer = 0,
 																.LayerCount		= texture->GetDepthOrArrayLayers()};
 			viewDesc.DebugName								 = "Mipmap Generator Texture View";
-			Ref<ITextureView> textureView					 = m_Device->CreateTextureView(viewDesc);
+			TextureViewHandle textureView					 = m_Device->CreateTextureView(viewDesc);
 
 			Nexus::Graphics::CombinedImageSampler ciSampler = {};
 			ciSampler.ImageTexture							= textureView;
@@ -125,14 +125,14 @@ namespace Nexus::Graphics
 			m_CommandList->SetViewport(viewport);
 			m_CommandList->SetScissor(scissor);
 
-			Ref<IDeviceBuffer> vertexBuffer		= m_Quad.GetVertexBuffer();
+			DeviceBufferHandle vertexBuffer		= m_Quad.GetVertexBuffer();
 			VertexBufferView   vertexBufferView = {};
 			vertexBufferView.BufferHandle		= vertexBuffer;
 			vertexBufferView.Offset				= 0;
 			vertexBufferView.Size				= vertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			Ref<IDeviceBuffer> indexBuffer	   = m_Quad.GetIndexBuffer();
+			DeviceBufferHandle indexBuffer	   = m_Quad.GetIndexBuffer();
 			IndexBufferView	   indexBufferView = {};
 			indexBufferView.BufferHandle	   = indexBuffer;
 			indexBufferView.Offset			   = 0;
@@ -158,7 +158,7 @@ namespace Nexus::Graphics
 			m_CommandQueue->SubmitCommandList(m_CommandList);
 			m_Device->WaitForIdle();
 
-			Ref<ITexture> framebufferTexture = framebuffer->GetColorTextureHandle(0);
+			TextureHandle framebufferTexture = framebuffer->GetColorTextureHandle(0);
 			pixels							 = Utils::ReadFromTexture(m_CommandQueue, framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 

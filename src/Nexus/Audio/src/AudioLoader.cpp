@@ -10,13 +10,13 @@
 
 namespace Nexus::Audio
 {
-	std::expected<std::shared_ptr<AudioBuffer>, std::string> LoadAudioFileToBuffer(const std::string &filepath, AudioDevice *device)
+	std::expected<AudioBufferHandle, std::string> LoadAudioFileToBuffer(const std::string &filepath, AudioDevice *device)
 	{
 		if (!device)
 			return std::unexpected("Audio device was invalid");
 
-		std::shared_ptr<AudioBuffer> buffer = device->CreateAudioBuffer();
-		if (!buffer)
+		AudioBufferHandle buffer = device->CreateAudioBuffer();
+		if (!buffer.IsValid())
 			return std::unexpected("Failed to create buffer");
 
 		SF_INFO	 info {};
@@ -45,7 +45,7 @@ namespace Nexus::Audio
 		return buffer;
 	}
 
-	std::expected<std::shared_ptr<AudioBuffer>, std::string> AudioLoader::LoadAudioFile(const std::string &filepath, AudioDevice *device)
+	std::expected<AudioBufferHandle, std::string> AudioLoader::LoadAudioFile(const std::string &filepath, AudioDevice *device)
 	{
 		std::filesystem::path path = filepath;
 

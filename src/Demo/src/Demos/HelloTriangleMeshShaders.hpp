@@ -7,10 +7,10 @@ namespace Demos
 	class HelloTriangleMeshShadersDemo : public Demo
 	{
 	  public:
-		HelloTriangleMeshShadersDemo(const std::string						   &name,
-									 Nexus::Application						   *app,
-									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		HelloTriangleMeshShadersDemo(const std::string						  &name,
+									 Nexus::Application						  *app,
+									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+									 Nexus::Graphics::CommandQueueHandle	   commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -34,8 +34,8 @@ namespace Demos
 
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			Nexus::Graphics::Viewport vp;
@@ -107,8 +107,8 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::IMeshletPipeline> m_Pipeline;
-		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		Nexus::Graphics::PipelineHandle	   m_Pipeline	 = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

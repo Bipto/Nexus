@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/RHI-Core.hpp"
 
 namespace Nexus::Graphics
@@ -13,4 +15,6 @@ namespace Nexus::Graphics
 		virtual void  Resolve()				   = 0;
 		virtual float GetElapsedMilliseconds() = 0;
 	};
+
+	DEFINE_RESOURCE(TimingQuery, ITimingQuery);
 }	 // namespace Nexus::Graphics

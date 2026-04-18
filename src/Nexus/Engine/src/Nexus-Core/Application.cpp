@@ -43,7 +43,7 @@ namespace Nexus
 			}
 		}
 
-		Ref<Graphics::ISurface> surface			   = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
+		Graphics::SurfaceHandle surface			   = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
 		m_Description.SwapchainDescription.Surface = surface;
 
 		// hack, this probably needs removing at some point
@@ -103,7 +103,7 @@ namespace Nexus
 		return m_Window;
 	}
 
-	Ref<Nexus::Graphics::ISwapchain> Application::GetPrimarySwapchain()
+	Graphics::SwapchainHandle Application::GetPrimarySwapchain()
 	{
 		return m_Swapchain;
 	}
@@ -133,7 +133,7 @@ namespace Nexus
 		return m_GraphicsDevice.get();
 	}
 
-	Ref<Graphics::ICommandQueue> Application::GetGraphicsCommandQueue()
+	Graphics::CommandQueueHandle Application::GetGraphicsCommandQueue()
 	{
 		return m_CommandQueueGroup.GraphicsQueue;
 	}

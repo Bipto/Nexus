@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		m_PixModule = NULL;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommands(Ref<ICommandList> commandList, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
 		const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
 
@@ -110,11 +110,11 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
-			Ref<GraphicsPipelineD3D12> pipeline			 = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
-			Ref<DeviceBufferD3D12>	   d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
-			const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
+			const GraphicsPipelineD3D12 *pipeline		   = m_CurrentlyBoundPipeline.AsDerived<const GraphicsPipelineD3D12>();
+			const DeviceBufferD3D12		*d3d12VertexBuffer = command.View.BufferHandle.AsDerived<const DeviceBufferD3D12>();
+			const auto					&bufferLayout	   = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
 			D3D12_VERTEX_BUFFER_VIEW bufferView = {};
 			bufferView.BufferLocation			= d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
@@ -132,7 +132,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
+		const DeviceBufferD3D12 *d3d12IndexBuffer = command.View.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
 		D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
 		indexBufferView.BufferLocation			= d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
@@ -142,13 +142,11 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)
 	{
-		Ref<Pipeline> pipeline = std::dynamic_pointer_cast<Pipeline>(command.lock());
-
-		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
-		d3d12Pipeline->Bind(m_CommandList);
-		m_CurrentlyBoundPipeline = pipeline;
+		PipelineD3D12 *pipeline = command.AsDerived<PipelineD3D12>();
+		pipeline->Bind(m_CommandList);
+		m_CurrentlyBoundPipeline = command;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
@@ -184,9 +182,9 @@ namespace Nexus::Graphics
 
 		NX_VALIDATE(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage_Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
-		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
-			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -207,14 +205,11 @@ namespace Nexus::Graphics
 
 		NX_VALIDATE(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage_Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
-		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		if (m_CurrentlyBoundPipeline.IsValid() && m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
 		{
-			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
-
-				Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline =
-					std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
 
 				Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
 					GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED, command.Stride);
@@ -241,7 +236,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+		if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 		{
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -270,7 +265,7 @@ namespace Nexus::Graphics
 		}
 
 		{
-			if (DeviceBufferD3D12 *indirectBuffer = dynamic_cast<DeviceBufferD3D12 *>(command.IndirectBuffer))
+			if (const DeviceBufferD3D12 *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferD3D12>())
 			{
 				Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
@@ -284,10 +279,11 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
 	{
-		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
+		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline->GetType();
 
-		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(desc.TargetResourceSet);
-		GraphicsDeviceD3D12	 *deviceD3D12	   = (GraphicsDeviceD3D12 *)device;
+		ResourceSetHandle	 handle			  = desc.TargetResourceSet;
+		ResourceSetD3D12	*d3d12ResourceSet = handle.AsDerived<ResourceSetD3D12>();
+		GraphicsDeviceD3D12 *deviceD3D12	  = (GraphicsDeviceD3D12 *)device;
 
 		if (d3d12ResourceSet)
 		{
@@ -351,7 +347,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<IFramebuffer> command, IGraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
 	{
 		SetFramebuffer(command, device);
 	}
@@ -380,27 +376,31 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
 	{
-		Ref<TextureD3D12> source			= std::dynamic_pointer_cast<TextureD3D12>(command.Source);
-		uint32_t		  sourceSubresource = Utils::CalculateSubresource(command.SourceMipLevel, command.SourceArrayLayer, source->GetMipLevels());
-		Microsoft::WRL::ComPtr<ID3D12Resource2> sourceHandle = source->GetHandle();
+		if (const TextureD3D12 *const source = command.Source.AsDerived<const TextureD3D12>())
+		{
+			uint32_t sourceSubresource = Utils::CalculateSubresource(command.SourceMipLevel, command.SourceArrayLayer, source->GetMipLevels());
+			Microsoft::WRL::ComPtr<ID3D12Resource2> sourceHandle = source->GetHandle();
 
-		Ref<TextureD3D12> dest = std::dynamic_pointer_cast<TextureD3D12>(command.Destination);
-		uint32_t		  destinationSubresource =
-			Utils::CalculateSubresource(command.DestinationMipLevel, command.DestinationArrayLayer, dest->GetMipLevels());
-		Microsoft::WRL::ComPtr<ID3D12Resource2> destHandle = dest->GetHandle();
+			if (const TextureD3D12 *dest = command.Destination.AsDerived<const TextureD3D12>())
+			{
+				uint32_t destinationSubresource =
+					Utils::CalculateSubresource(command.DestinationMipLevel, command.DestinationArrayLayer, dest->GetMipLevels());
+				Microsoft::WRL::ComPtr<ID3D12Resource2> destHandle = dest->GetHandle();
 
-		PixelFormat destFormat = dest->GetPixelFormat();
+				PixelFormat destFormat = dest->GetPixelFormat();
 
-		m_CommandList->ResolveSubresource(destHandle.Get(),
-										  destinationSubresource,
-										  sourceHandle.Get(),
-										  sourceSubresource,
-										  D3D12::GetD3D12PixelFormat(destFormat));
+				m_CommandList->ResolveSubresource(destHandle.Get(),
+												  destinationSubresource,
+												  sourceHandle.Get(),
+												  sourceSubresource,
+												  D3D12::GetD3D12PixelFormat(destFormat));
+			}
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(command.Query))
+		if (const TimingQueryD3D12 *queryD3D12 = command.Query.AsDerived<const TimingQueryD3D12>())
 		{
 			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
 			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
@@ -409,7 +409,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
 	{
-		if (TimingQueryD3D12 *queryD3D12 = dynamic_cast<TimingQueryD3D12 *>(command.Query))
+		if (const TimingQueryD3D12 *queryD3D12 = command.Query.AsDerived<const TimingQueryD3D12>())
 		{
 			Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
 			m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
@@ -418,8 +418,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
 	{
-		DeviceBufferD3D12 *source = dynamic_cast<DeviceBufferD3D12 *>(command.BufferCopy.Source);
-		DeviceBufferD3D12 *dest	  = dynamic_cast<DeviceBufferD3D12 *>(command.BufferCopy.Destination);
+		const DeviceBufferD3D12 *source = command.BufferCopy.Source.AsDerived<const DeviceBufferD3D12>();
+		const DeviceBufferD3D12 *dest	= command.BufferCopy.Destination.AsDerived<const DeviceBufferD3D12>();
 
 		if (source && dest)
 		{
@@ -435,13 +435,19 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		Ref<TextureD3D12>					   texture		 = std::dynamic_pointer_cast<TextureD3D12>(command.BufferTextureCopy.TextureHandle);
+		const TextureD3D12 *texture = command.BufferTextureCopy.Texture.AsDerived<const TextureD3D12>();
+
+		if (!texture)
+		{
+			return;
+		}
+
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
 		const bool layeredTexture	= texture->IsLayeredTexture();
 		uint32_t   subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.MipLevel,
 																  layeredTexture ? command.BufferTextureCopy.TextureOffset.Z : 0,
-																  command.BufferTextureCopy.TextureHandle->GetMipLevels());
+																  command.BufferTextureCopy.Texture->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureOffset.X;
@@ -475,9 +481,10 @@ namespace Nexus::Graphics
 											&rowSizeInBytes,
 											&totalBytes);
 
-		Ref<IDeviceBuffer>					   stagingBuffer	  = CreateStagingBuffer(totalBytes, true, device);
-		DeviceBufferD3D12					  *sourceBufferD3D12  = dynamic_cast<DeviceBufferD3D12 *>(command.BufferTextureCopy.BufferHandle);
-		Ref<DeviceBufferD3D12>				   stagingBufferD3D12 = std::dynamic_pointer_cast<DeviceBufferD3D12>(stagingBuffer);
+		DeviceBufferHandle					   stagingBuffer	  = CreateStagingBuffer(totalBytes, true, device);
+		DeviceBufferHandle					   destHandle		  = command.BufferTextureCopy.BufferHandle;
+		DeviceBufferD3D12					  *sourceBufferD3D12  = destHandle.AsDerived<DeviceBufferD3D12>();
+		const DeviceBufferD3D12				  *stagingBufferD3D12 = stagingBuffer.AsDerived<const DeviceBufferD3D12>();
 		Microsoft::WRL::ComPtr<ID3D12Resource> bufferHandle		  = stagingBufferD3D12->GetHandle();
 
 		uint8_t *sourceData	 = sourceBufferD3D12->Map();
@@ -532,16 +539,22 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		DeviceBufferD3D12 *buffer  = dynamic_cast<DeviceBufferD3D12 *>(command.TextureBufferCopy.BufferHandle);
-		Ref<TextureD3D12>  texture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureBufferCopy.TextureHandle);
+		DeviceBufferHandle	handle	= command.TextureBufferCopy.BufferHandle;
+		DeviceBufferD3D12  *buffer	= handle.AsDerived<DeviceBufferD3D12>();
+		const TextureD3D12 *texture = command.TextureBufferCopy.Texture.AsDerived<const TextureD3D12>();
+
+		if (!texture)
+		{
+			return;
+		}
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureHandle = texture->GetHandle();
 
-		bool arrayedTexture = command.TextureBufferCopy.TextureHandle->GetType() == TextureType::Texture3D ||
-							  command.TextureBufferCopy.TextureHandle->GetType() == TextureType::TextureCube;
+		bool arrayedTexture = command.TextureBufferCopy.Texture->GetType() == TextureType::Texture3D ||
+							  command.TextureBufferCopy.Texture->GetType() == TextureType::TextureCube;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.TextureBufferCopy.MipLevel,
 																arrayedTexture ? command.TextureBufferCopy.TextureOffset.Z : 0,
-																command.TextureBufferCopy.TextureHandle->GetMipLevels());
+																command.TextureBufferCopy.Texture->GetMipLevels());
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.TextureBufferCopy.TextureOffset.X;
@@ -596,8 +609,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12					 *deviceD3D12  = (GraphicsDeviceD3D12 *)device;
 		Microsoft::WRL::ComPtr<ID3D12Device9> nativeDevice = deviceD3D12->GetD3D12Device();
 
-		Ref<TextureD3D12> srcTexture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureCopy.Source);
-		Ref<TextureD3D12> dstTexture = std::dynamic_pointer_cast<TextureD3D12>(command.TextureCopy.Destination);
+		const TextureD3D12 *srcTexture = command.TextureCopy.Source.AsDerived<const TextureD3D12>();
+		const TextureD3D12 *dstTexture = command.TextureCopy.Destination.AsDerived<const TextureD3D12>();
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> srcHandle = srcTexture->GetHandle();
 		Microsoft::WRL::ComPtr<ID3D12Resource2> dstHandle = dstTexture->GetHandle();
@@ -698,12 +711,12 @@ namespace Nexus::Graphics
 			D3D12_GPU_VIRTUAL_ADDRESS destAddress	 = 0;
 			D3D12_GPU_VIRTUAL_ADDRESS scratchAddress = accelerationStructureBuildDesc.ScratchBuffer;
 
-			if (accelerationStructureBuildDesc.Source)
+			if (accelerationStructureBuildDesc.Source.IsValid())
 			{
 				srcAddress = accelerationStructureBuildDesc.Source->GetDeviceAddress(0);
 			}
 
-			if (accelerationStructureBuildDesc.Destination)
+			if (accelerationStructureBuildDesc.Destination.IsValid())
 			{
 				destAddress = accelerationStructureBuildDesc.Destination->GetDeviceAddress(0);
 			}
@@ -731,10 +744,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
 	{
-		if (!m_CurrentlyBoundResourceSet && !m_CurrentlyBoundPipeline.has_value())
+		if (!m_CurrentlyBoundResourceSet && !m_CurrentlyBoundPipeline.IsValid())
 			return;
 
-		bool isGraphics = m_CurrentlyBoundPipeline.value()->GetType() != PipelineType::Compute;
+		bool isGraphics = m_CurrentlyBoundPipeline->GetType() != PipelineType::Compute;
 
 		m_CurrentlyBoundResourceSet
 			->SetPushConstants(command.Name, command.Data.data(), command.Offset, command.Data.size(), isGraphics, m_CommandList);
@@ -770,7 +783,7 @@ namespace Nexus::Graphics
 			// texture barriers
 			for (const auto &textureBarrier : command.TextureBarriers)
 			{
-				Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(textureBarrier.Texture);
+				const TextureD3D12					   *texture = textureBarrier.Texture.AsDerived<const TextureD3D12>();
 				Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 				D3D12_BARRIER_SYNC	 beforeSync	  = D3D12::GetBarrierSync(textureBarrier.BeforeStage);
@@ -871,7 +884,7 @@ namespace Nexus::Graphics
 
 			for (const auto &textureBarrier : command.TextureBarriers)
 			{
-				Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(textureBarrier.Texture);
+				const TextureD3D12					   *texture = textureBarrier.Texture.AsDerived<const TextureD3D12>();
 				Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
 
 				for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
@@ -924,7 +937,8 @@ namespace Nexus::Graphics
 		// enumerate through all texture barriers and create the required subresource ranges
 		for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
 		{
-			Ref<TextureD3D12> textureD3D12 = std::dynamic_pointer_cast<TextureD3D12>(textureBarrier.Texture);
+			TextureHandle textureHandle = textureBarrier.Texture;
+			TextureD3D12 *textureD3D12	= textureHandle.AsDerived<TextureD3D12>();
 
 			for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
 				 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer + textureBarrier.TextureSubresourceRange.LayerCount;
@@ -946,7 +960,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
 	{
-		Ref<IFramebuffer> framebuffer = command.TargetFramebuffer;
+		FramebufferHandle framebuffer = command.TargetFramebuffer;
 
 		if (framebuffer->GetSampleCount() > 1)
 		{
@@ -1054,24 +1068,24 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::SetFramebuffer(WeakRef<IFramebuffer> framebuffer, IGraphicsDevice *device)
+	void CommandExecutorD3D12::SetFramebuffer(FramebufferHandle framebuffer, IGraphicsDevice *device)
 	{
 		ResetPreviousRenderTargets(device);
 		GraphicsDeviceD3D12 *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
 
-		if (auto fb = framebuffer.lock())
+		if (framebuffer.IsValid())
 		{
-			Ref<FramebufferD3D12> framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(fb);
+			FramebufferD3D12 *framebufferD3D12 = framebuffer.AsDerived<FramebufferD3D12>();
 
 			m_DescriptorHandles = framebufferD3D12->GetColourAttachmentCPUHandles();
 			m_DepthHandle		= framebufferD3D12->GetDepthAttachmentCPUHandle();
 
-			if (!fb->HasDepthTexture())
+			if (!framebufferD3D12->HasDepthTexture())
 			{
 				m_DepthHandle = {};
 			}
 
-			if (fb->HasDepthTexture())
+			if (framebufferD3D12->HasDepthTexture())
 			{
 				m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, &m_DepthHandle);
 			}
@@ -1080,7 +1094,7 @@ namespace Nexus::Graphics
 				m_CommandList->OMSetRenderTargets(m_DescriptorHandles.size(), m_DescriptorHandles.data(), false, nullptr);
 			}
 
-			m_CurrentFramebuffer = fb;
+			m_CurrentFramebuffer = framebuffer;
 		}
 	}
 
@@ -1156,9 +1170,10 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertResourceBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture	 = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
-		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	 = texture->GetHandle();
-		std::vector<D3D12_RESOURCE_BARRIER>		barriers = {};
+		TextureHandle							textureHandle = command.Texture;
+		TextureD3D12						   *texture		  = textureHandle.AsDerived<TextureD3D12>();
+		Microsoft::WRL::ComPtr<ID3D12Resource2> handle		  = texture->GetHandle();
+		std::vector<D3D12_RESOURCE_BARRIER>		barriers	  = {};
 
 		for (uint32_t arrayLayer = command.TextureSubresourceRange.BaseArrayLayer;
 			 arrayLayer < command.TextureSubresourceRange.BaseArrayLayer + command.TextureSubresourceRange.LayerCount;
@@ -1208,8 +1223,9 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::InsertTextureBarrier(const TextureBarrierDesc &command)
 	{
-		Ref<TextureD3D12>						texture = std::dynamic_pointer_cast<TextureD3D12>(command.Texture);
-		Microsoft::WRL::ComPtr<ID3D12Resource2> handle	= texture->GetHandle();
+		TextureHandle							textureHandle = command.Texture;
+		TextureD3D12						   *texture		  = textureHandle.AsDerived<TextureD3D12>();
+		Microsoft::WRL::ComPtr<ID3D12Resource2> handle		  = texture->GetHandle();
 
 		bool		  transitionEachSubresourceSeparately = false;
 		TextureLayout testLayout						  = texture->GetTextureLayout(0, 0);
@@ -1340,9 +1356,9 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<IDeviceBuffer> CommandExecutorD3D12::CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device)
+	Nexus::Graphics::DeviceBufferHandle CommandExecutorD3D12::CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device)
 	{
-		Ref<IDeviceBuffer> &buffer = m_UploadBuffers.emplace_back();
+		DeviceBufferHandle &buffer = m_UploadBuffers.emplace_back();
 
 		DeviceBufferDescription description = {};
 		upload ? description.Access = BufferMemoryAccess::Upload : description.Access = BufferMemoryAccess::Readback;

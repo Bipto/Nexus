@@ -59,6 +59,8 @@ namespace Nexus::Graphics
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
 	{
+		// release all resources before cleaning up the vulkan device
+		m_Resources = {};
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const
@@ -66,64 +68,75 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice;
 	}
 
-	Ref<IShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
+	ShaderModuleHandle GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
 	{
-		return CreateRef<ShaderModuleD3D12>(moduleSpec);
+		auto shader = std::make_unique<ShaderModuleD3D12>(moduleSpec);
+		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
 
-	Ref<IGraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<GraphicsPipelineD3D12>(this, description);
+		auto pipeline = std::make_unique<GraphicsPipelineD3D12>(this, description);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return CreateRef<ComputePipelineD3D12>(this, description);
+		auto pipeline = std::make_unique<ComputePipelineD3D12>(this, description);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IMeshletPipeline> GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
 	{
-		return CreateRef<MeshletPipelineD3D12>(this, description);
+		auto pipeline = std::make_unique<MeshletPipelineD3D12>(this, description);
+		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
-	Ref<IRayTracingPipeline> GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
+	PipelineHandle GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
 	{
-		return Ref<IRayTracingPipeline>();
+		return {};
 	}
 
-	Ref<IResourceSet> GraphicsDeviceD3D12::CreateResourceSet(Ref<Pipeline> pipeline)
+	ResourceSetHandle GraphicsDeviceD3D12::CreateResourceSet(PipelineHandle pipeline)
 	{
-		return CreateRef<ResourceSetD3D12>(pipeline, this);
+		auto resourceSet = std::make_unique<ResourceSetD3D12>(pipeline, this);
+		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
-	Ref<IFramebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
+	FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		return CreateRef<FramebufferD3D12>(desc, this);
+		auto framebuffer = std::make_unique<FramebufferD3D12>(desc, this);
+		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
 	}
 
-	Ref<ISampler> GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
+	SamplerHandle GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
 	{
-		return CreateRef<SamplerD3D12>(spec);
+		auto sampler = std::make_unique<SamplerD3D12>(spec);
+		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
-	Ref<ITimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
+	TimingQueryHandle GraphicsDeviceD3D12::CreateTimingQuery()
 	{
-		return CreateRef<TimingQueryD3D12>(this);
+		auto timingQuery = std::make_unique<TimingQueryD3D12>(this);
+		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
-	Ref<IDeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	DeviceBufferHandle GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return CreateRef<DeviceBufferD3D12>(desc, this);
+		auto deviceBuffer = std::make_unique<DeviceBufferD3D12>(desc, this);
+		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
 	}
 
-	Ref<IAccelerationStructure> GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
+	AccelerationStructureHandle GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
 	{
-		return CreateRef<AccelerationStructureD3D12>(desc, this);
+		auto accelerationStructure = std::make_unique<AccelerationStructureD3D12>(desc, this);
+		return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
 	}
 
-	Ref<ITexelBuffer> GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
+	TexelBufferHandle GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
 	{
-		return CreateRef<TexelBufferD3D12>(desc);
+		auto texelBuffer = std::make_unique<TexelBufferD3D12>(desc);
+		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
 	}
 
 	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
@@ -150,20 +163,17 @@ namespace Nexus::Graphics
 	{
 		for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
 		{
-			WeakRef<CommandQueueD3D12> commandQueue = m_CreatedCommandQueues.at(i);
+			CommandQueueD3D12 *commandQueue = m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
 
 			// check if the command queue pointer has expired, if it has remove it and continue iterating
-			if (commandQueue.expired())
+			if (!commandQueue)
 			{
 				m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
 				i--;
 				continue;
 			}
 
-			if (Ref<CommandQueueD3D12> lockedQueue = commandQueue.lock())
-			{
-				lockedQueue->WaitForIdle();
-			}
+			commandQueue->WaitForIdle();
 		}
 	}
 
@@ -194,28 +204,31 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Ref<ITexture> GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
+	TextureHandle GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
 	{
-		return CreateRef<TextureD3D12>(spec, this);
+		auto texture = std::make_unique<TextureD3D12>(spec, this);
+		return m_Resources.Textures.CreateShared(std::move(texture));
 	}
 
-	Ref<ITextureView> GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
+	TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
 	{
-		return CreateRef<TextureViewD3D12>(desc);
+		auto textureView = std::make_unique<TextureViewD3D12>(desc);
+		return m_Resources.TextureViews.CreateShared(std::move(textureView));
 	}
 
-	Ref<IFence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+	FenceHandle GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
-		return CreateRef<FenceD3D12>(desc, this);
+		auto fence = std::make_unique<FenceD3D12>(desc, this);
+		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
 
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<IFence> *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
 	{
 		std::vector<HANDLE> eventHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
-			eventHandles[i]		  = fence->GetFenceEvent();
+			FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
+			eventHandles[i]	  = fence->GetFenceEvent();
 		}
 
 		uint64_t timeoutMS = timeoutNS / 1000000ULL;
@@ -248,22 +261,19 @@ namespace Nexus::Graphics
 		return queueFamilies;
 	}
 
-	Ref<ICommandQueue> GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
+	CommandQueueHandle GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
 	{
-		Ref<ICommandQueue>	   commandQueue		 = CreateRef<CommandQueueD3D12>(this, description);
-		Ref<CommandQueueD3D12> commandQueueD3D12 = std::dynamic_pointer_cast<CommandQueueD3D12>(commandQueue);
-
-		WeakRef<CommandQueueD3D12> commandQueueWeakRef = commandQueueD3D12;
-		m_CreatedCommandQueues.push_back(commandQueueWeakRef);
-
-		return commandQueue;
+		auto			   commandQueue = std::make_unique<CommandQueueD3D12>(this, description);
+		CommandQueueHandle handle		= m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
+		m_CreatedCommandQueues.push_back(handle);
+		return handle;
 	}
 
-	void GraphicsDeviceD3D12::ResetFences(Ref<IFence> *fences, uint32_t count)
+	void GraphicsDeviceD3D12::ResetFences(FenceHandle *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
 		{
-			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
+			FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
 			fence->Reset();
 		}
 	}
@@ -333,31 +343,34 @@ namespace Nexus::Graphics
 		return properties;
 	}
 
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) const
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
 	{
 	#if defined(WIN32)
-		return CreateRef<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
+		auto surface = std::make_unique<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
+		return m_Resources.Surfaces.CreateShared(std::move(surface));
 	#else
 		throw std::runtime_error("Unsupported platform");
 		return nullptr;
 	#endif
 	}
 
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) const
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
 	{
-		return nullptr;
+		return {};
 	}
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) const
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
 	{
-		return nullptr;
+		return {};
 	}
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow) const
+
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
 	{
-		return nullptr;
+		return {};
 	}
-	Ref<ISurface> GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId) const
+
+	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId)
 	{
-		return nullptr;
+		return {};
 	}
 
 	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)

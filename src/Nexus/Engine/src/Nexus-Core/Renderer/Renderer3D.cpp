@@ -152,7 +152,7 @@ void main()
 
 namespace Nexus::Graphics
 {
-	Renderer3D::Renderer3D(IGraphicsDevice *device, Ref<Graphics::ICommandQueue> commandQueue)
+	Renderer3D::Renderer3D(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
 		: m_Device(device),
 		  m_CommandQueue(commandQueue),
 		  m_Camera(m_Device),
@@ -190,7 +190,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, Ref<IFramebuffer> target, Nexus::TimeSpan time)
+	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, FramebufferHandle target, Nexus::TimeSpan time)
 	{
 		m_Scene			 = scene;
 		m_RenderTarget	 = target;
@@ -286,7 +286,7 @@ namespace Nexus::Graphics
 
 		const Environment &environment = m_Scene->SceneEnvironment;
 
-		if (m_Cubemap)
+		if (m_Cubemap.IsValid())
 		{
 			m_CommandList->SetPipeline(m_CubemapPipeline);
 
@@ -305,14 +305,14 @@ namespace Nexus::Graphics
 			resourceBindingDesc.DynamicOffsets								   = {};
 			m_CommandList->SetResourceSet(resourceBindingDesc);
 
-			Ref<IDeviceBuffer> vertexBuffer		= m_Cube->GetVertexBuffer();
+			DeviceBufferHandle vertexBuffer		= m_Cube->GetVertexBuffer();
 			VertexBufferView   vertexBufferView = {};
 			vertexBufferView.BufferHandle		= vertexBuffer;
 			vertexBufferView.Offset				= 0;
 			vertexBufferView.Size				= vertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			Ref<IDeviceBuffer> indexBuffer	   = m_Cube->GetIndexBuffer();
+			DeviceBufferHandle indexBuffer	   = m_Cube->GetIndexBuffer();
 			IndexBufferView	   indexBufferView = {};
 			indexBufferView.BufferHandle	   = indexBuffer;
 			indexBufferView.Offset			   = 0;
@@ -357,7 +357,7 @@ namespace Nexus::Graphics
 					transformBufferDesc.Usage					= Graphics::BufferUsage_Uniform;
 					transformBufferDesc.StrideInBytes			= sizeof(ModelTransformUniforms);
 					transformBufferDesc.SizeInBytes				= sizeof(ModelTransformUniforms);
-					Ref<IDeviceBuffer> transformUniformBuffer	= m_Device->CreateDeviceBuffer(transformBufferDesc);
+					DeviceBufferHandle transformUniformBuffer	= m_Device->CreateDeviceBuffer(transformBufferDesc);
 					m_ModelTransformUniformBuffers[model]		= transformUniformBuffer;
 				}
 			}
@@ -366,13 +366,13 @@ namespace Nexus::Graphics
 			{
 				if (m_ModelResourceSets.find(model) == m_ModelResourceSets.end())
 				{
-					Ref<IResourceSet> resourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
+					ResourceSetHandle resourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
 					m_ModelResourceSets[model]	  = resourceSet;
 				}
 			}
 
-			Ref<IDeviceBuffer> transformUniformBuffer = m_ModelTransformUniformBuffers[model];
-			Ref<IResourceSet>  resourceSet			  = m_ModelResourceSets[model];
+			DeviceBufferHandle transformUniformBuffer = m_ModelTransformUniformBuffers[model];
+			ResourceSetHandle  resourceSet			  = m_ModelResourceSets[model];
 
 			// copy data into the uniform buffer
 			{
@@ -385,21 +385,21 @@ namespace Nexus::Graphics
 				transformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
 			}
 
-			Nexus::Ref<Nexus::Graphics::ITextureView> diffuseTexture  = m_DefaultTextureView;
-			Nexus::Ref<Nexus::Graphics::ITextureView> normalTexture	  = m_DefaultTextureView;
-			Nexus::Ref<Nexus::Graphics::ITextureView> specularTexture = m_DefaultTextureView;
+			Graphics::TextureViewHandle diffuseTexture	= m_DefaultTextureView;
+			Graphics::TextureViewHandle normalTexture	= m_DefaultTextureView;
+			Graphics::TextureViewHandle specularTexture = m_DefaultTextureView;
 
-			if (mat.DiffuseTexture)
+			if (mat.DiffuseTexture.IsValid())
 			{
 				diffuseTexture = mat.DiffuseTexture;
 			}
 
-			if (mat.NormalTexture)
+			if (mat.NormalTexture.IsValid())
 			{
 				normalTexture = mat.NormalTexture;
 			}
 
-			if (mat.SpecularTexture)
+			if (mat.SpecularTexture.IsValid())
 			{
 				specularTexture = mat.SpecularTexture;
 			}
@@ -441,14 +441,14 @@ namespace Nexus::Graphics
 			resourceBindingDesc.DynamicOffsets								   = {};
 			m_CommandList->SetResourceSet(resourceBindingDesc);
 
-			Ref<IDeviceBuffer> vertexBuffer		= mesh->GetVertexBuffer();
+			DeviceBufferHandle vertexBuffer		= mesh->GetVertexBuffer();
 			VertexBufferView   vertexBufferView = {};
 			vertexBufferView.BufferHandle		= vertexBuffer;
 			vertexBufferView.Offset				= 0;
 			vertexBufferView.Size				= vertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			Ref<IDeviceBuffer> indexBuffer	   = mesh->GetIndexBuffer();
+			DeviceBufferHandle indexBuffer	   = mesh->GetIndexBuffer();
 			IndexBufferView	   indexBufferView = {};
 			indexBufferView.BufferHandle	   = indexBuffer;
 			indexBufferView.Offset			   = 0;
@@ -561,7 +561,7 @@ namespace Nexus::Graphics
 		cubemapBufferDesc.Usage					  = Graphics::BufferUsage_Uniform;
 		cubemapBufferDesc.StrideInBytes			  = sizeof(CubemapCameraUniforms);
 		cubemapBufferDesc.SizeInBytes			  = sizeof(CubemapCameraUniforms);
-		m_CubemapUniformBuffer					  = Ref<IDeviceBuffer>(m_Device->CreateDeviceBuffer(cubemapBufferDesc));
+		m_CubemapUniformBuffer					  = m_Device->CreateDeviceBuffer(cubemapBufferDesc);
 
 		Nexus::Graphics::SamplerDescription samplerSpec = {};
 		samplerSpec.AddressModeU						= Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -631,7 +631,7 @@ namespace Nexus::Graphics
 			cameraBufferDesc.Usage					 = Graphics::BufferUsage_Uniform;
 			cameraBufferDesc.StrideInBytes			 = sizeof(ModelCameraUniforms);
 			cameraBufferDesc.SizeInBytes			 = sizeof(ModelCameraUniforms);
-			m_ModelCameraUniformBuffer				 = Ref<IDeviceBuffer>(m_Device->CreateDeviceBuffer(cameraBufferDesc));
+			m_ModelCameraUniformBuffer				 = m_Device->CreateDeviceBuffer(cameraBufferDesc);
 		}
 
 		Nexus::Graphics::SamplerDescription samplerSpec = {};

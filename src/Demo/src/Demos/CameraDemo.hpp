@@ -20,10 +20,10 @@ namespace Demos
 	class CameraDemo : public Demo
 	{
 	  public:
-		CameraDemo(const std::string						 &name,
-				   Nexus::Application						 *app,
-				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer	 *imGuiRenderer,
-				   Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		CameraDemo(const std::string						&name,
+				   Nexus::Application						*app,
+				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+				   Nexus::Graphics::CommandQueueHandle		 commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -55,7 +55,7 @@ namespace Demos
 			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage_Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
-			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::IDeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
+			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
@@ -143,8 +143,8 @@ namespace Demos
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
@@ -289,21 +289,21 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList>	   m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::IGraphicsPipeline> m_Pipeline	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::Mesh>			   m_Mesh		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITexture>		   m_Texture	 = nullptr;
-		Nexus::Ref<Nexus::Graphics::ITextureView>	   m_TextureView = nullptr;
-		Nexus::Ref<Nexus::Graphics::ISampler>		   m_Sampler	 = nullptr;
-		glm::vec3									   m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		Nexus::Graphics::PipelineHandle	   m_Pipeline	 = {};
+		Nexus::Ref<Nexus::Graphics::Mesh>  m_Mesh		 = nullptr;
+		Nexus::Graphics::TextureHandle	   m_Texture	 = {};
+		Nexus::Graphics::TextureViewHandle m_TextureView = {};
+		Nexus::Graphics::SamplerHandle	   m_Sampler	 = {};
+		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::IResourceSet> m_ResourceSet = nullptr;
+		Nexus::Graphics::ResourceSetHandle m_ResourceSet = {};
 
-		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms		 = {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_CameraUniformBuffer = nullptr;
+		VB_UNIFORM_CAMERA_DEMO_CAMERA		m_CameraUniforms	  = {};
+		Nexus::Graphics::DeviceBufferHandle m_CameraUniformBuffer = {};
 
-		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		   m_TransformUniforms		= {};
-		Nexus::Ref<Nexus::Graphics::IDeviceBuffer> m_TransformUniformBuffer = nullptr;
+		VB_UNIFORM_TRANSFORM_DEMO_CAMERA	m_TransformUniforms		 = {};
+		Nexus::Graphics::DeviceBufferHandle m_TransformUniformBuffer = {};
 
 		Nexus::FirstPersonCamera m_Camera;
 		bool					 m_CameraActive = false;

@@ -4,6 +4,8 @@
 #include <optional>
 #include <utility>
 
+#include "Core/ResourcePool.hpp"
+
 #include "RHI/PixelFormat.hpp"
 #include "RHI/Texture.hpp"
 
@@ -22,7 +24,7 @@ namespace Nexus::Graphics
 		uint32_t MipLevel = 0;
 
 		/// @brief A handle to the texture to bind
-		Ref<ITexture> TargetTexture = nullptr;
+		TextureHandle TargetTexture = {};
 	};
 
 	struct FramebufferColourAttachmentDescription
@@ -119,7 +121,7 @@ namespace Nexus::Graphics
 		/// framebuffer at the specified index
 		/// @param index The index of the texture to retrieve
 		/// @return A pointer to a texture object
-		Ref<ITexture> GetColorTextureHandle(uint32_t index = 0)
+		TextureHandle GetColorTextureHandle(uint32_t index = 0)
 		{
 			const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
 			if (index < desc.ColourAttachments.size())
@@ -128,7 +130,7 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				return nullptr;
+				return {};
 			}
 		}
 
@@ -136,7 +138,7 @@ namespace Nexus::Graphics
 		/// framebuffer at the specified index
 		/// @param index The index of the texture to retrieve
 		/// @return A pointer to a texture object
-		Ref<ITexture> GetResolveTextureHandle(uint32_t index = 0)
+		TextureHandle GetResolveTextureHandle(uint32_t index = 0)
 		{
 			const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
 			if (index < desc.ColourAttachments.size())
@@ -148,12 +150,12 @@ namespace Nexus::Graphics
 				}
 				else
 				{
-					return nullptr;
+					return {};
 				}
 			}
 			else
 			{
-				return nullptr;
+				return {};
 			}
 		}
 
@@ -176,7 +178,7 @@ namespace Nexus::Graphics
 		/// @brief A method to retrieve the depth texture from the
 		/// framebuffer
 		/// @return A pointer to the texture
-		Ref<ITexture> GetDepthTextureHandle()
+		TextureHandle GetDepthTextureHandle()
 		{
 			const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
 			if (desc.DepthAttachment.has_value())
@@ -185,7 +187,7 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				return nullptr;
+				return {};
 			}
 		}
 
@@ -255,4 +257,6 @@ namespace Nexus::Graphics
 			return desc.OwnedBySwapchain;
 		}
 	};
+
+	DEFINE_RESOURCE(Framebuffer, IFramebuffer);
 }	 // namespace Nexus::Graphics

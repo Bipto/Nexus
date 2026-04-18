@@ -9,10 +9,10 @@ namespace Demos
 	class ClippingAndTriangulationDemo : public Demo
 	{
 	  public:
-		ClippingAndTriangulationDemo(const std::string						   &name,
-									 Nexus::Application						   *app,
-									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer  *imGuiRenderer,
-									 Nexus::Ref<Nexus::Graphics::ICommandQueue> commandQueue)
+		ClippingAndTriangulationDemo(const std::string						  &name,
+									 Nexus::Application						  *app,
+									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+									 Nexus::Graphics::CommandQueueHandle	   commandQueue)
 			: Demo(name, app, imGuiRenderer, commandQueue)
 		{
 		}
@@ -23,10 +23,10 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Ref<Nexus::Graphics::ISwapchain> swapchain	= Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t								sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList										= m_CommandQueue->CreateCommandList();
-			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount);
+			Nexus::Graphics::SwapchainHandle swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			uint32_t						 sampleCount = swapchain->GetDescription().Samples;
+			m_CommandList								 = m_CommandQueue->CreateCommandList();
+			m_BatchRenderer								 = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount);
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
 			r1.SetPointsPerCorner(8);
@@ -103,8 +103,8 @@ namespace Demos
 
 			m_CommandList->Begin();
 
-			Nexus::Ref<Nexus::Graphics::ISwapchain>	  swapchain	  = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Ref<Nexus::Graphics::IFramebuffer> framebuffer = swapchain->GetCurrentFramebuffer();
+			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
 			m_CommandList->SetFramebuffer(framebuffer);
 
 			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -155,8 +155,8 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::ICommandList> m_CommandList;
-		glm::vec3								  m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+		Nexus::Graphics::CommandListHandle m_CommandList = {};
+		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 

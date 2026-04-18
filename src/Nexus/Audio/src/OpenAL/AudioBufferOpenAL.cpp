@@ -16,7 +16,13 @@ namespace Nexus::Audio
 {
 	AudioBufferOpenAL::AudioBufferOpenAL(AudioDeviceOpenAL *device)
 		: m_Device(device),
-		  m_Buffer(0, [](ALuint buffer) { alDeleteBuffers(1, &buffer); })
+		  m_Buffer(0,
+				   [](ALuint buffer)
+				   {
+					   int x = 0;
+					   int y = 0;
+					   alDeleteBuffers(1, &buffer);
+				   })
 	{
 		alGenBuffers(1, &m_Buffer.Get());
 		CheckError();

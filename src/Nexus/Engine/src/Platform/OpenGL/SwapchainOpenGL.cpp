@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 		m_SwapchainWidth  = swapchainSpec.Width;
 		m_SwapchainHeight = swapchainSpec.Height;
 
-		if (auto surface = std::dynamic_pointer_cast<SurfaceOpenGL>(swapchainSpec.Surface))
+		if (const SurfaceOpenGL *surface = swapchainSpec.Surface.AsDerived<const SurfaceOpenGL>())
 		{
 			GL::ContextDescription contextDesc = {};
 			m_ViewContext					   = surface->CreateOpenGLContext(graphicsDevice, contextDesc);
@@ -49,7 +49,7 @@ namespace Nexus::Graphics
 					// context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, "SwapchainOpenGL::SwapBuffers");
 				}
 
-				m_ViewContext->Swap(std::dynamic_pointer_cast<TextureOpenGL>(m_Framebuffer->GetColorTextureHandle(0)), presentDesc);
+				m_ViewContext->Swap(m_Framebuffer->GetColorTextureHandle(0), presentDesc);
 
 				if (context.PopDebugGroup)
 				{
@@ -60,7 +60,7 @@ namespace Nexus::Graphics
 		GL::SetCurrentContext(m_Device->GetOffscreenContext());
 	}
 
-	Ref<IFramebuffer> SwapchainOpenGL::GetCurrentFramebuffer()
+	FramebufferHandle SwapchainOpenGL::GetCurrentFramebuffer()
 	{
 		return m_Framebuffer;
 	}
@@ -128,7 +128,7 @@ namespace Nexus::Graphics
 		return m_ViewContext.get();
 	}
 
-	Ref<IFramebuffer> SwapchainOpenGL::GetFramebuffer()
+	FramebufferHandle SwapchainOpenGL::GetFramebuffer()
 	{
 		return m_Framebuffer;
 	}
@@ -143,7 +143,7 @@ namespace Nexus::Graphics
 		framebufferDesc.Samples								= m_Description.Samples;
 		framebufferDesc.ColourAttachmentFormats				= {m_ColourFormat};
 		framebufferDesc.DepthAttachmentFormat				= m_DepthFormat;
-		m_Framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(Utils::CreateFramebuffer(m_Device, framebufferDesc));
+		m_Framebuffer										= Utils::CreateFramebuffer(m_Device, framebufferDesc);
 	}
 }	 // namespace Nexus::Graphics
 

@@ -4,6 +4,8 @@
 #include "Nexus-Core/Graphics/Triangle.hpp"
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
+
+#include "RHI/CommandQueue.hpp"
 #include "RHI/PixelFormat.hpp"
 #include "RHI/SamplerState.hpp"
 #include "RHI/WindingOrder.hpp"
@@ -12,7 +14,6 @@ namespace Nexus::Graphics
 {
 	class IDeviceBuffer;
 	class IGraphicsDevice;
-	class ICommandQueue;
 }	 // namespace Nexus::Graphics
 
 namespace Nexus::Utils
@@ -132,25 +133,25 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	Ref<Graphics::IDeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
+	Graphics::DeviceBufferHandle CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledVertexBuffer(const void				  *data,
+	Graphics::DeviceBufferHandle CreateFilledVertexBuffer(const void				  *data,
 														  size_t					   sizeInBytes,
 														  size_t					   strideInBytes,
 														  Graphics::IGraphicsDevice	  *device,
-														  Ref<Graphics::ICommandQueue> commandQueue);
+														  Graphics::CommandQueueHandle commandQueue);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledIndexBuffer(const void					 *data,
+	Graphics::DeviceBufferHandle CreateFilledIndexBuffer(const void					 *data,
 														 size_t						  sizeInBytes,
 														 size_t						  strideInBytes,
 														 Graphics::IGraphicsDevice	 *devic,
-														 Ref<Graphics::ICommandQueue> commandQueuee);
+														 Graphics::CommandQueueHandle commandQueuee);
 
-	Ref<Graphics::IDeviceBuffer> CreateFilledUniformBuffer(const void				   *data,
+	Graphics::DeviceBufferHandle CreateFilledUniformBuffer(const void				   *data,
 														   size_t						sizeInBytes,
 														   size_t						strideInBytes,
 														   Graphics::IGraphicsDevice   *device,
-														   Ref<Graphics::ICommandQueue> commandQueue);
+														   Graphics::CommandQueueHandle commandQueue);
 
 	template<typename T>
 	[[nodiscard]] T AlignTo(T value, T alignment)

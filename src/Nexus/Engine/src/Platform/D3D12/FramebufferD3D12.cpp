@@ -29,12 +29,12 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<TextureD3D12> FramebufferD3D12::GetD3D12ColourTexture(uint32_t index)
+	const TextureD3D12 *FramebufferD3D12::GetD3D12ColourTexture(uint32_t index)
 	{
 		return m_ColourAttachments.at(index);
 	}
 
-	Ref<TextureD3D12> FramebufferD3D12::GetD3D12DepthTexture()
+	const TextureD3D12 *FramebufferD3D12::GetD3D12DepthTexture()
 	{
 		return m_DepthAttachment;
 	}
@@ -107,8 +107,7 @@ namespace Nexus::Graphics
 		auto cpuHandle = m_ColorDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		for (uint32_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 		{
-			Ref<TextureD3D12> textureD3D12 = m_ColourAttachments.at(i);
-			Ref<ITexture>	  texture	   = textureD3D12;
+			TextureD3D12 *textureD3D12 = m_ColourAttachments.at(i);
 			m_ColourAttachmentCPUHandles.push_back(cpuHandle);
 
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -167,17 +166,20 @@ namespace Nexus::Graphics
 
 		for (const auto &colourAttachment : m_Description.ColourAttachments)
 		{
-			m_ColourAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ColourAttachment.TargetTexture));
+			Graphics::TextureHandle colourHandle = colourAttachment.ColourAttachment.TargetTexture;
+			m_ColourAttachments.push_back(colourHandle.AsDerived<TextureD3D12>());
 
 			if (colourAttachment.ResolveAttachment.has_value())
 			{
-				m_ResolveAttachments.push_back(std::dynamic_pointer_cast<TextureD3D12>(colourAttachment.ResolveAttachment.value().TargetTexture));
+				Graphics::TextureHandle resolveHandle = colourAttachment.ResolveAttachment.value().TargetTexture;
+				m_ResolveAttachments.push_back(resolveHandle.AsDerived<TextureD3D12>());
 			}
 		}
 
 		if (m_Description.DepthAttachment.has_value())
 		{
-			m_DepthAttachment = std::dynamic_pointer_cast<TextureD3D12>(m_Description.DepthAttachment.value().TargetTexture);
+			Graphics::TextureHandle depthHandle = m_Description.DepthAttachment.value().TargetTexture;
+			m_DepthAttachment					= depthHandle.AsDerived<TextureD3D12>();
 		}
 	}	 // namespace Nexus::Graphics
 }	 // namespace Nexus::Graphics

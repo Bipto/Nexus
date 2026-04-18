@@ -7,7 +7,7 @@ namespace Nexus::Graphics
 	{
 		const GladVulkanContext &context = device->GetVulkanContext();
 
-		Ref<DeviceBufferVk> buffer = std::dynamic_pointer_cast<DeviceBufferVk>(desc.Buffer);
+		const DeviceBufferVk *buffer = desc.Buffer.AsDerived<const DeviceBufferVk>();
 
 		VkBufferViewCreateInfo viewInfo = {};
 		viewInfo.sType					= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

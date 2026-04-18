@@ -27,27 +27,27 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	Ref<TextureVk> FramebufferVk::GetVulkanColourTexture(uint32_t index)
+	const TextureVk *FramebufferVk::GetVulkanColourTexture(uint32_t index) const
 	{
 		return m_ColourAttachments.at(index);
 	}
 
-	Ref<TextureVk> FramebufferVk::GetVulkanDepthTexture()
+	const TextureVk *FramebufferVk::GetVulkanDepthTexture() const
 	{
 		return m_DepthAttachment;
 	}
 
-	Ref<TextureVk> FramebufferVk::GetVulkanResolveTexture(uint32_t index)
+	const TextureVk *FramebufferVk::GetVulkanResolveTexture(uint32_t index) const
 	{
 		return m_ResolveAttachments.at(index);
 	}
 
-	VkRenderPass FramebufferVk::GetRenderPass()
+	VkRenderPass FramebufferVk::GetRenderPass() const
 	{
 		return m_RenderPass;
 	}
 
-	VkFramebuffer FramebufferVk::GetFramebuffer()
+	VkFramebuffer FramebufferVk::GetFramebuffer() const
 	{
 		return m_Framebuffer;
 	}
@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		for (int i = 0; i < m_Description.ColourAttachments.size(); i++)
 		{
 			const auto &colourAttachment = m_Description.ColourAttachments.at(i);
-			m_ColourAttachments.push_back(std::dynamic_pointer_cast<TextureVk>(colourAttachment.ColourAttachment.TargetTexture));
+			m_ColourAttachments.push_back(colourAttachment.ColourAttachment.TargetTexture.AsDerived<const TextureVk>());
 		}
 	}
 
@@ -78,8 +78,8 @@ namespace Nexus::Graphics
 		// check if there is a valid depth texture in the description and bind it to the framebuffer if there is
 		if (m_Description.DepthAttachment.has_value())
 		{
-			Ref<ITexture> texture = m_Description.DepthAttachment.value().TargetTexture;
-			m_DepthAttachment	  = std::dynamic_pointer_cast<TextureVk>(texture);
+			TextureHandle texture = m_Description.DepthAttachment.value().TargetTexture;
+			m_DepthAttachment	  = dynamic_cast<const TextureVk *>(texture.AsDerived<const TextureVk>());
 		}
 	}
 
@@ -95,8 +95,8 @@ namespace Nexus::Graphics
 				// if the colour attachment has a resolve attachment, we bind this
 				if (colourAttachmentDesc.ResolveAttachment.has_value())
 				{
-					Ref<ITexture> resolveTexture = colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
-					m_ResolveAttachments.push_back(std::dynamic_pointer_cast<TextureVk>(resolveTexture));
+					TextureHandle resolveTexture = colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
+					m_ResolveAttachments.push_back(resolveTexture.AsDerived<const TextureVk>());
 				}
 				// otherwise, we bind a placeholder to preserve alignment
 				else
@@ -113,20 +113,20 @@ namespace Nexus::Graphics
 
 		for (const auto &colourAttachment : m_Description.ColourAttachments)
 		{
-			Ref<ITexture>												 colourTexture = colourAttachment.ColourAttachment.TargetTexture;
+			TextureHandle												 colourTexture = colourAttachment.ColourAttachment.TargetTexture;
 			Vk::VulkanRenderPassDescription::VulkanColourAttachmentDesc &desc		   = renderPassDesc.ColourAttachments.emplace_back();
 			desc.ColourFromat														   = Vk::GetVkPixelDataFormat(colourTexture->GetPixelFormat());
 
 			if (colourAttachment.ResolveAttachment.has_value())
 			{
-				Ref<ITexture> resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture;
+				TextureHandle resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture;
 				desc.ResolveFormat			 = Vk::GetVkPixelDataFormat(resolveTexture->GetPixelFormat());
 			}
 		}
 
 		if (m_Description.DepthAttachment.has_value())
 		{
-			Ref<ITexture> texture	   = m_Description.DepthAttachment.value().TargetTexture;
+			TextureHandle texture	   = m_Description.DepthAttachment.value().TargetTexture;
 			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(texture->GetPixelFormat());
 		}
 
@@ -142,7 +142,7 @@ namespace Nexus::Graphics
 		for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 		{
 			const FramebufferColourAttachmentDescription &colourAttachmentDesc = m_Description.ColourAttachments.at(i);
-			Ref<TextureVk>								  colourTexture		   = m_ColourAttachments.at(i);
+			const TextureVk								 *colourTexture		   = m_ColourAttachments.at(i);
 
 			Graphics::VulkanTextureViewInfo colourViewInfo = {};
 			colourViewInfo.BaseArrayLayer				   = colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
@@ -155,7 +155,7 @@ namespace Nexus::Graphics
 
 			if (colourAttachmentDesc.ResolveAttachment.has_value())
 			{
-				Ref<TextureVk>				  resolveTexture = m_ResolveAttachments.at(i);
+				const TextureVk				 *resolveTexture = m_ResolveAttachments.at(i);
 				FramebufferTextureDescription resolveDesc	 = colourAttachmentDesc.ResolveAttachment.value();
 
 				Graphics::VulkanTextureViewInfo resolveViewInfo = {};

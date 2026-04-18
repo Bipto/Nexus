@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 
 		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 
-		void AddView(WeakRef<TextureViewOpenGL> view);
+		void AddView(TextureViewHandle view);
 		void MarkDirty();
 
 	  private:
@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 		GL::GLInternalTextureFormat m_GLInternalTextureFormat = GL::GLInternalTextureFormat::Texture2D;
 		std::vector<TextureLayout>	m_TextureLayout			  = {};
 
-		std::vector<WeakRef<TextureViewOpenGL>> m_Views = {};
+		std::vector<TextureViewHandle> m_Views = {};
 	};
 }	 // namespace Nexus::Graphics
 
