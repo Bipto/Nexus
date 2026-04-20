@@ -23,18 +23,15 @@ The project is split into multiple components including Audio, Core, Engine, Pla
 
 Windows
 ```cmd
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake
+cmake -S . -B build
 ```
 
 Linux
 ```bash
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+cmake -S . -B build
 ```
 
-The project uses CMake to build and vcpkg to manage dependencies. Presets are available for Windows and Linux builds across multiple compilers and build configurations. The recommended way to use vcpkg is by setting the VCPKG_ROOT environment variable. This is used by all presets.
-
-Required CMake variables:
-- CMAKE_TOOLCHAIN_FILE: The path to vcpkg's toolchain file for importing and managing dependencies
+The project uses CMake to build and CPM.cmake to manage dependency management and build reproducibility. Presets are available for Windows and Linux builds across multiple compilers and build configurations.
 
 Optional CMake variables:
 - NX_PLATFORM_OPENGL: Builds the OpenGL graphics implementation
