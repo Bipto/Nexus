@@ -155,7 +155,7 @@ void MyFrame::OnResize(wxSizeEvent &event)
 
 	wxSize size = event.GetSize();
 
-	if (size.GetWidth() == 0 || size.GetHeight() == 0)
+	if ((size.GetWidth() == 0 || size.GetHeight() == 0) || (size == m_PanelSize))
 		return;
 
 	m_ResizePending = true;
