@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "AudioAPI.hpp"
+
 #include "Audio-Core.hpp"
 #include "AudioBuffer.hpp"
 #include "AudioSource.hpp"
