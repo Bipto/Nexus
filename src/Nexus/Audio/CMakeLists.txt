@@ -7,6 +7,7 @@ include (FetchContent)
 set(AUDIO_SOURCES 
 	"include/Audio/AudioBuffer.hpp"
 	"include/Audio/Audio-Core.hpp"
+	"include/Audio/AudioAPI.hpp"
 	"include/Audio/AudioDevice.hpp" 
 	"include/Audio/AudioLoader.hpp" 
 	"include/Audio/AudioSource.hpp" 
