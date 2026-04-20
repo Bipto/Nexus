@@ -3,6 +3,8 @@
 #include <wx/aui/aui.h>
 #include <wx/wx.h>
 
+#include "Nexus-Core/Engine.hpp"
+
 #include "RHI/GraphicsDevice.hpp"
 #include "RHI/IGraphicsAPI.hpp"
 #include "RHI/Swapchain.hpp"
@@ -39,12 +41,11 @@ class MyFrame : public wxFrame
 	wxAuiManager m_mgr;
 	wxTimer		 m_RenderTimer = {};
 
-	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	  m_GraphicsAPI	   = {};
-	std::unique_ptr<Nexus::Graphics::IGraphicsDevice> m_GraphicsDevice = {};
-	Nexus::Graphics::CommandQueueHandle				  m_CommandQueue   = {};
-	Nexus::Graphics::SurfaceHandle					  m_Surface		   = {};
-	Nexus::Graphics::SwapchainHandle				  m_Swapchain	   = {};
-	Nexus::Graphics::CommandListHandle				  m_CommandList	   = {};
+	Nexus::Engine m_Engine;
+
+	Nexus::Graphics::SurfaceHandle	   m_Surface	 = {};
+	Nexus::Graphics::SwapchainHandle   m_Swapchain	 = {};
+	Nexus::Graphics::CommandListHandle m_CommandList = {};
 
 	wxPanel *m_Panel		 = nullptr;
 	bool	 m_ResizePending = false;
@@ -71,7 +72,8 @@ bool MyApp::OnInit()
 
 MyFrame::MyFrame()
 	: wxFrame(nullptr, wxID_ANY, "Hello World", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE),
-	  m_mgr(this)	 // <-- Initialize AUI manager
+	  m_mgr(this),
+	  m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
 	m_RenderTimer.SetOwner(this);
 	Connect(wxEVT_TIMER, wxTimerEventHandler(MyFrame::OnRenderTimer), NULL, this);
@@ -179,13 +181,16 @@ void MyFrame::OnRender()
 		m_ResizePending = false;
 	}
 
+	Nexus::Graphics::IGraphicsDevice   *device = m_Engine.GetGraphicsDevice();
+	Nexus::Graphics::CommandQueueHandle queue  = m_Engine.GetGraphicsCommandQueue();
+
 	m_CommandList->Begin();
 	m_CommandList->SetFramebuffer(m_Swapchain->GetCurrentFramebuffer());
 	m_CommandList->ClearColourTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
 	m_CommandList->End();
 
-	m_CommandQueue->SubmitCommandList(m_CommandList);
-	m_GraphicsDevice->WaitForIdle();
+	queue->SubmitCommandList(m_CommandList);
+	device->WaitForIdle();
 
 	m_Swapchain->SwapBuffers({});
 }
@@ -198,37 +203,15 @@ void MyFrame::OnPaint(wxPaintEvent &event)
 
 void MyFrame::CreateGraphicsResources()
 {
-	Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {.API = Nexus::Graphics::GraphicsAPI::OpenGL, .Debug = true};
-	m_GraphicsAPI = std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo));
-
-	std::vector<std::shared_ptr<Nexus::Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
-	m_GraphicsDevice = std::unique_ptr<Nexus::Graphics::IGraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
-
-	// iterate through all available command queues
-	std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
-	for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
-	{
-		if (queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Graphics) &&
-			queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Compute) &&
-			queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Transfer))
-		{
-			// create graphics queue
-			{
-				Nexus::Graphics::CommandQueueDescription queueDesc = {};
-				queueDesc.QueueFamilyIndex						   = queueFamily.QueueFamily;
-				queueDesc.QueueIndex							   = 0;
-				queueDesc.DebugName								   = "Application Graphics Queue";
-				m_CommandQueue									   = m_GraphicsDevice->CreateCommandQueue(queueDesc);
-			}
-		}
-	}
+	Nexus::Graphics::IGraphicsDevice   *device = m_Engine.GetGraphicsDevice();
+	Nexus::Graphics::CommandQueueHandle queue  = m_Engine.GetGraphicsCommandQueue();
 
 	HWND hwnd = reinterpret_cast<HWND>(m_Panel->GetHandle());
 	HDC	 hdc  = ::GetDC(hwnd);
 
-	m_Surface = m_GraphicsDevice->CreateSurfaceFromWin32(reinterpret_cast<uintptr_t>(hwnd),
-														 reinterpret_cast<uintptr_t>(hdc),
-														 reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)));
+	m_Surface = device->CreateSurfaceFromWin32(reinterpret_cast<uintptr_t>(hwnd),
+											   reinterpret_cast<uintptr_t>(hdc),
+											   reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)));
 
 	Nexus::Graphics::SwapchainDescription swapchainDesc = {};
 	swapchainDesc.Width									= m_Panel->GetSize().GetWidth();
@@ -236,7 +219,7 @@ void MyFrame::CreateGraphicsResources()
 	swapchainDesc.Samples								= 1;
 	swapchainDesc.Surface								= m_Surface;
 
-	m_Swapchain = m_CommandQueue->CreateSwapchain(swapchainDesc);
+	m_Swapchain = queue->CreateSwapchain(swapchainDesc);
 
-	m_CommandList = m_CommandQueue->CreateCommandList();
+	m_CommandList = queue->CreateCommandList();
 }
