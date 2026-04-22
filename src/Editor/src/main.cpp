@@ -9,6 +9,10 @@
 #include "RHI/IGraphicsAPI.hpp"
 #include "RHI/Swapchain.hpp"
 
+#include "UI/Layout.hpp"
+
+#include "wxWidgets/wxWidgetsLayout.hpp"
+
 #ifdef _WIN32
 	#include <windows.h>
 #endif
@@ -28,9 +32,9 @@ class MyFrame : public wxFrame
 	~MyFrame();
 
   private:
-	void OnHello(wxCommandEvent &event);
-	void OnExit(wxCommandEvent &event);
-	void OnAbout(wxCommandEvent &event);
+	void OnHello();
+	void OnExit();
+	void OnAbout();
 	void OnResize(wxSizeEvent &event);
 	void OnRenderTimer(wxTimerEvent &event);
 	void OnRender();
@@ -75,13 +79,37 @@ MyFrame::MyFrame()
 	  m_mgr(this),
 	  m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
+	// new UI code
+	Nexus::UI::wxWidgetsLayout layout(this);
+	Nexus::UI::IPanel		  *panel   = layout.CreatePanel();
+	Nexus::UI::IMenubar		  *menubar = panel->CreateMenubar();
+
+	Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("&File");
+
+	Nexus::UI::IMenu *newMenu = fileMenu->AppendSubMenu("New");
+	newMenu->Append("File", []() {});
+
+	fileMenu->Append("&Hello...\tCtrl-H", [this]() { OnHello(); });
+	fileMenu->AppendSeparator();
+	fileMenu->Append("Exit", [this]() { OnExit(); });
+
+	Nexus::UI::IMenu *helpMenu = menubar->CreateMenu("&Help");
+	helpMenu->Append("About", [this]() { OnAbout(); });
+
+	fileMenu->AppendSeparator();
+
+	fileMenu->Append("Close", [this]() { Close(true); });
+
 	m_RenderTimer.SetOwner(this);
 	Connect(wxEVT_TIMER, wxTimerEventHandler(MyFrame::OnRenderTimer), NULL, this);
 
 	Bind(wxEVT_TIMER, &MyFrame::OnRenderTimer, this);
-	m_RenderTimer.Start(16);
+	m_RenderTimer.Start(17);
 
-	// --- Central panel ---
+	CreateStatusBar();
+	SetStatusText("Welcome to wxWidgets!");
+
+	//--- Central panel ---
 	m_Panel = new wxPanel(this);
 	m_Panel->Bind(wxEVT_SIZE, &MyFrame::OnResize, this);
 	m_Panel->SetDoubleBuffered(false);
@@ -105,27 +133,6 @@ MyFrame::MyFrame()
 	// Apply layout
 	m_mgr.Update();
 
-	// --- Menus ---
-	wxMenu *menuFile = new wxMenu;
-	menuFile->Append(ID_Hello, "&Hello...\tCtrl-H");
-	menuFile->AppendSeparator();
-	menuFile->Append(wxID_EXIT);
-
-	wxMenu *menuHelp = new wxMenu;
-	menuHelp->Append(wxID_ABOUT);
-
-	wxMenuBar *menuBar = new wxMenuBar;
-	menuBar->Append(menuFile, "&File");
-	menuBar->Append(menuHelp, "&Help");
-	SetMenuBar(menuBar);
-
-	CreateStatusBar();
-	SetStatusText("Welcome to wxWidgets!");
-
-	Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
-	Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
-	Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
-
 	CreateGraphicsResources();
 }
 MyFrame::~MyFrame()
@@ -133,17 +140,17 @@ MyFrame::~MyFrame()
 	m_mgr.UnInit();
 }
 
-void MyFrame::OnExit(wxCommandEvent &event)
+void MyFrame::OnExit()
 {
 	Close(true);
 }
 
-void MyFrame::OnAbout(wxCommandEvent &event)
+void MyFrame::OnAbout()
 {
 	wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION);
 }
 
-void MyFrame::OnHello(wxCommandEvent &event)
+void MyFrame::OnHello()
 {
 	wxLogMessage("Hello world from wxWidgets!");
 }

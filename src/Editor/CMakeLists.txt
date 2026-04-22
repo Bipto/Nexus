@@ -6,17 +6,7 @@ file(GLOB_RECURSE SOURCE_FILES
 add_executable(Editor ${SOURCE_FILES})
 
 target_include_directories(Editor PUBLIC ../Nexus/src)
-target_link_libraries(Editor PUBLIC Nexus)
-
-CPMAddPackage(
-	NAME wxWidgets
-	GITHUB_REPOSITORY wxWidgets/wxWidgets
-	GIT_TAG v3.3.2
-        "wxBUILD_SHARED OFF"
-        "wxBUILD_TESTS OFF"
-)
-
-target_link_libraries(Editor PRIVATE wx::net wx::core wx::base wx::aui)
+target_link_libraries(Editor PUBLIC Nexus Nexus-UI Nexus-UI-wxWidgets)
 
 set_target_properties(Editor PROPERTIES
     WIN32_EXECUTABLE TRUE
