@@ -17,7 +17,6 @@ namespace Demos
 
 		virtual ~TexturingDemo()
 		{
-			m_ImGuiRenderer->UnbindTexture(m_TextureID);
 		}
 
 		virtual void Load() override
