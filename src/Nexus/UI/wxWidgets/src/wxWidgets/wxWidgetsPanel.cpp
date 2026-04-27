@@ -10,7 +10,7 @@ namespace Nexus::UI
 
 	IMenubar *wxWidgetsPanel::CreateMenubar()
 	{
-		return new wxWidgetsMenubar(m_Frame);
+		return AddChild<wxWidgetsMenubar, IMenubar>(m_Frame);
 	}
 
 	wxPanel *Nexus::UI::wxWidgetsPanel::GetPanel()

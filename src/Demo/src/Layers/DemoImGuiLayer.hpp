@@ -9,6 +9,8 @@
 #include "Nexus-Core/ImGui/ImGuiLayer.hpp"
 #include "RHI/GraphicsDevice.hpp"
 
+#include "ImGui/ImGuiLayout.hpp"
+
 class DemoImGuiLayer : public Nexus::ImGuiLayer
 {
   public:
@@ -39,4 +41,6 @@ class DemoImGuiLayer : public Nexus::ImGuiLayer
 	std::shared_ptr<Demos::Demo>					  m_CurrentDemo		 = nullptr;
 	std::function<void(std::shared_ptr<Demos::Demo>)> m_CallbackFunction = {};
 	Nexus::Graphics::IGraphicsDevice				 *m_GraphicsDevice	 = nullptr;
+
+	Nexus::UI::ImGuiLayout m_Layout = {};
 };

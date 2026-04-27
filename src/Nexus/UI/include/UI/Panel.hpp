@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-#include "Control.hpp"
-#include "Menubar.hpp"
+#include "UI/Control.hpp"
+#include "UI/Menubar.hpp"
 
 namespace Nexus::UI
 {
-	class IPanel
+	class IPanel : public IControl
 	{
 	  public:
 		virtual ~IPanel()				  = default;

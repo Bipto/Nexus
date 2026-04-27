@@ -9,12 +9,68 @@
 
 namespace Nexus::UI
 {
+	wxWidgetsTextMenuItem::wxWidgetsTextMenuItem(const std::string &text, wxMenu *menu, wxFrame *frame) : m_MenuItem(menu->Append(wxNewId(), text))
+	{
+		frame->Bind(
+			wxEVT_MENU,
+			[this](wxCommandEvent &event)
+			{
+				if (m_OnClick)
+				{
+					m_OnClick();
+				}
+			},
+			m_MenuItem->GetId());
+	}
+
+	void wxWidgetsTextMenuItem::OnClick(std::function<void()> handler)
+	{
+		m_OnClick = handler;
+	}
+
+	wxWidgetsSeparatorMenuItem::wxWidgetsSeparatorMenuItem(wxMenu *menu, wxFrame *frame) : m_MenuItem(menu->AppendSeparator())
+	{
+		frame->Bind(
+			wxEVT_MENU,
+			[this](wxCommandEvent &event)
+			{
+				if (m_OnClick)
+				{
+					m_OnClick();
+				}
+			},
+			m_MenuItem->GetId());
+	}
+
+	void wxWidgetsSeparatorMenuItem::OnClick(std::function<void()> handler)
+	{
+		m_OnClick = handler;
+	}
+
 	wxWidgetsMenu::wxWidgetsMenu(const std::string &text, wxMenuBar *menubar, wxFrame *frame)
 		: m_Menubar(menubar),
 		  m_Menu(new wxMenu()),
 		  m_Frame(frame)
 	{
 		m_Menubar->Append(m_Menu, text);
+
+		frame->Bind(
+			wxEVT_MENU_OPEN,
+			[this](wxMenuEvent &event)
+			{
+				if (m_OnMenuOpened)
+					m_OnMenuOpened();
+			},
+			m_Menubar->GetId());
+
+		frame->Bind(
+			wxEVT_MENU_CLOSE,
+			[this](wxMenuEvent &event)
+			{
+				if (m_OnMenuClosed)
+					m_OnMenuClosed();
+			},
+			m_Menubar->GetId());
 	}
 
 	wxWidgetsMenu::wxWidgetsMenu(const std::string &text, wxMenu *parent, wxFrame *frame) : m_ParentMenu(parent), m_Menu(new wxMenu()), m_Frame(frame)
@@ -22,31 +78,29 @@ namespace Nexus::UI
 		m_ParentMenu->AppendSubMenu(m_Menu, text);
 	}
 
-	void wxWidgetsMenu::Append(const std::string &text, std::function<void()> onClick)
+	IMenuItem *wxWidgetsMenu::Append(const std::string &text)
 	{
-		int id = wxNewId();
-		m_Menu->Append(id, text);
-		m_OnClicks[id] = std::move(onClick);
-
-		m_Frame->Bind(wxEVT_MENU,
-					  [&](wxCommandEvent &event)
-					  {
-						  int id = event.GetId();
-						  if (m_OnClicks.contains(id))
-						  {
-							  m_OnClicks[id]();
-						  }
-					  });
+		return AddChild<wxWidgetsTextMenuItem, IMenuItem>(text, m_Menu, m_Frame);
 	}
 
 	IMenu *wxWidgetsMenu::AppendSubMenu(const std::string &text)
 	{
-		return new wxWidgetsMenu(text, m_Menu, m_Frame);
+		return AddChild<wxWidgetsMenu, IMenu>(text, m_Menu, m_Frame);
 	}
 
-	void wxWidgetsMenu::AppendSeparator()
+	IMenuItem *wxWidgetsMenu::AppendSeparator()
 	{
-		m_Menu->AppendSeparator();
+		return AddChild<wxWidgetsSeparatorMenuItem, IMenuItem>(m_Menu, m_Frame);
+	}
+
+	void wxWidgetsMenu::OnMenuOpened(EventHandler handler)
+	{
+		m_OnMenuOpened = handler;
+	}
+
+	void wxWidgetsMenu::OnMenuClosed(EventHandler handler)
+	{
+		m_OnMenuClosed = handler;
 	}
 
 	wxMenu *wxWidgetsMenu::GetMenu()
@@ -61,6 +115,6 @@ namespace Nexus::UI
 
 	IMenu *wxWidgetsMenubar ::CreateMenu(const std::string &text)
 	{
-		return new wxWidgetsMenu(text, m_Menubar, m_Frame);
+		return AddChild<wxWidgetsMenu, IMenu>(text, m_Menubar, m_Frame);
 	}
 }	 // namespace Nexus::UI

@@ -51,9 +51,10 @@ class MyFrame : public wxFrame
 	Nexus::Graphics::SwapchainHandle   m_Swapchain	 = {};
 	Nexus::Graphics::CommandListHandle m_CommandList = {};
 
-	wxPanel *m_Panel		 = nullptr;
-	bool	 m_ResizePending = false;
-	wxSize	 m_PanelSize	 = {};
+	wxPanel					  *m_Panel		   = nullptr;
+	bool					   m_ResizePending = false;
+	wxSize					   m_PanelSize	   = {};
+	Nexus::UI::wxWidgetsLayout m_Layout {this};
 };
 
 enum
@@ -80,25 +81,31 @@ MyFrame::MyFrame()
 	  m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
 	// new UI code
-	Nexus::UI::wxWidgetsLayout layout(this);
-	Nexus::UI::IPanel		  *panel   = layout.CreatePanel();
-	Nexus::UI::IMenubar		  *menubar = panel->CreateMenubar();
+	Nexus::UI::IMenubar *menubar = m_Layout.CreateMainMenubar();
 
 	Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("&File");
 
-	Nexus::UI::IMenu *newMenu = fileMenu->AppendSubMenu("New");
-	newMenu->Append("File", []() {});
+	Nexus::UI::IMenu	 *newMenu  = fileMenu->AppendSubMenu("New");
+	Nexus::UI::IMenuItem *fileItem = newMenu->Append("File");
 
-	fileMenu->Append("&Hello...\tCtrl-H", [this]() { OnHello(); });
-	fileMenu->AppendSeparator();
-	fileMenu->Append("Exit", [this]() { OnExit(); });
-
-	Nexus::UI::IMenu *helpMenu = menubar->CreateMenu("&Help");
-	helpMenu->Append("About", [this]() { OnAbout(); });
+	Nexus::UI::IMenuItem *helloItem = fileMenu->Append("&Hello...\tCtrl-H");
+	helloItem->OnClick([this]() { OnHello(); });
 
 	fileMenu->AppendSeparator();
 
-	fileMenu->Append("Close", [this]() { Close(true); });
+	Nexus::UI::IMenuItem *exitItem = fileMenu->Append("Exit");
+	exitItem->OnClick([this]() { OnExit(); });
+
+	Nexus::UI::IMenu	 *helpMenu	= menubar->CreateMenu("&Help");
+	Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
+	aboutItem->OnClick(
+		[this]()
+		{
+			int x = 0;
+			OnAbout();
+		});
+
+	fileMenu->AppendSeparator();
 
 	m_RenderTimer.SetOwner(this);
 	Connect(wxEVT_TIMER, wxTimerEventHandler(MyFrame::OnRenderTimer), NULL, this);
@@ -135,6 +142,7 @@ MyFrame::MyFrame()
 
 	CreateGraphicsResources();
 }
+
 MyFrame::~MyFrame()
 {
 	m_mgr.UnInit();

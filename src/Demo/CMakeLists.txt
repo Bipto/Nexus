@@ -14,6 +14,8 @@ endif()
 target_include_directories(Demo PUBLIC ../Nexus/src)
 target_link_libraries(Demo PUBLIC Nexus)
 
+target_link_libraries(Demo PUBLIC Nexus-UI Nexus-UI-ImGui)
+
 if (EMSCRIPTEN)
     set_target_properties(
         Demo

@@ -3,18 +3,41 @@
 #include <functional>
 #include <string>
 
+#include "UI/Control.hpp"
+
 namespace Nexus::UI
 {
-	class IMenu
+	class IMenuItem : public IControl
 	{
 	  public:
-		virtual ~IMenu()															  = default;
-		virtual void   Append(const std::string &text, std::function<void()> onClick) = 0;
-		virtual IMenu *AppendSubMenu(const std::string &text)						  = 0;
-		virtual void   AppendSeparator()											  = 0;
+		virtual ~IMenuItem()					   = default;
+		virtual void OnClick(EventHandler handler) = 0;
 	};
 
-	class IMenubar
+	class ITextMenuItem : public IMenuItem
+	{
+	  public:
+		virtual ~ITextMenuItem() = default;
+	};
+
+	class ISeparatorMenuItem : public IMenuItem
+	{
+	  public:
+		virtual ~ISeparatorMenuItem() = default;
+	};
+
+	class IMenu : public IControl
+	{
+	  public:
+		virtual ~IMenu()										  = default;
+		virtual IMenuItem *Append(const std::string &text)		  = 0;
+		virtual IMenu	  *AppendSubMenu(const std::string &text) = 0;
+		virtual IMenuItem *AppendSeparator()					  = 0;
+		virtual void	   OnMenuOpened(EventHandler handler)	  = 0;
+		virtual void	   OnMenuClosed(EventHandler handler)	  = 0;
+	};
+
+	class IMenubar : public IControl
 	{
 	  public:
 		virtual ~IMenubar()								   = default;

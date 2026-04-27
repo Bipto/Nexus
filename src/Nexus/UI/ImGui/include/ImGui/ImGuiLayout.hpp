@@ -4,23 +4,21 @@
 
 #include <memory>
 
-#include <wx/aui/aui.h>
-#include <wx/wx.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 #include "UI/Control.hpp"
 #include "UI/Layout.hpp"
 
 namespace Nexus::UI
 {
-	class wxWidgetsLayout : public ILayout
+	class ImGuiLayout : public ILayout
 	{
 	  public:
-		wxWidgetsLayout(wxFrame *frame);
-		virtual ~wxWidgetsLayout() = default;
+		ImGuiLayout()		   = default;
+		virtual ~ImGuiLayout() = default;
 		IPanel	 *CreatePanel() final;
 		IMenubar *CreateMainMenubar() final;
-
-	  private:
-		wxFrame *m_Frame = nullptr;
 	};
 }	 // namespace Nexus::UI

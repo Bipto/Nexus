@@ -109,6 +109,8 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 	RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
 	RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
 	RegisterDemo<Demos::Splines>("Utils", "Splines");
+
+	m_Layout.CreatePanel();
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()
