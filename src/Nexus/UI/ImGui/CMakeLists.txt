@@ -3,10 +3,12 @@ add_library(Nexus-UI-ImGui
 	"include/ImGui/ImGuiPanel.hpp"
 	"include/ImGui/ImGuiMenubar.hpp"
 	"include/ImGui/ImGuiStatusBar.hpp"
+	"include/ImGui/ImGuiButton.hpp"
 	"src/ImGui/ImGuiLayout.cpp"
 	"src/ImGui/ImGuiPanel.cpp"
 	"src/ImGui/ImGuiMenubar.cpp"
-	"src/ImGui/ImGuiStatusBar.cpp")
+	"src/ImGui/ImGuiStatusBar.cpp"
+	"src/ImGui/ImGuiButton.cpp")
 
 target_include_directories(Nexus-UI-ImGui  PUBLIC "include")
 

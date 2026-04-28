@@ -13,6 +13,11 @@ namespace Nexus::UI
 		return AddChild<wxWidgetsMenubar, IMenubar>(m_Frame);
 	}
 
+	IButton *wxWidgetsPanel::CreateButton(std::string_view text, Position position, Size size)
+	{
+		return nullptr;
+	}
+
 	wxPanel *Nexus::UI::wxWidgetsPanel::GetPanel()
 	{
 		return m_Panel;

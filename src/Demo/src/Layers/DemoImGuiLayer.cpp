@@ -51,9 +51,6 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 {
 	ImGuiContext *context = m_ImGuiRenderer->GetContext();
 	ImGui::SetCurrentContext(context);
-
-	ImGui::SetCurrentContext(context);
-
 	ImGui::GetStyle().ScrollbarSize = 20.0f;
 
 	ImGuiIO &io = m_ImGuiRenderer->GetIO();
@@ -123,6 +120,21 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 
 	Nexus::UI::IStatusBar *statusBar = m_Layout.CreateStatusBar();
 	statusBar->SetStatusText("Hello from ImGui");
+
+	Nexus::UI::IPanel *panel = m_Layout.CreatePanel();
+	panel->SetPosition({500, 500});
+	panel->SetSize({300, 300});
+
+	Nexus::UI::IButton *button = panel->CreateButton("Click Me", Nexus::UI::Position {100, 100}, Nexus::UI::Size {250, 100});
+	button->OnClick(
+		[]()
+		{
+			auto messageBoxDesc			= Nexus::MessageBoxDescription {};
+			messageBoxDesc.Buttons		= {Nexus::MessageBoxButton {.Key = Nexus::DefaultKey::Escape, .ID = 0, .Text = "Close"}};
+			messageBoxDesc.ParentWindow = Nexus::GetApplication()->GetPrimaryWindow();
+			auto messageBox				= Nexus::Platform::CreateMessageBox(messageBoxDesc);
+			messageBox->Show();
+		});
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()

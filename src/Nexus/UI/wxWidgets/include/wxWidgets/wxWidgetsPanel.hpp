@@ -21,6 +21,7 @@ namespace Nexus::UI
 		wxWidgetsPanel(wxFrame *frame);
 		virtual ~wxWidgetsPanel() = default;
 		IMenubar *CreateMenubar() final;
+		IButton	 *CreateButton(std::string_view text, Position position, Size size) final;
 
 		wxPanel *GetPanel();
 

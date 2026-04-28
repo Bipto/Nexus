@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -22,6 +23,17 @@ namespace Nexus::UI
 		ImGuiPanel()		  = default;
 		virtual ~ImGuiPanel() = default;
 		IMenubar *CreateMenubar() final;
-		void	  Render() final;
+		void	  SetPosition(Position position) final;
+		void	  SetSize(Size size) final;
+		IButton	 *CreateButton(std::string_view text, std::optional<Position> position, std::optional<Size> size) final;
+
+		void Render() final;
+
+	  private:
+		std::string m_Title = {};
+		bool		m_Open	= true;
+
+		std::optional<Position> m_Position = {};
+		std::optional<Size>		m_Size	   = {};
 	};
 }	 // namespace Nexus::UI

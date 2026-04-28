@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 #include "UI/Menubar.hpp"
 #include "UI/Panel.hpp"
 #include "UI/StatusBar.hpp"
