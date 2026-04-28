@@ -2,6 +2,7 @@
 
 #include "wxWidgets/wxWidgetsMenubar.hpp"
 #include "wxWidgets/wxWidgetsPanel.hpp"
+#include "wxWidgets/wxWidgetsStatusBar.hpp"
 
 namespace Nexus::UI
 {
@@ -17,5 +18,10 @@ namespace Nexus::UI
 	IMenubar *wxWidgetsLayout::CreateMainMenubar()
 	{
 		return AddChild<wxWidgetsMenubar, IMenubar>(m_Frame);
+	}
+
+	IStatusBar *wxWidgetsLayout::CreateStatusBar()
+	{
+		return AddChild<wxWidgetsStatusBar, IStatusBar>(m_Frame);
 	}
 }	 // namespace Nexus::UI

@@ -120,6 +120,9 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 
 	Nexus::UI::IMenuItem *closeItem = fileMenu->Append("Close");
 	closeItem->OnClick([&]() { m_Application->Close(); });
+
+	Nexus::UI::IStatusBar *statusBar = m_Layout.CreateStatusBar();
+	statusBar->SetStatusText("Hello from ImGui");
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()

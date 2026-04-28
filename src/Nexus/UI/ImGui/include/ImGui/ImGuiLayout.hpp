@@ -20,8 +20,10 @@ namespace Nexus::UI
 	  public:
 		ImGuiLayout()				 = default;
 		virtual ~ImGuiLayout() final = default;
-		IPanel	 *CreatePanel() final;
-		IMenubar *CreateMainMenubar() final;
-		void	  Render();
+		IPanel	   *CreatePanel() final;
+		IMenubar   *CreateMainMenubar() final;
+		IStatusBar *CreateStatusBar() final;
+
+		void Render();
 	};
 }	 // namespace Nexus::UI

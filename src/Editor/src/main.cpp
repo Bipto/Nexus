@@ -1,6 +1,7 @@
 #include <memory>
 
 #include <wx/aui/aui.h>
+#include <wx/treectrl.h>
 #include <wx/wx.h>
 
 #include "Nexus-Core/Engine.hpp"
@@ -101,14 +102,15 @@ MyFrame::MyFrame()
 
 	fileMenu->AppendSeparator();
 
+	Nexus::UI::IStatusBar *statusBar = m_Layout.CreateStatusBar();
+	statusBar->SetStatusText("Welcome to wxWidgets");
+	statusBar->SetHelpText("This is help text for the status bar");
+
 	m_RenderTimer.SetOwner(this);
 	Connect(wxEVT_TIMER, wxTimerEventHandler(MyFrame::OnRenderTimer), NULL, this);
 
 	Bind(wxEVT_TIMER, &MyFrame::OnRenderTimer, this);
 	m_RenderTimer.Start(17);
-
-	CreateStatusBar();
-	SetStatusText("Welcome to wxWidgets!");
 
 	//--- Central panel ---
 	m_Panel = new wxPanel(this);
@@ -122,7 +124,28 @@ MyFrame::MyFrame()
 
 	// --- Dockable left panel ---
 	wxPanel *leftPanel = new wxPanel(this);
-	new wxStaticText(leftPanel, wxID_ANY, "Left Dock Panel", wxPoint(10, 10));
+
+	wxTreeCtrl *tree = new wxTreeCtrl(leftPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT);
+
+	wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+	sizer->Add(tree, 1, wxEXPAND | wxALL, 0);
+
+	leftPanel->SetSizer(sizer);
+
+	wxTreeItemId root = tree->AddRoot("Root");
+
+	wxTreeItemId animals = tree->AppendItem(root, "Animals");
+	wxTreeItemId mammals = tree->AppendItem(animals, "Mammals");
+	wxTreeItemId dogs	 = tree->AppendItem(mammals, "Dogs");
+	wxTreeItemId breeds	 = tree->AppendItem(dogs, "Breeds");
+
+	tree->AppendItem(breeds, "Labrador");
+	tree->AppendItem(breeds, "Beagle");
+	tree->AppendItem(breeds, "Collie");
+
+	tree->ExpandAll();
+
+	// new wxStaticText(leftPanel, wxID_ANY, "Left Dock Panel", wxPoint(10, 10));
 
 	m_mgr.AddPane(leftPanel, wxAuiPaneInfo().Left().Caption("Tools").CloseButton(true).MaximizeButton(true));
 

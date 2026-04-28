@@ -2,10 +2,11 @@ add_library(Nexus-UI-wxWidgets
 	"include/wxWidgets/wxWidgetsLayout.hpp"
 	"include/wxWidgets/wxWidgetsPanel.hpp"
 	"include/wxWidgets/wxWidgetsMenubar.hpp"
+	"include/wxWidgets/wxWidgetsStatusBar.hpp"
 	"src/wxWidgets/wxWidgetsLayout.cpp"
 	"src/wxWidgets/wxWidgetsPanel.cpp"
 	"src/wxWidgets/wxWidgetsMenubar.cpp"
-)
+	 "src/wxWidgets/wxWidgetsStatusBar.cpp")
 
 CPMAddPackage(
 	NAME wxWidgets

@@ -19,8 +19,9 @@ namespace Nexus::UI
 	  public:
 		wxWidgetsLayout(wxFrame *frame);
 		virtual ~wxWidgetsLayout() = default;
-		IPanel	 *CreatePanel() final;
-		IMenubar *CreateMainMenubar() final;
+		IPanel	   *CreatePanel() final;
+		IMenubar   *CreateMainMenubar() final;
+		IStatusBar *CreateStatusBar() final;
 
 	  private:
 		wxFrame *m_Frame = nullptr;
