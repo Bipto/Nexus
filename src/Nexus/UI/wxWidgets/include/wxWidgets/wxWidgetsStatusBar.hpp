@@ -8,7 +8,7 @@
 
 namespace Nexus::UI
 {
-	class wxWidgetsStatusBar : public IStatusBar, public wxWidgetsBaseControl
+	class wxWidgetsStatusBar final : public IStatusBar, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsStatusBar(wxFrame *frame);

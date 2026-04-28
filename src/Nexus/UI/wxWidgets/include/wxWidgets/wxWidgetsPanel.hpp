@@ -15,11 +15,11 @@
 
 namespace Nexus::UI
 {
-	class wxWidgetsPanel : public IPanel, public wxWidgetsBaseControl
+	class wxWidgetsPanel final : public IPanel, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsPanel(wxFrame *frame);
-		virtual ~wxWidgetsPanel() = default;
+		~wxWidgetsPanel() final = default;
 		IMenubar *CreateMenubar() final;
 		IButton	 *CreateButton(std::string_view text, Position position, Size size) final;
 

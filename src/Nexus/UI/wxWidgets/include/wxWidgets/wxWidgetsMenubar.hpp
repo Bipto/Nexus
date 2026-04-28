@@ -13,7 +13,7 @@
 
 namespace Nexus::UI
 {
-	class wxWidgetsTextMenuItem : public ITextMenuItem, public wxWidgetsBaseControl
+	class wxWidgetsTextMenuItem final : public ITextMenuItem, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsTextMenuItem(const std::string &text, wxMenu *menu, wxFrame *frame);
@@ -26,7 +26,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnClick	 = {};
 	};
 
-	class wxWidgetsSeparatorMenuItem : public ISeparatorMenuItem, public wxWidgetsBaseControl
+	class wxWidgetsSeparatorMenuItem final : public ISeparatorMenuItem, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsSeparatorMenuItem(wxMenu *menu, wxFrame *frame);
@@ -39,7 +39,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnClick	 = {};
 	};
 
-	class wxWidgetsMenu : public IMenu, public wxWidgetsBaseControl
+	class wxWidgetsMenu final : public IMenu, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsMenu(const std::string &text, wxMenuBar *menubar, wxFrame *frame);
@@ -63,7 +63,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnMenuClosed = {};
 	};
 
-	class wxWidgetsMenubar : public IMenubar, public wxWidgetsBaseControl
+	class wxWidgetsMenubar final : public IMenubar, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsMenubar(wxFrame *frame);

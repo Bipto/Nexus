@@ -15,7 +15,7 @@
 
 namespace Nexus::UI
 {
-	class ImGuiTextMenuItem : public IMenuItem, public ImGuiControl
+	class ImGuiTextMenuItem final : public IMenuItem, public ImGuiControl
 	{
 	  public:
 		ImGuiTextMenuItem(const std::string &text);
@@ -30,7 +30,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnClick = {};
 	};
 
-	class ImGuiSeparatorMenuItem : public IMenuItem, public ImGuiControl
+	class ImGuiSeparatorMenuItem final : public IMenuItem, public ImGuiControl
 	{
 	  public:
 		ImGuiSeparatorMenuItem()		= default;
@@ -44,7 +44,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnClick = {};
 	};
 
-	class ImGuiMenu : public IMenu, public ImGuiControl
+	class ImGuiMenu final : public IMenu, public ImGuiControl
 	{
 	  public:
 		ImGuiMenu(const std::string &text);
@@ -64,7 +64,7 @@ namespace Nexus::UI
 		bool				  m_Open		 = false;
 	};
 
-	class ImGuiMenubar : public IMenubar, public ImGuiControl
+	class ImGuiMenubar final : public IMenubar, public ImGuiControl
 	{
 	  public:
 		ImGuiMenubar(bool main);

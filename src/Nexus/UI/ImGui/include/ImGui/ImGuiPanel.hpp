@@ -17,11 +17,11 @@
 
 namespace Nexus::UI
 {
-	class ImGuiPanel : public IPanel, public ImGuiControl
+	class ImGuiPanel final : public IPanel, public ImGuiControl
 	{
 	  public:
-		ImGuiPanel()		  = default;
-		virtual ~ImGuiPanel() = default;
+		ImGuiPanel()		= default;
+		~ImGuiPanel() final = default;
 		IMenubar *CreateMenubar() final;
 		void	  SetPosition(Position position) final;
 		void	  SetSize(Size size) final;

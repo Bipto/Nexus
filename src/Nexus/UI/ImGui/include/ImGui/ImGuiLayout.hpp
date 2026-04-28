@@ -15,11 +15,11 @@
 
 namespace Nexus::UI
 {
-	class ImGuiLayout : public ILayout, public ImGuiControl
+	class ImGuiLayout final : public ILayout, public ImGuiControl
 	{
 	  public:
-		ImGuiLayout()				 = default;
-		virtual ~ImGuiLayout() final = default;
+		ImGuiLayout()		 = default;
+		~ImGuiLayout() final = default;
 		IPanel	   *CreatePanel() final;
 		IMenubar   *CreateMainMenubar() final;
 		IStatusBar *CreateStatusBar() final;

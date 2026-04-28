@@ -14,11 +14,11 @@
 
 namespace Nexus::UI
 {
-	class wxWidgetsLayout : public ILayout, public wxWidgetsBaseControl
+	class wxWidgetsLayout final : public ILayout, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsLayout(wxFrame *frame);
-		virtual ~wxWidgetsLayout() = default;
+		~wxWidgetsLayout() final = default;
 		IPanel	   *CreatePanel() final;
 		IMenubar   *CreateMainMenubar() final;
 		IStatusBar *CreateStatusBar() final;

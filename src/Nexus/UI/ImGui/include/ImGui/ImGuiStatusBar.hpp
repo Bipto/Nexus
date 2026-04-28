@@ -12,7 +12,7 @@
 
 namespace Nexus::UI
 {
-	class ImGuiStatusBar : public IStatusBar, public ImGuiControl
+	class ImGuiStatusBar final : public IStatusBar, public ImGuiControl
 	{
 	  public:
 		ImGuiStatusBar()		= default;

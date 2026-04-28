@@ -63,6 +63,10 @@ jobs:
             libx11-dev xorg-dev \
             build-essential nasm autoconf autoconf-archive automake libtool libltdl-dev
 
+      - name: Install GTK3
+        run: sudo apt-get install -y libgtk-3-dev
+
+
       - name: Install Clang 21
         if: matrix.name == 'Clang'
         run: |
