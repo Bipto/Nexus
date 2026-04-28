@@ -9,7 +9,7 @@
 
 namespace Nexus::UI
 {
-	class IPanel : public IControl
+	class IPanel
 	{
 	  public:
 		virtual ~IPanel()				  = default;

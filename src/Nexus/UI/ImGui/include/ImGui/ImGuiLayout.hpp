@@ -11,14 +11,17 @@
 #include "UI/Control.hpp"
 #include "UI/Layout.hpp"
 
+#include "ImGui/ImGuiControl.hpp"
+
 namespace Nexus::UI
 {
-	class ImGuiLayout : public ILayout
+	class ImGuiLayout : public ILayout, public ImGuiControl
 	{
 	  public:
-		ImGuiLayout()		   = default;
-		virtual ~ImGuiLayout() = default;
+		ImGuiLayout()				 = default;
+		virtual ~ImGuiLayout() final = default;
 		IPanel	 *CreatePanel() final;
 		IMenubar *CreateMainMenubar() final;
+		void	  Render();
 	};
 }	 // namespace Nexus::UI

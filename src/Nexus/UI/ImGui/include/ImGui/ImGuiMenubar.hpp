@@ -11,9 +11,11 @@
 
 #include "UI/Menubar.hpp"
 
+#include "ImGui/ImGuiControl.hpp"
+
 namespace Nexus::UI
 {
-	class ImGuiTextMenuItem : public IMenuItem
+	class ImGuiTextMenuItem : public IMenuItem, public ImGuiControl
 	{
 	  public:
 		ImGuiTextMenuItem(const std::string &text);
@@ -21,12 +23,14 @@ namespace Nexus::UI
 
 		void OnClick(std::function<void()> handler) final;
 
+		void Render() final;
+
 	  private:
 		std::string			  m_Text	= {};
 		std::function<void()> m_OnClick = {};
 	};
 
-	class ImGuiSeparatorMenuItem : public IMenuItem
+	class ImGuiSeparatorMenuItem : public IMenuItem, public ImGuiControl
 	{
 	  public:
 		ImGuiSeparatorMenuItem()		= default;
@@ -34,11 +38,13 @@ namespace Nexus::UI
 
 		void OnClick(std::function<void()> handler) final;
 
+		void Render() final;
+
 	  private:
 		std::function<void()> m_OnClick = {};
 	};
 
-	class ImGuiMenu : public IMenu
+	class ImGuiMenu : public IMenu, public ImGuiControl
 	{
 	  public:
 		ImGuiMenu(const std::string &text);
@@ -46,18 +52,27 @@ namespace Nexus::UI
 		IMenuItem *Append(const std::string &text) final;
 		IMenu	  *AppendSubMenu(const std::string &text) final;
 		IMenuItem *AppendSeparator() final;
-		void	   OnMenuOpened(EventHandler handler) final;
-		void	   OnMenuClosed(EventHandler handler) final;
+		void	   OnMenuOpened(std::function<void()> handler) final;
+		void	   OnMenuClosed(std::function<void()> handler) final;
+
+		void Render() final;
 
 	  private:
-		std::string m_Text = {};
+		std::string			  m_Text		 = {};
+		std::function<void()> m_OnMenuOpened = {};
+		std::function<void()> m_OnMenuClosed = {};
+		bool				  m_Open		 = false;
 	};
 
-	class ImGuiMenubar : public IMenubar
+	class ImGuiMenubar : public IMenubar, public ImGuiControl
 	{
 	  public:
-		ImGuiMenubar()			= default;
+		ImGuiMenubar(bool main);
 		virtual ~ImGuiMenubar() = default;
 		IMenu *CreateMenu(const std::string &text) final;
+		void   Render() final;
+
+	  private:
+		bool m_Main = false;
 	};
 }	 // namespace Nexus::UI

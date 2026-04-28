@@ -7,11 +7,11 @@
 
 namespace Nexus::UI
 {
-	class IMenuItem : public IControl
+	class IMenuItem
 	{
 	  public:
-		virtual ~IMenuItem()					   = default;
-		virtual void OnClick(EventHandler handler) = 0;
+		virtual ~IMenuItem()								= default;
+		virtual void OnClick(std::function<void()> handler) = 0;
 	};
 
 	class ITextMenuItem : public IMenuItem
@@ -26,18 +26,18 @@ namespace Nexus::UI
 		virtual ~ISeparatorMenuItem() = default;
 	};
 
-	class IMenu : public IControl
+	class IMenu
 	{
 	  public:
-		virtual ~IMenu()										  = default;
-		virtual IMenuItem *Append(const std::string &text)		  = 0;
-		virtual IMenu	  *AppendSubMenu(const std::string &text) = 0;
-		virtual IMenuItem *AppendSeparator()					  = 0;
-		virtual void	   OnMenuOpened(EventHandler handler)	  = 0;
-		virtual void	   OnMenuClosed(EventHandler handler)	  = 0;
+		virtual ~IMenu()											   = default;
+		virtual IMenuItem *Append(const std::string &text)			   = 0;
+		virtual IMenu	  *AppendSubMenu(const std::string &text)	   = 0;
+		virtual IMenuItem *AppendSeparator()						   = 0;
+		virtual void	   OnMenuOpened(std::function<void()> handler) = 0;
+		virtual void	   OnMenuClosed(std::function<void()> handler) = 0;
 	};
 
-	class IMenubar : public IControl
+	class IMenubar
 	{
 	  public:
 		virtual ~IMenubar()								   = default;

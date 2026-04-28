@@ -12,13 +12,16 @@
 #include "UI/Menubar.hpp"
 #include "UI/Panel.hpp"
 
+#include "ImGui/ImGuiControl.hpp"
+
 namespace Nexus::UI
 {
-	class ImGuiPanel : public IPanel
+	class ImGuiPanel : public IPanel, public ImGuiControl
 	{
 	  public:
-		ImGuiPanel();
+		ImGuiPanel()		  = default;
 		virtual ~ImGuiPanel() = default;
 		IMenubar *CreateMenubar() final;
+		void	  Render() final;
 	};
 }	 // namespace Nexus::UI

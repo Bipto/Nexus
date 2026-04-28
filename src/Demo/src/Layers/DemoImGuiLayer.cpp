@@ -110,13 +110,23 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 	RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
 	RegisterDemo<Demos::Splines>("Utils", "Splines");
 
-	m_Layout.CreatePanel();
+	Nexus::UI::IMenubar *menubar  = m_Layout.CreateMainMenubar();
+	Nexus::UI::IMenu	*fileMenu = menubar->CreateMenu("File");
+
+	Nexus::UI::IMenu	 *newMenu	  = fileMenu->AppendSubMenu("New");
+	Nexus::UI::IMenuItem *newFileItem = newMenu->Append("Item");
+
+	Nexus::UI::IMenuItem *separator = fileMenu->AppendSeparator();
+
+	Nexus::UI::IMenuItem *closeItem = fileMenu->Append("Close");
+	closeItem->OnClick([&]() { m_Application->Close(); });
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()
 {
 	{
 		NX_PROFILE_SCOPE("Render UI");
+		m_Layout.Render();
 		ImGui::Begin("Demos");
 		RenderDemoInfo();
 		RenderPerformanceInfo();

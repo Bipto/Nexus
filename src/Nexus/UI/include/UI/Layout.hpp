@@ -5,7 +5,7 @@
 
 namespace Nexus::UI
 {
-	class ILayout : public IControl
+	class ILayout
 	{
 	  public:
 		virtual ~ILayout()					  = default;

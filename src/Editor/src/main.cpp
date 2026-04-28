@@ -80,7 +80,6 @@ MyFrame::MyFrame()
 	  m_mgr(this),
 	  m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
-	// new UI code
 	Nexus::UI::IMenubar *menubar = m_Layout.CreateMainMenubar();
 
 	Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("&File");
@@ -98,12 +97,7 @@ MyFrame::MyFrame()
 
 	Nexus::UI::IMenu	 *helpMenu	= menubar->CreateMenu("&Help");
 	Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
-	aboutItem->OnClick(
-		[this]()
-		{
-			int x = 0;
-			OnAbout();
-		});
+	aboutItem->OnClick([this]() { OnAbout(); });
 
 	fileMenu->AppendSeparator();
 

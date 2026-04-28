@@ -91,12 +91,12 @@ namespace Nexus::UI
 		return AddChild<wxWidgetsSeparatorMenuItem, IMenuItem>(m_Menu, m_Frame);
 	}
 
-	void wxWidgetsMenu::OnMenuOpened(EventHandler handler)
+	void wxWidgetsMenu::OnMenuOpened(std::function<void()> handler)
 	{
 		m_OnMenuOpened = handler;
 	}
 
-	void wxWidgetsMenu::OnMenuClosed(EventHandler handler)
+	void wxWidgetsMenu::OnMenuClosed(std::function<void()> handler)
 	{
 		m_OnMenuClosed = handler;
 	}

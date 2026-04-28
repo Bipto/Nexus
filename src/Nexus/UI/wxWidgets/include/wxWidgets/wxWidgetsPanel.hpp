@@ -11,9 +11,11 @@
 #include "UI/Menubar.hpp"
 #include "UI/Panel.hpp"
 
+#include "wxWidgets/wxWidgetsBaseControl.hpp"
+
 namespace Nexus::UI
 {
-	class wxWidgetsPanel : public IPanel
+	class wxWidgetsPanel : public IPanel, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsPanel(wxFrame *frame);
@@ -23,7 +25,7 @@ namespace Nexus::UI
 		wxPanel *GetPanel();
 
 	  private:
-		wxFrame* m_Frame = nullptr;
+		wxFrame *m_Frame = nullptr;
 		wxPanel *m_Panel = nullptr;
 	};
 }	 // namespace Nexus::UI

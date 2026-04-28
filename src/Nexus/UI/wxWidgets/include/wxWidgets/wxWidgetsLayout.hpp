@@ -10,9 +10,11 @@
 #include "UI/Control.hpp"
 #include "UI/Layout.hpp"
 
+#include "wxWidgets/wxWidgetsBaseControl.hpp"
+
 namespace Nexus::UI
 {
-	class wxWidgetsLayout : public ILayout
+	class wxWidgetsLayout : public ILayout, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsLayout(wxFrame *frame);

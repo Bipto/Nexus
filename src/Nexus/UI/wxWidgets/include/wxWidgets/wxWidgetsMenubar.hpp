@@ -9,9 +9,11 @@
 
 #include "UI/Menubar.hpp"
 
+#include "wxWidgetsBaseControl.hpp"
+
 namespace Nexus::UI
 {
-	class wxWidgetsTextMenuItem : public ITextMenuItem
+	class wxWidgetsTextMenuItem : public ITextMenuItem, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsTextMenuItem(const std::string &text, wxMenu *menu, wxFrame *frame);
@@ -24,7 +26,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnClick	 = {};
 	};
 
-	class wxWidgetsSeparatorMenuItem : public ISeparatorMenuItem
+	class wxWidgetsSeparatorMenuItem : public ISeparatorMenuItem, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsSeparatorMenuItem(wxMenu *menu, wxFrame *frame);
@@ -37,7 +39,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnClick	 = {};
 	};
 
-	class wxWidgetsMenu : public IMenu
+	class wxWidgetsMenu : public IMenu, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsMenu(const std::string &text, wxMenuBar *menubar, wxFrame *frame);
@@ -46,8 +48,8 @@ namespace Nexus::UI
 		IMenuItem *Append(const std::string &text) final;
 		IMenu	  *AppendSubMenu(const std::string &text) final;
 		IMenuItem *AppendSeparator() final;
-		void	   OnMenuOpened(EventHandler handler) final;
-		void	   OnMenuClosed(EventHandler handler) final;
+		void	   OnMenuOpened(std::function<void()> handler) final;
+		void	   OnMenuClosed(std::function<void()> handler) final;
 
 		wxMenu *GetMenu();
 
@@ -61,7 +63,7 @@ namespace Nexus::UI
 		std::function<void()> m_OnMenuClosed = {};
 	};
 
-	class wxWidgetsMenubar : public IMenubar
+	class wxWidgetsMenubar : public IMenubar, public wxWidgetsBaseControl
 	{
 	  public:
 		wxWidgetsMenubar(wxFrame *frame);

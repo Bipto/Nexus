@@ -6,6 +6,10 @@ namespace Nexus::UI
 {
 	IMenubar *ImGuiPanel::CreateMenubar()
 	{
-		return AddChild<ImGuiMenubar, IMenubar>();
+		return AddChild<ImGuiMenubar, IMenubar>(false);
+	}
+
+	void ImGuiPanel::Render()
+	{
 	}
 }	 // namespace Nexus::UI
