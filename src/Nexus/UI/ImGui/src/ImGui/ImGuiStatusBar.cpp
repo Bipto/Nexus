@@ -33,7 +33,7 @@ namespace Nexus::UI
 		ImGuiViewport *vp		 = ImGui::GetMainViewport();
 		float		   barHeight = ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2.0f;
 
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoInputs;
 
 		if (ImGui::BeginViewportSideBar("StatusBar", vp, ImGuiDir_Down, barHeight, flags))
 		{
