@@ -1,27 +1,29 @@
 #include "wxWidgets/wxWidgetsLayout.hpp"
 
+#include "wxWidgets/wxWidgetsFrame.hpp"
 #include "wxWidgets/wxWidgetsMenubar.hpp"
 #include "wxWidgets/wxWidgetsPanel.hpp"
 #include "wxWidgets/wxWidgetsStatusBar.hpp"
 
 namespace Nexus::UI
 {
-	wxWidgetsLayout::wxWidgetsLayout(wxFrame *frame) : m_Frame(frame)
+	std::unique_ptr<IPanel> wxWidgetsLayout::CreatePanel()
 	{
+		// return std::make_unique<wxWidgetsPanel>(m_Frame);
+
+		return nullptr;
 	}
 
-	IPanel *wxWidgetsLayout::CreatePanel()
+	std::unique_ptr<IStatusBar> wxWidgetsLayout::CreateStatusBar()
 	{
-		return AddChild<wxWidgetsPanel, IPanel>(m_Frame);
+		// return std::make_unique<wxWidgetsStatusBar>(m_Frame);
+
+		return nullptr;
 	}
 
-	IMenubar *wxWidgetsLayout::CreateMainMenubar()
+	std::unique_ptr<IFrame> wxWidgetsLayout::CreateFrame(const std::string &title)
 	{
-		return AddChild<wxWidgetsMenubar, IMenubar>(m_Frame);
+		return std::make_unique<wxWidgetsFrame>(title);
 	}
 
-	IStatusBar *wxWidgetsLayout::CreateStatusBar()
-	{
-		return AddChild<wxWidgetsStatusBar, IStatusBar>(m_Frame);
-	}
 }	 // namespace Nexus::UI

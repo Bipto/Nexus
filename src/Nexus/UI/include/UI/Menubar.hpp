@@ -7,7 +7,13 @@
 
 namespace Nexus::UI
 {
-	class IMenuItem
+	class IMenuBase
+	{
+	  public:
+		virtual ~IMenuBase() = default;
+	};
+
+	class IMenuItem : public IMenuBase
 	{
 	  public:
 		virtual ~IMenuItem()								= default;
@@ -26,7 +32,7 @@ namespace Nexus::UI
 		virtual ~ISeparatorMenuItem() = default;
 	};
 
-	class IMenu
+	class IMenu : public IMenuBase
 	{
 	  public:
 		virtual ~IMenu()											   = default;

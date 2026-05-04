@@ -9,11 +9,11 @@
 
 #include "UI/Menubar.hpp"
 
-#include "wxWidgetsBaseControl.hpp"
+#include "wxWidgets/EventBinder.hpp"
 
 namespace Nexus::UI
 {
-	class wxWidgetsTextMenuItem final : public ITextMenuItem, public wxWidgetsBaseControl
+	class wxWidgetsTextMenuItem final : public ITextMenuItem
 	{
 	  public:
 		wxWidgetsTextMenuItem(const std::string &text, wxMenu *menu, wxFrame *frame);
@@ -22,11 +22,13 @@ namespace Nexus::UI
 		void OnClick(std::function<void()> handler) final;
 
 	  private:
-		wxMenuItem			 *m_MenuItem = nullptr;
-		std::function<void()> m_OnClick	 = {};
+		wxFrame	   *m_Frame = nullptr;
+		wxMenuItem *m_MenuItem;
+
+		std::unique_ptr<EventBinder> m_OnClickEventBinder = nullptr;
 	};
 
-	class wxWidgetsSeparatorMenuItem final : public ISeparatorMenuItem, public wxWidgetsBaseControl
+	class wxWidgetsSeparatorMenuItem final : public ISeparatorMenuItem
 	{
 	  public:
 		wxWidgetsSeparatorMenuItem(wxMenu *menu, wxFrame *frame);
@@ -35,11 +37,13 @@ namespace Nexus::UI
 		void OnClick(std::function<void()> handler) final;
 
 	  private:
-		wxMenuItem			 *m_MenuItem = nullptr;
-		std::function<void()> m_OnClick	 = {};
+		wxFrame	   *m_Frame	   = nullptr;
+		wxMenuItem *m_MenuItem = nullptr;
+
+		std::unique_ptr<EventBinder> m_OnClickEventBinder = nullptr;
 	};
 
-	class wxWidgetsMenu final : public IMenu, public wxWidgetsBaseControl
+	class wxWidgetsMenu final : public IMenu
 	{
 	  public:
 		wxWidgetsMenu(const std::string &text, wxMenuBar *menubar, wxFrame *frame);
@@ -53,17 +57,22 @@ namespace Nexus::UI
 
 		wxMenu *GetMenu();
 
+		void InvokeOnMenuOpened();
+		void InvokeOnMenuClosed();
+
 	  private:
 		wxMenuBar *m_Menubar	= nullptr;
 		wxMenu	  *m_ParentMenu = nullptr;
 		wxMenu	  *m_Menu		= nullptr;
 		wxFrame	  *m_Frame		= nullptr;
 
-		std::function<void()> m_OnMenuOpened = {};
-		std::function<void()> m_OnMenuClosed = {};
+		std::function<void()> m_OnMenuOpened;
+		std::function<void()> m_OnMenuClosed;
+
+		std::vector<std::unique_ptr<IMenuBase>> m_MenuItems = {};
 	};
 
-	class wxWidgetsMenubar final : public IMenubar, public wxWidgetsBaseControl
+	class wxWidgetsMenubar final : public IMenubar
 	{
 	  public:
 		wxWidgetsMenubar(wxFrame *frame);
@@ -73,5 +82,7 @@ namespace Nexus::UI
 	  private:
 		wxFrame	  *m_Frame	 = nullptr;
 		wxMenuBar *m_Menubar = nullptr;
+
+		std::vector<std::unique_ptr<wxWidgetsMenu>> m_Menus = {};
 	};
 }	 // namespace Nexus::UI

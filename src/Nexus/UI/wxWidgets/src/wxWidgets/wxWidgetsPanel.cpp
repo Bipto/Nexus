@@ -8,12 +8,7 @@ namespace Nexus::UI
 	{
 	}
 
-	IMenubar *wxWidgetsPanel::CreateMenubar()
-	{
-		return AddChild<wxWidgetsMenubar, IMenubar>(m_Frame);
-	}
-
-	IButton *wxWidgetsPanel::CreateButton(std::string_view text, Position position, Size size)
+	IButton *wxWidgetsPanel::CreateButton(std::string_view text)
 	{
 		return nullptr;
 	}

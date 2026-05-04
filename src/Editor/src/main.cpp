@@ -22,6 +22,9 @@ class MyApp : public wxApp
 {
   public:
 	bool OnInit() override;
+
+  private:
+	Nexus::UI::wxWidgetsLayout m_Layout;
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -55,7 +58,7 @@ class MyFrame : public wxFrame
 	wxPanel					  *m_Panel		   = nullptr;
 	bool					   m_ResizePending = false;
 	wxSize					   m_PanelSize	   = {};
-	Nexus::UI::wxWidgetsLayout m_Layout {this};
+	Nexus::UI::wxWidgetsLayout m_Layout {};
 };
 
 enum
@@ -71,8 +74,28 @@ bool MyApp::OnInit()
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 #endif
 
-	MyFrame *frame = new MyFrame();
-	frame->Show(true);
+	auto frame = m_Layout.CreateFrame("Hello World");
+
+	Nexus::UI::IMenubar *menubar = frame->CreateMenubar();
+
+	Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("&File");
+
+	Nexus::UI::IMenu	 *newMenu  = fileMenu->AppendSubMenu("New");
+	Nexus::UI::IMenuItem *fileItem = newMenu->Append("File");
+
+	Nexus::UI::IMenuItem *helloItem = fileMenu->Append("&Hello...\tCtrl-H");
+	helloItem->OnClick([this]() { wxLogMessage("Hello world from wxWidgets!"); });
+	fileMenu->AppendSeparator();
+
+	Nexus::UI::IMenuItem *exitItem = fileMenu->Append("Exit");
+	exitItem->OnClick([this]() { OnExit(); });
+
+	Nexus::UI::IMenu	 *helpMenu	= menubar->CreateMenu("&Help");
+	Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
+	aboutItem->OnClick([this]() { wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION); });
+
+	// frame->SetMenubar(std::move(menubar));
+
 	return true;
 }
 
@@ -81,83 +104,85 @@ MyFrame::MyFrame()
 	  m_mgr(this),
 	  m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
-	Nexus::UI::IMenubar *menubar = m_Layout.CreateMainMenubar();
+	// std::unique_ptr<Nexus::UI::IMenubar> menubar = m_Layout.CreateMainMenubar();
 
-	Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("&File");
+	// Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("&File");
 
-	Nexus::UI::IMenu	 *newMenu  = fileMenu->AppendSubMenu("New");
-	Nexus::UI::IMenuItem *fileItem = newMenu->Append("File");
+	// Nexus::UI::IMenu	 *newMenu  = fileMenu->AppendSubMenu("New");
+	// Nexus::UI::IMenuItem *fileItem = newMenu->Append("File");
 
-	Nexus::UI::IMenuItem *helloItem = fileMenu->Append("&Hello...\tCtrl-H");
-	helloItem->OnClick([this]() { OnHello(); });
+	// Nexus::UI::IMenuItem *helloItem = fileMenu->Append("&Hello...\tCtrl-H");
+	// helloItem->OnClick([this]() { OnHello(); });
 
-	fileMenu->AppendSeparator();
+	// fileMenu->AppendSeparator();
 
-	Nexus::UI::IMenuItem *exitItem = fileMenu->Append("Exit");
-	exitItem->OnClick([this]() { OnExit(); });
+	// Nexus::UI::IMenuItem *exitItem = fileMenu->Append("Exit");
+	// exitItem->OnClick([this]() { OnExit(); });
 
-	Nexus::UI::IMenu	 *helpMenu	= menubar->CreateMenu("&Help");
-	Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
-	aboutItem->OnClick([this]() { OnAbout(); });
+	// Nexus::UI::IMenu	 *helpMenu	= menubar->CreateMenu("&Help");
+	// Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
+	// aboutItem->OnClick([this]() { OnAbout(); });
 
-	fileMenu->AppendSeparator();
+	// fileMenu->AppendSeparator();
 
-	Nexus::UI::IStatusBar *statusBar = m_Layout.CreateStatusBar();
-	statusBar->SetStatusText("Welcome to wxWidgets");
-	statusBar->SetHelpText("This is help text for the status bar");
+	// m_Layout.SetMainMenubar(std::move(menubar));
 
-	m_RenderTimer.SetOwner(this);
-	Connect(wxEVT_TIMER, wxTimerEventHandler(MyFrame::OnRenderTimer), NULL, this);
+	// std::unique_ptr<Nexus::UI::IStatusBar> statusBar = m_Layout.CreateStatusBar();
+	// statusBar->SetStatusText("Welcome to wxWidgets");
+	// statusBar->SetHelpText("This is help text for the status bar");
 
-	Bind(wxEVT_TIMER, &MyFrame::OnRenderTimer, this);
-	m_RenderTimer.Start(17);
+	// m_RenderTimer.SetOwner(this);
+	// Connect(wxEVT_TIMER, wxTimerEventHandler(MyFrame::OnRenderTimer), NULL, this);
 
-	//--- Central panel ---
-	m_Panel = new wxPanel(this);
-	m_Panel->Bind(wxEVT_SIZE, &MyFrame::OnResize, this);
-	m_Panel->SetDoubleBuffered(false);
+	// Bind(wxEVT_TIMER, &MyFrame::OnRenderTimer, this);
+	// m_RenderTimer.Start(17);
 
-	m_Panel->SetBackgroundColour(wxBG_STYLE_CUSTOM);
+	////--- Central panel ---
+	// m_Panel = new wxPanel(this);
+	// m_Panel->Bind(wxEVT_SIZE, &MyFrame::OnResize, this);
+	// m_Panel->SetDoubleBuffered(false);
 
-	// Add central panel to AUI
-	m_mgr.AddPane(m_Panel, wxAuiPaneInfo().CenterPane());
+	// m_Panel->SetBackgroundColour(wxBG_STYLE_CUSTOM);
 
-	// --- Dockable left panel ---
-	wxPanel *leftPanel = new wxPanel(this);
+	//// Add central panel to AUI
+	// m_mgr.AddPane(m_Panel, wxAuiPaneInfo().CenterPane());
 
-	wxTreeCtrl *tree = new wxTreeCtrl(leftPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT);
+	//// --- Dockable left panel ---
+	// wxPanel *leftPanel = new wxPanel(this);
 
-	wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add(tree, 1, wxEXPAND | wxALL, 0);
+	// wxTreeCtrl *tree = new wxTreeCtrl(leftPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT);
 
-	leftPanel->SetSizer(sizer);
+	// wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+	// sizer->Add(tree, 1, wxEXPAND | wxALL, 0);
 
-	wxTreeItemId root = tree->AddRoot("Root");
+	// leftPanel->SetSizer(sizer);
 
-	wxTreeItemId animals = tree->AppendItem(root, "Animals");
-	wxTreeItemId mammals = tree->AppendItem(animals, "Mammals");
-	wxTreeItemId dogs	 = tree->AppendItem(mammals, "Dogs");
-	wxTreeItemId breeds	 = tree->AppendItem(dogs, "Breeds");
+	// wxTreeItemId root = tree->AddRoot("Root");
 
-	tree->AppendItem(breeds, "Labrador");
-	tree->AppendItem(breeds, "Beagle");
-	tree->AppendItem(breeds, "Collie");
+	// wxTreeItemId animals = tree->AppendItem(root, "Animals");
+	// wxTreeItemId mammals = tree->AppendItem(animals, "Mammals");
+	// wxTreeItemId dogs	 = tree->AppendItem(mammals, "Dogs");
+	// wxTreeItemId breeds	 = tree->AppendItem(dogs, "Breeds");
 
-	tree->ExpandAll();
+	// tree->AppendItem(breeds, "Labrador");
+	// tree->AppendItem(breeds, "Beagle");
+	// tree->AppendItem(breeds, "Collie");
 
-	// new wxStaticText(leftPanel, wxID_ANY, "Left Dock Panel", wxPoint(10, 10));
+	// tree->ExpandAll();
 
-	m_mgr.AddPane(leftPanel, wxAuiPaneInfo().Left().Caption("Tools").CloseButton(true).MaximizeButton(true));
+	//// new wxStaticText(leftPanel, wxID_ANY, "Left Dock Panel", wxPoint(10, 10));
 
-	// --- Dockable bottom log panel ---
-	wxTextCtrl *logCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(-1, 120), wxTE_MULTILINE | wxTE_READONLY);
+	// m_mgr.AddPane(leftPanel, wxAuiPaneInfo().Left().Caption("Tools").CloseButton(true).MaximizeButton(true));
 
-	m_mgr.AddPane(logCtrl, wxAuiPaneInfo().Bottom().Caption("Output Log").CloseButton(true).MaximizeButton(true));
+	//// --- Dockable bottom log panel ---
+	// wxTextCtrl *logCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(-1, 120), wxTE_MULTILINE | wxTE_READONLY);
 
-	// Apply layout
-	m_mgr.Update();
+	// m_mgr.AddPane(logCtrl, wxAuiPaneInfo().Bottom().Caption("Output Log").CloseButton(true).MaximizeButton(true));
 
-	CreateGraphicsResources();
+	//// Apply layout
+	// m_mgr.Update();
+
+	// CreateGraphicsResources();
 }
 
 MyFrame::~MyFrame()

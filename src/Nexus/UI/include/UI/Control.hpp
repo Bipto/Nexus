@@ -22,5 +22,12 @@ namespace Nexus::UI
 	{
 	  public:
 		virtual ~IControl() = default;
+		void AddControl(std::unique_ptr<IControl> control)
+		{
+			m_Children.push_back(std::move(control));
+		}
+
+	  private:
+		std::vector<std::unique_ptr<IControl>> m_Children = {};
 	};
 }	 // namespace Nexus::UI

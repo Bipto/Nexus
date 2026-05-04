@@ -2,13 +2,11 @@
 
 #include "UI/StatusBar.hpp"
 
-#include "wxWidgetsBaseControl.hpp"
-
 #include <wx/wx.h>
 
 namespace Nexus::UI
 {
-	class wxWidgetsStatusBar final : public IStatusBar, public wxWidgetsBaseControl
+	class wxWidgetsStatusBar final : public IStatusBar
 	{
 	  public:
 		wxWidgetsStatusBar(wxFrame *frame);
