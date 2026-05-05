@@ -94,7 +94,9 @@ bool MyApp::OnInit()
 	Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
 	aboutItem->OnClick([this]() { wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION); });
 
-	// frame->SetMenubar(std::move(menubar));
+	Nexus::UI::IStatusBar *statusBar = frame->CreateStatusbar();
+	statusBar->SetStatusText("Welcome to wxWidgets");
+	statusBar->SetHelpText("This is help text for the status bar");
 
 	return true;
 }

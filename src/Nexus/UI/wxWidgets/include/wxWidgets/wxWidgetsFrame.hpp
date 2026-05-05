@@ -14,10 +14,12 @@ namespace Nexus::UI
 	{
 	  public:
 		wxWidgetsFrame(const std::string &title);
-		IMenubar *CreateMenubar() final;
+		IMenubar   *CreateMenubar() final;
+		IStatusBar *CreateStatusbar() final;
 
 	  private:
-		wxFrame					 *m_Frame	= nullptr;
-		std::unique_ptr<IMenubar> m_Menubar = nullptr;
+		wxFrame					   *m_Frame		= nullptr;
+		std::unique_ptr<IMenubar>	m_Menubar	= nullptr;
+		std::unique_ptr<IStatusBar> m_StatusBar = nullptr;
 	};
 }	 // namespace Nexus::UI
