@@ -84,7 +84,7 @@ bool MyApp::OnInit()
 	Nexus::UI::IMenuItem *fileItem = newMenu->Append("File");
 
 	Nexus::UI::IMenuItem *helloItem = fileMenu->Append("&Hello...\tCtrl-H");
-	helloItem->OnClick([this]() { wxLogMessage("Hello world from wxWidgets!"); });
+	helloItem->OnClick([this]() { m_Layout.LogMessage("Hello world from wxWidgets!"); });
 	fileMenu->AppendSeparator();
 
 	Nexus::UI::IMenuItem *exitItem = fileMenu->Append("Exit");
@@ -92,7 +92,7 @@ bool MyApp::OnInit()
 
 	Nexus::UI::IMenu	 *helpMenu	= menubar->CreateMenu("&Help");
 	Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
-	aboutItem->OnClick([this]() { wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION); });
+	aboutItem->OnClick([this]() { m_Layout.ShowMessageBox("This is a wxWidgets Hello World example", "About Hello World"); });
 
 	Nexus::UI::IStatusBar *statusBar = frame->CreateStatusbar();
 	statusBar->SetStatusText("Welcome to wxWidgets");
