@@ -9,21 +9,13 @@ namespace Nexus::UI
 {
 	std::unique_ptr<IPanel> wxWidgetsLayout::CreatePanel()
 	{
-		// return std::make_unique<wxWidgetsPanel>(m_Frame);
-
 		return nullptr;
 	}
 
-	std::unique_ptr<IStatusBar> wxWidgetsLayout::CreateStatusBar()
+	IFrame *wxWidgetsLayout::CreateFrame(const std::string &title)
 	{
-		// return std::make_unique<wxWidgetsStatusBar>(m_Frame);
-
-		return nullptr;
-	}
-
-	std::unique_ptr<IFrame> wxWidgetsLayout::CreateFrame(const std::string &title)
-	{
-		return std::make_unique<wxWidgetsFrame>(title);
+		m_Frame = std::make_unique<wxWidgetsFrame>(title);
+		return m_Frame.get();
 	}
 
 	void wxWidgetsLayout::LogFatal(const std::string &message)

@@ -107,7 +107,8 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 	RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
 	RegisterDemo<Demos::Splines>("Utils", "Splines");
 
-	Nexus::UI::IMenubar *menubar  = m_Layout.CreateMainMenubar();
+	Nexus::UI::IFrame	*frame	  = m_Layout.CreateFrame("ImGui Frame");
+	Nexus::UI::IMenubar *menubar  = frame->CreateMenubar();
 	Nexus::UI::IMenu	*fileMenu = menubar->CreateMenu("File");
 
 	Nexus::UI::IMenu	 *newMenu	  = fileMenu->AppendSubMenu("New");
@@ -118,10 +119,10 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 	Nexus::UI::IMenuItem *closeItem = fileMenu->Append("Close");
 	closeItem->OnClick([&]() { m_Application->Close(); });
 
-	Nexus::UI::IStatusBar *statusBar = m_Layout.CreateStatusBar();
+	Nexus::UI::IStatusBar *statusBar = frame->CreateStatusbar();
 	statusBar->SetStatusText("Hello from ImGui");
 
-	Nexus::UI::IPanel *panel = m_Layout.CreatePanel();
+	/*Nexus::UI::IPanel *panel = m_Layout.CreatePanel();
 	panel->SetPosition({500, 500});
 	panel->SetSize({300, 300});
 
@@ -134,7 +135,7 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
 			messageBoxDesc.ParentWindow = Nexus::GetApplication()->GetPrimaryWindow();
 			auto messageBox				= Nexus::Platform::CreateMessageBox(messageBoxDesc);
 			messageBox->Show();
-		});
+		});*/
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()

@@ -7,24 +7,9 @@
 
 namespace Nexus::UI
 {
-	IMenubar *ImGuiPanel::CreateMenubar()
+	IButton *CreateButton(std::string_view text)
 	{
-		return AddChild<ImGuiMenubar, IMenubar>(false);
-	}
-
-	void ImGuiPanel::SetPosition(Position position)
-	{
-		m_Position = position;
-	}
-
-	void ImGuiPanel::SetSize(Size size)
-	{
-		m_Size = size;
-	}
-
-	IButton *ImGuiPanel::CreateButton(std::string_view text, std::optional<Position> position, std::optional<Size> size)
-	{
-		return AddChild<ImGuiButton, IButton>(text, position, size);
+		return nullptr;
 	}
 
 	void ImGuiPanel::Render()

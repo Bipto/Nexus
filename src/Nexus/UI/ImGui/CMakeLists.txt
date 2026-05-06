@@ -8,7 +8,8 @@ add_library(Nexus-UI-ImGui
 	"src/ImGui/ImGuiPanel.cpp"
 	"src/ImGui/ImGuiMenubar.cpp"
 	"src/ImGui/ImGuiStatusBar.cpp"
-	"src/ImGui/ImGuiButton.cpp")
+	"src/ImGui/ImGuiButton.cpp"
+	"src/ImGui/ImGuiFrame.cpp")
 
 target_include_directories(Nexus-UI-ImGui  PUBLIC "include")
 

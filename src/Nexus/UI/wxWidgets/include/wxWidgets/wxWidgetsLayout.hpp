@@ -20,9 +20,8 @@ namespace Nexus::UI
 	  public:
 		wxWidgetsLayout()		 = default;
 		~wxWidgetsLayout() final = default;
-		std::unique_ptr<IPanel>		CreatePanel() final;
-		std::unique_ptr<IStatusBar> CreateStatusBar() final;
-		std::unique_ptr<IFrame>		CreateFrame(const std::string &title) final;
+		std::unique_ptr<IPanel> CreatePanel() final;
+		IFrame				   *CreateFrame(const std::string &title) final;
 
 		void LogFatal(const std::string &message) final;
 		void LogError(const std::string &message) final;
@@ -32,7 +31,6 @@ namespace Nexus::UI
 		void ShowMessageBox(const std::string &title, const std::string &message) final;
 
 	  private:
-		std::unique_ptr<IMenubar>	m_Menubar	= nullptr;
-		std::unique_ptr<IStatusBar> m_StatusBar = nullptr;
+		std::unique_ptr<IFrame> m_Frame = nullptr;
 	};
 }	 // namespace Nexus::UI

@@ -22,10 +22,7 @@ namespace Nexus::UI
 	  public:
 		ImGuiPanel()		= default;
 		~ImGuiPanel() final = default;
-		IMenubar *CreateMenubar() final;
-		void	  SetPosition(Position position) final;
-		void	  SetSize(Size size) final;
-		IButton	 *CreateButton(std::string_view text, std::optional<Position> position, std::optional<Size> size) final;
+		IButton *CreateButton(std::string_view text) final;
 
 		void Render() final;
 

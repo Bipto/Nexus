@@ -12,10 +12,9 @@ namespace Nexus::UI
 	class ILayout
 	{
 	  public:
-		virtual ~ILayout()														  = default;
-		virtual std::unique_ptr<IPanel>		CreatePanel()						  = 0;
-		virtual std::unique_ptr<IStatusBar> CreateStatusBar()					  = 0;
-		virtual std::unique_ptr<IFrame>		CreateFrame(const std::string &title) = 0;
+		virtual ~ILayout()													  = default;
+		virtual std::unique_ptr<IPanel> CreatePanel()						  = 0;
+		virtual IFrame				   *CreateFrame(const std::string &title) = 0;
 
 		virtual void LogFatal(const std::string &message)								  = 0;
 		virtual void LogError(const std::string &message)								  = 0;
