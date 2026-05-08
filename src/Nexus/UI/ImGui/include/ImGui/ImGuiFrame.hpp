@@ -6,7 +6,7 @@
 
 #include "ImGui/ImGuiControl.hpp"
 #include "ImGui/ImGuiMenubar.hpp"
-#include "ImGui/ImGuiStatusbar.hpp"
+#include "ImGui/ImGuiStatusBar.hpp"
 
 namespace Nexus::UI
 {
