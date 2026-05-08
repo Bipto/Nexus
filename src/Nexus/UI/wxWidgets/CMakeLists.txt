@@ -27,3 +27,4 @@ set_target_properties(Nexus-UI-wxWidgets PROPERTIES
 target_compile_features(Nexus-UI-wxWidgets PUBLIC cxx_std_23)
 target_link_libraries(Nexus-UI-wxWidgets PUBLIC Nexus-Core Nexus-UI)
 target_link_libraries(Nexus-UI-wxWidgets PUBLIC wx::net wx::core wx::base wx::aui)
+target_compile_definitions(Nexus-UI-wxWidgets PRIVATE _CRT_SECURE_NO_WARNINGS)
