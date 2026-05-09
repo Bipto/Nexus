@@ -20,11 +20,8 @@ namespace Nexus::GL
 
 	ViewContextWGL::~ViewContextWGL()
 	{
-		// we don't want to override the current context, so we only need to clear the current context if it is this context
-		if (GL::GetCurrentContext() == this)
-		{
-			m_PBuffer->MakeCurrent();
-		}
+		// clear the current context
+		wglMakeCurrent(NULL, NULL);
 
 		// delete the context
 		wglDeleteContext(m_HGLRC);
@@ -76,13 +73,7 @@ namespace Nexus::GL
 	{
 		NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
-		// retrieve the previous context
-		GL::IGLContext *previousContext = GL::GetCurrentContext();
-
-		// Make the swapchain's context current
-		GL::SetCurrentContext(this);
-
-		GL::ExecuteGLCommands(
+		Execute(
 			[&](const GladGLContext &context)
 			{
 				// copy the sections requested
@@ -133,9 +124,6 @@ namespace Nexus::GL
 		{
 			SwapBuffers(m_HDC);
 		}
-
-		// restore the graphics device context
-		GL::SetCurrentContext(previousContext);
 	}
 
 	void ViewContextWGL::SetVSync(bool enabled)

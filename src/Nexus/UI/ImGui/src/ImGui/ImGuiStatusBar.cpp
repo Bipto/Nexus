@@ -1,5 +1,3 @@
-#pragma once
-
 #include "ImGui/ImGuiStatusBar.hpp"
 
 #include "UI/StatusBar.hpp"

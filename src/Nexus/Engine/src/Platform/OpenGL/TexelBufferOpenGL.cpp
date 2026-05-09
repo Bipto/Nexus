@@ -9,8 +9,8 @@ namespace Nexus::Graphics
 
 		NX_VALIDATE(buffer, "Invalid buffer supplied when attempting to create texel buffer");
 
-		GL::SetCurrentContext(m_Device->GetOffscreenContext());
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.EXT_direct_state_access || context.ARB_direct_state_access && context.TextureBufferRange)
@@ -29,8 +29,19 @@ namespace Nexus::Graphics
 
 	TexelBufferOpenGL::~TexelBufferOpenGL()
 	{
-		GL::SetCurrentContext(m_Device->GetOffscreenContext());
-		GL::ExecuteGLCommands([&](const GladGLContext &context) {});
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
+			[&](const GladGLContext &context)
+			{
+				if (context.EXT_direct_state_access || context.ARB_direct_state_access && context.TextureBufferRange)
+				{
+					context.DeleteTextures(1, &m_Handle);
+				}
+				else if (context.TexBufferRangeEXT)
+				{
+					context.DeleteTexturesEXT(1, &m_Handle);
+				}
+			});
 	}
 
 	const TexelBufferDescription &TexelBufferOpenGL::GetDescription() const
@@ -45,7 +56,8 @@ namespace Nexus::Graphics
 
 	void TexelBufferOpenGL::Bind(uint32_t slot) const
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_direct_state_access || context.EXT_direct_state_access)

@@ -1797,33 +1797,6 @@ namespace Nexus::GL
 		}
 	}
 
-	static IGLContext *s_Context = nullptr;
-
-	IGLContext *GetCurrentContext()
-	{
-		return s_Context;
-	}
-
-	void SetCurrentContext(IGLContext *context)
-	{
-		s_Context = context;
-		s_Context->MakeCurrent();
-	}
-
-	void ClearCurrentContext()
-	{
-		s_Context = nullptr;
-	}
-
-	void ExecuteGLCommands(std::function<void(const GladGLContext &context)> function)
-	{
-		if (s_Context)
-		{
-			const GladGLContext &gladContext = s_Context->GetContext();
-			function(gladContext);
-		}
-	}
-
 	static GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
 	{
 		switch (state)

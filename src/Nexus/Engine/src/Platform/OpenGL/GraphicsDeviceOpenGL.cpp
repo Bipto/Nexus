@@ -37,9 +37,9 @@ namespace Nexus::Graphics
 	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice, bool enableDebug)
 	{
 		m_PhysicalDevice = std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				// retrieve available extensions
@@ -85,7 +85,6 @@ namespace Nexus::Graphics
 
 	ShaderModuleHandle GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleDescription &moduleDesc)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto shader = std::make_unique<ShaderModuleOpenGL>(moduleDesc, this);
 		return m_Resources.ShaderModules.CreateShared(std::move(shader));
 	}
@@ -109,9 +108,8 @@ namespace Nexus::Graphics
 	void GraphicsDeviceOpenGL::GetFeatures()
 	{
 		GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
-		GL::SetCurrentContext(offscreenContext);
 
-		GL::ExecuteGLCommands(
+		offscreenContext->Execute(
 			[&](const GladGLContext &context)
 			{
 				m_Features.SupportsGeometryShaders	   = context.ARB_geometry_shader4 || context.EXT_geometry_shader == 1;
@@ -124,8 +122,10 @@ namespace Nexus::Graphics
 				m_Features.SupportsASTC_LDRCompression = context.KHR_texture_compression_astc_ldr == 1;
 				m_Features.SupportsBCCompression	   = context.EXT_texture_compression_s3tc == 1 || context.ARB_texture_compression_bptc == 1;
 
-				// This may need revisiting
-				m_Features.SupportShaderStorageImageMultisample = context.ARB_shader_image_load_store == 1;
+				GLint maxImageSamples = 0;
+				context.GetIntegerv(GL_MAX_IMAGE_SAMPLES, &maxImageSamples);
+
+				m_Features.SupportShaderStorageImageMultisample = maxImageSamples > 1;
 
 				m_Features.SupportsCubemapArray		  = context.ARB_texture_cube_map_array == 1 || context.EXT_texture_cube_map_array == 1;
 				m_Features.SupportsIndependentBlend	  = context.ARB_draw_buffers_blend == 1 || context.EXT_draw_buffers_indexed == 1;
@@ -223,14 +223,12 @@ namespace Nexus::Graphics
 
 	PipelineHandle GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto pipeline = std::make_unique<GraphicsPipelineOpenGL>(description, this);
 		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
 
 	PipelineHandle GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto pipeline = std::make_unique<ComputePipelineOpenGL>(description, this);
 		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
 	}
@@ -249,38 +247,30 @@ namespace Nexus::Graphics
 
 	ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(PipelineHandle pipeline)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto resourceSet = std::make_unique<ResourceSetOpenGL>(pipeline, this);
 		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
 	}
 
 	FramebufferHandle GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-
 		auto framebuffer = std::make_unique<FramebufferOpenGL>(desc, this);
 		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
 	}
 
 	SamplerHandle GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto sampler = std::unique_ptr<ISampler>(new SamplerOpenGL(spec, this));
 		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 
 	TimingQueryHandle GraphicsDeviceOpenGL::CreateTimingQuery()
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto timingQuery = std::make_unique<TimingQueryOpenGL>();
 		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
 	}
 
 	DeviceBufferHandle GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		// return CreateRef<DeviceBufferOpenGL>(desc, this);
-
 		auto deviceBuffer = std::make_unique<DeviceBufferOpenGL>(desc, this);
 		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
 	}
@@ -312,7 +302,6 @@ namespace Nexus::Graphics
 
 	FenceHandle GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		auto fence = std::make_unique<FenceOpenGL>(desc, this);
 		return m_Resources.Fences.CreateShared(std::move(fence));
 	}
@@ -386,8 +375,8 @@ namespace Nexus::Graphics
 		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
 		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
 
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_sparse_buffer && context.ARB_sparse_texture)
@@ -407,7 +396,6 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceOpenGL::ResetFences(FenceHandle *fences, uint32_t count)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
 		for (uint32_t i = 0; i < count; i++)
 		{
 			FenceOpenGL *fence = fences[i].AsDerived<FenceOpenGL>();
@@ -417,8 +405,6 @@ namespace Nexus::Graphics
 
 	TextureHandle GraphicsDeviceOpenGL::CreateTexture(const TextureDescription &spec)
 	{
-		GL::SetCurrentContext(m_PhysicalDevice->GetOffscreenContext());
-
 		auto texture = std::make_unique<TextureOpenGL>(spec, this);
 		return m_Resources.Textures.CreateShared(std::move(texture));
 	}
@@ -452,7 +438,9 @@ namespace Nexus::Graphics
 		GLint major = 0;
 		GLint minor = 0;
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				context.GetIntegerv(GL_MAJOR_VERSION, &major);

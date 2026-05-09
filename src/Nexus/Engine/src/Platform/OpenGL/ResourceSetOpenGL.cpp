@@ -11,7 +11,8 @@ namespace Nexus::Graphics
 	{
 		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				const PipelineOpenGL *pipelineGL = pipeline.AsDerived<const PipelineOpenGL>();

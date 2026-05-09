@@ -14,7 +14,8 @@ namespace Nexus::Graphics
 		  m_ShaderStage(GL::GetShaderStage(m_ModuleDescription.ShadingStage)),
 		  m_Device(device)
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				m_Handle		   = context.CreateShader(m_ShaderStage);
@@ -42,8 +43,8 @@ namespace Nexus::Graphics
 
 	ShaderModuleOpenGL::~ShaderModuleOpenGL()
 	{
-		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteShader(m_Handle); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { context.DeleteShader(m_Handle); });
 	}
 
 	GLenum ShaderModuleOpenGL::GetGLShaderStage() const

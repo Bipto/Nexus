@@ -11,7 +11,8 @@ namespace Nexus::Graphics
 {
 	SamplerOpenGL::SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device) : m_Device(device), m_Description(spec)
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				glCall(context.GenSamplers(1, &m_Handle));
@@ -30,7 +31,8 @@ namespace Nexus::Graphics
 
 	SamplerOpenGL::~SamplerOpenGL()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteSamplers(1, &m_Handle); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { context.DeleteSamplers(1, &m_Handle); });
 	}
 
 	const SamplerDescription &SamplerOpenGL::GetSamplerDescription() const
@@ -88,7 +90,8 @@ namespace Nexus::Graphics
 	void SamplerOpenGL::Bind(uint32_t slot) const
 	{
 		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { glCall(context.BindSampler(slot, m_Handle)); });
+		GL::IGLContext		  *context			= m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { glCall(context.BindSampler(slot, m_Handle)); });
 	}
 }	 // namespace Nexus::Graphics
 

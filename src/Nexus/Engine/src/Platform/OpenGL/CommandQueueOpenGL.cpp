@@ -22,9 +22,6 @@ namespace Nexus::Graphics
 
 	SwapchainHandle CommandQueueOpenGL::CreateSwapchain(const SwapchainDescription &spec)
 	{
-		Ref<PhysicalDeviceOpenGL> physicalDevice = m_Device->GetPhysicalDeviceOpenGL();
-
-		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
 		auto swapchain = std::make_unique<SwapchainOpenGL>(spec, m_Device);
 		return m_Resources.Swapchains.CreateShared(std::move(swapchain));
 	}

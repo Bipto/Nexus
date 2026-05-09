@@ -16,8 +16,9 @@ namespace Nexus::Graphics
 
 	bool FenceOpenGL::IsSignalled() const
 	{
-		GLint status = -1;
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.GetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status); });
+		GLint			status	= -1;
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { context.GetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status); });
 		return status == GL_SIGNALED;
 	}
 
@@ -39,14 +40,16 @@ namespace Nexus::Graphics
 
 	GLenum FenceOpenGL::Wait(uint64_t timeoutNS)
 	{
-		GLenum result = 0;
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { result = context.ClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeoutNS); });
+		GLenum			result	= 0;
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { result = context.ClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeoutNS); });
 		return result;
 	}
 
 	void FenceOpenGL::CreateFence(bool signalled)
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				m_Sync = context.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -70,6 +73,7 @@ namespace Nexus::Graphics
 
 	void FenceOpenGL::DestroyFence()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteSync(m_Sync); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { context.DeleteSync(m_Sync); });
 	}
 }	 // namespace Nexus::Graphics

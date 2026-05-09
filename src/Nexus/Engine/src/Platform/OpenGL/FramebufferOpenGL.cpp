@@ -16,7 +16,8 @@ namespace Nexus::Graphics
 
 	FramebufferOpenGL::~FramebufferOpenGL()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteFramebuffers(1, &m_FBO); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { context.DeleteFramebuffers(1, &m_FBO); });
 	}
 
 	const FramebufferTextureSetDescription FramebufferOpenGL::GetTextureSetDescription() const
@@ -46,8 +47,8 @@ namespace Nexus::Graphics
 
 	void FramebufferOpenGL::Unbind()
 	{
-		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { glCall(context.BindFramebuffer(GL_FRAMEBUFFER, 0)); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { glCall(context.BindFramebuffer(GL_FRAMEBUFFER, 0)); });
 	}
 
 	int32_t FramebufferOpenGL::GetHandle()
@@ -57,8 +58,8 @@ namespace Nexus::Graphics
 
 	void FramebufferOpenGL::Create()
 	{
-		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				// create the framebuffer

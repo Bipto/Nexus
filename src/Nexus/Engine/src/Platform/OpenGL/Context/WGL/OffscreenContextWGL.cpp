@@ -21,8 +21,6 @@ namespace Nexus::GL
 
 	OffscreenContextWGL::~OffscreenContextWGL()
 	{
-		GL::ClearCurrentContext();
-
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(m_HGLRC);
 		wglDestroyPbufferARB(m_PBuffer);

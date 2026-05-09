@@ -31,7 +31,8 @@ namespace Nexus::Graphics
 		m_GLInternalTextureFormat = GL::GetGLInternalTextureFormat(spec);
 		m_DataFormat			  = GL::GetPixelDataFormat(spec.Format);
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.EXT_direct_state_access || context.ARB_direct_state_access)
@@ -54,7 +55,8 @@ namespace Nexus::Graphics
 
 	TextureOpenGL::~TextureOpenGL()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
 	}
 
 	TextureLayout TextureOpenGL::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
@@ -80,9 +82,10 @@ namespace Nexus::Graphics
 		SubresourceFootprint footprint = {};
 		size_t				 pixelSize = GetPixelFormatSizeInBytes(m_Description.Format);
 
-		GLint readbackAlignment = 0;
-		GLint uploadAlignment	= 0;
-		GL::ExecuteGLCommands(
+		GLint			readbackAlignment = 0;
+		GLint			uploadAlignment	  = 0;
+		GL::IGLContext *context			  = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				context.GetIntegerv(GL_PACK_ALIGNMENT, &readbackAlignment);
@@ -103,7 +106,8 @@ namespace Nexus::Graphics
 
 	void TextureOpenGL::Bind(uint32_t slot) const
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_direct_state_access || context.EXT_direct_state_access)

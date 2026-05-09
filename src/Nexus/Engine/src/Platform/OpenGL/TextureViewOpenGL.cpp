@@ -20,7 +20,8 @@ namespace Nexus::Graphics
 
 		if (m_TextureViewRequired)
 		{
-			GL::ExecuteGLCommands(
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+			context->Execute(
 				[&](const GladGLContext &context)
 				{
 					const bool textureViewSupported = context.TextureViewEXT != nullptr;
@@ -41,7 +42,8 @@ namespace Nexus::Graphics
 	{
 		if (m_Handle)
 		{
-			GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+			context->Execute([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
 		}
 	}
 
@@ -59,7 +61,8 @@ namespace Nexus::Graphics
 	{
 		if (m_TextureViewRequired)
 		{
-			GL::ExecuteGLCommands(
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+			context->Execute(
 				[&](const GladGLContext &context)
 				{
 					const bool textureViewSupported = context.TextureViewEXT != nullptr;

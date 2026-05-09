@@ -338,7 +338,8 @@ namespace Nexus::Graphics
 
 	void GraphicsPipelineOpenGL::CreateShader()
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				m_ShaderHandle = context.CreateProgram();
@@ -427,7 +428,8 @@ namespace Nexus::Graphics
 
 		const Nexus::Graphics::ShaderModuleOpenGL *computeShader = m_Description.ComputeShader.AsDerived<const Nexus::Graphics::ShaderModuleOpenGL>();
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				m_ShaderHandle = context.CreateProgram();

@@ -23,25 +23,19 @@ namespace Nexus::Graphics
 			m_ViewContext					   = surface->CreateOpenGLContext(graphicsDevice, contextDesc);
 		}
 
-		// m_ViewContext = GL::CreateViewContext(window, graphicsDevice);
-
 		m_ViewContext->MakeCurrent();
 		SetPresentMode(m_Description.ImagePresentMode);
 
-		GL::SetCurrentContext(graphicsDevice->GetOffscreenContext());
 		CreateFramebuffer();
 	}
 
 	SwapchainOpenGL::~SwapchainOpenGL()
 	{
-		GL::SetCurrentContext(m_Device->GetOffscreenContext());
 	}
 
 	void SwapchainOpenGL::SwapBuffers(const SwapchainPresentDescription &presentDesc)
 	{
-		m_ViewContext->MakeCurrent();
-
-		GL::ExecuteGLCommands(
+		m_ViewContext->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.PushDebugGroup)
@@ -56,8 +50,6 @@ namespace Nexus::Graphics
 					// context.PopDebugGroup();
 				}
 			});
-
-		GL::SetCurrentContext(m_Device->GetOffscreenContext());
 	}
 
 	FramebufferHandle SwapchainOpenGL::GetCurrentFramebuffer()

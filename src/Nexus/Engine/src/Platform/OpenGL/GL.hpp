@@ -111,11 +111,6 @@ namespace Nexus::GL
 	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
 	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug);
 
-	IGLContext *GetCurrentContext();
-	void		SetCurrentContext(IGLContext *context);
-	void		ClearCurrentContext();
-	void		ExecuteGLCommands(std::function<void(const GladGLContext &context)> function);
-
 }	 // namespace Nexus::GL
 
 #endif

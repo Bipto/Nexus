@@ -22,6 +22,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
+		m_Device = dynamic_cast<GraphicsDeviceOpenGL *>(device);
+
 		NX_PROFILE_FUNCTION();
 
 		const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
@@ -74,7 +76,9 @@ namespace Nexus::Graphics
 													   uint32_t														instanceOffset,
 													   std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall)
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				pipeline->CreateVAO(context);
@@ -289,16 +293,19 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
-	#if !defined(__EMSCRIPTEN__)
-				PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
-				pipeline->Bind(context);
-				BindResourceSet(context);
-				context.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
-				context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
-	#endif
+				if (context.MemoryBarrierEXT != nullptr)
+				{
+					PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
+					pipeline->Bind(context);
+					BindResourceSet(context);
+					context.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+					context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+				}
 			});
 	}
 
@@ -312,7 +319,9 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				pipeline->Bind(context);
@@ -340,7 +349,9 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				pipeline->Bind(context);
@@ -366,7 +377,9 @@ namespace Nexus::Graphics
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 		if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 		{
-			GL::ExecuteGLCommands(
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+			context->Execute(
 				[&](const GladGLContext &context)
 				{
 					pipeline->Bind(context);
@@ -410,7 +423,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (command.Rect.has_value())
@@ -446,7 +461,9 @@ namespace Nexus::Graphics
 		GLfloat depth	= command.Value.Depth;
 		GLint	stencil = command.Value.Stencil;
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				// enable clearing of depth buffer
@@ -462,7 +479,9 @@ namespace Nexus::Graphics
 
 		if (FramebufferOpenGL *framebuffer = command.AsDerived<FramebufferOpenGL>())
 		{
-			GL::ExecuteGLCommands([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+			context->Execute([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
 			m_CurrentRenderTarget = command;
 		}
 	}
@@ -474,7 +493,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				float left	 = command.X;
@@ -492,7 +513,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				float scissorY = m_CurrentRenderTarget->GetHeight() - command.Height - command.Y;
@@ -508,7 +531,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				Point2D<uint32_t> size = Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
@@ -544,7 +569,9 @@ namespace Nexus::Graphics
 		TimingQueryHandle queryHandle = command.Query;
 		if (TimingQueryOpenGL *query = queryHandle.AsDerived<TimingQueryOpenGL>())
 		{
-			GL::ExecuteGLCommands(
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+			context->Execute(
 				[&](const GladGLContext &context)
 				{
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
@@ -570,7 +597,9 @@ namespace Nexus::Graphics
 		TimingQueryHandle queryHandle = command.Query;
 		if (TimingQueryOpenGL *query = queryHandle.AsDerived<TimingQueryOpenGL>())
 		{
-			GL::ExecuteGLCommands(
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+			context->Execute(
 				[&](const GladGLContext &context)
 				{
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
@@ -591,8 +620,10 @@ namespace Nexus::Graphics
 
 		if (textureHandle.IsValid())
 		{
-			TextureOpenGL *texture = textureHandle.AsDerived<TextureOpenGL>();
-			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
+			TextureOpenGL  *texture = textureHandle.AsDerived<TextureOpenGL>();
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+			context->Execute([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
 			texture->MarkDirty();
 		}
 	}
@@ -604,8 +635,10 @@ namespace Nexus::Graphics
 
 		if (bufferHandle.IsValid() && textureHandle.IsValid())
 		{
-			TextureOpenGL *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
-			GL::ExecuteGLCommands([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
+			TextureOpenGL  *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
+			GL::IGLContext *context		  = m_Device->GetOffscreenContext();
+
+			context->Execute([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
 		}
 	}
 
@@ -620,7 +653,9 @@ namespace Nexus::Graphics
 
 		const bool copyDepth = 1;
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_copy_image || context.VERSION_4_3)
@@ -663,7 +698,9 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				context.DebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION,
@@ -677,7 +714,9 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
 	{
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{ context.BlendColor(command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue, command.BlendFactor.Alpha); });
 	}
@@ -688,7 +727,9 @@ namespace Nexus::Graphics
 		{
 			if (GraphicsPipelineOpenGL *pipelineGL = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>())
 			{
-				GL::ExecuteGLCommands([&](const GladGLContext &context) { pipelineGL->SetStencilReference(context, command.StencilReference); });
+				GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+				context->Execute([&](const GladGLContext &context) { pipelineGL->SetStencilReference(context, command.StencilReference); });
 			}
 		}
 	}
@@ -720,17 +761,23 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device)
 	{
+		// boolean indicating whether the resources require synchronisation
 		bool requiresFinish = false;
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (command.TextureBarriers.size() > 0)
+
 				{
+					// if we have any texture barriers and texture barriers are supported, we synchronise them
 					if (context.TextureBarrier != nullptr)
 					{
 						context.TextureBarrier();
 					}
+					// otherwise, we need to use glFinish() them
 					else
 					{
 						requiresFinish = true;
@@ -739,16 +786,19 @@ namespace Nexus::Graphics
 
 				if (command.MemoryBarriers.size() > 0)
 				{
+					// if we have any memory barriers and memory barriers are supported, we synchronise them
 					if (context.MemoryBarrierEXT != nullptr)
 					{
 						context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS_EXT);
 					}
+					// otherwise, we need to use glFinish() them
 					else
 					{
 						requiresFinish = true;
 					}
 				}
 
+				// legacy synchronise if required
 				if (requiresFinish)
 				{
 					context.Finish();

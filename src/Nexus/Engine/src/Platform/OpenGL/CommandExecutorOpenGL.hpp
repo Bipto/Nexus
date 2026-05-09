@@ -65,6 +65,7 @@ namespace Nexus::Graphics
 									std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
+		GraphicsDeviceOpenGL						*m_Device					   = nullptr;
 		PipelineHandle								 m_CurrentlyBoundPipeline	   = {};
 		FramebufferHandle							 m_CurrentRenderTarget		   = {};
 		std::map<uint32_t, VertexBufferView>		 m_CurrentlyBoundVertexBuffers = {};

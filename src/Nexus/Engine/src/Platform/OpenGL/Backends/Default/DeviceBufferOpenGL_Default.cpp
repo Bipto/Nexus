@@ -16,7 +16,10 @@ namespace Nexus::Graphics
 
 		// create buffer (try to use BufferStorage functions if available, otherwise fall back to using BufferData and a vector of CPU data for
 		// mapping)
-		GL::ExecuteGLCommands(
+
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_buffer_storage && (context.ARB_direct_state_access || context.EXT_direct_state_access))
@@ -53,14 +56,18 @@ namespace Nexus::Graphics
 
 	DeviceBufferOpenGL::~DeviceBufferOpenGL()
 	{
-		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteBuffers(1, &m_BufferHandle); });
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute([&](const GladGLContext &context) { context.DeleteBuffers(1, &m_BufferHandle); });
 	}
 
 	void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must have been created with Upload access");
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
@@ -81,7 +88,9 @@ namespace Nexus::Graphics
 
 		std::vector<char> data(size);
 
-		GL::ExecuteGLCommands(
+		GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+		context->Execute(
 			[&](const GladGLContext &context)
 			{
 				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
@@ -119,7 +128,9 @@ namespace Nexus::Graphics
 	{
 		if (m_PersistentMapping)
 		{
-			GL::ExecuteGLCommands(
+			GL::IGLContext *context = m_Device->GetOffscreenContext();
+
+			context->Execute(
 				[&](const GladGLContext &context)
 				{
 					if (context.ARB_direct_state_access || context.EXT_direct_state_access)
