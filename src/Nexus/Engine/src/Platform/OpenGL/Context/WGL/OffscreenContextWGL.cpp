@@ -45,6 +45,54 @@ namespace Nexus::GL
 		return m_HGLRC;
 	}
 
+	std::expected<uint32_t, std::string> OffscreenContextWGL::CreateTexture(const Graphics::TextureDescription &desc)
+	{
+		MakeCurrent();
+		return std::expected<uint32_t, std::string>();
+	}
+
+	std::expected<uint32_t, std::string> OffscreenContextWGL::CreateSampler(const Graphics::SamplerDescription &desc)
+	{
+		MakeCurrent();
+		return m_FunctionContext.CreateSampler(desc);
+	}
+
+	void OffscreenContextWGL::DestroySampler(uint32_t handle)
+	{
+		MakeCurrent();
+		m_FunctionContext.DestroySampler(handle);
+	}
+
+	void OffscreenContextWGL::BindSampler(uint32_t handle, uint32_t slot)
+	{
+		MakeCurrent();
+		m_FunctionContext.BindSampler(handle, slot);
+	}
+
+	std::expected<GLsync, std::string> OffscreenContextWGL::CreateFence(const Graphics::FenceDescription &desc)
+	{
+		MakeCurrent();
+		return m_FunctionContext.CreateFence(desc);
+	}
+
+	void OffscreenContextWGL::DestroyFence(GLsync handle)
+	{
+		MakeCurrent();
+		m_FunctionContext.DestroyFence(handle);
+	}
+
+	bool OffscreenContextWGL::IsSignalled(GLsync handle)
+	{
+		MakeCurrent();
+		return m_FunctionContext.IsSignalled(handle);
+	}
+
+	GLenum OffscreenContextWGL::WaitForFence(GLsync handle, uint64_t timeout)
+	{
+		MakeCurrent();
+		return m_FunctionContext.WaitForFence(handle, timeout);
+	}
+
 	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextDescription &spec)
 	{
 		int	 pixelFormat;

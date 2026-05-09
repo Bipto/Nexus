@@ -259,7 +259,7 @@ namespace Nexus::Graphics
 
 	SamplerHandle GraphicsDeviceOpenGL::CreateSampler(const SamplerDescription &spec)
 	{
-		auto sampler = std::unique_ptr<ISampler>(new SamplerOpenGL(spec, this));
+		auto sampler = std::make_unique<SamplerOpenGL>(spec, this);
 		return m_Resources.Samplers.CreateShared(std::move(sampler));
 	}
 

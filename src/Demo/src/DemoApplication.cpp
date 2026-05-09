@@ -15,7 +15,8 @@ DemoApplication::DemoApplication(const Nexus::ApplicationDescription &desc) : Ap
 void DemoApplication::Load()
 {
 	DemoImGuiLayer *imGuiLayer = m_LayerStack.AddOverlay<DemoImGuiLayer>(this, m_CommandQueueGroup.GraphicsQueue);
-	DemoLayer	   *demoLayer  = m_LayerStack.AddLayer<DemoLayer>(this, m_CommandQueueGroup.GraphicsQueue);
+
+	DemoLayer *demoLayer = m_LayerStack.AddLayer<DemoLayer>(this, m_CommandQueueGroup.GraphicsQueue);
 	imGuiLayer->SetDemoSelectedCallback([demoLayer](std::shared_ptr<Demos::Demo> demo) { demoLayer->SetDemo(demo); });
 }
 

@@ -6,7 +6,7 @@ namespace Nexus::Graphics
 {
 	FenceOpenGL::FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device) : m_Description(desc), m_Device(device)
 	{
-		CreateFence(desc.Signalled);
+		CreateFence();
 	}
 
 	FenceOpenGL::~FenceOpenGL()
@@ -16,10 +16,8 @@ namespace Nexus::Graphics
 
 	bool FenceOpenGL::IsSignalled() const
 	{
-		GLint			status	= -1;
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
-		context->Execute([&](const GladGLContext &context) { context.GetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status); });
-		return status == GL_SIGNALED;
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
+		return context->IsSignalled(m_Sync);
 	}
 
 	const FenceDescription &FenceOpenGL::GetDescription() const
@@ -35,45 +33,24 @@ namespace Nexus::Graphics
 	void FenceOpenGL::Reset()
 	{
 		DestroyFence();
-		CreateFence(false);
+		CreateFence();
 	}
 
 	GLenum FenceOpenGL::Wait(uint64_t timeoutNS)
 	{
-		GLenum			result	= 0;
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
-		context->Execute([&](const GladGLContext &context) { result = context.ClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeoutNS); });
-		return result;
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
+		return context->WaitForFence(m_Sync, timeoutNS);
 	}
 
-	void FenceOpenGL::CreateFence(bool signalled)
+	void FenceOpenGL::CreateFence()
 	{
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				m_Sync = context.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-
-				// wait for the new fence to be signalled
-				if (signalled)
-				{
-					GLenum result = Wait(0);
-					if (result == GL_WAIT_FAILED)
-					{
-						throw std::runtime_error("Failed to wait for fence");
-					}
-				}
-
-				if (context.KHR_debug)
-				{
-					context.ObjectPtrLabelKHR(m_Sync, -1, m_Description.DebugName.c_str());
-				}
-			});
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
+		m_Sync						   = context->CreateFence(m_Description).value();
 	}
 
 	void FenceOpenGL::DestroyFence()
 	{
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
-		context->Execute([&](const GladGLContext &context) { context.DeleteSync(m_Sync); });
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
+		context->DestroyFence(m_Sync);
 	}
 }	 // namespace Nexus::Graphics

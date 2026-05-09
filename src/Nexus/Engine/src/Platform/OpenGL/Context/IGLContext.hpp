@@ -4,7 +4,7 @@
 #include <expected>
 #include <functional>
 
-#include "Platform/OpenGL/OpenGLFunctionContext.hpp"
+#include "Platform/OpenGL/Context/Glad2/Glad2OpenGLFunctionContext.hpp"
 
 #include "RHI/Texture.hpp"
 

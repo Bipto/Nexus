@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		GLenum Wait(uint64_t timeoutNS);
 
 	  private:
-		void CreateFence(bool signalled);
+		void CreateFence();
 		void DestroyFence();
 
 	  private:
