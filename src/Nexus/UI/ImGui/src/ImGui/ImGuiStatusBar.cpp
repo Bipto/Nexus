@@ -23,7 +23,7 @@ namespace Nexus::UI
 
 		ImGui::TextDisabled("(?)");
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("%s", desc);
+			ImGui::SetTooltip("%s", desc.c_str());
 	}
 
 	void ImGuiStatusBar::Render()
@@ -37,7 +37,7 @@ namespace Nexus::UI
 		{
 			if (ImGui::BeginMenuBar())
 			{
-				ImGui::Text(m_StatusText.c_str());
+				ImGui::TextUnformatted(m_StatusText.c_str());
 				HelpMarker(m_HelpText);
 				ImGui::EndMenuBar();
 			}
