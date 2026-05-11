@@ -51,6 +51,24 @@ namespace Nexus::GL
 		return std::expected<uint32_t, std::string>();
 	}
 
+	std::expected<uint32_t, std::string> OffscreenContextWGL::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
+	{
+		MakeCurrent();
+		return m_FunctionContext.CreateTexelBuffer(desc);
+	}
+
+	void OffscreenContextWGL::DestroyTextureBuffer(uint32_t handle)
+	{
+		MakeCurrent();
+		m_FunctionContext.DestroyTextureBuffer(handle);
+	}
+
+	void OffscreenContextWGL::BindTextureBuffer(uint32_t handle, uint32_t slot)
+	{
+		MakeCurrent();
+		m_FunctionContext.BindTextureBuffer(handle, slot);
+	}
+
 	std::expected<uint32_t, std::string> OffscreenContextWGL::CreateSampler(const Graphics::SamplerDescription &desc)
 	{
 		MakeCurrent();

@@ -23,6 +23,11 @@ namespace Nexus::GL
 		// textures
 		std::expected<uint32_t, std::string> CreateTexture(const Graphics::TextureDescription &desc) final;
 
+		// texture buffers
+		std::expected<uint32_t, std::string> CreateTexelBuffer(const Graphics::TexelBufferDescription &desc) final;
+		void								 DestroyTextureBuffer(uint32_t handle) final;
+		void								 BindTextureBuffer(uint32_t handle, uint32_t slot) final;
+
 		// samplers
 		std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc) final;
 		void								 DestroySampler(uint32_t handle) final;

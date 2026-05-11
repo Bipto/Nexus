@@ -2,6 +2,8 @@
 
 #include "Platform/OpenGL/GL.hpp"
 
+#include "Platform/OpenGL/DeviceBufferOpenGL.hpp"
+
 #include "Nexus-Core/Utils/Utils.hpp"
 
 namespace Nexus::GL
@@ -34,6 +36,52 @@ namespace Nexus::GL
 	std::expected<uint32_t, std::string> OpenGLFunctionContext::CreateTexture(const Graphics::TextureDescription &desc)
 	{
 		return std::expected<uint32_t, std::string>();
+	}
+
+	std::expected<uint32_t, std::string> OpenGLFunctionContext::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
+	{
+		GLenum								internalFormat = GL::GetSizedInternalFormat(desc.Format);
+		const Graphics::DeviceBufferOpenGL *buffer		   = desc.Buffer.AsDerived<const Graphics::DeviceBufferOpenGL>();
+
+		NX_VALIDATE(buffer, "Invalid buffer supplied when attempting to create texel buffer");
+
+		uint32_t handle = 0;
+
+		if (m_Context.CreateTextures != nullptr && m_Context.TextureBufferRange != nullptr)
+		{
+			m_Context.CreateTextures(GL_TEXTURE_BUFFER, 1, &handle);
+			m_Context.TextureBufferRange(handle, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes);
+		}
+		else if (m_Context.TexBufferRangeEXT != nullptr)
+		{
+			m_Context.GenTextures(1, &handle);
+			m_Context.BindTexture(GL_TEXTURE_BUFFER, handle);
+			m_Context.TexBufferRange(GL_TEXTURE_BUFFER, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes);
+		}
+		else
+		{
+			return std::unexpected("Texel buffers are not supported");
+		}
+
+		return handle;
+	}
+
+	void OpenGLFunctionContext::DestroyTextureBuffer(uint32_t handle)
+	{
+		glCall(m_Context.DeleteTextures(1, &handle));
+	}
+
+	void OpenGLFunctionContext::BindTextureBuffer(uint32_t handle, uint32_t slot)
+	{
+		if (m_Context.BindTextureUnit != nullptr)
+		{
+			glCall(m_Context.BindTextureUnit(slot, handle));
+		}
+		else
+		{
+			glCall(m_Context.ActiveTexture(GL_TEXTURE0 + slot));
+			glCall(m_Context.BindTexture(GL_TEXTURE_BUFFER, handle));
+		}
 	}
 
 	std::expected<uint32_t, std::string> OpenGLFunctionContext::CreateSampler(const Graphics::SamplerDescription &desc)

@@ -45,9 +45,6 @@ namespace Nexus::Graphics
 	{
 		NX_PROFILE_FUNCTION();
 
-		// Ref<PhysicalDeviceOpenGL> physicalDevice = m_Device->GetPhysicalDeviceOpenGL();
-		// GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
-
 		for (uint32_t i = 0; i < numCommandLists; i++)
 		{
 			CommandListOpenGL *commandList = commandLists[i].AsDerived<CommandListOpenGL>();
