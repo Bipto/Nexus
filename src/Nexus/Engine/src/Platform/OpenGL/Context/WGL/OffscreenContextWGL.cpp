@@ -111,6 +111,78 @@ namespace Nexus::GL
 		return m_FunctionContext.WaitForFence(handle, timeout);
 	}
 
+	uint32_t OffscreenContextWGL::CreateProgram()
+	{
+		MakeCurrent();
+		return m_FunctionContext.CreateProgram();
+	}
+
+	void OffscreenContextWGL::AttachShaderModule(uint32_t program, uint32_t shader)
+	{
+		MakeCurrent();
+		m_FunctionContext.AttachShaderModule(program, shader);
+	}
+
+	void OffscreenContextWGL::LinkProgram(uint32_t program)
+	{
+		MakeCurrent();
+		m_FunctionContext.LinkProgram(program);
+	}
+
+	int OffscreenContextWGL::GetProgramiv(uint32_t program, GLenum parameter)
+	{
+		MakeCurrent();
+		return m_FunctionContext.GetProgramiv(program, parameter);
+	}
+
+	void OffscreenContextWGL::GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
+	{
+		MakeCurrent();
+		m_FunctionContext.GetProgramInfoLog(program, maxLength, length, infoLog);
+	}
+
+	void OffscreenContextWGL::DetachShader(uint32_t program, uint32_t shader)
+	{
+		MakeCurrent();
+		m_FunctionContext.DetachShader(program, shader);
+	}
+
+	void OffscreenContextWGL::UseShader(uint32_t program)
+	{
+		MakeCurrent();
+		m_FunctionContext.UseShader(program);
+	}
+
+	void OffscreenContextWGL::EnableCapability(GLenum capability, bool enable)
+	{
+		MakeCurrent();
+		m_FunctionContext.EnableCapability(capability, enable);
+	}
+
+	void OffscreenContextWGL::EnableDepthTest(bool enable)
+	{
+		MakeCurrent();
+		m_FunctionContext.EnableDepthTest(enable);
+	}
+
+	void OffscreenContextWGL::EnableDepthWrite(bool enable)
+	{
+		MakeCurrent();
+		m_FunctionContext.EnableDepthWrite(enable);
+	}
+
+	void OffscreenContextWGL::EnableStencilTest(bool enable)
+	{
+		MakeCurrent();
+		m_FunctionContext.EnableStencilTest(enable);
+	}
+
+	void OffscreenContextWGL::SetStencilReference(uint32_t reference)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetStencilReference(reference);
+	}
+
 	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextDescription &spec)
 	{
 		int	 pixelFormat;

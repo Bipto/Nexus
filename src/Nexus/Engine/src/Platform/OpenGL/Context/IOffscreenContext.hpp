@@ -37,5 +37,21 @@ namespace Nexus::GL
 		virtual void							   DestroyFence(GLsync handle)						   = 0;
 		virtual bool							   IsSignalled(GLsync handle)						   = 0;
 		virtual GLenum							   WaitForFence(GLsync handle, uint64_t timeout)	   = 0;
+
+		// shaders
+		virtual uint32_t CreateProgram()																		  = 0;
+		virtual void	 AttachShaderModule(uint32_t program, uint32_t shader)									  = 0;
+		virtual void	 LinkProgram(uint32_t program)															  = 0;
+		virtual int		 GetProgramiv(uint32_t program, GLenum parameter)										  = 0;
+		virtual void	 GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog) = 0;
+		virtual void	 DetachShader(uint32_t program, uint32_t shader)										  = 0;
+		virtual void	 UseShader(uint32_t program)															  = 0;
+
+		// pipeline state
+		virtual void EnableCapability(GLenum capability, bool enable) = 0;
+		virtual void EnableDepthTest(bool enable)					  = 0;
+		virtual void EnableDepthWrite(bool enable)					  = 0;
+		virtual void EnableStencilTest(bool enable)					  = 0;
+		virtual void SetStencilReference(uint32_t reference)		  = 0;
 	};
 }	 // namespace Nexus::GL

@@ -39,6 +39,22 @@ namespace Nexus::GL
 		bool							   IsSignalled(GLsync handle) final;
 		GLenum							   WaitForFence(GLsync handle, uint64_t timeout) final;
 
+		// shaders
+		uint32_t CreateProgram() final;
+		void	 AttachShaderModule(uint32_t program, uint32_t shader) final;
+		void	 LinkProgram(uint32_t program) final;
+		int		 GetProgramiv(uint32_t program, GLenum parameter) final;
+		void	 GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog) final;
+		void	 DetachShader(uint32_t program, uint32_t shader) final;
+		void	 UseShader(uint32_t program) final;
+
+		// pipeline state
+		void EnableCapability(GLenum capability, bool enable) final;
+		void EnableDepthTest(bool enable) final;
+		void EnableDepthWrite(bool enable) final;
+		void EnableStencilTest(bool enable) final;
+		void SetStencilReference(uint32_t reference) final;
+
 	  private:
 		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextDescription &spec);
 

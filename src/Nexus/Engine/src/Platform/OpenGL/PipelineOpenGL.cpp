@@ -338,67 +338,64 @@ namespace Nexus::Graphics
 
 	void GraphicsPipelineOpenGL::CreateShader()
 	{
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				m_ShaderHandle = context.CreateProgram();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-				std::vector<const ShaderModuleOpenGL *> modules;
+		m_ShaderHandle = context->CreateProgram();
 
-				if (m_Description.FragmentModule.IsValid())
-				{
-					auto glFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleOpenGL>();
-					NX_VALIDATE(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
-					modules.push_back(glFragmentModule);
-				}
+		std::vector<const ShaderModuleOpenGL *> modules;
 
-				if (m_Description.GeometryModule.IsValid())
-				{
-					auto glGeometryModule = m_Description.GeometryModule.AsDerived<ShaderModuleOpenGL>();
-					NX_VALIDATE(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
-					modules.push_back(glGeometryModule);
-				}
+		if (m_Description.FragmentModule.IsValid())
+		{
+			auto glFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleOpenGL>();
+			NX_VALIDATE(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
+			modules.push_back(glFragmentModule);
+		}
 
-				if (m_Description.TesselationControlModule.IsValid())
-				{
-					auto glTesselationControlModule = m_Description.TesselationControlModule.AsDerived<ShaderModuleOpenGL>();
-					NX_VALIDATE(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
-								"Shader module is not a tesselation control shader");
-					modules.push_back(glTesselationControlModule);
-				}
+		if (m_Description.GeometryModule.IsValid())
+		{
+			auto glGeometryModule = m_Description.GeometryModule.AsDerived<ShaderModuleOpenGL>();
+			NX_VALIDATE(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
+			modules.push_back(glGeometryModule);
+		}
 
-				if (m_Description.TesselationEvaluationModule.IsValid())
-				{
-					auto glEvaluationModule = m_Description.TesselationEvaluationModule.AsDerived<ShaderModuleOpenGL>();
-					NX_VALIDATE(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
-								"Shader module is not a tesselation evaluation shader");
-					modules.push_back(glEvaluationModule);
-				}
+		if (m_Description.TesselationControlModule.IsValid())
+		{
+			auto glTesselationControlModule = m_Description.TesselationControlModule.AsDerived<ShaderModuleOpenGL>();
+			NX_VALIDATE(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
+						"Shader module is not a tesselation control shader");
+			modules.push_back(glTesselationControlModule);
+		}
 
-				if (m_Description.VertexModule.IsValid())
-				{
-					auto glVertexModule = m_Description.VertexModule.AsDerived<ShaderModuleOpenGL>();
-					NX_VALIDATE(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
-					modules.push_back(glVertexModule);
-				}
+		if (m_Description.TesselationEvaluationModule.IsValid())
+		{
+			auto glEvaluationModule = m_Description.TesselationEvaluationModule.AsDerived<ShaderModuleOpenGL>();
+			NX_VALIDATE(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
+						"Shader module is not a tesselation evaluation shader");
+			modules.push_back(glEvaluationModule);
+		}
 
-				for (const auto &module : modules) { glCall(context.AttachShader(m_ShaderHandle, module->GetHandle())); }
+		if (m_Description.VertexModule.IsValid())
+		{
+			auto glVertexModule = m_Description.VertexModule.AsDerived<ShaderModuleOpenGL>();
+			NX_VALIDATE(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
+			modules.push_back(glVertexModule);
+		}
 
-				glCall(context.LinkProgram(m_ShaderHandle));
+		for (const auto &module : modules) { context->AttachShaderModule(m_ShaderHandle, module->GetHandle()); }
 
-				int success;
-				glCall(context.GetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
-				if (!success)
-				{
-					char infoLog[512];
-					glCall(context.GetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
-					std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
-					NX_ERROR(errorMessage);
-				}
+		context->LinkProgram(m_ShaderHandle);
 
-				for (const auto &module : modules) { glCall(context.DetachShader(m_ShaderHandle, module->GetHandle())); }
-			});
+		int success = context->GetProgramiv(m_ShaderHandle, GL_LINK_STATUS);
+		if (!success)
+		{
+			GLint logLength = context->GetProgramiv(m_ShaderHandle, GL_INFO_LOG_LENGTH);
+
+			std::string log(logLength, '\0');
+			context->GetProgramInfoLog(m_ShaderHandle, logLength, nullptr, log.data());
+			NX_ERROR(log);
+		}
+
+		for (const auto &module : modules) { context->DetachShader(m_ShaderHandle, module->GetHandle()); }
 	}
 
 	ComputePipelineOpenGL::ComputePipelineOpenGL(const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device)
@@ -428,26 +425,24 @@ namespace Nexus::Graphics
 
 		const Nexus::Graphics::ShaderModuleOpenGL *computeShader = m_Description.ComputeShader.AsDerived<const Nexus::Graphics::ShaderModuleOpenGL>();
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				m_ShaderHandle = context.CreateProgram();
-				glCall(context.AttachShader(m_ShaderHandle, computeShader->GetHandle()));
-				glCall(context.LinkProgram(m_ShaderHandle));
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-				int success;
-				glCall(context.GetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
-				if (!success)
-				{
-					char infoLog[512];
-					glCall(context.GetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
-					std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
-					NX_ERROR(errorMessage);
-				}
+		m_ShaderHandle = context->CreateProgram();
+		context->AttachShaderModule(m_ShaderHandle, computeShader->GetHandle());
+		context->LinkProgram(m_ShaderHandle);
 
-				glCall(context.DetachShader(m_ShaderHandle, computeShader->GetHandle()));
-			});
+		int success = context->GetProgramiv(m_ShaderHandle, GL_LINK_STATUS);
+
+		if (!success)
+		{
+			GLint logLength = context->GetProgramiv(m_ShaderHandle, GL_INFO_LOG_LENGTH);
+
+			std::string log(logLength, '\0');
+			context->GetProgramInfoLog(m_ShaderHandle, logLength, nullptr, log.data());
+			NX_ERROR(log);
+		}
+
+		context->DetachShader(m_ShaderHandle, computeShader->GetHandle());
 	}
 }	 // namespace Nexus::Graphics
 

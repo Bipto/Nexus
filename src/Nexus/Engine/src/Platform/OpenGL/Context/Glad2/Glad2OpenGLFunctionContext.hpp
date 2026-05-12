@@ -30,6 +30,7 @@ namespace Nexus::GL
 		std::expected<uint32_t, std::string> CreateTexelBuffer(const Graphics::TexelBufferDescription &desc);
 		void								 DestroyTextureBuffer(uint32_t handle);
 		void								 BindTextureBuffer(uint32_t handle, uint32_t slot);
+
 		// samplers
 		std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc);
 		void								 DestroySampler(uint32_t handle);
@@ -40,6 +41,22 @@ namespace Nexus::GL
 		void							   DestroyFence(GLsync handle);
 		bool							   IsSignalled(GLsync handle);
 		GLenum							   WaitForFence(GLsync handle, uint64_t timeout);
+
+		// shaders
+		uint32_t CreateProgram();
+		void	 AttachShaderModule(uint32_t program, uint32_t shader);
+		void	 LinkProgram(uint32_t program);
+		int		 GetProgramiv(uint32_t program, GLenum parameter);
+		void	 GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+		void	 DetachShader(uint32_t program, uint32_t shader);
+		void	 UseShader(uint32_t program);
+
+		// pipeline state
+		void EnableCapability(GLenum capability, bool enable);
+		void EnableDepthTest(bool enable);
+		void EnableDepthWrite(bool enable);
+		void EnableStencilTest(bool enable);
+		void SetStencilReference(uint32_t reference);
 
 	  private:
 		GladGLContext m_Context = {};

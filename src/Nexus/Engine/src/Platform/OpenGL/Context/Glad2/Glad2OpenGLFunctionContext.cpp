@@ -189,4 +189,62 @@ namespace Nexus::GL
 		return m_Context.ClientWaitSync(handle, GL_SYNC_FLUSH_COMMANDS_BIT, timeout);
 	}
 
+	uint32_t OpenGLFunctionContext::CreateProgram()
+	{
+		return m_Context.CreateProgram();
+	}
+
+	void OpenGLFunctionContext::AttachShaderModule(uint32_t program, uint32_t shader)
+	{
+		glCall(m_Context.AttachShader(program, shader));
+	}
+
+	void OpenGLFunctionContext::LinkProgram(uint32_t program)
+	{
+		glCall(m_Context.LinkProgram(program));
+	}
+
+	int OpenGLFunctionContext::GetProgramiv(uint32_t program, GLenum parameter)
+	{
+		int returnValue = 0;
+		glCall(m_Context.GetProgramiv(program, parameter, &returnValue));
+		return returnValue;
+	}
+
+	void OpenGLFunctionContext::GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
+	{
+		glCall(m_Context.GetProgramInfoLog(program, maxLength, nullptr, infoLog));
+	}
+
+	void OpenGLFunctionContext::DetachShader(uint32_t program, uint32_t shader)
+	{
+		glCall(m_Context.DetachShader(program, shader));
+	}
+
+	void OpenGLFunctionContext::UseShader(uint32_t program)
+	{
+		glCall(m_Context.UseProgram(program));
+	}
+
+	// pipeline state
+	void OpenGLFunctionContext::EnableCapability(GLenum capability, bool enable)
+	{
+	}
+
+	void OpenGLFunctionContext::EnableDepthTest(bool enable)
+	{
+	}
+
+	void OpenGLFunctionContext::EnableDepthWrite(bool enable)
+	{
+	}
+
+	void OpenGLFunctionContext::EnableStencilTest(bool enable)
+	{
+	}
+
+	void OpenGLFunctionContext::SetStencilReference(uint32_t reference)
+	{
+	}
+
 }	 // namespace Nexus::GL
