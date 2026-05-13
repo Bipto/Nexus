@@ -11,132 +11,128 @@ namespace Nexus::Graphics
 	{
 		const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
-		GL::IGLContext *context = device->GetOffscreenContext();
-		context->Execute(
-			[&](const GladGLContext &context)
+		GL::IOffscreenContext *context	  = device->GetOffscreenContext();
+		const PipelineOpenGL  *pipelineGL = pipeline.AsDerived<const PipelineOpenGL>();
+
+		for (const ResourceDescriptor &descriptor : resourceSetDesc.Descriptors)
+		{
+			// check whether the resource is a buffer, as their locations have to be retrieved differently
+			bool isUniformBuffer =
+				descriptor.Type == ResourceDescriptorType::UniformBuffer || descriptor.Type == ResourceDescriptorType::DynamicUniformBuffer ||
+				descriptor.Type == ResourceDescriptorType::InlineUniformBlock || descriptor.Type == ResourceDescriptorType::PushConstants;
+
+			bool isStorageBuffer =
+				descriptor.Type == ResourceDescriptorType::StorageBuffer || descriptor.Type == ResourceDescriptorType::DynamicStorageBuffer;
+
+			if (isUniformBuffer)
 			{
-				const PipelineOpenGL *pipelineGL = pipeline.AsDerived<const PipelineOpenGL>();
-
-				for (const ResourceDescriptor &descriptor : resourceSetDesc.Descriptors)
+				if (descriptor.CountOrSizeInBytes == 1 || descriptor.Type == ResourceDescriptorType::PushConstants ||
+					descriptor.Type == ResourceDescriptorType::InlineUniformBlock)
 				{
-					// check whether the resource is a buffer, as their locations have to be retrieved differently
-					bool isUniformBuffer =
-						descriptor.Type == ResourceDescriptorType::UniformBuffer || descriptor.Type == ResourceDescriptorType::DynamicUniformBuffer ||
-						descriptor.Type == ResourceDescriptorType::InlineUniformBlock || descriptor.Type == ResourceDescriptorType::PushConstants;
-
-					bool isStorageBuffer =
-						descriptor.Type == ResourceDescriptorType::StorageBuffer || descriptor.Type == ResourceDescriptorType::DynamicStorageBuffer;
-
-					if (isUniformBuffer)
+					int32_t location					= context->GetUniformBlockIndex(pipelineGL->GetShaderHandle(), descriptor.Name.c_str());
+					m_BindingLocations[descriptor.Name] = {location};
+				}
+				else
+				{
+					for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
 					{
-						if (descriptor.CountOrSizeInBytes == 1 || descriptor.Type == ResourceDescriptorType::PushConstants ||
-							descriptor.Type == ResourceDescriptorType::InlineUniformBlock)
-						{
-							int32_t location = context.GetUniformBlockIndex(pipelineGL->GetShaderHandle(), descriptor.Name.c_str());
-							m_BindingLocations[descriptor.Name] = {location};
-						}
-						else
-						{
-							for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
-							{
-								std::stringstream ss;
-								ss << descriptor.Name << "[" << std::to_string(i) << "]";
+						std::stringstream ss;
+						ss << descriptor.Name << "[" << std::to_string(i) << "]";
 
-								int32_t location = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
-								m_BindingLocations[descriptor.Name].push_back(location);
-							}
-						}
-					}
-					else if (isStorageBuffer)
-					{
-						if (context.GetProgramResourceIndex)
-						{
-							if (descriptor.CountOrSizeInBytes == 1)
-							{
-								int32_t location =
-									context.GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, descriptor.Name.c_str());
-								m_BindingLocations[descriptor.Name] = {location};
-							}
-							else
-							{
-								for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
-								{
-									std::stringstream ss;
-									ss << descriptor.Name << "[" << std::to_string(i) << "]";
-
-									int32_t location =
-										context.GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, ss.str().c_str());
-									m_BindingLocations[descriptor.Name].push_back(location);
-								}
-							}
-						}
-					}
-					else
-					{
-						if (descriptor.CountOrSizeInBytes == 1)
-						{
-							int32_t location					= context.GetUniformLocation(pipelineGL->GetShaderHandle(), descriptor.Name.c_str());
-							m_BindingLocations[descriptor.Name] = {location};
-						}
-						else
-						{
-							for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
-							{
-								std::stringstream ss;
-								ss << descriptor.Name << "[" << std::to_string(i) << "]";
-
-								int32_t location = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
-								m_BindingLocations[descriptor.Name].push_back(location);
-							}
-						}
-					}
-
-					// create emulated resources
-					if (descriptor.Type == ResourceDescriptorType::PushConstants)
-					{
-						DeviceBufferDescription bufferDesc = {};
-						bufferDesc.Usage				   = BufferUsage_Uniform;
-						bufferDesc.DebugName			   = descriptor.Name;
-						bufferDesc.Access				   = BufferMemoryAccess::Upload;
-						bufferDesc.SizeInBytes			   = descriptor.CountOrSizeInBytes;
-						bufferDesc.StrideInBytes		   = descriptor.CountOrSizeInBytes;
-
-						m_EmulatedPushConstants[descriptor.Name] = CreateRef<DeviceBufferOpenGL>(bufferDesc, device);
-					}
-					else if (descriptor.Type == ResourceDescriptorType::InlineUniformBlock)
-					{
-						DeviceBufferDescription bufferDesc = {};
-						bufferDesc.Usage				   = BufferUsage_Uniform;
-						bufferDesc.DebugName			   = descriptor.Name;
-						bufferDesc.Access				   = BufferMemoryAccess::Upload;
-						bufferDesc.SizeInBytes			   = descriptor.CountOrSizeInBytes;
-						bufferDesc.StrideInBytes		   = descriptor.CountOrSizeInBytes;
-
-						m_EmulatedInlineUniformBlocks[descriptor.Name] = CreateRef<DeviceBufferOpenGL>(bufferDesc, device);
+						int32_t location = context->GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
+						m_BindingLocations[descriptor.Name].push_back(location);
 					}
 				}
-
-				// iterate through all immutable samplers and get their locations
-				for (const auto &[name, samplers] : resourceSetDesc.ImmutableSamplers)
+			}
+			else if (isStorageBuffer)
+			{
+				if (context->AreStorageBuffersSupported())
 				{
-					if (samplers.size() == 1)
+					if (descriptor.CountOrSizeInBytes == 1)
 					{
-						int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), name.c_str());
-						m_ImmutableSamplers[location] = samplers[0].AsDerived<const SamplerOpenGL>();
+						int32_t location =
+							context->GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, descriptor.Name.c_str());
+						m_BindingLocations[descriptor.Name] = {location};
 					}
 					else
 					{
-						for (size_t i = 0; i < samplers.size(); i++)
+						for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
 						{
 							std::stringstream ss;
-							ss << name << "[" << std::to_string(i) << "]";
+							ss << descriptor.Name << "[" << std::to_string(i) << "]";
 
-							int32_t location			  = context.GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
-							m_ImmutableSamplers[location] = samplers[i].AsDerived<const SamplerOpenGL>();
+							int32_t location =
+								context->GetProgramResourceIndex(pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, ss.str().c_str());
+							m_BindingLocations[descriptor.Name].push_back(location);
 						}
 					}
 				}
-			});
+			}
+			else
+			{
+				if (descriptor.CountOrSizeInBytes == 1)
+				{
+					int32_t location					= context->GetUniformLocation(pipelineGL->GetShaderHandle(), descriptor.Name.c_str());
+					m_BindingLocations[descriptor.Name] = {location};
+				}
+				else
+				{
+					for (size_t i = 0; i < descriptor.CountOrSizeInBytes; i++)
+					{
+						std::stringstream ss;
+						ss << descriptor.Name << "[" << std::to_string(i) << "]";
+
+						int32_t location = context->GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
+						m_BindingLocations[descriptor.Name].push_back(location);
+					}
+				}
+			}
+
+			// create emulated resources
+			if (descriptor.Type == ResourceDescriptorType::PushConstants)
+			{
+				DeviceBufferDescription bufferDesc = {};
+				bufferDesc.Usage				   = BufferUsage_Uniform;
+				bufferDesc.DebugName			   = descriptor.Name;
+				bufferDesc.Access				   = BufferMemoryAccess::Upload;
+				bufferDesc.SizeInBytes			   = descriptor.CountOrSizeInBytes;
+				bufferDesc.StrideInBytes		   = descriptor.CountOrSizeInBytes;
+
+				m_EmulatedPushConstants[descriptor.Name] = CreateRef<DeviceBufferOpenGL>(bufferDesc, device);
+			}
+			else if (descriptor.Type == ResourceDescriptorType::InlineUniformBlock)
+			{
+				DeviceBufferDescription bufferDesc = {};
+				bufferDesc.Usage				   = BufferUsage_Uniform;
+				bufferDesc.DebugName			   = descriptor.Name;
+				bufferDesc.Access				   = BufferMemoryAccess::Upload;
+				bufferDesc.SizeInBytes			   = descriptor.CountOrSizeInBytes;
+				bufferDesc.StrideInBytes		   = descriptor.CountOrSizeInBytes;
+
+				m_EmulatedInlineUniformBlocks[descriptor.Name] = CreateRef<DeviceBufferOpenGL>(bufferDesc, device);
+			}
+		}
+
+		// iterate through all immutable samplers and get their locations
+		for (const auto &[name, samplers] : resourceSetDesc.ImmutableSamplers)
+		{
+			if (samplers.size() == 1)
+			{
+				int32_t location			  = context->GetUniformLocation(pipelineGL->GetShaderHandle(), name.c_str());
+				m_ImmutableSamplers[location] = samplers[0].AsDerived<const SamplerOpenGL>();
+			}
+			else
+			{
+				for (size_t i = 0; i < samplers.size(); i++)
+				{
+					std::stringstream ss;
+					ss << name << "[" << std::to_string(i) << "]";
+
+					int32_t location			  = context->GetUniformLocation(pipelineGL->GetShaderHandle(), ss.str().c_str());
+					m_ImmutableSamplers[location] = samplers[i].AsDerived<const SamplerOpenGL>();
+				}
+			}
+		}
 	}
 
 	void ResourceSetOpenGL::Flush()

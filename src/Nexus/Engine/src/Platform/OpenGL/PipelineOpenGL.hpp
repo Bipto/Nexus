@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
+
 	#include "DeviceBufferOpenGL.hpp"
 	#include "RHI/Pipeline.hpp"
 
@@ -15,8 +17,8 @@ namespace Nexus::Graphics
 		virtual ~PipelineOpenGL()
 		{
 		}
-		virtual void	 Bind(const GladGLContext &context) = 0;
-		virtual uint32_t GetShaderHandle() const			= 0;
+		virtual void	 Bind(GL::IOffscreenContext *context) = 0;
+		virtual uint32_t GetShaderHandle() const			  = 0;
 	};
 
 	class GraphicsPipelineOpenGL : public IGraphicsPipeline, public PipelineOpenGL
@@ -30,21 +32,21 @@ namespace Nexus::Graphics
 						 std::optional<IndexBufferView>				 indexBuffer,
 						 uint32_t									 firstVertex,
 						 uint32_t									 firstInstance,
-						 const GladGLContext						&context);
+						 GL::IOffscreenContext						*context);
 
-		void	 Bind(const GladGLContext &context) final;
+		void	 Bind(GL::IOffscreenContext *context) final;
 		uint32_t GetShaderHandle() const final;
 
-		void CreateVAO(const GladGLContext &context);
-		void DestroyVAO(const GladGLContext &context);
+		void CreateVAO(GL::IOffscreenContext *context);
+		void DestroyVAO(GL::IOffscreenContext *context);
 
-		void SetStencilReference(const GladGLContext &context, uint32_t stencilReference);
+		void SetStencilReference(GL::IOffscreenContext *context, uint32_t stencilReference);
 
 	  private:
-		void SetupDepthStencil(const GladGLContext &context, uint32_t stencilReference);
-		void SetupRasterizer(const GladGLContext &context);
-		void SetupBlending(const GladGLContext &context);
-		void SetShader(const GladGLContext &context);
+		void SetupDepthStencil(GL::IOffscreenContext *context, uint32_t stencilReference);
+		void SetupRasterizer(GL::IOffscreenContext *context);
+		void SetupBlending(GL::IOffscreenContext *context);
+		void SetShader(GL::IOffscreenContext *context);
 		void CreateShader();
 
 	  private:
@@ -58,7 +60,7 @@ namespace Nexus::Graphics
 	  public:
 		ComputePipelineOpenGL(const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device);
 		virtual ~ComputePipelineOpenGL();
-		void	 Bind(const GladGLContext &context) final;
+		void	 Bind(GL::IOffscreenContext *context) final;
 		uint32_t GetShaderHandle() const final;
 
 	  private:

@@ -50,10 +50,61 @@ namespace Nexus::GL
 
 		// pipeline state
 		void EnableCapability(GLenum capability, bool enable) final;
-		void EnableDepthTest(bool enable) final;
-		void EnableDepthWrite(bool enable) final;
-		void EnableStencilTest(bool enable) final;
-		void SetStencilReference(uint32_t reference) final;
+		void SetStencilMask(uint32_t mask) final;
+		void SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass) final;
+		void SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask) final;
+		void EnableDepthMask(bool enable) final;
+		bool IsDepthBoundsSupported() final;
+		void SetDepthBounds(float min, float max) final;
+		void SetDepthMask(bool enabled) final;
+		void SetDepthFunction(GLenum func) final;
+		void SetFaceCulling(GLenum cullMode) final;
+		bool IsDepthClampSupported() final;
+		void SetPolygonMode(GLenum face, GLenum mode) final;
+		void SetFrontFace(GLenum face) final;
+		bool SupportsPerTargetColourMask() final;
+		void SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) final;
+		void SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) final;
+		bool SupportsPerTargetBlendFunction() final;
+		void SetBlendFunction(GLenum sfactor, GLenum dfactor) final;
+		void SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor) final;
+		void SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) final;
+		void SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) final;
+		void SetBlendEquation(GLenum mode) final;
+		void SetBlendEquationi(uint32_t index, GLenum mode) final;
+		void SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha) final;
+		void SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha) final;
+
+		// buffers
+		uint32_t CreateVertexArray() final;
+		void	 DestroyVertexArray(uint32_t vao) final;
+		void	 BindBuffer(GLenum target, GLuint buffer) final;
+		void	 BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size) final;
+		void	 BindVertexArray(uint32_t vao) final;
+		void	 EnableVertexAttribArray(uint32_t vao, uint32_t index) final;
+		void	 DisableVertexAttribArray(uint32_t vao, uint32_t index) final;
+		void	 SetVertexAttribPointer(uint32_t  vao,
+										uint32_t  vbo,
+										GLuint	  index,
+										GLint	  size,
+										GLenum	  type,
+										GLboolean normalized,
+										GLsizei	  stride,
+										uint32_t  offset) final;
+
+		void SetVertexAttribIPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset) final;
+
+		void SetVertexAttribLPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset) final;
+
+		void SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor) final;
+
+		// resources
+		bool	AreStorageBuffersSupported() final;
+		int32_t GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name) final;
+		int32_t GetUniformBlockIndex(uint32_t shader, const GLchar *name) final;
+		int32_t GetUniformLocation(uint32_t shader, const GLchar *name) final;
+		void	UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding) final;
+		void	BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) final;
 
 	  private:
 		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextDescription &spec);

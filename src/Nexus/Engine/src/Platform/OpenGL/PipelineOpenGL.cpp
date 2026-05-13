@@ -1,5 +1,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include <ranges>
+
 	#include "PipelineOpenGL.hpp"
 
 	#include "DeviceBufferOpenGL.hpp"
@@ -30,10 +32,8 @@ namespace Nexus::Graphics
 											 std::optional<IndexBufferView>				 indexBuffer,
 											 uint32_t									 firstVertex,
 											 uint32_t									 firstInstance,
-											 const GladGLContext						&context)
+											 GL::IOffscreenContext						*context)
 	{
-		glCall(context.BindVertexArray(m_VAO));
-
 		uint32_t index = 0;
 		for (const auto &[slot, vertexBufferView] : vertexBuffers)
 		{
@@ -74,16 +74,35 @@ namespace Nexus::Graphics
 				GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
 				GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
 
-				glCall(context.EnableVertexAttribArray(index));
-				context.BindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetHandle());
+				context->EnableVertexAttribArray(m_VAO, index);
+
+				// glCall(context.EnableVertexAttribArray(index));
+				// context.BindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetHandle());
 
 				if (primitiveType == GL::GLPrimitiveType::Float)
 				{
-					glCall(context.VertexAttribPointer(index, componentCount, baseType, normalized, stride, (void *)(element.Offset + offset)));
+					// glCall(context.VertexAttribPointer(index, componentCount, baseType, normalized, stride, (void *)(element.Offset + offset)));
+
+					context->SetVertexAttribPointer(m_VAO,
+													vertexBufferOpenGL->GetHandle(),
+													index,
+													componentCount,
+													baseType,
+													normalized,
+													stride,
+													static_cast<uint32_t>(element.Offset + offset));
 				}
 				else if (primitiveType == GL::GLPrimitiveType::Int)
 				{
-					glCall(context.VertexAttribIPointer(index, componentCount, baseType, stride, (void *)(element.Offset + offset)));
+					// glCall(context.VertexAttribIPointer(index, componentCount, baseType, stride, (void *)(element.Offset + offset)));
+
+					context->SetVertexAttribIPointer(m_VAO,
+													 vertexBufferOpenGL->GetHandle(),
+													 index,
+													 componentCount,
+													 baseType,
+													 stride,
+													 static_cast<uint32_t>(element.Offset + offset));
 				}
 				else
 				{
@@ -92,7 +111,7 @@ namespace Nexus::Graphics
 
 				if (layout.IsInstanceBuffer())
 				{
-					glCall(context.VertexAttribDivisor(index, layout.GetInstanceStepRate()));
+					context->SetVertexAttribDivisor(m_VAO, index, layout.GetInstanceStepRate());
 				}
 
 				index++;
@@ -102,14 +121,14 @@ namespace Nexus::Graphics
 			{
 				IndexBufferView			 &view				= indexBuffer.value();
 				const DeviceBufferOpenGL *indexBufferOpenGL = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
-				context.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferOpenGL->GetHandle());
+				context->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferOpenGL->GetHandle());
 			}
 		}
 	}
 
-	void GraphicsPipelineOpenGL::Bind(const GladGLContext &context)
+	void GraphicsPipelineOpenGL::Bind(GL::IOffscreenContext *context)
 	{
-		glCall(context.BindVertexArray(m_VAO));
+		context->BindVertexArray(m_VAO);
 
 		SetupDepthStencil(context, m_Description.DepthStencilDesc.StencilReference);
 		SetupRasterizer(context);
@@ -122,30 +141,27 @@ namespace Nexus::Graphics
 		return m_ShaderHandle;
 	}
 
-	void GraphicsPipelineOpenGL::CreateVAO(const GladGLContext &context)
+	void GraphicsPipelineOpenGL::CreateVAO(GL::IOffscreenContext *context)
 	{
-		glCall(context.GenVertexArrays(1, &m_VAO));
-		glCall(context.BindVertexArray(m_VAO));
+		m_VAO = context->CreateVertexArray();
 	}
 
-	void GraphicsPipelineOpenGL::DestroyVAO(const GladGLContext &context)
+	void GraphicsPipelineOpenGL::DestroyVAO(GL::IOffscreenContext *context)
 	{
-		glCall(context.BindVertexArray(0));
-		glCall(context.DeleteVertexArrays(1, &m_VAO));
+		context->DestroyVertexArray(m_VAO);
 	}
 
-	void GraphicsPipelineOpenGL::SetStencilReference(const GladGLContext &context, uint32_t stencilReference)
+	void GraphicsPipelineOpenGL::SetStencilReference(GL::IOffscreenContext *context, uint32_t stencilReference)
 	{
 		// front face
 		{
 			GLenum sfail  = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilFailOperation);
 			GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation);
 			GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
-
-			glCall(context.StencilOpSeparate(GL_FRONT, sfail, dpfail, dppass));
+			context->SetStencilOp(GL_FRONT, sfail, dpfail, dppass);
 
 			GLenum stencilCompareFunc = GL::GetComparisonFunction(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
-			glCall(context.StencilFuncSeparate(GL_FRONT, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask));
+			context->SetStencilFunc(GL_FRONT, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask);
 		}
 
 		// back face
@@ -154,186 +170,154 @@ namespace Nexus::Graphics
 			GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation);
 			GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
 
-			glCall(context.StencilOpSeparate(GL_BACK, sfail, dpfail, dppass));
+			context->SetStencilOp(GL_BACK, sfail, dpfail, dppass);
 
 			GLenum stencilCompareFunc = GL::GetComparisonFunction(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
-			glCall(context.StencilFuncSeparate(GL_BACK, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask));
+			context->SetStencilFunc(GL_BACK, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask);
 		}
 	}
 
-	void GraphicsPipelineOpenGL::SetupDepthStencil(const GladGLContext &context, uint32_t stencilReference)
+	void GraphicsPipelineOpenGL::SetupDepthStencil(GL::IOffscreenContext *context, uint32_t stencilReference)
 	{
 		// enable/disable depth testing
-		if (m_Description.DepthStencilDesc.EnableDepthTest)
-		{
-			glCall(context.Enable(GL_DEPTH_TEST));
-		}
-		else
-		{
-			glCall(context.Disable(GL_DEPTH_TEST));
-		}
+		context->EnableCapability(GL_DEPTH_TEST, m_Description.DepthStencilDesc.EnableDepthTest);
 
 		// enable/disable depth writing
-		if (m_Description.DepthStencilDesc.EnableDepthWrite)
-		{
-			glCall(context.DepthMask(GL_TRUE));
-		}
-		else
-		{
-			glCall(context.DepthMask(GL_FALSE));
-		}
+		context->SetDepthMask(m_Description.DepthStencilDesc.EnableDepthWrite);
 
 		// set up stencil options
-		if (m_Description.DepthStencilDesc.EnableStencilTest)
-		{
-			glCall(context.Enable(GL_STENCIL_TEST));
-		}
-		else
-		{
-			glCall(context.Disable(GL_STENCIL_TEST));
-		}
-
-		glCall(context.StencilMask(m_Description.DepthStencilDesc.StencilWriteMask));
+		context->EnableCapability(GL_STENCIL_TEST, m_Description.DepthStencilDesc.EnableStencilTest);
+		context->SetStencilMask(m_Description.DepthStencilDesc.StencilWriteMask);
 
 		SetStencilReference(context, m_Description.DepthStencilDesc.StencilReference);
 
 		// depth comparison
 		GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
-		glCall(context.DepthFunc(depthFunction));
+		// glCall(context.DepthFunc(depthFunction));
+		context->SetDepthFunction(depthFunction);
 
 		// depths bounds testing
-		if (context.DepthBoundsEXT)
+		// if (context.DepthBoundsEXT)
+		if (context->IsDepthBoundsSupported())
 		{
-			if (m_Description.DepthStencilDesc.EnableDepthsBoundsTest)
-			{
-				context.Enable(GL_DEPTH_BOUNDS_TEST_EXT);
-			}
-			else
-			{
-				context.Disable(GL_DEPTH_BOUNDS_TEST_EXT);
-			}
+			context->EnableCapability(GL_DEPTH_BOUNDS_TEST_EXT, m_Description.DepthStencilDesc.EnableDepthsBoundsTest);
+			context->SetDepthBounds(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
 
-			context.DepthBoundsEXT(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
+			// context.DepthBoundsEXT(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
 		}
 	}
 
-	void GraphicsPipelineOpenGL::SetupRasterizer(const GladGLContext &context)
+	void GraphicsPipelineOpenGL::SetupRasterizer(GL::IOffscreenContext *context)
 	{
-		if (m_Description.RasterizerStateDesc.TriangleCullMode == CullMode::CullNone)
-		{
-			glCall(context.Disable(GL_CULL_FACE));
-		}
-		else
-		{
-			glCall(context.Enable(GL_CULL_FACE));
-		}
+		context->EnableCapability(GL_CULL_FACE, m_Description.RasterizerStateDesc.TriangleCullMode != CullMode::CullNone);
 
 		switch (m_Description.RasterizerStateDesc.TriangleCullMode)
 		{
-			case CullMode::Back: glCall(context.CullFace(GL_BACK)); break;
-			case CullMode::Front: glCall(context.CullFace(GL_FRONT)); break;
-			default: glCall(context.CullFace(GL_FRONT_AND_BACK)); break;
+			case CullMode::Back: context->SetFaceCulling(GL_BACK); break;
+			case CullMode::Front: context->SetFaceCulling(GL_FRONT); break;
+			default: context->SetFaceCulling(GL_FRONT_AND_BACK); break;
 		}
 
-	#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
-		if (m_Description.RasterizerStateDesc.DepthClipEnabled)
+		if (context->IsDepthClampSupported())
 		{
-			glCall(context.Enable(GL_DEPTH_CLAMP));
+			context->EnableCapability(GL_DEPTH_CLAMP, m_Description.RasterizerStateDesc.DepthClipEnabled);
 		}
-		else
-		{
-			glCall(context.Disable(GL_DEPTH_CLAMP));
-		}
-	#endif
 
-	#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
 		switch (m_Description.RasterizerStateDesc.TriangleFillMode)
 		{
-			case FillMode::Solid: glCall(context.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)); break;
-			case FillMode::Wireframe: glCall(context.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)); break;
+			case FillMode::Solid: context->SetPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
+			case FillMode::Wireframe: context->SetPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
+			default: throw std::runtime_error("Failed to find a valid triangle fill mode");
 		}
-	#endif
 
 		switch (m_Description.RasterizerStateDesc.TriangleFrontFace)
 		{
-			case FrontFace::Clockwise: glCall(context.FrontFace(GL_CW)); break;
-			case FrontFace::CounterClockwise: glCall(context.FrontFace(GL_CCW)); break;
+			case FrontFace::Clockwise: context->SetFrontFace(GL_CW); break;
+			case FrontFace::CounterClockwise: context->SetFrontFace(GL_CCW); break;
+			default: throw std::runtime_error("Failed to find a valid front face");
 		}
 
-	#if !defined(__EMSCRIPTEN__)
-		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		if (context->SupportsPerTargetColourMask())
 		{
-			const auto &colourBlendState = m_Description.ColourBlendStates[i];
-			context.ColorMaski(i,
-							   colourBlendState.PixelWriteMask.Red,
-							   colourBlendState.PixelWriteMask.Green,
-							   colourBlendState.PixelWriteMask.Blue,
-							   colourBlendState.PixelWriteMask.Alpha);
-		}
-	#else
-		const auto &colourBlendState = m_Description.ColourBlendStates[0];
-		context.ColorMask(colourBlendState.PixelWriteMask.Red,
-						  colourBlendState.PixelWriteMask.Green,
-						  colourBlendState.PixelWriteMask.Blue,
-						  colourBlendState.PixelWriteMask.Alpha);
-	#endif
-
-		// vulkan requires scissor test to be enabled
-		glCall(context.Enable(GL_SCISSOR_TEST));
-	}
-
-	void GraphicsPipelineOpenGL::SetupBlending(const GladGLContext &context)
-	{
-		glCall(context.Enable(GL_BLEND));
-
-	#if defined(__EMSCRIPTEN__)
-		if (m_Description.ColourBlendStates[0].EnableBlending)
-		{
-			auto sourceColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[0].SourceColourBlend);
-			auto sourceAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[0].SourceAlphaBlend);
-
-			auto destinationColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[0].DestinationColourBlend);
-			auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[0].DestinationAlphaBlend);
-			glCall(context.BlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
-
-			auto colorBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[0].ColorBlendFunction);
-			auto alphaBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[0].AlphaBlendFunction);
-			glCall(context.BlendEquationSeparate(colorBlendFunction, alphaBlendFunction));
+			for (const auto &[index, blendState] : std::views::enumerate(m_Description.ColourBlendStates))
+			{
+				context->SetColourMask(blendState.PixelWriteMask.Red,
+									   blendState.PixelWriteMask.Green,
+									   blendState.PixelWriteMask.Blue,
+									   blendState.PixelWriteMask.Alpha);
+			}
 		}
 		else
 		{
-			context.BlendFunc(GL_ONE, GL_ZERO);
-			context.BlendEquation(GL_FUNC_ADD);
+			const auto &colourBlendState = m_Description.ColourBlendStates[0];
+			context->SetColourMask(colourBlendState.PixelWriteMask.Red,
+								   colourBlendState.PixelWriteMask.Green,
+								   colourBlendState.PixelWriteMask.Blue,
+								   colourBlendState.PixelWriteMask.Alpha);
 		}
-	#else
-		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
-		{
-			if (m_Description.ColourBlendStates[i].EnableBlending)
-			{
-				auto sourceColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
-				auto sourceAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
 
-				auto destinationColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
-				auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
-				glCall(context.BlendFuncSeparatei(i, sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
-
-				auto colorBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[i].ColorBlendFunction);
-				auto alphaBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[i].AlphaBlendFunction);
-				glCall(context.BlendEquationSeparatei(i, colorBlendFunction, alphaBlendFunction));
-			}
-			// disable blending for this attachment
-			else
-			{
-				context.BlendFunci(i, GL_ONE, GL_ZERO);
-				context.BlendEquationi(i, GL_FUNC_ADD);
-			}
-		}
-	#endif
+		// vulkan requires scissor test to be enabled, for compatibility this is forced on
+		context->EnableCapability(GL_SCISSOR_TEST, true);
 	}
 
-	void GraphicsPipelineOpenGL::SetShader(const GladGLContext &context)
+	void GraphicsPipelineOpenGL::SetupBlending(GL::IOffscreenContext *context)
 	{
-		glCall(context.UseProgram(m_ShaderHandle));
+		context->EnableCapability(GL_BLEND, true);
+
+		if (context->SupportsPerTargetBlendFunction())
+		{
+			for (const auto &[index, blendState] : std::views::enumerate(m_Description.ColourBlendStates))
+			{
+				// enable blending for this attachment
+				if (blendState.EnableBlending)
+				{
+					auto sourceColourFunction = GL::GetBlendFactor(blendState.SourceColourBlend);
+					auto sourceAlphaFunction  = GL::GetBlendFactor(blendState.SourceAlphaBlend);
+
+					auto destinationColourFunction = GL::GetBlendFactor(blendState.DestinationColourBlend);
+					auto destinationAlphaFunction  = GL::GetBlendFactor(blendState.DestinationAlphaBlend);
+
+					context->SetBlendFunctionSeparatei(index,
+													   sourceColourFunction,
+													   destinationColourFunction,
+													   sourceAlphaFunction,
+													   destinationAlphaFunction);
+
+					auto colourBlendFunction = GL::GetBlendFunction(blendState.ColorBlendFunction);
+					auto alphaBlendFunction	 = GL::GetBlendFunction(blendState.AlphaBlendFunction);
+
+					context->SetBlendEquationSeparatei(index, colourBlendFunction, alphaBlendFunction);
+				}
+				// disable blending for this attachment
+				else
+				{
+					context->SetBlendFunctioni(index, GL_ONE, GL_ZERO);
+					context->SetBlendEquationi(index, GL_FUNC_ADD);
+				}
+			}
+		}
+		else
+		{
+			const auto &blendState = m_Description.ColourBlendStates[0];
+
+			auto sourceColourFunction = GL::GetBlendFactor(blendState.SourceColourBlend);
+			auto sourceAlphaFunction  = GL::GetBlendFactor(blendState.SourceAlphaBlend);
+
+			auto destinationColourFunction = GL::GetBlendFactor(blendState.DestinationColourBlend);
+			auto destinationAlphaFunction  = GL::GetBlendFactor(blendState.DestinationAlphaBlend);
+
+			context->SetBlendFunctionSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction);
+
+			auto colourBlendFunction = GL::GetBlendFunction(blendState.ColorBlendFunction);
+			auto alphaBlendFunction	 = GL::GetBlendFunction(blendState.AlphaBlendFunction);
+
+			context->SetBlendEquationSeparate(colourBlendFunction, alphaBlendFunction);
+		}
+	}
+
+	void GraphicsPipelineOpenGL::SetShader(GL::IOffscreenContext *context)
+	{
+		context->UseShader(m_ShaderHandle);
 	}
 
 	void GraphicsPipelineOpenGL::CreateShader()
@@ -409,9 +393,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ComputePipelineOpenGL::Bind(const GladGLContext &context)
+	void ComputePipelineOpenGL::Bind(GL::IOffscreenContext *context)
 	{
-		context.UseProgram(m_ShaderHandle);
+		context->UseShader(m_ShaderHandle);
 	}
 
 	uint32_t ComputePipelineOpenGL::GetShaderHandle() const

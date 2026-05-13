@@ -153,34 +153,277 @@ namespace Nexus::GL
 		m_FunctionContext.UseShader(program);
 	}
 
+	// pipeline state
 	void OffscreenContextWGL::EnableCapability(GLenum capability, bool enable)
 	{
 		MakeCurrent();
 		m_FunctionContext.EnableCapability(capability, enable);
 	}
 
-	void OffscreenContextWGL::EnableDepthTest(bool enable)
+	void OffscreenContextWGL::SetStencilMask(uint32_t mask)
 	{
 		MakeCurrent();
-		m_FunctionContext.EnableDepthTest(enable);
+		m_FunctionContext.SetStencilMask(mask);
 	}
 
-	void OffscreenContextWGL::EnableDepthWrite(bool enable)
+	void OffscreenContextWGL::SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
 	{
 		MakeCurrent();
-		m_FunctionContext.EnableDepthWrite(enable);
+		m_FunctionContext.SetStencilOp(face, sfail, dpfail, dppass);
 	}
 
-	void OffscreenContextWGL::EnableStencilTest(bool enable)
+	void OffscreenContextWGL::SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask)
 	{
 		MakeCurrent();
-		m_FunctionContext.EnableStencilTest(enable);
+		m_FunctionContext.SetStencilFunc(face, func, ref, mask);
 	}
 
-	void OffscreenContextWGL::SetStencilReference(uint32_t reference)
+	void OffscreenContextWGL::EnableDepthMask(bool enable)
 	{
 		MakeCurrent();
-		m_FunctionContext.SetStencilReference(reference);
+		m_FunctionContext.EnableDepthMask(enable);
+	}
+
+	bool OffscreenContextWGL::IsDepthBoundsSupported()
+	{
+		MakeCurrent();
+		return m_FunctionContext.IsDepthBoundsSupported();
+	}
+
+	void OffscreenContextWGL::SetDepthBounds(float min, float max)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetDepthBounds(min, max);
+	}
+
+	void OffscreenContextWGL::SetDepthMask(bool enabled)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetDepthMask(enabled);
+	}
+
+	void OffscreenContextWGL::SetDepthFunction(GLenum func)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetDepthFunction(func);
+	}
+
+	void OffscreenContextWGL::SetFaceCulling(GLenum cullMode)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetFaceCulling(cullMode);
+	}
+
+	bool OffscreenContextWGL::IsDepthClampSupported()
+	{
+		MakeCurrent();
+		return m_FunctionContext.IsDepthClampSupported();
+	}
+
+	void OffscreenContextWGL::SetPolygonMode(GLenum face, GLenum mode)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetPolygonMode(face, mode);
+	}
+
+	void OffscreenContextWGL::SetFrontFace(GLenum face)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetFrontFace(face);
+	}
+
+	bool OffscreenContextWGL::SupportsPerTargetColourMask()
+	{
+		MakeCurrent();
+		return m_FunctionContext.SupportsPerTargetColourMask();
+	}
+
+	void OffscreenContextWGL::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetColourMask(red, green, blue, alpha);
+	}
+
+	void OffscreenContextWGL::SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetColourMaski(index, red, green, blue, alpha);
+	}
+
+	bool OffscreenContextWGL::SupportsPerTargetBlendFunction()
+	{
+		MakeCurrent();
+		return m_FunctionContext.SupportsPerTargetBlendFunction();
+	}
+
+	void OffscreenContextWGL::SetBlendFunction(GLenum sfactor, GLenum dfactor)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendFunction(sfactor, dfactor);
+	}
+
+	void OffscreenContextWGL::SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendFunctioni(index, sfactor, dfactor);
+	}
+
+	void OffscreenContextWGL::SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendFunctionSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+	}
+
+	void OffscreenContextWGL::SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendFunctionSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha);
+	}
+
+	void OffscreenContextWGL::SetBlendEquation(GLenum mode)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendEquation(mode);
+	}
+
+	void OffscreenContextWGL::SetBlendEquationi(uint32_t index, GLenum mode)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendEquationi(index, mode);
+	}
+
+	void OffscreenContextWGL::SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendEquationSeparate(modeRGB, modeAlpha);
+	}
+
+	void OffscreenContextWGL::SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetBlendEquationSeparatei(index, modeRGB, modeAlpha);
+	}
+
+	// buffers
+	uint32_t OffscreenContextWGL::CreateVertexArray()
+	{
+		MakeCurrent();
+		return m_FunctionContext.CreateVertexArray();
+	}
+
+	void OffscreenContextWGL::DestroyVertexArray(uint32_t vao)
+	{
+		MakeCurrent();
+		m_FunctionContext.DestroyVertexArray(vao);
+	}
+
+	void OffscreenContextWGL::BindBuffer(GLenum target, GLuint buffer)
+	{
+		MakeCurrent();
+		m_FunctionContext.BindBuffer(target, buffer);
+	}
+
+	void OffscreenContextWGL::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+	{
+		MakeCurrent();
+		m_FunctionContext.BindBufferRange(target, index, buffer, offset, size);
+	}
+
+	void OffscreenContextWGL::BindVertexArray(uint32_t vao)
+	{
+		MakeCurrent();
+		m_FunctionContext.BindVertexArray(vao);
+	}
+
+	void OffscreenContextWGL::EnableVertexAttribArray(uint32_t vao, uint32_t index)
+	{
+		MakeCurrent();
+		m_FunctionContext.EnableVertexAttribArray(vao, index);
+	}
+
+	void OffscreenContextWGL::DisableVertexAttribArray(uint32_t vao, uint32_t index)
+	{
+		MakeCurrent();
+		m_FunctionContext.DisableVertexAttribArray(vao, index);
+	}
+
+	void OffscreenContextWGL::SetVertexAttribPointer(uint32_t  vao,
+													 uint32_t  vbo,
+													 GLuint	   index,
+													 GLint	   size,
+													 GLenum	   type,
+													 GLboolean normalized,
+													 GLsizei   stride,
+													 uint32_t  offset)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetVertexAttribPointer(vao, vbo, index, size, type, normalized, stride, offset);
+	}
+
+	void OffscreenContextWGL::SetVertexAttribIPointer(uint32_t vao,
+													  uint32_t vbo,
+													  GLuint   index,
+													  GLint	   size,
+													  GLenum   type,
+													  GLsizei  stride,
+													  uint32_t offset)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetVertexAttribIPointer(vao, vbo, index, size, type, stride, offset);
+	}
+
+	void OffscreenContextWGL::SetVertexAttribLPointer(uint32_t vao,
+													  uint32_t vbo,
+													  GLuint   index,
+													  GLint	   size,
+													  GLenum   type,
+													  GLsizei  stride,
+													  uint32_t offset)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetVertexAttribLPointer(vao, vbo, index, size, type, stride, offset);
+	}
+
+	void OffscreenContextWGL::SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor)
+	{
+		MakeCurrent();
+		m_FunctionContext.SetVertexAttribDivisor(vao, index, divisor);
+	}
+
+	bool OffscreenContextWGL::AreStorageBuffersSupported()
+	{
+		MakeCurrent();
+		return m_FunctionContext.AreStorageBuffersSupported();
+	}
+
+	int32_t OffscreenContextWGL::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
+	{
+		MakeCurrent();
+		return m_FunctionContext.GetProgramResourceIndex(shader, programInterface, name);
+	}
+
+	int32_t OffscreenContextWGL::GetUniformBlockIndex(uint32_t shader, const GLchar *name)
+	{
+		MakeCurrent();
+		return m_FunctionContext.GetUniformBlockIndex(shader, name);
+	}
+
+	int32_t OffscreenContextWGL::GetUniformLocation(uint32_t shader, const GLchar *name)
+	{
+		MakeCurrent();
+		return m_FunctionContext.GetUniformLocation(shader, name);
+	}
+
+	void OffscreenContextWGL::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+	{
+		MakeCurrent();
+		m_FunctionContext.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+	}
+
+	void OffscreenContextWGL::BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
+	{
+		MakeCurrent();
+		m_FunctionContext.BindImageTexture(unit, texture, level, layered, layer, access, format);
 	}
 
 	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextDescription &spec)

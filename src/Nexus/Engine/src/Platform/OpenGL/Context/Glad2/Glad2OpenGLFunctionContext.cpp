@@ -229,22 +229,294 @@ namespace Nexus::GL
 	// pipeline state
 	void OpenGLFunctionContext::EnableCapability(GLenum capability, bool enable)
 	{
+		if (enable)
+		{
+			glCall(m_Context.Enable(capability));
+		}
+		else
+		{
+			glCall(m_Context.Disable(capability));
+		}
 	}
 
-	void OpenGLFunctionContext::EnableDepthTest(bool enable)
+	void OpenGLFunctionContext::SetStencilMask(uint32_t mask)
 	{
+		glCall(m_Context.StencilMask(mask));
 	}
 
-	void OpenGLFunctionContext::EnableDepthWrite(bool enable)
+	void OpenGLFunctionContext::SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
 	{
+		glCall(m_Context.StencilOpSeparate(face, sfail, dpfail, dppass));
 	}
 
-	void OpenGLFunctionContext::EnableStencilTest(bool enable)
+	void OpenGLFunctionContext::SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask)
 	{
+		glCall(m_Context.StencilFuncSeparate(face, func, ref, mask));
 	}
 
-	void OpenGLFunctionContext::SetStencilReference(uint32_t reference)
+	void OpenGLFunctionContext::EnableDepthMask(bool enable)
 	{
+		glCall(m_Context.DepthMask(enable ? GL_TRUE : GL_FALSE));
+	}
+
+	bool OpenGLFunctionContext::IsDepthBoundsSupported()
+	{
+		return m_Context.DepthBoundsEXT != nullptr;
+	}
+
+	void OpenGLFunctionContext::SetDepthBounds(float min, float max)
+	{
+		glCall(m_Context.DepthBoundsEXT(min, max));
+	}
+
+	void OpenGLFunctionContext::SetDepthMask(bool enabled)
+	{
+		glCall(m_Context.DepthMask(enabled ? GL_TRUE : GL_FALSE));
+	}
+
+	void OpenGLFunctionContext::SetDepthFunction(GLenum func)
+	{
+		glCall(m_Context.DepthFunc(func));
+	}
+
+	void OpenGLFunctionContext::SetFaceCulling(GLenum cullMode)
+	{
+		glCall(m_Context.CullFace(cullMode));
+	}
+
+	bool OpenGLFunctionContext::IsDepthClampSupported()
+	{
+		return m_Context.EXT_depth_clamp == 1;
+	}
+
+	void OpenGLFunctionContext::SetPolygonMode(GLenum face, GLenum mode)
+	{
+		glCall(m_Context.PolygonMode(face, mode));
+	}
+
+	void OpenGLFunctionContext::SetFrontFace(GLenum face)
+	{
+		glCall(m_Context.FrontFace(face));
+	}
+
+	bool OpenGLFunctionContext::SupportsPerTargetColourMask()
+	{
+		return m_Context.ColorMaski != nullptr;
+	}
+
+	void OpenGLFunctionContext::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+	{
+		glCall(m_Context.ColorMask(red, green, blue, alpha));
+	}
+
+	void OpenGLFunctionContext::SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+	{
+		glCall(m_Context.ColorMaski(index, red, green, blue, alpha));
+	}
+
+	bool OpenGLFunctionContext::SupportsPerTargetBlendFunction()
+	{
+		return m_Context.BlendFunci != nullptr;
+	}
+
+	void OpenGLFunctionContext::SetBlendFunction(GLenum sfactor, GLenum dfactor)
+	{
+		glCall(m_Context.BlendFunc(sfactor, dfactor));
+	}
+
+	void OpenGLFunctionContext::SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)
+	{
+		glCall(m_Context.BlendFunci(index, sfactor, dfactor));
+	}
+
+	void OpenGLFunctionContext::SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+	{
+		glCall(m_Context.BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha));
+	}
+
+	void OpenGLFunctionContext::SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+	{
+		glCall(m_Context.BlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
+	}
+
+	void OpenGLFunctionContext::SetBlendEquation(GLenum mode)
+	{
+		glCall(m_Context.BlendEquation(mode));
+	}
+
+	void OpenGLFunctionContext::SetBlendEquationi(uint32_t index, GLenum mode)
+	{
+		glCall(m_Context.BlendEquationi(index, mode));
+	}
+
+	void OpenGLFunctionContext::SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
+	{
+		glCall(m_Context.BlendEquationSeparate(modeRGB, modeAlpha));
+	}
+
+	void OpenGLFunctionContext::SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)
+	{
+		glCall(m_Context.BlendEquationSeparatei(index, modeRGB, modeAlpha));
+	}
+
+	// buffers
+	uint32_t OpenGLFunctionContext::CreateVertexArray()
+	{
+		uint32_t handle = 0;
+
+		if (m_Context.CreateVertexArrays != nullptr)
+		{
+			glCall(m_Context.CreateVertexArrays(1, &handle));
+		}
+		else
+		{
+			glCall(m_Context.GenVertexArrays(1, &handle));
+		}
+
+		return handle;
+	}
+
+	void OpenGLFunctionContext::DestroyVertexArray(uint32_t vao)
+	{
+		glCall(m_Context.BindVertexArray(0));
+		glCall(m_Context.DeleteVertexArrays(1, &vao));
+	}
+
+	void OpenGLFunctionContext::BindBuffer(GLenum target, GLuint buffer)
+	{
+		glCall(m_Context.BindBuffer(target, buffer));
+	}
+
+	void OpenGLFunctionContext::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+	{
+		glCall(m_Context.BindBufferRange(target, index, buffer, offset, size));
+	}
+
+	void OpenGLFunctionContext::BindVertexArray(uint32_t vao)
+	{
+		glCall(m_Context.BindVertexArray(vao));
+	}
+
+	void OpenGLFunctionContext::EnableVertexAttribArray(uint32_t vao, uint32_t index)
+	{
+		if (m_Context.EnableVertexArrayAttrib != nullptr)
+		{
+			glCall(m_Context.EnableVertexArrayAttrib(vao, index));
+		}
+		else if (m_Context.EnableVertexArrayAttribEXT != nullptr)
+		{
+			glCall(m_Context.EnableVertexArrayAttribEXT(vao, index));
+		}
+		else
+		{
+			glCall(m_Context.BindVertexArray(vao));
+			glCall(m_Context.EnableVertexAttribArray(index));
+		}
+	}
+
+	void OpenGLFunctionContext::DisableVertexAttribArray(uint32_t vao, uint32_t index)
+	{
+		if (m_Context.DisableVertexArrayAttrib != nullptr)
+		{
+			glCall(m_Context.DisableVertexArrayAttrib(vao, index));
+		}
+		else if (m_Context.DisableVertexArrayAttribEXT != nullptr)
+		{
+			glCall(m_Context.DisableVertexArrayAttribEXT(vao, index));
+		}
+		else
+		{
+			glCall(m_Context.BindVertexArray(vao));
+			glCall(m_Context.EnableVertexAttribArray(index));
+		}
+	}
+
+	void OpenGLFunctionContext::SetVertexAttribPointer(uint32_t	 vao,
+													   uint32_t	 vbo,
+													   GLuint	 index,
+													   GLint	 size,
+													   GLenum	 type,
+													   GLboolean normalized,
+													   GLsizei	 stride,
+													   uint32_t	 offset)
+	{
+		glCall(m_Context.BindVertexArray(vao));
+		glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
+		glCall(m_Context.VertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<const GLvoid *>(offset)));
+	}
+
+	void OpenGLFunctionContext::SetVertexAttribIPointer(uint32_t vao,
+														uint32_t vbo,
+														GLuint	 index,
+														GLint	 size,
+														GLenum	 type,
+														GLsizei	 stride,
+														uint32_t offset)
+	{
+		glCall(m_Context.BindVertexArray(vao));
+		glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
+		glCall(m_Context.VertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+	}
+
+	void OpenGLFunctionContext::SetVertexAttribLPointer(uint32_t vao,
+														uint32_t vbo,
+														GLuint	 index,
+														GLint	 size,
+														GLenum	 type,
+														GLsizei	 stride,
+														uint32_t offset)
+	{
+		glCall(m_Context.BindVertexArray(vao));
+		glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
+		glCall(m_Context.VertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+	}
+
+	void OpenGLFunctionContext::SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor)
+	{
+		glCall(m_Context.BindVertexArray(vao));
+		glCall(m_Context.VertexAttribDivisor(index, divisor));
+	}
+
+	bool OpenGLFunctionContext::AreStorageBuffersSupported()
+	{
+		return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
+	}
+
+	int32_t OpenGLFunctionContext::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
+	{
+		int32_t location = 0;
+		glCall(location = m_Context.GetProgramResourceIndex(shader, programInterface, name));
+		return location;
+	}
+
+	int32_t OpenGLFunctionContext::GetUniformBlockIndex(uint32_t shader, const GLchar *name)
+	{
+		int32_t location = 0;
+		glCall(location = m_Context.GetUniformBlockIndex(shader, name));
+		return location;
+	}
+
+	int32_t OpenGLFunctionContext::GetUniformLocation(uint32_t shader, const GLchar *name)
+	{
+		int32_t location = 0;
+		glCall(location = m_Context.GetUniformLocation(shader, name));
+		return location;
+	}
+
+	void OpenGLFunctionContext::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+	{
+		glCall(m_Context.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding));
+	}
+
+	void OpenGLFunctionContext::BindImageTexture(GLuint	   unit,
+												 GLuint	   texture,
+												 GLint	   level,
+												 GLboolean layered,
+												 GLint	   layer,
+												 GLenum	   access,
+												 GLenum	   format)
+	{
+		glCall(m_Context.BindImageTexture(unit, texture, level, layered, layer, access, format));
 	}
 
 }	 // namespace Nexus::GL

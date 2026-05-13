@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
-		void BindResourceSet(const GladGLContext &context);
+		void BindResourceSet(GL::IOffscreenContext *context);
 		void ExecuteGraphicsCommand(GraphicsPipelineOpenGL															   *pipeline,
 									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>						   &vertexBuffers,
 									std::optional<Nexus::Graphics::IndexBufferView>										indexBuffer,

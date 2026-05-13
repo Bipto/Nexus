@@ -48,10 +48,61 @@ namespace Nexus::GL
 		virtual void	 UseShader(uint32_t program)															  = 0;
 
 		// pipeline state
-		virtual void EnableCapability(GLenum capability, bool enable) = 0;
-		virtual void EnableDepthTest(bool enable)					  = 0;
-		virtual void EnableDepthWrite(bool enable)					  = 0;
-		virtual void EnableStencilTest(bool enable)					  = 0;
-		virtual void SetStencilReference(uint32_t reference)		  = 0;
+		virtual void EnableCapability(GLenum capability, bool enable)														   = 0;
+		virtual void SetStencilMask(uint32_t mask)																			   = 0;
+		virtual void SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)									   = 0;
+		virtual void SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask)										   = 0;
+		virtual void EnableDepthMask(bool enable)																			   = 0;
+		virtual bool IsDepthBoundsSupported()																				   = 0;
+		virtual void SetDepthBounds(float min, float max)																	   = 0;
+		virtual void SetDepthMask(bool enabled)																				   = 0;
+		virtual void SetDepthFunction(GLenum func)																			   = 0;
+		virtual void SetFaceCulling(GLenum cullMode)																		   = 0;
+		virtual bool IsDepthClampSupported()																				   = 0;
+		virtual void SetPolygonMode(GLenum face, GLenum mode)																   = 0;
+		virtual void SetFrontFace(GLenum face)																				   = 0;
+		virtual bool SupportsPerTargetColourMask()																			   = 0;
+		virtual void SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)							   = 0;
+		virtual void SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)		   = 0;
+		virtual bool SupportsPerTargetBlendFunction()																		   = 0;
+		virtual void SetBlendFunction(GLenum sfactor, GLenum dfactor)														   = 0;
+		virtual void SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)										   = 0;
+		virtual void SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)				   = 0;
+		virtual void SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) = 0;
+		virtual void SetBlendEquation(GLenum mode)																			   = 0;
+		virtual void SetBlendEquationi(uint32_t index, GLenum mode)															   = 0;
+		virtual void SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)												   = 0;
+		virtual void SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)							   = 0;
+
+		// buffers
+		virtual uint32_t CreateVertexArray()																		   = 0;
+		virtual void	 DestroyVertexArray(uint32_t vao)															   = 0;
+		virtual void	 BindBuffer(GLenum target, GLuint buffer)													   = 0;
+		virtual void	 BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size) = 0;
+		virtual void	 BindVertexArray(uint32_t vao)																   = 0;
+		virtual void	 EnableVertexAttribArray(uint32_t vao, uint32_t index)										   = 0;
+		virtual void	 DisableVertexAttribArray(uint32_t vao, uint32_t index)										   = 0;
+		virtual void	 SetVertexAttribPointer(uint32_t  vao,
+												uint32_t  vbo,
+												GLuint	  index,
+												GLint	  size,
+												GLenum	  type,
+												GLboolean normalized,
+												GLsizei	  stride,
+												uint32_t  offset)													   = 0;
+
+		virtual void SetVertexAttribIPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset) = 0;
+
+		virtual void SetVertexAttribLPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset) = 0;
+
+		virtual void SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor) = 0;
+
+		// resources
+		virtual bool	AreStorageBuffersSupported()																							 = 0;
+		virtual int32_t GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)										 = 0;
+		virtual int32_t GetUniformBlockIndex(uint32_t shader, const GLchar *name)																 = 0;
+		virtual int32_t GetUniformLocation(uint32_t shader, const GLchar *name)																	 = 0;
+		virtual void	UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)								 = 0;
+		virtual void	BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) = 0;
 	};
 }	 // namespace Nexus::GL

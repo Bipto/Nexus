@@ -76,30 +76,26 @@ namespace Nexus::Graphics
 													   uint32_t														instanceOffset,
 													   std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall)
 	{
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				pipeline->CreateVAO(context);
-				pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset, context);
-				pipeline->Bind(context);
-				BindResourceSet(context);
+		pipeline->CreateVAO(context);
+		pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset, context);
+		pipeline->Bind(context);
+		BindResourceSet(context);
 
-				bool valid = true;
-				for (const auto &[binding, view] : vertexBuffers)
-				{
-					if (view.Size == 0)
-						valid = false;
-				}
+		bool valid = true;
+		for (const auto &[binding, view] : vertexBuffers)
+		{
+			if (view.Size == 0)
+				valid = false;
+		}
 
-				if (valid)
-				{
-					drawCall(pipeline, context);
-				}
+		if (valid)
+		{
+			drawCall(pipeline, context->GetContext());
+		}
 
-				pipeline->DestroyVAO(context);
-			});
+		pipeline->DestroyVAO(context);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
@@ -293,18 +289,18 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
 		context->Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
-				if (context.MemoryBarrierEXT != nullptr)
+				if (gladContext.MemoryBarrierEXT != nullptr)
 				{
 					PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 					pipeline->Bind(context);
 					BindResourceSet(context);
-					context.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
-					context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+					gladContext.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+					gladContext.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
 				}
 			});
 	}
@@ -319,20 +315,20 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
 		context->Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
 				pipeline->Bind(context);
 				BindResourceSet(context);
 
 				if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 				{
-					context.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
-					context.DispatchComputeIndirect(command.Offset);
-					context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
-					context.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+					gladContext.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+					gladContext.DispatchComputeIndirect(command.Offset);
+					gladContext.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+					gladContext.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
 				}
 			});
 
@@ -349,17 +345,17 @@ namespace Nexus::Graphics
 	#if !defined(__EMSCRIPTEN__)
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
 		context->Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
 				pipeline->Bind(context);
 				BindResourceSet(context);
 
-				if (context.DrawMeshTasksEXT)
+				if (gladContext.DrawMeshTasksEXT)
 				{
-					context.DrawMeshTasksEXT(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+					gladContext.DrawMeshTasksEXT(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 				}
 			});
 
@@ -377,28 +373,28 @@ namespace Nexus::Graphics
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 		if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
 		{
-			GL::IGLContext *context = m_Device->GetOffscreenContext();
+			GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
 			context->Execute(
-				[&](const GladGLContext &context)
+				[&](const GladGLContext &gladContext)
 				{
 					pipeline->Bind(context);
 					BindResourceSet(context);
 
-					context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+					gladContext.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 
-					if (context.MultiDrawMeshTasksIndirectEXT)
+					if (gladContext.MultiDrawMeshTasksIndirectEXT)
 					{
-						context.MultiDrawMeshTasksIndirectEXT((GLintptr)command.Offset, command.DrawCount, command.Stride);
+						gladContext.MultiDrawMeshTasksIndirectEXT((GLintptr)command.Offset, command.DrawCount, command.Stride);
 					}
-					else if (context.DrawMeshTasksIndirectEXT)
+					else if (gladContext.DrawMeshTasksIndirectEXT)
 					{
 						size_t indirectOffset = command.Offset;
-						for (uint32_t i = 0; i < command.DrawCount; i++) { context.DrawMeshTasksIndirectEXT((GLintptr)indirectOffset); }
+						for (uint32_t i = 0; i < command.DrawCount; i++) { gladContext.DrawMeshTasksIndirectEXT((GLintptr)indirectOffset); }
 						indirectOffset += command.Stride;
 					}
 
-					context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+					gladContext.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 				});
 		}
 	#endif
@@ -727,9 +723,9 @@ namespace Nexus::Graphics
 		{
 			if (GraphicsPipelineOpenGL *pipelineGL = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>())
 			{
-				GL::IGLContext *context = m_Device->GetOffscreenContext();
+				GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-				context->Execute([&](const GladGLContext &context) { pipelineGL->SetStencilReference(context, command.StencilReference); });
+				pipelineGL->SetStencilReference(context, command.StencilReference);
 			}
 		}
 	}
@@ -833,7 +829,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorOpenGL::BindResourceSet(const GladGLContext &context)
+	void CommandExecutorOpenGL::BindResourceSet(GL::IOffscreenContext *context)
 	{
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 		if (!pipeline)
@@ -847,7 +843,7 @@ namespace Nexus::Graphics
 			ResourceSetOpenGL			 *resourceSet		 = bindingDescription.TargetResourceSet.AsDerived<ResourceSetOpenGL>();
 			if (resourceSet)
 			{
-				resourceSet->Bind(bindingDescription, pipeline->GetShaderHandle(), context);
+				resourceSet->Bind(bindingDescription, pipeline->GetShaderHandle(), context->GetContext());
 			}
 		}
 	}
