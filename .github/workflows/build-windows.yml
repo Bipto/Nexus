@@ -55,6 +55,10 @@ jobs:
         if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         uses: mozilla-actions/sccache-action@v0.0.4
 
+      - name: Add sccache to PATH (MSVC/Clang-CL)
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
+        run: echo "$env:SCCACHE_PATH" | Out-File -FilePath $env:GITHUB_PATH -Append
+
       # -------------------------
       # Install LLVM for Clang-CL
       # -------------------------
@@ -98,6 +102,10 @@ jobs:
             mingw-w64-ucrt-x86_64-ffmpeg
             mingw-w64-ucrt-x86_64-flac
 
+      - name: Add MSYS2 sccache to PATH
+        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
+        run: echo "C:\msys64\ucrt64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
       - name: Remove rogue ccache
         run: |
           if (Test-Path "C:\Strawberry\c\bin\ccache.exe") {
@@ -139,54 +147,3 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
-            -DNX_PLATFORM_OPENAL=1 \
-            -DNX_PLATFORM_D3D12=ON \
-            -DBUILD_TESTING=ON \
-            -S .
-
-      # -------------------------
-      # Configure CMake (MSYS2 MinGW / Clang)
-      # -------------------------
-      - name: Configure CMake (MSYS2)
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
-        shell: msys2 {0}
-        run: |
-          export PATH="$MINGW_PREFIX/bin:$PATH"
-
-          if [ "${{ matrix.name }}" = "Clang" ]; then
-            export CC=clang
-            export CXX=clang++
-          else
-            export CC=gcc
-            export CXX=g++
-          fi
-
-          cmake -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-            -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
-            -DNX_PLATFORM_OPENGL=1 \
-            -DNX_PLATFORM_VULKAN=1 \
-            -DNX_PLATFORM_OPENAL=1 \
-            -DBUILD_TESTING=ON \
-            -S .
-
-      # -------------------------
-      # Build
-      # -------------------------
-      - name: Build (MSVC/Clang-CL)
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
-        run: cmake --build build
-
-      - name: Build (MSYS2)
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
-        shell: msys2 {0}
-        run: cmake --build build
-
-      - name: Run tests
-        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure --parallel
-
-      - name: sccache stats
-        run: sccache --show-stats || true
