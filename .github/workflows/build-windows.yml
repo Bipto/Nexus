@@ -154,11 +154,11 @@ jobs:
           export PATH="$MINGW_PREFIX/bin:$PATH"
 
           if [ "${{ matrix.name }}" = "Clang" ]; then
-            export CC="sccache clang"
-            export CXX="sccache clang++"
+            export CC=clang
+            export CXX=clang++
           else
-            export CC="sccache gcc"
-            export CXX="sccache g++"
+            export CC=gcc
+            export CXX=g++
           fi
 
           cmake -B build \
