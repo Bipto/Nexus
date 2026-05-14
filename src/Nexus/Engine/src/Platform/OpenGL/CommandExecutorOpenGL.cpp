@@ -843,7 +843,7 @@ namespace Nexus::Graphics
 			ResourceSetOpenGL			 *resourceSet		 = bindingDescription.TargetResourceSet.AsDerived<ResourceSetOpenGL>();
 			if (resourceSet)
 			{
-				resourceSet->Bind(bindingDescription, pipeline->GetShaderHandle(), context->GetContext());
+				resourceSet->Bind(bindingDescription, pipeline->GetShaderHandle(), context);
 			}
 		}
 	}
