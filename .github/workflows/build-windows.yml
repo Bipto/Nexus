@@ -31,8 +31,8 @@ jobs:
           - { name: Clang-CL,   c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Debug }
           - { name: Clang,      c_compiler: clang,     cpp_compiler: clang++,   build_type: Release }
           - { name: Clang,      c_compiler: clang,     cpp_compiler: clang++,   build_type: Debug }
-          - { name: MinGW-UCRT, c_compiler: ucrt64-w64-mingw32-gcc, cpp_compiler: ucrt64-w64-mingw32-g++, build_type: Release }
-          - { name: MinGW-UCRT, c_compiler: ucrt64-w64-mingw32-gcc, cpp_compiler: ucrt64-w64-mingw32-g++, build_type: Debug }
+          - { name: MinGW-UCRT, c_compiler: gcc,       cpp_compiler: g++,       build_type: Release }
+          - { name: MinGW-UCRT, c_compiler: gcc,       cpp_compiler: g++,       build_type: Debug }
 
     steps:
       - uses: actions/checkout@v4
@@ -51,16 +51,20 @@ jobs:
           restore-keys: |
             sccache-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-
 
-      - name: Setup sccache
+      - name: Setup sccache (Windows)
+        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         uses: mozilla-actions/sccache-action@v0.0.4
 
+      # -------------------------
+      # Install LLVM for Clang-CL
+      # -------------------------
       - name: Install LLVM (Clang-CL)
         if: matrix.name == 'Clang-CL'
         run: |
           choco install llvm
           echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-      - name: Setup Ninja (Windows Ninja)
+      - name: Setup Ninja
         if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
         uses: seanmiddleditch/gha-setup-ninja@v6
 
@@ -78,7 +82,7 @@ jobs:
       # -------------------------
       # MSYS2 setup for MinGW + Clang
       # -------------------------
-      - name: Install MinGW-UCRT (MSYS2)
+      - name: Install MSYS2 toolchains
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         uses: msys2/setup-msys2@v2
         with:
@@ -90,21 +94,15 @@ jobs:
             mingw-w64-ucrt-x86_64-clang
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-sccache
             mingw-w64-ucrt-x86_64-ffmpeg
             mingw-w64-ucrt-x86_64-flac
-
 
       - name: Remove rogue ccache
         run: |
           if (Test-Path "C:\Strawberry\c\bin\ccache.exe") {
             Remove-Item "C:\Strawberry\c\bin\ccache.exe" -Force
           }
-
-      - name: Remove MSYS2 ccache
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
-        shell: msys2 {0}
-        run: |
-          which ccache && rm -f /usr/bin/ccache || true
 
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
@@ -113,7 +111,7 @@ jobs:
           cache: true
 
       # -------------------------
-      # Restore CPM.cmake dependency cache
+      # Restore CPM cache
       # -------------------------
       - name: Restore CPM cache
         uses: actions/cache@v4
@@ -123,7 +121,6 @@ jobs:
           restore-keys: |
             cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-
             cpm-${{ runner.os }}-
-
 
       # -------------------------
       # Configure CMake (MSVC / Clang-CL)
@@ -154,19 +151,21 @@ jobs:
         if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
         shell: msys2 {0}
         run: |
-          if [ "${{ matrix.name }}" = "Clang" ]; then
-            export CC="$MINGW_PREFIX/bin/clang"
-            export CXX="$MINGW_PREFIX/bin/clang++"
-          else
-            export CC="$MINGW_PREFIX/bin/gcc"
-            export CXX="$MINGW_PREFIX/bin/g++"
-          fi
-
           export PATH="$MINGW_PREFIX/bin:$PATH"
+
+          if [ "${{ matrix.name }}" = "Clang" ]; then
+            export CC="sccache clang"
+            export CXX="sccache clang++"
+          else
+            export CC="sccache gcc"
+            export CXX="sccache g++"
+          fi
 
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
