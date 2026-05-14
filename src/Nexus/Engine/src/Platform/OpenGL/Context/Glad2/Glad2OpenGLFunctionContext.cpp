@@ -482,6 +482,11 @@ namespace Nexus::GL
 		return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
 	}
 
+	void OpenGLFunctionContext::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
+	{
+		glCall(m_Context.ShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
+	}
+
 	int32_t OpenGLFunctionContext::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
 	{
 		int32_t location = 0;

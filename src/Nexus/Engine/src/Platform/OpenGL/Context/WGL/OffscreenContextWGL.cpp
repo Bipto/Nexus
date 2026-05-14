@@ -396,6 +396,12 @@ namespace Nexus::GL
 		return m_FunctionContext.AreStorageBuffersSupported();
 	}
 
+	void OffscreenContextWGL::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
+	{
+		MakeCurrent();
+		m_FunctionContext.ShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding);
+	}
+
 	int32_t OffscreenContextWGL::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
 	{
 		MakeCurrent();

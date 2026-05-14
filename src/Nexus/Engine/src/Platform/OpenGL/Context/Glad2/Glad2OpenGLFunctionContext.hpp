@@ -103,6 +103,7 @@ namespace Nexus::GL
 
 		// resources
 		bool	AreStorageBuffersSupported();
+		void	ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding);
 		int32_t GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name);
 		int32_t GetUniformBlockIndex(uint32_t shader, const GLchar *name);
 		int32_t GetUniformLocation(uint32_t shader, const GLchar *name);
