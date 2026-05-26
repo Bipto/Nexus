@@ -57,12 +57,12 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
 		void BindResourceSet(GL::IOffscreenContext *context);
-		void ExecuteGraphicsCommand(GraphicsPipelineOpenGL															   *pipeline,
-									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>						   &vertexBuffers,
-									std::optional<Nexus::Graphics::IndexBufferView>										indexBuffer,
-									uint32_t																			vertexOffset,
-									uint32_t																			instanceOffset,
-									std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall);
+		void ExecuteGraphicsCommand(GraphicsPipelineOpenGL																 *pipeline,
+									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							 &vertexBuffers,
+									std::optional<Nexus::Graphics::IndexBufferView>										  indexBuffer,
+									uint32_t																			  vertexOffset,
+									uint32_t																			  instanceOffset,
+									std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall);
 
 	  private:
 		GraphicsDeviceOpenGL						*m_Device					   = nullptr;

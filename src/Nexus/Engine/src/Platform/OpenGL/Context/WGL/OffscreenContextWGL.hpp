@@ -100,12 +100,31 @@ namespace Nexus::GL
 
 		// resources
 		bool	AreStorageBuffersSupported() final;
-		void ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding) final;
+		void	ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding) final;
 		int32_t GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name) final;
 		int32_t GetUniformBlockIndex(uint32_t shader, const GLchar *name) final;
 		int32_t GetUniformLocation(uint32_t shader, const GLchar *name) final;
 		void	UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding) final;
 		void	BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) final;
+
+		// draw commands
+		void DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount) final;
+		void DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount) final;
+		void MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride) final;
+		void MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride) final;
+		void DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) final;
+		void DispatchComputeIndirect(GLintptr indirect) final;
+		void MemoryBarrierEXT(GLbitfield barriers) final;
+		void TextureBarrier() final;
+		void DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) final;
+		void DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride) final;
+
+		void ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value);
+		void ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil);
+		void GetIntegerv(GLenum pname, GLint *data);
+		void Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
+		void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
+		void DepthRangef(GLfloat nearVal, GLfloat farVal);
 
 	  private:
 		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextDescription &spec);

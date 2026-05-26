@@ -524,4 +524,137 @@ namespace Nexus::GL
 		glCall(m_Context.BindImageTexture(unit, texture, level, layered, layer, access, format));
 	}
 
+	void OpenGLFunctionContext::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
+	{
+		if (primcount == 1)
+		{
+			glCall(m_Context.DrawArrays(mode, first, count));
+		}
+		else
+		{
+			glCall(m_Context.DrawArraysInstanced(mode, first, count, primcount));
+		}
+	}
+
+	void OpenGLFunctionContext::DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
+	{
+		if (primcount == 1)
+		{
+			glCall(m_Context.DrawElements(mode, count, type, indices));
+		}
+		else
+		{
+			glCall(m_Context.DrawElementsInstanced(mode, count, type, indices, primcount));
+		}
+	}
+
+	void OpenGLFunctionContext::MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)
+	{
+		if (m_Context.MultiDrawArraysIndirect)
+		{
+			glCall(m_Context.MultiDrawArraysIndirect(mode, indirect, drawCount, stride));
+		}
+		else
+		{
+			size_t offset = reinterpret_cast<size_t>(indirect);
+			for (size_t i = 0; i < drawCount; i++)
+			{
+				glCall(m_Context.DrawArraysIndirect(mode, reinterpret_cast<const void *>(offset)));
+				offset += stride;
+			}
+		}
+	}
+
+	void OpenGLFunctionContext::MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride)
+	{
+		if (m_Context.MultiDrawElementsIndirect)
+		{
+			glCall(m_Context.MultiDrawElementsIndirect(mode, type, indirect, drawcount, stride));
+		}
+		else
+		{
+			size_t offset = reinterpret_cast<size_t>(indirect);
+			for (size_t i = 0; i < drawcount; i++)
+			{
+				glCall(m_Context.DrawElementsIndirect(mode, type, indirect));
+				offset += stride;
+			}
+		}
+	}
+
+	void OpenGLFunctionContext::DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+	{
+		glCall(m_Context.DispatchCompute(num_groups_x, num_groups_y, num_groups_z));
+	}
+
+	void OpenGLFunctionContext::DispatchComputeIndirect(GLintptr indirect)
+	{
+		glCall(m_Context.DispatchComputeIndirect(indirect));
+	}
+
+	void OpenGLFunctionContext::MemoryBarrierEXT(GLbitfield barriers)
+	{
+		glCall(m_Context.MemoryBarrierEXT(barriers));
+	}
+
+	void OpenGLFunctionContext::TextureBarrier()
+	{
+		if (m_Context.TextureBarrier)
+		{
+			glCall(m_Context.TextureBarrier());
+		}
+	}
+
+	void OpenGLFunctionContext::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+	{
+		if (m_Context.DrawMeshTasksEXT)
+		{
+			glCall(m_Context.DrawMeshTasksEXT(num_groups_x, num_groups_y, num_groups_z));
+		}
+	}
+
+	void OpenGLFunctionContext::DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)
+	{
+		if (m_Context.MultiDrawMeshTasksIndirectEXT)
+		{
+			glCall(m_Context.MultiDrawMeshTasksIndirectEXT((GLintptr)indirect, drawCount, stride));
+		}
+		else if (m_Context.DrawMeshTasksIndirectEXT)
+		{
+			size_t indirectOffset = indirect;
+			for (uint32_t i = 0; i < drawCount; i++) { glCall(m_Context.DrawMeshTasksIndirectEXT((GLintptr)indirectOffset)); }
+			indirectOffset += stride;
+		}
+	}
+
+	void OpenGLFunctionContext::ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
+	{
+		glCall(m_Context.ClearBufferfv(buffer, drawbuffer, value));
+	}
+
+	void OpenGLFunctionContext::ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
+	{
+		glCall(m_Context.ClearBufferfi(buffer, drawbuffer, depth, stencil));
+	}
+
+	void OpenGLFunctionContext::GetIntegerv(GLenum pname, GLint *data)
+	{
+		glCall(m_Context.GetIntegerv(pname, data));
+	}
+
+	void OpenGLFunctionContext::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
+	{
+		glCall(m_Context.Scissor(x, y, width, height));
+	}
+
+	void OpenGLFunctionContext::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+	{
+		glCall(m_Context.Viewport(x, y, width, height));
+	}
+
+	void OpenGLFunctionContext::DepthRangef(GLfloat nearVal, GLfloat farVal)
+	{
+		glCall(m_Context.DepthRangef(nearVal, farVal));
+	}
+
 }	 // namespace Nexus::GL

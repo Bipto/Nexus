@@ -432,6 +432,102 @@ namespace Nexus::GL
 		m_FunctionContext.BindImageTexture(unit, texture, level, layered, layer, access, format);
 	}
 
+	void OffscreenContextWGL::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
+	{
+		MakeCurrent();
+		m_FunctionContext.DrawArrays(mode, first, count, primcount);
+	}
+
+	void OffscreenContextWGL::DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
+	{
+		MakeCurrent();
+		m_FunctionContext.DrawElements(mode, count, type, indices, primcount);
+	}
+
+	void OffscreenContextWGL::MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)
+	{
+		MakeCurrent();
+		m_FunctionContext.MultiDrawArraysIndirect(mode, indirect, drawCount, stride);
+	}
+
+	void OffscreenContextWGL::MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride)
+	{
+		MakeCurrent();
+		m_FunctionContext.MultiDrawElementsIndirect(mode, type, indirect, drawcount, stride);
+	}
+
+	void OffscreenContextWGL::DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+	{
+		MakeCurrent();
+		m_FunctionContext.DispatchCompute(num_groups_x, num_groups_y, num_groups_z);
+	}
+
+	void OffscreenContextWGL::DispatchComputeIndirect(GLintptr indirect)
+	{
+		MakeCurrent();
+		m_FunctionContext.DispatchComputeIndirect(indirect);
+	}
+
+	void OffscreenContextWGL::MemoryBarrierEXT(GLbitfield barriers)
+	{
+		MakeCurrent();
+		m_FunctionContext.MemoryBarrierEXT(barriers);
+	}
+
+	void OffscreenContextWGL::TextureBarrier()
+	{
+		MakeCurrent();
+		m_FunctionContext.TextureBarrier();
+	}
+
+	void OffscreenContextWGL::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+	{
+		MakeCurrent();
+		m_FunctionContext.DrawMeshTasksEXT(num_groups_x, num_groups_y, num_groups_z);
+	}
+
+	void OffscreenContextWGL::DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)
+	{
+		MakeCurrent();
+		m_FunctionContext.DrawMeshTasksIndirectEXT(indirect, drawCount, stride);
+	}
+
+	void OffscreenContextWGL::ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
+	{
+		MakeCurrent();
+		m_FunctionContext.ClearBufferfv(buffer, drawbuffer, value);
+	}
+
+	void OffscreenContextWGL::ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
+	{
+		MakeCurrent();
+		m_FunctionContext.ClearBufferfi(buffer, drawbuffer, depth, stencil);
+	}
+
+	void OffscreenContextWGL::GetIntegerv(GLenum pname, GLint *data)
+	{
+		MakeCurrent();
+		m_FunctionContext.GetIntegerv(pname, data);
+	}
+
+	void OffscreenContextWGL::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
+	{
+		MakeCurrent();
+		m_FunctionContext.Scissor(x, y, width, height);
+	}
+
+	void OffscreenContextWGL::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+	{
+		MakeCurrent();
+		m_FunctionContext.Viewport(x, y, width, height);
+	}
+
+	void OffscreenContextWGL::DepthRangef(GLfloat nearVal, GLfloat farVal)
+	{
+		MakeCurrent();
+		m_FunctionContext.DepthRangef(nearVal, farVal);
+	}
+
 	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextDescription &spec)
 	{
 		int	 pixelFormat;

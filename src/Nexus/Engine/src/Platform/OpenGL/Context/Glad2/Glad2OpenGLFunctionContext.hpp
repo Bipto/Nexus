@@ -110,6 +110,25 @@ namespace Nexus::GL
 		void	UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 		void	BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
 
+		// draw calls
+		void DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount);
+		void DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount);
+		void MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride);
+		void MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride);
+		void DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
+		void DispatchComputeIndirect(GLintptr indirect);
+		void MemoryBarrierEXT(GLbitfield barriers);
+		void TextureBarrier();
+		void DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
+		void DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride);
+
+		void ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value);
+		void ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil);
+		void GetIntegerv(GLenum pname, GLint *data);
+		void Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
+		void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
+		void DepthRangef(GLfloat nearVal, GLfloat farVal);
+
 	  private:
 		GladGLContext m_Context = {};
 	};

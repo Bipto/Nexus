@@ -74,7 +74,7 @@ namespace Nexus::Graphics
 													   std::optional<Nexus::Graphics::IndexBufferView>				indexBuffer,
 													   uint32_t														vertexOffset,
 													   uint32_t														instanceOffset,
-													   std::function<void(GraphicsPipelineOpenGL *pipeline, const GladGLContext &context)> drawCall)
+													   std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall)
 	{
 		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
@@ -92,7 +92,7 @@ namespace Nexus::Graphics
 
 		if (valid)
 		{
-			drawCall(pipeline, context->GetContext());
+			drawCall(pipeline, context);
 		}
 
 		pipeline->DestroyVAO(context);
@@ -115,18 +115,10 @@ namespace Nexus::Graphics
 									   m_BoundIndexBuffer,
 									   command.VertexStart,
 									   command.InstanceStart,
-									   [&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
+									   [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context)
 									   {
 										   GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-
-										   if (command.InstanceCount == 1)
-										   {
-											   context.DrawArrays(topology, command.VertexStart, command.VertexCount);
-										   }
-										   else
-										   {
-											   context.DrawArraysInstanced(topology, command.VertexStart, command.VertexCount, command.InstanceCount);
-										   }
+										   context->DrawArrays(topology, command.VertexStart, command.VertexCount, command.InstanceCount);
 									   });
 			}
 		}
@@ -156,18 +148,10 @@ namespace Nexus::Graphics
 					m_BoundIndexBuffer,
 					command.VertexStart,
 					command.InstanceStart,
-					[&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
+					[&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context)
 					{
 						GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-
-						if (command.InstanceCount == 1)
-						{
-							context.DrawElements(topology, command.IndexCount, indexFormat, (void *)(uint64_t)offset);
-						}
-						else
-						{
-							context.DrawElementsInstanced(topology, command.IndexCount, indexFormat, (void *)(uint64_t)offset, command.InstanceCount);
-						}
+						context->DrawElements(topology, command.IndexCount, indexFormat, (const void *)(uint64_t)offset, command.InstanceCount);
 					});
 			}
 		}
@@ -195,26 +179,14 @@ namespace Nexus::Graphics
 						m_BoundIndexBuffer,
 						0,
 						0,
-						[&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
+						[&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context)
 						{
-							context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+							context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+
 							GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+							context->MultiDrawArraysIndirect(topology, (const void *)(uint64_t)command.Offset, command.DrawCount, command.Stride);
 
-							if (context.MultiDrawArraysIndirect)
-							{
-								context.MultiDrawArraysIndirect(topology, (const void *)(uint64_t)command.Offset, command.DrawCount, command.Stride);
-							}
-							else
-							{
-								uint32_t indirectOffset = command.Offset;
-								for (size_t i = 0; i < command.DrawCount; i++)
-								{
-									context.DrawArraysIndirect(topology, (const void *)(uint64_t)indirectOffset);
-								}
-								indirectOffset += command.Stride;
-							}
-
-							context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+							context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 						});
 				}
 	#endif
@@ -247,33 +219,19 @@ namespace Nexus::Graphics
 										   m_BoundIndexBuffer,
 										   0,
 										   0,
-										   [&](GraphicsPipelineOpenGL *graphicsPipeline, const GladGLContext &context)
+										   [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context)
 										   {
-											   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+											   context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+
 											   GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
 
-											   if (context.MultiDrawElementsIndirect)
-											   {
-												   context.MultiDrawElementsIndirect(topology,
-																					 indexFormat,
-																					 (const void *)(uint64_t)command.Offset,
-																					 command.DrawCount,
-																					 command.Stride);
-											   }
-											   else
-											   {
-												   size_t indirectOffset = command.Offset;
-												   for (size_t i = 0; i < command.DrawCount; i++)
-												   {
-													   context.DrawElementsIndirect(
-														   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-														   indexFormat,
-														   (const void *)(uint64_t)indirectOffset);
-													   indirectOffset += command.Stride;
-												   }
-											   }
+											   context->MultiDrawElementsIndirect(topology,
+																				  indexFormat,
+																				  (const void *)(uint64_t)command.Offset,
+																				  command.DrawCount,
+																				  command.Stride);
 
-											   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+											   context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 										   });
 
 	#endif
@@ -291,18 +249,11 @@ namespace Nexus::Graphics
 
 		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &gladContext)
-			{
-				if (gladContext.MemoryBarrierEXT != nullptr)
-				{
-					PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
-					pipeline->Bind(context);
-					BindResourceSet(context);
-					gladContext.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
-					gladContext.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
-				}
-			});
+		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
+		pipeline->Bind(context);
+		BindResourceSet(context);
+		context->DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+		context->MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device)
@@ -312,27 +263,20 @@ namespace Nexus::Graphics
 			return;
 		}
 
-	#if !defined(__EMSCRIPTEN__)
 		PipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
 
 		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &gladContext)
-			{
-				pipeline->Bind(context);
-				BindResourceSet(context);
+		pipeline->Bind(context);
+		BindResourceSet(context);
 
-				if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
-				{
-					gladContext.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
-					gladContext.DispatchComputeIndirect(command.Offset);
-					gladContext.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
-					gladContext.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
-				}
-			});
-
-	#endif
+		if (const DeviceBufferOpenGL *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>())
+		{
+			context->BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+			context->DispatchComputeIndirect(command.Offset);
+			context->MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+			context->BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device)
@@ -352,11 +296,7 @@ namespace Nexus::Graphics
 			{
 				pipeline->Bind(context);
 				BindResourceSet(context);
-
-				if (gladContext.DrawMeshTasksEXT)
-				{
-					gladContext.DrawMeshTasksEXT(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
-				}
+				context->DrawMeshTasksEXT(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 			});
 
 	#endif
@@ -375,27 +315,12 @@ namespace Nexus::Graphics
 		{
 			GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-			context->Execute(
-				[&](const GladGLContext &gladContext)
-				{
-					pipeline->Bind(context);
-					BindResourceSet(context);
+			pipeline->Bind(context);
+			BindResourceSet(context);
 
-					gladContext.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
-
-					if (gladContext.MultiDrawMeshTasksIndirectEXT)
-					{
-						gladContext.MultiDrawMeshTasksIndirectEXT((GLintptr)command.Offset, command.DrawCount, command.Stride);
-					}
-					else if (gladContext.DrawMeshTasksIndirectEXT)
-					{
-						size_t indirectOffset = command.Offset;
-						for (uint32_t i = 0; i < command.DrawCount; i++) { gladContext.DrawMeshTasksIndirectEXT((GLintptr)indirectOffset); }
-						indirectOffset += command.Stride;
-					}
-
-					gladContext.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-				});
+			context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+			context->DrawMeshTasksIndirectEXT((GLintptr)command.Offset, command.DrawCount, command.Stride);
+			context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		}
 	#endif
 	}
@@ -419,32 +344,28 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				if (command.Rect.has_value())
-				{
-					Graphics::ClearRect rect = command.Rect.value();
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
 
-					GLint scissorBox[4];
-					context.GetIntegerv(GL_SCISSOR_BOX, scissorBox);
+			GLint scissorBox[4];
+			context->GetIntegerv(GL_SCISSOR_BOX, scissorBox);
 
-					float scissorY = m_CurrentRenderTarget->GetWidth() - m_CurrentRenderTarget->GetHeight() - rect.Y;
-					glCall(context.Scissor(rect.X, scissorY, rect.Width, rect.Height));
+			float scissorY = m_CurrentRenderTarget->GetWidth() - m_CurrentRenderTarget->GetHeight() - rect.Y;
+			context->Scissor(rect.X, scissorY, rect.Width, rect.Height);
 
-					float color[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
-					glCall(context.ClearBufferfv(GL_COLOR, command.Index, color));
+			float color[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
+			context->ClearBufferfv(GL_COLOR, command.Index, color);
 
-					glCall(context.Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]));
-				}
-				else
-				{
-					float color[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
-					glCall(context.ClearBufferfv(GL_COLOR, command.Index, color));
-				}
-			});
+			context->Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+		}
+		else
+		{
+			float color[] = {command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha};
+			context->ClearBufferfv(GL_COLOR, command.Index, color);
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device)
@@ -457,16 +378,12 @@ namespace Nexus::Graphics
 		GLfloat depth	= command.Value.Depth;
 		GLint	stencil = command.Value.Stencil;
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				// enable clearing of depth buffer
-				context.DepthMask(GL_TRUE);
-				context.ClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
-				context.DepthMask(GL_FALSE);
-			});
+		// enable clearing of depth buffer
+		context->SetDepthMask(true);
+		context->ClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
+		context->SetDepthMask(false);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
@@ -489,17 +406,13 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				float left	 = command.X;
-				float bottom = m_CurrentRenderTarget->GetHeight() - (command.Y + command.Height);
+		float left	 = command.X;
+		float bottom = m_CurrentRenderTarget->GetHeight() - (command.Y + command.Height);
 
-				glCall(context.Viewport(left, bottom, command.Width, command.Height));
-				glCall(context.DepthRangef(command.MinDepth, command.MaxDepth));
-			});
+		context->Viewport(left, bottom, command.Width, command.Height);
+		context->DepthRangef(command.MinDepth, command.MaxDepth);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const Scissor &command, IGraphicsDevice *device)
@@ -509,15 +422,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				float scissorY = m_CurrentRenderTarget->GetHeight() - command.Height - command.Y;
-
-				glCall(context.Scissor(command.X, scissorY, command.Width, command.Height));
-			});
+		float scissorY = m_CurrentRenderTarget->GetHeight() - command.Height - command.Y;
+		context->Scissor(command.X, scissorY, command.Width, command.Height);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
@@ -710,7 +618,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
 	{
-		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
 		context->Execute(
 			[&](const GladGLContext &context)

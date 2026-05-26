@@ -105,5 +105,24 @@ namespace Nexus::GL
 		virtual int32_t GetUniformLocation(uint32_t shader, const GLchar *name)																	 = 0;
 		virtual void	UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)								 = 0;
 		virtual void	BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) = 0;
+
+		// draw calls
+		virtual void DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)										  = 0;
+		virtual void DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)				  = 0;
+		virtual void MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)				  = 0;
+		virtual void MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride) = 0;
+		virtual void DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)								  = 0;
+		virtual void DispatchComputeIndirect(GLintptr indirect)																	  = 0;
+		virtual void MemoryBarrierEXT(GLbitfield barriers)																		  = 0;
+		virtual void TextureBarrier()																							  = 0;
+		virtual void DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)							  = 0;
+		virtual void DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)							  = 0;
+
+		virtual void ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)		  = 0;
+		virtual void ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil) = 0;
+		virtual void GetIntegerv(GLenum pname, GLint *data)										  = 0;
+		virtual void Scissor(GLint x, GLint y, GLsizei width, GLsizei height)					  = 0;
+		virtual void Viewport(GLint x, GLint y, GLsizei width, GLsizei height)					  = 0;
+		virtual void DepthRangef(GLfloat nearVal, GLfloat farVal)								  = 0;
 	};
 }	 // namespace Nexus::GL
