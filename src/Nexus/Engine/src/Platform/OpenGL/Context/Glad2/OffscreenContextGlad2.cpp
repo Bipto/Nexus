@@ -403,6 +403,47 @@ namespace Nexus::GL
 		glCall(m_Context.BlendEquationSeparatei(index, modeRGB, modeAlpha));
 	}
 
+	void OffscreenContextGlad2::BlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+	{
+		MakeCurrent();
+		glCall(m_Context.BlendColor(red, green, blue, alpha));
+	}
+
+	bool OffscreenContextGlad2::SupportsTextureBarriers()
+	{
+		return m_Context.TextureBarrier != nullptr || m_Context.TextureBarrierNV != nullptr;
+	}
+
+	void OffscreenContextGlad2::TextureBarrier()
+	{
+		if (m_Context.TextureBarrier)
+		{
+			glCall(m_Context.TextureBarrier());
+		}
+		else if (m_Context.TextureBarrierNV)
+		{
+			glCall(m_Context.TextureBarrierNV());
+		}
+	}
+
+	bool OffscreenContextGlad2::SupportsMemoryBarriers()
+	{
+		return m_Context.MemoryBarrierEXT != nullptr;
+	}
+
+	void OffscreenContextGlad2::MemoryBarrierEXT(GLbitfield barriers)
+	{
+		if (m_Context.MemoryBarrierEXT)
+		{
+			glCall(m_Context.MemoryBarrierEXT(barriers));
+		}
+	}
+
+	void OffscreenContextGlad2::Finish()
+	{
+		glCall(m_Context.Finish());
+	}
+
 	// buffers
 	uint32_t OffscreenContextGlad2::CreateVertexArray()
 	{
@@ -661,21 +702,6 @@ namespace Nexus::GL
 		glCall(m_Context.DispatchComputeIndirect(indirect));
 	}
 
-	void OffscreenContextGlad2::MemoryBarrierEXT(GLbitfield barriers)
-	{
-		MakeCurrent();
-		glCall(m_Context.MemoryBarrierEXT(barriers));
-	}
-
-	void OffscreenContextGlad2::TextureBarrier()
-	{
-		MakeCurrent();
-		if (m_Context.TextureBarrier)
-		{
-			glCall(m_Context.TextureBarrier());
-		}
-	}
-
 	void OffscreenContextGlad2::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
 	{
 		MakeCurrent();
@@ -734,6 +760,21 @@ namespace Nexus::GL
 	{
 		MakeCurrent();
 		glCall(m_Context.DepthRangef(nearVal, farVal));
+	}
+
+	bool OffscreenContextGlad2::IsComputeSupported()
+	{
+		return m_Context.DispatchCompute != nullptr;
+	}
+
+	bool OffscreenContextGlad2::IsIndirectRenderingSupported()
+	{
+		return m_Context.DrawArraysIndirect != nullptr && m_Context.DrawElementsIndirect != nullptr;
+	}
+
+	bool OffscreenContextGlad2::IsMeshTaskSupported()
+	{
+		return m_Context.DrawMeshTasksEXT != nullptr && m_Context.DrawMeshTasksIndirectEXT != nullptr;
 	}
 
 }	 // namespace Nexus::GL

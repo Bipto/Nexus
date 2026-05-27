@@ -75,6 +75,13 @@ namespace Nexus::GL
 		void SetBlendEquationi(uint32_t index, GLenum mode) final;
 		void SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha) final;
 		void SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha) final;
+		void BlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) final;
+
+		bool SupportsTextureBarriers() final;
+		void TextureBarrier() final;
+		bool SupportsMemoryBarriers() final;
+		void MemoryBarrierEXT(GLbitfield barriers) final;
+		void Finish() final;
 
 		// buffers
 		uint32_t CreateVertexArray() final;
@@ -115,8 +122,6 @@ namespace Nexus::GL
 		void MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride) final;
 		void DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) final;
 		void DispatchComputeIndirect(GLintptr indirect) final;
-		void MemoryBarrierEXT(GLbitfield barriers) final;
-		void TextureBarrier() final;
 		void DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) final;
 		void DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride) final;
 
@@ -126,6 +131,10 @@ namespace Nexus::GL
 		void Scissor(GLint x, GLint y, GLsizei width, GLsizei height) final;
 		void Viewport(GLint x, GLint y, GLsizei width, GLsizei height) final;
 		void DepthRangef(GLfloat nearVal, GLfloat farVal) final;
+
+		bool IsComputeSupported() final;
+		bool IsIndirectRenderingSupported() final;
+		bool IsMeshTaskSupported() final;
 
 	  protected:
 		GladGLContext m_Context = {};

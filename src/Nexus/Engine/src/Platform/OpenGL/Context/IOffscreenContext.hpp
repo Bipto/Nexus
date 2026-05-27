@@ -74,6 +74,14 @@ namespace Nexus::GL
 		virtual void SetBlendEquationi(uint32_t index, GLenum mode)															   = 0;
 		virtual void SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)												   = 0;
 		virtual void SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)							   = 0;
+		virtual void BlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)									   = 0;
+
+		// synchronisation
+		virtual bool SupportsTextureBarriers()			   = 0;
+		virtual void TextureBarrier()					   = 0;
+		virtual bool SupportsMemoryBarriers()			   = 0;
+		virtual void MemoryBarrierEXT(GLbitfield barriers) = 0;
+		virtual void Finish()							   = 0;
 
 		// buffers
 		virtual uint32_t CreateVertexArray()																		   = 0;
@@ -114,8 +122,6 @@ namespace Nexus::GL
 		virtual void MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride) = 0;
 		virtual void DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)								  = 0;
 		virtual void DispatchComputeIndirect(GLintptr indirect)																	  = 0;
-		virtual void MemoryBarrierEXT(GLbitfield barriers)																		  = 0;
-		virtual void TextureBarrier()																							  = 0;
 		virtual void DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)							  = 0;
 		virtual void DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)							  = 0;
 
@@ -125,5 +131,9 @@ namespace Nexus::GL
 		virtual void Scissor(GLint x, GLint y, GLsizei width, GLsizei height)					  = 0;
 		virtual void Viewport(GLint x, GLint y, GLsizei width, GLsizei height)					  = 0;
 		virtual void DepthRangef(GLfloat nearVal, GLfloat farVal)								  = 0;
+
+		virtual bool IsComputeSupported()			= 0;
+		virtual bool IsIndirectRenderingSupported() = 0;
+		virtual bool IsMeshTaskSupported()			= 0;
 	};
 }	 // namespace Nexus::GL

@@ -57,7 +57,8 @@ namespace Nexus::Graphics
 		void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
 		void BindResourceSet(GL::IOffscreenContext *context);
-		void ExecuteGraphicsCommand(GraphicsPipelineOpenGL																 *pipeline,
+		void ExecuteGraphicsCommand(GL::IOffscreenContext																 *context,
+									GraphicsPipelineOpenGL																 *pipeline,
 									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							 &vertexBuffers,
 									std::optional<Nexus::Graphics::IndexBufferView>										  indexBuffer,
 									uint32_t																			  vertexOffset,
