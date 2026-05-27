@@ -10,6 +10,7 @@
 
 #include "RHI/Fence.hpp"
 #include "RHI/Sampler.hpp"
+#include "RHI/TexelBuffer.hpp"
 #include "RHI/Texture.hpp"
 
 namespace Nexus::GL

@@ -10,7 +10,7 @@
 		#include <webgl/webgl2.h>
 	#endif
 
-	#include "Context/Glad2/Glad2OpenGLFunctionContext.hpp"
+	#include <glad/gl.h>
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"

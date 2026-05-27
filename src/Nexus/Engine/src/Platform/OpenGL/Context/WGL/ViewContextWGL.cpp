@@ -15,11 +15,13 @@ namespace Nexus::GL
 	{
 		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
 		wglMakeCurrent(m_HDC, m_HGLRC);
-		m_FunctionContext.Load();
+		int result = gladLoaderLoadGLContext(&m_FunctionContext);
 	}
 
 	ViewContextWGL::~ViewContextWGL()
 	{
+		gladLoaderUnloadGLContext(&m_FunctionContext);
+
 		// clear the current context
 		wglMakeCurrent(NULL, NULL);
 
@@ -64,7 +66,7 @@ namespace Nexus::GL
 			PrintErrorMessage(errorCode);
 		}
 
-		m_FunctionContext.ExecuteCommands([&](const GladGLContext &context) { context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); });
+		m_FunctionContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 		return success;
 	}
@@ -251,6 +253,6 @@ namespace Nexus::GL
 
 	const GladGLContext &ViewContextWGL::GetContext() const
 	{
-		return m_FunctionContext.GetContext();
+		return m_FunctionContext;
 	}
 }	 // namespace Nexus::GL

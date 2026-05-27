@@ -1,4 +1,4 @@
-#include "Platform/OpenGL/Context/Glad2/Glad2OpenGLFunctionContext.hpp"
+#include "Platform/OpenGL/Context/Glad2/OffscreenContextGlad2.hpp"
 
 #include "Platform/OpenGL/GL.hpp"
 
@@ -8,38 +8,41 @@
 
 namespace Nexus::GL
 {
-	OpenGLFunctionContext::OpenGLFunctionContext()
+	OffscreenContextGlad2::OffscreenContextGlad2()
 	{
 	}
 
-	OpenGLFunctionContext::~OpenGLFunctionContext()
+	OffscreenContextGlad2::~OffscreenContextGlad2()
 	{
 		gladLoaderUnloadGLContext(&m_Context);
 	}
 
-	bool OpenGLFunctionContext::Load()
+	bool OffscreenContextGlad2::Load()
 	{
 		int result = gladLoaderLoadGLContext(&m_Context);
 		return result;
 	}
 
-	void OpenGLFunctionContext::ExecuteCommands(std::function<void(const GladGLContext &context)> function)
+	void OffscreenContextGlad2::ExecuteCommands(std::function<void(const GladGLContext &context)> function)
 	{
 		function(m_Context);
 	}
 
-	const GladGLContext &OpenGLFunctionContext::GetContext() const
+	const GladGLContext &OffscreenContextGlad2::GetContext() const
 	{
 		return m_Context;
 	}
 
-	std::expected<uint32_t, std::string> OpenGLFunctionContext::CreateTexture(const Graphics::TextureDescription &desc)
+	std::expected<uint32_t, std::string> OffscreenContextGlad2::CreateTexture(const Graphics::TextureDescription &desc)
 	{
+		MakeCurrent();
 		return std::expected<uint32_t, std::string>();
 	}
 
-	std::expected<uint32_t, std::string> OpenGLFunctionContext::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
+	std::expected<uint32_t, std::string> OffscreenContextGlad2::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
 	{
+		MakeCurrent();
+
 		GLenum								internalFormat = GL::GetSizedInternalFormat(desc.Format);
 		const Graphics::DeviceBufferOpenGL *buffer		   = desc.Buffer.AsDerived<const Graphics::DeviceBufferOpenGL>();
 
@@ -66,13 +69,16 @@ namespace Nexus::GL
 		return handle;
 	}
 
-	void OpenGLFunctionContext::DestroyTextureBuffer(uint32_t handle)
+	void OffscreenContextGlad2::DestroyTextureBuffer(uint32_t handle)
 	{
+		MakeCurrent();
 		glCall(m_Context.DeleteTextures(1, &handle));
 	}
 
-	void OpenGLFunctionContext::BindTextureBuffer(uint32_t handle, uint32_t slot)
+	void OffscreenContextGlad2::BindTextureBuffer(uint32_t handle, uint32_t slot)
 	{
+		MakeCurrent();
+
 		if (m_Context.BindTextureUnit != nullptr)
 		{
 			glCall(m_Context.BindTextureUnit(slot, handle));
@@ -84,8 +90,10 @@ namespace Nexus::GL
 		}
 	}
 
-	std::expected<uint32_t, std::string> OpenGLFunctionContext::CreateSampler(const Graphics::SamplerDescription &desc)
+	std::expected<uint32_t, std::string> OffscreenContextGlad2::CreateSampler(const Graphics::SamplerDescription &desc)
 	{
+		MakeCurrent();
+
 		uint32_t handle = 0;
 		glCall(m_Context.GenSamplers(1, &handle));
 
@@ -140,18 +148,21 @@ namespace Nexus::GL
 		return handle;
 	}
 
-	void OpenGLFunctionContext::DestroySampler(uint32_t handle)
+	void OffscreenContextGlad2::DestroySampler(uint32_t handle)
 	{
+		MakeCurrent();
 		glCall(m_Context.DeleteSamplers(1, &handle));
 	}
 
-	void OpenGLFunctionContext::BindSampler(uint32_t handle, uint32_t slot)
+	void OffscreenContextGlad2::BindSampler(uint32_t handle, uint32_t slot)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindSampler(slot, handle));
 	}
 
-	std::expected<GLsync, std::string> OpenGLFunctionContext::CreateFence(const Graphics::FenceDescription &desc)
+	std::expected<GLsync, std::string> OffscreenContextGlad2::CreateFence(const Graphics::FenceDescription &desc)
 	{
+		MakeCurrent();
 		GLsync handle = m_Context.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
 		// wait for the new fence to be signalled
@@ -172,63 +183,76 @@ namespace Nexus::GL
 		return handle;
 	}
 
-	void OpenGLFunctionContext::DestroyFence(GLsync handle)
+	void OffscreenContextGlad2::DestroyFence(GLsync handle)
 	{
+		MakeCurrent();
 		m_Context.DeleteSync(handle);
 	}
 
-	bool OpenGLFunctionContext::IsSignalled(GLsync handle)
+	bool OffscreenContextGlad2::IsSignalled(GLsync handle)
 	{
+		MakeCurrent();
+
 		GLint status = -1;
 		m_Context.GetSynciv(handle, GL_SYNC_STATUS, sizeof(status), nullptr, &status);
 		return status == GL_SIGNALED;
 	}
 
-	GLenum OpenGLFunctionContext::WaitForFence(GLsync handle, uint64_t timeout)
+	GLenum OffscreenContextGlad2::WaitForFence(GLsync handle, uint64_t timeout)
 	{
+		MakeCurrent();
 		return m_Context.ClientWaitSync(handle, GL_SYNC_FLUSH_COMMANDS_BIT, timeout);
 	}
 
-	uint32_t OpenGLFunctionContext::CreateProgram()
+	uint32_t OffscreenContextGlad2::CreateProgram()
 	{
+		MakeCurrent();
 		return m_Context.CreateProgram();
 	}
 
-	void OpenGLFunctionContext::AttachShaderModule(uint32_t program, uint32_t shader)
+	void OffscreenContextGlad2::AttachShaderModule(uint32_t program, uint32_t shader)
 	{
+		MakeCurrent();
 		glCall(m_Context.AttachShader(program, shader));
 	}
 
-	void OpenGLFunctionContext::LinkProgram(uint32_t program)
+	void OffscreenContextGlad2::LinkProgram(uint32_t program)
 	{
+		MakeCurrent();
 		glCall(m_Context.LinkProgram(program));
 	}
 
-	int OpenGLFunctionContext::GetProgramiv(uint32_t program, GLenum parameter)
+	int OffscreenContextGlad2::GetProgramiv(uint32_t program, GLenum parameter)
 	{
+		MakeCurrent();
 		int returnValue = 0;
 		glCall(m_Context.GetProgramiv(program, parameter, &returnValue));
 		return returnValue;
 	}
 
-	void OpenGLFunctionContext::GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
+	void OffscreenContextGlad2::GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
 	{
+		MakeCurrent();
 		glCall(m_Context.GetProgramInfoLog(program, maxLength, nullptr, infoLog));
 	}
 
-	void OpenGLFunctionContext::DetachShader(uint32_t program, uint32_t shader)
+	void OffscreenContextGlad2::DetachShader(uint32_t program, uint32_t shader)
 	{
+		MakeCurrent();
 		glCall(m_Context.DetachShader(program, shader));
 	}
 
-	void OpenGLFunctionContext::UseShader(uint32_t program)
+	void OffscreenContextGlad2::UseShader(uint32_t program)
 	{
+		MakeCurrent();
 		glCall(m_Context.UseProgram(program));
 	}
 
 	// pipeline state
-	void OpenGLFunctionContext::EnableCapability(GLenum capability, bool enable)
+	void OffscreenContextGlad2::EnableCapability(GLenum capability, bool enable)
 	{
+		MakeCurrent();
+
 		if (enable)
 		{
 			glCall(m_Context.Enable(capability));
@@ -239,129 +263,150 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::SetStencilMask(uint32_t mask)
+	void OffscreenContextGlad2::SetStencilMask(uint32_t mask)
 	{
+		MakeCurrent();
 		glCall(m_Context.StencilMask(mask));
 	}
 
-	void OpenGLFunctionContext::SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
+	void OffscreenContextGlad2::SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
 	{
+		MakeCurrent();
 		glCall(m_Context.StencilOpSeparate(face, sfail, dpfail, dppass));
 	}
 
-	void OpenGLFunctionContext::SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask)
+	void OffscreenContextGlad2::SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask)
 	{
+		MakeCurrent();
 		glCall(m_Context.StencilFuncSeparate(face, func, ref, mask));
 	}
 
-	void OpenGLFunctionContext::EnableDepthMask(bool enable)
+	void OffscreenContextGlad2::EnableDepthMask(bool enable)
 	{
+		MakeCurrent();
 		glCall(m_Context.DepthMask(enable ? GL_TRUE : GL_FALSE));
 	}
 
-	bool OpenGLFunctionContext::IsDepthBoundsSupported()
+	bool OffscreenContextGlad2::IsDepthBoundsSupported()
 	{
 		return m_Context.DepthBoundsEXT != nullptr;
 	}
 
-	void OpenGLFunctionContext::SetDepthBounds(float min, float max)
+	void OffscreenContextGlad2::SetDepthBounds(float min, float max)
 	{
+		MakeCurrent();
 		glCall(m_Context.DepthBoundsEXT(min, max));
 	}
 
-	void OpenGLFunctionContext::SetDepthMask(bool enabled)
+	void OffscreenContextGlad2::SetDepthMask(bool enabled)
 	{
+		MakeCurrent();
 		glCall(m_Context.DepthMask(enabled ? GL_TRUE : GL_FALSE));
 	}
 
-	void OpenGLFunctionContext::SetDepthFunction(GLenum func)
+	void OffscreenContextGlad2::SetDepthFunction(GLenum func)
 	{
+		MakeCurrent();
 		glCall(m_Context.DepthFunc(func));
 	}
 
-	void OpenGLFunctionContext::SetFaceCulling(GLenum cullMode)
+	void OffscreenContextGlad2::SetFaceCulling(GLenum cullMode)
 	{
+		MakeCurrent();
 		glCall(m_Context.CullFace(cullMode));
 	}
 
-	bool OpenGLFunctionContext::IsDepthClampSupported()
+	bool OffscreenContextGlad2::IsDepthClampSupported()
 	{
 		return m_Context.EXT_depth_clamp == 1;
 	}
 
-	void OpenGLFunctionContext::SetPolygonMode(GLenum face, GLenum mode)
+	void OffscreenContextGlad2::SetPolygonMode(GLenum face, GLenum mode)
 	{
+		MakeCurrent();
 		glCall(m_Context.PolygonMode(face, mode));
 	}
 
-	void OpenGLFunctionContext::SetFrontFace(GLenum face)
+	void OffscreenContextGlad2::SetFrontFace(GLenum face)
 	{
+		MakeCurrent();
 		glCall(m_Context.FrontFace(face));
 	}
 
-	bool OpenGLFunctionContext::SupportsPerTargetColourMask()
+	bool OffscreenContextGlad2::SupportsPerTargetColourMask()
 	{
 		return m_Context.ColorMaski != nullptr;
 	}
 
-	void OpenGLFunctionContext::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+	void OffscreenContextGlad2::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 	{
+		MakeCurrent();
 		glCall(m_Context.ColorMask(red, green, blue, alpha));
 	}
 
-	void OpenGLFunctionContext::SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+	void OffscreenContextGlad2::SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 	{
+		MakeCurrent();
 		glCall(m_Context.ColorMaski(index, red, green, blue, alpha));
 	}
 
-	bool OpenGLFunctionContext::SupportsPerTargetBlendFunction()
+	bool OffscreenContextGlad2::SupportsPerTargetBlendFunction()
 	{
 		return m_Context.BlendFunci != nullptr;
 	}
 
-	void OpenGLFunctionContext::SetBlendFunction(GLenum sfactor, GLenum dfactor)
+	void OffscreenContextGlad2::SetBlendFunction(GLenum sfactor, GLenum dfactor)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendFunc(sfactor, dfactor));
 	}
 
-	void OpenGLFunctionContext::SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)
+	void OffscreenContextGlad2::SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendFunci(index, sfactor, dfactor));
 	}
 
-	void OpenGLFunctionContext::SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+	void OffscreenContextGlad2::SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha));
 	}
 
-	void OpenGLFunctionContext::SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+	void OffscreenContextGlad2::SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
 	}
 
-	void OpenGLFunctionContext::SetBlendEquation(GLenum mode)
+	void OffscreenContextGlad2::SetBlendEquation(GLenum mode)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendEquation(mode));
 	}
 
-	void OpenGLFunctionContext::SetBlendEquationi(uint32_t index, GLenum mode)
+	void OffscreenContextGlad2::SetBlendEquationi(uint32_t index, GLenum mode)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendEquationi(index, mode));
 	}
 
-	void OpenGLFunctionContext::SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
+	void OffscreenContextGlad2::SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendEquationSeparate(modeRGB, modeAlpha));
 	}
 
-	void OpenGLFunctionContext::SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)
+	void OffscreenContextGlad2::SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)
 	{
+		MakeCurrent();
 		glCall(m_Context.BlendEquationSeparatei(index, modeRGB, modeAlpha));
 	}
 
 	// buffers
-	uint32_t OpenGLFunctionContext::CreateVertexArray()
+	uint32_t OffscreenContextGlad2::CreateVertexArray()
 	{
+		MakeCurrent();
 		uint32_t handle = 0;
 
 		if (m_Context.CreateVertexArrays != nullptr)
@@ -376,29 +421,35 @@ namespace Nexus::GL
 		return handle;
 	}
 
-	void OpenGLFunctionContext::DestroyVertexArray(uint32_t vao)
+	void OffscreenContextGlad2::DestroyVertexArray(uint32_t vao)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindVertexArray(0));
 		glCall(m_Context.DeleteVertexArrays(1, &vao));
 	}
 
-	void OpenGLFunctionContext::BindBuffer(GLenum target, GLuint buffer)
+	void OffscreenContextGlad2::BindBuffer(GLenum target, GLuint buffer)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindBuffer(target, buffer));
 	}
 
-	void OpenGLFunctionContext::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+	void OffscreenContextGlad2::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindBufferRange(target, index, buffer, offset, size));
 	}
 
-	void OpenGLFunctionContext::BindVertexArray(uint32_t vao)
+	void OffscreenContextGlad2::BindVertexArray(uint32_t vao)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindVertexArray(vao));
 	}
 
-	void OpenGLFunctionContext::EnableVertexAttribArray(uint32_t vao, uint32_t index)
+	void OffscreenContextGlad2::EnableVertexAttribArray(uint32_t vao, uint32_t index)
 	{
+		MakeCurrent();
+
 		if (m_Context.EnableVertexArrayAttrib != nullptr)
 		{
 			glCall(m_Context.EnableVertexArrayAttrib(vao, index));
@@ -414,8 +465,10 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::DisableVertexAttribArray(uint32_t vao, uint32_t index)
+	void OffscreenContextGlad2::DisableVertexAttribArray(uint32_t vao, uint32_t index)
 	{
+		MakeCurrent();
+
 		if (m_Context.DisableVertexArrayAttrib != nullptr)
 		{
 			glCall(m_Context.DisableVertexArrayAttrib(vao, index));
@@ -431,7 +484,7 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::SetVertexAttribPointer(uint32_t	 vao,
+	void OffscreenContextGlad2::SetVertexAttribPointer(uint32_t	 vao,
 													   uint32_t	 vbo,
 													   GLuint	 index,
 													   GLint	 size,
@@ -440,12 +493,13 @@ namespace Nexus::GL
 													   GLsizei	 stride,
 													   uint32_t	 offset)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindVertexArray(vao));
 		glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
 		glCall(m_Context.VertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<const GLvoid *>(offset)));
 	}
 
-	void OpenGLFunctionContext::SetVertexAttribIPointer(uint32_t vao,
+	void OffscreenContextGlad2::SetVertexAttribIPointer(uint32_t vao,
 														uint32_t vbo,
 														GLuint	 index,
 														GLint	 size,
@@ -453,12 +507,13 @@ namespace Nexus::GL
 														GLsizei	 stride,
 														uint32_t offset)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindVertexArray(vao));
 		glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
 		glCall(m_Context.VertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
 	}
 
-	void OpenGLFunctionContext::SetVertexAttribLPointer(uint32_t vao,
+	void OffscreenContextGlad2::SetVertexAttribLPointer(uint32_t vao,
 														uint32_t vbo,
 														GLuint	 index,
 														GLint	 size,
@@ -466,54 +521,61 @@ namespace Nexus::GL
 														GLsizei	 stride,
 														uint32_t offset)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindVertexArray(vao));
 		glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
 		glCall(m_Context.VertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
 	}
 
-	void OpenGLFunctionContext::SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor)
+	void OffscreenContextGlad2::SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindVertexArray(vao));
 		glCall(m_Context.VertexAttribDivisor(index, divisor));
 	}
 
-	bool OpenGLFunctionContext::AreStorageBuffersSupported()
+	bool OffscreenContextGlad2::AreStorageBuffersSupported()
 	{
 		return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
 	}
 
-	void OpenGLFunctionContext::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
+	void OffscreenContextGlad2::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
 	{
+		MakeCurrent();
 		glCall(m_Context.ShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
 	}
 
-	int32_t OpenGLFunctionContext::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
+	int32_t OffscreenContextGlad2::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
 	{
+		MakeCurrent();
 		int32_t location = 0;
 		glCall(location = m_Context.GetProgramResourceIndex(shader, programInterface, name));
 		return location;
 	}
 
-	int32_t OpenGLFunctionContext::GetUniformBlockIndex(uint32_t shader, const GLchar *name)
+	int32_t OffscreenContextGlad2::GetUniformBlockIndex(uint32_t shader, const GLchar *name)
 	{
+		MakeCurrent();
 		int32_t location = 0;
 		glCall(location = m_Context.GetUniformBlockIndex(shader, name));
 		return location;
 	}
 
-	int32_t OpenGLFunctionContext::GetUniformLocation(uint32_t shader, const GLchar *name)
+	int32_t OffscreenContextGlad2::GetUniformLocation(uint32_t shader, const GLchar *name)
 	{
+		MakeCurrent();
 		int32_t location = 0;
 		glCall(location = m_Context.GetUniformLocation(shader, name));
 		return location;
 	}
 
-	void OpenGLFunctionContext::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+	void OffscreenContextGlad2::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
 	{
+		MakeCurrent();
 		glCall(m_Context.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding));
 	}
 
-	void OpenGLFunctionContext::BindImageTexture(GLuint	   unit,
+	void OffscreenContextGlad2::BindImageTexture(GLuint	   unit,
 												 GLuint	   texture,
 												 GLint	   level,
 												 GLboolean layered,
@@ -521,11 +583,13 @@ namespace Nexus::GL
 												 GLenum	   access,
 												 GLenum	   format)
 	{
+		MakeCurrent();
 		glCall(m_Context.BindImageTexture(unit, texture, level, layered, layer, access, format));
 	}
 
-	void OpenGLFunctionContext::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
+	void OffscreenContextGlad2::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
 	{
+		MakeCurrent();
 		if (primcount == 1)
 		{
 			glCall(m_Context.DrawArrays(mode, first, count));
@@ -536,8 +600,9 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
+	void OffscreenContextGlad2::DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
 	{
+		MakeCurrent();
 		if (primcount == 1)
 		{
 			glCall(m_Context.DrawElements(mode, count, type, indices));
@@ -548,8 +613,9 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)
+	void OffscreenContextGlad2::MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)
 	{
+		MakeCurrent();
 		if (m_Context.MultiDrawArraysIndirect)
 		{
 			glCall(m_Context.MultiDrawArraysIndirect(mode, indirect, drawCount, stride));
@@ -565,8 +631,9 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride)
+	void OffscreenContextGlad2::MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride)
 	{
+		MakeCurrent();
 		if (m_Context.MultiDrawElementsIndirect)
 		{
 			glCall(m_Context.MultiDrawElementsIndirect(mode, type, indirect, drawcount, stride));
@@ -582,39 +649,45 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+	void OffscreenContextGlad2::DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
 	{
+		MakeCurrent();
 		glCall(m_Context.DispatchCompute(num_groups_x, num_groups_y, num_groups_z));
 	}
 
-	void OpenGLFunctionContext::DispatchComputeIndirect(GLintptr indirect)
+	void OffscreenContextGlad2::DispatchComputeIndirect(GLintptr indirect)
 	{
+		MakeCurrent();
 		glCall(m_Context.DispatchComputeIndirect(indirect));
 	}
 
-	void OpenGLFunctionContext::MemoryBarrierEXT(GLbitfield barriers)
+	void OffscreenContextGlad2::MemoryBarrierEXT(GLbitfield barriers)
 	{
+		MakeCurrent();
 		glCall(m_Context.MemoryBarrierEXT(barriers));
 	}
 
-	void OpenGLFunctionContext::TextureBarrier()
+	void OffscreenContextGlad2::TextureBarrier()
 	{
+		MakeCurrent();
 		if (m_Context.TextureBarrier)
 		{
 			glCall(m_Context.TextureBarrier());
 		}
 	}
 
-	void OpenGLFunctionContext::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+	void OffscreenContextGlad2::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
 	{
+		MakeCurrent();
 		if (m_Context.DrawMeshTasksEXT)
 		{
 			glCall(m_Context.DrawMeshTasksEXT(num_groups_x, num_groups_y, num_groups_z));
 		}
 	}
 
-	void OpenGLFunctionContext::DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)
+	void OffscreenContextGlad2::DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)
 	{
+		MakeCurrent();
 		if (m_Context.MultiDrawMeshTasksIndirectEXT)
 		{
 			glCall(m_Context.MultiDrawMeshTasksIndirectEXT((GLintptr)indirect, drawCount, stride));
@@ -627,33 +700,39 @@ namespace Nexus::GL
 		}
 	}
 
-	void OpenGLFunctionContext::ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
+	void OffscreenContextGlad2::ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
 	{
+		MakeCurrent();
 		glCall(m_Context.ClearBufferfv(buffer, drawbuffer, value));
 	}
 
-	void OpenGLFunctionContext::ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
+	void OffscreenContextGlad2::ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
 	{
+		MakeCurrent();
 		glCall(m_Context.ClearBufferfi(buffer, drawbuffer, depth, stencil));
 	}
 
-	void OpenGLFunctionContext::GetIntegerv(GLenum pname, GLint *data)
+	void OffscreenContextGlad2::GetIntegerv(GLenum pname, GLint *data)
 	{
+		MakeCurrent();
 		glCall(m_Context.GetIntegerv(pname, data));
 	}
 
-	void OpenGLFunctionContext::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
+	void OffscreenContextGlad2::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
 	{
+		MakeCurrent();
 		glCall(m_Context.Scissor(x, y, width, height));
 	}
 
-	void OpenGLFunctionContext::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+	void OffscreenContextGlad2::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 	{
+		MakeCurrent();
 		glCall(m_Context.Viewport(x, y, width, height));
 	}
 
-	void OpenGLFunctionContext::DepthRangef(GLfloat nearVal, GLfloat farVal)
+	void OffscreenContextGlad2::DepthRangef(GLfloat nearVal, GLfloat farVal)
 	{
+		MakeCurrent();
 		glCall(m_Context.DepthRangef(nearVal, farVal));
 	}
 
