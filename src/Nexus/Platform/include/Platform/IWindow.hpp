@@ -1,7 +1,6 @@
 #pragma once
 
 #include <utility>
-#include <variant>
 
 #include "Platform/Events/EventHandler.hpp"
 #include "Platform/Input/Events.hpp"
@@ -145,9 +144,6 @@ namespace Nexus
 	{
 		std::string canvasId = {};
 	};
-
-	using WindowInfo =
-		std::variant<Win32Info, X11Info, WaylandInfo, AndroidInfo, iOSInfo, KMSDRMInfo, MacOSInfo, OpenVRInfo, VivanteInfo, EmscriptenInfo>;
 
 	/// @brief A class representing a window
 	class NX_PLATFORM_API IWindow
@@ -342,7 +338,16 @@ namespace Nexus
 
 		virtual void AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func) = 0;
 
-		virtual WindowInfo GetWindowInfo() const = 0;
+		virtual Win32Info	   GetWin32Info() const		 = 0;
+		virtual X11Info		   GetX11Info() const		 = 0;
+		virtual WaylandInfo	   GetWaylandInfo() const	 = 0;
+		virtual AndroidInfo	   GetAndroidInfo() const	 = 0;
+		virtual iOSInfo		   GetiOSInfo() const		 = 0;
+		virtual KMSDRMInfo	   GetKMSDRMInfo() const	 = 0;
+		virtual MacOSInfo	   GetMacOSInfo() const		 = 0;
+		virtual OpenVRInfo	   GetOpenVRInfo() const	 = 0;
+		virtual VivanteInfo	   GetVivanteInfo() const	 = 0;
+		virtual EmscriptenInfo GetEmscriptenInfo() const = 0;
 
 		virtual bool								   IsKeyDown(uint32_t keyboardId, ScanCode scancode)		 = 0;
 		virtual bool								   IsKeyDown(ScanCode scancode)								 = 0;

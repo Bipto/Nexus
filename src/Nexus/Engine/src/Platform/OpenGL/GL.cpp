@@ -20,6 +20,7 @@
 	#endif
 
 	#include "DeviceBufferOpenGL.hpp"
+	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 	#include "Platform/Platform.hpp"
 	#include "TextureOpenGL.hpp"

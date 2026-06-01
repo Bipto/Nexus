@@ -12,7 +12,6 @@
 
 	#include <glad/gl.h>
 
-	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 	#include "Platform/IWindow.hpp"
@@ -31,6 +30,8 @@ namespace Nexus::Graphics
 
 namespace Nexus::GL
 {
+	class IOffscreenContext;
+
 	enum class GLPrimitiveType
 	{
 		Unknown = 0,

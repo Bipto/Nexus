@@ -49,27 +49,12 @@ namespace Nexus::Utils
 {
 	Graphics::SurfaceHandle CreateSurfaceForWindow(Graphics::IGraphicsDevice *graphicsDevice, Nexus::IWindow *window)
 	{
-		auto windowInfo = window->GetWindowInfo();
-
 #if defined(WIN32)
-		if (auto win32Info = std::get_if<Win32Info>(&windowInfo))
-		{
-			return graphicsDevice->CreateSurfaceFromWin32(win32Info->hWND, win32Info->hDC, win32Info->hINSTANCE);
-		}
-		else
-		{
-			throw std::runtime_error("Failed to find a valid window handle");
-		}
-
+		auto win32Info = window->GetWin32Info();
+		return graphicsDevice->CreateSurfaceFromWin32(win32Info.hWND, win32Info.hDC, win32Info.hINSTANCE);
 #else if defined(__linux__)
-		if (auto x11Info = std::get_if<X11Info>(&windowInfo))
-		{
-			return graphicsDevice->CreateSurfaceFromX11(x11Info.display, x11Info.screen, x11Info.window);
-		}
-		else
-		{
-			throw std::runtime_error("Failed to find a valid window handle");
-		}
+		auto x11Info = window->GetX11Info();
+		return graphicsDevice->CreateSurfaceFromX11(x11Info.display, x11Info.screen, x11Info.window);
 #endif
 
 		throw std::runtime_error("Failed to create surface for window: Unsupported platform");
