@@ -151,16 +151,7 @@ namespace Nexus
 
 		void AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func) final;
 
-		Win32Info	   GetWin32Info() const final;
-		X11Info		   GetX11Info() const final;
-		WaylandInfo	   GetWaylandInfo() const final;
-		AndroidInfo	   GetAndroidInfo() const final;
-		iOSInfo		   GetiOSInfo() const final;
-		KMSDRMInfo	   GetKMSDRMInfo() const final;
-		MacOSInfo	   GetMacOSInfo() const final;
-		OpenVRInfo	   GetOpenVRInfo() const final;
-		VivanteInfo	   GetVivanteInfo() const final;
-		EmscriptenInfo GetEmscriptenInfo() const final;
+		WindowInfo GetWindowInfo() const final;
 
 		//==========================================================================================
 		//									USE CALLBACKS
