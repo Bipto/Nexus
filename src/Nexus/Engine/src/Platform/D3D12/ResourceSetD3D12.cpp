@@ -216,7 +216,7 @@ namespace Nexus::Graphics
 	{
 		const Graphics::SamplerDescription &desc = sampler->GetSamplerDescription();
 
-		const glm::vec4 color = Nexus::Utils::ColourFromBorderColor(desc.TextureBorderColor);
+		const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
 
 		D3D12_SAMPLER_DESC sd = {};
 		sd.Filter			  = sampler->GetFilter();

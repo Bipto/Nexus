@@ -9,7 +9,7 @@ namespace Nexus::Utils
 		return glm::vec4(1.0f / 255.0f * r, 1.0f / 255.0f * g, 1.0f / 255.0f * b, 1.0f / 255.0f * a);
 	}
 
-	glm::vec4 ColourFromBorderColor(Nexus::Graphics::BorderColour color)
+	glm::vec4 ColourFromBorderColour(Nexus::Graphics::BorderColour color)
 	{
 		switch (color)
 		{

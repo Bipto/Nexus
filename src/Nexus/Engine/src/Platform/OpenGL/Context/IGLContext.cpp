@@ -104,7 +104,7 @@ namespace Nexus::GL
 				glCall(m_Context.SamplerParameterf(handle, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, desc.MaximumAnisotropy));
 			}
 
-			const glm::vec4 color = Nexus::Utils::ColourFromBorderColor(desc.TextureBorderColor);
+			const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
 
 			// border colour
 			GLfloat border[] = {color.r, color.g, color.b, color.a};
