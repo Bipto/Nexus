@@ -1,5 +1,9 @@
 #include "IGLContext.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+#include "Platform/OpenGL/DeviceBufferOpenGL.hpp"
+#include "Platform/OpenGL/GL.hpp"
+
 namespace Nexus::GL
 {
 	IGLContext::~IGLContext()
