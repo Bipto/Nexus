@@ -220,7 +220,7 @@ if (NX_PLATFORM_OPENGL)
   list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_SOURCES})
 endif()
 
-file (GLOB NEXUS_OPENGL_CONTEXT_HEADERS "src/Platform/OpenGL/Context/*.hpp")
+file (GLOB NEXUS_OPENGL_CONTEXT_HEADERS "src/Platform/OpenGL/Context/*.hpp" "src/Platform/OpenGL/Context/*.cpp")
 list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_CONTEXT_HEADERS})
 
 if (NX_PLATFORM_EGL)
