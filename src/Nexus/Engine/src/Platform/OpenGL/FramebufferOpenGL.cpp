@@ -25,24 +25,24 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture, const GladGLContext &context)
+	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture, GL::IGLContext *context)
 	{
-		glCall(context.BindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO));
-		glCall(context.ReadBuffer(GL_COLOR_ATTACHMENT0 + texture));
+		context->ReadBuffer(m_FBO, GL_COLOR_ATTACHMENT0 + texture);
+		context->BindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO);
 	}
 
-	void FramebufferOpenGL::BindAsDrawBuffer(const GladGLContext &context)
+	void FramebufferOpenGL::BindAsDrawBuffer(GL::IGLContext *context)
 	{
-		glCall(context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
 		auto [width, height] = m_Description.GetSize();
 
 		std::vector<GLenum> drawBuffers;
 		for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++) { drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i); }
 
-		context.DrawBuffers(drawBuffers.size(), drawBuffers.data());
+		context->DrawBuffers(m_FBO, drawBuffers.size(), drawBuffers.data());
+		context->BindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO);
 
-		glCall(context.Viewport(0, 0, width, height));
-		glCall(context.Scissor(0, 0, width, height));
+		context->Viewport(0, 0, width, height);
+		context->Scissor(0, 0, width, height);
 	}
 
 	void FramebufferOpenGL::Unbind()

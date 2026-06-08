@@ -8,7 +8,7 @@
 
 namespace Nexus::GL
 {
-	class OffscreenContextWGL final : public OffscreenContextGlad2
+	class OffscreenContextWGL final : public IOffscreenContext
 	{
 	  public:
 		OffscreenContextWGL(const ContextDescription &spec, Graphics::IPhysicalDevice *device);

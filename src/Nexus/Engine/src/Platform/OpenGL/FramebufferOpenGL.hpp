@@ -17,8 +17,8 @@ namespace Nexus::Graphics
 		~FramebufferOpenGL();
 		const FramebufferTextureSetDescription GetTextureSetDescription() const final;
 
-		void	BindAsReadBuffer(uint32_t texture, const GladGLContext &context);
-		void	BindAsDrawBuffer(const GladGLContext &context);
+		void	BindAsReadBuffer(uint32_t texture, GL::IGLContext *contextcontext);
+		void	BindAsDrawBuffer(GL::IGLContext *context);
 		void	Unbind();
 		int32_t GetHandle();
 

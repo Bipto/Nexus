@@ -30,7 +30,5 @@ namespace Nexus::GL
 
 		OffscreenContextWGL *m_PBuffer	   = {};
 		ContextDescription	 m_Description = {};
-
-		GladGLContext m_FunctionContext = {};
 	};
 }	 // namespace Nexus::GL

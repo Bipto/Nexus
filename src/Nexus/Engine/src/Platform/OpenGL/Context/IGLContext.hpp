@@ -143,6 +143,10 @@ namespace Nexus::GL
 		bool IsIndirectRenderingSupported();
 		bool IsMeshTaskSupported();
 
+		void BindFramebuffer(GLenum target, GLuint framebuffer);
+		void DrawBuffers(GLuint framebuffer, GLsizei n, const GLenum *bufs);
+		void ReadBuffer(GLuint framebuffer, GLenum mode);
+
 		void Execute(std::function<void(const GladGLContext &context)> function)
 		{
 			MakeCurrent();
@@ -150,7 +154,7 @@ namespace Nexus::GL
 			function(context);
 		}
 
-	  private:
+	  protected:
 		GladGLContext m_Context = {};
 	};
 }	 // namespace Nexus::GL

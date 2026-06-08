@@ -16,7 +16,7 @@ namespace Nexus::GL
 		m_HGLRC	  = hglrc;
 
 		wglMakeCurrent(m_HDC, m_HGLRC);
-		OffscreenContextGlad2::Load();
+		LoadFunctions();
 	}
 
 	OffscreenContextWGL::~OffscreenContextWGL()

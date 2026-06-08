@@ -402,8 +402,7 @@ namespace Nexus::Graphics
 		if (FramebufferOpenGL *framebuffer = command.AsDerived<FramebufferOpenGL>())
 		{
 			GL::IGLContext *context = m_Device->GetOffscreenContext();
-
-			context->Execute([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
+			framebuffer->BindAsDrawBuffer(context);
 			m_CurrentRenderTarget = command;
 		}
 	}

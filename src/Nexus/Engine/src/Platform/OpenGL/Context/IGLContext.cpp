@@ -741,4 +741,35 @@ namespace Nexus::GL
 	{
 		return m_Context.DrawMeshTasksEXT != nullptr && m_Context.DrawMeshTasksIndirectEXT != nullptr;
 	}
+
+	void IGLContext::BindFramebuffer(GLenum target, GLuint framebuffer)
+	{
+		m_Context.BindFramebuffer(target, framebuffer);
+	}
+
+	void IGLContext::DrawBuffers(GLuint framebuffer, GLsizei n, const GLenum *bufs)
+	{
+		if (m_Context.NamedFramebufferDrawBuffers)
+		{
+			m_Context.NamedFramebufferDrawBuffers(framebuffer, n, bufs);
+		}
+		else
+		{
+			BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+			m_Context.DrawBuffers(n, bufs);
+		}
+	}
+
+	void IGLContext::ReadBuffer(GLuint framebuffer, GLenum mode)
+	{
+		if (m_Context.NamedFramebufferReadBuffer)
+		{
+			m_Context.NamedFramebufferReadBuffer(framebuffer, mode);
+		}
+		else
+		{
+			BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+			m_Context.ReadBuffer(mode);
+		}
+	}
 }	 // namespace Nexus::GL
