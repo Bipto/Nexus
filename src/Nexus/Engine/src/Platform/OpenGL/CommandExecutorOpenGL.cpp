@@ -483,18 +483,17 @@ namespace Nexus::Graphics
 		{
 			GL::IGLContext *context = m_Device->GetOffscreenContext();
 
-			context->Execute(
-				[&](const GladGLContext &context)
-				{
-	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-					uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-					query->m_Start = now;
-	#else
+			if (context->AreTimestampQueriesSupported())
+			{
 				GLint64 timer;
-				glCall(context.GetInteger64v(GL_TIMESTAMP, &timer));
-				query->m_Start = (uint64_t)timer;
-	#endif
-				});
+				context->GetTimestamp(&timer);
+				query->m_Start = static_cast<uint64_t>(timer);
+			}
+			else
+			{
+				uint64_t now   = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				query->m_Start = now;
+			}
 		}
 	}
 
@@ -511,18 +510,17 @@ namespace Nexus::Graphics
 		{
 			GL::IGLContext *context = m_Device->GetOffscreenContext();
 
-			context->Execute(
-				[&](const GladGLContext &context)
-				{
-	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-					uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-					query->m_End = now;
-	#else
+			if (context->AreTimestampQueriesSupported())
+			{
 				GLint64 timer;
-				glCall(context.GetInteger64v(GL_TIMESTAMP, &timer));
-				query->m_End = (uint64_t)timer;
-	#endif
-				});
+				context->GetTimestamp(&timer);
+				query->m_End = static_cast<uint64_t>(timer);
+			}
+			else
+			{
+				uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				query->m_End = now;
+			}
 		}
 	}
 
@@ -611,17 +609,12 @@ namespace Nexus::Graphics
 	void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
 	{
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
-
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				context.DebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION,
-										   GL_DEBUG_TYPE_MARKER,
-										   0,
-										   GL_DEBUG_SEVERITY_NOTIFICATION,
-										   -1,
-										   command.MarkerName.c_str());
-			});
+		context->DebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION,
+									GL_DEBUG_TYPE_MARKER,
+									0,
+									GL_DEBUG_SEVERITY_NOTIFICATION,
+									-1,
+									command.MarkerName.c_str());
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)

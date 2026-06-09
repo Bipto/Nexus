@@ -772,4 +772,23 @@ namespace Nexus::GL
 			m_Context.ReadBuffer(mode);
 		}
 	}
+
+	bool IGLContext::AreTimestampQueriesSupported()
+	{
+		return (m_Context.VERSION_3_2 == 1 || m_Context.ES_VERSION_3_0 == 1 || m_Context.ARB_timer_query == 1 ||
+				m_Context.EXT_disjoint_timer_query == 1);
+	}
+
+	void IGLContext::GetTimestamp(GLint64 *data)
+	{
+		glCall(m_Context.GetInteger64v(GL_TIMESTAMP, data));
+	}
+
+	void IGLContext::DebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message)
+	{
+		if (m_Context.DebugMessageInsert != nullptr)
+		{
+			m_Context.DebugMessageInsert(source, type, id, severity, length, message);
+		}
+	}
 }	 // namespace Nexus::GL

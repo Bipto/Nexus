@@ -147,6 +147,10 @@ namespace Nexus::GL
 		void DrawBuffers(GLuint framebuffer, GLsizei n, const GLenum *bufs);
 		void ReadBuffer(GLuint framebuffer, GLenum mode);
 
+		bool AreTimestampQueriesSupported();
+		void GetTimestamp(GLint64 *data);
+		void DebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message);
+
 		void Execute(std::function<void(const GladGLContext &context)> function)
 		{
 			MakeCurrent();
