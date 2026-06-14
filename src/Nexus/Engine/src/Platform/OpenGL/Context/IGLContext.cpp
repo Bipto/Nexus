@@ -7,14 +7,10 @@
 namespace Nexus::GL
 {
 	IGLContext::~IGLContext()
-	{
-		gladLoaderUnloadGLContext(&m_Context);
-	}
+	{ gladLoaderUnloadGLContext(&m_Context); }
 
 	bool IGLContext::LoadFunctions()
-	{
-		return gladLoaderLoadGLContext(&m_Context);
-	}
+	{ return gladLoaderLoadGLContext(&m_Context); }
 
 	std::expected<uint32_t, std::string> IGLContext::CreateTexture(const Graphics::TextureDescription &desc)
 	{
@@ -73,6 +69,93 @@ namespace Nexus::GL
 		}
 	}
 
+	std::expected<void, std::string> IGLContext::CreateBuffer(GLuint			&buffer,
+															  GLenum			 target,
+															  GLsizeiptr		 size,
+															  const GLvoid		*data,
+															  GLbitfield		 mapFlags,
+															  GLenum			 bufferUsage,
+															  const std::string &debugName,
+															  bool				&supportsPersistentMapping)
+	{
+		// try to use persistent mapping if the functionality is available
+		if (m_Context.ARB_buffer_storage || m_Context.VERSION_4_4)
+		{
+			// use DSA if available
+			if (m_Context.ARB_direct_state_access || m_Context.VERSION_4_5)
+			{
+				glCall(m_Context.CreateBuffers(1, &buffer));
+				glCall(m_Context.NamedBufferStorage(buffer, size, data, mapFlags));
+			}
+			// or fall back to buffer storage with binding
+			else
+			{
+				glCall(m_Context.GenBuffers(1, &buffer));
+				glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
+				glCall(m_Context.BufferStorage(GL_COPY_READ_BUFFER, size, data, mapFlags));
+			}
+
+			// tell the user that persistent mapping is available
+			supportsPersistentMapping = true;
+		}
+		// fall back to legacy BufferData and binding
+		else
+		{
+			glCall(m_Context.GenBuffers(1, &buffer));
+			glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
+			glCall(m_Context.BufferData(GL_COPY_READ_BUFFER, size, nullptr, bufferUsage));
+
+			// tell the user that persistent mapping is NOT available
+			supportsPersistentMapping = false;
+		}
+
+		// assign a debug name if available
+		if (m_Context.KHR_debug)
+		{
+			glCall(m_Context.ObjectLabelKHR(GL_BUFFER, buffer, debugName.size(), debugName.c_str()));
+		}
+	}
+
+	void IGLContext::DeleteBuffers(GLsizei n, const GLuint *buffers)
+	{ glCall(m_Context.DeleteBuffers(n, buffers)); }
+
+	void IGLContext::CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size)
+	{
+		// use DSA if it is available
+		if (m_Context.ARB_direct_state_access || m_Context.EXT_direct_state_access)
+		{
+			// execute copy operation
+			glCall(m_Context.CopyNamedBufferSubData(readBuffer, writeBuffer, readOffset, writeOffset, size));
+		}
+		// we need to use legacy binding
+		else
+		{
+			// bind the target buffers
+			glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, readBuffer));
+			glCall(m_Context.BindBuffer(GL_COPY_WRITE_BUFFER, writeBuffer));
+
+			// execute the copy operation
+			glCall(m_Context.CopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
+
+			// unbind the target buffers
+			glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, 0));
+			glCall(m_Context.BindBuffer(GL_COPY_WRITE_BUFFER, 0));
+		}
+	}
+
+	void IGLContext::BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data)
+	{
+		if (m_Context.NamedBufferSubData)
+		{
+			glCall(m_Context.NamedBufferSubData(buffer, offset, size, data));
+		}
+		else
+		{
+			glCall(m_Context.BindBuffer(target, buffer));
+			glCall(m_Context.BufferSubData(target, offset, size, data));
+		}
+	}
+
 	std::expected<uint32_t, std::string> IGLContext::CreateSampler(const Graphics::SamplerDescription &desc)
 	{
 		MakeCurrent();
@@ -85,47 +168,47 @@ namespace Nexus::GL
 			// the sampler must have been bound at least once to name it
 			glCall(m_Context.BindSampler(0, handle));
 			glCall(m_Context.ObjectLabelKHR(GL_SAMPLER, handle, -1, desc.DebugName.c_str()));
+		}
 
-			bool useMips = desc.MinimumLOD != 0 || desc.MaximumLOD != 0;
+		bool useMips = desc.MinimumLOD != 0 || desc.MaximumLOD != 0;
 
-			GLenum min, max;
-			GL::GetSamplerFilter(desc.SampleFilter, min, max, useMips);
+		GLenum min, max;
+		GL::GetSamplerFilter(desc.SampleFilter, min, max, useMips);
 
-			// texture sampling options
-			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_MIN_FILTER, min));
-			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_MAG_FILTER, max));
-			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(desc.AddressModeU)));
-			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(desc.AddressModeV)));
-			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(desc.AddressModeW)));
+		// texture sampling options
+		glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_MIN_FILTER, min));
+		glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_MAG_FILTER, max));
+		glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(desc.AddressModeU)));
+		glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(desc.AddressModeV)));
+		glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(desc.AddressModeW)));
 
-			// texture anisotropy
-			if (desc.SampleFilter == Graphics::SamplerFilter::Anisotropic)
-			{
-				glCall(m_Context.SamplerParameterf(handle, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, desc.MaximumAnisotropy));
-			}
+		// texture anisotropy
+		if (desc.SampleFilter == Graphics::SamplerFilter::Anisotropic)
+		{
+			glCall(m_Context.SamplerParameterf(handle, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, desc.MaximumAnisotropy));
+		}
 
-			const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
+		const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
 
-			// border colour
-			GLfloat border[] = {color.r, color.g, color.b, color.a};
-			glCall(m_Context.SamplerParameterfv(handle, GL_TEXTURE_BORDER_COLOR, border));
+		// border colour
+		GLfloat border[] = {color.r, color.g, color.b, color.a};
+		glCall(m_Context.SamplerParameterfv(handle, GL_TEXTURE_BORDER_COLOR, border));
 
-			// LOD
-			glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_MIN_LOD, desc.MinimumLOD));
-			glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_MAX_LOD, desc.MaximumLOD));
+		// LOD
+		glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_MIN_LOD, desc.MinimumLOD));
+		glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_MAX_LOD, desc.MaximumLOD));
 
-			if (m_Context.EXT_texture_lod_bias)
-			{
-				glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_LOD_BIAS_EXT, desc.LODBias));
-			}
+		if (m_Context.EXT_texture_lod_bias)
+		{
+			glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_LOD_BIAS_EXT, desc.LODBias));
+		}
 
-			// texture comparison
-			if (desc.SamplerComparisonFunction != Graphics::ComparisonFunction::Never)
-			{
-				auto comparisonFunction = GL::GetComparisonFunction(desc.SamplerComparisonFunction);
-				glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
-				glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_FUNC, comparisonFunction));
-			}
+		// texture comparison
+		if (desc.SamplerComparisonFunction != Graphics::ComparisonFunction::Never)
+		{
+			auto comparisonFunction = GL::GetComparisonFunction(desc.SamplerComparisonFunction);
+			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+			glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_FUNC, comparisonFunction));
 		}
 
 		return handle;
@@ -271,9 +354,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::IsDepthBoundsSupported()
-	{
-		return m_Context.DepthBoundsEXT != nullptr;
-	}
+	{ return m_Context.DepthBoundsEXT != nullptr; }
 
 	void IGLContext::SetDepthBounds(float min, float max)
 	{
@@ -300,9 +381,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::IsDepthClampSupported()
-	{
-		return m_Context.EXT_depth_clamp == 1;
-	}
+	{ return m_Context.EXT_depth_clamp == 1; }
 
 	void IGLContext::SetPolygonMode(GLenum face, GLenum mode)
 	{
@@ -317,9 +396,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::SupportsPerTargetColourMask()
-	{
-		return m_Context.ColorMaski != nullptr;
-	}
+	{ return m_Context.ColorMaski != nullptr; }
 
 	void IGLContext::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 	{
@@ -334,9 +411,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::SupportsPerTargetBlendFunction()
-	{
-		return m_Context.BlendFunci != nullptr;
-	}
+	{ return m_Context.BlendFunci != nullptr; }
 
 	void IGLContext::SetBlendFunction(GLenum sfactor, GLenum dfactor)
 	{
@@ -393,9 +468,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::SupportsTextureBarriers()
-	{
-		return m_Context.TextureBarrier != nullptr || m_Context.TextureBarrierNV != nullptr;
-	}
+	{ return m_Context.TextureBarrier != nullptr || m_Context.TextureBarrierNV != nullptr; }
 
 	void IGLContext::TextureBarrier()
 	{
@@ -410,9 +483,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::SupportsMemoryBarriers()
-	{
-		return m_Context.MemoryBarrierEXT != nullptr;
-	}
+	{ return m_Context.MemoryBarrierEXT != nullptr; }
 
 	void IGLContext::MemoryBarrierEXT(GLbitfield barriers)
 	{
@@ -423,9 +494,7 @@ namespace Nexus::GL
 	}
 
 	void IGLContext::Finish()
-	{
-		glCall(m_Context.Finish());
-	}
+	{ glCall(m_Context.Finish()); }
 
 	// buffers
 	uint32_t IGLContext::CreateVertexArray()
@@ -547,9 +616,7 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::AreStorageBuffersSupported()
-	{
-		return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
-	}
+	{ return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1); }
 
 	void IGLContext::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
 	{
@@ -728,24 +795,16 @@ namespace Nexus::GL
 	}
 
 	bool IGLContext::IsComputeSupported()
-	{
-		return m_Context.DispatchCompute != nullptr;
-	}
+	{ return m_Context.DispatchCompute != nullptr; }
 
 	bool IGLContext::IsIndirectRenderingSupported()
-	{
-		return m_Context.DrawArraysIndirect != nullptr && m_Context.DrawElementsIndirect != nullptr;
-	}
+	{ return m_Context.DrawArraysIndirect != nullptr && m_Context.DrawElementsIndirect != nullptr; }
 
 	bool IGLContext::IsMeshTaskSupported()
-	{
-		return m_Context.DrawMeshTasksEXT != nullptr && m_Context.DrawMeshTasksIndirectEXT != nullptr;
-	}
+	{ return m_Context.DrawMeshTasksEXT != nullptr && m_Context.DrawMeshTasksIndirectEXT != nullptr; }
 
 	void IGLContext::BindFramebuffer(GLenum target, GLuint framebuffer)
-	{
-		m_Context.BindFramebuffer(target, framebuffer);
-	}
+	{ m_Context.BindFramebuffer(target, framebuffer); }
 
 	void IGLContext::DrawBuffers(GLuint framebuffer, GLsizei n, const GLenum *bufs)
 	{
@@ -780,9 +839,7 @@ namespace Nexus::GL
 	}
 
 	void IGLContext::GetTimestamp(GLint64 *data)
-	{
-		glCall(m_Context.GetInteger64v(GL_TIMESTAMP, data));
-	}
+	{ glCall(m_Context.GetInteger64v(GL_TIMESTAMP, data)); }
 
 	void IGLContext::DebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message)
 	{

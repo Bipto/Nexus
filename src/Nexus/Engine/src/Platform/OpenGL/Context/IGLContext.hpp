@@ -13,6 +13,7 @@
 #include "RHI/Sampler.hpp"
 #include "RHI/TexelBuffer.hpp"
 #include "RHI/Texture.hpp"
+#include <RHI/SamplerState.hpp>
 
 namespace Nexus::GL
 {
@@ -34,6 +35,19 @@ namespace Nexus::GL
 		std::expected<uint32_t, std::string> CreateTexelBuffer(const Graphics::TexelBufferDescription &desc);
 		void								 DestroyTextureBuffer(uint32_t handle);
 		void								 BindTextureBuffer(uint32_t handle, uint32_t slot);
+
+		// buffers
+		std::expected<void, std::string> CreateBuffer(GLuint			&buffer,
+													  GLenum			 target,
+													  GLsizeiptr		 size,
+													  const GLvoid		*data,
+													  GLbitfield		 mapFlags,
+													  GLenum			 bufferUsage,
+													  const std::string &debugName,
+													  bool				&supportsPersistentMapping);
+		void							 DeleteBuffers(GLsizei n, const GLuint *buffers);
+		void CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size);
+		void BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
 
 		// samplers
 		virtual std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc);

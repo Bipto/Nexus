@@ -4,61 +4,31 @@
 
 namespace Nexus::Graphics
 {
-	const GLbitfield mapFlags = GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
 	DeviceBufferOpenGL::DeviceBufferOpenGL(const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device)
 		: m_Device(device),
 		  m_BufferDescription(desc)
 	{
-		GLenum bufferUsage = GL::GetBufferUsage(desc);
-
-		const GLbitfield createFlags = mapFlags | GL_DYNAMIC_STORAGE_BIT;
+		const GLenum	 bufferUsage = GL::GetBufferUsage(desc);
+		const GLbitfield mapFlags	 = GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_DYNAMIC_STORAGE_BIT;
 
 		// create buffer (try to use BufferStorage functions if available, otherwise fall back to using BufferData and a vector of CPU data for
 		// mapping)
-
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
-
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				if (context.ARB_buffer_storage && (context.ARB_direct_state_access || context.EXT_direct_state_access))
-				{
-					glCall(context.CreateBuffers(1, &m_BufferHandle));
-					glCall(context.NamedBufferStorageEXT(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, createFlags));
-					m_PersistentMapping = true;
-				}
-				else if (context.ARB_buffer_storage)
-				{
-					glCall(context.CreateBuffers(1, &m_BufferHandle));
-					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-					glCall(context.BufferStorageEXT(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, createFlags));
-					m_PersistentMapping = true;
-				}
-				else if (context.ARB_direct_state_access || context.EXT_direct_state_access)
-				{
-					glCall(context.CreateBuffers(1, &m_BufferHandle));
-					glCall(context.NamedBufferData(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
-				}
-				else
-				{
-					glCall(context.GenBuffers(1, &m_BufferHandle));
-					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-					glCall(context.BufferData(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
-				}
-
-				if (context.KHR_debug)
-				{
-					context.ObjectLabelKHR(GL_BUFFER, m_BufferHandle, -1, m_BufferDescription.DebugName.c_str());
-				}
-			});
+		context->CreateBuffer(m_BufferHandle,
+							  GL_COPY_READ_BUFFER,
+							  desc.SizeInBytes,
+							  nullptr,
+							  mapFlags,
+							  bufferUsage,
+							  desc.DebugName,
+							  m_PersistentMapping);
 	}
 
 	DeviceBufferOpenGL::~DeviceBufferOpenGL()
 	{
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
-
-		context->Execute([&](const GladGLContext &context) { context.DeleteBuffers(1, &m_BufferHandle); });
+		context->DeleteBuffers(1, &m_BufferHandle);
 	}
 
 	void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
@@ -66,20 +36,7 @@ namespace Nexus::Graphics
 		NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must have been created with Upload access");
 
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
-
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
-				{
-					glCall(context.NamedBufferSubData(m_BufferHandle, offset, size, data));
-				}
-				else
-				{
-					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-					glCall(context.BufferSubData(GL_COPY_READ_BUFFER, offset, size, data));
-				}
-			});
+		context->BufferSubData(m_BufferHandle, GL_COPY_READ_BUFFER, offset, size, data);
 	}
 
 	std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size)
@@ -115,14 +72,10 @@ namespace Nexus::Graphics
 	}
 
 	const DeviceBufferDescription &DeviceBufferOpenGL::GetDescription() const
-	{
-		return m_BufferDescription;
-	}
+	{ return m_BufferDescription; }
 
 	DeviceAddress DeviceBufferOpenGL::GetDeviceAddress(size_t offset) const
-	{
-		return 0 + offset;
-	}
+	{ return 0 + offset; }
 
 	uint8_t *DeviceBufferOpenGL::Map()
 	{
@@ -159,9 +112,7 @@ namespace Nexus::Graphics
 	}
 
 	uint32_t DeviceBufferOpenGL::GetHandle() const
-	{
-		return m_BufferHandle;
-	}
+	{ return m_BufferHandle; }
 
 	void DeviceBufferOpenGL::MarkDirty()
 	{
