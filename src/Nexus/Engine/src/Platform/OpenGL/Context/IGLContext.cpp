@@ -114,6 +114,8 @@ namespace Nexus::GL
 		{
 			glCall(m_Context.ObjectLabelKHR(GL_BUFFER, buffer, debugName.size(), debugName.c_str()));
 		}
+
+		return std::expected<void, std::string> {};
 	}
 
 	void IGLContext::DeleteBuffers(GLsizei n, const GLuint *buffers)
@@ -153,6 +155,44 @@ namespace Nexus::GL
 		{
 			glCall(m_Context.BindBuffer(target, buffer));
 			glCall(m_Context.BufferSubData(target, offset, size, data));
+		}
+	}
+
+	void IGLContext::GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data)
+	{
+		if (m_Context.GetNamedBufferSubData)
+		{
+			glCall(m_Context.GetNamedBufferSubData(buffer, offset, size, data));
+		}
+		else if (m_Context.GetBufferSubData)
+		{
+			glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
+			glCall(m_Context.GetBufferSubData(GL_COPY_READ_BUFFER, offset, size, data));
+		}
+		else
+		{
+			glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
+
+			void *mappedData = m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, size, GL_MAP_READ_BIT);
+			if (mappedData)
+			{
+				memcpy(data, mappedData, size);
+			}
+
+			m_Context.UnmapBuffer(GL_COPY_READ_BUFFER);
+		}
+	}
+
+	void *IGLContext::MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access)
+	{
+		if (m_Context.MapNamedBufferRange)
+		{
+			return m_Context.MapNamedBufferRange(buffer, offset, length, access);
+		}
+		else
+		{
+			glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
+			return m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, length, access);
 		}
 	}
 

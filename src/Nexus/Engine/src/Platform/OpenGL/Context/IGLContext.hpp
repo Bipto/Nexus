@@ -46,8 +46,10 @@ namespace Nexus::GL
 													  const std::string &debugName,
 													  bool				&supportsPersistentMapping);
 		void							 DeleteBuffers(GLsizei n, const GLuint *buffers);
-		void CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size);
-		void BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
+		void  CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size);
+		void  BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
+		void  GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data);
+		void *MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access);
 
 		// samplers
 		virtual std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc);
