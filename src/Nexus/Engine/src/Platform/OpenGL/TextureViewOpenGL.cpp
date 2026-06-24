@@ -48,14 +48,10 @@ namespace Nexus::Graphics
 	}
 
 	const TextureViewDescription &TextureViewOpenGL::GetDescription() const
-	{
-		return m_Description;
-	}
+	{ return m_Description; }
 
 	const uint32_t TextureViewOpenGL::GetHandle() const
-	{
-		return m_Handle;
-	}
+	{ return m_Handle; }
 
 	void TextureViewOpenGL::Bind(uint32_t slot) const
 	{
@@ -63,30 +59,30 @@ namespace Nexus::Graphics
 		{
 			GL::IGLContext *context = m_Device->GetOffscreenContext();
 			context->Execute(
-				[&](const GladGLContext &context)
+				[&](const GladGLContext &gladContext)
 				{
-					const bool textureViewSupported = context.TextureViewEXT != nullptr;
+					const bool textureViewSupported = gladContext.TextureViewEXT != nullptr;
 
 					// we have a valid texture view
 					if (m_Handle)
 					{
 						if (m_Dirty && !textureViewSupported)
 						{
-							UpdateEmulatedView(context);
+							UpdateEmulatedView(context, gladContext);
 						}
 
 						// if we have texture view support, bind normally
 						if (textureViewSupported)
 						{
 							// try to use DSA if available
-							if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+							if (gladContext.ARB_direct_state_access || gladContext.EXT_direct_state_access)
 							{
-								glCall(context.BindTextureUnit(slot, m_Handle));
+								glCall(gladContext.BindTextureUnit(slot, m_Handle));
 							}
 							else
 							{
-								glCall(context.ActiveTexture(GL_TEXTURE0 + slot));
-								glCall(context.BindTexture(m_ViewType, m_Handle));
+								glCall(gladContext.ActiveTexture(GL_TEXTURE0 + slot));
+								glCall(gladContext.BindTexture(m_ViewType, m_Handle));
 							}
 						}
 						// otherwise bind the emulated texture view
@@ -108,9 +104,7 @@ namespace Nexus::Graphics
 	}
 
 	void TextureViewOpenGL::MarkDirty() const
-	{
-		m_Dirty = true;
-	}
+	{ m_Dirty = true; }
 
 	void TextureViewOpenGL::CreateTextureView(const GladGLContext &context)
 	{
@@ -159,7 +153,7 @@ namespace Nexus::Graphics
 		m_Handle							 = emulatedTexture->GetHandle();
 	}
 
-	void TextureViewOpenGL::UpdateEmulatedView(const GladGLContext &context) const
+	void TextureViewOpenGL::UpdateEmulatedView(GL::IGLContext *context, const GladGLContext &gladContext) const
 	{
 		const TextureOpenGL *source = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
@@ -181,7 +175,7 @@ namespace Nexus::Graphics
 				copyDesc.DestinationMipLevel			  = mip - m_Description.Range.BaseMipLevel;
 				copyDesc.Extent							  = {mipWidth, mipHeight};
 
-				GL::CopyTextureToTexture(copyDesc, context);
+				GL::CopyTextureToTexture(copyDesc, gladContext, context);
 			}
 		}
 	}

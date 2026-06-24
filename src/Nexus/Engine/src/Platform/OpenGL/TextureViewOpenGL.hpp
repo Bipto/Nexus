@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 	  private:
 		void CreateTextureView(const GladGLContext &context);
 		void CreateEmulatedView(const GladGLContext &context);
-		void UpdateEmulatedView(const GladGLContext &context) const;
+		void UpdateEmulatedView(GL::IGLContext *context, const GladGLContext &gladContext) const;
 
 	  private:
 		TextureViewDescription m_Description		 = {};

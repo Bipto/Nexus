@@ -30,6 +30,55 @@ namespace Nexus::GL
 
 		// textures
 		std::expected<uint32_t, std::string> CreateTexture(const Graphics::TextureDescription &desc);
+		bool								 IsTextureTypeSupported(Graphics::TextureType type);
+
+		// 1D textures
+		void CompressedTexSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
+		void TexSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels);
+
+		// 2D textures
+		void CompressedTexSubImage2D(GLuint		 texture,
+									 GLint		 level,
+									 GLint		 xoffset,
+									 GLint		 yoffset,
+									 GLsizei	 width,
+									 GLsizei	 height,
+									 GLenum		 format,
+									 GLsizei	 imageSize,
+									 const void *data);
+		void TexSubImage2D(GLuint		 texture,
+						   GLint		 level,
+						   GLint		 xoffset,
+						   GLint		 yoffset,
+						   GLsizei		 width,
+						   GLsizei		 height,
+						   GLenum		 format,
+						   GLenum		 type,
+						   const GLvoid *pixels);
+
+		// 3D textures
+		void CompressedTexSubImage3D(GLuint		 texture,
+									 GLint		 level,
+									 GLint		 xoffset,
+									 GLint		 yoffset,
+									 GLint		 zoffset,
+									 GLsizei	 width,
+									 GLsizei	 height,
+									 GLsizei	 depth,
+									 GLenum		 format,
+									 GLsizei	 imageSize,
+									 const void *data);
+		void TexSubImage3D(GLuint	   texture,
+						   GLint	   level,
+						   GLint	   xoffset,
+						   GLint	   yoffset,
+						   GLint	   zoffset,
+						   GLsizei	   width,
+						   GLsizei	   height,
+						   GLsizei	   depth,
+						   GLenum	   format,
+						   GLenum	   type,
+						   const void *pixels);
 
 		// texture buffers
 		std::expected<uint32_t, std::string> CreateTexelBuffer(const Graphics::TexelBufferDescription &desc);
@@ -45,11 +94,19 @@ namespace Nexus::GL
 													  GLenum			 bufferUsage,
 													  const std::string &debugName,
 													  bool				&supportsPersistentMapping);
-		void							 DeleteBuffers(GLsizei n, const GLuint *buffers);
+
+		void  DeleteBuffers(GLsizei n, const GLuint *buffers);
 		void  CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size);
 		void  BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
 		void  GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data);
 		void *MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access);
+
+		// framebuffers
+		void FramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+		void FramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+		void FramebufferTexture3D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer);
+		void FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
+		void FramebufferTextureMultiviewOVR(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint baseViewIndex, GLsizei numViews);
 
 		// samplers
 		virtual std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc);

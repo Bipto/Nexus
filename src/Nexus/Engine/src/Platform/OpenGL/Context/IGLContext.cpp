@@ -18,6 +18,142 @@ namespace Nexus::GL
 		return std::expected<uint32_t, std::string>();
 	}
 
+	bool IGLContext::IsTextureTypeSupported(Graphics::TextureType type)
+	{
+	}
+
+	void IGLContext::CompressedTexSubImage1D(GLuint		   texture,
+											 GLint		   level,
+											 GLint		   xoffset,
+											 GLsizei	   width,
+											 GLenum		   format,
+											 GLsizei	   imageSize,
+											 const GLvoid *data)
+	{
+		MakeCurrent();
+
+		if (m_Context.CompressedTextureSubImage1D)
+		{
+			m_Context.CompressedTextureSubImage1D(texture, level, xoffset, width, format, imageSize, data);
+		}
+		else
+		{
+			m_Context.BindTexture(GL_TEXTURE_1D, texture);
+			m_Context.CompressedTexSubImage1D(GL_TEXTURE_1D, level, xoffset, width, format, imageSize, data);
+		}
+	}
+
+	void IGLContext::TexSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels)
+	{
+		MakeCurrent();
+
+		if (m_Context.TextureSubImage1D)
+		{
+			m_Context.TextureSubImage1D(texture, level, xoffset, width, format, type, pixels);
+		}
+		else
+		{
+			m_Context.BindTexture(GL_TEXTURE_1D, texture);
+			m_Context.TexSubImage1D(texture, level, xoffset, width, format, type, pixels);
+		}
+	}
+
+	void IGLContext::CompressedTexSubImage2D(GLuint		 texture,
+											 GLint		 level,
+											 GLint		 xoffset,
+											 GLint		 yoffset,
+											 GLsizei	 width,
+											 GLsizei	 height,
+											 GLenum		 format,
+											 GLsizei	 imageSize,
+											 const void *data)
+	{
+		MakeCurrent();
+
+		if (m_Context.CompressedTextureSubImage2D)
+		{
+			m_Context.CompressedTextureSubImage2D(texture, level, xoffset, yoffset, width, height, format, imageSize, data);
+		}
+		else
+		{
+			m_Context.BindTexture(GL_TEXTURE_2D, texture);
+			m_Context.CompressedTexSubImage2D(GL_TEXTURE_2D, level, xoffset, yoffset, width, height, format, imageSize, data);
+		}
+	}
+
+	void IGLContext::TexSubImage2D(GLuint		 texture,
+								   GLint		 level,
+								   GLint		 xoffset,
+								   GLint		 yoffset,
+								   GLsizei		 width,
+								   GLsizei		 height,
+								   GLenum		 format,
+								   GLenum		 type,
+								   const GLvoid *pixels)
+	{
+		MakeCurrent();
+
+		if (m_Context.TextureSubImage2D)
+		{
+			m_Context.TextureSubImage2D(texture, level, xoffset, yoffset, width, height, format, type, pixels);
+		}
+		else
+		{
+			m_Context.BindTexture(GL_TEXTURE_2D, texture);
+			m_Context.TexSubImage2D(GL_TEXTURE_2D, level, xoffset, yoffset, width, height, format, type, pixels);
+		}
+	}
+
+	void IGLContext::CompressedTexSubImage3D(GLuint		 texture,
+											 GLint		 level,
+											 GLint		 xoffset,
+											 GLint		 yoffset,
+											 GLint		 zoffset,
+											 GLsizei	 width,
+											 GLsizei	 height,
+											 GLsizei	 depth,
+											 GLenum		 format,
+											 GLsizei	 imageSize,
+											 const void *data)
+	{
+		MakeCurrent();
+
+		if (m_Context.CompressedTextureSubImage3D)
+		{
+			m_Context.CompressedTextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+		}
+		else
+		{
+			m_Context.BindTexture(GL_TEXTURE_3D, texture);
+			m_Context.CompressedTexSubImage3D(GL_TEXTURE_3D, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+		}
+	}
+
+	void IGLContext::TexSubImage3D(GLuint	   texture,
+								   GLint	   level,
+								   GLint	   xoffset,
+								   GLint	   yoffset,
+								   GLint	   zoffset,
+								   GLsizei	   width,
+								   GLsizei	   height,
+								   GLsizei	   depth,
+								   GLenum	   format,
+								   GLenum	   type,
+								   const void *pixels)
+	{
+		MakeCurrent();
+
+		if (m_Context.TextureSubImage3D)
+		{
+			m_Context.TextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+		}
+		else
+		{
+			m_Context.BindTexture(GL_TEXTURE_3D, texture);
+			m_Context.TexSubImage3D(GL_TEXTURE_3D, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+		}
+	}
+
 	std::expected<uint32_t, std::string> IGLContext::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
 	{
 		MakeCurrent();
@@ -195,6 +331,26 @@ namespace Nexus::GL
 			return m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, length, access);
 		}
 	}
+
+	void IGLContext::FramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+	{ glCall(m_Context.FramebufferTexture1D(target, attachment, textarget, texture, level)); }
+
+	void IGLContext::FramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+	{ glCall(m_Context.FramebufferTexture2D(target, attachment, textarget, texture, level)); }
+
+	void IGLContext::FramebufferTexture3D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer)
+	{ glCall(m_Context.FramebufferTexture3D(target, attachment, textarget, texture, level, layer)); }
+
+	void IGLContext::FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
+	{ glCall(m_Context.FramebufferTextureLayer(target, attachment, texture, level, layer)); }
+
+	void IGLContext::FramebufferTextureMultiviewOVR(GLenum	target,
+													GLenum	attachment,
+													GLuint	texture,
+													GLint	level,
+													GLint	baseViewIndex,
+													GLsizei numViews)
+	{ glCall(m_Context.FramebufferTextureMultiviewOVR(target, attachment, texture, level, baseViewIndex, numViews)); }
 
 	std::expected<uint32_t, std::string> IGLContext::CreateSampler(const Graphics::SamplerDescription &desc)
 	{

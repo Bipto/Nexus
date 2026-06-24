@@ -84,7 +84,8 @@ namespace Nexus::GL
 										  const Graphics::FramebufferTextureDescription &desc,
 										  bool											 isDepth,
 										  uint32_t										 colourIndex,
-										  const GladGLContext							&context);
+										  const GladGLContext							&gladContext,
+										  GL::IGLContext								*context);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
@@ -101,9 +102,9 @@ namespace Nexus::GL
 
 	void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context);
 
-	void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &context);
+	void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &gladContext, GL::IGLContext *context);
 
-	void CopyTextureToTexture(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &context);
+	void CopyTextureToTexture(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &gladContext, GL::IGLContext *context);
 
 	/// @brief Function that loads required OpenGL functions,
 	// this function should be called by IGraphicsAPI

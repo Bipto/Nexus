@@ -10,9 +10,7 @@ namespace Nexus::Graphics
 	FramebufferOpenGL::FramebufferOpenGL(const FramebufferTextureSetDescription &desc, GraphicsDeviceOpenGL *graphicsDevice)
 		: m_Description(desc),
 		  m_Device(graphicsDevice)
-	{
-		Create();
-	}
+	{ Create(); }
 
 	FramebufferOpenGL::~FramebufferOpenGL()
 	{
@@ -21,9 +19,7 @@ namespace Nexus::Graphics
 	}
 
 	const FramebufferTextureSetDescription FramebufferOpenGL::GetTextureSetDescription() const
-	{
-		return m_Description;
-	}
+	{ return m_Description; }
 
 	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture, GL::IGLContext *context)
 	{
@@ -52,26 +48,24 @@ namespace Nexus::Graphics
 	}
 
 	int32_t FramebufferOpenGL::GetHandle()
-	{
-		return m_FBO;
-	}
+	{ return m_FBO; }
 
 	void FramebufferOpenGL::Create()
 	{
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
 		context->Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
 				// create the framebuffer
-				glCall(context.GenFramebuffers(1, &m_FBO));
-				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, m_FBO));
+				glCall(gladContext.GenFramebuffers(1, &m_FBO));
+				glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, m_FBO));
 
 				// attach colour targets
 				for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
 				{
 					const Graphics::FramebufferColourAttachmentDescription &colourAttachment = m_Description.ColourAttachments.at(i);
 					TextureHandle											texture			 = colourAttachment.ColourAttachment.TargetTexture;
-					GL::AttachTexture(m_FBO, colourAttachment.ColourAttachment, texture->IsDepth(), i, context);
+					GL::AttachTexture(m_FBO, colourAttachment.ColourAttachment, texture->IsDepth(), i, gladContext, context);
 				}
 
 				// attach depth target if needed
@@ -79,17 +73,17 @@ namespace Nexus::Graphics
 				{
 					Graphics::FramebufferTextureDescription depthAttachment = m_Description.DepthAttachment.value();
 					TextureHandle							texture			= depthAttachment.TargetTexture;
-					GL::AttachTexture(m_FBO, depthAttachment, texture->IsDepth(), 0, context);
+					GL::AttachTexture(m_FBO, depthAttachment, texture->IsDepth(), 0, gladContext, context);
 				}
 
 				// validate the framebuffer
-				GLenum status = context.CheckFramebufferStatus(GL_FRAMEBUFFER);
+				GLenum status = gladContext.CheckFramebufferStatus(GL_FRAMEBUFFER);
 				if (status != GL_FRAMEBUFFER_COMPLETE)
 				{
 					std::cout << "Failed to create framebuffer" << std::endl;
 				}
 
-				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, 0));
+				glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, 0));
 			});
 	}
 }	 // namespace Nexus::Graphics

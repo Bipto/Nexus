@@ -31,12 +31,12 @@ namespace Nexus::GL
 	{
 		LPSTR  messageBuffer = nullptr;
 		size_t size			 = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-									  NULL,
-									  error,
-									  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-									  (LPSTR)&messageBuffer,
-									  0,
-									  NULL);
+											  NULL,
+											  error,
+											  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+											  (LPSTR)&messageBuffer,
+											  0,
+											  NULL);
 
 		if (size > 0)
 		{
@@ -74,7 +74,7 @@ namespace Nexus::GL
 		NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
 		Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
 				// copy the sections requested
 				if (presentDesc.PresentRects.size() > 0)
@@ -94,7 +94,7 @@ namespace Nexus::GL
 						copyDesc.DestinationOffset	 = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
 						copyDesc.Extent = {rect.Width, rect.Height};
-						GL::CopyTextureToTexture(copyDesc, context);
+						GL::CopyTextureToTexture(copyDesc, gladContext, this);
 					}
 				}
 				// copy the full image
@@ -112,7 +112,7 @@ namespace Nexus::GL
 					copyDesc.DestinationMipLevel = 0;
 					copyDesc.DestinationOffset	 = {0, 0, 0};
 					copyDesc.Extent				 = {texture->GetWidth(), texture->GetHeight()};
-					GL::CopyTextureToTexture(copyDesc, context);
+					GL::CopyTextureToTexture(copyDesc, gladContext, this);
 				}
 			});
 
@@ -133,9 +133,7 @@ namespace Nexus::GL
 	}
 
 	const ContextDescription &ViewContextWGL::GetDescription() const
-	{
-		return m_Description;
-	}
+	{ return m_Description; }
 
 	HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec)
 	{
@@ -245,12 +243,8 @@ namespace Nexus::GL
 	}
 
 	bool ViewContextWGL::Validate()
-	{
-		return m_HWND != nullptr && m_HDC != nullptr && m_HGLRC != nullptr;
-	}
+	{ return m_HWND != nullptr && m_HDC != nullptr && m_HGLRC != nullptr; }
 
 	const GladGLContext &ViewContextWGL::GetContext() const
-	{
-		return m_Context;
-	}
+	{ return m_Context; }
 }	 // namespace Nexus::GL

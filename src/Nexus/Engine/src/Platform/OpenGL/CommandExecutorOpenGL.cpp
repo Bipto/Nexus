@@ -16,9 +16,7 @@
 namespace Nexus::Graphics
 {
 	CommandExecutorOpenGL::~CommandExecutorOpenGL()
-	{
-		Reset();
-	}
+	{ Reset(); }
 
 	void CommandExecutorOpenGL::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
 	{
@@ -446,7 +444,7 @@ namespace Nexus::Graphics
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
 
 		context->Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
 				Point2D<uint32_t> size = Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
@@ -459,7 +457,7 @@ namespace Nexus::Graphics
 				copyDesc.DestinationMipLevel			  = command.DestinationMipLevel;
 				copyDesc.Extent							  = {size.X, size.Y};
 
-				GL::CopyTextureToTexture(copyDesc, context);
+				GL::CopyTextureToTexture(copyDesc, gladContext, context);
 
 				TextureHandle  handle  = command.Destination;
 				TextureOpenGL *texture = handle.AsDerived<TextureOpenGL>();
@@ -548,7 +546,7 @@ namespace Nexus::Graphics
 			TextureOpenGL  *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
 			GL::IGLContext *context		  = m_Device->GetOffscreenContext();
 
-			context->Execute([&](const GladGLContext &context) { GL::CopyTextureToBuffer(command, context); });
+			context->Execute([&](const GladGLContext &gladContext) { GL::CopyTextureToBuffer(command, gladContext, context); });
 		}
 	}
 
@@ -566,29 +564,29 @@ namespace Nexus::Graphics
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
 
 		context->Execute(
-			[&](const GladGLContext &context)
+			[&](const GladGLContext &gladContext)
 			{
-				if (context.ARB_copy_image || context.VERSION_4_3)
+				if (gladContext.ARB_copy_image || gladContext.VERSION_4_3)
 				{
-					context.CopyImageSubData(sourceTexture->GetHandle(),
-											 sourceTexture->GetTextureType(),
-											 copyDesc.SourceMipLevel,
-											 copyDesc.SourceOffset.X,
-											 copyDesc.SourceOffset.Y,
-											 copyDesc.SourceOffset.Z,
-											 destTexture->GetHandle(),
-											 destTexture->GetTextureType(),
-											 copyDesc.DestinationMipLevel,
-											 copyDesc.DestinationOffset.X,
-											 copyDesc.DestinationOffset.Y,
-											 copyDesc.DestinationOffset.Z,
-											 copyDesc.Extent.Width,
-											 copyDesc.Extent.Height,
-											 copyDepth);
+					gladContext.CopyImageSubData(sourceTexture->GetHandle(),
+												 sourceTexture->GetTextureType(),
+												 copyDesc.SourceMipLevel,
+												 copyDesc.SourceOffset.X,
+												 copyDesc.SourceOffset.Y,
+												 copyDesc.SourceOffset.Z,
+												 destTexture->GetHandle(),
+												 destTexture->GetTextureType(),
+												 copyDesc.DestinationMipLevel,
+												 copyDesc.DestinationOffset.X,
+												 copyDesc.DestinationOffset.Y,
+												 copyDesc.DestinationOffset.Z,
+												 copyDesc.Extent.Width,
+												 copyDesc.Extent.Height,
+												 copyDepth);
 				}
 				else
 				{
-					GL::CopyTextureToTexture(copyDesc, context);
+					GL::CopyTextureToTexture(copyDesc, gladContext, context);
 				}
 			});
 
@@ -602,8 +600,7 @@ namespace Nexus::Graphics
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device)
-	{
-		/*GL::ExecuteGLCommands([&](const GladGLContext &context) { context.PopDebugGroup(); });*/
+	{ /*GL::ExecuteGLCommands([&](const GladGLContext &context) { context.PopDebugGroup(); });*/
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
