@@ -30,7 +30,7 @@ namespace Nexus::GL
 
 		// textures
 		std::expected<uint32_t, std::string> CreateTexture(const Graphics::TextureDescription &desc);
-		bool								 IsTextureTypeSupported(Graphics::TextureType type);
+		bool								 IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers);
 
 		// 1D textures
 		void CompressedTexSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);

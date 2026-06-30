@@ -18,8 +18,54 @@ namespace Nexus::GL
 		return std::expected<uint32_t, std::string>();
 	}
 
-	bool IGLContext::IsTextureTypeSupported(Graphics::TextureType type)
+	bool IGLContext::IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers)
 	{
+		switch (type)
+		{
+			case Graphics::TextureType::Texture1D:
+				if (arrayLayers > 1)
+				{
+					return m_Context.VERSION_3_0;
+				}
+				else
+				{
+					return m_Context.VERSION_1_0;
+				}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (arrayLayers > 1)
+				{
+					return m_Context.VERSION_3_0 || m_Context.ES_VERSION_3_0;
+				}
+				else
+				{
+					return m_Context.VERSION_1_0 || m_Context.ES_VERSION_2_0;
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				if (arrayLayers > 1)
+				{
+					return false;
+				}
+				else
+				{
+					return m_Context.VERSION_1_2 || m_Context.ES_VERSION_3_0;
+				}
+			}
+			case Graphics::TextureType::TextureCube:
+			{
+				if (arrayLayers > 1)
+				{
+					return m_Context.VERSION_4_0 || m_Context.ES_VERSION_3_2;
+				}
+				else
+				{
+					return m_Context.VERSION_1_3 || m_Context.ES_VERSION_2_0;
+				}
+			}
+			default: return false;
+		}
 	}
 
 	void IGLContext::CompressedTexSubImage1D(GLuint		   texture,
