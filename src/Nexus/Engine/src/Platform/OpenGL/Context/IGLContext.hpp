@@ -29,15 +29,31 @@ namespace Nexus::GL
 		virtual const GladGLContext &GetContext() const = 0;
 
 		// textures
-		std::expected<uint32_t, std::string> CreateTexture(const Graphics::TextureDescription &desc);
+		std::expected<uint32_t, std::string> CreateTexture(GLenum textureType);
+		void								 TextureParameteri(GLuint texture, GLenum textureType, GLenum pname, GLint param);
 		bool								 IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers);
 
 		// 1D textures
-		void CompressedTexSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
-		void TexSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels);
+		void CompressedTexSubImage1D(GLuint		   texture,
+									 GLenum		   textureType,
+									 GLint		   level,
+									 GLint		   xoffset,
+									 GLsizei	   width,
+									 GLenum		   format,
+									 GLsizei	   imageSize,
+									 const GLvoid *data);
+		void TexSubImage1D(GLuint		 texture,
+						   GLenum		 textureType,
+						   GLint		 level,
+						   GLint		 xoffset,
+						   GLsizei		 width,
+						   GLenum		 format,
+						   GLenum		 type,
+						   const GLvoid *pixels);
 
 		// 2D textures
 		void CompressedTexSubImage2D(GLuint		 texture,
+									 GLenum		 textureType,
 									 GLint		 level,
 									 GLint		 xoffset,
 									 GLint		 yoffset,
@@ -47,6 +63,7 @@ namespace Nexus::GL
 									 GLsizei	 imageSize,
 									 const void *data);
 		void TexSubImage2D(GLuint		 texture,
+						   GLenum		 textureType,
 						   GLint		 level,
 						   GLint		 xoffset,
 						   GLint		 yoffset,
@@ -58,6 +75,7 @@ namespace Nexus::GL
 
 		// 3D textures
 		void CompressedTexSubImage3D(GLuint		 texture,
+									 GLenum		 textureType,
 									 GLint		 level,
 									 GLint		 xoffset,
 									 GLint		 yoffset,
@@ -69,6 +87,7 @@ namespace Nexus::GL
 									 GLsizei	 imageSize,
 									 const void *data);
 		void TexSubImage3D(GLuint	   texture,
+						   GLenum	   textureType,
 						   GLint	   level,
 						   GLint	   xoffset,
 						   GLint	   yoffset,
@@ -79,6 +98,27 @@ namespace Nexus::GL
 						   GLenum	   format,
 						   GLenum	   type,
 						   const void *pixels);
+
+		void TexStorage1D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width);
+		void TexStorage2D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+		void TexStorage2DMultisample(GLuint	   texture,
+									 GLenum	   textureType,
+									 GLsizei   samples,
+									 GLenum	   internalformat,
+									 GLsizei   width,
+									 GLsizei   height,
+									 GLboolean fixedsamplelocations);
+		void TexStorage3D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth);
+		void TexStorage3DMultisample(GLuint	   texture,
+									 GLenum	   textureType,
+									 GLsizei   samples,
+									 GLenum	   internalformat,
+									 GLsizei   width,
+									 GLsizei   height,
+									 GLsizei   depth,
+									 GLboolean fixedsamplelocations);
+
+		bool IsSparseBindingSupported();
 
 		// texture buffers
 		std::expected<uint32_t, std::string> CreateTexelBuffer(const Graphics::TexelBufferDescription &desc);

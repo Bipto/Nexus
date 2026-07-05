@@ -32,18 +32,10 @@ namespace Nexus::Graphics
 		m_DataFormat			  = GL::GetPixelDataFormat(spec.Format);
 
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
+		CreateTextureFaces(context);
 		context->Execute(
 			[&](const GladGLContext &context)
 			{
-				if (context.EXT_direct_state_access || context.ARB_direct_state_access)
-				{
-					CreateTextureFacesDSA(context);
-				}
-				else
-				{
-					CreateTextureFacesNonDSA(context);
-				}
-
 				if (context.KHR_debug)
 				{
 					context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
@@ -123,40 +115,32 @@ namespace Nexus::Graphics
 	}
 
 	uint32_t TextureOpenGL::GetHandle() const
-	{
-		return m_Handle;
-	}
+	{ return m_Handle; }
 
 	GLenum TextureOpenGL::GetTextureType() const
-	{
-		return m_TextureType;
-	}
+	{ return m_TextureType; }
 
 	GLenum TextureOpenGL::GetDataFormat() const
-	{
-		return m_DataFormat;
-	}
+	{ return m_DataFormat; }
 
 	GLenum TextureOpenGL::GetBaseType() const
-	{
-		return m_BaseType;
-	}
+	{ return m_BaseType; }
 
-	void TextureOpenGL::CreateTextureFacesDSA(const GladGLContext &context)
+	void TextureOpenGL::CreateTextureFaces(GL::IGLContext *context)
 	{
-		context.CreateTextures(m_TextureType, 1, &m_Handle);
+		m_Handle = context->CreateTexture(m_TextureType).value();
 
 		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
 		{
-			NX_VALIDATE(context.ARB_sparse_texture == 1, "Context must support the ARB_sparse_texture extension to use sparse textures");
-			context.TextureParameteri(m_Handle, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+			NX_VALIDATE(context->IsSparseBindingSupported(), "Context must support the ARB_sparse_texture extension to use sparse textures");
+			context->TextureParameteri(m_Handle, m_TextureType, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
 		}
 
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TextureStorage1D(m_Handle, m_Description.MipLevels, m_InternalFormat, m_Description.Width));
+				context->TexStorage1D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width);
 				break;
 	#else
 				throw std::runtime_error("1D textures are not supported by WebGL");
@@ -164,16 +148,17 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(context.TextureStorage2D(m_Handle, m_Description.MipLevels, m_InternalFormat, m_Description.Width, m_Description.Height));
+				context->TexStorage2D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width, m_Description.Height);
 				break;
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TextureStorage2DMultisample(m_Handle,
-														   m_Description.Samples,
-														   m_InternalFormat,
-														   m_Description.Width,
-														   m_Description.Height,
-														   GL_TRUE));
+				context->TexStorage2DMultisample(m_Handle,
+												 m_TextureType,
+												 m_Description.Samples,
+												 m_InternalFormat,
+												 m_Description.Width,
+												 m_Description.Height,
+												 GL_TRUE);
 				break;
 	#else
 				throw std::runtime_error("Multisampled textures are not supported by WebGL");
@@ -181,85 +166,24 @@ namespace Nexus::Graphics
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
-				glCall(context.TextureStorage3D(m_Handle,
-												m_Description.MipLevels,
-												m_InternalFormat,
-												m_Description.Width,
-												m_Description.Height,
-												m_Description.DepthOrArrayLayers));
+				context->TexStorage3D(m_Handle,
+									  m_TextureType,
+									  m_Description.MipLevels,
+									  m_InternalFormat,
+									  m_Description.Width,
+									  m_Description.Height,
+									  m_Description.DepthOrArrayLayers);
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TextureStorage3DMultisample(m_Handle,
-														   m_Description.Samples,
-														   m_InternalFormat,
-														   m_Description.Width,
-														   m_Description.Height,
-														   m_Description.DepthOrArrayLayers,
-														   GL_TRUE));
-				break;
-	#else
-				throw std::runtime_error("Multisampled textures are not supported by WebGL");
-	#endif
-		}
-	}
-
-	void TextureOpenGL::CreateTextureFacesNonDSA(const GladGLContext &context)
-	{
-		glCall(context.GenTextures(1, &m_Handle));
-		glCall(context.BindTexture(m_TextureType, m_Handle));
-
-		if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
-		{
-			NX_VALIDATE(context.ARB_sparse_texture == 1, "Context must support the ARB_sparse_texture extension to use sparse textures");
-			context.TexParameteri(m_TextureType, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
-		}
-
-		switch (m_GLInternalTextureFormat)
-		{
-			case GL::GLInternalTextureFormat::Texture1D:
-	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TexStorage1D(m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width));
-				break;
-	#else
-				throw std::runtime_error("1D textures are not supported by WebGL");
-	#endif
-			case GL::GLInternalTextureFormat::Texture1DArray:
-			case GL::GLInternalTextureFormat::Texture2D:
-			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(context.TexStorage2D(m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width, m_Description.Height));
-				break;
-			case GL::GLInternalTextureFormat::Texture2DMultisample:
-	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TexStorage2DMultisample(m_TextureType,
-													   m_Description.Samples,
-													   m_InternalFormat,
-													   m_Description.Width,
-													   m_Description.Height,
-													   GL_TRUE));
-				break;
-	#else
-				throw std::runtime_error("Multisampled textures are not supported by WebGL");
-	#endif
-			case GL::GLInternalTextureFormat::Texture2DArray:
-			case GL::GLInternalTextureFormat::CubemapArray:
-			case GL::GLInternalTextureFormat::Texture3D:
-				glCall(context.TexStorage3D(m_TextureType,
-											m_Description.MipLevels,
-											m_InternalFormat,
-											m_Description.Width,
-											m_Description.Height,
-											m_Description.DepthOrArrayLayers));
-				break;
-			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-	#if !defined(__EMSCRIPTEN__)
-				glCall(context.TexStorage3DMultisample(m_TextureType,
-													   m_Description.Samples,
-													   m_InternalFormat,
-													   m_Description.Width,
-													   m_Description.Height,
-													   m_Description.DepthOrArrayLayers,
-													   GL_TRUE));
+				context->TexStorage3DMultisample(m_Handle,
+												 m_TextureType,
+												 m_Description.Samples,
+												 m_InternalFormat,
+												 m_Description.Width,
+												 m_Description.Height,
+												 m_Description.DepthOrArrayLayers,
+												 GL_TRUE);
 				break;
 	#else
 				throw std::runtime_error("Multisampled textures are not supported by WebGL");
@@ -268,14 +192,10 @@ namespace Nexus::Graphics
 	}
 
 	GL::GLInternalTextureFormat TextureOpenGL::GetInternalGLTextureFormat() const
-	{
-		return m_GLInternalTextureFormat;
-	}
+	{ return m_GLInternalTextureFormat; }
 
 	void TextureOpenGL::AddView(TextureViewHandle view)
-	{
-		m_Views.push_back(view);
-	}
+	{ m_Views.push_back(view); }
 
 	void TextureOpenGL::MarkDirty()
 	{

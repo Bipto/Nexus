@@ -7,12 +7,12 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	desc.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	desc.GraphicsCreateInfo.Debug = true;
+	desc.AudioAPI				  = Nexus::Audio::AudioAPI::OpenAL;
 
-	desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
+	desc.WindowProperties.Width	 = 1280;
+	desc.WindowProperties.Height = 720;
+	desc.WindowProperties.Title	 = "Demo";
 
-	desc.WindowProperties.Width			   = 1280;
-	desc.WindowProperties.Height		   = 720;
-	desc.WindowProperties.Title			   = "Demo";
 	desc.WindowProperties.Flags			   = WindowFlags_Resizable | WindowFlags_HighPixelDensity;
 	desc.WindowProperties.RendersPerSecond = {};
 	desc.WindowProperties.UpdatesPerSecond = {};

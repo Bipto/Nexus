@@ -32,8 +32,7 @@ namespace Nexus::Graphics
 		void MarkDirty();
 
 	  private:
-		void CreateTextureFacesDSA(const GladGLContext &context);
-		void CreateTextureFacesNonDSA(const GladGLContext &context);
+		void CreateTextureFaces(GL::IGLContext *context);
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device = nullptr;
