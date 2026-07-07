@@ -33,14 +33,7 @@ namespace Nexus::Graphics
 
 		GL::IGLContext *context = m_Device->GetOffscreenContext();
 		CreateTextureFaces(context);
-		context->Execute(
-			[&](const GladGLContext &context)
-			{
-				if (context.KHR_debug)
-				{
-					context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
-				}
-			});
+		context->ObjectLabel(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
 
 		m_TextureLayout.resize(spec.DepthOrArrayLayers * spec.MipLevels, TextureLayout::Undefined);
 	}
@@ -139,19 +132,23 @@ namespace Nexus::Graphics
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
-	#if !defined(__EMSCRIPTEN__)
+			{
+				NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture1D, m_Description.Samples), "1D textures are not supported");
 				context->TexStorage1D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width);
 				break;
-	#else
-				throw std::runtime_error("1D textures are not supported by WebGL");
-	#endif
+			}
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Cubemap:
+			{
+				NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture2D, m_Description.Samples), "2D textures are not supported");
 				context->TexStorage2D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width, m_Description.Height);
 				break;
+			}
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
-	#if !defined(__EMSCRIPTEN__)
+			{
+				NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture2D, m_Description.Samples),
+							"Multisampled 2D textures are not supported");
 				context->TexStorage2DMultisample(m_Handle,
 												 m_TextureType,
 												 m_Description.Samples,
@@ -160,12 +157,12 @@ namespace Nexus::Graphics
 												 m_Description.Height,
 												 GL_TRUE);
 				break;
-	#else
-				throw std::runtime_error("Multisampled textures are not supported by WebGL");
-	#endif
+			}
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
+			{
+				NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture3D, m_Description.Samples), "3D textures are not supported");
 				context->TexStorage3D(m_Handle,
 									  m_TextureType,
 									  m_Description.MipLevels,
@@ -174,8 +171,12 @@ namespace Nexus::Graphics
 									  m_Description.Height,
 									  m_Description.DepthOrArrayLayers);
 				break;
+			}
+
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-	#if !defined(__EMSCRIPTEN__)
+			{
+				NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture3D, m_Description.Samples),
+							"Multisampled 3D textures are not supported");
 				context->TexStorage3DMultisample(m_Handle,
 												 m_TextureType,
 												 m_Description.Samples,
@@ -185,9 +186,7 @@ namespace Nexus::Graphics
 												 m_Description.DepthOrArrayLayers,
 												 GL_TRUE);
 				break;
-	#else
-				throw std::runtime_error("Multisampled textures are not supported by WebGL");
-	#endif
+			}
 		}
 	}
 

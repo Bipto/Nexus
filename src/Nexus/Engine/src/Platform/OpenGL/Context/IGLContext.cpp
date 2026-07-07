@@ -1227,4 +1227,16 @@ namespace Nexus::GL
 			m_Context.DebugMessageInsert(source, type, id, severity, length, message);
 		}
 	}
+
+	void IGLContext::ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label)
+	{
+		if (m_Context.ObjectLabel)
+		{
+			m_Context.ObjectLabel(identifier, name, length, label);
+		}
+		else if (m_Context.ObjectLabelKHR)
+		{
+			m_Context.ObjectLabelKHR(identifier, name, length, label);
+		}
+	}
 }	 // namespace Nexus::GL

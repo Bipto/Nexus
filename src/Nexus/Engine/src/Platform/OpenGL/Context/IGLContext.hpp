@@ -262,7 +262,10 @@ namespace Nexus::GL
 
 		bool AreTimestampQueriesSupported();
 		void GetTimestamp(GLint64 *data);
+
+		// debug
 		void DebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message);
+		void ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label);
 
 		void Execute(std::function<void(const GladGLContext &context)> function)
 		{
