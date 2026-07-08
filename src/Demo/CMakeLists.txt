@@ -38,7 +38,7 @@ if (ANDROID OR __ANDROID__)
 endif()
 
 if (EMSCRIPTEN)
-    copy_directory_to_target_output(Nexus html)
+    copy_directory_to_target_output(Demo html)
     copy_directory_to_target_output(Demo resources)
 else()
     #copy resources folder to output directory

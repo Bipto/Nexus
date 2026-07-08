@@ -9,6 +9,7 @@ namespace Nexus::Logging
     class ILogSink
     {
       public:
+        virtual ~ILogSink() = default;
         virtual void LogMessage(const std::string &message) = 0;
     };
 

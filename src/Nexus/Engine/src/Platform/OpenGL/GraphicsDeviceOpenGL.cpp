@@ -22,7 +22,7 @@
 #include "Surface/EGL/SurfaceEGL.hpp"
 #endif
 
-#include "glad/gl.h"
+#include "Platform/OpenGL/OpenGLInclude.hpp"
 
 namespace Nexus::Graphics
 {

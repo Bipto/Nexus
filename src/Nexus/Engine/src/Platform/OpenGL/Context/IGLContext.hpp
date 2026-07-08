@@ -4,7 +4,7 @@
 #include <expected>
 #include <functional>
 
-#include <glad/gl.h>
+#include "Platform/OpenGL/OpenGLInclude.hpp"
 
 #include "RHI/IPhysicalDevice.hpp"
 #include "RHI/Texture.hpp"

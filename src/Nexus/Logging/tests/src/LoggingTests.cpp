@@ -7,6 +7,7 @@
 class TestLogSink : public Nexus::Logging::ILogSink
 {
   public:
+    ~TestLogSink() final = default;
     void LogMessage(const std::string &message) final
     {
     }

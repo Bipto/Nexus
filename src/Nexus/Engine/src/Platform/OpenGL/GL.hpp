@@ -10,7 +10,7 @@
 #include <webgl/webgl2.h>
 #endif
 
-#include <glad/gl.h>
+#include "Platform/OpenGL/OpenGLInclude.hpp"
 
 #include "Context/IViewContext.hpp"
 #include "Nexus-Core/Vertex.hpp"

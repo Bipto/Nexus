@@ -6,6 +6,7 @@ namespace Nexus::Graphics
 {
     RenderDocAPI::RenderDocAPI(const std::string &libraryPath) : m_Filepath(libraryPath)
     {
+#if defined(NX_USE_RENDERDOC)
         m_SharedLibrary = std::unique_ptr<Utils::SharedLibrary>(Platform::LoadSharedLibrary(m_Filepath));
         if (m_SharedLibrary)
         {
@@ -19,6 +20,7 @@ namespace Nexus::Graphics
                 }
             }
         }
+#endif
     }
 
     RenderDocAPI::~RenderDocAPI()
@@ -32,46 +34,65 @@ namespace Nexus::Graphics
 
     void RenderDocAPI::StartCapture()
     {
+#if defined(NX_USE_RENDERDOC)
         if (!m_Loaded)
         {
             return;
         }
 
         m_API->StartFrameCapture(nullptr, nullptr);
+#endif
     }
 
     void RenderDocAPI::EndCapture()
     {
+#if defined(NX_USE_RENDERDOC)
         if (!m_Loaded)
         {
             return;
         }
 
         m_API->EndFrameCapture(nullptr, nullptr);
+#endif
     }
 
     void RenderDocAPI::TriggerFrameCapture()
     {
+#if defined(NX_USE_RENDERDOC)
         if (!m_Loaded)
         {
             return;
         }
 
         m_API->TriggerCapture();
+#endif
     }
 
     void RenderDocAPI::LaunchReplayUI()
     {
+#if defined(NX_USE_RENDERDOC)
         if (!m_Loaded)
         {
             return;
         }
 
         m_API->LaunchReplayUI(1, nullptr);
+#endif
     }
 
     void RenderDocAPI::SetCapturePath(const std::string &path)
     {
+#if defined(NX_USE_RENDERDOC)
         m_API->SetCaptureFilePathTemplate(path.c_str());
+#endif
+    }
+
+    bool RenderDocAPI::IsSupported() const
+    {
+#if defined(NX_USE_RENDERDOC)
+        return true;
+#else
+        return false;
+#endif
     }
 } // namespace Nexus::Graphics

@@ -16,5 +16,8 @@ target_compile_features(Nexus-UI INTERFACE cxx_std_23)
 target_compile_definitions(Nexus-UI INTERFACE NX_UI_EXPORT=1)
 target_link_libraries(Nexus-UI INTERFACE Nexus-Core)
 
-add_subdirectory(wxWidgets)
+if (NOT EMSCRIPTEN)
+	add_subdirectory(wxWidgets)
+endif()
+
 add_subdirectory(ImGui)
