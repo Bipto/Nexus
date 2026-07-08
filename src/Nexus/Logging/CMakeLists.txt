@@ -5,10 +5,10 @@ set(LOGGING_SOURCES
 	src/Logging/Logger.cpp
 )
 
-add_library(Nexus-Logging INTERFACE ${LOGGING_SOURCES})
-target_include_directories(Nexus-Logging INTERFACE include)
+add_library(Nexus-Logging ${LOGGING_SOURCES})
+target_include_directories(Nexus-Logging PUBLIC include)
 
-target_compile_features(Nexus-Logging INTERFACE cxx_std_23)
+target_compile_features(Nexus-Logging PUBLIC cxx_std_23)
 set_target_properties(Nexus-Logging PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
