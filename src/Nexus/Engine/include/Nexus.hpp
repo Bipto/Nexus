@@ -24,21 +24,21 @@
 /// @brief A struct that is used to track the allocations of the engine
 struct AllocationTracker
 {
-	/// @brief The total amount of bytes allocated throughout the lifetime of the
-	/// program
-	size_t TotalAllocated = 0;
+    /// @brief The total amount of bytes allocated throughout the lifetime of the
+    /// program
+    size_t TotalAllocated = 0;
 
-	/// @brief The total amount of bytes released throughout the lifetime of the
-	/// program
-	size_t TotalFreed = 0;
+    /// @brief The total amount of bytes released throughout the lifetime of the
+    /// program
+    size_t TotalFreed = 0;
 
-	/// @brief A method that returns the currently used memory by the application
-	/// in bytes
-	/// @return The amount of bytes allocated
-	size_t GetCurrentUsage()
-	{
-		return TotalAllocated - TotalFreed;
-	}
+    /// @brief A method that returns the currently used memory by the application
+    /// in bytes
+    /// @return The amount of bytes allocated
+    size_t GetCurrentUsage()
+    {
+        return TotalAllocated - TotalFreed;
+    }
 };
 
 /// @brief A static allocation tracker that is used to track the new and delete
@@ -49,7 +49,7 @@ static AllocationTracker s_AllocationTracker;
 /// @return The total amount of bytes currently allocated
 inline size_t GetCurrentMemoryUsage()
 {
-	return s_AllocationTracker.GetCurrentUsage();
+    return s_AllocationTracker.GetCurrentUsage();
 }
 
 // custom memory allocator

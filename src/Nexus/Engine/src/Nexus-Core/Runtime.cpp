@@ -14,35 +14,38 @@ Nexus::Application *appPtr = nullptr;
 
 void main_loop()
 {
-	appPtr->MainLoop();
+    appPtr->MainLoop();
 }
 
 namespace Nexus
 {
-	void Run(Nexus::Application *app)
-	{
-		appPtr = app;
-		appPtr->Load();
+    void Run(Nexus::Application *app)
+    {
+        appPtr = app;
+        appPtr->Load();
 
 #ifdef __EMSCRIPTEN__
-		emscripten_set_main_loop(main_loop, 0, 1);
+        emscripten_set_main_loop(main_loop, 0, 1);
 #else
-		while (appPtr->IsRunning()) { appPtr->MainLoop(); }
+        while (appPtr->IsRunning())
+        {
+            appPtr->MainLoop();
+        }
 #endif
 
-		app->Unload();
-	}
+        app->Unload();
+    }
 
-	Application *GetApplication()
-	{
-		return appPtr;
-	}
+    Application *GetApplication()
+    {
+        return appPtr;
+    }
 
-	void SetApplication(Nexus::Application *app)
-	{
-		appPtr = app;
-	}
-}	 // namespace Nexus
+    void SetApplication(Nexus::Application *app)
+    {
+        appPtr = app;
+    }
+} // namespace Nexus
 
 //-----------------------------------------------------------------------------
 // CORE ENGINE FUNCTIONS
@@ -50,15 +53,15 @@ namespace Nexus
 
 namespace Nexus
 {
-	void Init(int argc, char **argv)
-	{
-		NX_PROFILE_FUNCTION();
-		Platform::Initialise();
-	}
+    void Init(int argc, char **argv)
+    {
+        NX_PROFILE_FUNCTION();
+        Platform::Initialise();
+    }
 
-	void Shutdown()
-	{
-		NX_PROFILE_FUNCTION();
-		Platform::Shutdown();
-	}
-}	 // namespace Nexus
+    void Shutdown()
+    {
+        NX_PROFILE_FUNCTION();
+        Platform::Shutdown();
+    }
+} // namespace Nexus

@@ -7,11 +7,11 @@
 
 namespace Nexus::UI
 {
-	class IFrame
-	{
-	  public:
-		virtual ~IFrame()					  = default;
-		virtual IMenubar   *CreateMenubar()	  = 0;
-		virtual IStatusBar *CreateStatusbar() = 0;
-	};
-}	 // namespace Nexus::UI
+    class IFrame
+    {
+      public:
+        virtual ~IFrame() = default;
+        virtual IMenubar *CreateMenubar() = 0;
+        virtual IStatusBar *CreateStatusbar() = 0;
+    };
+} // namespace Nexus::UI

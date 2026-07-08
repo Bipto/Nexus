@@ -2,53 +2,58 @@
 
 namespace Nexus::Graphics
 {
-	FenceD3D12::FenceD3D12(const FenceDescription &desc, GraphicsDeviceD3D12 *device) : m_Description(desc), m_Device(device)
-	{
-		uint32_t initialValue = 0;
-		if (desc.Signalled)
-		{
-			initialValue = 1;
-		}
+    FenceD3D12::FenceD3D12(const FenceDescription &desc, GraphicsDeviceD3D12 *device)
+        : m_Description(desc), m_Device(device)
+    {
+        uint32_t initialValue = 0;
+        if (desc.Signalled)
+        {
+            initialValue = 1;
+        }
 
-		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = device->GetD3D12Device();
-		HRESULT								  hr		  = d3d12Device->CreateFence(initialValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
-		NX_VALIDATE(SUCCEEDED(hr) == true, "Failed to create fence");
+        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = device->GetD3D12Device();
+        HRESULT hr = d3d12Device->CreateFence(
+            initialValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)
+        );
+        NX_VALIDATE(SUCCEEDED(hr) == true, "Failed to create fence");
 
-		m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
-		hr			 = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
-		NX_VALIDATE(SUCCEEDED(hr) == true, "Failed to create fence event");
+        m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
+        hr = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
+        NX_VALIDATE(SUCCEEDED(hr) == true, "Failed to create fence event");
 
-		std::wstring name = std::wstring(m_Description.DebugName.begin(), m_Description.DebugName.end());
-		m_Fence->SetName(name.c_str());
-	}
+        std::wstring name = std::wstring(
+            m_Description.DebugName.begin(), m_Description.DebugName.end()
+        );
+        m_Fence->SetName(name.c_str());
+    }
 
-	FenceD3D12::~FenceD3D12()
-	{
-		CloseHandle(m_FenceEvent);
-	}
+    FenceD3D12::~FenceD3D12()
+    {
+        CloseHandle(m_FenceEvent);
+    }
 
-	bool FenceD3D12::IsSignalled() const
-	{
-		return m_Fence->GetCompletedValue() == 1;
-	}
+    bool FenceD3D12::IsSignalled() const
+    {
+        return m_Fence->GetCompletedValue() == 1;
+    }
 
-	const FenceDescription &FenceD3D12::GetDescription() const
-	{
-		return m_Description;
-	}
+    const FenceDescription &FenceD3D12::GetDescription() const
+    {
+        return m_Description;
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12Fence1> FenceD3D12::GetHandle() const
-	{
-		return m_Fence;
-	}
+    Microsoft::WRL::ComPtr<ID3D12Fence1> FenceD3D12::GetHandle() const
+    {
+        return m_Fence;
+    }
 
-	HANDLE FenceD3D12::GetFenceEvent() const
-	{
-		return m_FenceEvent;
-	}
+    HANDLE FenceD3D12::GetFenceEvent() const
+    {
+        return m_FenceEvent;
+    }
 
-	void FenceD3D12::Reset()
-	{
-		m_Fence->Signal(0);
-	}
-}	 // namespace Nexus::Graphics
+    void FenceD3D12::Reset()
+    {
+        m_Fence->Signal(0);
+    }
+} // namespace Nexus::Graphics

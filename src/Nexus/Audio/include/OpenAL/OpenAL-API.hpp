@@ -6,9 +6,9 @@
 
 namespace Nexus::Audio
 {
-	class OpenAL
-	{
-	  public:
-		static std::shared_ptr<AudioDevice> CreateDevice();
-	};
-}	 // namespace Nexus::Audio
+    class OpenAL
+    {
+      public:
+        static std::shared_ptr<AudioDevice> CreateDevice();
+    };
+} // namespace Nexus::Audio

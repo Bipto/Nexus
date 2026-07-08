@@ -6,15 +6,15 @@
 
 namespace Nexus::Graphics
 {
-	class NX_RHI_API ITimingQuery
-	{
-	  public:
-		virtual ~ITimingQuery()
-		{
-		}
-		virtual void  Resolve()				   = 0;
-		virtual float GetElapsedMilliseconds() = 0;
-	};
+    class NX_RHI_API ITimingQuery
+    {
+      public:
+        virtual ~ITimingQuery()
+        {
+        }
+        virtual void Resolve() = 0;
+        virtual float GetElapsedMilliseconds() = 0;
+    };
 
-	DEFINE_RESOURCE(TimingQuery, ITimingQuery);
-}	 // namespace Nexus::Graphics
+    DEFINE_RESOURCE(TimingQuery, ITimingQuery);
+} // namespace Nexus::Graphics

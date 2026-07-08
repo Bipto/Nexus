@@ -7,20 +7,20 @@
 
 namespace Nexus::Graphics
 {
-	class FenceVk : public IFence
-	{
-	  public:
-		FenceVk(const FenceDescription &desc, GraphicsDeviceVk *device);
-		virtual ~FenceVk();
+    class FenceVk : public IFence
+    {
+      public:
+        FenceVk(const FenceDescription &desc, GraphicsDeviceVk *device);
+        virtual ~FenceVk();
 
-		bool					IsSignalled() const final;
-		const FenceDescription &GetDescription() const final;
+        bool IsSignalled() const final;
+        const FenceDescription &GetDescription() const final;
 
-		VkFence GetHandle() const;
+        VkFence GetHandle() const;
 
-	  private:
-		FenceDescription  m_Description = {};
-		VkFence			  m_Fence		= nullptr;
-		GraphicsDeviceVk *m_Device		= nullptr;
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        FenceDescription m_Description = {};
+        VkFence m_Fence = nullptr;
+        GraphicsDeviceVk *m_Device = nullptr;
+    };
+} // namespace Nexus::Graphics

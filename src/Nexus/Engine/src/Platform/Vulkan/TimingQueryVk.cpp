@@ -1,54 +1,59 @@
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "TimingQueryVk.hpp"
+#include "TimingQueryVk.hpp"
 
 namespace Nexus::Graphics
 {
-	TimingQueryVk::TimingQueryVk(GraphicsDeviceVk *device) : m_Device(device)
-	{
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
+    TimingQueryVk::TimingQueryVk(GraphicsDeviceVk *device) : m_Device(device)
+    {
+        const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		VkQueryPoolCreateInfo queryPoolInfo = {};
-		queryPoolInfo.sType					= VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
-		queryPoolInfo.queryType				= VK_QUERY_TYPE_TIMESTAMP;
-		queryPoolInfo.queryCount			= 2;
+        VkQueryPoolCreateInfo queryPoolInfo = {};
+        queryPoolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+        queryPoolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+        queryPoolInfo.queryCount = 2;
 
-		context.CreateQueryPool(m_Device->GetVkDevice(), &queryPoolInfo, nullptr, &m_QueryPool);
-	}
+        context.CreateQueryPool(
+            m_Device->GetVkDevice(), &queryPoolInfo, nullptr, &m_QueryPool
+        );
+    }
 
-	TimingQueryVk::~TimingQueryVk()
-	{
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-		context.DestroyQueryPool(m_Device->GetVkDevice(), m_QueryPool, nullptr);
-	}
+    TimingQueryVk::~TimingQueryVk()
+    {
+        const GladVulkanContext &context = m_Device->GetVulkanContext();
+        context.DestroyQueryPool(m_Device->GetVkDevice(), m_QueryPool, nullptr);
+    }
 
-	void TimingQueryVk::Resolve()
-	{
-		std::shared_ptr<PhysicalDeviceVk> physicalDevice   = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
-		const VkPhysicalDeviceProperties &deviceProperties = physicalDevice->GetVkPhysicalDeviceProperties();
-		const GladVulkanContext			 &context		   = m_Device->GetVulkanContext();
+    void TimingQueryVk::Resolve()
+    {
+        std::shared_ptr<PhysicalDeviceVk> physicalDevice =
+            std::dynamic_pointer_cast<PhysicalDeviceVk>(
+                m_Device->GetPhysicalDevice()
+            );
+        const VkPhysicalDeviceProperties &deviceProperties =
+            physicalDevice->GetVkPhysicalDeviceProperties();
+        const GladVulkanContext &context = m_Device->GetVulkanContext();
 
-		uint64_t timestamps[2];
-		context.GetQueryPoolResults(m_Device->GetVkDevice(),
-									m_QueryPool,
-									0,
-									2,
-									sizeof(timestamps),
-									timestamps,
-									sizeof(uint64_t),
-									VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
-		m_ElapsedTime = ((timestamps[1] - timestamps[0]) * deviceProperties.limits.timestampPeriod) / 1000000.0f;
-	}
+        uint64_t timestamps[2];
+        context.GetQueryPoolResults(
+            m_Device->GetVkDevice(), m_QueryPool, 0, 2, sizeof(timestamps),
+            timestamps, sizeof(uint64_t),
+            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT
+        );
+        m_ElapsedTime = ((timestamps[1] - timestamps[0]) *
+                         deviceProperties.limits.timestampPeriod) /
+                        1000000.0f;
+    }
 
-	float TimingQueryVk::GetElapsedMilliseconds()
-	{
-		return m_ElapsedTime;
-	}
+    float TimingQueryVk::GetElapsedMilliseconds()
+    {
+        return m_ElapsedTime;
+    }
 
-	VkQueryPool TimingQueryVk::GetQueryPool()
-	{
-		return m_QueryPool;
-	}
-}	 // namespace Nexus::Graphics
+    VkQueryPool TimingQueryVk::GetQueryPool()
+    {
+        return m_QueryPool;
+    }
+} // namespace Nexus::Graphics
 
 #endif

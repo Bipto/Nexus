@@ -12,26 +12,37 @@
 
 namespace Nexus::Graphics
 {
-	class CommandQueueOpenGL final : public ICommandQueue
-	{
-	  public:
-		CommandQueueOpenGL(GraphicsDeviceOpenGL *device, const CommandQueueDescription &description);
-		virtual ~CommandQueueOpenGL();
-		const CommandQueueDescription &GetDescription() const final;
-		SwapchainHandle				   CreateSwapchain(const SwapchainDescription &spec) final;
-		void						   SubmitCommandList(CommandListHandle commandList) final;
-		void						   SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence) final;
-		void						   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists) final;
-		virtual void				   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence) final;
-		IGraphicsDevice				  *GetGraphicsDevice() final;
-		bool						   WaitForIdle() final;
-		CommandListHandle			   CreateCommandList(const CommandListDescription &spec = {}) final;
+    class CommandQueueOpenGL final : public ICommandQueue
+    {
+      public:
+        CommandQueueOpenGL(
+            GraphicsDeviceOpenGL *device, const CommandQueueDescription &description
+        );
+        virtual ~CommandQueueOpenGL();
+        const CommandQueueDescription &GetDescription() const final;
+        SwapchainHandle CreateSwapchain(const SwapchainDescription &spec) final;
+        void SubmitCommandList(CommandListHandle commandList) final;
+        void SubmitCommandList(
+            CommandListHandle commandList, Ref<IFence> fence
+        ) final;
+        void SubmitCommandLists(
+            CommandListHandle *commandLists, uint32_t numCommandLists
+        ) final;
+        virtual void SubmitCommandLists(
+            CommandListHandle *commandLists, uint32_t numCommandLists,
+            Ref<IFence> fence
+        ) final;
+        IGraphicsDevice *GetGraphicsDevice() final;
+        bool WaitForIdle() final;
+        CommandListHandle CreateCommandList(
+            const CommandListDescription &spec = {}
+        ) final;
 
-	  private:
-		GraphicsDeviceOpenGL   *m_Device		  = nullptr;
-		CommandQueueDescription m_Description	  = {};
-		CommandExecutorOpenGL	m_CommandExecutor = {};
+      private:
+        GraphicsDeviceOpenGL *m_Device = nullptr;
+        CommandQueueDescription m_Description = {};
+        CommandExecutorOpenGL m_CommandExecutor = {};
 
-		CommandQueueResourceManager m_Resources = {};
-	};
-}	 // namespace Nexus::Graphics
+        CommandQueueResourceManager m_Resources = {};
+    };
+} // namespace Nexus::Graphics

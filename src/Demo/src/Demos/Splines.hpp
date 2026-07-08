@@ -7,163 +7,183 @@
 
 namespace Demos
 {
-	class Splines : public Demo
-	{
-	  public:
-		Splines(const std::string						 &name,
-				Nexus::Application						 *app,
-				Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-				Nexus::Graphics::CommandQueueHandle		  commandQueue)
-			: Demo(name, app, imGuiRenderer, commandQueue)
-		{
-		}
+    class Splines : public Demo
+    {
+      public:
+        Splines(
+            const std::string &name, Nexus::Application *app,
+            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            Nexus::Graphics::CommandQueueHandle commandQueue
+        )
+            : Demo(name, app, imGuiRenderer, commandQueue)
+        {
+        }
 
-		virtual ~Splines()
-		{
-		}
+        virtual ~Splines()
+        {
+        }
 
-		virtual void Load() override
-		{
-			Nexus::Graphics::SwapchainHandle swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t						 sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList								 = m_CommandQueue->CreateCommandList();
-			m_BatchRenderer								 = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				 new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
+        virtual void Load() override
+        {
+            Nexus::Graphics::SwapchainHandle swapchain =
+                Nexus::GetApplication()->GetPrimarySwapchain();
+            uint32_t sampleCount = swapchain->GetDescription().Samples;
+            m_CommandList = m_CommandQueue->CreateCommandList();
+            m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+                new Nexus::Graphics::BatchRenderer(
+                    m_GraphicsDevice, m_CommandQueue, false, sampleCount
+                )
+            );
 
-			m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
-			m_Spline.SetLooped(true);
-		}
+            m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
+            m_Spline.SetLooped(true);
+        }
 
-		virtual void Update(Nexus::TimeSpan time) override
-		{
-			if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
-			{
-				if (m_SelectedPoint == 0)
-				{
-					m_SelectedPoint = m_Spline.GetPoints().size();
-				}
+        virtual void Update(Nexus::TimeSpan time) override
+        {
+            if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
+            {
+                if (m_SelectedPoint == 0)
+                {
+                    m_SelectedPoint = m_Spline.GetPoints().size();
+                }
 
-				m_SelectedPoint--;
-			}
+                m_SelectedPoint--;
+            }
 
-			if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
-			{
-				m_SelectedPoint++;
+            if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
+            {
+                m_SelectedPoint++;
 
-				if (m_SelectedPoint == m_Spline.GetPoints().size())
-				{
-					m_SelectedPoint = 0;
-				}
-			}
+                if (m_SelectedPoint == m_Spline.GetPoints().size())
+                {
+                    m_SelectedPoint = 0;
+                }
+            }
 
-			std::vector<Nexus::Point2D<float>> points = m_Spline.GetPoints();
-			Nexus::Point2D<float>			  &point  = points.at(m_SelectedPoint);
-			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
-			{
-				point.Y -= 250.0f * time.GetSeconds<float>();
-			}
+            std::vector<Nexus::Point2D<float>> points = m_Spline.GetPoints();
+            Nexus::Point2D<float> &point = points.at(m_SelectedPoint);
+            if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
+            {
+                point.Y -= 250.0f * time.GetSeconds<float>();
+            }
 
-			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
-			{
-				point.Y += 250.0f * time.GetSeconds<float>();
-			}
+            if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
+            {
+                point.Y += 250.0f * time.GetSeconds<float>();
+            }
 
-			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
-			{
-				point.X -= 250.0f * time.GetSeconds<float>();
-			}
+            if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
+            {
+                point.X -= 250.0f * time.GetSeconds<float>();
+            }
 
-			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
-			{
-				point.X += 250.0f * time.GetSeconds<float>();
-			}
+            if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
+            {
+                point.X += 250.0f * time.GetSeconds<float>();
+            }
 
-			m_Spline.SetPoints(points);
-		}
+            m_Spline.SetPoints(points);
+        }
 
-		virtual void Render(Nexus::TimeSpan time) override
-		{
-			auto [width, height] = m_Window->GetWindowSize();
+        virtual void Render(Nexus::TimeSpan time) override
+        {
+            auto [width, height] = m_Window->GetWindowSize();
 
-			m_CommandList->Begin();
-			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
-			m_CommandList->SetFramebuffer(framebuffer);
-			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-			m_CommandList->End();
+            m_CommandList->Begin();
+            Nexus::Graphics::SwapchainHandle swapchain =
+                Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer =
+                swapchain->GetCurrentFramebuffer();
+            m_CommandList->SetFramebuffer(framebuffer);
+            m_CommandList->ClearColourTarget(
+                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
+            );
+            m_CommandList->End();
 
-			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_GraphicsDevice->WaitForIdle();
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_GraphicsDevice->WaitForIdle();
 
-			const auto &windowSize = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+            const auto &windowSize =
+                Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
-			Nexus::Graphics::Viewport vp;
-			vp.X		= 0;
-			vp.Y		= 0;
-			vp.Width	= width;
-			vp.Height	= height;
-			vp.MinDepth = 0;
-			vp.MaxDepth = 1;
+            Nexus::Graphics::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = width;
+            vp.Height = height;
+            vp.MinDepth = 0;
+            vp.MaxDepth = 1;
 
-			Nexus::Graphics::Scissor scissor;
-			scissor.X	   = 0;
-			scissor.Y	   = 0;
-			scissor.Width  = width;
-			scissor.Height = height;
+            Nexus::Graphics::Scissor scissor;
+            scissor.X = 0;
+            scissor.Y = 0;
+            scissor.Width = width;
+            scissor.Height = height;
 
-			m_BatchRenderer->Begin(framebuffer, vp, scissor);
+            m_BatchRenderer->Begin(framebuffer, vp, scissor);
 
-			// render splines
-			{
-				const auto &points = m_Spline.GetPoints();
+            // render splines
+            {
+                const auto &points = m_Spline.GetPoints();
 
-				for (int i = 0; i < points.size(); i++)
-				{
-					Nexus::Graphics::Circle<float> circle(points.at(i), 25);
-					m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 1.0f, 1.0f}, 16);
-				}
+                for (int i = 0; i < points.size(); i++)
+                {
+                    Nexus::Graphics::Circle<float> circle(points.at(i), 25);
+                    m_BatchRenderer->DrawCircleFill(
+                        circle, {1.0f, 1.0f, 1.0f, 1.0f}, 16
+                    );
+                }
 
-				{
-					const auto					  &selectedPoint = points.at(m_SelectedPoint);
-					Nexus::Graphics::Circle<float> circle(selectedPoint, 25);
-					m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 0.0f, 1.0f}, 16);
-				}
+                {
+                    const auto &selectedPoint = points.at(m_SelectedPoint);
+                    Nexus::Graphics::Circle<float> circle(selectedPoint, 25);
+                    m_BatchRenderer->DrawCircleFill(
+                        circle, {1.0f, 1.0f, 0.0f, 1.0f}, 16
+                    );
+                }
 
-				for (float t = 0.0f; t < m_Spline.GetNumberOfPoints() - 0.05f; t += 0.05f)
-				{
-					float t0 = t;
-					float t1 = t + 0.05f;
+                for (float t = 0.0f; t < m_Spline.GetNumberOfPoints() - 0.05f;
+                     t += 0.05f)
+                {
+                    float t0 = t;
+                    float t1 = t + 0.05f;
 
-					Nexus::Point2D<float> pos0 = m_Spline.GetPoint(t0);
-					Nexus::Point2D<float> pos1 = m_Spline.GetPoint(t1);
+                    Nexus::Point2D<float> pos0 = m_Spline.GetPoint(t0);
+                    Nexus::Point2D<float> pos1 = m_Spline.GetPoint(t1);
 
-					m_BatchRenderer->DrawLine({pos0.X, pos0.Y}, {pos1.X, pos1.Y}, {1.0f, 0.0f, 0.0f, 1.0f}, 5.0f);
-				}
-			}
+                    m_BatchRenderer->DrawLine(
+                        {pos0.X, pos0.Y}, {pos1.X, pos1.Y}, {1.0f, 0.0f, 0.0f, 1.0f},
+                        5.0f
+                    );
+                }
+            }
 
-			m_BatchRenderer->End();
-			m_GraphicsDevice->WaitForIdle();
-		}
+            m_BatchRenderer->End();
+            m_GraphicsDevice->WaitForIdle();
+        }
 
-		virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-		{
-		}
+        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
+        {
+        }
 
-		virtual void RenderUI() override
-		{
-		}
+        virtual void RenderUI() override
+        {
+        }
 
-		virtual std::string GetInfo() const override
-		{
-			return "Calculating and rendering customisable splines.";
-		}
+        virtual std::string GetInfo() const override
+        {
+            return "Calculating and rendering customisable splines.";
+        }
 
-	  private:
-		Nexus::Graphics::CommandListHandle m_CommandList = {};
-		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+      private:
+        Nexus::Graphics::CommandListHandle m_CommandList = {};
+        glm::vec3 m_ClearColour = {
+            100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f
+        };
 
-		Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-		Nexus::Graphics::CatmullRom<float>			 m_Spline		 = {};
-		int											 m_SelectedPoint = 0;
-	};
-}	 // namespace Demos
+        Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
+        Nexus::Graphics::CatmullRom<float> m_Spline = {};
+        int m_SelectedPoint = 0;
+    };
+} // namespace Demos

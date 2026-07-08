@@ -12,10 +12,10 @@
 
 namespace Nexus::UI
 {
-	class IPanel
-	{
-	  public:
-		virtual ~IPanel()									 = default;
-		virtual IButton *CreateButton(std::string_view text) = 0;
-	};
-}	 // namespace Nexus::UI
+    class IPanel
+    {
+      public:
+        virtual ~IPanel() = default;
+        virtual IButton *CreateButton(std::string_view text) = 0;
+    };
+} // namespace Nexus::UI

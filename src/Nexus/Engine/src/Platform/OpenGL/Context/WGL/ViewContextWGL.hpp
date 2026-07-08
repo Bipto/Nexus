@@ -8,27 +8,35 @@
 
 namespace Nexus::GL
 {
-	class ViewContextWGL final : public IViewContext
-	{
-	  public:
-		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextDescription &spec);
-		virtual ~ViewContextWGL();
-		bool					  MakeCurrent() final;
-		void					  Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc) final;
-		void					  SetVSync(bool enabled) final;
-		const ContextDescription &GetDescription() const final;
-		bool					  Validate() final;
-		const GladGLContext		 &GetContext() const final;
+    class ViewContextWGL final : public IViewContext
+    {
+      public:
+        ViewContextWGL(
+            HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer,
+            const ContextDescription &spec
+        );
+        virtual ~ViewContextWGL();
+        bool MakeCurrent() final;
+        void Swap(
+            Graphics::TextureHandle texture,
+            const Graphics::SwapchainPresentDescription &presentDesc
+        ) final;
+        void SetVSync(bool enabled) final;
+        const ContextDescription &GetDescription() const final;
+        bool Validate() final;
+        const GladGLContext &GetContext() const final;
 
-	  private:
-		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec);
+      private:
+        HGLRC CreateSharedContext(
+            HDC hdc, HGLRC sharedContext, const ContextDescription &spec
+        );
 
-	  private:
-		HWND  m_HWND  = {};
-		HDC	  m_HDC	  = {};
-		HGLRC m_HGLRC = {};
+      private:
+        HWND m_HWND = {};
+        HDC m_HDC = {};
+        HGLRC m_HGLRC = {};
 
-		OffscreenContextWGL *m_PBuffer	   = {};
-		ContextDescription	 m_Description = {};
-	};
-}	 // namespace Nexus::GL
+        OffscreenContextWGL *m_PBuffer = {};
+        ContextDescription m_Description = {};
+    };
+} // namespace Nexus::GL

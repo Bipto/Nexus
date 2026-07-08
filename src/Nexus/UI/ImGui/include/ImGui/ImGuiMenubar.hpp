@@ -15,64 +15,64 @@
 
 namespace Nexus::UI
 {
-	class ImGuiTextMenuItem final : public IMenuItem, public ImGuiControl
-	{
-	  public:
-		ImGuiTextMenuItem(const std::string &text);
-		~ImGuiTextMenuItem() final = default;
+    class ImGuiTextMenuItem final : public IMenuItem, public ImGuiControl
+    {
+      public:
+        ImGuiTextMenuItem(const std::string &text);
+        ~ImGuiTextMenuItem() final = default;
 
-		void OnClick(std::function<void()> handler) final;
+        void OnClick(std::function<void()> handler) final;
 
-		void Render() final;
+        void Render() final;
 
-	  private:
-		std::string			  m_Text	= {};
-		std::function<void()> m_OnClick = {};
-	};
+      private:
+        std::string m_Text = {};
+        std::function<void()> m_OnClick = {};
+    };
 
-	class ImGuiSeparatorMenuItem final : public IMenuItem, public ImGuiControl
-	{
-	  public:
-		ImGuiSeparatorMenuItem()		= default;
-		~ImGuiSeparatorMenuItem() final = default;
+    class ImGuiSeparatorMenuItem final : public IMenuItem, public ImGuiControl
+    {
+      public:
+        ImGuiSeparatorMenuItem() = default;
+        ~ImGuiSeparatorMenuItem() final = default;
 
-		void OnClick(std::function<void()> handler) final;
+        void OnClick(std::function<void()> handler) final;
 
-		void Render() final;
+        void Render() final;
 
-	  private:
-		std::function<void()> m_OnClick = {};
-	};
+      private:
+        std::function<void()> m_OnClick = {};
+    };
 
-	class ImGuiMenu final : public IMenu, public ImGuiControl
-	{
-	  public:
-		ImGuiMenu(const std::string &text);
-		virtual ~ImGuiMenu() = default;
-		IMenuItem *Append(const std::string &text) final;
-		IMenu	  *AppendSubMenu(const std::string &text) final;
-		IMenuItem *AppendSeparator() final;
-		void	   OnMenuOpened(std::function<void()> handler) final;
-		void	   OnMenuClosed(std::function<void()> handler) final;
+    class ImGuiMenu final : public IMenu, public ImGuiControl
+    {
+      public:
+        ImGuiMenu(const std::string &text);
+        virtual ~ImGuiMenu() = default;
+        IMenuItem *Append(const std::string &text) final;
+        IMenu *AppendSubMenu(const std::string &text) final;
+        IMenuItem *AppendSeparator() final;
+        void OnMenuOpened(std::function<void()> handler) final;
+        void OnMenuClosed(std::function<void()> handler) final;
 
-		void Render() final;
+        void Render() final;
 
-	  private:
-		std::string			  m_Text		 = {};
-		std::function<void()> m_OnMenuOpened = {};
-		std::function<void()> m_OnMenuClosed = {};
-		bool				  m_Open		 = false;
-	};
+      private:
+        std::string m_Text = {};
+        std::function<void()> m_OnMenuOpened = {};
+        std::function<void()> m_OnMenuClosed = {};
+        bool m_Open = false;
+    };
 
-	class ImGuiMenubar final : public IMenubar, public ImGuiControl
-	{
-	  public:
-		ImGuiMenubar(bool main);
-		virtual ~ImGuiMenubar() = default;
-		IMenu *CreateMenu(const std::string &text) final;
-		void   Render() final;
+    class ImGuiMenubar final : public IMenubar, public ImGuiControl
+    {
+      public:
+        ImGuiMenubar(bool main);
+        virtual ~ImGuiMenubar() = default;
+        IMenu *CreateMenu(const std::string &text) final;
+        void Render() final;
 
-	  private:
-		bool m_Main = false;
-	};
-}	 // namespace Nexus::UI
+      private:
+        bool m_Main = false;
+    };
+} // namespace Nexus::UI

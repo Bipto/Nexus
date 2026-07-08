@@ -9,18 +9,20 @@
 
 namespace Nexus::Graphics
 {
-	class NX_API SceneRenderer
-	{
-	  public:
-		SceneRenderer(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
-		~SceneRenderer() = default;
-		void						   Render(Scene *scene, FramebufferHandle target, TimeSpan time);
-		const Nexus::FirstPersonCamera GetCamera() const;
+    class NX_API SceneRenderer
+    {
+      public:
+        SceneRenderer(
+            IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
+        );
+        ~SceneRenderer() = default;
+        void Render(Scene *scene, FramebufferHandle target, TimeSpan time);
+        const Nexus::FirstPersonCamera GetCamera() const;
 
-	  private:
-		Graphics::IGraphicsDevice					   *m_Device		= nullptr;
-		Graphics::CommandQueueHandle					m_CommandQueue	= {};
-		std::unique_ptr<Nexus::Graphics::Renderer3D>	m_Renderer3D	= nullptr;
-		std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        Graphics::IGraphicsDevice *m_Device = nullptr;
+        Graphics::CommandQueueHandle m_CommandQueue = {};
+        std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer3D = nullptr;
+        std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
+    };
+} // namespace Nexus::Graphics

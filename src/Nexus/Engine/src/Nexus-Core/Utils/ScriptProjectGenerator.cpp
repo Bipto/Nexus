@@ -4,7 +4,7 @@
 
 namespace Nexus::Utils
 {
-	const char *scriptCmakeText = R"(cmake_minimum_required(VERSION 3.10)
+    const char *scriptCmakeText = R"(cmake_minimum_required(VERSION 3.10)
 
 project(SCRIPT_PROJECT_NAME)
 
@@ -105,7 +105,7 @@ add_custom_command(
 
 )";
 
-	const char *scriptMainText = R"(#include <iostream>
+    const char *scriptMainText = R"(#include <iostream>
 
 void say_hello()
 {
@@ -113,38 +113,46 @@ void say_hello()
 }
 )";
 
-	void ScriptProjectGenerator::Generate(const std::string &templatePath, const std::string &projectName, const std::string &projectDirectory)
-	{
-		std::string scriptDirectory = projectDirectory + std::string("\\") + projectName + std::string("\\Scripts");
-		FileSystem::CreateFileDirectory(scriptDirectory);
+    void ScriptProjectGenerator::Generate(
+        const std::string &templatePath, const std::string &projectName,
+        const std::string &projectDirectory
+    )
+    {
+        std::string scriptDirectory = projectDirectory + std::string("\\") +
+                                      projectName + std::string("\\Scripts");
+        FileSystem::CreateFileDirectory(scriptDirectory);
 
-		// setup script project
-		{
-			std::string scriptCmakeFile			 = scriptDirectory + "\\CMakeLists.txt";
-			std::string scriptProcessedCmakeText = StringUtils::Replace(scriptCmakeText, "SCRIPT_PROJECT_NAME", projectName);
-			FileSystem::WriteFile(scriptCmakeFile, scriptProcessedCmakeText);
+        // setup script project
+        {
+            std::string scriptCmakeFile = scriptDirectory + "\\CMakeLists.txt";
+            std::string scriptProcessedCmakeText = StringUtils::Replace(
+                scriptCmakeText, "SCRIPT_PROJECT_NAME", projectName
+            );
+            FileSystem::WriteFile(scriptCmakeFile, scriptProcessedCmakeText);
 
-			std::string scriptMainFile = scriptDirectory + "\\main.cpp";
-			FileSystem::WriteFile(scriptMainFile, scriptMainText);
-		}
+            std::string scriptMainFile = scriptDirectory + "\\main.cpp";
+            FileSystem::WriteFile(scriptMainFile, scriptMainText);
+        }
 
-		// copy Nexus includes and libs
-		{
-			CopyEngineSources("Nexus", scriptDirectory + "\\Nexus");
-		}
-	}
+        // copy Nexus includes and libs
+        {
+            CopyEngineSources("Nexus", scriptDirectory + "\\Nexus");
+        }
+    }
 
-	void ScriptProjectGenerator::CopyEngineSources(const std::string &templatePath, const std::string &scriptDirectory)
-	{
-		if (std::filesystem::exists(templatePath))
-		{
-			if (!std::filesystem::exists(scriptDirectory))
-			{
-				FileSystem::CreateFileDirectory(scriptDirectory);
-			}
+    void ScriptProjectGenerator::CopyEngineSources(
+        const std::string &templatePath, const std::string &scriptDirectory
+    )
+    {
+        if (std::filesystem::exists(templatePath))
+        {
+            if (!std::filesystem::exists(scriptDirectory))
+            {
+                FileSystem::CreateFileDirectory(scriptDirectory);
+            }
 
-			FileSystem::CopyDirectory(templatePath, scriptDirectory, true);
-		}
-	}
+            FileSystem::CopyDirectory(templatePath, scriptDirectory, true);
+        }
+    }
 
-}	 // namespace Nexus::Utils
+} // namespace Nexus::Utils

@@ -15,9 +15,9 @@
 
 namespace Nexus::GL
 {
-	class IOffscreenContext : public IGLContext
-	{
-	  public:
-		virtual ~IOffscreenContext() = default;
-	};
-}	 // namespace Nexus::GL
+    class IOffscreenContext : public IGLContext
+    {
+      public:
+        virtual ~IOffscreenContext() = default;
+    };
+} // namespace Nexus::GL

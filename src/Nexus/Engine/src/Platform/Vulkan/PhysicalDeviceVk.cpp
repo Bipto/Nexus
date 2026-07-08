@@ -2,51 +2,59 @@
 
 namespace Nexus::Graphics
 {
-	PhysicalDeviceVk::PhysicalDeviceVk(const GladVulkanContext &context, VkPhysicalDevice device) : m_Device(device)
-	{
-		context.GetPhysicalDeviceProperties(m_Device, &m_VkPhysicalDeviceProperties);
-		m_Name = m_VkPhysicalDeviceProperties.deviceName;
+    PhysicalDeviceVk::PhysicalDeviceVk(
+        const GladVulkanContext &context, VkPhysicalDevice device
+    )
+        : m_Device(device)
+    {
+        context.GetPhysicalDeviceProperties(m_Device, &m_VkPhysicalDeviceProperties);
+        m_Name = m_VkPhysicalDeviceProperties.deviceName;
 
-		uint32_t extensionCount = 0;
-		context.EnumerateDeviceExtensionProperties(m_Device, nullptr, &extensionCount, nullptr);
-		m_DeviceExtensions.resize(extensionCount);
-		context.EnumerateDeviceExtensionProperties(m_Device, nullptr, &extensionCount, m_DeviceExtensions.data());
-	}
+        uint32_t extensionCount = 0;
+        context.EnumerateDeviceExtensionProperties(
+            m_Device, nullptr, &extensionCount, nullptr
+        );
+        m_DeviceExtensions.resize(extensionCount);
+        context.EnumerateDeviceExtensionProperties(
+            m_Device, nullptr, &extensionCount, m_DeviceExtensions.data()
+        );
+    }
 
-	PhysicalDeviceVk::~PhysicalDeviceVk()
-	{
-	}
+    PhysicalDeviceVk::~PhysicalDeviceVk()
+    {
+    }
 
-	const std::string &PhysicalDeviceVk::GetDeviceName() const
-	{
-		return m_Name;
-	}
+    const std::string &PhysicalDeviceVk::GetDeviceName() const
+    {
+        return m_Name;
+    }
 
-	VkPhysicalDevice PhysicalDeviceVk::GetVkPhysicalDevice() const
-	{
-		return m_Device;
-	}
+    VkPhysicalDevice PhysicalDeviceVk::GetVkPhysicalDevice() const
+    {
+        return m_Device;
+    }
 
-	const VkPhysicalDeviceProperties &PhysicalDeviceVk::GetVkPhysicalDeviceProperties() const
-	{
-		return m_VkPhysicalDeviceProperties;
-	}
+    const VkPhysicalDeviceProperties &PhysicalDeviceVk::
+        GetVkPhysicalDeviceProperties() const
+    {
+        return m_VkPhysicalDeviceProperties;
+    }
 
-	bool PhysicalDeviceVk::IsExtensionSupported(const char *extension) const
-	{
-		for (const auto &ext : m_DeviceExtensions)
-		{
-			if (strcmp(ext.extensionName, extension) == 0)
-			{
-				return true;
-			}
-		}
+    bool PhysicalDeviceVk::IsExtensionSupported(const char *extension) const
+    {
+        for (const auto &ext : m_DeviceExtensions)
+        {
+            if (strcmp(ext.extensionName, extension) == 0)
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	bool PhysicalDeviceVk::IsVersionGreaterThan(uint32_t version) const
-	{
-		return m_VkPhysicalDeviceProperties.apiVersion >= version;
-	}
-}	 // namespace Nexus::Graphics
+    bool PhysicalDeviceVk::IsVersionGreaterThan(uint32_t version) const
+    {
+        return m_VkPhysicalDeviceProperties.apiVersion >= version;
+    }
+} // namespace Nexus::Graphics

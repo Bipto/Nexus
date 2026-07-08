@@ -6,163 +6,181 @@
 
 namespace Demos
 {
-	class ClippingAndTriangulationDemo : public Demo
-	{
-	  public:
-		ClippingAndTriangulationDemo(const std::string						  &name,
-									 Nexus::Application						  *app,
-									 Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-									 Nexus::Graphics::CommandQueueHandle	   commandQueue)
-			: Demo(name, app, imGuiRenderer, commandQueue)
-		{
-		}
+    class ClippingAndTriangulationDemo : public Demo
+    {
+      public:
+        ClippingAndTriangulationDemo(
+            const std::string &name, Nexus::Application *app,
+            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            Nexus::Graphics::CommandQueueHandle commandQueue
+        )
+            : Demo(name, app, imGuiRenderer, commandQueue)
+        {
+        }
 
-		virtual ~ClippingAndTriangulationDemo()
-		{
-		}
+        virtual ~ClippingAndTriangulationDemo()
+        {
+        }
 
-		virtual void Load() override
-		{
-			Nexus::Graphics::SwapchainHandle swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			uint32_t						 sampleCount = swapchain->GetDescription().Samples;
-			m_CommandList								 = m_CommandQueue->CreateCommandList();
-			m_BatchRenderer								 = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount);
+        virtual void Load() override
+        {
+            Nexus::Graphics::SwapchainHandle swapchain =
+                Nexus::GetApplication()->GetPrimarySwapchain();
+            uint32_t sampleCount = swapchain->GetDescription().Samples;
+            m_CommandList = m_CommandQueue->CreateCommandList();
+            m_BatchRenderer = new Nexus::Graphics::BatchRenderer(
+                m_GraphicsDevice, m_CommandQueue, false, sampleCount
+            );
 
-			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
-			r1.SetPointsPerCorner(8);
-			r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 35.0f, 35.0f, 35.0f, 35.0f);
-			r2.SetPointsPerCorner(8);
-		}
+            r1 = Nexus::Graphics::RoundedRectangle(
+                {450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f
+            );
+            r1.SetPointsPerCorner(8);
+            r2 = Nexus::Graphics::RoundedRectangle(
+                {350, 400}, {400, 400}, 35.0f, 35.0f, 35.0f, 35.0f
+            );
+            r2.SetPointsPerCorner(8);
+        }
 
-		virtual void Update(Nexus::TimeSpan time) override
-		{
-			// move rectangle
-			{
-				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
-				{
-					r1.SetX(r1.GetLeft() - (100 * time.GetSeconds<float>()));
-				}
+        virtual void Update(Nexus::TimeSpan time) override
+        {
+            // move rectangle
+            {
+                if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
+                {
+                    r1.SetX(r1.GetLeft() - (100 * time.GetSeconds<float>()));
+                }
 
-				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
-				{
-					r1.SetX(r1.GetLeft() + (100 * time.GetSeconds<float>()));
-				}
+                if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
+                {
+                    r1.SetX(r1.GetLeft() + (100 * time.GetSeconds<float>()));
+                }
 
-				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
-				{
-					r1.SetY(r1.GetTop() - (100 * time.GetSeconds<float>()));
-				}
+                if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
+                {
+                    r1.SetY(r1.GetTop() - (100 * time.GetSeconds<float>()));
+                }
 
-				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
-				{
-					r1.SetY(r1.GetTop() + (100 * time.GetSeconds<float>()));
-				}
-			}
+                if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
+                {
+                    r1.SetY(r1.GetTop() + (100 * time.GetSeconds<float>()));
+                }
+            }
 
-			// select point
-			{
-				const auto &points = r2.CreateOutline();
-				{
-					if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
-					{
-						if (m_SelectedPoint == 0)
-						{
-							m_SelectedPoint = points.size();
-						}
+            // select point
+            {
+                const auto &points = r2.CreateOutline();
+                {
+                    if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
+                    {
+                        if (m_SelectedPoint == 0)
+                        {
+                            m_SelectedPoint = points.size();
+                        }
 
-						m_SelectedPoint--;
-					}
+                        m_SelectedPoint--;
+                    }
 
-					if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
-					{
-						m_SelectedPoint++;
+                    if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
+                    {
+                        m_SelectedPoint++;
 
-						if (m_SelectedPoint == points.size())
-						{
-							m_SelectedPoint = 0;
-						}
-					}
-				}
-			}
-		}
+                        if (m_SelectedPoint == points.size())
+                        {
+                            m_SelectedPoint = 0;
+                        }
+                    }
+                }
+            }
+        }
 
-		void DrawPolygonFill(const std::vector<glm::vec2> &points, const glm::vec4 &color)
-		{
-			for (size_t i = 0; i < points.size(); i++)
-			{
-				glm::vec2 p1 = points[i];
-				glm::vec2 p2 = points[(i + 1) % points.size()];
+        void DrawPolygonFill(
+            const std::vector<glm::vec2> &points, const glm::vec4 &color
+        )
+        {
+            for (size_t i = 0; i < points.size(); i++)
+            {
+                glm::vec2 p1 = points[i];
+                glm::vec2 p2 = points[(i + 1) % points.size()];
 
-				m_BatchRenderer->DrawLine(p1, p2, color, 1.0f);
-			}
-		}
+                m_BatchRenderer->DrawLine(p1, p2, color, 1.0f);
+            }
+        }
 
-		virtual void Render(Nexus::TimeSpan time) override
-		{
-			auto [width, height] = m_Window->GetWindowSize();
+        virtual void Render(Nexus::TimeSpan time) override
+        {
+            auto [width, height] = m_Window->GetWindowSize();
 
-			m_CommandList->Begin();
+            m_CommandList->Begin();
 
-			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
-			m_CommandList->SetFramebuffer(framebuffer);
+            Nexus::Graphics::SwapchainHandle swapchain =
+                Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer =
+                swapchain->GetCurrentFramebuffer();
+            m_CommandList->SetFramebuffer(framebuffer);
 
-			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-			m_CommandList->End();
+            m_CommandList->ClearColourTarget(
+                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
+            );
+            m_CommandList->End();
 
-			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_GraphicsDevice->WaitForIdle();
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_GraphicsDevice->WaitForIdle();
 
-			const auto &windowSize = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+            const auto &windowSize =
+                Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
-			Nexus::Graphics::Viewport vp;
-			vp.X		= 0;
-			vp.Y		= 0;
-			vp.Width	= width;
-			vp.Height	= height;
-			vp.MinDepth = 0;
-			vp.MaxDepth = 1;
+            Nexus::Graphics::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = width;
+            vp.Height = height;
+            vp.MinDepth = 0;
+            vp.MaxDepth = 1;
 
-			Nexus::Graphics::Scissor scissor;
-			scissor.X	   = 0;
-			scissor.Y	   = 0;
-			scissor.Width  = width;
-			scissor.Height = height;
+            Nexus::Graphics::Scissor scissor;
+            scissor.X = 0;
+            scissor.Y = 0;
+            scissor.Width = width;
+            scissor.Height = height;
 
-			m_BatchRenderer->Begin(framebuffer, vp, scissor);
-			m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
-			m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
+            m_BatchRenderer->Begin(framebuffer, vp, scissor);
+            m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
+            m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
 
-			Nexus::Graphics::Polygon poly = r1.ClipAgainst(r2);
-			m_BatchRenderer->DrawPolygonFill(poly, {0.0f, 1.0f, 0.0f, 1.0f});
+            Nexus::Graphics::Polygon poly = r1.ClipAgainst(r2);
+            m_BatchRenderer->DrawPolygonFill(poly, {0.0f, 1.0f, 0.0f, 1.0f});
 
-			m_BatchRenderer->End();
-			m_GraphicsDevice->WaitForIdle();
-		}
+            m_BatchRenderer->End();
+            m_GraphicsDevice->WaitForIdle();
+        }
 
-		virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-		{
-		}
+        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
+        {
+        }
 
-		virtual void RenderUI() override
-		{
-		}
+        virtual void RenderUI() override
+        {
+        }
 
-		virtual std::string GetInfo() const override
-		{
-			return "Clipping a polygon against another using the Sutherland-Hodgman algorithm\nand triangulating the resulting polygon using "
-				   "ear-clipping.";
-		}
+        virtual std::string GetInfo() const override
+        {
+            return "Clipping a polygon against another using the Sutherland-Hodgman "
+                   "algorithm\nand triangulating the resulting polygon using "
+                   "ear-clipping.";
+        }
 
-	  private:
-		Nexus::Graphics::CommandListHandle m_CommandList = {};
-		glm::vec3						   m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+      private:
+        Nexus::Graphics::CommandListHandle m_CommandList = {};
+        glm::vec3 m_ClearColour = {
+            100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f
+        };
 
-		Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
+        Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 
-		Nexus::Graphics::RoundedRectangle r1;
-		Nexus::Graphics::RoundedRectangle r2;
+        Nexus::Graphics::RoundedRectangle r1;
+        Nexus::Graphics::RoundedRectangle r2;
 
-		int m_SelectedPoint = 0;
-	};
-}	 // namespace Demos
+        int m_SelectedPoint = 0;
+    };
+} // namespace Demos

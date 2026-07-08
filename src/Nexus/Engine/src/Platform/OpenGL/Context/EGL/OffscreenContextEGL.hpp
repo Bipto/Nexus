@@ -7,27 +7,27 @@
 #include "glad/gl.h"
 
 #if defined(NX_PLATFORM_LINUX)
-	#include "Platform/X11/X11Include.hpp"
+#include "Platform/X11/X11Include.hpp"
 #endif
 
 namespace Nexus::GL
 {
-	class OffscreenContextEGL final : public IOffscreenContext
-	{
-	  public:
-		OffscreenContextEGL(const ContextDescription &spec, EGLDisplay display);
-		virtual ~OffscreenContextEGL();
-		bool				 MakeCurrent() final;
-		bool				 Validate() final;
-		const GladGLContext &GetContext() const final;
+    class OffscreenContextEGL final : public IOffscreenContext
+    {
+      public:
+        OffscreenContextEGL(const ContextDescription &spec, EGLDisplay display);
+        virtual ~OffscreenContextEGL();
+        bool MakeCurrent() final;
+        bool Validate() final;
+        const GladGLContext &GetContext() const final;
 
-		EGLContext GetEGLContext();
+        EGLContext GetEGLContext();
 
-	  private:
-		EGLDisplay m_EGLDisplay = {};
-		EGLContext m_Context	= {};
+      private:
+        EGLDisplay m_EGLDisplay = {};
+        EGLContext m_Context = {};
 
-		ContextDescription m_Description;
-		GladGLContext	   m_GladContext = {};
-	};
-}	 // namespace Nexus::GL
+        ContextDescription m_Description;
+        GladGLContext m_GladContext = {};
+    };
+} // namespace Nexus::GL

@@ -2,166 +2,188 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "D3D12Utils.hpp"
-	#include "FramebufferD3D12.hpp"
-	#include "ShaderModuleD3D12.hpp"
-	#include "SwapchainD3D12.hpp"
+#include "D3D12Utils.hpp"
+#include "FramebufferD3D12.hpp"
+#include "ShaderModuleD3D12.hpp"
+#include "SwapchainD3D12.hpp"
 
 namespace Nexus::Graphics
 {
 
-	GraphicsPipelineD3D12::GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description)
-		: IGraphicsPipeline(description),
-		  m_Description(description)
-	{
-		const auto &reflectedShaderResources = GetRequiredShaderResources();
+    GraphicsPipelineD3D12::GraphicsPipelineD3D12(
+        GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description
+    )
+        : IGraphicsPipeline(description), m_Description(description)
+    {
+        const auto &reflectedShaderResources = GetRequiredShaderResources();
 
-		D3D12::CreateRootSignature(reflectedShaderResources,
-								   description.ResourceDescription,
-								   device->GetD3D12Device(),
-								   m_RootSignatureBlob,
-								   m_RootSignature,
-								   m_DescriptorHandleInfo,
-								   m_RootSignatureBindingLocations,
-								   m_Description.Layouts.size() > 0);
+        D3D12::CreateRootSignature(
+            reflectedShaderResources, description.ResourceDescription,
+            device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature,
+            m_DescriptorHandleInfo, m_RootSignatureBindingLocations,
+            m_Description.Layouts.size() > 0
+        );
 
-		m_InputLayout		  = D3D12::CreateInputLayout(description.Layouts);
-		m_PipelineStateObject = D3D12::CreateGraphicsPipeline(device, description, m_RootSignature, m_InputLayout);
-		m_PrimitiveTopology	  = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
+        m_InputLayout = D3D12::CreateInputLayout(description.Layouts);
+        m_PipelineStateObject = D3D12::CreateGraphicsPipeline(
+            device, description, m_RootSignature, m_InputLayout
+        );
+        m_PrimitiveTopology =
+            D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
 
-		std::wstring name = {m_Description.DebugName.begin(), m_Description.DebugName.end()};
-		m_PipelineStateObject->SetName(name.c_str());
-	}
+        std::wstring name = {
+            m_Description.DebugName.begin(), m_Description.DebugName.end()
+        };
+        m_PipelineStateObject->SetName(name.c_str());
+    }
 
-	GraphicsPipelineD3D12::~GraphicsPipelineD3D12()
-	{
-	}
+    GraphicsPipelineD3D12::~GraphicsPipelineD3D12()
+    {
+    }
 
-	const GraphicsPipelineDescription &GraphicsPipelineD3D12::GetPipelineDescription() const
-	{
-		return m_Description;
-	}
+    const GraphicsPipelineDescription &GraphicsPipelineD3D12::
+        GetPipelineDescription() const
+    {
+        return m_Description;
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GraphicsPipelineD3D12::GetRootSignature() const
-	{
-		return m_RootSignature;
-	}
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> GraphicsPipelineD3D12::
+        GetRootSignature() const
+    {
+        return m_RootSignature;
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GraphicsPipelineD3D12::GetPipelineState() const
-	{
-		return m_PipelineStateObject;
-	}
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> GraphicsPipelineD3D12::
+        GetPipelineState() const
+    {
+        return m_PipelineStateObject;
+    }
 
-	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology() const
-	{
-		return m_PrimitiveTopology;
-	}
+    D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology() const
+    {
+        return m_PrimitiveTopology;
+    }
 
-	const D3D12::RootSignatureBindingLocations &GraphicsPipelineD3D12::GetRootSignatureBindingLocations() const
-	{
-		return m_RootSignatureBindingLocations;
-	}
+    const D3D12::RootSignatureBindingLocations &GraphicsPipelineD3D12::
+        GetRootSignatureBindingLocations() const
+    {
+        return m_RootSignatureBindingLocations;
+    }
 
-	void GraphicsPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
-	{
-		commandList->SetPipelineState(m_PipelineStateObject.Get());
-		commandList->SetGraphicsRootSignature(m_RootSignature.Get());
-		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
-	}
+    void GraphicsPipelineD3D12::Bind(
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
+    )
+    {
+        commandList->SetPipelineState(m_PipelineStateObject.Get());
+        commandList->SetGraphicsRootSignature(m_RootSignature.Get());
+        commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+    }
 
-	const D3D12::DescriptorHandleInfo &GraphicsPipelineD3D12::GetDescriptorHandleInfo() const
-	{
-		return m_DescriptorHandleInfo;
-	}
+    const D3D12::DescriptorHandleInfo &GraphicsPipelineD3D12::
+        GetDescriptorHandleInfo() const
+    {
+        return m_DescriptorHandleInfo;
+    }
 
-	MeshletPipelineD3D12::MeshletPipelineD3D12(GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description)
-		: IMeshletPipeline(description)
-	{
-		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources,
-								   description.ResourceDescription,
-								   device->GetD3D12Device(),
-								   m_RootSignatureBlob,
-								   m_RootSignature,
-								   m_DescriptorHandleInfo,
-								   m_RootSignatureBindingLocations,
-								   false);
+    MeshletPipelineD3D12::MeshletPipelineD3D12(
+        GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description
+    )
+        : IMeshletPipeline(description)
+    {
+        const auto &resources = GetRequiredShaderResources();
+        D3D12::CreateRootSignature(
+            resources, description.ResourceDescription, device->GetD3D12Device(),
+            m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo,
+            m_RootSignatureBindingLocations, false
+        );
 
-		m_PipelineStateObject = D3D12::CreateMeshletPipeline(device, description, m_RootSignature);
-		m_PrimitiveTopology	  = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
-	}
+        m_PipelineStateObject =
+            D3D12::CreateMeshletPipeline(device, description, m_RootSignature);
+        m_PrimitiveTopology =
+            D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
+    }
 
-	MeshletPipelineD3D12::~MeshletPipelineD3D12()
-	{
-	}
+    MeshletPipelineD3D12::~MeshletPipelineD3D12()
+    {
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> MeshletPipelineD3D12::GetRootSignature() const
-	{
-		return m_RootSignature;
-	}
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> MeshletPipelineD3D12::
+        GetRootSignature() const
+    {
+        return m_RootSignature;
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> MeshletPipelineD3D12::GetPipelineState() const
-	{
-		return m_PipelineStateObject;
-	}
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> MeshletPipelineD3D12::
+        GetPipelineState() const
+    {
+        return m_PipelineStateObject;
+    }
 
-	D3D_PRIMITIVE_TOPOLOGY MeshletPipelineD3D12::GetD3DPrimitiveTopology() const
-	{
-		return m_PrimitiveTopology;
-	}
+    D3D_PRIMITIVE_TOPOLOGY MeshletPipelineD3D12::GetD3DPrimitiveTopology() const
+    {
+        return m_PrimitiveTopology;
+    }
 
-	const D3D12::RootSignatureBindingLocations &MeshletPipelineD3D12::GetRootSignatureBindingLocations() const
-	{
-		return m_RootSignatureBindingLocations;
-	}
+    const D3D12::RootSignatureBindingLocations &MeshletPipelineD3D12::
+        GetRootSignatureBindingLocations() const
+    {
+        return m_RootSignatureBindingLocations;
+    }
 
-	void MeshletPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
-	{
-		commandList->SetPipelineState(m_PipelineStateObject.Get());
-		commandList->SetGraphicsRootSignature(m_RootSignature.Get());
-		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
-	}
+    void MeshletPipelineD3D12::Bind(
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
+    )
+    {
+        commandList->SetPipelineState(m_PipelineStateObject.Get());
+        commandList->SetGraphicsRootSignature(m_RootSignature.Get());
+        commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+    }
 
-	const D3D12::DescriptorHandleInfo &MeshletPipelineD3D12::GetDescriptorHandleInfo() const
-	{
-		return m_DescriptorHandleInfo;
-	}
+    const D3D12::DescriptorHandleInfo &MeshletPipelineD3D12::
+        GetDescriptorHandleInfo() const
+    {
+        return m_DescriptorHandleInfo;
+    }
 
-	ComputePipelineD3D12::ComputePipelineD3D12(GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description)
-		: IComputePipeline(description)
-	{
-		const auto &resources = GetRequiredShaderResources();
-		D3D12::CreateRootSignature(resources,
-								   description.ResourceDescription,
-								   device->GetD3D12Device(),
-								   m_RootSignatureBlob,
-								   m_RootSignature,
-								   m_DescriptorHandleInfo,
-								   m_RootSignatureBindingLocations,
-								   false);
+    ComputePipelineD3D12::ComputePipelineD3D12(
+        GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description
+    )
+        : IComputePipeline(description)
+    {
+        const auto &resources = GetRequiredShaderResources();
+        D3D12::CreateRootSignature(
+            resources, description.ResourceDescription, device->GetD3D12Device(),
+            m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo,
+            m_RootSignatureBindingLocations, false
+        );
 
-		m_PipelineStateObject = D3D12::CreateComputePipeline(device, description, m_RootSignature);
-	}
+        m_PipelineStateObject =
+            D3D12::CreateComputePipeline(device, description, m_RootSignature);
+    }
 
-	ComputePipelineD3D12::~ComputePipelineD3D12()
-	{
-	}
+    ComputePipelineD3D12::~ComputePipelineD3D12()
+    {
+    }
 
-	void ComputePipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
-	{
-		commandList->SetPipelineState(m_PipelineStateObject.Get());
-		commandList->SetComputeRootSignature(m_RootSignature.Get());
-	}
+    void ComputePipelineD3D12::Bind(
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
+    )
+    {
+        commandList->SetPipelineState(m_PipelineStateObject.Get());
+        commandList->SetComputeRootSignature(m_RootSignature.Get());
+    }
 
-	const D3D12::DescriptorHandleInfo &ComputePipelineD3D12::GetDescriptorHandleInfo() const
-	{
-		return m_DescriptorHandleInfo;
-	}
+    const D3D12::DescriptorHandleInfo &ComputePipelineD3D12::
+        GetDescriptorHandleInfo() const
+    {
+        return m_DescriptorHandleInfo;
+    }
 
-	const D3D12::RootSignatureBindingLocations &ComputePipelineD3D12::GetRootSignatureBindingLocations() const
-	{
-		return m_RootSignatureBindingLocations;
-	}
-}	 // namespace Nexus::Graphics
+    const D3D12::RootSignatureBindingLocations &ComputePipelineD3D12::
+        GetRootSignatureBindingLocations() const
+    {
+        return m_RootSignatureBindingLocations;
+    }
+} // namespace Nexus::Graphics
 
 #endif

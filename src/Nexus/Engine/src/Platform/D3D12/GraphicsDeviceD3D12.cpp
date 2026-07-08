@@ -2,467 +2,553 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "AccelerationStructureD3D12.hpp"
-	#include "CommandListD3D12.hpp"
-	#include "CommandQueueD3D12.hpp"
-	#include "DeviceBufferD3D12.hpp"
-	#include "FenceD3D12.hpp"
-	#include "FramebufferD3D12.hpp"
-	#include "PhysicalDeviceD3D12.hpp"
-	#include "PipelineD3D12.hpp"
-	#include "ResourceSetD3D12.hpp"
-	#include "SamplerD3D12.hpp"
-	#include "ShaderModuleD3D12.hpp"
-	#include "SwapchainD3D12.hpp"
-	#include "TexelBufferD3D12.hpp"
-	#include "TextureD3D12.hpp"
-	#include "TextureViewD3D12.hpp"
-	#include "TimingQueryD3D12.hpp"
+#include "AccelerationStructureD3D12.hpp"
+#include "CommandListD3D12.hpp"
+#include "CommandQueueD3D12.hpp"
+#include "DeviceBufferD3D12.hpp"
+#include "FenceD3D12.hpp"
+#include "FramebufferD3D12.hpp"
+#include "PhysicalDeviceD3D12.hpp"
+#include "PipelineD3D12.hpp"
+#include "ResourceSetD3D12.hpp"
+#include "SamplerD3D12.hpp"
+#include "ShaderModuleD3D12.hpp"
+#include "SwapchainD3D12.hpp"
+#include "TexelBufferD3D12.hpp"
+#include "TextureD3D12.hpp"
+#include "TextureViewD3D12.hpp"
+#include "TimingQueryD3D12.hpp"
 
-	#if defined(WIN32)
-		#include "Surface/SurfaceWin32_D3D12.hpp"
-	#endif
+#if defined(WIN32)
+#include "Surface/SurfaceWin32_D3D12.hpp"
+#endif
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceD3D12::GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory)
-		: m_DxgiFactory(factory),
-		  m_PhysicalDevice(physicalDevice)
-	{
-		std::shared_ptr<PhysicalDeviceD3D12>  physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(physicalDevice);
-		Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter			  = physicalDeviceD3D12->GetAdapter();
-
-		// create the D3D12Device
-		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), IID_PPV_ARGS(&m_Device))))
-		{
-			// Create a command queue to submit work to the GPU
-			D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
-			commandQueueDesc.Type	  = D3D12_COMMAND_LIST_TYPE_DIRECT;
-			commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
-			commandQueueDesc.NodeMask = 0;
-			commandQueueDesc.Flags	  = D3D12_COMMAND_QUEUE_FLAG_NONE;
-
-			D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
-			allocatorDesc.pDevice				  = m_Device.Get();
-			allocatorDesc.pAdapter				  = adapter.Get();
-			HRESULT hr							  = D3D12MA::CreateAllocator(&allocatorDesc, &m_Allocator);
-			if (FAILED(hr))
-			{
-				throw std::runtime_error("Failed to create allocator");
-			}
-		}
-
-		m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device);
-
-		GetLimitsAndFeatures();
-	}
-
-	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
-	{
-		// release all resources before cleaning up the vulkan device
-		m_Resources = {};
-	}
-
-	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const
-	{
-		return m_PhysicalDevice;
-	}
-
-	ShaderModuleHandle GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
-	{
-		auto shader = std::make_unique<ShaderModuleD3D12>(moduleSpec);
-		return m_Resources.ShaderModules.CreateShared(std::move(shader));
-	}
-
-	PipelineHandle GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
-	{
-		auto pipeline = std::make_unique<GraphicsPipelineD3D12>(this, description);
-		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
-	}
-
-	PipelineHandle GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
-	{
-		auto pipeline = std::make_unique<ComputePipelineD3D12>(this, description);
-		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
-	}
-
-	PipelineHandle GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
-	{
-		auto pipeline = std::make_unique<MeshletPipelineD3D12>(this, description);
-		return m_Resources.Pipelines.CreateShared(std::move(pipeline));
-	}
-
-	PipelineHandle GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
-	{
-		return {};
-	}
-
-	ResourceSetHandle GraphicsDeviceD3D12::CreateResourceSet(PipelineHandle pipeline)
-	{
-		auto resourceSet = std::make_unique<ResourceSetD3D12>(pipeline, this);
-		return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
-	}
-
-	FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
-	{
-		auto framebuffer = std::make_unique<FramebufferD3D12>(desc, this);
-		return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
-	}
-
-	SamplerHandle GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
-	{
-		auto sampler = std::make_unique<SamplerD3D12>(spec);
-		return m_Resources.Samplers.CreateShared(std::move(sampler));
-	}
-
-	TimingQueryHandle GraphicsDeviceD3D12::CreateTimingQuery()
-	{
-		auto timingQuery = std::make_unique<TimingQueryD3D12>(this);
-		return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
-	}
-
-	DeviceBufferHandle GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
-	{
-		auto deviceBuffer = std::make_unique<DeviceBufferD3D12>(desc, this);
-		return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
-	}
-
-	AccelerationStructureHandle GraphicsDeviceD3D12::CreateAccelerationStructure(const AccelerationStructureDescription &desc)
-	{
-		auto accelerationStructure = std::make_unique<AccelerationStructureD3D12>(desc, this);
-		return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
-	}
-
-	TexelBufferHandle GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
-	{
-		auto texelBuffer = std::make_unique<TexelBufferD3D12>(desc);
-		return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
-	}
-
-	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
-	{
-		return m_Allocator.Get();
-	}
-
-	Microsoft::WRL::ComPtr<IDXGIFactory7> GraphicsDeviceD3D12::GetDXGIFactory() const
-	{
-		return m_DxgiFactory.Get();
-	}
-
-	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetD3D12Device() const
-	{
-		return m_Device.Get();
-	}
-
-	bool GraphicsDeviceD3D12::IsBufferUsageSupported(BufferUsage usage)
-	{
-		return false;
-	}
-
-	void GraphicsDeviceD3D12::WaitForIdle()
-	{
-		for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
-		{
-			CommandQueueD3D12 *commandQueue = m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
-
-			// check if the command queue pointer has expired, if it has remove it and continue iterating
-			if (!commandQueue)
-			{
-				m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
-				i--;
-				continue;
-			}
-
-			commandQueue->WaitForIdle();
-		}
-	}
-
-	GraphicsAPIInfo GraphicsDeviceD3D12::GetGraphicsAPI()
-	{
-		std::shared_ptr<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
-
-		uint32_t major = 0;
-		uint32_t minor = 0;
-
-		D3D12::GetD3D12FeatureLevelAsMajorMinor(physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), major, minor);
-
-		return GraphicsAPIInfo {
-			.API   = GraphicsAPI::D3D12,
-			.Major = major,
-			.Minor = minor,
-		};
-	}
-
-	const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const
-	{
-		GraphicsCapabilities capabilities;
-		capabilities.SupportsMultisampledTextures		 = true;
-		capabilities.SupportsLODBias					 = true;
-		capabilities.SupportsInstanceOffset				 = true;
-		capabilities.SupportsMultipleSwapchains			 = true;
-		capabilities.SupportsSeparateColourAndBlendMasks = true;
-		return capabilities;
-	}
-
-	TextureHandle GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
-	{
-		auto texture = std::make_unique<TextureD3D12>(spec, this);
-		return m_Resources.Textures.CreateShared(std::move(texture));
-	}
-
-	TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
-	{
-		auto textureView = std::make_unique<TextureViewD3D12>(desc);
-		return m_Resources.TextureViews.CreateShared(std::move(textureView));
-	}
-
-	FenceHandle GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
-	{
-		auto fence = std::make_unique<FenceD3D12>(desc, this);
-		return m_Resources.Fences.CreateShared(std::move(fence));
-	}
-
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS)
-	{
-		std::vector<HANDLE> eventHandles(count);
-		for (uint32_t i = 0; i < count; i++)
-		{
-			FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
-			eventHandles[i]	  = fence->GetFenceEvent();
-		}
-
-		uint64_t timeoutMS = timeoutNS / 1000000ULL;
-		DWORD	 result	   = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeoutMS);
-
-		if (result == WAIT_OBJECT_0)
-		{
-			return FenceWaitResult::Signalled;
-		}
-		else if (result == WAIT_TIMEOUT)
-		{
-			return FenceWaitResult::TimedOut;
-		}
-		else
-		{
-			return FenceWaitResult::Failed;
-		}
-	}
-
-	std::vector<QueueFamilyInfo> GraphicsDeviceD3D12::GetQueueFamilies()
-	{
-		std::vector<QueueFamilyInfo> queueFamilies = {};
-
-		QueueFamilyInfo &info = queueFamilies.emplace_back();
-		info.QueueFamily	  = 0;
-		info.QueueCount		  = std::numeric_limits<uint32_t>::max();
-		info.Capabilities	  = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer |
-											  QueueCapabilities::SparseBinding | QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode);
-
-		return queueFamilies;
-	}
-
-	CommandQueueHandle GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
-	{
-		auto			   commandQueue = std::make_unique<CommandQueueD3D12>(this, description);
-		CommandQueueHandle handle		= m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
-		m_CreatedCommandQueues.push_back(handle);
-		return handle;
-	}
-
-	void GraphicsDeviceD3D12::ResetFences(FenceHandle *fences, uint32_t count)
-	{
-		for (uint32_t i = 0; i < count; i++)
-		{
-			FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
-			fence->Reset();
-		}
-	}
-
-	bool GraphicsDeviceD3D12::Validate()
-	{
-		return m_Device && m_DxgiFactory;
-	}
-
-	PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
-	{
-		PixelFormatProperties properties = {};
-		return properties;
-	}
-
-	const DeviceFeatures &GraphicsDeviceD3D12::GetPhysicalDeviceFeatures() const
-	{
-		return m_Features;
-	}
-
-	const DeviceLimits &GraphicsDeviceD3D12::GetPhysicalDeviceLimits() const
-	{
-		return m_Limits;
-	}
-
-	const D3D12DeviceFeatures &GraphicsDeviceD3D12::GetD3D12DeviceFeatures() const
-	{
-		return m_D3D12Features;
-	}
-
-	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexFormat format) const
-	{
-		switch (format)
-		{
-			case IndexFormat::UInt8: return false;
-			case IndexFormat::UInt16:
-			case IndexFormat::UInt32: return true;
-			default: throw std::runtime_error("Failed to find index buffer format");
-		}
-	}
-
-	AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
-		const AccelerationStructureGeometryBuildDescription &description) const
-	{
-		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS  inputs	   = {};
-		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
-		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>			  geometry	   = {};
-
-		D3D12::GetD3D12AccelerationStructureInputs(description, inputs, geometry);
-
-		m_Device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
-
-		return AccelerationStructureBuildSizeDescription {.AccelerationStructureSize = prebuildInfo.ResultDataMaxSizeInBytes,
-														  .UpdateScratchSize		 = prebuildInfo.UpdateScratchDataSizeInBytes,
-														  .BuildScratchSize			 = prebuildInfo.ScratchDataSizeInBytes};
-	}
-
-	RayTracingDeviceDescription GraphicsDeviceD3D12::GetRayTracingDeviceDescription() const
-	{
-		return RayTracingDeviceDescription();
-	}
-
-	AccelerationStructureProperties GraphicsDeviceD3D12::GetAccelerationStructureProperties() const
-	{
-		AccelerationStructureProperties properties				  = {};
-		properties.MinAccelerationStructureScratchOffsetAlignment = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT;
-		return properties;
-	}
-
-	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
-	{
-	#if defined(WIN32)
-		auto surface = std::make_unique<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
-		return m_Resources.Surfaces.CreateShared(std::move(surface));
-	#else
-		throw std::runtime_error("Unsupported platform");
-		return nullptr;
-	#endif
-	}
-
-	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
-	{
-		return {};
-	}
-	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
-	{
-		return {};
-	}
-
-	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
-	{
-		return {};
-	}
-
-	SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId)
-	{
-		return {};
-	}
-
-	bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
-	{
-		Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
-		return physicalDeviceD3D12->IsVersionGreaterThan(level);
-	}
-
-	void GraphicsDeviceD3D12::GetLimitsAndFeatures()
-	{
-		D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT vaSupport = {};
-
-		m_Limits.Texture1D = true;
-		m_Limits.Texture2D = true;
-		m_Limits.Texture3D = true;
-
-		m_Limits.MaxUniformBufferRange = D3D12_REQ_CONSTANT_BUFFER_ELEMENT_COUNT;
-
-		HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT, &vaSupport, sizeof(vaSupport));
-		if (SUCCEEDED(hr))
-		{
-			m_Limits.MaxStorageBufferRange = vaSupport.MaxGPUVirtualAddressBitsPerResource;
-		}
-
-		m_Limits.MaxVertexInputAttributes			 = 32;
-		m_Limits.MaxVertexInputBindings				 = 32;
-		m_Limits.MaxVertexInputOffset				 = std::numeric_limits<uint32_t>::max();
-		m_Limits.MaxVertexInputStride				 = 255;
-		m_Limits.MaxFramebufferColourAttachmentCount = 8;
-		m_Limits.MaxViewports						 = D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-
-		m_Features.SupportsGeometryShaders				= true;
-		m_Features.SupportsTesselationShaders			= true;
-		m_Features.SupportsComputeShaders				= true;
-		m_Features.SupportsStorageBuffers				= true;
-		m_Features.SupportsMultiviewport				= true;
-		m_Features.SupportsSamplerAnisotropy			= true;
-		m_Features.SupportsETC2Compression				= false;
-		m_Features.SupportsASTC_LDRCompression			= true;
-		m_Features.SupportsBCCompression				= true;
-		m_Features.SupportShaderStorageImageMultisample = true;
-		m_Features.SupportsCubemapArray					= true;
-		m_Features.SupportsIndependentBlend				= true;
-
-		// check for depth bounds testing support
-		{
-			D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2 = {};
-			HRESULT							  hr	   = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2, sizeof(options2));
-			if (SUCCEEDED(hr))
-			{
-				if (options2.DepthBoundsTestSupported)
-				{
-					m_Features.SupportsDepthBoundsTesting = true;
-				}
-			}
-		}
-
-		if (IsVersionGreaterThan(D3D_FEATURE_LEVEL_12_2))
-		{
-			m_D3D12Features.SupportsPipelineStreams = true;
-
-			D3D12_FEATURE_DATA_D3D12_OPTIONS7 options7 = {};
-			HRESULT							  hr	   = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7));
-			if (SUCCEEDED(hr))
-			{
-				if (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
-				{
-					m_Features.SupportsMeshTaskShaders = true;
-				}
-			}
-
-			D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
-			hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12));
-			if (SUCCEEDED(hr))
-			{
-				if (options12.EnhancedBarriersSupported)
-				{
-					// m_D3D12Features.SupportsEnhancedBarriers = true;
-				}
-			}
-		}
-	}
-
-	inline void GraphicsDeviceD3D12::ReportLiveObjects()
-	{
-		// initialise dxgi debug layer
-		Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
-		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
-		{
-			OutputDebugStringW(L"Reporting live D3D12 objects:\n");
-			debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-		}
-	}	 // namespace Nexus::Graphics
-}	 // namespace Nexus::Graphics
+    GraphicsDeviceD3D12::GraphicsDeviceD3D12(
+        std::shared_ptr<IPhysicalDevice> physicalDevice,
+        Microsoft::WRL::ComPtr<IDXGIFactory7> factory
+    )
+        : m_DxgiFactory(factory), m_PhysicalDevice(physicalDevice)
+    {
+        std::shared_ptr<PhysicalDeviceD3D12> physicalDeviceD3D12 =
+            std::dynamic_pointer_cast<PhysicalDeviceD3D12>(physicalDevice);
+        Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter =
+            physicalDeviceD3D12->GetAdapter();
+
+        // create the D3D12Device
+        if (SUCCEEDED(D3D12CreateDevice(
+                adapter.Get(),
+                physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(),
+                IID_PPV_ARGS(&m_Device)
+            )))
+        {
+            // Create a command queue to submit work to the GPU
+            D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
+            commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+            commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+            commandQueueDesc.NodeMask = 0;
+            commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+
+            D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
+            allocatorDesc.pDevice = m_Device.Get();
+            allocatorDesc.pAdapter = adapter.Get();
+            HRESULT hr = D3D12MA::CreateAllocator(&allocatorDesc, &m_Allocator);
+            if (FAILED(hr))
+            {
+                throw std::runtime_error("Failed to create allocator");
+            }
+        }
+
+        m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device);
+
+        GetLimitsAndFeatures();
+    }
+
+    GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
+    {
+        // release all resources before cleaning up the vulkan device
+        m_Resources = {};
+    }
+
+    std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const
+    {
+        return m_PhysicalDevice;
+    }
+
+    ShaderModuleHandle GraphicsDeviceD3D12::CreateShaderModule(
+        const ShaderModuleDescription &moduleSpec
+    )
+    {
+        auto shader = std::make_unique<ShaderModuleD3D12>(moduleSpec);
+        return m_Resources.ShaderModules.CreateShared(std::move(shader));
+    }
+
+    PipelineHandle GraphicsDeviceD3D12::CreateGraphicsPipeline(
+        const GraphicsPipelineDescription &description
+    )
+    {
+        auto pipeline = std::make_unique<GraphicsPipelineD3D12>(this, description);
+        return m_Resources.Pipelines.CreateShared(std::move(pipeline));
+    }
+
+    PipelineHandle GraphicsDeviceD3D12::CreateComputePipeline(
+        const ComputePipelineDescription &description
+    )
+    {
+        auto pipeline = std::make_unique<ComputePipelineD3D12>(this, description);
+        return m_Resources.Pipelines.CreateShared(std::move(pipeline));
+    }
+
+    PipelineHandle GraphicsDeviceD3D12::CreateMeshletPipeline(
+        const MeshletPipelineDescription &description
+    )
+    {
+        auto pipeline = std::make_unique<MeshletPipelineD3D12>(this, description);
+        return m_Resources.Pipelines.CreateShared(std::move(pipeline));
+    }
+
+    PipelineHandle GraphicsDeviceD3D12::CreateRayTracingPipeline(
+        const RayTracingPipelineDescription &description
+    )
+    {
+        return {};
+    }
+
+    ResourceSetHandle GraphicsDeviceD3D12::CreateResourceSet(PipelineHandle pipeline)
+    {
+        auto resourceSet = std::make_unique<ResourceSetD3D12>(pipeline, this);
+        return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
+    }
+
+    FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(
+        const FramebufferTextureSetDescription &desc
+    )
+    {
+        auto framebuffer = std::make_unique<FramebufferD3D12>(desc, this);
+        return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
+    }
+
+    SamplerHandle GraphicsDeviceD3D12::CreateSampler(const SamplerDescription &spec)
+    {
+        auto sampler = std::make_unique<SamplerD3D12>(spec);
+        return m_Resources.Samplers.CreateShared(std::move(sampler));
+    }
+
+    TimingQueryHandle GraphicsDeviceD3D12::CreateTimingQuery()
+    {
+        auto timingQuery = std::make_unique<TimingQueryD3D12>(this);
+        return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
+    }
+
+    DeviceBufferHandle GraphicsDeviceD3D12::CreateDeviceBuffer(
+        const DeviceBufferDescription &desc
+    )
+    {
+        auto deviceBuffer = std::make_unique<DeviceBufferD3D12>(desc, this);
+        return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
+    }
+
+    AccelerationStructureHandle GraphicsDeviceD3D12::CreateAccelerationStructure(
+        const AccelerationStructureDescription &desc
+    )
+    {
+        auto accelerationStructure =
+            std::make_unique<AccelerationStructureD3D12>(desc, this);
+        return m_Resources.AccelerationStructures.CreateShared(
+            std::move(accelerationStructure)
+        );
+    }
+
+    TexelBufferHandle GraphicsDeviceD3D12::CreateTexelBuffer(
+        const TexelBufferDescription &desc
+    )
+    {
+        auto texelBuffer = std::make_unique<TexelBufferD3D12>(desc);
+        return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
+    }
+
+    Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
+    {
+        return m_Allocator.Get();
+    }
+
+    Microsoft::WRL::ComPtr<IDXGIFactory7> GraphicsDeviceD3D12::GetDXGIFactory() const
+    {
+        return m_DxgiFactory.Get();
+    }
+
+    Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetD3D12Device() const
+    {
+        return m_Device.Get();
+    }
+
+    bool GraphicsDeviceD3D12::IsBufferUsageSupported(BufferUsage usage)
+    {
+        return false;
+    }
+
+    void GraphicsDeviceD3D12::WaitForIdle()
+    {
+        for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
+        {
+            CommandQueueD3D12 *commandQueue =
+                m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
+
+            // check if the command queue pointer has expired, if it has remove it
+            // and continue iterating
+            if (!commandQueue)
+            {
+                m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
+                i--;
+                continue;
+            }
+
+            commandQueue->WaitForIdle();
+        }
+    }
+
+    GraphicsAPIInfo GraphicsDeviceD3D12::GetGraphicsAPI()
+    {
+        std::shared_ptr<PhysicalDeviceD3D12> physicalDeviceD3D12 =
+            std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
+
+        uint32_t major = 0;
+        uint32_t minor = 0;
+
+        D3D12::GetD3D12FeatureLevelAsMajorMinor(
+            physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), major, minor
+        );
+
+        return GraphicsAPIInfo{
+            .API = GraphicsAPI::D3D12,
+            .Major = major,
+            .Minor = minor,
+        };
+    }
+
+    const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const
+    {
+        GraphicsCapabilities capabilities;
+        capabilities.SupportsMultisampledTextures = true;
+        capabilities.SupportsLODBias = true;
+        capabilities.SupportsInstanceOffset = true;
+        capabilities.SupportsMultipleSwapchains = true;
+        capabilities.SupportsSeparateColourAndBlendMasks = true;
+        return capabilities;
+    }
+
+    TextureHandle GraphicsDeviceD3D12::CreateTexture(const TextureDescription &spec)
+    {
+        auto texture = std::make_unique<TextureD3D12>(spec, this);
+        return m_Resources.Textures.CreateShared(std::move(texture));
+    }
+
+    TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(
+        const TextureViewDescription &desc
+    )
+    {
+        auto textureView = std::make_unique<TextureViewD3D12>(desc);
+        return m_Resources.TextureViews.CreateShared(std::move(textureView));
+    }
+
+    FenceHandle GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+    {
+        auto fence = std::make_unique<FenceD3D12>(desc, this);
+        return m_Resources.Fences.CreateShared(std::move(fence));
+    }
+
+    FenceWaitResult GraphicsDeviceD3D12::WaitForFences(
+        FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
+    )
+    {
+        std::vector<HANDLE> eventHandles(count);
+        for (uint32_t i = 0; i < count; i++)
+        {
+            FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
+            eventHandles[i] = fence->GetFenceEvent();
+        }
+
+        uint64_t timeoutMS = timeoutNS / 1000000ULL;
+        DWORD result = WaitForMultipleObjects(
+            eventHandles.size(), eventHandles.data(), waitAll, timeoutMS
+        );
+
+        if (result == WAIT_OBJECT_0)
+        {
+            return FenceWaitResult::Signalled;
+        }
+        else if (result == WAIT_TIMEOUT)
+        {
+            return FenceWaitResult::TimedOut;
+        }
+        else
+        {
+            return FenceWaitResult::Failed;
+        }
+    }
+
+    std::vector<QueueFamilyInfo> GraphicsDeviceD3D12::GetQueueFamilies()
+    {
+        std::vector<QueueFamilyInfo> queueFamilies = {};
+
+        QueueFamilyInfo &info = queueFamilies.emplace_back();
+        info.QueueFamily = 0;
+        info.QueueCount = std::numeric_limits<uint32_t>::max();
+        info.Capabilities = QueueCapabilities(
+            QueueCapabilities::Graphics | QueueCapabilities::Compute |
+            QueueCapabilities::Transfer | QueueCapabilities::SparseBinding |
+            QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode
+        );
+
+        return queueFamilies;
+    }
+
+    CommandQueueHandle GraphicsDeviceD3D12::CreateCommandQueue(
+        const CommandQueueDescription &description
+    )
+    {
+        auto commandQueue = std::make_unique<CommandQueueD3D12>(this, description);
+        CommandQueueHandle handle =
+            m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
+        m_CreatedCommandQueues.push_back(handle);
+        return handle;
+    }
+
+    void GraphicsDeviceD3D12::ResetFences(FenceHandle *fences, uint32_t count)
+    {
+        for (uint32_t i = 0; i < count; i++)
+        {
+            FenceD3D12 *fence = fences[i].AsDerived<FenceD3D12>();
+            fence->Reset();
+        }
+    }
+
+    bool GraphicsDeviceD3D12::Validate()
+    {
+        return m_Device && m_DxgiFactory;
+    }
+
+    PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(
+        PixelFormat format, TextureType type, TextureUsageFlags usage
+    ) const
+    {
+        PixelFormatProperties properties = {};
+        return properties;
+    }
+
+    const DeviceFeatures &GraphicsDeviceD3D12::GetPhysicalDeviceFeatures() const
+    {
+        return m_Features;
+    }
+
+    const DeviceLimits &GraphicsDeviceD3D12::GetPhysicalDeviceLimits() const
+    {
+        return m_Limits;
+    }
+
+    const D3D12DeviceFeatures &GraphicsDeviceD3D12::GetD3D12DeviceFeatures() const
+    {
+        return m_D3D12Features;
+    }
+
+    bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexFormat format) const
+    {
+        switch (format)
+        {
+        case IndexFormat::UInt8:
+            return false;
+        case IndexFormat::UInt16:
+        case IndexFormat::UInt32:
+            return true;
+        default:
+            throw std::runtime_error("Failed to find index buffer format");
+        }
+    }
+
+    AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::
+        GetAccelerationStructureBuildSize(
+            const AccelerationStructureGeometryBuildDescription &description
+        ) const
+    {
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
+        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometry = {};
+
+        D3D12::GetD3D12AccelerationStructureInputs(description, inputs, geometry);
+
+        m_Device->GetRaytracingAccelerationStructurePrebuildInfo(
+            &inputs, &prebuildInfo
+        );
+
+        return AccelerationStructureBuildSizeDescription{
+            .AccelerationStructureSize = prebuildInfo.ResultDataMaxSizeInBytes,
+            .UpdateScratchSize = prebuildInfo.UpdateScratchDataSizeInBytes,
+            .BuildScratchSize = prebuildInfo.ScratchDataSizeInBytes
+        };
+    }
+
+    RayTracingDeviceDescription GraphicsDeviceD3D12::
+        GetRayTracingDeviceDescription() const
+    {
+        return RayTracingDeviceDescription();
+    }
+
+    AccelerationStructureProperties GraphicsDeviceD3D12::
+        GetAccelerationStructureProperties() const
+    {
+        AccelerationStructureProperties properties = {};
+        properties.MinAccelerationStructureScratchOffsetAlignment =
+            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT;
+        return properties;
+    }
+
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWin32(
+        uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
+    )
+    {
+#if defined(WIN32)
+        auto surface = std::make_unique<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
+        return m_Resources.Surfaces.CreateShared(std::move(surface));
+#else
+        throw std::runtime_error("Unsupported platform");
+        return nullptr;
+#endif
+    }
+
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromX11(
+        uintptr_t display, uint32_t screen, uint32_t window
+    )
+    {
+        return {};
+    }
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWayland(
+        uintptr_t display, uintptr_t surface
+    )
+    {
+        return {};
+    }
+
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromAndroid(
+        uintptr_t nativeWindow
+    )
+    {
+        return {};
+    }
+
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromHTML(
+        const std::string &canvasId
+    )
+    {
+        return {};
+    }
+
+    bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
+    {
+        Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 =
+            std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
+        return physicalDeviceD3D12->IsVersionGreaterThan(level);
+    }
+
+    void GraphicsDeviceD3D12::GetLimitsAndFeatures()
+    {
+        D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT vaSupport = {};
+
+        m_Limits.Texture1D = true;
+        m_Limits.Texture2D = true;
+        m_Limits.Texture3D = true;
+
+        m_Limits.MaxUniformBufferRange = D3D12_REQ_CONSTANT_BUFFER_ELEMENT_COUNT;
+
+        HRESULT hr = m_Device->CheckFeatureSupport(
+            D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT, &vaSupport, sizeof(vaSupport)
+        );
+        if (SUCCEEDED(hr))
+        {
+            m_Limits.MaxStorageBufferRange =
+                vaSupport.MaxGPUVirtualAddressBitsPerResource;
+        }
+
+        m_Limits.MaxVertexInputAttributes = 32;
+        m_Limits.MaxVertexInputBindings = 32;
+        m_Limits.MaxVertexInputOffset = std::numeric_limits<uint32_t>::max();
+        m_Limits.MaxVertexInputStride = 255;
+        m_Limits.MaxFramebufferColourAttachmentCount = 8;
+        m_Limits.MaxViewports =
+            D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+
+        m_Features.SupportsGeometryShaders = true;
+        m_Features.SupportsTesselationShaders = true;
+        m_Features.SupportsComputeShaders = true;
+        m_Features.SupportsStorageBuffers = true;
+        m_Features.SupportsMultiviewport = true;
+        m_Features.SupportsSamplerAnisotropy = true;
+        m_Features.SupportsETC2Compression = false;
+        m_Features.SupportsASTC_LDRCompression = true;
+        m_Features.SupportsBCCompression = true;
+        m_Features.SupportShaderStorageImageMultisample = true;
+        m_Features.SupportsCubemapArray = true;
+        m_Features.SupportsIndependentBlend = true;
+
+        // check for depth bounds testing support
+        {
+            D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2 = {};
+            HRESULT hr = m_Device->CheckFeatureSupport(
+                D3D12_FEATURE_D3D12_OPTIONS2, &options2, sizeof(options2)
+            );
+            if (SUCCEEDED(hr))
+            {
+                if (options2.DepthBoundsTestSupported)
+                {
+                    m_Features.SupportsDepthBoundsTesting = true;
+                }
+            }
+        }
+
+        if (IsVersionGreaterThan(D3D_FEATURE_LEVEL_12_2))
+        {
+            m_D3D12Features.SupportsPipelineStreams = true;
+
+            D3D12_FEATURE_DATA_D3D12_OPTIONS7 options7 = {};
+            HRESULT hr = m_Device->CheckFeatureSupport(
+                D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7)
+            );
+            if (SUCCEEDED(hr))
+            {
+                if (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
+                {
+                    m_Features.SupportsMeshTaskShaders = true;
+                }
+            }
+
+            D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
+            hr = m_Device->CheckFeatureSupport(
+                D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)
+            );
+            if (SUCCEEDED(hr))
+            {
+                if (options12.EnhancedBarriersSupported)
+                {
+                    // m_D3D12Features.SupportsEnhancedBarriers = true;
+                }
+            }
+        }
+    }
+
+    inline void GraphicsDeviceD3D12::ReportLiveObjects()
+    {
+        // initialise dxgi debug layer
+        Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
+        {
+            OutputDebugStringW(L"Reporting live D3D12 objects:\n");
+            debug->ReportLiveObjects(
+                DXGI_DEBUG_ALL,
+                DXGI_DEBUG_RLO_FLAGS(
+                    DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL
+                )
+            );
+        }
+    } // namespace Nexus::Graphics
+} // namespace Nexus::Graphics
 #endif

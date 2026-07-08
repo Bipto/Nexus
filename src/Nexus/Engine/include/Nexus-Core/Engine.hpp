@@ -12,20 +12,20 @@
 
 namespace Nexus
 {
-	class NX_API Engine
-	{
-	  public:
-		Engine(Graphics::GraphicsAPI graphicsAPI, Audio::AudioAPI audioAPI);
-		Nexus::Graphics::IGraphicsAPI	   *GetGraphicsAPI();
-		Nexus::Graphics::IGraphicsDevice   *GetGraphicsDevice();
-		Nexus::Graphics::CommandQueueHandle GetGraphicsCommandQueue();
+    class NX_API Engine
+    {
+      public:
+        Engine(Graphics::GraphicsAPI graphicsAPI, Audio::AudioAPI audioAPI);
+        Nexus::Graphics::IGraphicsAPI *GetGraphicsAPI();
+        Nexus::Graphics::IGraphicsDevice *GetGraphicsDevice();
+        Nexus::Graphics::CommandQueueHandle GetGraphicsCommandQueue();
 
-	  private:
-		void CreateGraphicsResources();
+      private:
+        void CreateGraphicsResources();
 
-	  private:
-		std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	  m_GraphicsAPI			 = {};
-		std::unique_ptr<Nexus::Graphics::IGraphicsDevice> m_GraphicsDevice		 = {};
-		Nexus::Graphics::CommandQueueHandle				  m_GraphicsCommandQueue = {};
-	};
-}	 // namespace Nexus
+      private:
+        std::unique_ptr<Nexus::Graphics::IGraphicsAPI> m_GraphicsAPI = {};
+        std::unique_ptr<Nexus::Graphics::IGraphicsDevice> m_GraphicsDevice = {};
+        Nexus::Graphics::CommandQueueHandle m_GraphicsCommandQueue = {};
+    };
+} // namespace Nexus

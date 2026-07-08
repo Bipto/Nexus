@@ -8,87 +8,95 @@ Nexus::Logger *logger = new Nexus::Logger();
 
 namespace Nexus
 {
-	Log::Log(const std::string &message, Severity severity) : Message(message), MessageSeverity(severity), Time(std::chrono::system_clock::now())
-	{
-	}
+    Log::Log(const std::string &message, Severity severity)
+        : Message(message), MessageSeverity(severity),
+          Time(std::chrono::system_clock::now())
+    {
+    }
 
-	void Logger::LogInfo(const std::string &message, const std::source_location location)
-	{
-		// build the message
-		std::stringstream ss;
-		ss << "[INFO] received from file: {";
-		ss << location.file_name();
-		ss << "} at line: ";
-		ss << location.line();
-		ss << ": ";
-		ss << message;
+    void Logger::LogInfo(
+        const std::string &message, const std::source_location location
+    )
+    {
+        // build the message
+        std::stringstream ss;
+        ss << "[INFO] received from file: {";
+        ss << location.file_name();
+        ss << "} at line: ";
+        ss << location.line();
+        ss << ": ";
+        ss << message;
 
-		Nexus::Log log(ss.str(), Severity::Info);
-		std::cout << log.Message << std::endl;
-		this->m_Logs.push_back(log);
-	}
+        Nexus::Log log(ss.str(), Severity::Info);
+        std::cout << log.Message << std::endl;
+        this->m_Logs.push_back(log);
+    }
 
-	void Logger::LogWarning(const std::string &message, const std::source_location location)
-	{
-		// build the message
-		std::stringstream ss;
-		ss << "[WARNING] received from file: {";
-		ss << location.file_name();
-		ss << "} at line: ";
-		ss << location.line();
-		ss << ": ";
-		ss << message;
+    void Logger::LogWarning(
+        const std::string &message, const std::source_location location
+    )
+    {
+        // build the message
+        std::stringstream ss;
+        ss << "[WARNING] received from file: {";
+        ss << location.file_name();
+        ss << "} at line: ";
+        ss << location.line();
+        ss << ": ";
+        ss << message;
 
-		Nexus::Log log(ss.str(), Severity::Warning);
-		std::cout << log.Message << std::endl;
-		this->m_Logs.push_back(log);
-	}
+        Nexus::Log log(ss.str(), Severity::Warning);
+        std::cout << log.Message << std::endl;
+        this->m_Logs.push_back(log);
+    }
 
-	void Logger::LogError(const std::string &message, const std::source_location location)
-	{
-		// build the message
-		std::stringstream ss;
-		ss << "[ERROR] received from file: {";
-		ss << location.file_name();
-		ss << "} at line: ";
-		ss << std::to_string(location.line());
-		ss << ": ";
-		ss << message;
+    void Logger::LogError(
+        const std::string &message, const std::source_location location
+    )
+    {
+        // build the message
+        std::stringstream ss;
+        ss << "[ERROR] received from file: {";
+        ss << location.file_name();
+        ss << "} at line: ";
+        ss << std::to_string(location.line());
+        ss << ": ";
+        ss << message;
 
-		Nexus::Log log(ss.str(), Severity::Error);
-		std::cout << log.Message << std::endl;
-		this->m_Logs.push_back(log);
-	}
+        Nexus::Log log(ss.str(), Severity::Error);
+        std::cout << log.Message << std::endl;
+        this->m_Logs.push_back(log);
+    }
 
-	const std::vector<Nexus::Log> &Logger::GetLogs()
-	{
-		return m_Logs;
-	}
+    const std::vector<Nexus::Log> &Logger::GetLogs()
+    {
+        return m_Logs;
+    }
 
-	std::string Logger::GetTime()
-	{
-		std::time_t time = std::time(nullptr);
-		struct tm	tstruct;
-		char		buff[80];
+    std::string Logger::GetTime()
+    {
+        std::time_t time = std::time(nullptr);
+        struct tm tstruct;
+        char buff[80];
 
-		std::time_t now = std::time(nullptr);
+        std::time_t now = std::time(nullptr);
 
 #if defined(_MSC_VER) || defined(__STDC_LIB_EXT1__)
-		localtime_s(&tstruct, &now);
+        localtime_s(&tstruct, &now);
 #elif defined(__unix__) || defined(__APPLE__)
-		localtime_r(&now, &tstruct);
+        localtime_r(&now, &tstruct);
 #else
-		tstruct = *std::localtime(&now);
+        tstruct = *std::localtime(&now);
 #endif
 
-		strftime(buff, sizeof(buff), "%d-%m-%Y %X", &tstruct);
+        strftime(buff, sizeof(buff), "%d-%m-%Y %X", &tstruct);
 
-		std::string text = buff;
-		return text;
-	}
+        std::string text = buff;
+        return text;
+    }
 
-	Logger *GetCoreLogger()
-	{
-		return logger;
-	}
-}	 // namespace Nexus
+    Logger *GetCoreLogger()
+    {
+        return logger;
+    }
+} // namespace Nexus

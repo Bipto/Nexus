@@ -6,19 +6,21 @@
 
 namespace Nexus
 {
-	class Project;
+    class Project;
 
-	namespace ECS
-	{
-		class Registry;
-	}
+    namespace ECS
+    {
+        class Registry;
+    }
 
-	struct Entity
-	{
-	  public:
-		void Serialize(YAML::Emitter &out, ECS::Registry &registry, Project *project) const;
+    struct Entity
+    {
+      public:
+        void Serialize(
+            YAML::Emitter &out, ECS::Registry &registry, Project *project
+        ) const;
 
-		GUID		ID	 = {};
-		std::string Name = "Unnamed Entity";
-	};
-}	 // namespace Nexus
+        GUID ID = {};
+        std::string Name = "Unnamed Entity";
+    };
+} // namespace Nexus

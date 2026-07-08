@@ -4,10 +4,10 @@
 
 namespace Nexus::Graphics
 {
-	struct GraphicsAPICreateInfo
-	{
-		GraphicsAPI API	  = GraphicsAPI::OpenGL;
-		bool		Debug = false;
-	};
+    struct GraphicsAPICreateInfo
+    {
+        GraphicsAPI API = GraphicsAPI::OpenGL;
+        bool Debug = false;
+    };
 
-}	 // namespace Nexus::Graphics
+} // namespace Nexus::Graphics

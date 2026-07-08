@@ -4,143 +4,179 @@
 
 namespace Nexus::Graphics
 {
-	CommandQueueD3D12::CommandQueueD3D12(GraphicsDeviceD3D12 *device, const CommandQueueDescription &description)
-		: m_Device(device),
-		  m_Description(description)
-	{
-		D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
-		commandQueueDesc.Type					  = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		commandQueueDesc.Priority				  = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-		commandQueueDesc.NodeMask				  = 0;
-		commandQueueDesc.Flags					  = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    CommandQueueD3D12::CommandQueueD3D12(
+        GraphicsDeviceD3D12 *device, const CommandQueueDescription &description
+    )
+        : m_Device(device), m_Description(description)
+    {
+        D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
+        commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+        commandQueueDesc.NodeMask = 0;
+        commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-		auto d3d12Device = m_Device->GetD3D12Device();
-		d3d12Device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_CommandQueue));
+        auto d3d12Device = m_Device->GetD3D12Device();
+        d3d12Device->CreateCommandQueue(
+            &commandQueueDesc, IID_PPV_ARGS(&m_CommandQueue)
+        );
 
-		std::wstring name = {m_Description.DebugName.begin(), m_Description.DebugName.end()};
-		m_CommandQueue->SetName(name.c_str());
+        std::wstring name = {
+            m_Description.DebugName.begin(), m_Description.DebugName.end()
+        };
+        m_CommandQueue->SetName(name.c_str());
 
-		m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device->GetD3D12Device());
+        m_CommandExecutor =
+            std::make_unique<CommandExecutorD3D12>(m_Device->GetD3D12Device());
 
-		// create the fence
-		if (SUCCEEDED(d3d12Device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence))))
-		{
-			m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
-		}
-	}
+        // create the fence
+        if (SUCCEEDED(d3d12Device->CreateFence(
+                m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)
+            )))
+        {
+            m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
+        }
+    }
 
-	CommandQueueD3D12::~CommandQueueD3D12()
-	{
-	}
+    CommandQueueD3D12::~CommandQueueD3D12()
+    {
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueueD3D12::GetHandle()
-	{
-		return m_CommandQueue;
-	}
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueueD3D12::GetHandle()
+    {
+        return m_CommandQueue;
+    }
 
-	const CommandQueueDescription &CommandQueueD3D12::GetDescription() const
-	{
-		return m_Description;
-	}
+    const CommandQueueDescription &CommandQueueD3D12::GetDescription() const
+    {
+        return m_Description;
+    }
 
-	SwapchainHandle CommandQueueD3D12::CreateSwapchain(const SwapchainDescription &spec)
-	{
-		auto swapchain = std::make_unique<SwapchainD3D12>(m_Device, this, spec);
-		return m_Resources.Swapchains.CreateShared(std::move(swapchain));
-	}
+    SwapchainHandle CommandQueueD3D12::CreateSwapchain(
+        const SwapchainDescription &spec
+    )
+    {
+        auto swapchain = std::make_unique<SwapchainD3D12>(m_Device, this, spec);
+        return m_Resources.Swapchains.CreateShared(std::move(swapchain));
+    }
 
-	void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList)
-	{
-		SubmitCommandList(commandList, nullptr);
-	}
+    void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList)
+    {
+        SubmitCommandList(commandList, nullptr);
+    }
 
-	void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
-	{
-		SubmitCommandLists(&commandList, 1, fence);
-	}
+    void CommandQueueD3D12::SubmitCommandList(
+        CommandListHandle commandList, Ref<IFence> fence
+    )
+    {
+        SubmitCommandLists(&commandList, 1, fence);
+    }
 
-	void CommandQueueD3D12::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
-	{
-		SubmitCommandLists(commandLists, numCommandLists, nullptr);
-	}
+    void CommandQueueD3D12::SubmitCommandLists(
+        CommandListHandle *commandLists, uint32_t numCommandLists
+    )
+    {
+        SubmitCommandLists(commandLists, numCommandLists, nullptr);
+    }
 
-	void CommandQueueD3D12::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence)
-	{
-		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
+    void CommandQueueD3D12::SubmitCommandLists(
+        CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence
+    )
+    {
+        std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
 
-		for (uint32_t i = 0; i < numCommandLists; i++)
-		{
-			CommandListD3D12								  *commandList = commandLists[i].AsDerived<CommandListD3D12>();
-			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> cmdList	   = commandList->GetCommandList();
+        for (uint32_t i = 0; i < numCommandLists; i++)
+        {
+            CommandListD3D12 *commandList =
+                commandLists[i].AsDerived<CommandListD3D12>();
+            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> cmdList =
+                commandList->GetCommandList();
 
-			m_Device->WaitForIdle();
+            m_Device->WaitForIdle();
 
-			commandList->Reset();
-			m_CommandExecutor->SetCommandList(cmdList);
-			m_CommandExecutor->SetCommandQueue(this);
+            commandList->Reset();
+            m_CommandExecutor->SetCommandList(cmdList);
+            m_CommandExecutor->SetCommandQueue(this);
 
-			m_CommandExecutor->ExecuteCommands(commandList, m_Device);
-			commandList->Close();
+            m_CommandExecutor->ExecuteCommands(commandList, m_Device);
+            commandList->Close();
 
-			m_CommandExecutor->Reset();
+            m_CommandExecutor->Reset();
 
-			d3d12CommandLists[i] = cmdList.Get();
-		}
+            d3d12CommandLists[i] = cmdList.Get();
+        }
 
-		m_CommandQueue->ExecuteCommandLists(d3d12CommandLists.size(), d3d12CommandLists.data());
+        m_CommandQueue->ExecuteCommandLists(
+            d3d12CommandLists.size(), d3d12CommandLists.data()
+        );
 
-		if (fence)
-		{
-			Ref<FenceD3D12>						 fenceD3D12	 = std::dynamic_pointer_cast<FenceD3D12>(fence);
-			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
-			m_CommandQueue->Signal(fenceHandle.Get(), 1);
-			NX_VALIDATE(SUCCEEDED(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent())), "Failed to set event on completion");
-		}
+        if (fence)
+        {
+            Ref<FenceD3D12> fenceD3D12 =
+                std::dynamic_pointer_cast<FenceD3D12>(fence);
+            Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle =
+                fenceD3D12->GetHandle();
+            m_CommandQueue->Signal(fenceHandle.Get(), 1);
+            NX_VALIDATE(
+                SUCCEEDED(
+                    fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent())
+                ),
+                "Failed to set event on completion"
+            );
+        }
 
-		m_CommandExecutor->FlushReadbacks(m_Device);
-	}
+        m_CommandExecutor->FlushReadbacks(m_Device);
+    }
 
-	IGraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()
-	{
-		return m_Device;
-	}
+    IGraphicsDevice *CommandQueueD3D12::GetGraphicsDevice()
+    {
+        return m_Device;
+    }
 
-	bool CommandQueueD3D12::WaitForIdle()
-	{
-		SignalAndWait();
-		return true;
-	}
+    bool CommandQueueD3D12::WaitForIdle()
+    {
+        SignalAndWait();
+        return true;
+    }
 
-	CommandListHandle CommandQueueD3D12::CreateCommandList(const CommandListDescription &spec)
-	{
-		auto commandList = std::make_unique<CommandListD3D12>(m_Device, spec);
-		return m_Resources.CommandLists.CreateShared(std::move(commandList));
-	}
+    CommandListHandle CommandQueueD3D12::CreateCommandList(
+        const CommandListDescription &spec
+    )
+    {
+        auto commandList = std::make_unique<CommandListD3D12>(m_Device, spec);
+        return m_Resources.CommandLists.CreateShared(std::move(commandList));
+    }
 
-	void CommandQueueD3D12::SignalAndWait()
-	{
-		// Step 1: Increment fence value BEFORE signaling
-		++m_FenceValue;
+    void CommandQueueD3D12::SignalAndWait()
+    {
+        // Step 1: Increment fence value BEFORE signaling
+        ++m_FenceValue;
 
-		// Step 2: Signal the fence from the command queue
-		HRESULT hr = m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
-		if (FAILED(hr))
-		{
-			throw std::runtime_error("Failed to signal fence. HRESULT: " + std::to_string(hr));
-		}
+        // Step 2: Signal the fence from the command queue
+        HRESULT hr = m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
+        if (FAILED(hr))
+        {
+            throw std::runtime_error(
+                "Failed to signal fence. HRESULT: " + std::to_string(hr)
+            );
+        }
 
-		// Step 3: Set an event to be triggered when the GPU reaches the fence value
-		hr = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
-		if (FAILED(hr))
-		{
-			throw std::runtime_error("Failed to set fence event. HRESULT: " + std::to_string(hr));
-		}
+        // Step 3: Set an event to be triggered when the GPU reaches the fence value
+        hr = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
+        if (FAILED(hr))
+        {
+            throw std::runtime_error(
+                "Failed to set fence event. HRESULT: " + std::to_string(hr)
+            );
+        }
 
-		// Step 4: Wait for the event to be signaled (i.e., GPU has completed work)
-		DWORD waitResult = WaitForSingleObject(m_FenceEvent, INFINITE);
-		if (waitResult != WAIT_OBJECT_0)
-		{
-			throw std::runtime_error("Failed to wait for fence event. Wait result: " + std::to_string(waitResult));
-		}
-	}
-}	 // namespace Nexus::Graphics
+        // Step 4: Wait for the event to be signaled (i.e., GPU has completed work)
+        DWORD waitResult = WaitForSingleObject(m_FenceEvent, INFINITE);
+        if (waitResult != WAIT_OBJECT_0)
+        {
+            throw std::runtime_error(
+                "Failed to wait for fence event. Wait result: " +
+                std::to_string(waitResult)
+            );
+        }
+    }
+} // namespace Nexus::Graphics

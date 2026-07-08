@@ -2,55 +2,64 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "D3D12Utils.hpp"
-	#include "DeviceBufferD3D12.hpp"
-	#include "FramebufferD3D12.hpp"
-	#include "PipelineD3D12.hpp"
-	#include "ResourceSetD3D12.hpp"
-	#include "SwapchainD3D12.hpp"
-	#include "TextureD3D12.hpp"
-	#include "TimingQueryD3D12.hpp"
+#include "D3D12Utils.hpp"
+#include "DeviceBufferD3D12.hpp"
+#include "FramebufferD3D12.hpp"
+#include "PipelineD3D12.hpp"
+#include "ResourceSetD3D12.hpp"
+#include "SwapchainD3D12.hpp"
+#include "TextureD3D12.hpp"
+#include "TimingQueryD3D12.hpp"
 
 namespace Nexus::Graphics
 {
-	CommandListD3D12::CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListDescription &spec) : ICommandList(spec)
-	{
-		auto d3d12Device = device->GetD3D12Device();
-		d3d12Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator));
-		d3d12Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_CommandList));
+    CommandListD3D12::CommandListD3D12(
+        GraphicsDeviceD3D12 *device, const CommandListDescription &spec
+    )
+        : ICommandList(spec)
+    {
+        auto d3d12Device = device->GetD3D12Device();
+        d3d12Device->CreateCommandAllocator(
+            D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator)
+        );
+        d3d12Device->CreateCommandList1(
+            0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE,
+            IID_PPV_ARGS(&m_CommandList)
+        );
 
-		// set CommandList name
-		{
-			std::wstring debugName = {spec.DebugName.begin(), spec.DebugName.end()};
-			m_CommandList->SetName(debugName.c_str());
-		}
+        // set CommandList name
+        {
+            std::wstring debugName = {spec.DebugName.begin(), spec.DebugName.end()};
+            m_CommandList->SetName(debugName.c_str());
+        }
 
-		{
-			std::string	 allocatorName = spec.DebugName + " - Command Allocator";
-			std::wstring debugName	   = {allocatorName.begin(), allocatorName.end()};
-			m_CommandAllocator->SetName(debugName.c_str());
-		}
-	}
+        {
+            std::string allocatorName = spec.DebugName + " - Command Allocator";
+            std::wstring debugName = {allocatorName.begin(), allocatorName.end()};
+            m_CommandAllocator->SetName(debugName.c_str());
+        }
+    }
 
-	CommandListD3D12::~CommandListD3D12()
-	{
-	}
+    CommandListD3D12::~CommandListD3D12()
+    {
+    }
 
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> CommandListD3D12::GetCommandList()
-	{
-		return m_CommandList;
-	}
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> CommandListD3D12::
+        GetCommandList()
+    {
+        return m_CommandList;
+    }
 
-	void CommandListD3D12::Reset()
-	{
-		m_CommandAllocator->Reset();
-		m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
-	}
+    void CommandListD3D12::Reset()
+    {
+        m_CommandAllocator->Reset();
+        m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
+    }
 
-	void CommandListD3D12::Close()
-	{
-		m_CommandList->Close();
-	}
-}	 // namespace Nexus::Graphics
+    void CommandListD3D12::Close()
+    {
+        m_CommandList->Close();
+    }
+} // namespace Nexus::Graphics
 
 #endif

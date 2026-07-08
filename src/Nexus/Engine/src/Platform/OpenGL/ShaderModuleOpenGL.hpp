@@ -2,27 +2,30 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "GL.hpp"
-	#include "RHI/ShaderModule.hpp"
+#include "GL.hpp"
+#include "RHI/ShaderModule.hpp"
 
 namespace Nexus::Graphics
 {
-	class GraphicsDeviceOpenGL;
+    class GraphicsDeviceOpenGL;
 
-	class ShaderModuleOpenGL : public IShaderModule
-	{
-	  public:
-		ShaderModuleOpenGL(const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceOpenGL *device);
-		virtual ~ShaderModuleOpenGL();
-		GLenum				 GetGLShaderStage() const;
-		uint32_t			 GetHandle() const;
-		ShaderReflectionData Reflect() const final;
+    class ShaderModuleOpenGL : public IShaderModule
+    {
+      public:
+        ShaderModuleOpenGL(
+            const ShaderModuleDescription &shaderModuleSpec,
+            GraphicsDeviceOpenGL *device
+        );
+        virtual ~ShaderModuleOpenGL();
+        GLenum GetGLShaderStage() const;
+        uint32_t GetHandle() const;
+        ShaderReflectionData Reflect() const final;
 
-	  private:
-		GraphicsDeviceOpenGL *m_Device		= nullptr;
-		uint32_t			  m_Handle		= 0;
-		GLenum				  m_ShaderStage = 0;
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        GraphicsDeviceOpenGL *m_Device = nullptr;
+        uint32_t m_Handle = 0;
+        GLenum m_ShaderStage = 0;
+    };
+} // namespace Nexus::Graphics
 
 #endif

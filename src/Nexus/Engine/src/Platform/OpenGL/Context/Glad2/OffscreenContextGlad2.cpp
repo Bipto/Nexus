@@ -8,28 +8,30 @@
 
 namespace Nexus::GL
 {
-	OffscreenContextGlad2::OffscreenContextGlad2()
-	{
-	}
+    OffscreenContextGlad2::OffscreenContextGlad2()
+    {
+    }
 
-	OffscreenContextGlad2::~OffscreenContextGlad2()
-	{
-		gladLoaderUnloadGLContext(&m_Context);
-	}
+    OffscreenContextGlad2::~OffscreenContextGlad2()
+    {
+        gladLoaderUnloadGLContext(&m_Context);
+    }
 
-	bool OffscreenContextGlad2::Load()
-	{
-		int result = gladLoaderLoadGLContext(&m_Context);
-		return result;
-	}
+    bool OffscreenContextGlad2::Load()
+    {
+        int result = gladLoaderLoadGLContext(&m_Context);
+        return result;
+    }
 
-	void OffscreenContextGlad2::ExecuteCommands(std::function<void(const GladGLContext &context)> function)
-	{
-		function(m_Context);
-	}
+    void OffscreenContextGlad2::ExecuteCommands(
+        std::function<void(const GladGLContext &context)> function
+    )
+    {
+        function(m_Context);
+    }
 
-	const GladGLContext &OffscreenContextGlad2::GetContext() const
-	{
-		return m_Context;
-	}
-}	 // namespace Nexus::GL
+    const GladGLContext &OffscreenContextGlad2::GetContext() const
+    {
+        return m_Context;
+    }
+} // namespace Nexus::GL

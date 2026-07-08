@@ -7,25 +7,25 @@
 
 namespace Nexus::Graphics
 {
-	class FenceD3D12 : public IFence
-	{
-	  public:
-		FenceD3D12(const FenceDescription &desc, GraphicsDeviceD3D12 *device);
-		virtual ~FenceD3D12();
+    class FenceD3D12 : public IFence
+    {
+      public:
+        FenceD3D12(const FenceDescription &desc, GraphicsDeviceD3D12 *device);
+        virtual ~FenceD3D12();
 
-		bool					IsSignalled() const final;
-		const FenceDescription &GetDescription() const final;
+        bool IsSignalled() const final;
+        const FenceDescription &GetDescription() const final;
 
-		Microsoft::WRL::ComPtr<ID3D12Fence1> GetHandle() const;
-		HANDLE								 GetFenceEvent() const;
+        Microsoft::WRL::ComPtr<ID3D12Fence1> GetHandle() const;
+        HANDLE GetFenceEvent() const;
 
-		void Reset();
+        void Reset();
 
-	  private:
-		FenceDescription					 m_Description = {};
-		GraphicsDeviceD3D12					*m_Device	   = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12Fence1> m_Fence	   = nullptr;
-		uint64_t							 m_FenceValue  = 0;
-		HANDLE								 m_FenceEvent  = nullptr;
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        FenceDescription m_Description = {};
+        GraphicsDeviceD3D12 *m_Device = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Fence1> m_Fence = nullptr;
+        uint64_t m_FenceValue = 0;
+        HANDLE m_FenceEvent = nullptr;
+    };
+} // namespace Nexus::Graphics

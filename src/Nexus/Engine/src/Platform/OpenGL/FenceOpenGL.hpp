@@ -6,28 +6,28 @@
 
 namespace Nexus::Graphics
 {
-	class GraphicsDeviceOpenGL;
+    class GraphicsDeviceOpenGL;
 
-	class FenceOpenGL : public IFence
-	{
-	  public:
-		FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device);
-		virtual ~FenceOpenGL();
+    class FenceOpenGL : public IFence
+    {
+      public:
+        FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device);
+        virtual ~FenceOpenGL();
 
-		bool					IsSignalled() const final;
-		const FenceDescription &GetDescription() const final;
+        bool IsSignalled() const final;
+        const FenceDescription &GetDescription() const final;
 
-		GLsync GetHandle() const;
-		void   Reset();
-		GLenum Wait(uint64_t timeoutNS);
+        GLsync GetHandle() const;
+        void Reset();
+        GLenum Wait(uint64_t timeoutNS);
 
-	  private:
-		void CreateFence();
-		void DestroyFence();
+      private:
+        void CreateFence();
+        void DestroyFence();
 
-	  private:
-		GraphicsDeviceOpenGL *m_Device		= nullptr;
-		FenceDescription	  m_Description = {};
-		GLsync				  m_Sync		= {};
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        GraphicsDeviceOpenGL *m_Device = nullptr;
+        FenceDescription m_Description = {};
+        GLsync m_Sync = {};
+    };
+} // namespace Nexus::Graphics

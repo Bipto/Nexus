@@ -10,25 +10,25 @@
 
 namespace Nexus::Timings
 {
-	struct ProfileResult
-	{
-		std::string Name = {};
-		TimeSpan	Time = {};
-	};
+    struct ProfileResult
+    {
+        std::string Name = {};
+        TimeSpan Time = {};
+    };
 
-	class NX_PLATFORM_API Profiler
-	{
-	  public:
-		void							  AddResult(const std::string &name, TimeSpan timespan);
-		const std::vector<ProfileResult> &GetResults() const;
-		void							  Reset();
+    class NX_PLATFORM_API Profiler
+    {
+      public:
+        void AddResult(const std::string &name, TimeSpan timespan);
+        const std::vector<ProfileResult> &GetResults() const;
+        void Reset();
 
-		static Profiler &Get();
+        static Profiler &Get();
 
-	  private:
-		std::vector<ProfileResult> m_Results = {};
-		Profiler()							 = default;
-	};
-}	 // namespace Nexus::Timings
+      private:
+        std::vector<ProfileResult> m_Results = {};
+        Profiler() = default;
+    };
+} // namespace Nexus::Timings
 
 // #define NX_PROFILING_ENABLE

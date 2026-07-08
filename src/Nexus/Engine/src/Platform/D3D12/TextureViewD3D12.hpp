@@ -6,14 +6,14 @@
 
 namespace Nexus::Graphics
 {
-	class TextureViewD3D12 : public ITextureView
-	{
-	  public:
-		TextureViewD3D12(const TextureViewDescription &desc);
-		virtual ~TextureViewD3D12();
-		const TextureViewDescription &GetDescription() const final;
+    class TextureViewD3D12 : public ITextureView
+    {
+      public:
+        TextureViewD3D12(const TextureViewDescription &desc);
+        virtual ~TextureViewD3D12();
+        const TextureViewDescription &GetDescription() const final;
 
-	  private:
-		TextureViewDescription m_Description = {};
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        TextureViewDescription m_Description = {};
+    };
+} // namespace Nexus::Graphics

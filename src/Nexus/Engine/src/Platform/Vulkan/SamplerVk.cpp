@@ -1,69 +1,75 @@
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "SamplerVk.hpp"
+#include "SamplerVk.hpp"
 
 namespace Nexus::Graphics
 {
-	SamplerVk::SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec) : m_Device(device)
-	{
-		VkFilter			min, max;
-		VkSamplerMipmapMode mipmapMode;
-		Vk::GetVkFilterFromNexusFormat(spec.SampleFilter, min, max, mipmapMode);
-		VkBorderColor color = Vk::GetVkBorderColor(spec.TextureBorderColor);
+    SamplerVk::SamplerVk(GraphicsDeviceVk *device, const SamplerDescription &spec)
+        : m_Device(device)
+    {
+        VkFilter min, max;
+        VkSamplerMipmapMode mipmapMode;
+        Vk::GetVkFilterFromNexusFormat(spec.SampleFilter, min, max, mipmapMode);
+        VkBorderColor color = Vk::GetVkBorderColor(spec.TextureBorderColor);
 
-		VkSamplerCreateInfo samplerInfo = {};
-		samplerInfo.sType				= VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.minFilter			= min;
-		samplerInfo.magFilter			= max;
-		samplerInfo.mipmapMode			= mipmapMode;
-		samplerInfo.addressModeU		= Vk::GetVkSamplerAddressMode(spec.AddressModeU);
-		samplerInfo.addressModeV		= Vk::GetVkSamplerAddressMode(spec.AddressModeV);
-		samplerInfo.addressModeW		= Vk::GetVkSamplerAddressMode(spec.AddressModeW);
+        VkSamplerCreateInfo samplerInfo = {};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.minFilter = min;
+        samplerInfo.magFilter = max;
+        samplerInfo.mipmapMode = mipmapMode;
+        samplerInfo.addressModeU = Vk::GetVkSamplerAddressMode(spec.AddressModeU);
+        samplerInfo.addressModeV = Vk::GetVkSamplerAddressMode(spec.AddressModeV);
+        samplerInfo.addressModeW = Vk::GetVkSamplerAddressMode(spec.AddressModeW);
 
-		if (spec.SampleFilter == Nexus::Graphics::SamplerFilter::Anisotropic)
-		{
-			samplerInfo.anisotropyEnable = VK_TRUE;
-			samplerInfo.maxAnisotropy	 = spec.MaximumAnisotropy;
-		}
-		else
-		{
-			samplerInfo.anisotropyEnable = VK_FALSE;
-		}
+        if (spec.SampleFilter == Nexus::Graphics::SamplerFilter::Anisotropic)
+        {
+            samplerInfo.anisotropyEnable = VK_TRUE;
+            samplerInfo.maxAnisotropy = spec.MaximumAnisotropy;
+        }
+        else
+        {
+            samplerInfo.anisotropyEnable = VK_FALSE;
+        }
 
-		samplerInfo.borderColor				= color;
-		samplerInfo.unnormalizedCoordinates = VK_FALSE;
-		samplerInfo.compareEnable			= VK_TRUE;
-		samplerInfo.compareOp				= Vk::GetCompareOp(spec.SamplerComparisonFunction);
-		samplerInfo.mipmapMode				= mipmapMode;
-		samplerInfo.mipLodBias				= spec.LODBias;
-		samplerInfo.minLod					= spec.MinimumLOD;
-		samplerInfo.maxLod					= spec.MaximumLOD;
+        samplerInfo.borderColor = color;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_TRUE;
+        samplerInfo.compareOp = Vk::GetCompareOp(spec.SamplerComparisonFunction);
+        samplerInfo.mipmapMode = mipmapMode;
+        samplerInfo.mipLodBias = spec.LODBias;
+        samplerInfo.minLod = spec.MinimumLOD;
+        samplerInfo.maxLod = spec.MaximumLOD;
 
-		const GladVulkanContext &context = device->GetVulkanContext();
+        const GladVulkanContext &context = device->GetVulkanContext();
 
-		if (context.CreateSampler(device->GetVkDevice(), &samplerInfo, nullptr, &m_Sampler) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create sampler");
-		}
+        if (context.CreateSampler(
+                device->GetVkDevice(), &samplerInfo, nullptr, &m_Sampler
+            ) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create sampler");
+        }
 
-		device->SetObjectName(VK_OBJECT_TYPE_SAMPLER, (uint64_t)m_Sampler, m_Description.DebugName.c_str());
-	}
+        device->SetObjectName(
+            VK_OBJECT_TYPE_SAMPLER, (uint64_t)m_Sampler,
+            m_Description.DebugName.c_str()
+        );
+    }
 
-	SamplerVk::~SamplerVk()
-	{
-		const GladVulkanContext &context = m_Device->GetVulkanContext();
-		context.DestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
-	}
+    SamplerVk::~SamplerVk()
+    {
+        const GladVulkanContext &context = m_Device->GetVulkanContext();
+        context.DestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
+    }
 
-	const SamplerDescription &SamplerVk::GetSamplerDescription() const
-	{
-		return m_Description;
-	}
+    const SamplerDescription &SamplerVk::GetSamplerDescription() const
+    {
+        return m_Description;
+    }
 
-	const VkSampler SamplerVk::GetSampler() const
-	{
-		return m_Sampler;
-	}
-}	 // namespace Nexus::Graphics
+    const VkSampler SamplerVk::GetSampler() const
+    {
+        return m_Sampler;
+    }
+} // namespace Nexus::Graphics
 
 #endif

@@ -8,26 +8,30 @@
 
 namespace Nexus::GL
 {
-	class OffscreenContextWGL final : public IOffscreenContext
-	{
-	  public:
-		OffscreenContextWGL(const ContextDescription &spec, Graphics::IPhysicalDevice *device);
-		virtual ~OffscreenContextWGL();
-		bool				 MakeCurrent() final;
-		bool				 Validate() final;
-		const GladGLContext &GetContext() const final;
+    class OffscreenContextWGL final : public IOffscreenContext
+    {
+      public:
+        OffscreenContextWGL(
+            const ContextDescription &spec, Graphics::IPhysicalDevice *device
+        );
+        virtual ~OffscreenContextWGL();
+        bool MakeCurrent() final;
+        bool Validate() final;
+        const GladGLContext &GetContext() const final;
 
-		HGLRC GetHGLRC();
+        HGLRC GetHGLRC();
 
-	  private:
-		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextDescription &spec);
+      private:
+        std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(
+            HDC hdc, const ContextDescription &spec
+        );
 
-	  private:
-		HGLRC		m_HGLRC	  = {};
-		HPBUFFERARB m_PBuffer = {};
-		HDC			m_HDC	  = {};
+      private:
+        HGLRC m_HGLRC = {};
+        HPBUFFERARB m_PBuffer = {};
+        HDC m_HDC = {};
 
-	  private:
-		inline static bool s_GLFunctionsLoaded = false;
-	};
-}	 // namespace Nexus::GL
+      private:
+        inline static bool s_GLFunctionsLoaded = false;
+    };
+} // namespace Nexus::GL

@@ -8,14 +8,14 @@
 
 namespace Nexus::Graphics
 {
-	class ISampler
-	{
-	  public:
-		virtual ~ISampler()
-		{
-		}
-		virtual const SamplerDescription &GetSamplerDescription() const = 0;
-	};
+    class ISampler
+    {
+      public:
+        virtual ~ISampler()
+        {
+        }
+        virtual const SamplerDescription &GetSamplerDescription() const = 0;
+    };
 
-	DEFINE_RESOURCE(Sampler, ISampler);
-}	 // namespace Nexus::Graphics
+    DEFINE_RESOURCE(Sampler, ISampler);
+} // namespace Nexus::Graphics

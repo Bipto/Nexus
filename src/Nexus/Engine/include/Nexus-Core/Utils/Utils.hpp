@@ -12,183 +12,210 @@
 
 namespace Nexus::Graphics
 {
-	class IDeviceBuffer;
-	class IGraphicsDevice;
-}	 // namespace Nexus::Graphics
+    class IDeviceBuffer;
+    class IGraphicsDevice;
+} // namespace Nexus::Graphics
 
 namespace Nexus::Utils
 {
-	NX_API glm::vec4 ColourFromRGBA(float r, float g, float b, float a);
-	NX_API glm::vec4 ColourFromBorderColour(Nexus::Graphics::BorderColour color);
-	NX_API glm::vec4 GenerateRandomColour();
-	NX_API uint32_t	 PackColour(const glm::vec4 &colour);
+    NX_API glm::vec4 ColourFromRGBA(float r, float g, float b, float a);
+    NX_API glm::vec4 ColourFromBorderColour(Nexus::Graphics::BorderColour color);
+    NX_API glm::vec4 GenerateRandomColour();
+    NX_API uint32_t PackColour(const glm::vec4 &colour);
 
-	template<typename T>
-	inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
-	{
-		return newMin + (newMax - newMin) * ((value - oldMin) / (oldMax - oldMin));
-	}
+    template <typename T>
+    inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
+    {
+        return newMin + (newMax - newMin) * ((value - oldMin) / (oldMax - oldMin));
+    }
 
-	template<typename T>
-	inline T Lerp(T x, T y, T t)
-	{
-		return x * (1 - t) + y * t;
-	}
+    template <typename T> inline T Lerp(T x, T y, T t)
+    {
+        return x * (1 - t) + y * t;
+    }
 
-	inline float Dot(const glm::vec2 &a, const glm::vec2 &b)
-	{
-		return a.x * b.x + a.y * b.y;
-	}
+    inline float Dot(const glm::vec2 &a, const glm::vec2 &b)
+    {
+        return a.x * b.x + a.y * b.y;
+    }
 
-	inline float Cross(const glm::vec2 &a, const glm::vec2 &b)
-	{
-		return a.x * b.y - b.x * a.y;
-	}
+    inline float Cross(const glm::vec2 &a, const glm::vec2 &b)
+    {
+        return a.x * b.y - b.x * a.y;
+    }
 
-	inline bool IsInsideEdge(const glm::vec2 &point, const glm::vec2 &a, const glm::vec2 &b)
-	{
-		return (Cross(a - b, point) + Cross(b, a)) < 0.0f;
-	}
+    inline bool IsInsideEdge(
+        const glm::vec2 &point, const glm::vec2 &a, const glm::vec2 &b
+    )
+    {
+        return (Cross(a - b, point) + Cross(b, a)) < 0.0f;
+    }
 
-	inline glm::vec2 Intersection(const glm::vec2 &a1, const glm::vec2 &a2, const glm::vec2 &b1, const glm::vec2 &b2)
-	{
-		return ((b1 - b2) * Cross(a1, a2) - (a1 - a2) * Cross(b1, b2)) * (1.0f / Cross(a1 - a2, b1 - b2));
-	}
+    inline glm::vec2 Intersection(
+        const glm::vec2 &a1, const glm::vec2 &a2, const glm::vec2 &b1,
+        const glm::vec2 &b2
+    )
+    {
+        return ((b1 - b2) * Cross(a1, a2) - (a1 - a2) * Cross(b1, b2)) *
+               (1.0f / Cross(a1 - a2, b1 - b2));
+    }
 
-	NX_API void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
+    NX_API void Clip(
+        std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2
+    );
 
-	NX_API std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon);
-	NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip);
+    NX_API std::vector<glm::vec2> SutherlandHodgman(
+        const std::vector<glm::vec2> &subjectPolygon,
+        const std::vector<glm::vec2> &clipPolygon
+    );
+    NX_API Nexus::Graphics::Polygon SutherlandHodgman(
+        const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip
+    );
 
-	NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
+    NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
 
-	NX_API bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles);
+    NX_API bool Triangulate(
+        const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles
+    );
 
-	NX_API std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices);
+    NX_API std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(
+        const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices
+    );
 
-	NX_API Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
+    NX_API Nexus::Graphics::Polygon GeneratePolygon(
+        const std::vector<glm::vec2> &polygon
+    );
 
-	NX_API Graphics::WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
+    NX_API Graphics::WindingOrder GetWindingOrder(
+        glm::vec2 a, glm::vec2 b, glm::vec2 c
+    );
 
-	NX_API std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
+    NX_API std::vector<glm::vec2> ReverseWindingOrder(
+        const std::vector<glm::vec2> &vertices
+    );
 
-	template<typename T>
-	T GetItem(std::span<T> collection, int index)
-	{
-		int32_t size = static_cast<int32_t>(collection.size());
+    template <typename T> T GetItem(std::span<T> collection, int index)
+    {
+        int32_t size = static_cast<int32_t>(collection.size());
 
-		if (index >= size)
-		{
-			return collection[index % collection.size()];
-		}
-		else if (index < 0)
-		{
-			uint32_t i = collection.size() - (index * -1);
-			return collection[i];
-		}
-		else
-		{
-			return collection[index];
-		}
-	}
+        if (index >= size)
+        {
+            return collection[index % collection.size()];
+        }
+        else if (index < 0)
+        {
+            uint32_t i = collection.size() - (index * -1);
+            return collection[i];
+        }
+        else
+        {
+            return collection[index];
+        }
+    }
 
-	template<typename T>
-	inline bool Contains(std::vector<T> items, T toFind)
-	{
-		return std::find(items.begin(), items.end(), toFind) != items.end();
-	}
+    template <typename T> inline bool Contains(std::vector<T> items, T toFind)
+    {
+        return std::find(items.begin(), items.end(), toFind) != items.end();
+    }
 
-	inline uint32_t CalculateSubresource(uint32_t mipLevel, uint32_t arrayLayer, uint32_t totalMipLevels)
-	{
-		return mipLevel + arrayLayer * totalMipLevels;
-	}
+    inline uint32_t CalculateSubresource(
+        uint32_t mipLevel, uint32_t arrayLayer, uint32_t totalMipLevels
+    )
+    {
+        return mipLevel + arrayLayer * totalMipLevels;
+    }
 
-	NX_API uint64_t GetCurrentTimeAsInt();
+    NX_API uint64_t GetCurrentTimeAsInt();
 
-	template<typename T>
-	inline size_t Hash(const T &input)
-	{
-		std::hash<T> hasher;
-		return hasher(input);
-	}
+    template <typename T> inline size_t Hash(const T &input)
+    {
+        std::hash<T> hasher;
+        return hasher(input);
+    }
 
-	[[nodiscard]] inline Point2D<uint32_t> GetMipSize(uint32_t baseWidth, uint32_t baseHeight, uint32_t level)
-	{
-		uint32_t width	= baseWidth;
-		uint32_t height = baseHeight;
+    [[nodiscard]] inline Point2D<uint32_t> GetMipSize(
+        uint32_t baseWidth, uint32_t baseHeight, uint32_t level
+    )
+    {
+        uint32_t width = baseWidth;
+        uint32_t height = baseHeight;
 
-		for (uint32_t i = 0; i < level; i++)
-		{
-			width /= 2;
-			height /= 2;
-		}
+        for (uint32_t i = 0; i < level; i++)
+        {
+            width /= 2;
+            height /= 2;
+        }
 
-		return {width, height};
-	}
+        return {width, height};
+    }
 
-	inline size_t Hash(const std::vector<unsigned char> &buffer)
-	{
-		size_t hash = 5381;
-		for (unsigned char c : buffer) { hash = ((hash << 5) + hash + c); }
-		return hash;
-	}
+    inline size_t Hash(const std::vector<unsigned char> &buffer)
+    {
+        size_t hash = 5381;
+        for (unsigned char c : buffer)
+        {
+            hash = ((hash << 5) + hash + c);
+        }
+        return hash;
+    }
 
-	Graphics::DeviceBufferHandle CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device);
+    Graphics::DeviceBufferHandle CreateUploadBuffer(
+        const void *data, size_t sizeInBytes, size_t strideInBytes,
+        Graphics::IGraphicsDevice *device
+    );
 
-	Graphics::DeviceBufferHandle CreateFilledVertexBuffer(const void				  *data,
-														  size_t					   sizeInBytes,
-														  size_t					   strideInBytes,
-														  Graphics::IGraphicsDevice	  *device,
-														  Graphics::CommandQueueHandle commandQueue);
+    Graphics::DeviceBufferHandle CreateFilledVertexBuffer(
+        const void *data, size_t sizeInBytes, size_t strideInBytes,
+        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
+    );
 
-	Graphics::DeviceBufferHandle CreateFilledIndexBuffer(const void					 *data,
-														 size_t						  sizeInBytes,
-														 size_t						  strideInBytes,
-														 Graphics::IGraphicsDevice	 *devic,
-														 Graphics::CommandQueueHandle commandQueuee);
+    Graphics::DeviceBufferHandle CreateFilledIndexBuffer(
+        const void *data, size_t sizeInBytes, size_t strideInBytes,
+        Graphics::IGraphicsDevice *devic, Graphics::CommandQueueHandle commandQueuee
+    );
 
-	Graphics::DeviceBufferHandle CreateFilledUniformBuffer(const void				   *data,
-														   size_t						sizeInBytes,
-														   size_t						strideInBytes,
-														   Graphics::IGraphicsDevice   *device,
-														   Graphics::CommandQueueHandle commandQueue);
+    Graphics::DeviceBufferHandle CreateFilledUniformBuffer(
+        const void *data, size_t sizeInBytes, size_t strideInBytes,
+        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
+    );
 
-	template<typename T>
-	[[nodiscard]] T AlignTo(T value, T alignment)
-	{
-		static_assert(std::is_integral_v<T>, "AlignTo requires an integral type");
-		if (alignment <= 0)
-		{
-			throw std::invalid_argument("Alignment must be positive");
-		}
-		return ((value + alignment / 2) / alignment) * alignment;
-	}
+    template <typename T> [[nodiscard]] T AlignTo(T value, T alignment)
+    {
+        static_assert(std::is_integral_v<T>, "AlignTo requires an integral type");
+        if (alignment <= 0)
+        {
+            throw std::invalid_argument("Alignment must be positive");
+        }
+        return ((value + alignment / 2) / alignment) * alignment;
+    }
 
-	template<typename T>
-	[[nodiscard]] T AlignDown(T value, T alignment)
-	{
-		static_assert(std::is_integral_v<T>, "AlignDown requires an integral type");
-		if (alignment <= 0)
-		{
-			throw std::invalid_argument("Alignment must be positive");
-		}
-		return (value / alignment) * alignment;
-	}
+    template <typename T> [[nodiscard]] T AlignDown(T value, T alignment)
+    {
+        static_assert(std::is_integral_v<T>, "AlignDown requires an integral type");
+        if (alignment <= 0)
+        {
+            throw std::invalid_argument("Alignment must be positive");
+        }
+        return (value / alignment) * alignment;
+    }
 
-	template<typename T>
-	[[nodiscard]] T AlignUp(T value, T alignment)
-	{
-		static_assert(std::is_integral_v<T>, "AlignUp requires an integral type");
-		if (alignment <= 0)
-		{
-			throw std::invalid_argument("Alignment must be positive");
-		}
-		return ((value + alignment - 1) / alignment) * alignment;
-	}
+    template <typename T> [[nodiscard]] T AlignUp(T value, T alignment)
+    {
+        static_assert(std::is_integral_v<T>, "AlignUp requires an integral type");
+        if (alignment <= 0)
+        {
+            throw std::invalid_argument("Alignment must be positive");
+        }
+        return ((value + alignment - 1) / alignment) * alignment;
+    }
 
-	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);
+    void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);
 
-	NX_API void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
-	NX_API void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
+    NX_API void FlipPixelsHorizontally(
+        void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format
+    );
+    NX_API void FlipPixelsVertically(
+        void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format
+    );
 
-}	 // namespace Nexus::Utils
+} // namespace Nexus::Utils

@@ -1,1830 +1,2158 @@
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "GL.hpp"
+#include "GL.hpp"
 
-	#include "Platform/Logging/Log.hpp"
+#include "Platform/Logging/Log.hpp"
 
-	#if defined(NX_PLATFORM_WGL)
-		#include "Context/WGL/OffscreenContextWGL.hpp"
-		#include "Context/WGL/PhysicalDeviceWGL.hpp"
-		#include "Context/WGL/ViewContextWGL.hpp"
-	#elif defined(NX_PLATFORM_EGL)
-		#include "Context/EGL/OffscreenContextEGL.hpp"
-		#include "Context/EGL/ViewContextEGL.hpp"
-	#elif defined(NX_PLATFORM_WEBGL)
-		#include "Context/WebGL/OffscreenContextWebGL.hpp"
-		#include "Context/WebGL/ViewContextWebGL.hpp"
-	#elif defined(NX_PLATFORM_GLX)
-		#include "Context/GLX/OffscreenContextGLX.hpp"
-		#include "Context/GLX/ViewContextGLX.hpp"
-	#endif
+#if defined(NX_PLATFORM_WGL)
+#include "Context/WGL/OffscreenContextWGL.hpp"
+#include "Context/WGL/PhysicalDeviceWGL.hpp"
+#include "Context/WGL/ViewContextWGL.hpp"
+#elif defined(NX_PLATFORM_EGL)
+#include "Context/EGL/OffscreenContextEGL.hpp"
+#include "Context/EGL/ViewContextEGL.hpp"
+#elif defined(NX_PLATFORM_WEBGL)
+#include "Context/WebGL/OffscreenContextWebGL.hpp"
+#include "Context/WebGL/ViewContextWebGL.hpp"
+#elif defined(NX_PLATFORM_GLX)
+#include "Context/GLX/OffscreenContextGLX.hpp"
+#include "Context/GLX/ViewContextGLX.hpp"
+#endif
 
-	#include "DeviceBufferOpenGL.hpp"
-	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
-	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
-	#include "Platform/Platform.hpp"
-	#include "TextureOpenGL.hpp"
+#include "DeviceBufferOpenGL.hpp"
+#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
+#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+#include "Platform/Platform.hpp"
+#include "TextureOpenGL.hpp"
 
 namespace Nexus::GL
 {
-	std::string GetErrorMessageFromCode(const GLenum error)
-	{
-		switch (error)
-		{
-			case GL_NO_ERROR: return "No error";
-			case GL_INVALID_ENUM: return "An invalid enum was entered";
-			case GL_INVALID_VALUE: return "An invalid value was entered";
-			case GL_INVALID_OPERATION: return "An invalid operation was attempted";
-			case GL_STACK_OVERFLOW: return "A stack overflow has occured";
-			case GL_STACK_UNDERFLOW: return "A stack underflow has occured";
-			case GL_OUT_OF_MEMORY: return "Out of memory";
-			case GL_INVALID_FRAMEBUFFER_OPERATION: return "An invalid framebuffer operation was attempted";
-			default: return "An unknown error occurred";
-		}
-	}
-
-	GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation)
-	{
-		switch (operation)
-		{
-			case Nexus::Graphics::StencilOperation::Keep: return GL_KEEP;
-			case Nexus::Graphics::StencilOperation::Zero: return GL_ZERO;
-			case Nexus::Graphics::StencilOperation::Replace: return GL_REPLACE;
-			case Nexus::Graphics::StencilOperation::Increment: return GL_INCR;
-			case Nexus::Graphics::StencilOperation::Decrement: return GL_DECR;
-			case Nexus::Graphics::StencilOperation::Invert: return GL_INVERT;
-		}
-
-		throw std::runtime_error("Failed to find a valid stencil operation");
-	}
-
-	GLenum GetComparisonFunction(Nexus::Graphics::ComparisonFunction function)
-	{
-		switch (function)
-		{
-			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return GL_ALWAYS;
-			case Nexus::Graphics::ComparisonFunction::Equal: return GL_EQUAL;
-			case Nexus::Graphics::ComparisonFunction::Greater: return GL_GREATER;
-			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return GL_GEQUAL;
-			case Nexus::Graphics::ComparisonFunction::Less: return GL_LESS;
-			case Nexus::Graphics::ComparisonFunction::LessEqual: return GL_LEQUAL;
-			case Nexus::Graphics::ComparisonFunction::Never: return GL_NEVER;
-			case Nexus::Graphics::ComparisonFunction::NotEqual: return GL_NOTEQUAL;
-		}
-
-		throw std::runtime_error("Failed to find a valid comparison function");
-	}
-
-	GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function)
-	{
-		switch (function)
-		{
-			case Nexus::Graphics::BlendFactor::Zero: return GL_ZERO;
-			case Nexus::Graphics::BlendFactor::One: return GL_ONE;
-			case Nexus::Graphics::BlendFactor::SourceColour: return GL_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::DestinationColour: return GL_DST_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
-			case Nexus::Graphics::BlendFactor::SourceAlpha: return GL_SRC_ALPHA;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
-			case Nexus::Graphics::BlendFactor::DestinationAlpha: return GL_DST_ALPHA;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
-			case Nexus::Graphics::BlendFactor::FactorColour: return GL_CONSTANT_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusFactorColour: return GL_ONE_MINUS_CONSTANT_COLOR;
-			case Nexus::Graphics::BlendFactor::FactorAlpha: return GL_CONSTANT_ALPHA;
-			case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
-		}
-
-		throw std::runtime_error("Failed to find a valid blend function");
-	}
-
-	GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation)
-	{
-		switch (equation)
-		{
-			case Nexus::Graphics::BlendEquation::Add: return GL_FUNC_ADD;
-			case Nexus::Graphics::BlendEquation::Subtract: return GL_FUNC_SUBTRACT;
-			case Nexus::Graphics::BlendEquation::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
-			case Nexus::Graphics::BlendEquation::Min: return GL_MIN;
-			case Nexus::Graphics::BlendEquation::Max: return GL_MAX;
-		}
-
-		throw std::runtime_error("Failed to find a valid blend equation");
-	}
-
-	GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode)
-	{
-		switch (addressMode)
-		{
-			case Nexus::Graphics::SamplerAddressMode::Wrap: return GL_REPEAT;
-			case Nexus::Graphics::SamplerAddressMode::MirrorOnce: return GL_MIRROR_CLAMP_TO_EDGE_EXT;
-			case Nexus::Graphics::SamplerAddressMode::Mirror: return GL_MIRRORED_REPEAT;
-			case Nexus::Graphics::SamplerAddressMode::Border: return GL_CLAMP_TO_BORDER;
-			case Nexus::Graphics::SamplerAddressMode::Clamp: return GL_CLAMP_TO_EDGE;
-			default: throw std::runtime_error("Failed to find a valid address mode");
-		}
-	}
-
-	void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool hasMipmaps)
-	{
-		switch (filter)
-		{
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint:
-				hasMipmaps ? min = GL_NEAREST_MIPMAP_NEAREST : min = GL_NEAREST;
-				max = GL_NEAREST;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear:
-				hasMipmaps ? min = GL_NEAREST_MIPMAP_LINEAR : min = GL_NEAREST;
-				max = GL_NEAREST;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint:
-				hasMipmaps ? min = GL_NEAREST_MIPMAP_NEAREST : min = GL_NEAREST;
-				max = GL_LINEAR;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear:
-				hasMipmaps ? min = GL_NEAREST_MIPMAP_NEAREST : min = GL_NEAREST;
-				max = GL_LINEAR;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint:
-				hasMipmaps ? min = GL_LINEAR_MIPMAP_NEAREST : min = GL_LINEAR;
-				max = GL_NEAREST;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear:
-				hasMipmaps ? min = GL_LINEAR_MIPMAP_LINEAR : min = GL_LINEAR;
-				max = GL_NEAREST;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint:
-				hasMipmaps ? min = GL_LINEAR_MIPMAP_NEAREST : min = GL_LINEAR;
-				max = GL_LINEAR;
-				break;
-
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear:
-			case Nexus::Graphics::SamplerFilter::Anisotropic:
-				hasMipmaps ? min = GL_LINEAR_MIPMAP_LINEAR : min = GL_LINEAR;
-				max = GL_LINEAR;
-				break;
-
-			default: throw std::runtime_error("Failed to find a valid sample filter");
-		}
-	}
-
-	GLenum GetPixelType(Nexus::Graphics::PixelFormat format)
-	{
-		switch (format)
-		{
-			case Nexus::Graphics::PixelFormat::R8_UNorm:
-			case Nexus::Graphics::PixelFormat::R8_UInt:
-			case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_UInt:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
-			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
-			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB: return GL_UNSIGNED_BYTE;
-
-			case Nexus::Graphics::PixelFormat::R16_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_UInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_UInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt: return GL_UNSIGNED_SHORT;
-
-			case Nexus::Graphics::PixelFormat::R16_SNorm:
-			case Nexus::Graphics::PixelFormat::R16_SInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_SInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt: return GL_SHORT;
-
-			case Nexus::Graphics::PixelFormat::R32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt: return GL_UNSIGNED_INT;
-
-			case Nexus::Graphics::PixelFormat::R32_SInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_SInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_INT;
-
-			case Nexus::Graphics::PixelFormat::R16_Float:
-			case Nexus::Graphics::PixelFormat::R16_G16_Float:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float: return GL_HALF_FLOAT;
-
-			case Nexus::Graphics::PixelFormat::R32_Float:
-			case Nexus::Graphics::PixelFormat::R32_G32_Float:
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_FLOAT;
-
-			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
-			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
-	#if defined(__EMSCRIPTEN__)
-				throw std::runtime_error("This format is not supported by WebGL");
-	#elif defined(__ANDROID__) || defined(ANDROID)
-				throw std::runtime_error("This format is not supported by OpenGLES");
-	#else
-				return GL_UNSIGNED_INT_10_10_10_2_EXT;
-	#endif
-			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_UNSIGNED_INT_10F_11F_11F_REV;
-
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC4_UNorm:
-			case Nexus::Graphics::PixelFormat::BC4_SNorm:
-			case Nexus::Graphics::PixelFormat::BC5_UNorm:
-			case Nexus::Graphics::PixelFormat::BC5_SNorm:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_UNSIGNED_BYTE;
-
-			case Nexus::Graphics::PixelFormat::D16_UNorm: return GL_UNSIGNED_SHORT;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_UNSIGNED_INT_24_8;
-			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_FLOAT;
-			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
-
-			default: throw std::runtime_error("Failed to find a valid format");
-		}
-	}
-
-	GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format)
-	{
-		switch (format)
-		{
-			case Nexus::Graphics::PixelFormat::R8_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_Float:
-			case Nexus::Graphics::PixelFormat::R32_Float: return GL_RED;
-
-			case Nexus::Graphics::PixelFormat::R8_SNorm:
-			case Nexus::Graphics::PixelFormat::R8_UInt:
-			case Nexus::Graphics::PixelFormat::R8_SInt:
-			case Nexus::Graphics::PixelFormat::R16_SNorm:
-			case Nexus::Graphics::PixelFormat::R16_UInt:
-			case Nexus::Graphics::PixelFormat::R16_SInt:
-			case Nexus::Graphics::PixelFormat::R32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_SInt: return GL_RED_INTEGER;
-
-			case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_Float:
-			case Nexus::Graphics::PixelFormat::R32_G32_Float: return GL_RG;
-
-			case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_UInt:
-			case Nexus::Graphics::PixelFormat::R8_G8_SInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_UInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_SInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_SInt: return GL_RG_INTEGER;
-
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_RGBA;
-
-			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
-			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB: return GL_BGRA_EXT;
-
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA_INTEGER;
-
-			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGBA;
-			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGBA_INTEGER;
-			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_RGB;
-
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm: return GL_RGB;
-
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
-			case Nexus::Graphics::PixelFormat::BC4_UNorm:
-			case Nexus::Graphics::PixelFormat::BC4_SNorm:
-			case Nexus::Graphics::PixelFormat::BC5_UNorm:
-			case Nexus::Graphics::PixelFormat::BC5_SNorm:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_RGBA;
-
-			case Nexus::Graphics::PixelFormat::D16_UNorm:
-			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_DEPTH;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
-			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_DEPTH_STENCIL;
-
-			default: throw std::runtime_error("Failed to find a valid format");
-		}
-	}
-
-	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format)
-	{
-		switch (format)
-		{
-			case Nexus::Graphics::PixelFormat::R8_UNorm: return GL_R8;
-			case Nexus::Graphics::PixelFormat::R8_SNorm: return GL_R8I;
-			case Nexus::Graphics::PixelFormat::R8_UInt: return GL_R8UI;
-			case Nexus::Graphics::PixelFormat::R8_SInt: return GL_R8I;
-
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return GL_R16;
-			case Nexus::Graphics::PixelFormat::R16_SNorm: return GL_R16I;
-			case Nexus::Graphics::PixelFormat::R16_UInt: return GL_R16UI;
-			case Nexus::Graphics::PixelFormat::R16_SInt: return GL_R16I;
-			case Nexus::Graphics::PixelFormat::R16_Float: return GL_R16F;
-
-			case Nexus::Graphics::PixelFormat::R32_UInt: return GL_R32UI;
-			case Nexus::Graphics::PixelFormat::R32_SInt: return GL_R32I;
-			case Nexus::Graphics::PixelFormat::R32_Float: return GL_R32F;
-
-			case Nexus::Graphics::PixelFormat::R8_G8_UNorm: return GL_RG8;
-			case Nexus::Graphics::PixelFormat::R8_G8_SNorm: return GL_RG8I;
-			case Nexus::Graphics::PixelFormat::R8_G8_UInt: return GL_RG8UI;
-			case Nexus::Graphics::PixelFormat::R8_G8_SInt: return GL_RG8I;
-
-			case Nexus::Graphics::PixelFormat::R16_G16_UNorm: return GL_RG16;
-			case Nexus::Graphics::PixelFormat::R16_G16_SNorm: return GL_RG16I;
-			case Nexus::Graphics::PixelFormat::R16_G16_UInt: return GL_RG16UI;
-			case Nexus::Graphics::PixelFormat::R16_G16_SInt: return GL_RG16I;
-			case Nexus::Graphics::PixelFormat::R16_G16_Float: return GL_RG16F;
-
-			case Nexus::Graphics::PixelFormat::R32_G32_UInt: return GL_RG32UI;
-			case Nexus::Graphics::PixelFormat::R32_G32_SInt: return GL_RG32I;
-			case Nexus::Graphics::PixelFormat::R32_G32_Float: return GL_RG32F;
-
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm: return GL_RGBA8;
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB: return GL_SRGB8_ALPHA8;
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm: return GL_RGBA8I;
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt: return GL_RGBA8UI;
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt: return GL_RGBA8I;
-			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm: return GL_RGBA8;
-			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB: return GL_SRGB8_ALPHA8;
-
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm: return GL_RGBA16_EXT;
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm: return GL_RGBA16I;
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt: return GL_RGBA16UI;
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt: return GL_RGBA16I;
-			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float: return GL_RGBA16F;
-
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt: return GL_RGBA32UI;
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA32I;
-			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_RGBA32F;
-
-			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGB10_A2;
-			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGB10_A2UI;
-			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_R11F_G11F_B10F;
-
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm: return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm: return GL_COMPRESSED_RGBA;
-			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm: return GL_COMPRESSED_RGB8_ETC2;
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb: return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-			case Nexus::Graphics::PixelFormat::BC4_UNorm: return GL_COMPRESSED_RED_RGTC1;
-			case Nexus::Graphics::PixelFormat::BC4_SNorm: return GL_COMPRESSED_SIGNED_RED_RGTC1;
-			case Nexus::Graphics::PixelFormat::BC5_UNorm: return GL_COMPRESSED_RG_RGTC2;
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return GL_COMPRESSED_SIGNED_RG_RGTC2;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm: return GL_COMPRESSED_RGBA_BPTC_UNORM;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM;
-
-			case Nexus::Graphics::PixelFormat::D16_UNorm: return GL_DEPTH_COMPONENT16;
-			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_DEPTH24_STENCIL8;
-			case Nexus::Graphics::PixelFormat::D32_SFloat: return GL_DEPTH_COMPONENT32;
-			case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt: return GL_DEPTH32F_STENCIL8;
-
-			default: throw std::runtime_error("Failed to find a valid format");
-		}
-	}
-
-	GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexFormat format)
-	{
-		switch (format)
-		{
-			case Nexus::Graphics::IndexFormat::UInt8: return GL_UNSIGNED_BYTE;
-			case Nexus::Graphics::IndexFormat::UInt16: return GL_UNSIGNED_SHORT;
-			case Nexus::Graphics::IndexFormat::UInt32: return GL_UNSIGNED_INT;
-			default: throw std::runtime_error("Failed to find a valid index buffer format");
-		}
-	}
-
-	GLenum GetTopology(Nexus::Graphics::Topology topology)
-	{
-		switch (topology)
-		{
-			case Nexus::Graphics::Topology::LineList: return GL_LINE_LOOP;
-			case Nexus::Graphics::Topology::LineStrip: return GL_LINE_STRIP;
-			case Nexus::Graphics::Topology::PointList: return GL_POINTS;
-			case Nexus::Graphics::Topology::TriangleList: return GL_TRIANGLES;
-			case Nexus::Graphics::Topology::TriangleStrip: return GL_TRIANGLE_STRIP;
-			default: throw std::runtime_error("Invalid topology selected");
-		}
-	}
-
-	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage)
-	{
-		switch (stage)
-		{
-			case Nexus::Graphics::ShaderStage::Compute: return GL_COMPUTE_SHADER;
-			case Nexus::Graphics::ShaderStage::Geometry: return GL_GEOMETRY_SHADER;
-			case Nexus::Graphics::ShaderStage::TessellationControl: return GL_TESS_CONTROL_SHADER;
-			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return GL_TESS_EVALUATION_SHADER;
-			case Nexus::Graphics::ShaderStage::Fragment: return GL_FRAGMENT_SHADER;
-			case Nexus::Graphics::ShaderStage::Vertex: return GL_VERTEX_SHADER;
-			case Nexus::Graphics::ShaderStage::Mesh: return GL_MESH_SHADER_EXT;
-			case Nexus::Graphics::ShaderStage::Task: return GL_TASK_SHADER_EXT;
-
-			default: throw std::runtime_error("Failed to find a valid shader stage");
-		}
-	}
-
-	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc)
-	{
-		switch (desc.Access)
-		{
-			case Graphics::BufferMemoryAccess::Upload: return GL_DYNAMIC_COPY;
-			case Graphics::BufferMemoryAccess::Default: return GL_DYNAMIC_DRAW;
-			case Graphics::BufferMemoryAccess::Readback: return GL_DYNAMIC_COPY;
-			default: throw std::runtime_error("Failed to find a valid access");
-		}
-
-		return GL_STATIC_DRAW;
-	}
-
-	GLenum GetAccessMask(Graphics::ShaderAccess access)
-	{
-		switch (access)
-		{
-			case Graphics::ShaderAccess::Read: return GL_READ_ONLY;
-			case Graphics::ShaderAccess::ReadWrite: return GL_READ_WRITE;
-			default: throw std::runtime_error("Failed to find a valid access mask");
-		}
-	}
-
-	GLenum GetTextureType(const Graphics::TextureDescription &spec)
-	{
-		switch (spec.Type)
-		{
-			case Graphics::TextureType::Texture1D:
-			{
-	#if !defined(__EMSCRIPTEN__)
-				if (spec.DepthOrArrayLayers > 1)
-				{
-					return GL_TEXTURE_1D_ARRAY;
-				}
-				else
-				{
-					return GL_TEXTURE_1D;
-				}
-	#else
-				throw std::runtime_error("1D textures are not supported by WebGL");
-	#endif
-			}
-			case Graphics::TextureType::Texture2D:
-			{
-				if (spec.Samples > 1)
-				{
-					if (spec.DepthOrArrayLayers > 1)
-					{
-						return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_2D_MULTISAMPLE;
-					}
-				}
-				else
-				{
-					if (spec.DepthOrArrayLayers > 1)
-					{
-						return GL_TEXTURE_2D_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_2D;
-					}
-				}
-			}
-			case Graphics::TextureType::Texture3D:
-			{
-				return GL_TEXTURE_3D;
-			}
-
-			case Graphics::TextureType::TextureCube:
-			{
-				if (spec.DepthOrArrayLayers > 16)
-				{
-					return GL_TEXTURE_CUBE_MAP_ARRAY;
-				}
-				else
-				{
-					return GL_TEXTURE_CUBE_MAP;
-				}
-				break;
-			}
-			default: throw std::runtime_error("Failed to find a valid texture type");
-		}
-	}
-
-	GLenum GetViewType(const Graphics::TextureViewDescription &desc)
-	{
-		Graphics::TextureHandle texture = desc.TargetTexture;
-
-		switch (texture->GetType())
-		{
-			case Graphics::TextureType::Texture1D:
-			{
-				if (desc.Range.LayerCount > 1)
-				{
-					return GL_TEXTURE_1D_ARRAY;
-				}
-				else
-				{
-					return GL_TEXTURE_1D;
-				}
-			}
-			case Graphics::TextureType::Texture2D:
-			{
-				if (texture->GetSampleCount() > 1)
-				{
-					if (desc.Range.LayerCount > 1)
-					{
-						return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_2D_MULTISAMPLE;
-					}
-				}
-				else
-				{
-					if (desc.Range.LayerCount > 1)
-					{
-						return GL_TEXTURE_2D_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_2D;
-					}
-				}
-				case Graphics::TextureType::Texture3D:
-				{
-					return GL_TEXTURE_3D;
-				}
-				case Graphics::TextureType::TextureCube:
-				{
-					if (desc.Range.LayerCount > 6)
-					{
-						return GL_TEXTURE_CUBE_MAP_ARRAY;
-					}
-					else
-					{
-						return GL_TEXTURE_CUBE_MAP;
-					}
-				}
-				default: throw std::runtime_error("Failed to find a valid texture view type");
-			}
-		}
-	}
-
-	GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion)
-	{
-		supportsByRegion = false;
-
-		switch (access)
-		{
-			case Graphics::BarrierAccess::NoAccess:
-			{
-				// we are not synchronizing anything
-				return 0;
-			}
-			case Graphics::BarrierAccess::IndirectCommandRead: return GL_COMMAND_BARRIER_BIT;
-			case Graphics::BarrierAccess::IndexRead: return GL_ELEMENT_ARRAY_BARRIER_BIT;
-			case Graphics::BarrierAccess::VertexAttributeRead: return GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
-			case Graphics::BarrierAccess::UniformRead: supportsByRegion = true; return GL_UNIFORM_BARRIER_BIT;
-			case Graphics::BarrierAccess::ShaderRead:
-			case Graphics::BarrierAccess::ShaderWrite:
-			{
-				supportsByRegion = true;
-				GLbitfield flags = GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT;
-
-				if (supportsStorageBuffers)
-				{
-					flags |= GL_SHADER_STORAGE_BARRIER_BIT;
-				}
-
-				return flags;
-			}
-			case Graphics::BarrierAccess::InputAttachmentRead:
-			case Graphics::BarrierAccess::ColourAttachmentRead:
-			case Graphics::BarrierAccess::ColourAttachmentWrite:
-			case Graphics::BarrierAccess::DepthStencilAttachmentRead:
-			case Graphics::BarrierAccess::DepthStencilAttachmentWrite:
-			{
-				supportsByRegion = true;
-				return GL_FRAMEBUFFER_BARRIER_BIT;
-			}
-			case Graphics::BarrierAccess::TransferRead:
-			case Graphics::BarrierAccess::TransferWrite:
-			case Graphics::BarrierAccess::HostRead:
-			case Graphics::BarrierAccess::HostWrite:
-			case Graphics::BarrierAccess::MemoryRead:
-			case Graphics::BarrierAccess::MemoryWrite:
-			{
-				return GL_TEXTURE_UPDATE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT;
-			}
-			case Graphics::BarrierAccess::TransformFeedbackWrite: return GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
-			case Graphics::BarrierAccess::AccelerationStructureRead:
-			case Graphics::BarrierAccess::AccelerationStructureWrite: return GL_ALL_BARRIER_BITS;
-			default: throw std::runtime_error("Failed to find a valid barrier access");
-		}
-	}
-
-	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec)
-	{
-		switch (spec.Type)
-		{
-			case Graphics::TextureType::Texture1D:
-			{
-				if (spec.DepthOrArrayLayers > 1)
-				{
-					return GLInternalTextureFormat::Texture1DArray;
-				}
-				else
-				{
-					return GLInternalTextureFormat::Texture1D;
-				}
-			}
-
-			case Graphics::TextureType::Texture2D:
-			{
-				if (spec.Samples > 1)
-				{
-					if (spec.DepthOrArrayLayers > 1)
-					{
-						return GLInternalTextureFormat::Texture2DArrayMultisample;
-					}
-					else
-					{
-						return GLInternalTextureFormat::Texture2DMultisample;
-					}
-				}
-				else
-				{
-					if (spec.DepthOrArrayLayers > 1)
-					{
-						return GLInternalTextureFormat::Texture2DArray;
-					}
-					else
-					{
-						return GLInternalTextureFormat::Texture2D;
-					}
-				}
-			}
-			case Graphics::TextureType::Texture3D:
-			{
-				return GLInternalTextureFormat::Texture3D;
-			}
-			case Graphics::TextureType::TextureCube:
-			{
-				if (spec.DepthOrArrayLayers > 6)
-				{
-					return GLInternalTextureFormat::CubemapArray;
-				}
-				else
-				{
-					return GLInternalTextureFormat::Cubemap;
-				}
-			}
-			default: throw std::runtime_error("Failed to find a valid GLInternalTextureFormat");
-		}
-	}
-
-	void ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context)
-	{
-		context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		GLenum status = context.CheckFramebufferStatus(GL_FRAMEBUFFER);
-
-		if (status == GL_FRAMEBUFFER_COMPLETE)
-		{
-			return;
-		}
-
-		switch (status)
-		{
-			case GL_FRAMEBUFFER_UNDEFINED:
-				throw std::runtime_error(
-					"The specified framebuffer is the default read or write framebuffer but the default framebuffer does not exist");
-			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: throw std::runtime_error("An attachment is incomplete");
-			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: throw std::runtime_error("This framebuffer does not have any attachments");
-
-	#if !defined(__EMSCRIPTEN__)
-			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: throw std::runtime_error("The framebuffer does not have a draw buffer");
-			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: throw std::runtime_error("The framebuffer does not have a read buffer");
-	#endif
-
-			case GL_FRAMEBUFFER_UNSUPPORTED: throw std::runtime_error("The framebuffer pixel format(s) are unsupported");
-			case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: throw std::runtime_error("The attachments have mismatching multisample levels");
-			case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: throw std::runtime_error("Framebuffer attachment is layered");
-		}
-	}
-
-	void AttachTextureNonDSA(GLuint											framebuffer,
-							 const Graphics::FramebufferTextureDescription &desc,
-							 bool											isDepth,
-							 uint32_t										colourIndex,
-							 const GladGLContext						   &gladContext,
-							 GL::IGLContext								   *context)
-	{
-		glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
-		GLenum attachmentType = GL::GetAttachmentType(isDepth, colourIndex);
-
-		const Graphics::TextureOpenGL *texture = desc.TargetTexture.AsDerived<const Graphics::TextureOpenGL>();
-
-		uint32_t				textureHandle  = texture->GetHandle();
-		GLenum					textureTarget  = texture->GetTextureType();
-		GLInternalTextureFormat internalFormat = texture->GetInternalGLTextureFormat();
-
-		switch (internalFormat)
-		{
-			case GLInternalTextureFormat::Texture1D:
-				glCall(gladContext.FramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, desc.MipLevel));
-				break;
-			case GLInternalTextureFormat::Texture2D:
-			case GLInternalTextureFormat::Texture2DMultisample:
-				glCall(gladContext.FramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, desc.MipLevel));
-				break;
-			case GLInternalTextureFormat::Texture1DArray:
-			case GLInternalTextureFormat::Texture2DArray:
-			case GLInternalTextureFormat::Texture2DArrayMultisample:
-			case GLInternalTextureFormat::CubemapArray:
-			case GLInternalTextureFormat::Texture3D:
-			{
-				if (desc.LayerCount == 1)
-				{
-					glCall(gladContext.FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel, desc.BaseArrayLayer));
-				}
-				else
-				{
-					glCall(gladContext.FramebufferTextureMultiviewOVR(GL_FRAMEBUFFER,
-																	  attachmentType,
-																	  textureHandle,
-																	  desc.MipLevel,
-																	  desc.BaseArrayLayer,
-																	  desc.LayerCount));
-				}
-				break;
-			}
-			case GLInternalTextureFormat::Cubemap:
-				glCall(gladContext.FramebufferTexture2D(GL_FRAMEBUFFER,
-														GL_TEXTURE_CUBE_MAP_POSITIVE_X + desc.BaseArrayLayer,
-														textureTarget,
-														textureHandle,
-														desc.MipLevel));
-				break;
-			default: throw std::runtime_error("Could not find a valid texture format type");
-		}
-	}
-
-	void AttachTexture(GLuint										  framebuffer,
-					   const Graphics::FramebufferTextureDescription &desc,
-					   bool											  isDepth,
-					   uint32_t										  colourIndex,
-					   const GladGLContext							 &gladContext,
-					   GL::IGLContext								 *context)
-	{ AttachTextureNonDSA(framebuffer, desc, isDepth, colourIndex, gladContext, context); }
-
-	void GetBaseType(const Graphics::VertexBufferElement &element,
-					 GLenum								 &baseType,
-					 uint32_t							 &componentCount,
-					 GLboolean							 &normalized,
-					 GLPrimitiveType					 &primitiveType)
-	{
-		switch (element.Type)
-		{
-			case Graphics::ShaderDataType::R8_UInt:
-				baseType	   = GL_BYTE;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R8G8_UInt:
-				baseType	   = GL_BYTE;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R8G8B8A8_UInt:
-				baseType	   = GL_BYTE;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R8_UNorm:
-				baseType	   = GL_UNSIGNED_BYTE;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R8G8_UNorm:
-				baseType	   = GL_UNSIGNED_BYTE;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R8G8B8A8_UNorm:
-				baseType	   = GL_UNSIGNED_BYTE;
-				componentCount = 4;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R32_SFloat:
-				baseType	   = GL_FLOAT;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R32G32_SFloat:
-				baseType	   = GL_FLOAT;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R32G32B32_SFloat:
-				baseType	   = GL_FLOAT;
-				componentCount = 3;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R32G32B32A32_SFloat:
-				baseType	   = GL_FLOAT;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16_SFloat:
-				baseType	   = GL_HALF_FLOAT;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16G16_SFloat:
-				baseType	   = GL_HALF_FLOAT;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16G16B16A16_SFloat:
-				baseType	   = GL_HALF_FLOAT;
-				componentCount = 4;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R32_SInt:
-				baseType	   = GL_INT;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R32G32_SInt:
-				baseType	   = GL_INT;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R32G32B32_SInt:
-				baseType	   = GL_INT;
-				componentCount = 3;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R32G32B32A32_SInt:
-				baseType	   = GL_INT;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R8_SInt:
-				baseType	   = GL_BYTE;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R8G8_SInt:
-				baseType	   = GL_BYTE;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::R8G8B8A8_SInt:
-				baseType	   = GL_BYTE;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16_SNorm:
-				baseType	   = GL_BYTE;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16G16_SNorm:
-				baseType	   = GL_BYTE;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16G16B16A16_SNorm:
-				baseType	   = GL_BYTE;
-				componentCount = 4;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R16_SInt:
-				baseType	   = GL_SHORT;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R16G16_SInt:
-				baseType	   = GL_SHORT;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R16G16B16A16_SInt:
-				baseType	   = GL_SHORT;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R8_SNorm:
-				baseType	   = GL_SHORT;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::R8G8_SNorm:
-				baseType	   = GL_SHORT;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::R8G8B8A8_SNorm:
-				baseType	   = GL_SHORT;
-				componentCount = 4;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::R32_UInt:
-				baseType	   = GL_UNSIGNED_INT;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R32G32_UInt:
-				baseType	   = GL_UNSIGNED_INT;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R32G32B32_UInt:
-				baseType	   = GL_UNSIGNED_INT;
-				componentCount = 3;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R32G32B32A32_UInt:
-				baseType	   = GL_UNSIGNED_INT;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R16_UInt:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 1;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R16G16_UInt:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 2;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R16G16B16A16_UInt:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::R16_UNorm:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 1;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::R16G16_UNorm:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 2;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-			case Graphics::ShaderDataType::R16G16B16A16_UNorm:
-				baseType	   = GL_UNSIGNED_SHORT;
-				componentCount = 4;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Float;
-				break;
-
-			case Graphics::ShaderDataType::A2B10G10R10_UNorm:
-				baseType	   = GL_INT_2_10_10_10_REV;
-				componentCount = 4;
-				normalized	   = true;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			case Graphics::ShaderDataType::A2B10G10R10_UInt:
-				baseType	   = GL_UNSIGNED_INT_2_10_10_10_REV;
-				componentCount = 4;
-				normalized	   = false;
-				primitiveType  = GLPrimitiveType::Int;
-				break;
-
-			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
-		}
-	}
-
-	GLenum GetGLImageAspect(bool isDepth)
-	{
-		if (isDepth)
-			return GL_DEPTH_STENCIL;
-		else
-			return GL_RGBA;
-	}
-
-	GLenum GetAttachmentType(bool isDepth, uint32_t index)
-	{
-		if (isDepth)
-			return GL_DEPTH_STENCIL_ATTACHMENT;
-		else
-			return GL_COLOR_ATTACHMENT0 + index;
-	}
-
-	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage)
-	{
-		std::vector<GLenum> targets;
-
-		if (usage & Graphics::BufferUsage_Vertex)
-		{
-			targets.push_back(GL_ARRAY_BUFFER);
-		}
-
-		if (usage & Graphics::BufferUsage_Index)
-		{
-			targets.push_back(GL_ELEMENT_ARRAY_BUFFER);
-		}
-
-		if (usage & Graphics::BufferUsage_Uniform)
-		{
-			targets.push_back(GL_UNIFORM_BUFFER);
-		}
-
-		// default to GL_COPY_READ_BUFFER if no other targets are provided
-		if (targets.size() == 0)
-		{
-			targets.push_back(GL_COPY_READ_BUFFER);
-		}
-
-		return targets;
-	}
-
-	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::IGraphicsDevice *device)
-	{
-		GL::ContextDescription spec = {};
-		spec.Debug					= true;
-		spec.Samples				= 8;
-		spec.GLVersion				= GL::OpenGLVersion::OpenGL;
-
-		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;
-		NativeWindowInfo				windowInfo	 = window->GetNativeWindowInfo();
-
-	#if defined(NX_PLATFORM_WGL)
-		OffscreenContextWGL *pbufferWGL = (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
-		return std::make_unique<ViewContextWGL>(windowInfo.hwnd, windowInfo.hdc, pbufferWGL, spec);
-	#elif defined(NX_PLATFORM_EGL)
-		#if defined(NX_PLATFORM_ANDROID)
-		spec.GLVersion	  = GL::OpenGLVersion::OpenGLES;
-		spec.VersionMajor = 3;
-		spec.VersionMinor = 2;
-		#endif
-
-		OffscreenContextEGL *pbufferEGL = (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
-
-		#if defined(NX_PLATFORM_ANDROID)
-		EGLDisplay			display		 = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-		EGLNativeWindowType nativeWindow = (EGLNativeWindowType)windowInfo.nativeWindow;
-		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
-		#else
-		EGLDisplay			display		 = eglGetDisplay(windowInfo.display);
-		EGLNativeWindowType nativeWindow = (EGLNativeWindowType)windowInfo.window;
-		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
-		#endif
-	#elif defined(NX_PLATFORM_WEBGL)
-		return std::make_unique<ViewContextWebGL>(windowInfo.canvasId.c_str(), deviceOpenGL, spec);
-	#else
-		#error No OpenGL backend available
-	#endif
-	}
-
-	static void CopyBufferToTextureDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
-	{
-		const Graphics::TextureOpenGL	   *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		const Graphics::DeviceBufferOpenGL *buffer	= command.BufferTextureCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
-
-		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
-
-		if (!texture || !buffer)
-		{
-			return;
-		}
-
-		if (command.BufferTextureCopy.TextureOffset.Z > 1)
-		{
-			const Graphics::TextureDescription &textureDesc = texture->GetDescription();
-			NX_VALIDATE(textureDesc.Type == Graphics::TextureType::Texture3D || textureDesc.Type == Graphics::TextureType::TextureCube,
-						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
-		}
-
-		bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
-
-		GLenum dataFormat = texture->GetDataFormat();
-		GLenum baseType	  = texture->GetBaseType();
-
-		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetHandle());
-
-		GLenum	 glAspect		  = GL::GetGLImageAspect(texture->IsDepth());
-		uint32_t texelSizeInBytes = (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
-
-		uint32_t bufferSize = (command.BufferTextureCopy.BufferImageHeight > 0 ? command.BufferTextureCopy.BufferImageHeight
-																			   : command.BufferTextureCopy.TextureExtent.Height) *
-							  (command.BufferTextureCopy.BufferRowLength > 0 ? command.BufferTextureCopy.BufferRowLength
-																			 : command.BufferTextureCopy.TextureExtent.Width) *
-							  texelSizeInBytes;
-
-		const uint32_t copyDepth = 1;
-
-		switch (texture->GetInternalGLTextureFormat())
-		{
-			case GL::GLInternalTextureFormat::Texture1D:
-	#if !defined(__EMSCRIPTEN__)
-				if (!isCompressed)
-				{
-					glCall(context.CompressedTextureSubImage1D(texture->GetHandle(),
-															   command.BufferTextureCopy.MipLevel,
-															   command.BufferTextureCopy.TextureOffset.X,
-															   command.BufferTextureCopy.TextureExtent.Width,
-															   dataFormat,
-															   baseType,
-															   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
-				{
-					glCall(context.TextureSubImage1D(texture->GetHandle(),
-													 command.BufferTextureCopy.MipLevel,
-													 command.BufferTextureCopy.TextureOffset.X,
-													 command.BufferTextureCopy.TextureExtent.Width,
-													 dataFormat,
-													 baseType,
-													 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				break;
-	#else
-				throw std::runtime_error("1D textures are not supported in WebGL");
-	#endif
-			case GL::GLInternalTextureFormat::Texture1DArray:
-			case GL::GLInternalTextureFormat::Texture2D:
-			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				if (!isCompressed)
-				{
-					glCall(context.TextureSubImage2D(texture->GetHandle(),
-													 command.BufferTextureCopy.MipLevel,
-													 command.BufferTextureCopy.TextureOffset.X,
-													 command.BufferTextureCopy.TextureOffset.Y,
-													 command.BufferTextureCopy.TextureExtent.Width,
-													 command.BufferTextureCopy.TextureExtent.Height,
-													 dataFormat,
-													 baseType,
-													 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
-				{
-					glCall(context.CompressedTextureSubImage2D(texture->GetHandle(),
-															   command.BufferTextureCopy.MipLevel,
-															   command.BufferTextureCopy.TextureOffset.X,
-															   command.BufferTextureCopy.TextureOffset.Y,
-															   command.BufferTextureCopy.TextureExtent.Width,
-															   command.BufferTextureCopy.TextureExtent.Height,
-															   dataFormat,
-															   baseType,
-															   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				break;
-			case GL::GLInternalTextureFormat::Cubemap:
-			{
-				size_t offset = command.BufferTextureCopy.BufferOffset;
-
-				if (!isCompressed)
-				{
-					glCall(context.TextureSubImage3D(texture->GetHandle(),
-													 command.BufferTextureCopy.MipLevel,
-													 command.BufferTextureCopy.TextureOffset.X,
-													 command.BufferTextureCopy.TextureOffset.Y,
-													 command.BufferTextureCopy.TextureOffset.Z,
-													 command.BufferTextureCopy.TextureExtent.Width,
-													 command.BufferTextureCopy.TextureExtent.Height,
-													 copyDepth,
-													 dataFormat,
-													 baseType,
-													 (const void *)offset));
-				}
-				else
-				{
-					glCall(context.CompressedTextureSubImage3D(texture->GetHandle(),
-															   command.BufferTextureCopy.MipLevel,
-															   command.BufferTextureCopy.TextureOffset.X,
-															   command.BufferTextureCopy.TextureOffset.Y,
-															   command.BufferTextureCopy.TextureOffset.Z,
-															   command.BufferTextureCopy.TextureExtent.Width,
-															   command.BufferTextureCopy.TextureExtent.Height,
-															   copyDepth,
-															   dataFormat,
-															   baseType,
-															   (const void *)offset));
-				}
-
-				break;
-			}
-			case GL::GLInternalTextureFormat::Texture2DArray:
-			case GL::GLInternalTextureFormat::CubemapArray:
-			case GL::GLInternalTextureFormat::Texture3D:
-			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-			{
-				size_t offset = command.BufferTextureCopy.BufferOffset;
-
-				if (isCompressed)
-				{
-					glCall(context.CompressedTextureSubImage3D(texture->GetHandle(),
-															   command.BufferTextureCopy.MipLevel,
-															   command.BufferTextureCopy.TextureOffset.X,
-															   command.BufferTextureCopy.TextureOffset.Y,
-															   command.BufferTextureCopy.TextureOffset.Z,
-															   command.BufferTextureCopy.TextureExtent.Width,
-															   command.BufferTextureCopy.TextureExtent.Height,
-															   copyDepth,
-															   dataFormat,
-															   baseType,
-															   (const void *)offset));
-				}
-				else
-				{
-					glCall(context.TextureSubImage3D(texture->GetHandle(),
-													 command.BufferTextureCopy.MipLevel,
-													 command.BufferTextureCopy.TextureOffset.X,
-													 command.BufferTextureCopy.TextureOffset.Y,
-													 command.BufferTextureCopy.TextureOffset.Z,
-													 command.BufferTextureCopy.TextureExtent.Width,
-													 command.BufferTextureCopy.TextureExtent.Height,
-													 copyDepth,
-													 dataFormat,
-													 baseType,
-													 (const void *)offset));
-				}
-
-				break;
-			}
-		}
-
-		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-	}
-
-	static void CopyBufferToTextureNonDSA(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
-	{
-		const Graphics::TextureOpenGL	   *texture = command.BufferTextureCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		const Graphics::DeviceBufferOpenGL *buffer	= command.BufferTextureCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
-		NX_VALIDATE(texture->GetDescription().Samples == 1, "Cannot set data in a multisampled texture");
-
-		bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
-
-		if (command.BufferTextureCopy.TextureOffset.Z > 1)
-		{
-			const Graphics::TextureDescription &textureDesc = texture->GetDescription();
-			NX_VALIDATE(textureDesc.Type == Graphics::TextureType::Texture3D || textureDesc.Type == Graphics::TextureType::TextureCube,
-						"Attempting to set data in a multi-layer texture, but texture is not multi layer");
-		}
-
-		GLenum textureType = texture->GetTextureType();
-		GLenum dataFormat  = texture->GetDataFormat();
-		GLenum baseType	   = texture->GetBaseType();
-
-		glCall(context.BindTexture(textureType, texture->GetHandle()));
-		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetHandle());
-
-		GLenum	 glAspect		  = GL::GetGLImageAspect(texture->IsDepth());
-		uint32_t texelSizeInBytes = (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
-
-		uint32_t bufferSize = (command.BufferTextureCopy.BufferImageHeight > 0 ? command.BufferTextureCopy.BufferImageHeight
-																			   : command.BufferTextureCopy.TextureExtent.Height) *
-							  (command.BufferTextureCopy.BufferRowLength > 0 ? command.BufferTextureCopy.BufferRowLength
-																			 : command.BufferTextureCopy.TextureExtent.Width) *
-							  texelSizeInBytes;
-
-		const uint32_t copyDepth = 1;
-
-		switch (texture->GetInternalGLTextureFormat())
-		{
-			case GL::GLInternalTextureFormat::Texture1D:
-	#if !defined(__EMSCRIPTEN__)
-				if (isCompressed)
-				{
-					glCall(context.CompressedTexSubImage1D(textureType,
-														   command.BufferTextureCopy.MipLevel,
-														   command.BufferTextureCopy.TextureOffset.X,
-														   command.BufferTextureCopy.TextureExtent.Width,
-														   dataFormat,
-														   (uint32_t)(bufferSize),
-														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
-				{
-					glCall(context.TexSubImage1D(textureType,
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-
-				break;
-	#else
-				throw std::runtime_error("1D textures are not supported in WebGL");
-	#endif
-			case GL::GLInternalTextureFormat::Texture1DArray:
-			case GL::GLInternalTextureFormat::Texture2D:
-			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				if (isCompressed)
-				{
-					glCall(context.CompressedTexSubImage2D(textureType,
-														   command.BufferTextureCopy.MipLevel,
-														   command.BufferTextureCopy.TextureOffset.X,
-														   command.BufferTextureCopy.TextureOffset.Y,
-														   command.BufferTextureCopy.TextureExtent.Width,
-														   command.BufferTextureCopy.TextureExtent.Height,
-														   dataFormat,
-														   baseType,
-														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
-				{
-					glCall(context.TexSubImage2D(textureType,
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureOffset.Y,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 command.BufferTextureCopy.TextureExtent.Height,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				break;
-			case GL::GLInternalTextureFormat::Cubemap:
-				if (isCompressed)
-				{
-					glCall(context.CompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureOffset.Z,
-														   command.BufferTextureCopy.MipLevel,
-														   command.BufferTextureCopy.TextureOffset.X,
-														   command.BufferTextureCopy.TextureOffset.Y,
-														   command.BufferTextureCopy.TextureExtent.Width,
-														   command.BufferTextureCopy.TextureExtent.Height,
-														   dataFormat,
-														   baseType,
-														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
-				{
-					glCall(context.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + command.BufferTextureCopy.TextureOffset.Z,
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureOffset.Y,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 command.BufferTextureCopy.TextureExtent.Height,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				break;
-			case GL::GLInternalTextureFormat::Texture2DArray:
-			case GL::GLInternalTextureFormat::CubemapArray:
-			case GL::GLInternalTextureFormat::Texture3D:
-			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-				if (isCompressed)
-				{
-					glCall(context.CompressedTexSubImage3D(textureType,
-														   command.BufferTextureCopy.MipLevel,
-														   command.BufferTextureCopy.TextureOffset.X,
-														   command.BufferTextureCopy.TextureOffset.Y,
-														   command.BufferTextureCopy.TextureOffset.Z,
-														   command.BufferTextureCopy.TextureExtent.Width,
-														   command.BufferTextureCopy.TextureExtent.Height,
-														   copyDepth,
-														   dataFormat,
-														   baseType,
-														   (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-				else
-				{
-					glCall(context.TexSubImage3D(textureType,
-												 command.BufferTextureCopy.MipLevel,
-												 command.BufferTextureCopy.TextureOffset.X,
-												 command.BufferTextureCopy.TextureOffset.Y,
-												 command.BufferTextureCopy.TextureOffset.Z,
-												 command.BufferTextureCopy.TextureExtent.Width,
-												 command.BufferTextureCopy.TextureExtent.Height,
-												 copyDepth,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset));
-				}
-
-				break;
-		}
-
-		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-		glCall(context.BindTexture(textureType, 0));
-	}
-
-	void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context)
-	{
-		if (context.ARB_direct_state_access || context.EXT_direct_state_access)
-		{
-			CopyBufferToTextureDSA(command, context);
-		}
-		else
-		{
-			CopyBufferToTextureNonDSA(command, context);
-		}
-	}
-
-	static void CopyTextureToBufferDSA(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &gladContext, GL::IGLContext *context)
-	{
-		const Graphics::TextureOpenGL	   *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		const Graphics::DeviceBufferOpenGL *buffer	= command.TextureBufferCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
-
-		if (!texture || !buffer)
-		{
-			return;
-		}
-
-		const auto &textureSpecification = texture->GetDescription();
-
-		GLenum glAspect = GL::GetGLImageAspect(texture->IsDepth());
-
-		GLenum textureType = texture->GetTextureType();
-		GLenum dataFormat  = texture->GetDataFormat();
-		GLenum baseType	   = texture->GetBaseType();
-
-		gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetHandle());
-
-		size_t bufferOffset = command.TextureBufferCopy.BufferOffset;
-
-		Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.Texture;
-		framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
-		framebufferTextureDesc.BaseArrayLayer						   = command.TextureBufferCopy.TextureOffset.Z;
-		framebufferTextureDesc.LayerCount							   = 1;
-
-		GLuint framebufferHandle = 0;
-		glCall(gladContext.CreateFramebuffers(1, &framebufferHandle));
-		GL::AttachTexture(framebufferHandle, framebufferTextureDesc, texture->IsDepth(), 0, gladContext, context);
-
-		if (gladContext.CheckNamedFramebufferStatus(framebufferHandle, GL_READ_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			throw std::runtime_error("Framebuffer incomplete during texture read");
-		}
-
-		glCall(gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0));
-		glCall(gladContext.ReadPixels(command.TextureBufferCopy.TextureOffset.X,
-									  command.TextureBufferCopy.TextureOffset.Y,
-									  command.TextureBufferCopy.TextureExtent.Width,
-									  command.TextureBufferCopy.TextureExtent.Height,
-									  dataFormat,
-									  baseType,
-									  (void *)(uint64_t)bufferOffset));
-
-		glCall(gladContext.DeleteFramebuffers(1, &framebufferHandle));
-
-		glCall(gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
-	}
-
-	static void CopyTextureToBufferNonDSA(const Graphics::CopyTextureToBufferCommand &command,
-										  const GladGLContext						 &gladContext,
-										  GL::IGLContext							 *context)
-	{
-		const Graphics::TextureOpenGL	   *texture = command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
-		const Graphics::DeviceBufferOpenGL *buffer	= command.TextureBufferCopy.BufferHandle.AsDerived<const Graphics::DeviceBufferOpenGL>();
-
-		if (!texture || !buffer)
-		{
-			return;
-		}
-
-		const auto &textureSpecification = texture->GetDescription();
-
-		GLenum glAspect = GL::GetGLImageAspect(texture->IsDepth());
-
-		GLenum textureType = texture->GetTextureType();
-		GLenum dataFormat  = texture->GetDataFormat();
-		GLenum baseType	   = texture->GetBaseType();
-
-		gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetHandle());
-
-		size_t bufferOffset = command.TextureBufferCopy.BufferOffset;
-
-		GLuint framebufferHandle = 0;
-		glCall(gladContext.GenFramebuffers(1, &framebufferHandle));
-		glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
-
-		Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-		framebufferTextureDesc.TargetTexture						   = command.TextureBufferCopy.Texture;
-		framebufferTextureDesc.MipLevel								   = command.TextureBufferCopy.MipLevel;
-		framebufferTextureDesc.BaseArrayLayer						   = command.TextureBufferCopy.TextureOffset.Z;
-		framebufferTextureDesc.LayerCount							   = 1;
-
-		GL::AttachTexture(framebufferHandle, framebufferTextureDesc, texture->IsDepth(), 0, gladContext, context);
-
-		GL::ValidateFramebuffer(framebufferHandle, gladContext);
-
-		glCall(gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0));
-		glCall(gladContext.ReadPixels(command.TextureBufferCopy.TextureOffset.X,
-									  command.TextureBufferCopy.TextureOffset.Y,
-									  command.TextureBufferCopy.TextureExtent.Width,
-									  command.TextureBufferCopy.TextureExtent.Height,
-									  dataFormat,
-									  baseType,
-									  (void *)(uint64_t)bufferOffset));
-
-		glCall(gladContext.DeleteFramebuffers(1, &framebufferHandle));
-
-		glCall(gladContext.BindTexture(textureType, 0));
-		glCall(gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
-	}
-
-	void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &gladContext, GL::IGLContext *context)
-	{
-		if (gladContext.ARB_direct_state_access || gladContext.EXT_direct_state_access)
-		{
-			CopyTextureToBufferDSA(command, gladContext, context);
-		}
-		else
-		{
-			CopyTextureToBufferNonDSA(command, gladContext, context);
-		}
-	}
-
-	static void CopyTextureToTextureDSA(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &gladContext, GL::IGLContext *context)
-	{
-		const Graphics::TextureOpenGL *source	   = copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
-		const Graphics::TextureOpenGL *destination = copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
-		NX_VALIDATE(source, "Source texture must be valid");
-
-		GLuint sourceFramebufferHandle = 0;
-		GLuint destFramebufferHandle   = 0;
-
-		// set up source framebuffer
-		{
-			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = copyDesc.Source;
-			framebufferTextureDesc.MipLevel								   = copyDesc.SourceMipLevel;
-			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.SourceOffset.Z;
-			framebufferTextureDesc.LayerCount							   = 1;
-
-			gladContext.CreateFramebuffers(1, &sourceFramebufferHandle);
-			GL::AttachTexture(sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(), 0, gladContext, context);
-			GL::ValidateFramebuffer(sourceFramebufferHandle, gladContext);
-		}
-
-		if (destination)
-		{
-			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = copyDesc.Destination;
-			framebufferTextureDesc.MipLevel								   = copyDesc.DestinationMipLevel;
-			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.DestinationOffset.Z;
-			framebufferTextureDesc.LayerCount							   = 1;
-
-			gladContext.CreateFramebuffers(1, &destFramebufferHandle);
-			GL::AttachTexture(destFramebufferHandle, framebufferTextureDesc, destination->IsDepth(), 0, gladContext, context);
-			GL::ValidateFramebuffer(destFramebufferHandle, gladContext);
-		}
-		else
-		{
-			destFramebufferHandle = 0;
-		}
-
-		gladContext.Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
-		gladContext.Disable(GL_SCISSOR_TEST);
-
-		gladContext.BlitNamedFramebuffer(sourceFramebufferHandle,
-										 destFramebufferHandle,
-										 copyDesc.SourceOffset.X,
-										 copyDesc.SourceOffset.Y,
-										 copyDesc.SourceOffset.X + copyDesc.Extent.Width,
-										 copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
-										 copyDesc.DestinationOffset.X,
-										 copyDesc.DestinationOffset.Y,
-										 copyDesc.DestinationOffset.X + copyDesc.Extent.Width,
-										 copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
-										 GL_COLOR_BUFFER_BIT,
-										 GL_NEAREST);
-
-		std::array<uint32_t, 2> framebuffers = {sourceFramebufferHandle, destFramebufferHandle};
-		gladContext.DeleteFramebuffers(framebuffers.size(), framebuffers.data());
-	}
-
-	static void CopyTextureToTextureNonDSA(const Graphics::TextureCopyDescription &copyDesc,
-										   const GladGLContext					  &gladContext,
-										   GL::IGLContext						  *context)
-	{
-		const Graphics::TextureOpenGL *source	   = copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
-		const Graphics::TextureOpenGL *destination = copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
-		NX_VALIDATE(source, "Source texture must be valid");
-
-		GLuint sourceFramebufferHandle = 0;
-		GLuint destFramebufferHandle   = 0;
-
-		// set up source framebuffer
-		{
-			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = copyDesc.Source;
-			framebufferTextureDesc.MipLevel								   = copyDesc.SourceMipLevel;
-			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.SourceOffset.Z;
-			framebufferTextureDesc.LayerCount							   = 1;
-
-			glCall(gladContext.GenFramebuffers(1, &sourceFramebufferHandle));
-			glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
-			GL::AttachTexture(sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(), 0, gladContext, context);
-			GL::ValidateFramebuffer(sourceFramebufferHandle, gladContext);
-		}
-
-		// set up dest framebuffer (or use the backbuffer)
-		if (destination)
-		{
-			Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-			framebufferTextureDesc.TargetTexture						   = copyDesc.Destination;
-			framebufferTextureDesc.MipLevel								   = copyDesc.DestinationMipLevel;
-			framebufferTextureDesc.BaseArrayLayer						   = copyDesc.DestinationOffset.Z;
-			framebufferTextureDesc.LayerCount							   = 1;
-
-			glCall(gladContext.GenFramebuffers(1, &destFramebufferHandle));
-			glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
-			GL::AttachTexture(destFramebufferHandle, framebufferTextureDesc, destination->IsDepth(), 0, gladContext, context);
-			GL::ValidateFramebuffer(destFramebufferHandle, gladContext);
-		}
-		else
-		{
-			destFramebufferHandle = 0;
-		}
-
-		gladContext.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
-		gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0);
-
-		gladContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
-
-		if (destFramebufferHandle == 0)
-		{
-			gladContext.DrawBuffer(GL_BACK);
-		}
-		else
-		{
-			gladContext.DrawBuffer(GL_COLOR_ATTACHMENT0);
-		}
-
-		gladContext.Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
-		gladContext.Disable(GL_SCISSOR_TEST);
-
-		// copy all attached aspect masks
-		gladContext.BlitFramebuffer(copyDesc.SourceOffset.X,
-									copyDesc.SourceOffset.Y,
-									copyDesc.SourceOffset.X + copyDesc.Extent.Width,
-									copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
-									copyDesc.DestinationOffset.X,
-									copyDesc.DestinationOffset.Y,
-									copyDesc.DestinationOffset.X + copyDesc.Extent.Width,
-									copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
-									GL_COLOR_BUFFER_BIT,
-									GL_NEAREST);
-
-		gladContext.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		gladContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-		glCall(gladContext.DeleteFramebuffers(1, &sourceFramebufferHandle));
-
-		if (destFramebufferHandle != 0)
-			glCall(gladContext.DeleteFramebuffers(1, &destFramebufferHandle));
-	}
-
-	void CopyTextureToTexture(const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &gladContext, GL::IGLContext *context)
-	{
-		if (gladContext.ARB_direct_state_access || gladContext.EXT_direct_state_access)
-		{
-			CopyTextureToTextureDSA(copyDesc, gladContext, context);
-		}
-		else
-		{
-			CopyTextureToTextureNonDSA(copyDesc, gladContext, context);
-		}
-	}
-
-	static GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
-	{
-		switch (state)
-		{
-			case Nexus::Graphics::SamplerState::LinearClamp:
-			case Nexus::Graphics::SamplerState::LinearWrap: return GL_LINEAR;
-			case Nexus::Graphics::SamplerState::PointClamp:
-			case Nexus::Graphics::SamplerState::PointWrap: return GL_NEAREST;
-			default: throw std::runtime_error("Invalid sampler state selected");
-		}
-	}
-
-	static GLenum GetWrapMode(Nexus::Graphics::SamplerState state)
-	{
-		switch (state)
-		{
-			case Nexus::Graphics::SamplerState::LinearClamp:
-			case Nexus::Graphics::SamplerState::PointClamp: return GL_CLAMP_TO_EDGE;
-			case Nexus::Graphics::SamplerState::LinearWrap:
-			case Nexus::Graphics::SamplerState::PointWrap: return GL_REPEAT;
-			default: throw std::runtime_error("Invalid sampler state selected");
-		}
-	}
-}	 // namespace Nexus::GL
+    std::string GetErrorMessageFromCode(const GLenum error)
+    {
+        switch (error)
+        {
+        case GL_NO_ERROR:
+            return "No error";
+        case GL_INVALID_ENUM:
+            return "An invalid enum was entered";
+        case GL_INVALID_VALUE:
+            return "An invalid value was entered";
+        case GL_INVALID_OPERATION:
+            return "An invalid operation was attempted";
+        case GL_STACK_OVERFLOW:
+            return "A stack overflow has occured";
+        case GL_STACK_UNDERFLOW:
+            return "A stack underflow has occured";
+        case GL_OUT_OF_MEMORY:
+            return "Out of memory";
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            return "An invalid framebuffer operation was attempted";
+        default:
+            return "An unknown error occurred";
+        }
+    }
+
+    GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation)
+    {
+        switch (operation)
+        {
+        case Nexus::Graphics::StencilOperation::Keep:
+            return GL_KEEP;
+        case Nexus::Graphics::StencilOperation::Zero:
+            return GL_ZERO;
+        case Nexus::Graphics::StencilOperation::Replace:
+            return GL_REPLACE;
+        case Nexus::Graphics::StencilOperation::Increment:
+            return GL_INCR;
+        case Nexus::Graphics::StencilOperation::Decrement:
+            return GL_DECR;
+        case Nexus::Graphics::StencilOperation::Invert:
+            return GL_INVERT;
+        }
+
+        throw std::runtime_error("Failed to find a valid stencil operation");
+    }
+
+    GLenum GetComparisonFunction(Nexus::Graphics::ComparisonFunction function)
+    {
+        switch (function)
+        {
+        case Nexus::Graphics::ComparisonFunction::AlwaysPass:
+            return GL_ALWAYS;
+        case Nexus::Graphics::ComparisonFunction::Equal:
+            return GL_EQUAL;
+        case Nexus::Graphics::ComparisonFunction::Greater:
+            return GL_GREATER;
+        case Nexus::Graphics::ComparisonFunction::GreaterEqual:
+            return GL_GEQUAL;
+        case Nexus::Graphics::ComparisonFunction::Less:
+            return GL_LESS;
+        case Nexus::Graphics::ComparisonFunction::LessEqual:
+            return GL_LEQUAL;
+        case Nexus::Graphics::ComparisonFunction::Never:
+            return GL_NEVER;
+        case Nexus::Graphics::ComparisonFunction::NotEqual:
+            return GL_NOTEQUAL;
+        }
+
+        throw std::runtime_error("Failed to find a valid comparison function");
+    }
+
+    GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function)
+    {
+        switch (function)
+        {
+        case Nexus::Graphics::BlendFactor::Zero:
+            return GL_ZERO;
+        case Nexus::Graphics::BlendFactor::One:
+            return GL_ONE;
+        case Nexus::Graphics::BlendFactor::SourceColour:
+            return GL_SRC_COLOR;
+        case Nexus::Graphics::BlendFactor::OneMinusSourceColour:
+            return GL_ONE_MINUS_SRC_COLOR;
+        case Nexus::Graphics::BlendFactor::DestinationColour:
+            return GL_DST_COLOR;
+        case Nexus::Graphics::BlendFactor::OneMinusDestinationColour:
+            return GL_ONE_MINUS_DST_COLOR;
+        case Nexus::Graphics::BlendFactor::SourceAlpha:
+            return GL_SRC_ALPHA;
+        case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha:
+            return GL_ONE_MINUS_SRC_ALPHA;
+        case Nexus::Graphics::BlendFactor::DestinationAlpha:
+            return GL_DST_ALPHA;
+        case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha:
+            return GL_ONE_MINUS_DST_ALPHA;
+        case Nexus::Graphics::BlendFactor::FactorColour:
+            return GL_CONSTANT_COLOR;
+        case Nexus::Graphics::BlendFactor::OneMinusFactorColour:
+            return GL_ONE_MINUS_CONSTANT_COLOR;
+        case Nexus::Graphics::BlendFactor::FactorAlpha:
+            return GL_CONSTANT_ALPHA;
+        case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha:
+            return GL_ONE_MINUS_CONSTANT_ALPHA;
+        }
+
+        throw std::runtime_error("Failed to find a valid blend function");
+    }
+
+    GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation)
+    {
+        switch (equation)
+        {
+        case Nexus::Graphics::BlendEquation::Add:
+            return GL_FUNC_ADD;
+        case Nexus::Graphics::BlendEquation::Subtract:
+            return GL_FUNC_SUBTRACT;
+        case Nexus::Graphics::BlendEquation::ReverseSubtract:
+            return GL_FUNC_REVERSE_SUBTRACT;
+        case Nexus::Graphics::BlendEquation::Min:
+            return GL_MIN;
+        case Nexus::Graphics::BlendEquation::Max:
+            return GL_MAX;
+        }
+
+        throw std::runtime_error("Failed to find a valid blend equation");
+    }
+
+    GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode)
+    {
+        switch (addressMode)
+        {
+        case Nexus::Graphics::SamplerAddressMode::Wrap:
+            return GL_REPEAT;
+        case Nexus::Graphics::SamplerAddressMode::MirrorOnce:
+            return GL_MIRROR_CLAMP_TO_EDGE_EXT;
+        case Nexus::Graphics::SamplerAddressMode::Mirror:
+            return GL_MIRRORED_REPEAT;
+        case Nexus::Graphics::SamplerAddressMode::Border:
+            return GL_CLAMP_TO_BORDER;
+        case Nexus::Graphics::SamplerAddressMode::Clamp:
+            return GL_CLAMP_TO_EDGE;
+        default:
+            throw std::runtime_error("Failed to find a valid address mode");
+        }
+    }
+
+    void GetSamplerFilter(
+        Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max,
+        bool hasMipmaps
+    )
+    {
+        switch (filter)
+        {
+        case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint:
+            hasMipmaps ? min = GL_NEAREST_MIPMAP_NEAREST : min = GL_NEAREST;
+            max = GL_NEAREST;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear:
+            hasMipmaps ? min = GL_NEAREST_MIPMAP_LINEAR : min = GL_NEAREST;
+            max = GL_NEAREST;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint:
+            hasMipmaps ? min = GL_NEAREST_MIPMAP_NEAREST : min = GL_NEAREST;
+            max = GL_LINEAR;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear:
+            hasMipmaps ? min = GL_NEAREST_MIPMAP_NEAREST : min = GL_NEAREST;
+            max = GL_LINEAR;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint:
+            hasMipmaps ? min = GL_LINEAR_MIPMAP_NEAREST : min = GL_LINEAR;
+            max = GL_NEAREST;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear:
+            hasMipmaps ? min = GL_LINEAR_MIPMAP_LINEAR : min = GL_LINEAR;
+            max = GL_NEAREST;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint:
+            hasMipmaps ? min = GL_LINEAR_MIPMAP_NEAREST : min = GL_LINEAR;
+            max = GL_LINEAR;
+            break;
+
+        case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear:
+        case Nexus::Graphics::SamplerFilter::Anisotropic:
+            hasMipmaps ? min = GL_LINEAR_MIPMAP_LINEAR : min = GL_LINEAR;
+            max = GL_LINEAR;
+            break;
+
+        default:
+            throw std::runtime_error("Failed to find a valid sample filter");
+        }
+    }
+
+    GLenum GetPixelType(Nexus::Graphics::PixelFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::PixelFormat::R8_UNorm:
+        case Nexus::Graphics::PixelFormat::R8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+            return GL_UNSIGNED_BYTE;
+
+        case Nexus::Graphics::PixelFormat::R16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
+            return GL_UNSIGNED_SHORT;
+
+        case Nexus::Graphics::PixelFormat::R16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_SInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_SInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
+            return GL_SHORT;
+
+        case Nexus::Graphics::PixelFormat::R32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
+            return GL_UNSIGNED_INT;
+
+        case Nexus::Graphics::PixelFormat::R32_SInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_SInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt:
+            return GL_INT;
+
+        case Nexus::Graphics::PixelFormat::R16_Float:
+        case Nexus::Graphics::PixelFormat::R16_G16_Float:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
+            return GL_HALF_FLOAT;
+
+        case Nexus::Graphics::PixelFormat::R32_Float:
+        case Nexus::Graphics::PixelFormat::R32_G32_Float:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float:
+            return GL_FLOAT;
+
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
+#if defined(__EMSCRIPTEN__)
+            throw std::runtime_error("This format is not supported by WebGL");
+#elif defined(__ANDROID__) || defined(ANDROID)
+            throw std::runtime_error("This format is not supported by OpenGLES");
+#else
+            return GL_UNSIGNED_INT_10_10_10_2_EXT;
+#endif
+        case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
+            return GL_UNSIGNED_INT_10F_11F_11F_REV;
+
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC2_UNorm:
+        case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC3_UNorm:
+        case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC4_UNorm:
+        case Nexus::Graphics::PixelFormat::BC4_SNorm:
+        case Nexus::Graphics::PixelFormat::BC5_UNorm:
+        case Nexus::Graphics::PixelFormat::BC5_SNorm:
+        case Nexus::Graphics::PixelFormat::BC7_UNorm:
+        case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb:
+            return GL_UNSIGNED_BYTE;
+
+        case Nexus::Graphics::PixelFormat::D16_UNorm:
+            return GL_UNSIGNED_SHORT;
+        case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+            return GL_UNSIGNED_INT_24_8;
+        case Nexus::Graphics::PixelFormat::D32_SFloat:
+            return GL_FLOAT;
+        case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt:
+            return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
+
+        default:
+            throw std::runtime_error("Failed to find a valid format");
+        }
+    }
+
+    GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::PixelFormat::R8_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_Float:
+        case Nexus::Graphics::PixelFormat::R32_Float:
+            return GL_RED;
+
+        case Nexus::Graphics::PixelFormat::R8_SNorm:
+        case Nexus::Graphics::PixelFormat::R8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_SInt:
+        case Nexus::Graphics::PixelFormat::R16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_SInt:
+        case Nexus::Graphics::PixelFormat::R32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_SInt:
+            return GL_RED_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_Float:
+        case Nexus::Graphics::PixelFormat::R32_G32_Float:
+            return GL_RG;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_G8_SInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_SInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_SInt:
+            return GL_RG_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float:
+            return GL_RGBA;
+
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+            return GL_BGRA_EXT;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt:
+            return GL_RGBA_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
+            return GL_RGBA;
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
+            return GL_RGBA_INTEGER;
+        case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
+            return GL_RGB;
+
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
+            return GL_RGB;
+
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC2_UNorm:
+        case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC3_UNorm:
+        case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
+        case Nexus::Graphics::PixelFormat::BC4_UNorm:
+        case Nexus::Graphics::PixelFormat::BC4_SNorm:
+        case Nexus::Graphics::PixelFormat::BC5_UNorm:
+        case Nexus::Graphics::PixelFormat::BC5_SNorm:
+        case Nexus::Graphics::PixelFormat::BC7_UNorm:
+        case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb:
+            return GL_RGBA;
+
+        case Nexus::Graphics::PixelFormat::D16_UNorm:
+        case Nexus::Graphics::PixelFormat::D32_SFloat:
+            return GL_DEPTH;
+        case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+        case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt:
+            return GL_DEPTH_STENCIL;
+
+        default:
+            throw std::runtime_error("Failed to find a valid format");
+        }
+    }
+
+    GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::PixelFormat::R8_UNorm:
+            return GL_R8;
+        case Nexus::Graphics::PixelFormat::R8_SNorm:
+            return GL_R8I;
+        case Nexus::Graphics::PixelFormat::R8_UInt:
+            return GL_R8UI;
+        case Nexus::Graphics::PixelFormat::R8_SInt:
+            return GL_R8I;
+
+        case Nexus::Graphics::PixelFormat::R16_UNorm:
+            return GL_R16;
+        case Nexus::Graphics::PixelFormat::R16_SNorm:
+            return GL_R16I;
+        case Nexus::Graphics::PixelFormat::R16_UInt:
+            return GL_R16UI;
+        case Nexus::Graphics::PixelFormat::R16_SInt:
+            return GL_R16I;
+        case Nexus::Graphics::PixelFormat::R16_Float:
+            return GL_R16F;
+
+        case Nexus::Graphics::PixelFormat::R32_UInt:
+            return GL_R32UI;
+        case Nexus::Graphics::PixelFormat::R32_SInt:
+            return GL_R32I;
+        case Nexus::Graphics::PixelFormat::R32_Float:
+            return GL_R32F;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
+            return GL_RG8;
+        case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
+            return GL_RG8I;
+        case Nexus::Graphics::PixelFormat::R8_G8_UInt:
+            return GL_RG8UI;
+        case Nexus::Graphics::PixelFormat::R8_G8_SInt:
+            return GL_RG8I;
+
+        case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
+            return GL_RG16;
+        case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
+            return GL_RG16I;
+        case Nexus::Graphics::PixelFormat::R16_G16_UInt:
+            return GL_RG16UI;
+        case Nexus::Graphics::PixelFormat::R16_G16_SInt:
+            return GL_RG16I;
+        case Nexus::Graphics::PixelFormat::R16_G16_Float:
+            return GL_RG16F;
+
+        case Nexus::Graphics::PixelFormat::R32_G32_UInt:
+            return GL_RG32UI;
+        case Nexus::Graphics::PixelFormat::R32_G32_SInt:
+            return GL_RG32I;
+        case Nexus::Graphics::PixelFormat::R32_G32_Float:
+            return GL_RG32F;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
+            return GL_RGBA8;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+            return GL_SRGB8_ALPHA8;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
+            return GL_RGBA8I;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
+            return GL_RGBA8UI;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
+            return GL_RGBA8I;
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
+            return GL_RGBA8;
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+            return GL_SRGB8_ALPHA8;
+
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
+            return GL_RGBA16_EXT;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
+            return GL_RGBA16I;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
+            return GL_RGBA16UI;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
+            return GL_RGBA16I;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
+            return GL_RGBA16F;
+
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
+            return GL_RGBA32UI;
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt:
+            return GL_RGBA32I;
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float:
+            return GL_RGBA32F;
+
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
+            return GL_RGB10_A2;
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
+            return GL_RGB10_A2UI;
+        case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
+            return GL_R11F_G11F_B10F;
+
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+            return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+            return GL_COMPRESSED_RGBA;
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
+            return GL_COMPRESSED_RGB8_ETC2;
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+            return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
+            return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+            return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
+            return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC2_UNorm:
+            return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
+            return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+        case Nexus::Graphics::PixelFormat::BC3_UNorm:
+            return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
+            return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+        case Nexus::Graphics::PixelFormat::BC4_UNorm:
+            return GL_COMPRESSED_RED_RGTC1;
+        case Nexus::Graphics::PixelFormat::BC4_SNorm:
+            return GL_COMPRESSED_SIGNED_RED_RGTC1;
+        case Nexus::Graphics::PixelFormat::BC5_UNorm:
+            return GL_COMPRESSED_RG_RGTC2;
+        case Nexus::Graphics::PixelFormat::BC5_SNorm:
+            return GL_COMPRESSED_SIGNED_RG_RGTC2;
+        case Nexus::Graphics::PixelFormat::BC7_UNorm:
+            return GL_COMPRESSED_RGBA_BPTC_UNORM;
+        case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb:
+            return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM;
+
+        case Nexus::Graphics::PixelFormat::D16_UNorm:
+            return GL_DEPTH_COMPONENT16;
+        case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+            return GL_DEPTH24_STENCIL8;
+        case Nexus::Graphics::PixelFormat::D32_SFloat:
+            return GL_DEPTH_COMPONENT32;
+        case Nexus::Graphics::PixelFormat::D32_SFloat_S8_UInt:
+            return GL_DEPTH32F_STENCIL8;
+
+        default:
+            throw std::runtime_error("Failed to find a valid format");
+        }
+    }
+
+    GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::IndexFormat::UInt8:
+            return GL_UNSIGNED_BYTE;
+        case Nexus::Graphics::IndexFormat::UInt16:
+            return GL_UNSIGNED_SHORT;
+        case Nexus::Graphics::IndexFormat::UInt32:
+            return GL_UNSIGNED_INT;
+        default:
+            throw std::runtime_error("Failed to find a valid index buffer format");
+        }
+    }
+
+    GLenum GetTopology(Nexus::Graphics::Topology topology)
+    {
+        switch (topology)
+        {
+        case Nexus::Graphics::Topology::LineList:
+            return GL_LINE_LOOP;
+        case Nexus::Graphics::Topology::LineStrip:
+            return GL_LINE_STRIP;
+        case Nexus::Graphics::Topology::PointList:
+            return GL_POINTS;
+        case Nexus::Graphics::Topology::TriangleList:
+            return GL_TRIANGLES;
+        case Nexus::Graphics::Topology::TriangleStrip:
+            return GL_TRIANGLE_STRIP;
+        default:
+            throw std::runtime_error("Invalid topology selected");
+        }
+    }
+
+    GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case Nexus::Graphics::ShaderStage::Compute:
+            return GL_COMPUTE_SHADER;
+        case Nexus::Graphics::ShaderStage::Geometry:
+            return GL_GEOMETRY_SHADER;
+        case Nexus::Graphics::ShaderStage::TessellationControl:
+            return GL_TESS_CONTROL_SHADER;
+        case Nexus::Graphics::ShaderStage::TessellationEvaluation:
+            return GL_TESS_EVALUATION_SHADER;
+        case Nexus::Graphics::ShaderStage::Fragment:
+            return GL_FRAGMENT_SHADER;
+        case Nexus::Graphics::ShaderStage::Vertex:
+            return GL_VERTEX_SHADER;
+        case Nexus::Graphics::ShaderStage::Mesh:
+            return GL_MESH_SHADER_EXT;
+        case Nexus::Graphics::ShaderStage::Task:
+            return GL_TASK_SHADER_EXT;
+
+        default:
+            throw std::runtime_error("Failed to find a valid shader stage");
+        }
+    }
+
+    GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc)
+    {
+        switch (desc.Access)
+        {
+        case Graphics::BufferMemoryAccess::Upload:
+            return GL_DYNAMIC_COPY;
+        case Graphics::BufferMemoryAccess::Default:
+            return GL_DYNAMIC_DRAW;
+        case Graphics::BufferMemoryAccess::Readback:
+            return GL_DYNAMIC_COPY;
+        default:
+            throw std::runtime_error("Failed to find a valid access");
+        }
+
+        return GL_STATIC_DRAW;
+    }
+
+    GLenum GetAccessMask(Graphics::ShaderAccess access)
+    {
+        switch (access)
+        {
+        case Graphics::ShaderAccess::Read:
+            return GL_READ_ONLY;
+        case Graphics::ShaderAccess::ReadWrite:
+            return GL_READ_WRITE;
+        default:
+            throw std::runtime_error("Failed to find a valid access mask");
+        }
+    }
+
+    GLenum GetTextureType(const Graphics::TextureDescription &spec)
+    {
+        switch (spec.Type)
+        {
+        case Graphics::TextureType::Texture1D:
+        {
+#if !defined(__EMSCRIPTEN__)
+            if (spec.DepthOrArrayLayers > 1)
+            {
+                return GL_TEXTURE_1D_ARRAY;
+            }
+            else
+            {
+                return GL_TEXTURE_1D;
+            }
+#else
+            throw std::runtime_error("1D textures are not supported by WebGL");
+#endif
+        }
+        case Graphics::TextureType::Texture2D:
+        {
+            if (spec.Samples > 1)
+            {
+                if (spec.DepthOrArrayLayers > 1)
+                {
+                    return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+                }
+                else
+                {
+                    return GL_TEXTURE_2D_MULTISAMPLE;
+                }
+            }
+            else
+            {
+                if (spec.DepthOrArrayLayers > 1)
+                {
+                    return GL_TEXTURE_2D_ARRAY;
+                }
+                else
+                {
+                    return GL_TEXTURE_2D;
+                }
+            }
+        }
+        case Graphics::TextureType::Texture3D:
+        {
+            return GL_TEXTURE_3D;
+        }
+
+        case Graphics::TextureType::TextureCube:
+        {
+            if (spec.DepthOrArrayLayers > 16)
+            {
+                return GL_TEXTURE_CUBE_MAP_ARRAY;
+            }
+            else
+            {
+                return GL_TEXTURE_CUBE_MAP;
+            }
+            break;
+        }
+        default:
+            throw std::runtime_error("Failed to find a valid texture type");
+        }
+    }
+
+    GLenum GetViewType(const Graphics::TextureViewDescription &desc)
+    {
+        Graphics::TextureHandle texture = desc.TargetTexture;
+
+        switch (texture->GetType())
+        {
+        case Graphics::TextureType::Texture1D:
+        {
+            if (desc.Range.LayerCount > 1)
+            {
+                return GL_TEXTURE_1D_ARRAY;
+            }
+            else
+            {
+                return GL_TEXTURE_1D;
+            }
+        }
+        case Graphics::TextureType::Texture2D:
+        {
+            if (texture->GetSampleCount() > 1)
+            {
+                if (desc.Range.LayerCount > 1)
+                {
+                    return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+                }
+                else
+                {
+                    return GL_TEXTURE_2D_MULTISAMPLE;
+                }
+            }
+            else
+            {
+                if (desc.Range.LayerCount > 1)
+                {
+                    return GL_TEXTURE_2D_ARRAY;
+                }
+                else
+                {
+                    return GL_TEXTURE_2D;
+                }
+            }
+        case Graphics::TextureType::Texture3D:
+        {
+            return GL_TEXTURE_3D;
+        }
+        case Graphics::TextureType::TextureCube:
+        {
+            if (desc.Range.LayerCount > 6)
+            {
+                return GL_TEXTURE_CUBE_MAP_ARRAY;
+            }
+            else
+            {
+                return GL_TEXTURE_CUBE_MAP;
+            }
+        }
+        default:
+            throw std::runtime_error("Failed to find a valid texture view type");
+        }
+        }
+    }
+
+    GLbitfield GetBarrierFlags(
+        Graphics::BarrierAccess access, bool supportsStorageBuffers,
+        bool &supportsByRegion
+    )
+    {
+        supportsByRegion = false;
+
+        switch (access)
+        {
+        case Graphics::BarrierAccess::NoAccess:
+        {
+            // we are not synchronizing anything
+            return 0;
+        }
+        case Graphics::BarrierAccess::IndirectCommandRead:
+            return GL_COMMAND_BARRIER_BIT;
+        case Graphics::BarrierAccess::IndexRead:
+            return GL_ELEMENT_ARRAY_BARRIER_BIT;
+        case Graphics::BarrierAccess::VertexAttributeRead:
+            return GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+        case Graphics::BarrierAccess::UniformRead:
+            supportsByRegion = true;
+            return GL_UNIFORM_BARRIER_BIT;
+        case Graphics::BarrierAccess::ShaderRead:
+        case Graphics::BarrierAccess::ShaderWrite:
+        {
+            supportsByRegion = true;
+            GLbitfield flags =
+                GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT;
+
+            if (supportsStorageBuffers)
+            {
+                flags |= GL_SHADER_STORAGE_BARRIER_BIT;
+            }
+
+            return flags;
+        }
+        case Graphics::BarrierAccess::InputAttachmentRead:
+        case Graphics::BarrierAccess::ColourAttachmentRead:
+        case Graphics::BarrierAccess::ColourAttachmentWrite:
+        case Graphics::BarrierAccess::DepthStencilAttachmentRead:
+        case Graphics::BarrierAccess::DepthStencilAttachmentWrite:
+        {
+            supportsByRegion = true;
+            return GL_FRAMEBUFFER_BARRIER_BIT;
+        }
+        case Graphics::BarrierAccess::TransferRead:
+        case Graphics::BarrierAccess::TransferWrite:
+        case Graphics::BarrierAccess::HostRead:
+        case Graphics::BarrierAccess::HostWrite:
+        case Graphics::BarrierAccess::MemoryRead:
+        case Graphics::BarrierAccess::MemoryWrite:
+        {
+            return GL_TEXTURE_UPDATE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT;
+        }
+        case Graphics::BarrierAccess::TransformFeedbackWrite:
+            return GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
+        case Graphics::BarrierAccess::AccelerationStructureRead:
+        case Graphics::BarrierAccess::AccelerationStructureWrite:
+            return GL_ALL_BARRIER_BITS;
+        default:
+            throw std::runtime_error("Failed to find a valid barrier access");
+        }
+    }
+
+    GLInternalTextureFormat GetGLInternalTextureFormat(
+        const Graphics::TextureDescription &spec
+    )
+    {
+        switch (spec.Type)
+        {
+        case Graphics::TextureType::Texture1D:
+        {
+            if (spec.DepthOrArrayLayers > 1)
+            {
+                return GLInternalTextureFormat::Texture1DArray;
+            }
+            else
+            {
+                return GLInternalTextureFormat::Texture1D;
+            }
+        }
+
+        case Graphics::TextureType::Texture2D:
+        {
+            if (spec.Samples > 1)
+            {
+                if (spec.DepthOrArrayLayers > 1)
+                {
+                    return GLInternalTextureFormat::Texture2DArrayMultisample;
+                }
+                else
+                {
+                    return GLInternalTextureFormat::Texture2DMultisample;
+                }
+            }
+            else
+            {
+                if (spec.DepthOrArrayLayers > 1)
+                {
+                    return GLInternalTextureFormat::Texture2DArray;
+                }
+                else
+                {
+                    return GLInternalTextureFormat::Texture2D;
+                }
+            }
+        }
+        case Graphics::TextureType::Texture3D:
+        {
+            return GLInternalTextureFormat::Texture3D;
+        }
+        case Graphics::TextureType::TextureCube:
+        {
+            if (spec.DepthOrArrayLayers > 6)
+            {
+                return GLInternalTextureFormat::CubemapArray;
+            }
+            else
+            {
+                return GLInternalTextureFormat::Cubemap;
+            }
+        }
+        default:
+            throw std::runtime_error(
+                "Failed to find a valid GLInternalTextureFormat"
+            );
+        }
+    }
+
+    void ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context)
+    {
+        context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        GLenum status = context.CheckFramebufferStatus(GL_FRAMEBUFFER);
+
+        if (status == GL_FRAMEBUFFER_COMPLETE)
+        {
+            return;
+        }
+
+        switch (status)
+        {
+        case GL_FRAMEBUFFER_UNDEFINED:
+            throw std::runtime_error(
+                "The specified framebuffer is the default read or write framebuffer "
+                "but the default framebuffer does not exist"
+            );
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            throw std::runtime_error("An attachment is incomplete");
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            throw std::runtime_error(
+                "This framebuffer does not have any attachments"
+            );
+
+#if !defined(__EMSCRIPTEN__)
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            throw std::runtime_error("The framebuffer does not have a draw buffer");
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            throw std::runtime_error("The framebuffer does not have a read buffer");
+#endif
+
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+            throw std::runtime_error(
+                "The framebuffer pixel format(s) are unsupported"
+            );
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            throw std::runtime_error(
+                "The attachments have mismatching multisample levels"
+            );
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+            throw std::runtime_error("Framebuffer attachment is layered");
+        }
+    }
+
+    void AttachTextureNonDSA(
+        GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc,
+        bool isDepth, uint32_t colourIndex, const GladGLContext &gladContext,
+        GL::IGLContext *context
+    )
+    {
+        glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+        GLenum attachmentType = GL::GetAttachmentType(isDepth, colourIndex);
+
+        const Graphics::TextureOpenGL *texture =
+            desc.TargetTexture.AsDerived<const Graphics::TextureOpenGL>();
+
+        uint32_t textureHandle = texture->GetHandle();
+        GLenum textureTarget = texture->GetTextureType();
+        GLInternalTextureFormat internalFormat =
+            texture->GetInternalGLTextureFormat();
+
+        switch (internalFormat)
+        {
+        case GLInternalTextureFormat::Texture1D:
+            glCall(gladContext.FramebufferTexture1D(
+                GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle,
+                desc.MipLevel
+            ));
+            break;
+        case GLInternalTextureFormat::Texture2D:
+        case GLInternalTextureFormat::Texture2DMultisample:
+            glCall(gladContext.FramebufferTexture2D(
+                GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle,
+                desc.MipLevel
+            ));
+            break;
+        case GLInternalTextureFormat::Texture1DArray:
+        case GLInternalTextureFormat::Texture2DArray:
+        case GLInternalTextureFormat::Texture2DArrayMultisample:
+        case GLInternalTextureFormat::CubemapArray:
+        case GLInternalTextureFormat::Texture3D:
+        {
+            if (desc.LayerCount == 1)
+            {
+                glCall(gladContext.FramebufferTextureLayer(
+                    GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel,
+                    desc.BaseArrayLayer
+                ));
+            }
+            else
+            {
+                glCall(gladContext.FramebufferTextureMultiviewOVR(
+                    GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel,
+                    desc.BaseArrayLayer, desc.LayerCount
+                ));
+            }
+            break;
+        }
+        case GLInternalTextureFormat::Cubemap:
+            glCall(gladContext.FramebufferTexture2D(
+                GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + desc.BaseArrayLayer,
+                textureTarget, textureHandle, desc.MipLevel
+            ));
+            break;
+        default:
+            throw std::runtime_error("Could not find a valid texture format type");
+        }
+    }
+
+    void AttachTexture(
+        GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc,
+        bool isDepth, uint32_t colourIndex, const GladGLContext &gladContext,
+        GL::IGLContext *context
+    )
+    {
+        AttachTextureNonDSA(
+            framebuffer, desc, isDepth, colourIndex, gladContext, context
+        );
+    }
+
+    void GetBaseType(
+        const Graphics::VertexBufferElement &element, GLenum &baseType,
+        uint32_t &componentCount, GLboolean &normalized,
+        GLPrimitiveType &primitiveType
+    )
+    {
+        switch (element.Type)
+        {
+        case Graphics::ShaderDataType::R8_UInt:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R8G8_UInt:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R8G8B8A8_UInt:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R8_UNorm:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 1;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R8G8_UNorm:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 2;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R8G8B8A8_UNorm:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 4;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R32_SFloat:
+            baseType = GL_FLOAT;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R32G32_SFloat:
+            baseType = GL_FLOAT;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R32G32B32_SFloat:
+            baseType = GL_FLOAT;
+            componentCount = 3;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R32G32B32A32_SFloat:
+            baseType = GL_FLOAT;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16_SFloat:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 1;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16G16_SFloat:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 2;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16G16B16A16_SFloat:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 4;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R32_SInt:
+            baseType = GL_INT;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R32G32_SInt:
+            baseType = GL_INT;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R32G32B32_SInt:
+            baseType = GL_INT;
+            componentCount = 3;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R32G32B32A32_SInt:
+            baseType = GL_INT;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R8_SInt:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R8G8_SInt:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+        case Graphics::ShaderDataType::R8G8B8A8_SInt:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16_SNorm:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16G16_SNorm:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16G16B16A16_SNorm:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R16_SInt:
+            baseType = GL_SHORT;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R16G16_SInt:
+            baseType = GL_SHORT;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R16G16B16A16_SInt:
+            baseType = GL_SHORT;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R8_SNorm:
+            baseType = GL_SHORT;
+            componentCount = 1;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+        case Graphics::ShaderDataType::R8G8_SNorm:
+            baseType = GL_SHORT;
+            componentCount = 2;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+        case Graphics::ShaderDataType::R8G8B8A8_SNorm:
+            baseType = GL_SHORT;
+            componentCount = 4;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::R32_UInt:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R32G32_UInt:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R32G32B32_UInt:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 3;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R32G32B32A32_UInt:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R16_UInt:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 1;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R16G16_UInt:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 2;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R16G16B16A16_UInt:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::R16_UNorm:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 1;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+        case Graphics::ShaderDataType::R16G16_UNorm:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 2;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+        case Graphics::ShaderDataType::R16G16B16A16_UNorm:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 4;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Float;
+            break;
+
+        case Graphics::ShaderDataType::A2B10G10R10_UNorm:
+            baseType = GL_INT_2_10_10_10_REV;
+            componentCount = 4;
+            normalized = true;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        case Graphics::ShaderDataType::A2B10G10R10_UInt:
+            baseType = GL_UNSIGNED_INT_2_10_10_10_REV;
+            componentCount = 4;
+            normalized = false;
+            primitiveType = GLPrimitiveType::Int;
+            break;
+
+        default:
+            throw std::runtime_error(
+                "Failed to find valid vertex buffer element type"
+            );
+        }
+    }
+
+    GLenum GetGLImageAspect(bool isDepth)
+    {
+        if (isDepth)
+            return GL_DEPTH_STENCIL;
+        else
+            return GL_RGBA;
+    }
+
+    GLenum GetAttachmentType(bool isDepth, uint32_t index)
+    {
+        if (isDepth)
+            return GL_DEPTH_STENCIL_ATTACHMENT;
+        else
+            return GL_COLOR_ATTACHMENT0 + index;
+    }
+
+    std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage)
+    {
+        std::vector<GLenum> targets;
+
+        if (usage & Graphics::BufferUsage_Vertex)
+        {
+            targets.push_back(GL_ARRAY_BUFFER);
+        }
+
+        if (usage & Graphics::BufferUsage_Index)
+        {
+            targets.push_back(GL_ELEMENT_ARRAY_BUFFER);
+        }
+
+        if (usage & Graphics::BufferUsage_Uniform)
+        {
+            targets.push_back(GL_UNIFORM_BUFFER);
+        }
+
+        // default to GL_COPY_READ_BUFFER if no other targets are provided
+        if (targets.size() == 0)
+        {
+            targets.push_back(GL_COPY_READ_BUFFER);
+        }
+
+        return targets;
+    }
+
+    std::unique_ptr<IViewContext> CreateViewContext(
+        IWindow *window, Graphics::IGraphicsDevice *device
+    )
+    {
+        GL::ContextDescription spec = {};
+        spec.Debug = true;
+        spec.Samples = 8;
+        spec.GLVersion = GL::OpenGLVersion::OpenGL;
+
+        Graphics::GraphicsDeviceOpenGL *deviceOpenGL =
+            (Graphics::GraphicsDeviceOpenGL *)device;
+        NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
+
+#if defined(NX_PLATFORM_WGL)
+        OffscreenContextWGL *pbufferWGL =
+            (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
+        return std::make_unique<ViewContextWGL>(
+            windowInfo.hwnd, windowInfo.hdc, pbufferWGL, spec
+        );
+#elif defined(NX_PLATFORM_EGL)
+#if defined(NX_PLATFORM_ANDROID)
+        spec.GLVersion = GL::OpenGLVersion::OpenGLES;
+        spec.VersionMajor = 3;
+        spec.VersionMinor = 2;
+#endif
+
+        OffscreenContextEGL *pbufferEGL =
+            (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
+
+#if defined(NX_PLATFORM_ANDROID)
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        EGLNativeWindowType nativeWindow =
+            (EGLNativeWindowType)windowInfo.nativeWindow;
+        return std::make_unique<ViewContextEGL>(
+            display, nativeWindow, pbufferEGL, spec
+        );
+#else
+        EGLDisplay display = eglGetDisplay(windowInfo.display);
+        EGLNativeWindowType nativeWindow = (EGLNativeWindowType)windowInfo.window;
+        return std::make_unique<ViewContextEGL>(
+            display, nativeWindow, pbufferEGL, spec
+        );
+#endif
+#elif defined(NX_PLATFORM_WEBGL)
+        return std::make_unique<ViewContextWebGL>(
+            windowInfo.canvasId.c_str(), deviceOpenGL, spec
+        );
+#else
+#error No OpenGL backend available
+#endif
+    }
+
+    static void CopyBufferToTextureDSA(
+        const Graphics::CopyBufferToTextureCommand &command,
+        const GladGLContext &context
+    )
+    {
+        const Graphics::TextureOpenGL *texture =
+            command.BufferTextureCopy.Texture
+                .AsDerived<const Graphics::TextureOpenGL>();
+        const Graphics::DeviceBufferOpenGL *buffer =
+            command.BufferTextureCopy.BufferHandle
+                .AsDerived<const Graphics::DeviceBufferOpenGL>();
+
+        NX_VALIDATE(
+            texture->GetDescription().Samples == 1,
+            "Cannot set data in a multisampled texture"
+        );
+
+        if (!texture || !buffer)
+        {
+            return;
+        }
+
+        if (command.BufferTextureCopy.TextureOffset.Z > 1)
+        {
+            const Graphics::TextureDescription &textureDesc =
+                texture->GetDescription();
+            NX_VALIDATE(
+                textureDesc.Type == Graphics::TextureType::Texture3D ||
+                    textureDesc.Type == Graphics::TextureType::TextureCube,
+                "Attempting to set data in a multi-layer texture, but texture is "
+                "not multi layer"
+            );
+        }
+
+        bool isCompressed =
+            Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
+
+        GLenum dataFormat = texture->GetDataFormat();
+        GLenum baseType = texture->GetBaseType();
+
+        context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetHandle());
+
+        GLenum glAspect = GL::GetGLImageAspect(texture->IsDepth());
+        uint32_t texelSizeInBytes =
+            (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+
+        uint32_t bufferSize =
+            (command.BufferTextureCopy.BufferImageHeight > 0
+                 ? command.BufferTextureCopy.BufferImageHeight
+                 : command.BufferTextureCopy.TextureExtent.Height) *
+            (command.BufferTextureCopy.BufferRowLength > 0
+                 ? command.BufferTextureCopy.BufferRowLength
+                 : command.BufferTextureCopy.TextureExtent.Width) *
+            texelSizeInBytes;
+
+        const uint32_t copyDepth = 1;
+
+        switch (texture->GetInternalGLTextureFormat())
+        {
+        case GL::GLInternalTextureFormat::Texture1D:
+#if !defined(__EMSCRIPTEN__)
+            if (!isCompressed)
+            {
+                glCall(context.CompressedTextureSubImage1D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureExtent.Width, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            else
+            {
+                glCall(context.TextureSubImage1D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureExtent.Width, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            break;
+#else
+            throw std::runtime_error("1D textures are not supported in WebGL");
+#endif
+        case GL::GLInternalTextureFormat::Texture1DArray:
+        case GL::GLInternalTextureFormat::Texture2D:
+        case GL::GLInternalTextureFormat::Texture2DMultisample:
+            if (!isCompressed)
+            {
+                glCall(context.TextureSubImage2D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            else
+            {
+                glCall(context.CompressedTextureSubImage2D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            break;
+        case GL::GLInternalTextureFormat::Cubemap:
+        {
+            size_t offset = command.BufferTextureCopy.BufferOffset;
+
+            if (!isCompressed)
+            {
+                glCall(context.TextureSubImage3D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, copyDepth,
+                    dataFormat, baseType, (const void *)offset
+                ));
+            }
+            else
+            {
+                glCall(context.CompressedTextureSubImage3D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, copyDepth,
+                    dataFormat, baseType, (const void *)offset
+                ));
+            }
+
+            break;
+        }
+        case GL::GLInternalTextureFormat::Texture2DArray:
+        case GL::GLInternalTextureFormat::CubemapArray:
+        case GL::GLInternalTextureFormat::Texture3D:
+        case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+        {
+            size_t offset = command.BufferTextureCopy.BufferOffset;
+
+            if (isCompressed)
+            {
+                glCall(context.CompressedTextureSubImage3D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, copyDepth,
+                    dataFormat, baseType, (const void *)offset
+                ));
+            }
+            else
+            {
+                glCall(context.TextureSubImage3D(
+                    texture->GetHandle(), command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, copyDepth,
+                    dataFormat, baseType, (const void *)offset
+                ));
+            }
+
+            break;
+        }
+        }
+
+        context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    }
+
+    static void CopyBufferToTextureNonDSA(
+        const Graphics::CopyBufferToTextureCommand &command,
+        const GladGLContext &context
+    )
+    {
+        const Graphics::TextureOpenGL *texture =
+            command.BufferTextureCopy.Texture
+                .AsDerived<const Graphics::TextureOpenGL>();
+        const Graphics::DeviceBufferOpenGL *buffer =
+            command.BufferTextureCopy.BufferHandle
+                .AsDerived<const Graphics::DeviceBufferOpenGL>();
+        NX_VALIDATE(
+            texture->GetDescription().Samples == 1,
+            "Cannot set data in a multisampled texture"
+        );
+
+        bool isCompressed =
+            Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
+
+        if (command.BufferTextureCopy.TextureOffset.Z > 1)
+        {
+            const Graphics::TextureDescription &textureDesc =
+                texture->GetDescription();
+            NX_VALIDATE(
+                textureDesc.Type == Graphics::TextureType::Texture3D ||
+                    textureDesc.Type == Graphics::TextureType::TextureCube,
+                "Attempting to set data in a multi-layer texture, but texture is "
+                "not multi layer"
+            );
+        }
+
+        GLenum textureType = texture->GetTextureType();
+        GLenum dataFormat = texture->GetDataFormat();
+        GLenum baseType = texture->GetBaseType();
+
+        glCall(context.BindTexture(textureType, texture->GetHandle()));
+        context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetHandle());
+
+        GLenum glAspect = GL::GetGLImageAspect(texture->IsDepth());
+        uint32_t texelSizeInBytes =
+            (uint32_t)GetPixelFormatSizeInBytes(texture->GetDescription().Format);
+
+        uint32_t bufferSize =
+            (command.BufferTextureCopy.BufferImageHeight > 0
+                 ? command.BufferTextureCopy.BufferImageHeight
+                 : command.BufferTextureCopy.TextureExtent.Height) *
+            (command.BufferTextureCopy.BufferRowLength > 0
+                 ? command.BufferTextureCopy.BufferRowLength
+                 : command.BufferTextureCopy.TextureExtent.Width) *
+            texelSizeInBytes;
+
+        const uint32_t copyDepth = 1;
+
+        switch (texture->GetInternalGLTextureFormat())
+        {
+        case GL::GLInternalTextureFormat::Texture1D:
+#if !defined(__EMSCRIPTEN__)
+            if (isCompressed)
+            {
+                glCall(context.CompressedTexSubImage1D(
+                    textureType, command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureExtent.Width, dataFormat,
+                    (uint32_t)(bufferSize),
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            else
+            {
+                glCall(context.TexSubImage1D(
+                    textureType, command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureExtent.Width, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+
+            break;
+#else
+            throw std::runtime_error("1D textures are not supported in WebGL");
+#endif
+        case GL::GLInternalTextureFormat::Texture1DArray:
+        case GL::GLInternalTextureFormat::Texture2D:
+        case GL::GLInternalTextureFormat::Texture2DMultisample:
+            if (isCompressed)
+            {
+                glCall(context.CompressedTexSubImage2D(
+                    textureType, command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            else
+            {
+                glCall(context.TexSubImage2D(
+                    textureType, command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            break;
+        case GL::GLInternalTextureFormat::Cubemap:
+            if (isCompressed)
+            {
+                glCall(context.CompressedTexSubImage2D(
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X +
+                        command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            else
+            {
+                glCall(context.TexSubImage2D(
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X +
+                        command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, dataFormat,
+                    baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            break;
+        case GL::GLInternalTextureFormat::Texture2DArray:
+        case GL::GLInternalTextureFormat::CubemapArray:
+        case GL::GLInternalTextureFormat::Texture3D:
+        case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+            if (isCompressed)
+            {
+                glCall(context.CompressedTexSubImage3D(
+                    textureType, command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, copyDepth,
+                    dataFormat, baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+            else
+            {
+                glCall(context.TexSubImage3D(
+                    textureType, command.BufferTextureCopy.MipLevel,
+                    command.BufferTextureCopy.TextureOffset.X,
+                    command.BufferTextureCopy.TextureOffset.Y,
+                    command.BufferTextureCopy.TextureOffset.Z,
+                    command.BufferTextureCopy.TextureExtent.Width,
+                    command.BufferTextureCopy.TextureExtent.Height, copyDepth,
+                    dataFormat, baseType,
+                    (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
+                ));
+            }
+
+            break;
+        }
+
+        context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+        glCall(context.BindTexture(textureType, 0));
+    }
+
+    void CopyBufferToTexture(
+        const Graphics::CopyBufferToTextureCommand &command,
+        const GladGLContext &context
+    )
+    {
+        if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+        {
+            CopyBufferToTextureDSA(command, context);
+        }
+        else
+        {
+            CopyBufferToTextureNonDSA(command, context);
+        }
+    }
+
+    static void CopyTextureToBufferDSA(
+        const Graphics::CopyTextureToBufferCommand &command,
+        const GladGLContext &gladContext, GL::IGLContext *context
+    )
+    {
+        const Graphics::TextureOpenGL *texture =
+            command.TextureBufferCopy.Texture
+                .AsDerived<const Graphics::TextureOpenGL>();
+        const Graphics::DeviceBufferOpenGL *buffer =
+            command.TextureBufferCopy.BufferHandle
+                .AsDerived<const Graphics::DeviceBufferOpenGL>();
+
+        if (!texture || !buffer)
+        {
+            return;
+        }
+
+        const auto &textureSpecification = texture->GetDescription();
+
+        GLenum glAspect = GL::GetGLImageAspect(texture->IsDepth());
+
+        GLenum textureType = texture->GetTextureType();
+        GLenum dataFormat = texture->GetDataFormat();
+        GLenum baseType = texture->GetBaseType();
+
+        gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetHandle());
+
+        size_t bufferOffset = command.TextureBufferCopy.BufferOffset;
+
+        Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+        framebufferTextureDesc.TargetTexture = command.TextureBufferCopy.Texture;
+        framebufferTextureDesc.MipLevel = command.TextureBufferCopy.MipLevel;
+        framebufferTextureDesc.BaseArrayLayer =
+            command.TextureBufferCopy.TextureOffset.Z;
+        framebufferTextureDesc.LayerCount = 1;
+
+        GLuint framebufferHandle = 0;
+        glCall(gladContext.CreateFramebuffers(1, &framebufferHandle));
+        GL::AttachTexture(
+            framebufferHandle, framebufferTextureDesc, texture->IsDepth(), 0,
+            gladContext, context
+        );
+
+        if (gladContext.CheckNamedFramebufferStatus(
+                framebufferHandle, GL_READ_FRAMEBUFFER
+            ) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            throw std::runtime_error("Framebuffer incomplete during texture read");
+        }
+
+        glCall(gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0));
+        glCall(gladContext.ReadPixels(
+            command.TextureBufferCopy.TextureOffset.X,
+            command.TextureBufferCopy.TextureOffset.Y,
+            command.TextureBufferCopy.TextureExtent.Width,
+            command.TextureBufferCopy.TextureExtent.Height, dataFormat, baseType,
+            (void *)(uint64_t)bufferOffset
+        ));
+
+        glCall(gladContext.DeleteFramebuffers(1, &framebufferHandle));
+
+        glCall(gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+    }
+
+    static void CopyTextureToBufferNonDSA(
+        const Graphics::CopyTextureToBufferCommand &command,
+        const GladGLContext &gladContext, GL::IGLContext *context
+    )
+    {
+        const Graphics::TextureOpenGL *texture =
+            command.TextureBufferCopy.Texture
+                .AsDerived<const Graphics::TextureOpenGL>();
+        const Graphics::DeviceBufferOpenGL *buffer =
+            command.TextureBufferCopy.BufferHandle
+                .AsDerived<const Graphics::DeviceBufferOpenGL>();
+
+        if (!texture || !buffer)
+        {
+            return;
+        }
+
+        const auto &textureSpecification = texture->GetDescription();
+
+        GLenum glAspect = GL::GetGLImageAspect(texture->IsDepth());
+
+        GLenum textureType = texture->GetTextureType();
+        GLenum dataFormat = texture->GetDataFormat();
+        GLenum baseType = texture->GetBaseType();
+
+        gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetHandle());
+
+        size_t bufferOffset = command.TextureBufferCopy.BufferOffset;
+
+        GLuint framebufferHandle = 0;
+        glCall(gladContext.GenFramebuffers(1, &framebufferHandle));
+        glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
+
+        Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+        framebufferTextureDesc.TargetTexture = command.TextureBufferCopy.Texture;
+        framebufferTextureDesc.MipLevel = command.TextureBufferCopy.MipLevel;
+        framebufferTextureDesc.BaseArrayLayer =
+            command.TextureBufferCopy.TextureOffset.Z;
+        framebufferTextureDesc.LayerCount = 1;
+
+        GL::AttachTexture(
+            framebufferHandle, framebufferTextureDesc, texture->IsDepth(), 0,
+            gladContext, context
+        );
+
+        GL::ValidateFramebuffer(framebufferHandle, gladContext);
+
+        glCall(gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0));
+        glCall(gladContext.ReadPixels(
+            command.TextureBufferCopy.TextureOffset.X,
+            command.TextureBufferCopy.TextureOffset.Y,
+            command.TextureBufferCopy.TextureExtent.Width,
+            command.TextureBufferCopy.TextureExtent.Height, dataFormat, baseType,
+            (void *)(uint64_t)bufferOffset
+        ));
+
+        glCall(gladContext.DeleteFramebuffers(1, &framebufferHandle));
+
+        glCall(gladContext.BindTexture(textureType, 0));
+        glCall(gladContext.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+    }
+
+    void CopyTextureToBuffer(
+        const Graphics::CopyTextureToBufferCommand &command,
+        const GladGLContext &gladContext, GL::IGLContext *context
+    )
+    {
+        if (gladContext.ARB_direct_state_access ||
+            gladContext.EXT_direct_state_access)
+        {
+            CopyTextureToBufferDSA(command, gladContext, context);
+        }
+        else
+        {
+            CopyTextureToBufferNonDSA(command, gladContext, context);
+        }
+    }
+
+    static void CopyTextureToTextureDSA(
+        const Graphics::TextureCopyDescription &copyDesc,
+        const GladGLContext &gladContext, GL::IGLContext *context
+    )
+    {
+        const Graphics::TextureOpenGL *source =
+            copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
+        const Graphics::TextureOpenGL *destination =
+            copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
+        NX_VALIDATE(source, "Source texture must be valid");
+
+        GLuint sourceFramebufferHandle = 0;
+        GLuint destFramebufferHandle = 0;
+
+        // set up source framebuffer
+        {
+            Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+            framebufferTextureDesc.TargetTexture = copyDesc.Source;
+            framebufferTextureDesc.MipLevel = copyDesc.SourceMipLevel;
+            framebufferTextureDesc.BaseArrayLayer = copyDesc.SourceOffset.Z;
+            framebufferTextureDesc.LayerCount = 1;
+
+            gladContext.CreateFramebuffers(1, &sourceFramebufferHandle);
+            GL::AttachTexture(
+                sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(),
+                0, gladContext, context
+            );
+            GL::ValidateFramebuffer(sourceFramebufferHandle, gladContext);
+        }
+
+        if (destination)
+        {
+            Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+            framebufferTextureDesc.TargetTexture = copyDesc.Destination;
+            framebufferTextureDesc.MipLevel = copyDesc.DestinationMipLevel;
+            framebufferTextureDesc.BaseArrayLayer = copyDesc.DestinationOffset.Z;
+            framebufferTextureDesc.LayerCount = 1;
+
+            gladContext.CreateFramebuffers(1, &destFramebufferHandle);
+            GL::AttachTexture(
+                destFramebufferHandle, framebufferTextureDesc,
+                destination->IsDepth(), 0, gladContext, context
+            );
+            GL::ValidateFramebuffer(destFramebufferHandle, gladContext);
+        }
+        else
+        {
+            destFramebufferHandle = 0;
+        }
+
+        gladContext.Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
+        gladContext.Disable(GL_SCISSOR_TEST);
+
+        gladContext.BlitNamedFramebuffer(
+            sourceFramebufferHandle, destFramebufferHandle, copyDesc.SourceOffset.X,
+            copyDesc.SourceOffset.Y, copyDesc.SourceOffset.X + copyDesc.Extent.Width,
+            copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
+            copyDesc.DestinationOffset.X, copyDesc.DestinationOffset.Y,
+            copyDesc.DestinationOffset.X + copyDesc.Extent.Width,
+            copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
+            GL_COLOR_BUFFER_BIT, GL_NEAREST
+        );
+
+        std::array<uint32_t, 2> framebuffers = {
+            sourceFramebufferHandle, destFramebufferHandle
+        };
+        gladContext.DeleteFramebuffers(framebuffers.size(), framebuffers.data());
+    }
+
+    static void CopyTextureToTextureNonDSA(
+        const Graphics::TextureCopyDescription &copyDesc,
+        const GladGLContext &gladContext, GL::IGLContext *context
+    )
+    {
+        const Graphics::TextureOpenGL *source =
+            copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
+        const Graphics::TextureOpenGL *destination =
+            copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
+        NX_VALIDATE(source, "Source texture must be valid");
+
+        GLuint sourceFramebufferHandle = 0;
+        GLuint destFramebufferHandle = 0;
+
+        // set up source framebuffer
+        {
+            Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+            framebufferTextureDesc.TargetTexture = copyDesc.Source;
+            framebufferTextureDesc.MipLevel = copyDesc.SourceMipLevel;
+            framebufferTextureDesc.BaseArrayLayer = copyDesc.SourceOffset.Z;
+            framebufferTextureDesc.LayerCount = 1;
+
+            glCall(gladContext.GenFramebuffers(1, &sourceFramebufferHandle));
+            glCall(
+                gladContext.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle)
+            );
+            GL::AttachTexture(
+                sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(),
+                0, gladContext, context
+            );
+            GL::ValidateFramebuffer(sourceFramebufferHandle, gladContext);
+        }
+
+        // set up dest framebuffer (or use the backbuffer)
+        if (destination)
+        {
+            Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
+            framebufferTextureDesc.TargetTexture = copyDesc.Destination;
+            framebufferTextureDesc.MipLevel = copyDesc.DestinationMipLevel;
+            framebufferTextureDesc.BaseArrayLayer = copyDesc.DestinationOffset.Z;
+            framebufferTextureDesc.LayerCount = 1;
+
+            glCall(gladContext.GenFramebuffers(1, &destFramebufferHandle));
+            glCall(
+                gladContext.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle)
+            );
+            GL::AttachTexture(
+                destFramebufferHandle, framebufferTextureDesc,
+                destination->IsDepth(), 0, gladContext, context
+            );
+            GL::ValidateFramebuffer(destFramebufferHandle, gladContext);
+        }
+        else
+        {
+            destFramebufferHandle = 0;
+        }
+
+        gladContext.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
+        gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0);
+
+        gladContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
+
+        if (destFramebufferHandle == 0)
+        {
+            gladContext.DrawBuffer(GL_BACK);
+        }
+        else
+        {
+            gladContext.DrawBuffer(GL_COLOR_ATTACHMENT0);
+        }
+
+        gladContext.Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
+        gladContext.Disable(GL_SCISSOR_TEST);
+
+        // copy all attached aspect masks
+        gladContext.BlitFramebuffer(
+            copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y,
+            copyDesc.SourceOffset.X + copyDesc.Extent.Width,
+            copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
+            copyDesc.DestinationOffset.X, copyDesc.DestinationOffset.Y,
+            copyDesc.DestinationOffset.X + copyDesc.Extent.Width,
+            copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
+            GL_COLOR_BUFFER_BIT, GL_NEAREST
+        );
+
+        gladContext.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        gladContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+        glCall(gladContext.DeleteFramebuffers(1, &sourceFramebufferHandle));
+
+        if (destFramebufferHandle != 0)
+            glCall(gladContext.DeleteFramebuffers(1, &destFramebufferHandle));
+    }
+
+    void CopyTextureToTexture(
+        const Graphics::TextureCopyDescription &copyDesc,
+        const GladGLContext &gladContext, GL::IGLContext *context
+    )
+    {
+        if (gladContext.ARB_direct_state_access ||
+            gladContext.EXT_direct_state_access)
+        {
+            CopyTextureToTextureDSA(copyDesc, gladContext, context);
+        }
+        else
+        {
+            CopyTextureToTextureNonDSA(copyDesc, gladContext, context);
+        }
+    }
+
+    static GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
+    {
+        switch (state)
+        {
+        case Nexus::Graphics::SamplerState::LinearClamp:
+        case Nexus::Graphics::SamplerState::LinearWrap:
+            return GL_LINEAR;
+        case Nexus::Graphics::SamplerState::PointClamp:
+        case Nexus::Graphics::SamplerState::PointWrap:
+            return GL_NEAREST;
+        default:
+            throw std::runtime_error("Invalid sampler state selected");
+        }
+    }
+
+    static GLenum GetWrapMode(Nexus::Graphics::SamplerState state)
+    {
+        switch (state)
+        {
+        case Nexus::Graphics::SamplerState::LinearClamp:
+        case Nexus::Graphics::SamplerState::PointClamp:
+            return GL_CLAMP_TO_EDGE;
+        case Nexus::Graphics::SamplerState::LinearWrap:
+        case Nexus::Graphics::SamplerState::PointWrap:
+            return GL_REPEAT;
+        default:
+            throw std::runtime_error("Invalid sampler state selected");
+        }
+    }
+} // namespace Nexus::GL
 
 #endif

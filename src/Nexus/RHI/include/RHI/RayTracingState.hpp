@@ -17,13 +17,14 @@
 
 namespace Nexus::Graphics
 {
-	/// @brief A binding of a meshlet pipeline to the command list and the resources to use with it
-	struct RayTracingState
-	{
-		/// @brief The ray tracing pipeline to bind to the command list
-		IRayTracingPipeline *RayTracingPipeline = nullptr;
+    /// @brief A binding of a meshlet pipeline to the command list and the resources
+    /// to use with it
+    struct RayTracingState
+    {
+        /// @brief The ray tracing pipeline to bind to the command list
+        IRayTracingPipeline *RayTracingPipeline = nullptr;
 
-		/// @brief The resources to bind to the command list
-		ResourceSetBinding Resources = {};
-	};
-}	 // namespace Nexus::Graphics
+        /// @brief The resources to bind to the command list
+        ResourceSetBinding Resources = {};
+    };
+} // namespace Nexus::Graphics

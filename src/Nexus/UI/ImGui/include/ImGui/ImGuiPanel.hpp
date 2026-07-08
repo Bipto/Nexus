@@ -17,20 +17,20 @@
 
 namespace Nexus::UI
 {
-	class ImGuiPanel final : public IPanel, public ImGuiControl
-	{
-	  public:
-		ImGuiPanel()		= default;
-		~ImGuiPanel() final = default;
-		IButton *CreateButton(std::string_view text) final;
+    class ImGuiPanel final : public IPanel, public ImGuiControl
+    {
+      public:
+        ImGuiPanel() = default;
+        ~ImGuiPanel() final = default;
+        IButton *CreateButton(std::string_view text) final;
 
-		void Render() final;
+        void Render() final;
 
-	  private:
-		std::string m_Title = {};
-		bool		m_Open	= true;
+      private:
+        std::string m_Title = {};
+        bool m_Open = true;
 
-		std::optional<Position> m_Position = {};
-		std::optional<Size>		m_Size	   = {};
-	};
-}	 // namespace Nexus::UI
+        std::optional<Position> m_Position = {};
+        std::optional<Size> m_Size = {};
+    };
+} // namespace Nexus::UI

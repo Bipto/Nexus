@@ -9,274 +9,350 @@
 
 spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
 {
-	switch (stage)
-	{
-		case Nexus::Graphics::ShaderStage::Compute: return spv::ExecutionModel::ExecutionModelGLCompute;
-		case Nexus::Graphics::ShaderStage::Fragment: return spv::ExecutionModel::ExecutionModelFragment;
-		case Nexus::Graphics::ShaderStage::Geometry: return spv::ExecutionModel::ExecutionModelGeometry;
-		case Nexus::Graphics::ShaderStage::TessellationControl: return spv::ExecutionModel::ExecutionModelTessellationControl;
-		case Nexus::Graphics::ShaderStage::TessellationEvaluation: return spv::ExecutionModel::ExecutionModelTessellationEvaluation;
-		case Nexus::Graphics::ShaderStage::Vertex: return spv::ExecutionModel::ExecutionModelVertex;
-		case Nexus::Graphics::ShaderStage::RayGeneration: return spv::ExecutionModel::ExecutionModelRayGenerationKHR;
-		case Nexus::Graphics::ShaderStage::RayAnyHit: return spv::ExecutionModel::ExecutionModelAnyHitKHR;
-		case Nexus::Graphics::ShaderStage::RayClosestHit: return spv::ExecutionModel::ExecutionModelClosestHitKHR;
-		case Nexus::Graphics::ShaderStage::RayIntersection: return spv::ExecutionModel::ExecutionModelIntersectionKHR;
-		case Nexus::Graphics::ShaderStage::RayMiss: return spv::ExecutionModel::ExecutionModelMissKHR;
-		case Nexus::Graphics::ShaderStage::Mesh: return spv::ExecutionModel::ExecutionModelMeshEXT;
-		case Nexus::Graphics::ShaderStage::Task: return spv::ExecutionModel::ExecutionModelTaskEXT;
-		default: throw std::runtime_error("Failed to find a valid shader stage");
-	}
+    switch (stage)
+    {
+    case Nexus::Graphics::ShaderStage::Compute:
+        return spv::ExecutionModel::ExecutionModelGLCompute;
+    case Nexus::Graphics::ShaderStage::Fragment:
+        return spv::ExecutionModel::ExecutionModelFragment;
+    case Nexus::Graphics::ShaderStage::Geometry:
+        return spv::ExecutionModel::ExecutionModelGeometry;
+    case Nexus::Graphics::ShaderStage::TessellationControl:
+        return spv::ExecutionModel::ExecutionModelTessellationControl;
+    case Nexus::Graphics::ShaderStage::TessellationEvaluation:
+        return spv::ExecutionModel::ExecutionModelTessellationEvaluation;
+    case Nexus::Graphics::ShaderStage::Vertex:
+        return spv::ExecutionModel::ExecutionModelVertex;
+    case Nexus::Graphics::ShaderStage::RayGeneration:
+        return spv::ExecutionModel::ExecutionModelRayGenerationKHR;
+    case Nexus::Graphics::ShaderStage::RayAnyHit:
+        return spv::ExecutionModel::ExecutionModelAnyHitKHR;
+    case Nexus::Graphics::ShaderStage::RayClosestHit:
+        return spv::ExecutionModel::ExecutionModelClosestHitKHR;
+    case Nexus::Graphics::ShaderStage::RayIntersection:
+        return spv::ExecutionModel::ExecutionModelIntersectionKHR;
+    case Nexus::Graphics::ShaderStage::RayMiss:
+        return spv::ExecutionModel::ExecutionModelMissKHR;
+    case Nexus::Graphics::ShaderStage::Mesh:
+        return spv::ExecutionModel::ExecutionModelMeshEXT;
+    case Nexus::Graphics::ShaderStage::Task:
+        return spv::ExecutionModel::ExecutionModelTaskEXT;
+    default:
+        throw std::runtime_error("Failed to find a valid shader stage");
+    }
 }
 
 namespace Nexus::Graphics
 {
-	shaderc_shader_kind GetTypeOfShader(ShaderStage stage)
-	{
-		switch (stage)
-		{
-			case ShaderStage::Compute: return shaderc_glsl_compute_shader;
-			case ShaderStage::Fragment: return shaderc_glsl_fragment_shader;
-			case ShaderStage::Geometry: return shaderc_glsl_geometry_shader;
-			case ShaderStage::TessellationControl: return shaderc_glsl_tess_control_shader;
-			case ShaderStage::TessellationEvaluation: return shaderc_glsl_tess_evaluation_shader;
-			case ShaderStage::Vertex: return shaderc_glsl_vertex_shader;
-			case ShaderStage::RayGeneration: return shaderc_glsl_raygen_shader;
-			case ShaderStage::RayAnyHit: return shaderc_glsl_anyhit_shader;
-			case ShaderStage::RayClosestHit: return shaderc_glsl_closesthit_shader;
-			case ShaderStage::RayIntersection: return shaderc_glsl_intersection_shader;
-			case ShaderStage::RayMiss: return shaderc_glsl_miss_shader;
-			case ShaderStage::Mesh: return shaderc_glsl_mesh_shader;
-			case ShaderStage::Task: return shaderc_glsl_task_shader;
-			default: throw std::runtime_error("Failed to find a valid shader stage");
-		}
-	}
+    shaderc_shader_kind GetTypeOfShader(ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case ShaderStage::Compute:
+            return shaderc_glsl_compute_shader;
+        case ShaderStage::Fragment:
+            return shaderc_glsl_fragment_shader;
+        case ShaderStage::Geometry:
+            return shaderc_glsl_geometry_shader;
+        case ShaderStage::TessellationControl:
+            return shaderc_glsl_tess_control_shader;
+        case ShaderStage::TessellationEvaluation:
+            return shaderc_glsl_tess_evaluation_shader;
+        case ShaderStage::Vertex:
+            return shaderc_glsl_vertex_shader;
+        case ShaderStage::RayGeneration:
+            return shaderc_glsl_raygen_shader;
+        case ShaderStage::RayAnyHit:
+            return shaderc_glsl_anyhit_shader;
+        case ShaderStage::RayClosestHit:
+            return shaderc_glsl_closesthit_shader;
+        case ShaderStage::RayIntersection:
+            return shaderc_glsl_intersection_shader;
+        case ShaderStage::RayMiss:
+            return shaderc_glsl_miss_shader;
+        case ShaderStage::Mesh:
+            return shaderc_glsl_mesh_shader;
+        case ShaderStage::Task:
+            return shaderc_glsl_task_shader;
+        default:
+            throw std::runtime_error("Failed to find a valid shader stage");
+        }
+    }
 
-	void SetHLSLUniformNames(spirv_cross::CompilerHLSL &compiler, const spirv_cross::SmallVector<spirv_cross::Resource> &resources)
-	{
-		for (const auto &resource : resources) { compiler.set_name(resource.id, resource.name); }
-	}
+    void SetHLSLUniformNames(
+        spirv_cross::CompilerHLSL &compiler,
+        const spirv_cross::SmallVector<spirv_cross::Resource> &resources
+    )
+    {
+        for (const auto &resource : resources)
+        {
+            compiler.set_name(resource.id, resource.name);
+        }
+    }
 
-	void MaintainHLSLUniformNames(spirv_cross::CompilerHLSL &compiler)
-	{
-		const auto &resources = compiler.get_shader_resources();
-		SetHLSLUniformNames(compiler, resources.uniform_buffers);
-		SetHLSLUniformNames(compiler, resources.storage_buffers);
-		SetHLSLUniformNames(compiler, resources.stage_inputs);
-		SetHLSLUniformNames(compiler, resources.stage_outputs);
-		SetHLSLUniformNames(compiler, resources.subpass_inputs);
-		SetHLSLUniformNames(compiler, resources.storage_images);
-		SetHLSLUniformNames(compiler, resources.sampled_images);
-		SetHLSLUniformNames(compiler, resources.atomic_counters);
-		SetHLSLUniformNames(compiler, resources.acceleration_structures);
-		SetHLSLUniformNames(compiler, resources.push_constant_buffers);
-		SetHLSLUniformNames(compiler, resources.shader_record_buffers);
-		SetHLSLUniformNames(compiler, resources.separate_images);
-		SetHLSLUniformNames(compiler, resources.separate_samplers);
-	}
+    void MaintainHLSLUniformNames(spirv_cross::CompilerHLSL &compiler)
+    {
+        const auto &resources = compiler.get_shader_resources();
+        SetHLSLUniformNames(compiler, resources.uniform_buffers);
+        SetHLSLUniformNames(compiler, resources.storage_buffers);
+        SetHLSLUniformNames(compiler, resources.stage_inputs);
+        SetHLSLUniformNames(compiler, resources.stage_outputs);
+        SetHLSLUniformNames(compiler, resources.subpass_inputs);
+        SetHLSLUniformNames(compiler, resources.storage_images);
+        SetHLSLUniformNames(compiler, resources.sampled_images);
+        SetHLSLUniformNames(compiler, resources.atomic_counters);
+        SetHLSLUniformNames(compiler, resources.acceleration_structures);
+        SetHLSLUniformNames(compiler, resources.push_constant_buffers);
+        SetHLSLUniformNames(compiler, resources.shader_record_buffers);
+        SetHLSLUniformNames(compiler, resources.separate_images);
+        SetHLSLUniformNames(compiler, resources.separate_samplers);
+    }
 
-	CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options)
-	{
-		CompilationResult output;
-		output.Successful	= false;
-		output.Source		= {};
-		output.Error		= {};
-		output.OutputFormat = options.OutputFormat;
+    CompilationResult ShaderGenerator::Generate(
+        const std::string &source, ShaderGenerationOptions options
+    )
+    {
+        CompilationResult output;
+        output.Successful = false;
+        output.Source = {};
+        output.Error = {};
+        output.OutputFormat = options.OutputFormat;
 
-		// compile to SPIR-V
-		shaderc::Compiler		compiler;
-		auto					shaderType	   = GetTypeOfShader(options.Stage);
-		shaderc::CompileOptions compileOptions = {};
+        // compile to SPIR-V
+        shaderc::Compiler compiler;
+        auto shaderType = GetTypeOfShader(options.Stage);
+        shaderc::CompileOptions compileOptions = {};
 
-		// this means the standard of GLSL used in the written shader, not the output
-		if (options.OutputFormat == ShaderLanguage::GLSL || options.OutputFormat == ShaderLanguage::GLSLES)
-		{
-			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0);
-			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
-		}
-		else
-		{
-			compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-			compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
-		}
+        // this means the standard of GLSL used in the written shader, not the output
+        if (options.OutputFormat == ShaderLanguage::GLSL ||
+            options.OutputFormat == ShaderLanguage::GLSLES)
+        {
+            compileOptions.SetTargetEnvironment(
+                shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0
+            );
+            compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
+        }
+        else
+        {
+            compileOptions.SetTargetEnvironment(
+                shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3
+            );
+            compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
+        }
 
-		compileOptions.SetGenerateDebugInfo();
+        compileOptions.SetGenerateDebugInfo();
 
-		shaderc::CompilationResult result = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str(), compileOptions);
+        shaderc::CompilationResult result = compiler.CompileGlslToSpv(
+            source, shaderType, options.ShaderName.c_str(), compileOptions
+        );
 
-		if (result.GetCompilationStatus() != shaderc_compilation_status_success)
-		{
-			output.Error += result.GetErrorMessage();
-			return output;
-		}
+        if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+        {
+            output.Error += result.GetErrorMessage();
+            return output;
+        }
 
-		std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
-		output.SpirvBinary				   = spirv_binary;
+        std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
+        output.SpirvBinary = spirv_binary;
 
-		spirv_cross::CompilerGLSL::Options glOptions;
-		glOptions.emit_push_constant_as_uniform_buffer = true;
-		glOptions.vulkan_semantics					   = false;
+        spirv_cross::CompilerGLSL::Options glOptions;
+        glOptions.emit_push_constant_as_uniform_buffer = true;
+        glOptions.vulkan_semantics = false;
 
-		// compile to shader language
-		switch (options.OutputFormat)
-		{
-			case ShaderLanguage::GLSL:
-			{
-				spirv_cross::CompilerGLSL compiler(spirv_binary);
-				glOptions.version = 450;
-				glOptions.es	  = false;
-				compiler.set_common_options(glOptions);
-				output.Source = compiler.compile();
-				break;
-			}
-			case ShaderLanguage::GLSLES:
-			{
-				spirv_cross::CompilerGLSL compiler(spirv_binary);
-				glOptions.version = 300;
-				glOptions.es	  = true;
-				compiler.set_common_options(glOptions);
-				output.Source = compiler.compile();
-				break;
-			}
-			case ShaderLanguage::HLSL:
-			{
-				spirv_cross::CompilerHLSL compiler(spirv_binary);
+        // compile to shader language
+        switch (options.OutputFormat)
+        {
+        case ShaderLanguage::GLSL:
+        {
+            spirv_cross::CompilerGLSL compiler(spirv_binary);
+            glOptions.version = 450;
+            glOptions.es = false;
+            compiler.set_common_options(glOptions);
+            output.Source = compiler.compile();
+            break;
+        }
+        case ShaderLanguage::GLSLES:
+        {
+            spirv_cross::CompilerGLSL compiler(spirv_binary);
+            glOptions.version = 300;
+            glOptions.es = true;
+            compiler.set_common_options(glOptions);
+            output.Source = compiler.compile();
+            break;
+        }
+        case ShaderLanguage::HLSL:
+        {
+            spirv_cross::CompilerHLSL compiler(spirv_binary);
 
-				const std::string name = GetD3DShaderEntryPoint(options.Stage);
-				compiler.rename_entry_point("main", name.c_str(), GetShaderExecutionModel(options.Stage));
+            const std::string name = GetD3DShaderEntryPoint(options.Stage);
+            compiler.rename_entry_point(
+                "main", name.c_str(), GetShaderExecutionModel(options.Stage)
+            );
 
-				MaintainHLSLUniformNames(compiler);
+            MaintainHLSLUniformNames(compiler);
 
-				glOptions.version = 330;
-				glOptions.es	  = false;
-				compiler.set_common_options(glOptions);
+            glOptions.version = 330;
+            glOptions.es = false;
+            compiler.set_common_options(glOptions);
 
-				spirv_cross::CompilerHLSL::Options hlslOptions;
-				// allow the main method to be renamed
-				hlslOptions.use_entry_point_name = true;
-				// modern HLSL
-				hlslOptions.shader_model						  = 50;
-				hlslOptions.flatten_matrix_vertex_input_semantics = true;
-				hlslOptions.force_storage_buffer_as_uav			  = true;
-				compiler.set_hlsl_options(hlslOptions);
-				output.Source = compiler.compile();
-				break;
-			}
-			case ShaderLanguage::Vulkan_SPIRV:
-			{
-				spirv_cross::CompilerGLSL compiler(spirv_binary);
-				glOptions.version = 450;
-				glOptions.es	  = false;
-				compiler.set_common_options(glOptions);
-				output.Source = source;
-				break;
-			}
+            spirv_cross::CompilerHLSL::Options hlslOptions;
+            // allow the main method to be renamed
+            hlslOptions.use_entry_point_name = true;
+            // modern HLSL
+            hlslOptions.shader_model = 50;
+            hlslOptions.flatten_matrix_vertex_input_semantics = true;
+            hlslOptions.force_storage_buffer_as_uav = true;
+            compiler.set_hlsl_options(hlslOptions);
+            output.Source = compiler.compile();
+            break;
+        }
+        case ShaderLanguage::Vulkan_SPIRV:
+        {
+            spirv_cross::CompilerGLSL compiler(spirv_binary);
+            glOptions.version = 450;
+            glOptions.es = false;
+            compiler.set_common_options(glOptions);
+            output.Source = source;
+            break;
+        }
 
-			default: throw std::runtime_error("Failed to find a valid shader format");
-		}
+        default:
+            throw std::runtime_error("Failed to find a valid shader format");
+        }
 
-		if (options.OutputFormat == ShaderLanguage::Vulkan_SPIRV)
-		{
-			output.SpirvBinary = spirv_binary;
-		}
+        if (options.OutputFormat == ShaderLanguage::Vulkan_SPIRV)
+        {
+            output.SpirvBinary = spirv_binary;
+        }
 
-		output.Successful = true;
-		return output;
-	}
+        output.Successful = true;
+        return output;
+    }
 
-	static void GetShadercTargetEnvironment(TargetEnvironment env, shaderc_target_env &shaderc_env, shaderc_env_version &shaderc_env_version)
-	{
-		switch (env)
-		{
-			case TargetEnvironment::Vulkan_1_0:
-			{
-				shaderc_env			= shaderc_target_env_vulkan;
-				shaderc_env_version = shaderc_env_version_vulkan_1_0;
-				break;
-			}
-			case TargetEnvironment::Vulkan_1_1:
-			{
-				shaderc_env			= shaderc_target_env_vulkan;
-				shaderc_env_version = shaderc_env_version_vulkan_1_1;
-				break;
-			}
-			case TargetEnvironment::Vulkan_1_2:
-			{
-				shaderc_env			= shaderc_target_env_vulkan;
-				shaderc_env_version = shaderc_env_version_vulkan_1_2;
-				break;
-			}
-			case TargetEnvironment::Vulkan_1_3:
-			{
-				shaderc_env			= shaderc_target_env_vulkan;
-				shaderc_env_version = shaderc_env_version_vulkan_1_3;
-				break;
-			}
-			case TargetEnvironment::OpenGL:
-			{
-				shaderc_env			= shaderc_target_env_opengl;
-				shaderc_env_version = shaderc_env_version_opengl_4_5;
-				break;
-			}
-			default: throw std::runtime_error("Failed to find valid shaderc environment");
-		}
-	}
+    static void GetShadercTargetEnvironment(
+        TargetEnvironment env, shaderc_target_env &shaderc_env,
+        shaderc_env_version &shaderc_env_version
+    )
+    {
+        switch (env)
+        {
+        case TargetEnvironment::Vulkan_1_0:
+        {
+            shaderc_env = shaderc_target_env_vulkan;
+            shaderc_env_version = shaderc_env_version_vulkan_1_0;
+            break;
+        }
+        case TargetEnvironment::Vulkan_1_1:
+        {
+            shaderc_env = shaderc_target_env_vulkan;
+            shaderc_env_version = shaderc_env_version_vulkan_1_1;
+            break;
+        }
+        case TargetEnvironment::Vulkan_1_2:
+        {
+            shaderc_env = shaderc_target_env_vulkan;
+            shaderc_env_version = shaderc_env_version_vulkan_1_2;
+            break;
+        }
+        case TargetEnvironment::Vulkan_1_3:
+        {
+            shaderc_env = shaderc_target_env_vulkan;
+            shaderc_env_version = shaderc_env_version_vulkan_1_3;
+            break;
+        }
+        case TargetEnvironment::OpenGL:
+        {
+            shaderc_env = shaderc_target_env_opengl;
+            shaderc_env_version = shaderc_env_version_opengl_4_5;
+            break;
+        }
+        default:
+            throw std::runtime_error("Failed to find valid shaderc environment");
+        }
+    }
 
-	static shaderc_spirv_version GetShadercSpirvVersion(SPIRV_Version version)
-	{
-		switch (version)
-		{
-			case SPIRV_Version::Version_1_0: return shaderc_spirv_version_1_0;
-			case SPIRV_Version::Version_1_1: return shaderc_spirv_version_1_1;
-			case SPIRV_Version::Version_1_2: return shaderc_spirv_version_1_2;
-			case SPIRV_Version::Version_1_3: return shaderc_spirv_version_1_3;
-			case SPIRV_Version::Version_1_4: return shaderc_spirv_version_1_4;
-			case SPIRV_Version::Version_1_5: return shaderc_spirv_version_1_5;
-			case SPIRV_Version::Version_1_6: return shaderc_spirv_version_1_6;
-			default: throw std::runtime_error("Failed to find a valid SPIRV version");
-		}
-	}
+    static shaderc_spirv_version GetShadercSpirvVersion(SPIRV_Version version)
+    {
+        switch (version)
+        {
+        case SPIRV_Version::Version_1_0:
+            return shaderc_spirv_version_1_0;
+        case SPIRV_Version::Version_1_1:
+            return shaderc_spirv_version_1_1;
+        case SPIRV_Version::Version_1_2:
+            return shaderc_spirv_version_1_2;
+        case SPIRV_Version::Version_1_3:
+            return shaderc_spirv_version_1_3;
+        case SPIRV_Version::Version_1_4:
+            return shaderc_spirv_version_1_4;
+        case SPIRV_Version::Version_1_5:
+            return shaderc_spirv_version_1_5;
+        case SPIRV_Version::Version_1_6:
+            return shaderc_spirv_version_1_6;
+        default:
+            throw std::runtime_error("Failed to find a valid SPIRV version");
+        }
+    }
 
-	std::vector<uint32_t> ShaderGenerator::GenerateSPIRV(const std::string &source,
-														 ShaderStage		stage,
-														 TargetEnvironment	env,
-														 SPIRV_Version		version,
-														 bool				debugInfo)
-	{
-		return std::vector<uint32_t>();
-	}
+    std::vector<uint32_t> ShaderGenerator::GenerateSPIRV(
+        const std::string &source, ShaderStage stage, TargetEnvironment env,
+        SPIRV_Version version, bool debugInfo
+    )
+    {
+        return std::vector<uint32_t>();
+    }
 
-	std::string ShaderLanguageToString(ShaderLanguage language)
-	{
-		switch (language)
-		{
-			case ShaderLanguage::GLSL: return "GLSL";
-			case ShaderLanguage::GLSLES: return "GLSLES";
-			case ShaderLanguage::HLSL: return "HLSL";
-			case ShaderLanguage::Vulkan_SPIRV: return "SPIRV";
-			default: throw std::runtime_error("Failed to find a valid ShaderLanguage");
-		}
+    std::string ShaderLanguageToString(ShaderLanguage language)
+    {
+        switch (language)
+        {
+        case ShaderLanguage::GLSL:
+            return "GLSL";
+        case ShaderLanguage::GLSLES:
+            return "GLSLES";
+        case ShaderLanguage::HLSL:
+            return "HLSL";
+        case ShaderLanguage::Vulkan_SPIRV:
+            return "SPIRV";
+        default:
+            throw std::runtime_error("Failed to find a valid ShaderLanguage");
+        }
 
-		return {};
-	}
+        return {};
+    }
 
-	std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage)
-	{
-		switch (stage)
-		{
-			case Nexus::Graphics::ShaderStage::Compute: return "cs_main";
-			case Nexus::Graphics::ShaderStage::Fragment: return "fs_main";
-			case Nexus::Graphics::ShaderStage::Geometry: return "gs_main";
-			case Nexus::Graphics::ShaderStage::TessellationControl: return "tcs_main";
-			case Nexus::Graphics::ShaderStage::TessellationEvaluation: return "tes_main";
-			case Nexus::Graphics::ShaderStage::Vertex: return "vs_main";
-			case Nexus::Graphics::ShaderStage::RayGeneration: return "rg_main";
-			case Nexus::Graphics::ShaderStage::RayMiss: return "rm_main";
-			case Nexus::Graphics::ShaderStage::RayClosestHit: return "rch_main";
-			case Nexus::Graphics::ShaderStage::RayAnyHit: return "rah_main";
-			case Nexus::Graphics::ShaderStage::RayIntersection: return "ri_main";
-			case Nexus::Graphics::ShaderStage::Mesh: return "ms_main";
-			case Nexus::Graphics::ShaderStage::Task: return "ts_main";
-			default: throw std::runtime_error("Failed to find a valid shader stage");
-		}
-	}
-}	 // namespace Nexus::Graphics
+    std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case Nexus::Graphics::ShaderStage::Compute:
+            return "cs_main";
+        case Nexus::Graphics::ShaderStage::Fragment:
+            return "fs_main";
+        case Nexus::Graphics::ShaderStage::Geometry:
+            return "gs_main";
+        case Nexus::Graphics::ShaderStage::TessellationControl:
+            return "tcs_main";
+        case Nexus::Graphics::ShaderStage::TessellationEvaluation:
+            return "tes_main";
+        case Nexus::Graphics::ShaderStage::Vertex:
+            return "vs_main";
+        case Nexus::Graphics::ShaderStage::RayGeneration:
+            return "rg_main";
+        case Nexus::Graphics::ShaderStage::RayMiss:
+            return "rm_main";
+        case Nexus::Graphics::ShaderStage::RayClosestHit:
+            return "rch_main";
+        case Nexus::Graphics::ShaderStage::RayAnyHit:
+            return "rah_main";
+        case Nexus::Graphics::ShaderStage::RayIntersection:
+            return "ri_main";
+        case Nexus::Graphics::ShaderStage::Mesh:
+            return "ms_main";
+        case Nexus::Graphics::ShaderStage::Task:
+            return "ts_main";
+        default:
+            throw std::runtime_error("Failed to find a valid shader stage");
+        }
+    }
+} // namespace Nexus::Graphics

@@ -12,18 +12,18 @@
 
 namespace Nexus::UI
 {
-	class ImGuiStatusBar final : public IStatusBar, public ImGuiControl
-	{
-	  public:
-		ImGuiStatusBar()		= default;
-		~ImGuiStatusBar() final = default;
-		void SetStatusText(std::string_view text) final;
-		void SetHelpText(std::string_view text) final;
+    class ImGuiStatusBar final : public IStatusBar, public ImGuiControl
+    {
+      public:
+        ImGuiStatusBar() = default;
+        ~ImGuiStatusBar() final = default;
+        void SetStatusText(std::string_view text) final;
+        void SetHelpText(std::string_view text) final;
 
-		void Render() final;
+        void Render() final;
 
-	  private:
-		std::string m_StatusText = {};
-		std::string m_HelpText	 = {};
-	};
-}	 // namespace Nexus::UI
+      private:
+        std::string m_StatusText = {};
+        std::string m_HelpText = {};
+    };
+} // namespace Nexus::UI

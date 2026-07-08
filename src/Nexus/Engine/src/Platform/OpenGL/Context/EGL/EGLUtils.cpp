@@ -11,35 +11,38 @@
 
 namespace Nexus::GL
 {
-	bool LoadOpenGL()
-	{
-		// load initial EGL functions to enable retrieving devices
-		int version = gladLoaderLoadEGL(EGL_DEFAULT_DISPLAY);
-		int major	= GLAD_VERSION_MAJOR(version);
-		int minor	= GLAD_VERSION_MINOR(version);
+    bool LoadOpenGL()
+    {
+        // load initial EGL functions to enable retrieving devices
+        int version = gladLoaderLoadEGL(EGL_DEFAULT_DISPLAY);
+        int major = GLAD_VERSION_MAJOR(version);
+        int minor = GLAD_VERSION_MINOR(version);
 
-		return (bool)version;
-	}
+        return (bool)version;
+    }
 
-	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug)
-	{
-		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices;
+    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>>
+    LoadAvailablePhysicalDevices(bool debug)
+    {
+        std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices;
 
 #if !defined(NX_PLATFORM_ANDROID)
-		Nexus::WindowDescription windowSpec {};
-		windowSpec.Width  = 1;
-		windowSpec.Height = 1;
-		windowSpec.Flags  = WindowFlags_Hidden;
-		IWindow *window	  = Platform::CreatePlatformWindow(windowSpec);
+        Nexus::WindowDescription windowSpec{};
+        windowSpec.Width = 1;
+        windowSpec.Height = 1;
+        windowSpec.Flags = WindowFlags_Hidden;
+        IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 
-		NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
-		EGLDisplay		 display	= eglGetDisplay(windowInfo.display);
+        NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
+        EGLDisplay display = eglGetDisplay(windowInfo.display);
 #else
-		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
 
-		physicalDevices.push_back(std::make_unique<Graphics::PhysicalDeviceEGL>(debug, display));
+        physicalDevices.push_back(
+            std::make_unique<Graphics::PhysicalDeviceEGL>(debug, display)
+        );
 
-		return physicalDevices;
-	}
-}	 // namespace Nexus::GL
+        return physicalDevices;
+    }
+} // namespace Nexus::GL

@@ -3,326 +3,330 @@
 
 namespace Nexus::Audio
 {
-	AudioSourceOpenAL::AudioSourceOpenAL() : m_Source(0, [](ALuint audioSource) { alDeleteSources(1, &audioSource); })
-	{
-		alGenSources(1, &m_Source.Get());
-	}
+    AudioSourceOpenAL::AudioSourceOpenAL()
+        : m_Source(0, [](ALuint audioSource) { alDeleteSources(1, &audioSource); })
+    {
+        alGenSources(1, &m_Source.Get());
+    }
 
-	void AudioSourceOpenAL::SetPitch(float pitch)
-	{
-		alSourcef(m_Source.Get(), AL_PITCH, pitch);
-	}
+    void AudioSourceOpenAL::SetPitch(float pitch)
+    {
+        alSourcef(m_Source.Get(), AL_PITCH, pitch);
+    }
 
-	void AudioSourceOpenAL::SetGain(float gain)
-	{
-		alSourcef(m_Source.Get(), AL_GAIN, gain);
-	}
+    void AudioSourceOpenAL::SetGain(float gain)
+    {
+        alSourcef(m_Source.Get(), AL_GAIN, gain);
+    }
 
-	void AudioSourceOpenAL::SetMaxDistance(float maxDistance)
-	{
-		alSourcef(m_Source.Get(), AL_MAX_DISTANCE, maxDistance);
-	}
+    void AudioSourceOpenAL::SetMaxDistance(float maxDistance)
+    {
+        alSourcef(m_Source.Get(), AL_MAX_DISTANCE, maxDistance);
+    }
 
-	void AudioSourceOpenAL::SetRolloffFactor(float rolloff)
-	{
-		alSourcef(m_Source.Get(), AL_ROLLOFF_FACTOR, rolloff);
-	}
+    void AudioSourceOpenAL::SetRolloffFactor(float rolloff)
+    {
+        alSourcef(m_Source.Get(), AL_ROLLOFF_FACTOR, rolloff);
+    }
 
-	void AudioSourceOpenAL::SetReferenceDistance(float reference)
-	{
-		alSourcef(m_Source.Get(), AL_REFERENCE_DISTANCE, reference);
-	}
+    void AudioSourceOpenAL::SetReferenceDistance(float reference)
+    {
+        alSourcef(m_Source.Get(), AL_REFERENCE_DISTANCE, reference);
+    }
 
-	void AudioSourceOpenAL::SetMinGain(float minGain)
-	{
-		alSourcef(m_Source.Get(), AL_MIN_GAIN, minGain);
-	}
+    void AudioSourceOpenAL::SetMinGain(float minGain)
+    {
+        alSourcef(m_Source.Get(), AL_MIN_GAIN, minGain);
+    }
 
-	void AudioSourceOpenAL::SetMaxGain(float maxGain)
-	{
-		alSourcef(m_Source.Get(), AL_MAX_GAIN, maxGain);
-	}
+    void AudioSourceOpenAL::SetMaxGain(float maxGain)
+    {
+        alSourcef(m_Source.Get(), AL_MAX_GAIN, maxGain);
+    }
 
-	void AudioSourceOpenAL::SetConeOuterGain(float outerGain)
-	{
-		alSourcef(m_Source.Get(), AL_CONE_OUTER_GAIN, outerGain);
-	}
+    void AudioSourceOpenAL::SetConeOuterGain(float outerGain)
+    {
+        alSourcef(m_Source.Get(), AL_CONE_OUTER_GAIN, outerGain);
+    }
 
-	void AudioSourceOpenAL::SetConeInnerAngle(float innerAngle)
-	{
-		alSourcef(m_Source.Get(), AL_CONE_INNER_ANGLE, innerAngle);
-	}
+    void AudioSourceOpenAL::SetConeInnerAngle(float innerAngle)
+    {
+        alSourcef(m_Source.Get(), AL_CONE_INNER_ANGLE, innerAngle);
+    }
 
-	void AudioSourceOpenAL::SetConeOuterAngle(float outerAngle)
-	{
-		alSourcef(m_Source.Get(), AL_CONE_OUTER_ANGLE, outerAngle);
-	}
+    void AudioSourceOpenAL::SetConeOuterAngle(float outerAngle)
+    {
+        alSourcef(m_Source.Get(), AL_CONE_OUTER_ANGLE, outerAngle);
+    }
 
-	void AudioSourceOpenAL::SetPosition(float x, float y, float z)
-	{
-		alSource3f(m_Source.Get(), AL_POSITION, x, y, z);
-	}
+    void AudioSourceOpenAL::SetPosition(float x, float y, float z)
+    {
+        alSource3f(m_Source.Get(), AL_POSITION, x, y, z);
+    }
 
-	void AudioSourceOpenAL::SetVelocity(float x, float y, float z)
-	{
-		alSource3f(m_Source.Get(), AL_POSITION, x, y, z);
-	}
+    void AudioSourceOpenAL::SetVelocity(float x, float y, float z)
+    {
+        alSource3f(m_Source.Get(), AL_POSITION, x, y, z);
+    }
 
-	void AudioSourceOpenAL::SetDirection(float x, float y, float z)
-	{
-		alSource3f(m_Source.Get(), AL_POSITION, x, y, z);
-	}
+    void AudioSourceOpenAL::SetDirection(float x, float y, float z)
+    {
+        alSource3f(m_Source.Get(), AL_POSITION, x, y, z);
+    }
 
-	void AudioSourceOpenAL::SetIsRelative(bool isRelative)
-	{
-		if (isRelative)
-		{
-			alSourcei(m_Source.Get(), AL_SOURCE_RELATIVE, AL_TRUE);
-		}
-		else
-		{
-			alSourcei(m_Source.Get(), AL_SOURCE_RELATIVE, AL_FALSE);
-		}
-	}
+    void AudioSourceOpenAL::SetIsRelative(bool isRelative)
+    {
+        if (isRelative)
+        {
+            alSourcei(m_Source.Get(), AL_SOURCE_RELATIVE, AL_TRUE);
+        }
+        else
+        {
+            alSourcei(m_Source.Get(), AL_SOURCE_RELATIVE, AL_FALSE);
+        }
+    }
 
-	void AudioSourceOpenAL::SetIsLooping(bool isLooping)
-	{
-		if (isLooping)
-		{
-			alSourcei(m_Source.Get(), AL_LOOPING, AL_TRUE);
-		}
-		else
-		{
-			alSourcei(m_Source.Get(), AL_LOOPING, AL_FALSE);
-		}
-	}
+    void AudioSourceOpenAL::SetIsLooping(bool isLooping)
+    {
+        if (isLooping)
+        {
+            alSourcei(m_Source.Get(), AL_LOOPING, AL_TRUE);
+        }
+        else
+        {
+            alSourcei(m_Source.Get(), AL_LOOPING, AL_FALSE);
+        }
+    }
 
-	void AudioSourceOpenAL::SetPlaybackPositionInSeconds(float seconds)
-	{
-		alSourcef(m_Source.Get(), AL_SEC_OFFSET, seconds);
-	}
+    void AudioSourceOpenAL::SetPlaybackPositionInSeconds(float seconds)
+    {
+        alSourcef(m_Source.Get(), AL_SEC_OFFSET, seconds);
+    }
 
-	void AudioSourceOpenAL::SetPlaybackPositionInSamples(float samples)
-	{
-		alSourcef(m_Source.Get(), AL_SAMPLE_OFFSET, samples);
-	}
+    void AudioSourceOpenAL::SetPlaybackPositionInSamples(float samples)
+    {
+        alSourcef(m_Source.Get(), AL_SAMPLE_OFFSET, samples);
+    }
 
-	void AudioSourceOpenAL::SetPlaybackPositionInBytes(float bytes)
-	{
-		alSourcef(m_Source.Get(), AL_BYTE_OFFSET, bytes);
-	}
+    void AudioSourceOpenAL::SetPlaybackPositionInBytes(float bytes)
+    {
+        alSourcef(m_Source.Get(), AL_BYTE_OFFSET, bytes);
+    }
 
-	void AudioSourceOpenAL::SetStaticSourceBuffer(AudioBufferHandle buffer)
-	{
-		if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
-		{
-			alSourcei(m_Source.Get(), AL_BUFFER, (ALint)alBuffer->GetHandle());
-			m_StaticBuffer = buffer;
-		}
-	}
+    void AudioSourceOpenAL::SetStaticSourceBuffer(AudioBufferHandle buffer)
+    {
+        if (const AudioBufferOpenAL *alBuffer =
+                buffer.AsDerived<AudioBufferOpenAL>())
+        {
+            alSourcei(m_Source.Get(), AL_BUFFER, (ALint)alBuffer->GetHandle());
+            m_StaticBuffer = buffer;
+        }
+    }
 
-	void AudioSourceOpenAL::QueueBuffer(AudioBufferHandle buffer)
-	{
-		if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
-		{
-			ALuint handle = alBuffer->GetHandle();
-			alSourceQueueBuffers(m_Source.Get(), 1, &handle);
-		}
-	}
+    void AudioSourceOpenAL::QueueBuffer(AudioBufferHandle buffer)
+    {
+        if (const AudioBufferOpenAL *alBuffer =
+                buffer.AsDerived<AudioBufferOpenAL>())
+        {
+            ALuint handle = alBuffer->GetHandle();
+            alSourceQueueBuffers(m_Source.Get(), 1, &handle);
+        }
+    }
 
-	void AudioSourceOpenAL::UnqueueBuffer(AudioBufferHandle buffer)
-	{
-		if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
-		{
-			ALuint handle = alBuffer->GetHandle();
-			alSourceUnqueueBuffers(m_Source.Get(), 1, &handle);
-		}
-	}
+    void AudioSourceOpenAL::UnqueueBuffer(AudioBufferHandle buffer)
+    {
+        if (const AudioBufferOpenAL *alBuffer =
+                buffer.AsDerived<AudioBufferOpenAL>())
+        {
+            ALuint handle = alBuffer->GetHandle();
+            alSourceUnqueueBuffers(m_Source.Get(), 1, &handle);
+        }
+    }
 
-	void AudioSourceOpenAL::ClearAllBuffers()
-	{
-		alSourcei(m_Source.Get(), AL_BUFFER, AL_NONE);
-		m_StaticBuffer = {};
-	}
+    void AudioSourceOpenAL::ClearAllBuffers()
+    {
+        alSourcei(m_Source.Get(), AL_BUFFER, AL_NONE);
+        m_StaticBuffer = {};
+    }
 
-	float AudioSourceOpenAL::GetPitch() const
-	{
-		float pitch;
-		alGetSourcef(m_Source.Get(), AL_PITCH, &pitch);
-		return pitch;
-	}
+    float AudioSourceOpenAL::GetPitch() const
+    {
+        float pitch;
+        alGetSourcef(m_Source.Get(), AL_PITCH, &pitch);
+        return pitch;
+    }
 
-	float AudioSourceOpenAL::GetGain() const
-	{
-		float gain;
-		alGetSourcef(m_Source.Get(), AL_GAIN, &gain);
-		return gain;
-	}
+    float AudioSourceOpenAL::GetGain() const
+    {
+        float gain;
+        alGetSourcef(m_Source.Get(), AL_GAIN, &gain);
+        return gain;
+    }
 
-	float AudioSourceOpenAL::GetMaxDistance() const
-	{
-		float maxDistance;
-		alGetSourcef(m_Source.Get(), AL_MAX_DISTANCE, &maxDistance);
-		return maxDistance;
-	}
+    float AudioSourceOpenAL::GetMaxDistance() const
+    {
+        float maxDistance;
+        alGetSourcef(m_Source.Get(), AL_MAX_DISTANCE, &maxDistance);
+        return maxDistance;
+    }
 
-	float AudioSourceOpenAL::GetRolloffFactor() const
-	{
-		float rolloffFactor;
-		alGetSourcef(m_Source.Get(), AL_ROLLOFF_FACTOR, &rolloffFactor);
-		return rolloffFactor;
-	}
+    float AudioSourceOpenAL::GetRolloffFactor() const
+    {
+        float rolloffFactor;
+        alGetSourcef(m_Source.Get(), AL_ROLLOFF_FACTOR, &rolloffFactor);
+        return rolloffFactor;
+    }
 
-	float AudioSourceOpenAL::GetReferenceDistance() const
-	{
-		float referenceDistance;
-		alGetSourcef(m_Source.Get(), AL_REFERENCE_DISTANCE, &referenceDistance);
-		return referenceDistance;
-	}
+    float AudioSourceOpenAL::GetReferenceDistance() const
+    {
+        float referenceDistance;
+        alGetSourcef(m_Source.Get(), AL_REFERENCE_DISTANCE, &referenceDistance);
+        return referenceDistance;
+    }
 
-	float AudioSourceOpenAL::GetMinGain() const
-	{
-		float minGain;
-		alGetSourcef(m_Source.Get(), AL_MIN_GAIN, &minGain);
-		return minGain;
-	}
+    float AudioSourceOpenAL::GetMinGain() const
+    {
+        float minGain;
+        alGetSourcef(m_Source.Get(), AL_MIN_GAIN, &minGain);
+        return minGain;
+    }
 
-	float AudioSourceOpenAL::GetMaxGain() const
-	{
-		float maxGain;
-		alGetSourcef(m_Source.Get(), AL_MAX_GAIN, &maxGain);
-		return maxGain;
-	}
+    float AudioSourceOpenAL::GetMaxGain() const
+    {
+        float maxGain;
+        alGetSourcef(m_Source.Get(), AL_MAX_GAIN, &maxGain);
+        return maxGain;
+    }
 
-	float AudioSourceOpenAL::GetConeOuterGain() const
-	{
-		float outerGain;
-		alGetSourcef(m_Source.Get(), AL_CONE_OUTER_GAIN, &outerGain);
-		return outerGain;
-	}
+    float AudioSourceOpenAL::GetConeOuterGain() const
+    {
+        float outerGain;
+        alGetSourcef(m_Source.Get(), AL_CONE_OUTER_GAIN, &outerGain);
+        return outerGain;
+    }
 
-	float AudioSourceOpenAL::GetConeInnerAngle() const
-	{
-		float innerAngle;
-		alGetSourcef(m_Source.Get(), AL_CONE_INNER_ANGLE, &innerAngle);
-		return innerAngle;
-	}
+    float AudioSourceOpenAL::GetConeInnerAngle() const
+    {
+        float innerAngle;
+        alGetSourcef(m_Source.Get(), AL_CONE_INNER_ANGLE, &innerAngle);
+        return innerAngle;
+    }
 
-	float AudioSourceOpenAL::GetConeOuterAngle() const
-	{
-		float outerAngle;
-		alGetSourcef(m_Source.Get(), AL_CONE_OUTER_ANGLE, &outerAngle);
-		return outerAngle;
-	}
+    float AudioSourceOpenAL::GetConeOuterAngle() const
+    {
+        float outerAngle;
+        alGetSourcef(m_Source.Get(), AL_CONE_OUTER_ANGLE, &outerAngle);
+        return outerAngle;
+    }
 
-	std::tuple<float, float, float> AudioSourceOpenAL::GetPosition() const
-	{
-		ALfloat position[3];
-		alGetSourcefv(m_Source.Get(), AL_POSITION, position);
-		return {position[0], position[1], position[2]};
-	}
+    std::tuple<float, float, float> AudioSourceOpenAL::GetPosition() const
+    {
+        ALfloat position[3];
+        alGetSourcefv(m_Source.Get(), AL_POSITION, position);
+        return {position[0], position[1], position[2]};
+    }
 
-	std::tuple<float, float, float> AudioSourceOpenAL::GetVelocity() const
-	{
-		ALfloat velocity[3];
-		alGetSourcefv(m_Source.Get(), AL_VELOCITY, velocity);
-		return {velocity[0], velocity[1], velocity[2]};
-	}
+    std::tuple<float, float, float> AudioSourceOpenAL::GetVelocity() const
+    {
+        ALfloat velocity[3];
+        alGetSourcefv(m_Source.Get(), AL_VELOCITY, velocity);
+        return {velocity[0], velocity[1], velocity[2]};
+    }
 
-	std::tuple<float, float, float> AudioSourceOpenAL::GetDirection() const
-	{
-		ALfloat direction[3];
-		alGetSourcefv(m_Source.Get(), AL_DIRECTION, direction);
-		return {direction[0], direction[1], direction[2]};
-	}
+    std::tuple<float, float, float> AudioSourceOpenAL::GetDirection() const
+    {
+        ALfloat direction[3];
+        alGetSourcefv(m_Source.Get(), AL_DIRECTION, direction);
+        return {direction[0], direction[1], direction[2]};
+    }
 
-	bool AudioSourceOpenAL::GetIsRelative() const
-	{
-		ALint isRelative;
-		alGetSourcei(m_Source.Get(), AL_SOURCE_RELATIVE, &isRelative);
+    bool AudioSourceOpenAL::GetIsRelative() const
+    {
+        ALint isRelative;
+        alGetSourcei(m_Source.Get(), AL_SOURCE_RELATIVE, &isRelative);
 
-		if (isRelative == AL_TRUE)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+        if (isRelative == AL_TRUE)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-	SourceType AudioSourceOpenAL::GetSourceType() const
-	{
-		ALint sourceType;
-		alGetSourcei(m_Source.Get(), AL_SOURCE_TYPE, &sourceType);
-		return AL::GetSourceType(sourceType);
-	}
+    SourceType AudioSourceOpenAL::GetSourceType() const
+    {
+        ALint sourceType;
+        alGetSourcei(m_Source.Get(), AL_SOURCE_TYPE, &sourceType);
+        return AL::GetSourceType(sourceType);
+    }
 
-	bool AudioSourceOpenAL::GetIsLooping() const
-	{
-		ALint isLooping;
-		alGetSourcei(m_Source.Get(), AL_LOOPING, &isLooping);
+    bool AudioSourceOpenAL::GetIsLooping() const
+    {
+        ALint isLooping;
+        alGetSourcei(m_Source.Get(), AL_LOOPING, &isLooping);
 
-		if (isLooping == AL_TRUE)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+        if (isLooping == AL_TRUE)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-	float AudioSourceOpenAL::GetPlaybackPositionInSeconds() const
-	{
-		float position;
-		alGetSourcef(m_Source.Get(), AL_SEC_OFFSET, &position);
-		return position;
-	}
+    float AudioSourceOpenAL::GetPlaybackPositionInSeconds() const
+    {
+        float position;
+        alGetSourcef(m_Source.Get(), AL_SEC_OFFSET, &position);
+        return position;
+    }
 
-	float AudioSourceOpenAL::GetPlaybackPositionInSamples() const
-	{
-		float position;
-		alGetSourcef(m_Source.Get(), AL_SAMPLE_OFFSET, &position);
-		return position;
-	}
+    float AudioSourceOpenAL::GetPlaybackPositionInSamples() const
+    {
+        float position;
+        alGetSourcef(m_Source.Get(), AL_SAMPLE_OFFSET, &position);
+        return position;
+    }
 
-	float AudioSourceOpenAL::GetPlaybackPositionInBytes() const
-	{
-		float position;
-		alGetSourcef(m_Source.Get(), AL_BYTE_OFFSET, &position);
-		return position;
-	}
+    float AudioSourceOpenAL::GetPlaybackPositionInBytes() const
+    {
+        float position;
+        alGetSourcef(m_Source.Get(), AL_BYTE_OFFSET, &position);
+        return position;
+    }
 
-	AudioBufferHandle AudioSourceOpenAL::GetStaticSourceBuffer() const
-	{
-		return m_StaticBuffer;
-	}
+    AudioBufferHandle AudioSourceOpenAL::GetStaticSourceBuffer() const
+    {
+        return m_StaticBuffer;
+    }
 
-	SourceState AudioSourceOpenAL::GetSourceState() const
-	{
-		ALint sourceState;
-		alGetSourcei(m_Source.Get(), AL_SOURCE_STATE, &sourceState);
-		return AL::GetSourceState(sourceState);
-	}
+    SourceState AudioSourceOpenAL::GetSourceState() const
+    {
+        ALint sourceState;
+        alGetSourcei(m_Source.Get(), AL_SOURCE_STATE, &sourceState);
+        return AL::GetSourceState(sourceState);
+    }
 
-	size_t AudioSourceOpenAL::GetNumQueuedBuffers() const
-	{
-		ALint numBuffers;
-		alGetSourcei(m_Source.Get(), AL_BUFFERS_QUEUED, &numBuffers);
-		return static_cast<size_t>(numBuffers);
-	}
+    size_t AudioSourceOpenAL::GetNumQueuedBuffers() const
+    {
+        ALint numBuffers;
+        alGetSourcei(m_Source.Get(), AL_BUFFERS_QUEUED, &numBuffers);
+        return static_cast<size_t>(numBuffers);
+    }
 
-	size_t AudioSourceOpenAL::GetNumProcessedBuffers() const
-	{
-		ALint numBuffers;
-		alGetSourcei(m_Source.Get(), AL_BUFFERS_PROCESSED, &numBuffers);
-		return static_cast<size_t>(numBuffers);
-	}
+    size_t AudioSourceOpenAL::GetNumProcessedBuffers() const
+    {
+        ALint numBuffers;
+        alGetSourcei(m_Source.Get(), AL_BUFFERS_PROCESSED, &numBuffers);
+        return static_cast<size_t>(numBuffers);
+    }
 
-	ALuint AudioSourceOpenAL::GetSource() const
-	{
-		return m_Source.Get();
-	}
+    ALuint AudioSourceOpenAL::GetSource() const
+    {
+        return m_Source.Get();
+    }
 
-}	 // namespace Nexus::Audio
+} // namespace Nexus::Audio

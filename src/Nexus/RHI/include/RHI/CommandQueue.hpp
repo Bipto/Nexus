@@ -13,61 +13,72 @@
 
 namespace Nexus::Graphics
 {
-	enum QueueCapabilities
-	{
-		Invalid		  = 0,
-		Graphics	  = BIT(0),
-		Compute		  = BIT(2),
-		Transfer	  = BIT(3),
-		SparseBinding = BIT(4),
-		VideoEncode	  = BIT(5),
-		VideoDecode	  = BIT(6)
-	};
+    enum QueueCapabilities
+    {
+        Invalid = 0,
+        Graphics = BIT(0),
+        Compute = BIT(2),
+        Transfer = BIT(3),
+        SparseBinding = BIT(4),
+        VideoEncode = BIT(5),
+        VideoDecode = BIT(6)
+    };
 
-	struct QueueFamilyInfo
-	{
-		QueueCapabilities Capabilities;
-		uint32_t		  QueueFamily = 0;
-		uint32_t		  QueueCount  = 0;
+    struct QueueFamilyInfo
+    {
+        QueueCapabilities Capabilities;
+        uint32_t QueueFamily = 0;
+        uint32_t QueueCount = 0;
 
-		bool HasCapability(QueueCapabilities caps) const
-		{
-			return Capabilities & caps;
-		}
-	};
+        bool HasCapability(QueueCapabilities caps) const
+        {
+            return Capabilities & caps;
+        }
+    };
 
-	struct CommandQueueDescription
-	{
-		uint32_t	QueueFamilyIndex = 0;
-		uint32_t	QueueIndex		 = 0;
-		std::string DebugName		 = "Queue";
-	};
+    struct CommandQueueDescription
+    {
+        uint32_t QueueFamilyIndex = 0;
+        uint32_t QueueIndex = 0;
+        std::string DebugName = "Queue";
+    };
 
-	class IGraphicsDevice;
+    class IGraphicsDevice;
 
-	struct CommandQueueResourceManager
-	{
-		SwapchainPool	Swapchains	 = {};
-		CommandListPool CommandLists = {};
-	};
+    struct CommandQueueResourceManager
+    {
+        SwapchainPool Swapchains = {};
+        CommandListPool CommandLists = {};
+    };
 
-	class NX_RHI_API ICommandQueue
-	{
-	  public:
-		virtual ~ICommandQueue()																							 = default;
-		virtual const CommandQueueDescription &GetDescription() const														 = 0;
-		virtual SwapchainHandle				   CreateSwapchain(const SwapchainDescription &spec)							 = 0;
-		virtual void						   SubmitCommandList(CommandListHandle commandList)								 = 0;
-		virtual void						   SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)			 = 0;
-		virtual void						   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists) = 0;
-		virtual void						   SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence) = 0;
-		virtual IGraphicsDevice				  *GetGraphicsDevice()																				= 0;
-		virtual bool						   WaitForIdle()																					= 0;
+    class NX_RHI_API ICommandQueue
+    {
+      public:
+        virtual ~ICommandQueue() = default;
+        virtual const CommandQueueDescription &GetDescription() const = 0;
+        virtual SwapchainHandle CreateSwapchain(
+            const SwapchainDescription &spec
+        ) = 0;
+        virtual void SubmitCommandList(CommandListHandle commandList) = 0;
+        virtual void SubmitCommandList(
+            CommandListHandle commandList, Ref<IFence> fence
+        ) = 0;
+        virtual void SubmitCommandLists(
+            CommandListHandle *commandLists, uint32_t numCommandLists
+        ) = 0;
+        virtual void SubmitCommandLists(
+            CommandListHandle *commandLists, uint32_t numCommandLists,
+            Ref<IFence> fence
+        ) = 0;
+        virtual IGraphicsDevice *GetGraphicsDevice() = 0;
+        virtual bool WaitForIdle() = 0;
 
-		/// @brief A pure virtual method that creates a new command list
-		/// @return A pointer to a command list
-		virtual CommandListHandle CreateCommandList(const CommandListDescription &spec = {}) = 0;
-	};
+        /// @brief A pure virtual method that creates a new command list
+        /// @return A pointer to a command list
+        virtual CommandListHandle CreateCommandList(
+            const CommandListDescription &spec = {}
+        ) = 0;
+    };
 
-	DEFINE_RESOURCE(CommandQueue, ICommandQueue);
-}	 // namespace Nexus::Graphics
+    DEFINE_RESOURCE(CommandQueue, ICommandQueue);
+} // namespace Nexus::Graphics

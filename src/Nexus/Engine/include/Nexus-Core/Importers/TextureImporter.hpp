@@ -15,43 +15,47 @@
 
 namespace Nexus
 {
-	enum class PixelType
-	{
-		Pixel8Bit,
-		Pixel16Bit,
-		PixelFloat,
-	};
+    enum class PixelType
+    {
+        Pixel8Bit,
+        Pixel16Bit,
+        PixelFloat,
+    };
 
-	struct TextureInfo
-	{
-		uint32_t  Width	   = 0;
-		uint32_t  Height   = 0;
-		uint32_t  Channels = 0;
-		PixelType Type	   = PixelType::Pixel8Bit;
-	};
+    struct TextureInfo
+    {
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+        uint32_t Channels = 0;
+        PixelType Type = PixelType::Pixel8Bit;
+    };
 
-	struct TextureData
-	{
-		TextureInfo			   Info	  = {};
-		std::vector<std::byte> Pixels = {};
-	};
+    struct TextureData
+    {
+        TextureInfo Info = {};
+        std::vector<std::byte> Pixels = {};
+    };
 
-	class NX_API TextureImporter
-	{
-	  public:
-		TextureImporter() = default;
+    class NX_API TextureImporter
+    {
+      public:
+        TextureImporter() = default;
 
-		[[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromDisk(IResourceLoader *loader, std::string_view path) const;
+        [[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromDisk(
+            IResourceLoader *loader, std::string_view path
+        ) const;
 
-		[[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromMemory(std::span<std::byte> buffer) const;
+        [[nodiscard]] std::expected<TextureInfo, std::string>
+        GetTextureInfoFromMemory(std::span<std::byte> buffer) const;
 
-		[[nodiscard]] std::expected<TextureData, std::string> LoadImageFromDisk(IResourceLoader		   *loader,
-																				std::string_view		path,
-																				bool					flipVertically,
-																				std::optional<uint32_t> desiredChannels) const;
+        [[nodiscard]] std::expected<TextureData, std::string> LoadImageFromDisk(
+            IResourceLoader *loader, std::string_view path, bool flipVertically,
+            std::optional<uint32_t> desiredChannels
+        ) const;
 
-		[[nodiscard]] std::expected<TextureData, std::string> LoadImageFromMemory(std::span<std::byte>	  buffer,
-																				  bool					  flipVertically,
-																				  std::optional<uint32_t> desiredChannels) const;
-	};
-}	 // namespace Nexus
+        [[nodiscard]] std::expected<TextureData, std::string> LoadImageFromMemory(
+            std::span<std::byte> buffer, bool flipVertically,
+            std::optional<uint32_t> desiredChannels
+        ) const;
+    };
+} // namespace Nexus

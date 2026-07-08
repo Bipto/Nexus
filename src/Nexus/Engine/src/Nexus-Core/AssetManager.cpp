@@ -5,30 +5,31 @@
 
 namespace Nexus
 {
-	Graphics::TextureHandle AssetManager::GetTexture(const std::string &filepath)
-	{
-		return Utils::CreateTexture2D(m_CommandQueue, filepath.c_str(), false);
-	}
+    Graphics::TextureHandle AssetManager::GetTexture(const std::string &filepath)
+    {
+        return Utils::CreateTexture2D(m_CommandQueue, filepath.c_str(), false);
+    }
 
-	std::any AssetManager::LoadAsset(GUID id)
-	{
-		const Nexus::Assets::AssetRegistry &registry = m_Project->GetAssetRegistry();
+    std::any AssetManager::LoadAsset(GUID id)
+    {
+        const Nexus::Assets::AssetRegistry &registry = m_Project->GetAssetRegistry();
 
-		std::optional<Assets::AssetInfo> assetResult = registry.GetAssetInfo(id);
-		if (!assetResult)
-		{
-			return {};
-		}
+        std::optional<Assets::AssetInfo> assetResult = registry.GetAssetInfo(id);
+        if (!assetResult)
+        {
+            return {};
+        }
 
-		Assets::AssetInfo assetInfo = assetResult.value();
+        Assets::AssetInfo assetInfo = assetResult.value();
 
-		std::optional<Nexus::Processors::ProcessorInfo> processorResult = m_Project->GetProcessorInfo(assetInfo.ProcessorName);
-		if (processorResult)
-		{
-			return {};
-		}
+        std::optional<Nexus::Processors::ProcessorInfo> processorResult =
+            m_Project->GetProcessorInfo(assetInfo.ProcessorName);
+        if (processorResult)
+        {
+            return {};
+        }
 
-		return {};
-	}
+        return {};
+    }
 
-}	 // namespace Nexus
+} // namespace Nexus

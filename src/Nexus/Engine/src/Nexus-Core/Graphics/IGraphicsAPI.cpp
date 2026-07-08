@@ -8,66 +8,69 @@
 
 namespace Nexus::Graphics
 {
-	IGraphicsAPI *IGraphicsAPI::CreateAPI(const GraphicsAPICreateInfo &createInfo)
-	{
-		switch (createInfo.API)
-		{
+    IGraphicsAPI *IGraphicsAPI::CreateAPI(const GraphicsAPICreateInfo &createInfo)
+    {
+        switch (createInfo.API)
+        {
 #if defined(NX_PLATFORM_OPENGL)
-			case GraphicsAPI::OpenGL: return new GraphicsAPI_OpenGL(createInfo);
+        case GraphicsAPI::OpenGL:
+            return new GraphicsAPI_OpenGL(createInfo);
 #endif
 
 #if defined(NX_PLATFORM_D3D12)
-			case GraphicsAPI::D3D12: return new GraphicsAPI_D3D12(createInfo);
+        case GraphicsAPI::D3D12:
+            return new GraphicsAPI_D3D12(createInfo);
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-			case GraphicsAPI::Vulkan: return new GraphicsAPI_Vk(createInfo);
+        case GraphicsAPI::Vulkan:
+            return new GraphicsAPI_Vk(createInfo);
 #endif
 
-			default:
-			{
-				NX_ERROR("Attempting to create unsupported graphics API");
-				throw std::runtime_error("Failed to find a valid graphics API");
-			}
-		}
+        default:
+        {
+            NX_ERROR("Attempting to create unsupported graphics API");
+            throw std::runtime_error("Failed to find a valid graphics API");
+        }
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
-	bool IGraphicsAPI::IsAPISupported(GraphicsAPI api)
-	{
-		switch (api)
-		{
-			case GraphicsAPI::OpenGL:
-			{
+    bool IGraphicsAPI::IsAPISupported(GraphicsAPI api)
+    {
+        switch (api)
+        {
+        case GraphicsAPI::OpenGL:
+        {
 #if defined(NX_PLATFORM_OPENGL)
-				return true;
+            return true;
 #else
-				return false;
+            return false;
 #endif
-			}
+        }
 
-			case GraphicsAPI::D3D12:
-			{
+        case GraphicsAPI::D3D12:
+        {
 #if defined(NX_PLATFORM_D3D12)
-				return true;
+            return true;
 
 #else
-				return false;
+            return false;
 #endif
-			}
+        }
 
-			case GraphicsAPI::Vulkan:
-			{
+        case GraphicsAPI::Vulkan:
+        {
 #if defined(NX_PLATFORM_VULKAN)
-				return true;
+            return true;
 #else
-				return false;
+            return false;
 #endif
-			}
-		}
+        }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-}	 // namespace Nexus::Graphics
+} // namespace Nexus::Graphics

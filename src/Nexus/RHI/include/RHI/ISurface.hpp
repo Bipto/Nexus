@@ -6,11 +6,11 @@
 
 namespace Nexus::Graphics
 {
-	class NX_RHI_API ISurface
-	{
-	  public:
-		virtual ~ISurface() = default;
-	};
+    class NX_RHI_API ISurface
+    {
+      public:
+        virtual ~ISurface() = default;
+    };
 
-	DEFINE_RESOURCE(Surface, ISurface);
-}	 // namespace Nexus::Graphics
+    DEFINE_RESOURCE(Surface, ISurface);
+} // namespace Nexus::Graphics

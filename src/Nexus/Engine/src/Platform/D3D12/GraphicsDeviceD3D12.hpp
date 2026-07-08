@@ -2,129 +2,166 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "CommandExecutorD3D12.hpp"
-	#include "D3D12Include.hpp"
-	#include "DeviceBufferD3D12.hpp"
-	#include "RHI/GraphicsDevice.hpp"
-	#include "RHI/IPhysicalDevice.hpp"
+#include "CommandExecutorD3D12.hpp"
+#include "D3D12Include.hpp"
+#include "DeviceBufferD3D12.hpp"
+#include "RHI/GraphicsDevice.hpp"
+#include "RHI/IPhysicalDevice.hpp"
 
-	#include "CommandQueueD3D12.hpp"
+#include "CommandQueueD3D12.hpp"
 
 namespace Nexus::Graphics
 {
-	class TextureD3D12;
-	class CommandQueueD3D12;
+    class TextureD3D12;
+    class CommandQueueD3D12;
 
-	struct D3D12DeviceFeatures
-	{
-		bool SupportsPipelineStreams  = false;
-		bool SupportsEnhancedBarriers = false;
-	};
+    struct D3D12DeviceFeatures
+    {
+        bool SupportsPipelineStreams = false;
+        bool SupportsEnhancedBarriers = false;
+    };
 
-	class GraphicsDeviceD3D12 final : public IGraphicsDevice
-	{
-	  public:
-		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
-		~GraphicsDeviceD3D12();
+    class GraphicsDeviceD3D12 final : public IGraphicsDevice
+    {
+      public:
+        GraphicsDeviceD3D12(
+            std::shared_ptr<IPhysicalDevice> physicalDevice,
+            Microsoft::WRL::ComPtr<IDXGIFactory7> factory
+        );
+        ~GraphicsDeviceD3D12();
 
-		std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
+        std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-		PipelineHandle	  CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
-		PipelineHandle	  CreateComputePipeline(const ComputePipelineDescription &description) final;
-		PipelineHandle	  CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
-		PipelineHandle	  CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
-		ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) final;
+        PipelineHandle CreateGraphicsPipeline(
+            const GraphicsPipelineDescription &description
+        ) final;
+        PipelineHandle CreateComputePipeline(
+            const ComputePipelineDescription &description
+        ) final;
+        PipelineHandle CreateMeshletPipeline(
+            const MeshletPipelineDescription &description
+        ) final;
+        PipelineHandle CreateRayTracingPipeline(
+            const RayTracingPipelineDescription &description
+        ) final;
+        ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) final;
 
-		FramebufferHandle			CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
-		SamplerHandle				CreateSampler(const SamplerDescription &spec) final;
-		TimingQueryHandle			CreateTimingQuery() final;
-		DeviceBufferHandle			CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
-		AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
-		TexelBufferHandle			CreateTexelBuffer(const TexelBufferDescription &desc) final;
+        FramebufferHandle CreateFramebuffer(
+            const FramebufferTextureSetDescription &desc
+        ) final;
+        SamplerHandle CreateSampler(const SamplerDescription &spec) final;
+        TimingQueryHandle CreateTimingQuery() final;
+        DeviceBufferHandle CreateDeviceBuffer(
+            const DeviceBufferDescription &desc
+        ) final;
+        AccelerationStructureHandle CreateAccelerationStructure(
+            const AccelerationStructureDescription &desc
+        ) final;
+        TexelBufferHandle CreateTexelBuffer(
+            const TexelBufferDescription &desc
+        ) final;
 
-		ShaderLanguage GetSupportedShaderFormat() final
-		{
-			return ShaderLanguage::HLSL;
-		}
+        ShaderLanguage GetSupportedShaderFormat() final
+        {
+            return ShaderLanguage::HLSL;
+        }
 
-		bool IsBufferUsageSupported(BufferUsage usage) final;
+        bool IsBufferUsageSupported(BufferUsage usage) final;
 
-		void			WaitForIdle() final;
-		GraphicsAPIInfo GetGraphicsAPI() final;
+        void WaitForIdle() final;
+        GraphicsAPIInfo GetGraphicsAPI() final;
 
-		float GetUVCorrection() final
-		{
-			return -1.0f;
-		}
-		const GraphicsCapabilities	 GetGraphicsCapabilities() const final;
-		TextureHandle				 CreateTexture(const TextureDescription &spec) final;
-		TextureViewHandle			 CreateTextureView(const TextureViewDescription &desc) final;
-		FenceHandle					 CreateFence(const FenceDescription &desc) final;
-		FenceWaitResult				 WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
-		std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-		CommandQueueHandle			 CreateCommandQueue(const CommandQueueDescription &description) final;
-		void						 ResetFences(FenceHandle *fences, uint32_t count) final;
-		bool						 IsUVOriginTopLeft() final
-		{
-			return true;
-		};
+        float GetUVCorrection() final
+        {
+            return -1.0f;
+        }
+        const GraphicsCapabilities GetGraphicsCapabilities() const final;
+        TextureHandle CreateTexture(const TextureDescription &spec) final;
+        TextureViewHandle CreateTextureView(
+            const TextureViewDescription &desc
+        ) final;
+        FenceHandle CreateFence(const FenceDescription &desc) final;
+        FenceWaitResult WaitForFences(
+            FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
+        ) final;
+        std::vector<QueueFamilyInfo> GetQueueFamilies() final;
+        CommandQueueHandle CreateCommandQueue(
+            const CommandQueueDescription &description
+        ) final;
+        void ResetFences(FenceHandle *fences, uint32_t count) final;
+        bool IsUVOriginTopLeft() final
+        {
+            return true;
+        };
 
-		Microsoft::WRL::ComPtr<D3D12MA::Allocator> GetAllocator();
+        Microsoft::WRL::ComPtr<D3D12MA::Allocator> GetAllocator();
 
-		Microsoft::WRL::ComPtr<IDXGIFactory7> GetDXGIFactory() const;
-		Microsoft::WRL::ComPtr<ID3D12Device9> GetD3D12Device() const;
+        Microsoft::WRL::ComPtr<IDXGIFactory7> GetDXGIFactory() const;
+        Microsoft::WRL::ComPtr<ID3D12Device9> GetD3D12Device() const;
 
-		bool Validate() final;
+        bool Validate() final;
 
-		PixelFormatProperties	   GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const final;
-		const DeviceFeatures	  &GetPhysicalDeviceFeatures() const final;
-		const DeviceLimits		  &GetPhysicalDeviceLimits() const final;
-		const D3D12DeviceFeatures &GetD3D12DeviceFeatures() const;
+        PixelFormatProperties GetPixelFormatProperties(
+            PixelFormat format, TextureType type, TextureUsageFlags usage
+        ) const final;
+        const DeviceFeatures &GetPhysicalDeviceFeatures() const final;
+        const DeviceLimits &GetPhysicalDeviceLimits() const final;
+        const D3D12DeviceFeatures &GetD3D12DeviceFeatures() const;
 
-		bool									  IsIndexBufferFormatSupported(IndexFormat format) const final;
-		AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
-			const AccelerationStructureGeometryBuildDescription &description) const final;
-		RayTracingDeviceDescription		GetRayTracingDeviceDescription() const final;
-		AccelerationStructureProperties GetAccelerationStructureProperties() const final;
+        bool IsIndexBufferFormatSupported(IndexFormat format) const final;
+        AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
+            const AccelerationStructureGeometryBuildDescription &description
+        ) const final;
+        RayTracingDeviceDescription GetRayTracingDeviceDescription() const final;
+        AccelerationStructureProperties
+        GetAccelerationStructureProperties() const final;
 
-		SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) final;
-		SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) final;
-		SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) final;
-		SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow) final;
-		SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId) final;
+        SurfaceHandle CreateSurfaceFromWin32(
+            uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
+        ) final;
+        SurfaceHandle CreateSurfaceFromX11(
+            uintptr_t display, uint32_t screen, uint32_t window
+        ) final;
+        SurfaceHandle CreateSurfaceFromWayland(
+            uintptr_t display, uintptr_t surface
+        ) final;
+        SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow) final;
+        SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId) final;
 
-		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
+        bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 
-		virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleSpec) override;
+        virtual ShaderModuleHandle CreateShaderModule(
+            const ShaderModuleDescription &moduleSpec
+        ) override;
 
-	  private:
-		void			   GetLimitsAndFeatures();
-		inline static void ReportLiveObjects();
+      private:
+        void GetLimitsAndFeatures();
+        inline static void ReportLiveObjects();
 
-	  private:
-	#if defined(_DEBUG)
-		Microsoft::WRL::ComPtr<ID3D12Debug5> m_D3D12Debug = nullptr;
-		Microsoft::WRL::ComPtr<IDXGIDebug1>	 m_DXGIDebug  = nullptr;
-	#endif
+      private:
+#if defined(_DEBUG)
+        Microsoft::WRL::ComPtr<ID3D12Debug5> m_D3D12Debug = nullptr;
+        Microsoft::WRL::ComPtr<IDXGIDebug1> m_DXGIDebug = nullptr;
+#endif
 
-		Microsoft::WRL::ComPtr<ID3D12Device9> m_Device = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Device9> m_Device = nullptr;
 
-		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
+        Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
 
-		std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
+        std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
 
-		std::unique_ptr<CommandExecutorD3D12>	   m_CommandExecutor = nullptr;
-		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator		 = nullptr;
+        std::unique_ptr<CommandExecutorD3D12> m_CommandExecutor = nullptr;
+        Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator = nullptr;
 
-		DeviceFeatures		m_Features		= {};
-		DeviceLimits		m_Limits		= {};
-		D3D12DeviceFeatures m_D3D12Features = {};
+        DeviceFeatures m_Features = {};
+        DeviceLimits m_Limits = {};
+        D3D12DeviceFeatures m_D3D12Features = {};
 
-		GraphicsResourceManager m_Resources = {};
+        GraphicsResourceManager m_Resources = {};
 
-		std::vector<CommandQueueHandle> m_CreatedCommandQueues = {};
+        std::vector<CommandQueueHandle> m_CreatedCommandQueues = {};
 
-		friend class SwapchainD3D12;
-	};
-}	 // namespace Nexus::Graphics
+        friend class SwapchainD3D12;
+    };
+} // namespace Nexus::Graphics
 #endif

@@ -6,72 +6,77 @@
 
 namespace Demos
 {
-	class TimingDemo : public Demo
-	{
-	  public:
-		TimingDemo(const std::string						&name,
-				   Nexus::Application						*app,
-				   Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-				   Nexus::Graphics::CommandQueueHandle		 commandQueue)
-			: Demo(name, app, imGuiRenderer, commandQueue)
-		{
-		}
+    class TimingDemo : public Demo
+    {
+      public:
+        TimingDemo(
+            const std::string &name, Nexus::Application *app,
+            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            Nexus::Graphics::CommandQueueHandle commandQueue
+        )
+            : Demo(name, app, imGuiRenderer, commandQueue)
+        {
+        }
 
-		virtual ~TimingDemo()
-		{
-		}
+        virtual ~TimingDemo()
+        {
+        }
 
-		virtual void Load() override
-		{
-			m_CommandList = m_CommandQueue->CreateCommandList();
-			m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
-		}
+        virtual void Load() override
+        {
+            m_CommandList = m_CommandQueue->CreateCommandList();
+            m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
+        }
 
-		virtual void Render(Nexus::TimeSpan time) override
-		{
-			m_CommandList->Begin();
+        virtual void Render(Nexus::TimeSpan time) override
+        {
+            m_CommandList->Begin();
 
-			m_CommandList->StartTimingQuery(m_TimingQuery);
+            m_CommandList->StartTimingQuery(m_TimingQuery);
 
-			Nexus::Graphics::SwapchainHandle   swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
-			m_CommandList->SetFramebuffer(framebuffer);
-			m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+            Nexus::Graphics::SwapchainHandle swapchain =
+                Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer =
+                swapchain->GetCurrentFramebuffer();
+            m_CommandList->SetFramebuffer(framebuffer);
+            m_CommandList->ClearColourTarget(
+                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
+            );
 
-			m_CommandList->StopTimingQuery(m_TimingQuery);
-			m_CommandList->End();
+            m_CommandList->StopTimingQuery(m_TimingQuery);
+            m_CommandList->End();
 
-			m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
-			m_GraphicsDevice->WaitForIdle();
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_GraphicsDevice->WaitForIdle();
 
-			m_TimerCounter += time.GetSeconds<float>();
+            m_TimerCounter += time.GetSeconds<float>();
 
-			// update the timings every half a second
-			if (m_TimerCounter >= 0.5f)
-			{
-				m_TimingQuery->Resolve();
-				m_Timing	   = m_TimingQuery->GetElapsedMilliseconds();
-				m_TimerCounter = 0.0f;
-			}
-		}
+            // update the timings every half a second
+            if (m_TimerCounter >= 0.5f)
+            {
+                m_TimingQuery->Resolve();
+                m_Timing = m_TimingQuery->GetElapsedMilliseconds();
+                m_TimerCounter = 0.0f;
+            }
+        }
 
-		virtual void RenderUI() override
-		{
-			ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColour));
-			ImGui::Text("Time taken: %1.2f Ms", m_Timing);
-		}
+        virtual void RenderUI() override
+        {
+            ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColour));
+            ImGui::Text("Time taken: %1.2f Ms", m_Timing);
+        }
 
-		virtual std::string GetInfo() const override
-		{
-			return "Inserting GPU timestamps into CommandList recording";
-		}
+        virtual std::string GetInfo() const override
+        {
+            return "Inserting GPU timestamps into CommandList recording";
+        }
 
-	  private:
-		Nexus::Graphics::CommandListHandle m_CommandList = {};
-		glm::vec3						   m_ClearColour = {0.7f, 0.2f, 0.3f};
+      private:
+        Nexus::Graphics::CommandListHandle m_CommandList = {};
+        glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Graphics::TimingQueryHandle m_TimingQuery  = {};
-		float							   m_Timing		  = 0;
-		float							   m_TimerCounter = 1.0f;
-	};
-}	 // namespace Demos
+        Nexus::Graphics::TimingQueryHandle m_TimingQuery = {};
+        float m_Timing = 0;
+        float m_TimerCounter = 1.0f;
+    };
+} // namespace Demos

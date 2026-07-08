@@ -7,52 +7,54 @@
 namespace Nexus
 {
 
-	class Project;
+    class Project;
 
-	/// @brief A class representing an asset manager to load and retrieve assets
-	class AssetManager
-	{
-	  public:
-		/// @brief An AssetManager cannot be created without a graphics device and project
-		AssetManager() = delete;
+    /// @brief A class representing an asset manager to load and retrieve assets
+    class AssetManager
+    {
+      public:
+        /// @brief An AssetManager cannot be created without a graphics device and
+        /// project
+        AssetManager() = delete;
 
-		/// @brief A constructor taking in a reference counted pointer to a graphics
-		/// device
-		/// @param graphicsDevice A pointer to a graphics device
-		AssetManager(Graphics::IGraphicsDevice *graphicsDevice, Graphics::CommandQueueHandle commandQueue, Project *project)
-			: m_GraphicsDevice(graphicsDevice),
-			  m_CommandQueue(commandQueue),
-			  m_Project(project)
-		{
-		}
+        /// @brief A constructor taking in a reference counted pointer to a graphics
+        /// device
+        /// @param graphicsDevice A pointer to a graphics device
+        AssetManager(
+            Graphics::IGraphicsDevice *graphicsDevice,
+            Graphics::CommandQueueHandle commandQueue, Project *project
+        )
+            : m_GraphicsDevice(graphicsDevice), m_CommandQueue(commandQueue),
+              m_Project(project)
+        {
+        }
 
-		template<typename T>
-		Ref<T> GetAsset(GUID id)
-		{
-			std::any value = LoadAsset(id);
-			if (value.type() == typeid(Ref<T>))
-			{
-				return std::any_cast<Ref<T>>(value);
-			}
+        template <typename T> Ref<T> GetAsset(GUID id)
+        {
+            std::any value = LoadAsset(id);
+            if (value.type() == typeid(Ref<T>))
+            {
+                return std::any_cast<Ref<T>>(value);
+            }
 
-			return {};
-		}
+            return {};
+        }
 
-		/// @brief A method to return a reference counted pointer to a texture
-		/// @param filepath A filepath to retrieve a texture from, if the texture has
-		/// already been loaded then the cached one will be returned
-		/// @return A reference counted pointer to a texture
-		Graphics::TextureHandle GetTexture(const std::string &filepath);
+        /// @brief A method to return a reference counted pointer to a texture
+        /// @param filepath A filepath to retrieve a texture from, if the texture has
+        /// already been loaded then the cached one will be returned
+        /// @return A reference counted pointer to a texture
+        Graphics::TextureHandle GetTexture(const std::string &filepath);
 
-	  private:
-		std::any LoadAsset(GUID id);
+      private:
+        std::any LoadAsset(GUID id);
 
-	  private:
-		/// @brief A reference counted pointer to a graphics device
-		Graphics::IGraphicsDevice *m_GraphicsDevice = nullptr;
+      private:
+        /// @brief A reference counted pointer to a graphics device
+        Graphics::IGraphicsDevice *m_GraphicsDevice = nullptr;
 
-		Graphics::CommandQueueHandle m_CommandQueue = {};
+        Graphics::CommandQueueHandle m_CommandQueue = {};
 
-		Project *m_Project = nullptr;
-	};
-}	 // namespace Nexus
+        Project *m_Project = nullptr;
+    };
+} // namespace Nexus

@@ -2,6 +2,6 @@
 
 namespace Nexus::Vk
 {
-	void *GetNxInstanceProcAddr();
-	void *GetNxDeviceProcAddr();
-}	 // namespace Nexus::Vk
+    void *GetNxInstanceProcAddr();
+    void *GetNxDeviceProcAddr();
+} // namespace Nexus::Vk

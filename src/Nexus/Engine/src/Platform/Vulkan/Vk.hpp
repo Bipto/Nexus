@@ -2,273 +2,345 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "glad/vulkan.h"
-	#include "vk_mem_alloc.h"
+#include "glad/vulkan.h"
+#include "vk_mem_alloc.h"
 
-	#include "RHI/AccelerationStructure.hpp"
-	#include "RHI/CommandList.hpp"
-	#include "RHI/CommandQueue.hpp"
-	#include "RHI/DeviceBuffer.hpp"
-	#include "RHI/Framebuffer.hpp"
-	#include "RHI/Pipeline.hpp"
-	#include "RHI/SamplerState.hpp"
-	#include "RHI/ShaderDataType.hpp"
-	#include "RHI/ShaderModule.hpp"
-	#include "RHI/Texture.hpp"
-	#include "RHI/TextureView.hpp"
+#include "RHI/AccelerationStructure.hpp"
+#include "RHI/CommandList.hpp"
+#include "RHI/CommandQueue.hpp"
+#include "RHI/DeviceBuffer.hpp"
+#include "RHI/Framebuffer.hpp"
+#include "RHI/Pipeline.hpp"
+#include "RHI/SamplerState.hpp"
+#include "RHI/ShaderDataType.hpp"
+#include "RHI/ShaderModule.hpp"
+#include "RHI/Texture.hpp"
+#include "RHI/TextureView.hpp"
 
-	#include "PNextBuilder.hpp"
+#include "PNextBuilder.hpp"
 
-	#include "VulkanLoader.hpp"
+#include "VulkanLoader.hpp"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 
 namespace Nexus::Graphics
 {
-	class GraphicsDeviceVk;
-	class ShaderModuleVk;
-	class ResourceSetVk;
-}	 // namespace Nexus::Graphics
+    class GraphicsDeviceVk;
+    class ShaderModuleVk;
+    class ResourceSetVk;
+} // namespace Nexus::Graphics
 
 namespace Nexus::Vk
 {
 
-	VkFormat					 GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format);
-	Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
-	VkFormat					 GetShaderDataType(Nexus::Graphics::ShaderDataType type);
+    VkFormat GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format);
+    Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
+    VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type);
 
-	void GetVkFilterFromNexusFormat(Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode);
-	VkSamplerAddressMode GetVkSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
+    void GetVkFilterFromNexusFormat(
+        Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max,
+        VkSamplerMipmapMode &mipmapMode
+    );
+    VkSamplerAddressMode GetVkSamplerAddressMode(
+        Nexus::Graphics::SamplerAddressMode addressMode
+    );
 
-	VkCompareOp			  GetCompareOp(Nexus::Graphics::ComparisonFunction function);
-	VkStencilOp			  GetStencilOp(Nexus::Graphics::StencilOperation operation);
-	VkBlendOp			  GetVkBlendOp(Nexus::Graphics::BlendEquation function);
-	VkBlendFactor		  GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
-	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColour color);
-	VkImageUsageFlagBits  GetVkImageUsageFlags(Graphics::PixelFormat format, uint8_t usage);
-	VkImageCreateFlagBits GetVkImageCreateFlagBits(const Graphics::TextureDescription &description);
-	VkImageType			  GetVkImageType(Graphics::TextureType textureType);
-	VkImageViewType		  GetVkImageViewType(const Graphics::TextureDescription &spec);
+    VkCompareOp GetCompareOp(Nexus::Graphics::ComparisonFunction function);
+    VkStencilOp GetStencilOp(Nexus::Graphics::StencilOperation operation);
+    VkBlendOp GetVkBlendOp(Nexus::Graphics::BlendEquation function);
+    VkBlendFactor GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
+    VkBorderColor GetVkBorderColor(Nexus::Graphics::BorderColour color);
+    VkImageUsageFlagBits GetVkImageUsageFlags(
+        Graphics::PixelFormat format, uint8_t usage
+    );
+    VkImageCreateFlagBits GetVkImageCreateFlagBits(
+        const Graphics::TextureDescription &description
+    );
+    VkImageType GetVkImageType(Graphics::TextureType textureType);
+    VkImageViewType GetVkImageViewType(const Graphics::TextureDescription &spec);
 
-	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
-	VkShaderStageFlagBits GetVkShaderStageFlagsFromShaderStages(const Nexus::Graphics::ShaderStageFlags &flags);
+    VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
+    VkShaderStageFlagBits GetVkShaderStageFlagsFromShaderStages(
+        const Nexus::Graphics::ShaderStageFlags &flags
+    );
 
-	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format);
-	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
+    VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexFormat format);
+    VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
-	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
-	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device);
+    VkBufferCreateInfo GetVkBufferCreateInfo(
+        const Graphics::DeviceBufferDescription &desc,
+        Graphics::GraphicsDeviceVk *device
+    );
+    VmaAllocationCreateInfo GetVmaAllocationCreateInfo(
+        const Graphics::DeviceBufferDescription &desc,
+        Graphics::GraphicsDeviceVk *device
+    );
 
-	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
-	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
+    uint32_t GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
+    VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
-	VkImageAspectFlagBits GetAspectFlags(bool isDepth);
-	VkImageTiling		  GetImageTiling(Graphics::TextureTiling tiling);
+    VkImageAspectFlagBits GetAspectFlags(bool isDepth);
+    VkImageTiling GetImageTiling(Graphics::TextureTiling tiling);
 
-	VkAccelerationStructureTypeKHR		   GetAccelerationStructureType(Graphics::AccelerationStructureType type);
-	VkBuildAccelerationStructureFlagsKHR   GetAccelerationStructureFlags(uint8_t flags);
-	VkBuildAccelerationStructureModeKHR	   GetAccelerationStructureBuildMode(Graphics::AccelerationStructureBuildMode mode);
-	VkGeometryTypeKHR					   GetAccelerationStructureGeometryType(Graphics::GeometryType type);
-	VkGeometryFlagsKHR					   GetAccelerationStructureGeometryFlags(uint8_t flags);
-	VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(const Graphics::AccelerationStructureGeometryDescription &geometry,
-																				uint32_t &primitiveCount);
-	VkFormat							   GetVulkanVertexFormat(Graphics::VertexFormat format);
-	VkPresentModeKHR					   GetVulkanPresentMode(Graphics::PresentMode presentMode);
+    VkAccelerationStructureTypeKHR GetAccelerationStructureType(
+        Graphics::AccelerationStructureType type
+    );
+    VkBuildAccelerationStructureFlagsKHR GetAccelerationStructureFlags(
+        uint8_t flags
+    );
+    VkBuildAccelerationStructureModeKHR GetAccelerationStructureBuildMode(
+        Graphics::AccelerationStructureBuildMode mode
+    );
+    VkGeometryTypeKHR GetAccelerationStructureGeometryType(
+        Graphics::GeometryType type
+    );
+    VkGeometryFlagsKHR GetAccelerationStructureGeometryFlags(uint8_t flags);
+    VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(
+        const Graphics::AccelerationStructureGeometryDescription &geometry,
+        uint32_t &primitiveCount
+    );
+    VkFormat GetVulkanVertexFormat(Graphics::VertexFormat format);
+    VkPresentModeKHR GetVulkanPresentMode(Graphics::PresentMode presentMode);
 
-	std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
-		const Graphics::AccelerationStructureGeometryBuildDescription &description,
-		std::vector<uint32_t>										  &primitiveCounts);
+    std::vector<VkAccelerationStructureGeometryKHR>
+    GetVulkanAccelerationStructureGeometries(
+        const Graphics::AccelerationStructureGeometryBuildDescription &description,
+        std::vector<uint32_t> &primitiveCounts
+    );
 
-	VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(const Graphics::AccelerationStructureGeometryBuildDescription &description,
-																	 const std::vector<VkAccelerationStructureGeometryKHR>		   &geometry);
+    VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(
+        const Graphics::AccelerationStructureGeometryBuildDescription &description,
+        const std::vector<VkAccelerationStructureGeometryKHR> &geometry
+    );
 
-	VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(uint32_t primitiveCount);
+    VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(
+        uint32_t primitiveCount
+    );
 
-	struct VulkanRenderPassDescription
-	{
-		struct VulkanColourAttachmentDesc
-		{
-			VkFormat				ColourFromat  = {};
-			std::optional<VkFormat> ResolveFormat = {};
-		};
+    struct VulkanRenderPassDescription
+    {
+        struct VulkanColourAttachmentDesc
+        {
+            VkFormat ColourFromat = {};
+            std::optional<VkFormat> ResolveFormat = {};
+        };
 
-		std::vector<VulkanColourAttachmentDesc> ColourAttachments = {};
-		std::optional<VkFormat>					DepthFormat		  = {};
-		VkSampleCountFlagBits					Samples			  = VK_SAMPLE_COUNT_1_BIT;
-		bool									IsSwapchain		  = false;
-	};
+        std::vector<VulkanColourAttachmentDesc> ColourAttachments = {};
+        std::optional<VkFormat> DepthFormat = {};
+        VkSampleCountFlagBits Samples = VK_SAMPLE_COUNT_1_BIT;
+        bool IsSwapchain = false;
+    };
 
-	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc);
+    VkRenderPass CreateRenderPass(
+        Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc
+    );
 
-	struct VulkanFramebufferDescription
-	{
-		struct VulkanColourAttachment
-		{
-			VkImageView				   ColourView  = VK_NULL_HANDLE;
-			std::optional<VkImageView> ResolveView = std::nullopt;
-		};
+    struct VulkanFramebufferDescription
+    {
+        struct VulkanColourAttachment
+        {
+            VkImageView ColourView = VK_NULL_HANDLE;
+            std::optional<VkImageView> ResolveView = std::nullopt;
+        };
 
-		std::vector<VulkanColourAttachment> ColourImageViews = {};
-		VkImageView							DepthImageView	 = VK_NULL_HANDLE;
-		VkRenderPass						VulkanRenderPass = VK_NULL_HANDLE;
-		uint32_t							Width			 = 0;
-		uint32_t							Height			 = 0;
-	};
+        std::vector<VulkanColourAttachment> ColourImageViews = {};
+        VkImageView DepthImageView = VK_NULL_HANDLE;
+        VkRenderPass VulkanRenderPass = VK_NULL_HANDLE;
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+    };
 
-	VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc);
+    VkFramebuffer CreateFramebuffer(
+        const GladVulkanContext &context, VkDevice device,
+        const VulkanFramebufferDescription &desc
+    );
 
-	struct AllocatedBuffer
-	{
-		VkBuffer	  Buffer;
-		VmaAllocation Allocation;
-	};
+    struct AllocatedBuffer
+    {
+        VkBuffer Buffer;
+        VmaAllocation Allocation;
+    };
 
-	// pipeline methods
-	VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
-	VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
-	VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc,
-																						const Graphics::DepthStencilDescription	   &depthStencilDesc);
-	VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo(uint32_t sampleCount, uint32_t *sampleMask);
-	std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates(
-		uint32_t											  colourAttachmentCount,
-		const std::array<Graphics::BlendStateDescription, 8> &blendStates);
-	VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo(const Graphics::DepthStencilDescription &depthStencilDesc);
+    // pipeline methods
+    VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(
+        VkShaderStageFlagBits stage, VkShaderModule module
+    );
+    VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyCreateInfo(
+        VkPrimitiveTopology topology
+    );
+    VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(
+        const Graphics::RasterizerStateDescription &rasterizerDesc,
+        const Graphics::DepthStencilDescription &depthStencilDesc
+    );
+    VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(
+        uint32_t sampleCount, uint32_t *sampleMask
+    );
+    std::vector<VkPipelineColorBlendAttachmentState>
+    CreateColorBlendAttachmentStates(
+        uint32_t colourAttachmentCount,
+        const std::array<Graphics::BlendStateDescription, 8> &blendStates
+    );
+    VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo(
+        const Graphics::DepthStencilDescription &depthStencilDesc
+    );
 
-	VkPrimitiveTopology GetPrimitiveTopology(Graphics::Topology topology);
-	VkPolygonMode		GetPolygonMode(Graphics::FillMode fillMode);
-	VkCullModeFlags		GetCullMode(Graphics::CullMode cullMode);
+    VkPrimitiveTopology GetPrimitiveTopology(Graphics::Topology topology);
+    VkPolygonMode GetPolygonMode(Graphics::FillMode fillMode);
+    VkCullModeFlags GetCullMode(Graphics::CullMode cullMode);
 
-	void CreateVertexInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts,
-								 std::vector<VkVertexInputAttributeDescription>	 &attributeDescriptions,
-								 std::vector<VkVertexInputBindingDescription>	 &inputBindingDescriptions);
+    void CreateVertexInputLayout(
+        const std::vector<Graphics::VertexBufferLayout> &layouts,
+        std::vector<VkVertexInputAttributeDescription> &attributeDescriptions,
+        std::vector<VkVertexInputBindingDescription> &inputBindingDescriptions
+    );
 
-	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(const Nexus::Graphics::ShaderModuleVk *module);
+    VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(
+        const Nexus::Graphics::ShaderModuleVk *module
+    );
 
-	std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device);
+    std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(
+        Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device
+    );
 
-	VkPipelineLayout CreatePipelineLayout(Graphics::IPipeline						*pipeline,
-										  Graphics::GraphicsDeviceVk				*device,
-										  std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
-										  std::map<VkDescriptorType, uint32_t>		&descriptorCounts);
+    VkPipelineLayout CreatePipelineLayout(
+        Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device,
+        std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
+        std::map<VkDescriptorType, uint32_t> &descriptorCounts
+    );
 
-	VkPipeline CreateGraphicsPipeline(VkRenderPass											  renderPass,
-									  Graphics::GraphicsDeviceVk							 *device,
-									  const Graphics::DepthStencilDescription				 &depthStencilDesc,
-									  const Graphics::RasterizerStateDescription			 &rasterizerDesc,
-									  uint32_t												  samples,
-									  const std::vector<VkPipelineShaderStageCreateInfo>	 &shaderStages,
-									  uint32_t												  colourTargetCount,
-									  const std::array<Graphics::PixelFormat, 8>			 &colourFormats,
-									  const std::array<Graphics::BlendStateDescription, 8>	 &blendStates,
-									  Graphics::PixelFormat									  depthFormat,
-									  VkPipelineLayout										  pipelineLayout,
-									  Graphics::Topology									  topology,
-									  const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
-									  uint32_t												 *pSampleMask);
+    VkPipeline CreateGraphicsPipeline(
+        VkRenderPass renderPass, Graphics::GraphicsDeviceVk *device,
+        const Graphics::DepthStencilDescription &depthStencilDesc,
+        const Graphics::RasterizerStateDescription &rasterizerDesc, uint32_t samples,
+        const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages,
+        uint32_t colourTargetCount,
+        const std::array<Graphics::PixelFormat, 8> &colourFormats,
+        const std::array<Graphics::BlendStateDescription, 8> &blendStates,
+        Graphics::PixelFormat depthFormat, VkPipelineLayout pipelineLayout,
+        Graphics::Topology topology,
+        const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
+        uint32_t *pSampleMask
+    );
 
-	VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device,
-							  VkSwapchainKHR			  swapchain,
-							  uint64_t					  timeout,
-							  VkSemaphore				  semaphore,
-							  VkFence					  fence,
-							  uint32_t					 *imageIndex);
+    VkResult AcquireNextImage(
+        Graphics::GraphicsDeviceVk *device, VkSwapchainKHR swapchain,
+        uint64_t timeout, VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex
+    );
 
-	VkResult SubmitQueue(Graphics::GraphicsDeviceVk		   *device,
-						 VkQueue							queue,
-						 const std::vector<VkCommandBuffer> commandBuffers,
-						 VkPipelineStageFlags				waitStageMask,
-						 VkFence							fence);
+    VkResult SubmitQueue(
+        Graphics::GraphicsDeviceVk *device, VkQueue queue,
+        const std::vector<VkCommandBuffer> commandBuffers,
+        VkPipelineStageFlags waitStageMask, VkFence fence
+    );
 
-	Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags);
+    Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(
+        VkQueueFlags flags
+    );
 
-	VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description);
+    VkQueue GetDeviceQueue(
+        Graphics::GraphicsDeviceVk *device,
+        const Graphics::CommandQueueDescription &description
+    );
 
-	VkAccessFlagBits			   GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
-	VkPipelineStageFlagBits		   GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
-	VkAccessFlagBits2			   GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access);
-	VkPipelineStageFlagBits2	   GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage);
-	VkImageLayout				   GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout);
-	VkImageViewType				   GetImageViewType(const Graphics::TextureViewDescription &desc);
-	VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(Graphics::ShaderGroupType type);
+    VkAccessFlagBits GetAccessFlags(
+        Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access
+    );
+    VkPipelineStageFlagBits GetPipelineStageFlags(
+        Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage
+    );
+    VkAccessFlagBits2 GetAccessFlags2(
+        Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access
+    );
+    VkPipelineStageFlagBits2 GetPipelineStageFlags2(
+        Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage
+    );
+    VkImageLayout GetImageLayout(
+        Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout
+    );
+    VkImageViewType GetImageViewType(const Graphics::TextureViewDescription &desc);
+    VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(
+        Graphics::ShaderGroupType type
+    );
 
-	void BindDescriptorSets(const GladVulkanContext &context,
-							VkCommandBuffer			 commandBuffer,
-							VkPipelineBindPoint		 bindPoint,
-							VkPipelineLayout		 pipelineLayout,
-							uint32_t				 setIndex,
-							uint32_t				 setCount,
-							const VkDescriptorSet	*descriptorSets,
-							VkShaderStageFlags		 stageFlags,
-							const uint32_t			*dynamicOffsets,
-							size_t					 dynamicOffsetCount);
+    void BindDescriptorSets(
+        const GladVulkanContext &context, VkCommandBuffer commandBuffer,
+        VkPipelineBindPoint bindPoint, VkPipelineLayout pipelineLayout,
+        uint32_t setIndex, uint32_t setCount, const VkDescriptorSet *descriptorSets,
+        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets,
+        size_t dynamicOffsetCount
+    );
 
-	struct SubresourceRangeLayout
-	{
-		VkImageSubresourceRange range;
-		VkImageLayout			layout;
-	};
+    struct SubresourceRangeLayout
+    {
+        VkImageSubresourceRange range;
+        VkImageLayout layout;
+    };
 
-	// -----------------------------------------------------------------------------------
-	//								MEMORY BARRIERS
-	// -----------------------------------------------------------------------------------
-	void CreateMemoryBarrier2(Graphics::GraphicsDeviceVk		*device,
-							  const Graphics::MemoryBarrierDesc &memoryBarrier,
-							  std::vector<VkMemoryBarrier2>		&memoryBarriers);
+    // -----------------------------------------------------------------------------------
+    //								MEMORY BARRIERS
+    // -----------------------------------------------------------------------------------
+    void CreateMemoryBarrier2(
+        Graphics::GraphicsDeviceVk *device,
+        const Graphics::MemoryBarrierDesc &memoryBarrier,
+        std::vector<VkMemoryBarrier2> &memoryBarriers
+    );
 
-	void CreateMemoryBarrier(Graphics::GraphicsDeviceVk		   *device,
-							 const Graphics::MemoryBarrierDesc &memoryBarrier,
-							 std::vector<VkMemoryBarrier>	   &memoryBarriers);
+    void CreateMemoryBarrier(
+        Graphics::GraphicsDeviceVk *device,
+        const Graphics::MemoryBarrierDesc &memoryBarrier,
+        std::vector<VkMemoryBarrier> &memoryBarriers
+    );
 
-	// -----------------------------------------------------------------------------------
-	//								TEXTURE BARRIERS
-	// -----------------------------------------------------------------------------------
-	void CreateTextureBarrier2(Graphics::GraphicsDeviceVk												 *device,
-							   VkImage																	  image,
-							   Graphics::BarrierAccess													  beforeAccess,
-							   Graphics::BarrierAccess													  afterAccess,
-							   Graphics::BarrierPipelineStage											  beforeStage,
-							   Graphics::BarrierPipelineStage											  afterStage,
-							   uint32_t																	  srcQueueFamily,
-							   uint32_t																	  dstQueueFamily,
-							   VkImageLayout															  newLayout,
-							   std::vector<VkImageMemoryBarrier2>										 &imageBarriers,
-							   const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges);
+    // -----------------------------------------------------------------------------------
+    //								TEXTURE BARRIERS
+    // -----------------------------------------------------------------------------------
+    void CreateTextureBarrier2(
+        Graphics::GraphicsDeviceVk *device, VkImage image,
+        Graphics::BarrierAccess beforeAccess, Graphics::BarrierAccess afterAccess,
+        Graphics::BarrierPipelineStage beforeStage,
+        Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily,
+        uint32_t dstQueueFamily, VkImageLayout newLayout,
+        std::vector<VkImageMemoryBarrier2> &imageBarriers,
+        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>>
+            &subresourceRanges
+    );
 
-	void CreateTextureBarrier(Graphics::GraphicsDeviceVk												*device,
-							  VkImage																	 image,
-							  Graphics::BarrierAccess													 beforeAccess,
-							  Graphics::BarrierAccess													 afterAccess,
-							  Graphics::BarrierPipelineStage											 beforeStage,
-							  Graphics::BarrierPipelineStage											 afterStage,
-							  uint32_t																	 srcQueueFamily,
-							  uint32_t																	 dstQueueFamily,
-							  VkImageLayout																 newLayout,
-							  std::vector<VkImageMemoryBarrier>											&imageBarriers,
-							  const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges);
+    void CreateTextureBarrier(
+        Graphics::GraphicsDeviceVk *device, VkImage image,
+        Graphics::BarrierAccess beforeAccess, Graphics::BarrierAccess afterAccess,
+        Graphics::BarrierPipelineStage beforeStage,
+        Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily,
+        uint32_t dstQueueFamily, VkImageLayout newLayout,
+        std::vector<VkImageMemoryBarrier> &imageBarriers,
+        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>>
+            &subresourceRanges
+    );
 
-	// -----------------------------------------------------------------------------------
-	//								BUFFER BARRIERS
-	// -----------------------------------------------------------------------------------
-	void CreateBufferBarrier2(Graphics::GraphicsDeviceVk		  *device,
-							  const Graphics::BufferBarrierDesc	  &bufferBarrierDesc,
-							  std::vector<VkBufferMemoryBarrier2> &bufferBarriers,
-							  uint32_t							   srcQueueFamily,
-							  uint32_t							   dstQueueFamily);
+    // -----------------------------------------------------------------------------------
+    //								BUFFER BARRIERS
+    // -----------------------------------------------------------------------------------
+    void CreateBufferBarrier2(
+        Graphics::GraphicsDeviceVk *device,
+        const Graphics::BufferBarrierDesc &bufferBarrierDesc,
+        std::vector<VkBufferMemoryBarrier2> &bufferBarriers, uint32_t srcQueueFamily,
+        uint32_t dstQueueFamily
+    );
 
-	void CreateBufferBarrier(Graphics::GraphicsDeviceVk			*device,
-							 const Graphics::BufferBarrierDesc	&bufferBarrierDesc,
-							 std::vector<VkBufferMemoryBarrier> &bufferBarriers,
-							 uint32_t							 srcQueueFamily,
-							 uint32_t							 dstQueueFamily);
+    void CreateBufferBarrier(
+        Graphics::GraphicsDeviceVk *device,
+        const Graphics::BufferBarrierDesc &bufferBarrierDesc,
+        std::vector<VkBufferMemoryBarrier> &bufferBarriers, uint32_t srcQueueFamily,
+        uint32_t dstQueueFamily
+    );
 
-	struct GladLoaderData
-	{
-		VkInstance instance = VK_NULL_HANDLE;
-		VkDevice   device	= VK_NULL_HANDLE;
-	};
+    struct GladLoaderData
+    {
+        VkInstance instance = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
+    };
 
-	void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName);
+    void *GladFunctionLoaderWithInstance(GladLoaderData *data, const char *pName);
 
-}	 // namespace Nexus::Vk
+} // namespace Nexus::Vk
 
 #endif

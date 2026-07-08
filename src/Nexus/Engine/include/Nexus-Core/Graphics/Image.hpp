@@ -7,26 +7,21 @@
 
 namespace Nexus::Graphics
 {
-	class IGraphicsDevice;
+    class IGraphicsDevice;
 
-	struct Image
-	{
-		uint32_t		  Width	 = 0;
-		uint32_t		  Height = 0;
-		std::vector<char> Pixels = {};
-		PixelFormat		  Format = PixelFormat::R8_G8_B8_A8_UNorm;
+    struct Image
+    {
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+        std::vector<char> Pixels = {};
+        PixelFormat Format = PixelFormat::R8_G8_B8_A8_UNorm;
 
-		void FlipVertically();
+        void FlipVertically();
 
-		static Image FromTexture(IGraphicsDevice			 *device,
-								 Graphics::CommandQueueHandle commandQueue,
-								 TextureHandle				  texture,
-								 uint32_t					  arrayLayer,
-								 uint32_t					  mipLevel,
-								 uint32_t					  x,
-								 uint32_t					  y,
-								 uint32_t					  z,
-								 uint32_t					  width,
-								 uint32_t					  height);
-	};
-}	 // namespace Nexus::Graphics
+        static Image FromTexture(
+            IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
+            TextureHandle texture, uint32_t arrayLayer, uint32_t mipLevel,
+            uint32_t x, uint32_t y, uint32_t z, uint32_t width, uint32_t height
+        );
+    };
+} // namespace Nexus::Graphics

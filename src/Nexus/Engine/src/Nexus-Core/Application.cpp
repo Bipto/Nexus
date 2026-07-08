@@ -13,148 +13,172 @@
 
 namespace Nexus
 {
-	Application::Application(const ApplicationDescription &spec)
-	{
-		m_Description = spec;
+    Application::Application(const ApplicationDescription &spec)
+    {
+        m_Description = spec;
 
-		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
+        m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 
-		m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(Graphics::IGraphicsAPI::CreateAPI(spec.GraphicsCreateInfo));
+        m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(
+            Graphics::IGraphicsAPI::CreateAPI(spec.GraphicsCreateInfo)
+        );
 
-		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
-		m_GraphicsDevice = std::unique_ptr<Graphics::IGraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
+        std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices =
+            m_GraphicsAPI->GetPhysicalDevices();
+        m_GraphicsDevice = std::unique_ptr<Graphics::IGraphicsDevice>(
+            m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0])
+        );
 
-		// iterate through all available command queues
-		std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
-		for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
-		{
-			if (queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Graphics) &&
-				queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Compute) &&
-				queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Transfer))
-			{
-				// create graphics queue
-				{
-					Nexus::Graphics::CommandQueueDescription queueDesc = {};
-					queueDesc.QueueFamilyIndex						   = queueFamily.QueueFamily;
-					queueDesc.QueueIndex							   = 0;
-					queueDesc.DebugName								   = "Application Graphics Queue";
-					m_CommandQueueGroup.GraphicsQueue				   = m_GraphicsDevice->CreateCommandQueue(queueDesc);
-				}
-			}
-		}
+        // iterate through all available command queues
+        std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies =
+            m_GraphicsDevice->GetQueueFamilies();
+        for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
+        {
+            if (queueFamily.HasCapability(
+                    Nexus::Graphics::QueueCapabilities::Graphics
+                ) &&
+                queueFamily.HasCapability(
+                    Nexus::Graphics::QueueCapabilities::Compute
+                ) &&
+                queueFamily.HasCapability(
+                    Nexus::Graphics::QueueCapabilities::Transfer
+                ))
+            {
+                // create graphics queue
+                {
+                    Nexus::Graphics::CommandQueueDescription queueDesc = {};
+                    queueDesc.QueueFamilyIndex = queueFamily.QueueFamily;
+                    queueDesc.QueueIndex = 0;
+                    queueDesc.DebugName = "Application Graphics Queue";
+                    m_CommandQueueGroup.GraphicsQueue =
+                        m_GraphicsDevice->CreateCommandQueue(queueDesc);
+                }
+            }
+        }
 
-		Graphics::SurfaceHandle surface			   = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
-		m_Description.SwapchainDescription.Surface = surface;
+        Graphics::SurfaceHandle surface =
+            Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
+        m_Description.SwapchainDescription.Surface = surface;
 
-		// hack, this probably needs removing at some point
-		m_Description.SwapchainDescription.Width  = m_Description.WindowProperties.Width;
-		m_Description.SwapchainDescription.Height = m_Description.WindowProperties.Height;
-		m_Swapchain								  = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Description.SwapchainDescription);
+        // hack, this probably needs removing at some point
+        m_Description.SwapchainDescription.Width =
+            m_Description.WindowProperties.Width;
+        m_Description.SwapchainDescription.Height =
+            m_Description.WindowProperties.Height;
+        m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(
+            m_Description.SwapchainDescription
+        );
 
-		m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
+        m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
 
-		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnRender(time, m_Window); });
-		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnUpdate(time, m_Window); });
-		m_Window->SetTickFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnTick(time, m_Window); });
-		m_Window->AddResizeCallback(
-			[&](const Nexus::WindowResizedEventArgs &args)
-			{
-				auto [width, height] = args.Size;
-				m_Swapchain->Resize(width, height);
-			});
-	}
+        m_Window->SetRenderFunction([&](Nexus::TimeSpan time) {
+            m_LayerStack.OnRender(time, m_Window);
+        });
+        m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) {
+            m_LayerStack.OnUpdate(time, m_Window);
+        });
+        m_Window->SetTickFunction([&](Nexus::TimeSpan time) {
+            m_LayerStack.OnTick(time, m_Window);
+        });
+        m_Window->AddResizeCallback([&](const Nexus::WindowResizedEventArgs &args) {
+            auto [width, height] = args.Size;
+            m_Swapchain->Resize(width, height);
+        });
+    }
 
-	Application::~Application()
-	{
-	}
+    Application::~Application()
+    {
+    }
 
-	void Application::MainLoop()
-	{
-		NX_PROFILE_FUNCTION();
+    void Application::MainLoop()
+    {
+        NX_PROFILE_FUNCTION();
 
-		m_EventQueue.DispatchEvents(m_LayerStack);
+        m_EventQueue.DispatchEvents(m_LayerStack);
 
-		{
-			NX_PROFILE_SCOPE("Platform::Update");
-			Platform::Update();
-		}
+        {
+            NX_PROFILE_SCOPE("Platform::Update");
+            Platform::Update();
+        }
 
-		if (m_Description.EventDriven)
-		{
-			NX_PROFILE_SCOPE("Platform::WaitEvent");
-			Platform::WaitEvent(m_EventQueue);
-		}
-		else
-		{
-			NX_PROFILE_SCOPE("Platform::PollEvents");
-			Platform::PollEvents(m_EventQueue);
-		}
+        if (m_Description.EventDriven)
+        {
+            NX_PROFILE_SCOPE("Platform::WaitEvent");
+            Platform::WaitEvent(m_EventQueue);
+        }
+        else
+        {
+            NX_PROFILE_SCOPE("Platform::PollEvents");
+            Platform::PollEvents(m_EventQueue);
+        }
 
-		if (!Platform::AreAnyWindowsOpen())
-		{
-			m_Running = false;
-		}
+        if (!Platform::AreAnyWindowsOpen())
+        {
+            m_Running = false;
+        }
 
-		NX_MARK_FRAME_END();
-	}
+        NX_MARK_FRAME_END();
+    }
 
-	Nexus::IWindow *Application::GetPrimaryWindow()
-	{
-		return m_Window;
-	}
+    Nexus::IWindow *Application::GetPrimaryWindow()
+    {
+        return m_Window;
+    }
 
-	Graphics::SwapchainHandle Application::GetPrimarySwapchain()
-	{
-		return m_Swapchain;
-	}
+    Graphics::SwapchainHandle Application::GetPrimarySwapchain()
+    {
+        return m_Swapchain;
+    }
 
-	bool Application::IsWindowFocussed()
-	{
-		return m_Window->IsFocussed();
-	}
+    bool Application::IsWindowFocussed()
+    {
+        return m_Window->IsFocussed();
+    }
 
-	WindowState Application::GetCurrentWindowState()
-	{
-		return m_Window->GetCurrentWindowState();
-	}
+    WindowState Application::GetCurrentWindowState()
+    {
+        return m_Window->GetCurrentWindowState();
+    }
 
-	void Application::SetIsMouseVisible(bool visible)
-	{
-		m_Window->SetIsMouseVisible(visible);
-	}
+    void Application::SetIsMouseVisible(bool visible)
+    {
+        m_Window->SetIsMouseVisible(visible);
+    }
 
-	void Application::Close()
-	{
-		m_Running = false;
-	}
+    void Application::Close()
+    {
+        m_Running = false;
+    }
 
-	Graphics::IGraphicsDevice *Application::GetGraphicsDevice()
-	{
-		return m_GraphicsDevice.get();
-	}
+    Graphics::IGraphicsDevice *Application::GetGraphicsDevice()
+    {
+        return m_GraphicsDevice.get();
+    }
 
-	Graphics::CommandQueueHandle Application::GetGraphicsCommandQueue()
-	{
-		return m_CommandQueueGroup.GraphicsQueue;
-	}
+    Graphics::CommandQueueHandle Application::GetGraphicsCommandQueue()
+    {
+        return m_CommandQueueGroup.GraphicsQueue;
+    }
 
-	Audio::AudioDevice *Application::GetAudioDevice()
-	{
-		return m_AudioDevice.get();
-	}
+    Audio::AudioDevice *Application::GetAudioDevice()
+    {
+        return m_AudioDevice.get();
+    }
 
-	bool Application::IsRunning() const
-	{
-		return m_Running;
-	}
+    bool Application::IsRunning() const
+    {
+        return m_Running;
+    }
 
-	void Application::Stop()
-	{
-		m_Running = false;
-	}
+    void Application::Stop()
+    {
+        m_Running = false;
+    }
 
-	std::string Application::GetApplicationPath()
-	{
-		return Platform::GetApplicationPath(m_Description.Organization.c_str(), m_Description.App.c_str());
-	}
-}	 // namespace Nexus
+    std::string Application::GetApplicationPath()
+    {
+        return Platform::GetApplicationPath(
+            m_Description.Organization.c_str(), m_Description.App.c_str()
+        );
+    }
+} // namespace Nexus

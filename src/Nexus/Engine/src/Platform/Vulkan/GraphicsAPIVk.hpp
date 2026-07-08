@@ -2,30 +2,34 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "Nexus-Core/nxpch.hpp"
-	#include "RHI/IGraphicsAPI.hpp"
-	#include "Vk.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "RHI/IGraphicsAPI.hpp"
+#include "Vk.hpp"
 
 namespace Nexus::Graphics
 {
-	class GraphicsAPI_Vk : public IGraphicsAPI
-	{
-	  public:
-		GraphicsAPI_Vk(const GraphicsAPICreateInfo &createInfo);
-		virtual ~GraphicsAPI_Vk();
-		virtual std::vector<std::shared_ptr<IPhysicalDevice>> GetPhysicalDevices() override;
-		virtual Graphics::IGraphicsDevice					 *CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device) override;
-		virtual const GraphicsAPICreateInfo					 &GetGraphicsAPICreateInfo() const override;
+    class GraphicsAPI_Vk : public IGraphicsAPI
+    {
+      public:
+        GraphicsAPI_Vk(const GraphicsAPICreateInfo &createInfo);
+        virtual ~GraphicsAPI_Vk();
+        virtual std::vector<std::shared_ptr<IPhysicalDevice>>
+        GetPhysicalDevices() override;
+        virtual Graphics::IGraphicsDevice *CreateGraphicsDevice(
+            std::shared_ptr<IPhysicalDevice> device
+        ) override;
+        virtual const GraphicsAPICreateInfo &
+        GetGraphicsAPICreateInfo() const override;
 
-	  private:
-		void SetupDebugMessenger();
+      private:
+        void SetupDebugMessenger();
 
-	  private:
-		GraphicsAPICreateInfo	 m_CreateInfo	  = {};
-		VkInstance				 m_Instance		  = {};
-		VkDebugUtilsMessengerEXT m_DebugMessenger = {};
-		GladVulkanContext		 m_Context		  = {};
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        GraphicsAPICreateInfo m_CreateInfo = {};
+        VkInstance m_Instance = {};
+        VkDebugUtilsMessengerEXT m_DebugMessenger = {};
+        GladVulkanContext m_Context = {};
+    };
+} // namespace Nexus::Graphics
 
 #endif

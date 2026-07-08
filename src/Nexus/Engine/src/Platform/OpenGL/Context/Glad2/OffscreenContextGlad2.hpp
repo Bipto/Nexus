@@ -9,19 +9,21 @@
 
 namespace Nexus::GL
 {
-	class OffscreenContextGlad2 : public IOffscreenContext
-	{
-	  public:
-		OffscreenContextGlad2();
-		virtual ~OffscreenContextGlad2();
+    class OffscreenContextGlad2 : public IOffscreenContext
+    {
+      public:
+        OffscreenContextGlad2();
+        virtual ~OffscreenContextGlad2();
 
-		bool Load();
+        bool Load();
 
-		void ExecuteCommands(std::function<void(const GladGLContext &context)> function);
+        void ExecuteCommands(
+            std::function<void(const GladGLContext &context)> function
+        );
 
-		const GladGLContext &GetContext() const;
+        const GladGLContext &GetContext() const;
 
-	  protected:
-		GladGLContext m_Context = {};
-	};
-}	 // namespace Nexus::GL
+      protected:
+        GladGLContext m_Context = {};
+    };
+} // namespace Nexus::GL

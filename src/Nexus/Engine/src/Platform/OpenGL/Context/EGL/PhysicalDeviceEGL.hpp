@@ -6,16 +6,16 @@
 
 namespace Nexus::Graphics
 {
-	class PhysicalDeviceEGL final : public PhysicalDeviceOpenGL
-	{
-	  public:
-		PhysicalDeviceEGL(bool debug, EGLDisplay display);
-		virtual ~PhysicalDeviceEGL();
-		const std::string			  &GetDeviceName() const final;
-		virtual GL::IOffscreenContext *GetOffscreenContext() final;
+    class PhysicalDeviceEGL final : public PhysicalDeviceOpenGL
+    {
+      public:
+        PhysicalDeviceEGL(bool debug, EGLDisplay display);
+        virtual ~PhysicalDeviceEGL();
+        const std::string &GetDeviceName() const final;
+        virtual GL::IOffscreenContext *GetOffscreenContext() final;
 
-	  private:
-		std::unique_ptr<GL::OffscreenContextEGL> m_OffscreenContext = nullptr;
-		std::string								 m_DeviceName		= {};
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        std::unique_ptr<GL::OffscreenContextEGL> m_OffscreenContext = nullptr;
+        std::string m_DeviceName = {};
+    };
+} // namespace Nexus::Graphics

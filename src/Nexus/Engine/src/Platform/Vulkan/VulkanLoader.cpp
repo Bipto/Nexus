@@ -4,13 +4,13 @@
 
 namespace Nexus::Vk
 {
-	void *GetNxInstanceProcAddr()
-	{
-		return (void *)&vkGetInstanceProcAddr;
-	}
+    void *GetNxInstanceProcAddr()
+    {
+        return (void *)&vkGetInstanceProcAddr;
+    }
 
-	void *GetNxDeviceProcAddr()
-	{
-		return (void *)&vkGetDeviceProcAddr;
-	}
-}	 // namespace Nexus::Vk
+    void *GetNxDeviceProcAddr()
+    {
+        return (void *)&vkGetDeviceProcAddr;
+    }
+} // namespace Nexus::Vk

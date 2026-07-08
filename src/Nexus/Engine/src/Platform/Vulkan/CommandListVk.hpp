@@ -2,28 +2,31 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "CommandQueueVk.hpp"
-	#include "GraphicsDeviceVk.hpp"
-	#include "PipelineVk.hpp"
-	#include "RHI/CommandList.hpp"
+#include "CommandQueueVk.hpp"
+#include "GraphicsDeviceVk.hpp"
+#include "PipelineVk.hpp"
+#include "RHI/CommandList.hpp"
 
 namespace Nexus::Graphics
 {
-	class CommandListVk : public ICommandList
-	{
-	  public:
-		CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec);
-		virtual ~CommandListVk();
+    class CommandListVk : public ICommandList
+    {
+      public:
+        CommandListVk(
+            GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue,
+            const CommandListDescription &spec
+        );
+        virtual ~CommandListVk();
 
-		VkCommandBuffer &GetCurrentCommandBuffer();
+        VkCommandBuffer &GetCurrentCommandBuffer();
 
-	  private:
-		GraphicsDeviceVk *m_Device		= nullptr;
-		CommandQueueVk	 *m_Queue		= nullptr;
-		VkCommandPool	  m_CommandPool = VK_NULL_HANDLE;
-		VkCommandBuffer	  m_CommandBuffers[FRAMES_IN_FLIGHT];
-		VkSemaphore		  m_RenderSemaphores[FRAMES_IN_FLIGHT];
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        GraphicsDeviceVk *m_Device = nullptr;
+        CommandQueueVk *m_Queue = nullptr;
+        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];
+        VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
+    };
+} // namespace Nexus::Graphics
 
 #endif

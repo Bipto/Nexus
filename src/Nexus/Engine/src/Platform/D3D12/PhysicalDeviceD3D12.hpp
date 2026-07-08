@@ -2,32 +2,32 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "Nexus-Core/nxpch.hpp"
-	#include "Platform/D3D12/D3D12Include.hpp"
-	#include "RHI/IPhysicalDevice.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "Platform/D3D12/D3D12Include.hpp"
+#include "RHI/IPhysicalDevice.hpp"
 
 namespace Nexus::Graphics
 {
-	class PhysicalDeviceD3D12 final : public IPhysicalDevice
-	{
-	  public:
-		PhysicalDeviceD3D12(Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter);
-		virtual ~PhysicalDeviceD3D12();
-		const std::string &GetDeviceName() const final;
+    class PhysicalDeviceD3D12 final : public IPhysicalDevice
+    {
+      public:
+        PhysicalDeviceD3D12(Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter);
+        virtual ~PhysicalDeviceD3D12();
+        const std::string &GetDeviceName() const final;
 
-		bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
+        bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 
-		Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter() const;
-		D3D_FEATURE_LEVEL					  GetMaximumSupportedFeatureLevel() const;
+        Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter() const;
+        D3D_FEATURE_LEVEL GetMaximumSupportedFeatureLevel() const;
 
-	  private:
-		void FindMaximumSupportedFeatureLevel();
+      private:
+        void FindMaximumSupportedFeatureLevel();
 
-	  private:
-		std::string							  m_Name			= {};
-		Microsoft::WRL::ComPtr<IDXGIAdapter4> m_Adapter			= nullptr;
-		D3D_FEATURE_LEVEL					  m_MaxFeatureLevel = D3D_FEATURE_LEVEL_10_0;
-	};
-}	 // namespace Nexus::Graphics
+      private:
+        std::string m_Name = {};
+        Microsoft::WRL::ComPtr<IDXGIAdapter4> m_Adapter = nullptr;
+        D3D_FEATURE_LEVEL m_MaxFeatureLevel = D3D_FEATURE_LEVEL_10_0;
+    };
+} // namespace Nexus::Graphics
 
 #endif

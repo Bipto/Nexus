@@ -4,32 +4,32 @@
 
 namespace Nexus::UI
 {
-	ImGuiFrame::ImGuiFrame(const std::string &title) : m_Title(title)
-	{
-	}
+    ImGuiFrame::ImGuiFrame(const std::string &title) : m_Title(title)
+    {
+    }
 
-	IMenubar *ImGuiFrame::CreateMenubar()
-	{
-		m_Menubar = std::make_unique<ImGuiMenubar>(true);
-		return m_Menubar.get();
-	}
+    IMenubar *ImGuiFrame::CreateMenubar()
+    {
+        m_Menubar = std::make_unique<ImGuiMenubar>(true);
+        return m_Menubar.get();
+    }
 
-	IStatusBar *ImGuiFrame::CreateStatusbar()
-	{
-		m_StatusBar = std::make_unique<ImGuiStatusBar>();
-		return m_StatusBar.get();
-	}
+    IStatusBar *ImGuiFrame::CreateStatusbar()
+    {
+        m_StatusBar = std::make_unique<ImGuiStatusBar>();
+        return m_StatusBar.get();
+    }
 
-	void ImGuiFrame::Render()
-	{
-		if (m_Menubar)
-		{
-			m_Menubar->Render();
-		}
+    void ImGuiFrame::Render()
+    {
+        if (m_Menubar)
+        {
+            m_Menubar->Render();
+        }
 
-		if (m_StatusBar)
-		{
-			m_StatusBar->Render();
-		}
-	}
-}	 // namespace Nexus::UI
+        if (m_StatusBar)
+        {
+            m_StatusBar->Render();
+        }
+    }
+} // namespace Nexus::UI

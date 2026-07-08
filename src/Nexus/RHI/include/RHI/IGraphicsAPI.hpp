@@ -8,15 +8,18 @@
 namespace Nexus::Graphics
 {
 
-	class NX_RHI_API IGraphicsAPI
-	{
-	  public:
-		virtual ~IGraphicsAPI()																								= default;
-		virtual std::vector<std::shared_ptr<IPhysicalDevice>> GetPhysicalDevices()											= 0;
-		virtual Graphics::IGraphicsDevice					 *CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device) = 0;
-		virtual const GraphicsAPICreateInfo					 &GetGraphicsAPICreateInfo() const								= 0;
+    class NX_RHI_API IGraphicsAPI
+    {
+      public:
+        virtual ~IGraphicsAPI() = default;
+        virtual std::vector<std::shared_ptr<IPhysicalDevice>>
+        GetPhysicalDevices() = 0;
+        virtual Graphics::IGraphicsDevice *CreateGraphicsDevice(
+            std::shared_ptr<IPhysicalDevice> device
+        ) = 0;
+        virtual const GraphicsAPICreateInfo &GetGraphicsAPICreateInfo() const = 0;
 
-		static IGraphicsAPI *CreateAPI(const GraphicsAPICreateInfo &createInfo);
-		static bool			 IsAPISupported(GraphicsAPI api);
-	};
-}	 // namespace Nexus::Graphics
+        static IGraphicsAPI *CreateAPI(const GraphicsAPICreateInfo &createInfo);
+        static bool IsAPISupported(GraphicsAPI api);
+    };
+} // namespace Nexus::Graphics

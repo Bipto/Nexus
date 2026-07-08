@@ -8,28 +8,28 @@
 
 namespace Nexus::Graphics
 {
-	enum class FenceWaitResult
-	{
-		TimedOut,
-		Signalled,
-		Failed
-	};
+    enum class FenceWaitResult
+    {
+        TimedOut,
+        Signalled,
+        Failed
+    };
 
-	struct FenceDescription
-	{
-		bool		Signalled = false;
-		std::string DebugName = "Fence";
-	};
+    struct FenceDescription
+    {
+        bool Signalled = false;
+        std::string DebugName = "Fence";
+    };
 
-	class NX_RHI_API IFence
-	{
-	  public:
-		virtual ~IFence()
-		{
-		}
-		virtual bool					IsSignalled() const	   = 0;
-		virtual const FenceDescription &GetDescription() const = 0;
-	};
+    class NX_RHI_API IFence
+    {
+      public:
+        virtual ~IFence()
+        {
+        }
+        virtual bool IsSignalled() const = 0;
+        virtual const FenceDescription &GetDescription() const = 0;
+    };
 
-	DEFINE_RESOURCE(Fence, IFence);
-}	 // namespace Nexus::Graphics
+    DEFINE_RESOURCE(Fence, IFence);
+} // namespace Nexus::Graphics

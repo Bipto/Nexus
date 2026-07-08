@@ -8,68 +8,70 @@
 
 namespace Nexus::Graphics
 {
-	/// @brief A class representing a mesh containing a vertex buffer and an index
-	/// buffer
-	class Mesh
-	{
-	  public:
-		/// @brief A default constructor creating a mesh with no geometry
-		Mesh() = default;
+    /// @brief A class representing a mesh containing a vertex buffer and an index
+    /// buffer
+    class Mesh
+    {
+      public:
+        /// @brief A default constructor creating a mesh with no geometry
+        Mesh() = default;
 
-		/// @brief A constructor taking in a vertex buffer and index buffer
-		/// @param vertexBuffer A set of vertices to use for the mesh
-		/// @param indexBuffer A set of indices to use for the mesh
-		/// @param name A string representing the name of the mesh
-		Mesh(DeviceBufferHandle vertexBuffer, DeviceBufferHandle indexBuffer, const Material &material, const std::string &name = "Mesh")
-			: m_VertexBuffer(vertexBuffer),
-			  m_IndexBuffer(indexBuffer),
-			  m_Material(material),
-			  m_Name(name)
-		{
-		}
+        /// @brief A constructor taking in a vertex buffer and index buffer
+        /// @param vertexBuffer A set of vertices to use for the mesh
+        /// @param indexBuffer A set of indices to use for the mesh
+        /// @param name A string representing the name of the mesh
+        Mesh(
+            DeviceBufferHandle vertexBuffer, DeviceBufferHandle indexBuffer,
+            const Material &material, const std::string &name = "Mesh"
+        )
+            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer),
+              m_Material(material), m_Name(name)
+        {
+        }
 
-		virtual ~Mesh()
-		{
-		}
+        virtual ~Mesh()
+        {
+        }
 
-		/// @brief A method that returns a const reference to the meshes vertex buffer
-		/// @return A const reference to the vertex buffer
-		Graphics::DeviceBufferHandle GetVertexBuffer()
-		{
-			return m_VertexBuffer;
-		}
+        /// @brief A method that returns a const reference to the meshes vertex
+        /// buffer
+        /// @return A const reference to the vertex buffer
+        Graphics::DeviceBufferHandle GetVertexBuffer()
+        {
+            return m_VertexBuffer;
+        }
 
-		/// @brief A method that returns a const reference to the meshes index buffer
-		/// @return A const reference to the index buffer
-		Graphics::DeviceBufferHandle GetIndexBuffer()
-		{
-			return m_IndexBuffer;
-		}
+        /// @brief A method that returns a const reference to the meshes index buffer
+        /// @return A const reference to the index buffer
+        Graphics::DeviceBufferHandle GetIndexBuffer()
+        {
+            return m_IndexBuffer;
+        }
 
-		void SetMaterial(const Material &material)
-		{
-			m_Material = material;
-		}
+        void SetMaterial(const Material &material)
+        {
+            m_Material = material;
+        }
 
-		const Material &GetMaterial()
-		{
-			return m_Material;
-		}
+        const Material &GetMaterial()
+        {
+            return m_Material;
+        }
 
-		const std::string &GetName()
-		{
-			return m_Name;
-		}
+        const std::string &GetName()
+        {
+            return m_Name;
+        }
 
-	  private:
-		/// @brief A reference counted pointer to a vertex buffer
-		Graphics::DeviceBufferHandle m_VertexBuffer = {};
+      private:
+        /// @brief A reference counted pointer to a vertex buffer
+        Graphics::DeviceBufferHandle m_VertexBuffer = {};
 
-		/// @brief A reference counted pointer to an index buffer
-		Graphics::DeviceBufferHandle m_IndexBuffer = {};
+        /// @brief A reference counted pointer to an index buffer
+        Graphics::DeviceBufferHandle m_IndexBuffer = {};
 
-		Material m_Material = {};
+        Material m_Material = {};
 
-		std::string m_Name;
-	};
-}	 // namespace Nexus::Graphics
+        std::string m_Name;
+    };
+} // namespace Nexus::Graphics

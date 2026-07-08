@@ -17,65 +17,65 @@
 
 namespace Nexus
 {
-	struct SceneInfo
-	{
-		GUID		Guid = {};
-		std::string Name = {};
-		std::string Path = {};
-	};
+    struct SceneInfo
+    {
+        GUID Guid = {};
+        std::string Name = {};
+        std::string Path = {};
+    };
 
-	enum class SceneState
-	{
-		Playing,
-		Paused,
-		Stopped
-	};
+    enum class SceneState
+    {
+        Playing,
+        Paused,
+        Stopped
+    };
 
-	struct Environment
-	{
-		std::string					CubemapPath		   = {};
-		Graphics::TextureViewHandle EnvironmentCubemap = {};
-		Graphics::SamplerHandle		CubemapSampler	   = {};
-		glm::vec4					ClearColour		   = {1.0f, 1.0f, 1.0f, 1.0f};
-	};
+    struct Environment
+    {
+        std::string CubemapPath = {};
+        Graphics::TextureViewHandle EnvironmentCubemap = {};
+        Graphics::SamplerHandle CubemapSampler = {};
+        glm::vec4 ClearColour = {1.0f, 1.0f, 1.0f, 1.0f};
+    };
 
-	// forward declaration
-	class Project;
+    // forward declaration
+    class Project;
 
-	struct NX_API Scene
-	{
-	  public:
-		Scene();
-		void Serialize(const std::string &filepath);
+    struct NX_API Scene
+    {
+      public:
+        Scene();
+        void Serialize(const std::string &filepath);
 
-		void				 AddEmptyEntity();
-		Entity				*GetEntity(GUID id);
-		std::vector<Entity> &GetEntities();
+        void AddEmptyEntity();
+        Entity *GetEntity(GUID id);
+        std::vector<Entity> &GetEntities();
 
-		void Start();
-		void Stop();
-		void Pause();
-		void OnUpdate(TimeSpan time);
-		void OnRender(TimeSpan time);
-		void OnTick(TimeSpan time);
+        void Start();
+        void Stop();
+        void Pause();
+        void OnUpdate(TimeSpan time);
+        void OnRender(TimeSpan time);
+        void OnTick(TimeSpan time);
 
-		SceneState GetSceneState();
+        SceneState GetSceneState();
 
-	  public:
-		static Scene *Deserialize(const SceneInfo			  &info,
-								  const std::string			  &sceneDirectory,
-								  Project					  *project,
-								  Graphics::IGraphicsDevice	  *device,
-								  Graphics::CommandQueueHandle commandQueue);
+      public:
+        static Scene *Deserialize(
+            const SceneInfo &info, const std::string &sceneDirectory,
+            Project *project, Graphics::IGraphicsDevice *device,
+            Graphics::CommandQueueHandle commandQueue
+        );
 
-	  public:
-		GUID		  Guid			   = {};
-		std::string	  Name			   = {};
-		Environment	  SceneEnvironment = {};
-		ECS::Registry Registry		   = {};
-		Project		 *ParentProject	   = nullptr;
+      public:
+        GUID Guid = {};
+        std::string Name = {};
+        Environment SceneEnvironment = {};
+        ECS::Registry Registry = {};
+        Project *ParentProject = nullptr;
 
-	  private:
-		SceneState m_SceneState = SceneState::Stopped;
-	};
-}	 // namespace Nexus
+      private:
+        SceneState m_SceneState = SceneState::Stopped;
+    };
+} // namespace Nexus

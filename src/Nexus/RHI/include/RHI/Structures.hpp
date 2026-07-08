@@ -5,364 +5,377 @@
 
 namespace Nexus::Graphics
 {
-	/// @brief An enum class representing how two pixels should be compared against
-	/// each other
-	enum class ComparisonFunction
-	{
-		/// @brief The test will always pass
-		AlwaysPass,
+    /// @brief An enum class representing how two pixels should be compared against
+    /// each other
+    enum class ComparisonFunction
+    {
+        /// @brief The test will always pass
+        AlwaysPass,
 
-		/// @brief The test will pass if the values are equal
-		Equal,
+        /// @brief The test will pass if the values are equal
+        Equal,
 
-		/// @brief The test will pass if the value is greater than the value stored in
-		/// the framebuffer
-		Greater,
+        /// @brief The test will pass if the value is greater than the value stored
+        /// in the framebuffer
+        Greater,
 
-		/// @brief The test will pass if the value is greater or equal to the value
-		/// stored in the framebuffer
-		GreaterEqual,
+        /// @brief The test will pass if the value is greater or equal to the value
+        /// stored in the framebuffer
+        GreaterEqual,
 
-		/// @brief The test will pass if the value is lesser than the value stored in
-		/// the framebuffer
-		Less,
+        /// @brief The test will pass if the value is lesser than the value stored in
+        /// the framebuffer
+        Less,
 
-		/// @brief The test will pass if the value is lesser than or equal to the
-		/// value stored in the framebuffer
-		LessEqual,
+        /// @brief The test will pass if the value is lesser than or equal to the
+        /// value stored in the framebuffer
+        LessEqual,
 
-		/// @brief The test will never pass
-		Never,
+        /// @brief The test will never pass
+        Never,
 
-		/// @brief The test will pass if the values are not equal
-		NotEqual
-	};
+        /// @brief The test will pass if the values are not equal
+        NotEqual
+    };
 
-	/// @brief An enum class representing how two values should be blended together
-	enum class BlendFactor
-	{
-		/// @brief All channels will use a value of zero
-		Zero,
+    /// @brief An enum class representing how two values should be blended together
+    enum class BlendFactor
+    {
+        /// @brief All channels will use a value of zero
+        Zero,
 
-		/// @brief All channels will use a value of one
-		One,
+        /// @brief All channels will use a value of one
+        One,
 
-		/// @brief All channels will use the source colour
-		SourceColour,
+        /// @brief All channels will use the source colour
+        SourceColour,
 
-		/// @brief All channels will use the inverse of the source data (1 - RGB)
-		OneMinusSourceColour,
-
-		/// @brief All channels will use the destination colour
-		DestinationColour,
-
-		/// @brief All channels will use the inverse of the destination data (1 - RGB)
-		OneMinusDestinationColour,
-
-		/// @brief All channels will use the alpha channel of the source
-		SourceAlpha,
-
-		/// @brief All channels will use the inverse of the alpha data (1 - A)
-		OneMinusSourceAlpha,
-
-		/// @brief All channels will use the alpha channel of the destination
-		DestinationAlpha,
-
-		/// @brief All channels will use the inverse of the desination alpha (1 - A)
-		OneMinusDestinationAlpha,
-
-		/// @brief All channels will use the factor specified by SetBlendFactor
-		FactorColour,
-
-		/// @brief All channels will use the inverse of the factor specified by SetBlendFactor
-		OneMinusFactorColour,
-
-		/// @brief All channels will use the alpha of the factor specified by SetBlendFactor
-		FactorAlpha,
-
-		/// @brief All channels will use the inverse of the factor specified by SetBlendFactor
-		OneMinusFactorAlpha
-	};
-
-	/// @brief A struct representing a mask of pixels to be written
-	struct WriteMask
-	{
-		/// @brief Whether the red channel can be written to
-		bool Red = true;
-
-		/// @brief Whether the green channel can be written to
-		bool Green = true;
-
-		/// @brief Whether the blue channel can be written to
-		bool Blue = true;
-
-		/// @brief Whether the alpha channel can be written to
-		bool Alpha = true;
-	};
-
-	/// @brief An enum class representing how values will be blended
-	enum class BlendEquation
-	{
-		/// @brief Both values will be added together
-		Add,
-
-		/// @brief Subtract source 1 from source 2
-		Subtract,
-
-		/// @brief Subtract source 2 from source 1
-		ReverseSubtract,
-
-		/// @brief Find the minimum of both values
-		Min,
-
-		/// @brief Find the maximum of both values
-		Max
-	};
-
-	/// @brief An enum class representing how faces will be culled
-	enum class CullMode
-	{
-		/// @brief Back faces will not be rendered
-		Back,
-
-		/// @brief Front faces will not be rendered
-		Front,
-
-		/// @brief All faces will be rendered
-		CullNone
-	};
-
-	/// @brief An enum class representing how faces will be filled in
-	enum class FillMode
-	{
-		/// @brief All pixels within the face will be filled
-		Solid,
-
-		/// @brief Only the border of the face will be filled
-		Wireframe
-	};
-
-	/// @brief An enum representing which face should be recognised as the front
-	/// face of a mesh
-	enum class FrontFace
-	{
-		/// @brief Polygons with vertices wound clockwise will be set as the front
-		/// face
-		Clockwise,
-
-		/// @brief Polygons with vertices wound counter-clockwise will be set as the
-		/// front face
-		CounterClockwise
-	};
-
-	/// @brief An enum representing how vertex data is stored within a vertex buffer
-	enum class Topology
-	{
-		/// @brief Each set of two vertices represent an unconnected line
-		LineList,
-
-		/// @brief Each vertex is connected to the previous and next vertex in the
-		/// buffer
-		LineStrip,
-
-		/// @brief Each vertex represents a separate point
-		PointList,
-
-		/// @brief Each set of three vertices represent an unconnected face
-		TriangleList,
-
-		/// @brief Vertices are shared and every three vertices within the buffer
-		/// represents a face (e.g. a vertex buffer with four vertices represents two
-		/// triangles)
-		TriangleStrip,
-
-		/// @brief Vertices are separate patch primitives
-		PatchList
-	};
-
-	/// @brief An enum representing how data should be stored when a stencil test is
-	/// carried out
-	enum class StencilOperation
-	{
-		/// @brief The value stored in the stencil buffer will be preserved
-		Keep,
-
-		/// @brief The value stored in the stencil buffer will be set to zero
-		Zero,
-
-		/// @brief The value stored in the stencil buffer will be replaced by the
-		/// value produced by the stencil function
-		Replace,
-
-		/// @brief The value stored in the stencil buffer will be increased by one if
-		/// it is lower than the maximum value
-		Increment,
-
-		/// @brief The value stored in the stencil buffer will be decremented by one
-		/// if it is higher than the minimum value
-		Decrement,
-
-		/// @brief The value stored in the stencil buffer will be inverted
-		Invert
-	};
-
-	struct StencilState
-	{
-		/// @brief How the pixel should be tested against the stencil buffer
-		ComparisonFunction StencilComparisonFunction = ComparisonFunction::AlwaysPass;
-
-		/// @brief The value that should be entered in the stencil buffer when the
-		/// stencil test fails
-		StencilOperation StencilFailOperation = StencilOperation::Keep;
-
-		/// @brief The value that should be entered in the stencil buffer when the
-		/// stencil test is successful but the depth test fails
-		StencilOperation StencilSuccessDepthFailOperation = StencilOperation::Keep;
-
-		/// @brief The value that should be entered in the stencil buffer when the
-		/// stencil test is successful and the depth test is successful
-		StencilOperation StencilSuccessDepthSuccessOperation = StencilOperation::Keep;
-	};
-
-	/// @brief A struct representing how the depth and stencil configuration should
-	/// be used in a pipeline
-	struct DepthStencilDescription
-	{
-		/// @brief The mask to use when writing values to the stencil buffer
-		uint32_t StencilWriteMask = 0xFF;
-
-		/// @brief The mask to use when reading values from the stencil buffer
-		uint32_t StencilCompareMask = 0xFF;
-
-		/// @brief The reference to use when comparing against values stored in the stencil buffer
-		uint32_t StencilReference = 0;
-
-		/// @brief Whether the pipeline can write to the depth buffer
-		bool EnableDepthWrite = false;
-
-		/// @brief Whether the pipeline will test pixels against the depth buffer
-		bool EnableDepthTest = false;
-
-		/// @brief How the pixel should be tested against the depth buffer
-		ComparisonFunction DepthComparisonFunction = ComparisonFunction::AlwaysPass;
-
-		/// @brief Whether the pipeline will use a stencil test when rendering
-		bool EnableStencilTest = false;
-
-		/// @brief A struct containing how pixels should be treated if the are facing towards the camera
-		StencilState Front = {};
-
-		/// @brief A struct containing how pixels should be treated if the are facing away from the camera
-		StencilState Back = {};
-
-		/// @brief Whether the pipeline should discard pixels outside of the specified depth range
-		bool EnableDepthsBoundsTest = false;
-
-		/// @brief The minimum value that the depth can be before the pixel is discarded
-		float MinDepth = 0.0f;
-
-		/// @brief The maximum value that the depth can be before the pixel is discarded
-		float MaxDepth = 1.0f;
-	};
-
-	/// @brief A struct representing how triangles should be rendered onto the
-	/// screen
-	struct RasterizerStateDescription
-	{
-		/// @brief How triangles should be culled during rendering
-		CullMode TriangleCullMode = CullMode::Back;
-
-		/// @brief How triangles should be filled in during rendering
-		FillMode TriangleFillMode = FillMode::Solid;
-
-		/// @brief Which faces should be recognised as the front of a mesh
-		FrontFace TriangleFrontFace = FrontFace::Clockwise;
-
-		/// @brief Whether the values of the depth buffer should be limited
-		bool DepthClipEnabled = false;
-
-		/// @brief The bias to add to any depth values
-		int32_t DepthBias = 0;
-
-		/// @brief Whether to clamp all values above the near/far depth range to the near/far values
-		bool DepthClamp = false;
-
-		/// @brief The maximum depth bias for a pixel
-		float DepthBiasClamp = 0.0f;
-
-		/// @brief Scalar on a given pixel's slope
-		float SlopeScaledDepthBias = 0.0f;
-
-		/// @brief Whether to rasterize the final output
-		bool Discard = false;
-	};
-
-	/// @brief A struct represenging how pixels should be blended
-	struct BlendStateDescription
-	{
-		/// @brief Whether blending should be enabled during compositing
-		bool EnableBlending = false;
-
-		/// @brief How to perform blending on the output of the source colour
-		BlendFactor SourceColourBlend = BlendFactor::SourceColour;
-
-		/// @brief How to perform blending on the output of the source alpha
-		BlendFactor SourceAlphaBlend = BlendFactor::One;
-
-		/// @brief How to perform blending on the output of the destination colour
-		BlendFactor DestinationColourBlend = BlendFactor::DestinationColour;
-
-		/// @brief How to perform blending on the output of the destination alpha
-		BlendFactor DestinationAlphaBlend = BlendFactor::DestinationAlpha;
-
-		/// @brief How the two RGB colour values should be blended together
-		BlendEquation ColorBlendFunction = BlendEquation::Add;
-
-		/// @brief How the two alpha value should be blended together
-		BlendEquation AlphaBlendFunction = BlendEquation::Add;
-
-		/// @brief How the pixel should be written to the render target
-		WriteMask PixelWriteMask = WriteMask {};
-	};
-
-	struct Offset3D
-	{
-		int32_t X = 0;
-		int32_t Y = 0;
-		int32_t Z = 0;
-	};
-
-	struct Extent2D
-	{
-		uint32_t Width	= 0;
-		uint32_t Height = 0;
-	};
-
-	struct SubresourceRange
-	{
-		uint32_t BaseMipLevel	= 0;
-		uint32_t LevelCount		= 1;
-		uint32_t BaseArrayLayer = 0;
-		uint32_t LayerCount		= 1;
-	};
-
-	struct SubresourceLayers
-	{
-		uint32_t MipLevel		= 0;
-		uint32_t BaseArrayLayer = 0;
-		uint32_t LayerCount		= 0;
-	};
-
-	struct SwapchainPresentDescription
-	{
-		struct Rectangle
-		{
-			uint32_t X		= 0;
-			uint32_t Y		= 0;
-			uint32_t Width	= 0;
-			uint32_t Height = 0;
-		};
-
-		std::vector<Rectangle> PresentRects = {};
-	};
-}	 // namespace Nexus::Graphics
+        /// @brief All channels will use the inverse of the source data (1 - RGB)
+        OneMinusSourceColour,
+
+        /// @brief All channels will use the destination colour
+        DestinationColour,
+
+        /// @brief All channels will use the inverse of the destination data (1 -
+        /// RGB)
+        OneMinusDestinationColour,
+
+        /// @brief All channels will use the alpha channel of the source
+        SourceAlpha,
+
+        /// @brief All channels will use the inverse of the alpha data (1 - A)
+        OneMinusSourceAlpha,
+
+        /// @brief All channels will use the alpha channel of the destination
+        DestinationAlpha,
+
+        /// @brief All channels will use the inverse of the desination alpha (1 - A)
+        OneMinusDestinationAlpha,
+
+        /// @brief All channels will use the factor specified by SetBlendFactor
+        FactorColour,
+
+        /// @brief All channels will use the inverse of the factor specified by
+        /// SetBlendFactor
+        OneMinusFactorColour,
+
+        /// @brief All channels will use the alpha of the factor specified by
+        /// SetBlendFactor
+        FactorAlpha,
+
+        /// @brief All channels will use the inverse of the factor specified by
+        /// SetBlendFactor
+        OneMinusFactorAlpha
+    };
+
+    /// @brief A struct representing a mask of pixels to be written
+    struct WriteMask
+    {
+        /// @brief Whether the red channel can be written to
+        bool Red = true;
+
+        /// @brief Whether the green channel can be written to
+        bool Green = true;
+
+        /// @brief Whether the blue channel can be written to
+        bool Blue = true;
+
+        /// @brief Whether the alpha channel can be written to
+        bool Alpha = true;
+    };
+
+    /// @brief An enum class representing how values will be blended
+    enum class BlendEquation
+    {
+        /// @brief Both values will be added together
+        Add,
+
+        /// @brief Subtract source 1 from source 2
+        Subtract,
+
+        /// @brief Subtract source 2 from source 1
+        ReverseSubtract,
+
+        /// @brief Find the minimum of both values
+        Min,
+
+        /// @brief Find the maximum of both values
+        Max
+    };
+
+    /// @brief An enum class representing how faces will be culled
+    enum class CullMode
+    {
+        /// @brief Back faces will not be rendered
+        Back,
+
+        /// @brief Front faces will not be rendered
+        Front,
+
+        /// @brief All faces will be rendered
+        CullNone
+    };
+
+    /// @brief An enum class representing how faces will be filled in
+    enum class FillMode
+    {
+        /// @brief All pixels within the face will be filled
+        Solid,
+
+        /// @brief Only the border of the face will be filled
+        Wireframe
+    };
+
+    /// @brief An enum representing which face should be recognised as the front
+    /// face of a mesh
+    enum class FrontFace
+    {
+        /// @brief Polygons with vertices wound clockwise will be set as the front
+        /// face
+        Clockwise,
+
+        /// @brief Polygons with vertices wound counter-clockwise will be set as the
+        /// front face
+        CounterClockwise
+    };
+
+    /// @brief An enum representing how vertex data is stored within a vertex buffer
+    enum class Topology
+    {
+        /// @brief Each set of two vertices represent an unconnected line
+        LineList,
+
+        /// @brief Each vertex is connected to the previous and next vertex in the
+        /// buffer
+        LineStrip,
+
+        /// @brief Each vertex represents a separate point
+        PointList,
+
+        /// @brief Each set of three vertices represent an unconnected face
+        TriangleList,
+
+        /// @brief Vertices are shared and every three vertices within the buffer
+        /// represents a face (e.g. a vertex buffer with four vertices represents two
+        /// triangles)
+        TriangleStrip,
+
+        /// @brief Vertices are separate patch primitives
+        PatchList
+    };
+
+    /// @brief An enum representing how data should be stored when a stencil test is
+    /// carried out
+    enum class StencilOperation
+    {
+        /// @brief The value stored in the stencil buffer will be preserved
+        Keep,
+
+        /// @brief The value stored in the stencil buffer will be set to zero
+        Zero,
+
+        /// @brief The value stored in the stencil buffer will be replaced by the
+        /// value produced by the stencil function
+        Replace,
+
+        /// @brief The value stored in the stencil buffer will be increased by one if
+        /// it is lower than the maximum value
+        Increment,
+
+        /// @brief The value stored in the stencil buffer will be decremented by one
+        /// if it is higher than the minimum value
+        Decrement,
+
+        /// @brief The value stored in the stencil buffer will be inverted
+        Invert
+    };
+
+    struct StencilState
+    {
+        /// @brief How the pixel should be tested against the stencil buffer
+        ComparisonFunction StencilComparisonFunction =
+            ComparisonFunction::AlwaysPass;
+
+        /// @brief The value that should be entered in the stencil buffer when the
+        /// stencil test fails
+        StencilOperation StencilFailOperation = StencilOperation::Keep;
+
+        /// @brief The value that should be entered in the stencil buffer when the
+        /// stencil test is successful but the depth test fails
+        StencilOperation StencilSuccessDepthFailOperation = StencilOperation::Keep;
+
+        /// @brief The value that should be entered in the stencil buffer when the
+        /// stencil test is successful and the depth test is successful
+        StencilOperation StencilSuccessDepthSuccessOperation =
+            StencilOperation::Keep;
+    };
+
+    /// @brief A struct representing how the depth and stencil configuration should
+    /// be used in a pipeline
+    struct DepthStencilDescription
+    {
+        /// @brief The mask to use when writing values to the stencil buffer
+        uint32_t StencilWriteMask = 0xFF;
+
+        /// @brief The mask to use when reading values from the stencil buffer
+        uint32_t StencilCompareMask = 0xFF;
+
+        /// @brief The reference to use when comparing against values stored in the
+        /// stencil buffer
+        uint32_t StencilReference = 0;
+
+        /// @brief Whether the pipeline can write to the depth buffer
+        bool EnableDepthWrite = false;
+
+        /// @brief Whether the pipeline will test pixels against the depth buffer
+        bool EnableDepthTest = false;
+
+        /// @brief How the pixel should be tested against the depth buffer
+        ComparisonFunction DepthComparisonFunction = ComparisonFunction::AlwaysPass;
+
+        /// @brief Whether the pipeline will use a stencil test when rendering
+        bool EnableStencilTest = false;
+
+        /// @brief A struct containing how pixels should be treated if the are facing
+        /// towards the camera
+        StencilState Front = {};
+
+        /// @brief A struct containing how pixels should be treated if the are facing
+        /// away from the camera
+        StencilState Back = {};
+
+        /// @brief Whether the pipeline should discard pixels outside of the
+        /// specified depth range
+        bool EnableDepthsBoundsTest = false;
+
+        /// @brief The minimum value that the depth can be before the pixel is
+        /// discarded
+        float MinDepth = 0.0f;
+
+        /// @brief The maximum value that the depth can be before the pixel is
+        /// discarded
+        float MaxDepth = 1.0f;
+    };
+
+    /// @brief A struct representing how triangles should be rendered onto the
+    /// screen
+    struct RasterizerStateDescription
+    {
+        /// @brief How triangles should be culled during rendering
+        CullMode TriangleCullMode = CullMode::Back;
+
+        /// @brief How triangles should be filled in during rendering
+        FillMode TriangleFillMode = FillMode::Solid;
+
+        /// @brief Which faces should be recognised as the front of a mesh
+        FrontFace TriangleFrontFace = FrontFace::Clockwise;
+
+        /// @brief Whether the values of the depth buffer should be limited
+        bool DepthClipEnabled = false;
+
+        /// @brief The bias to add to any depth values
+        int32_t DepthBias = 0;
+
+        /// @brief Whether to clamp all values above the near/far depth range to the
+        /// near/far values
+        bool DepthClamp = false;
+
+        /// @brief The maximum depth bias for a pixel
+        float DepthBiasClamp = 0.0f;
+
+        /// @brief Scalar on a given pixel's slope
+        float SlopeScaledDepthBias = 0.0f;
+
+        /// @brief Whether to rasterize the final output
+        bool Discard = false;
+    };
+
+    /// @brief A struct represenging how pixels should be blended
+    struct BlendStateDescription
+    {
+        /// @brief Whether blending should be enabled during compositing
+        bool EnableBlending = false;
+
+        /// @brief How to perform blending on the output of the source colour
+        BlendFactor SourceColourBlend = BlendFactor::SourceColour;
+
+        /// @brief How to perform blending on the output of the source alpha
+        BlendFactor SourceAlphaBlend = BlendFactor::One;
+
+        /// @brief How to perform blending on the output of the destination colour
+        BlendFactor DestinationColourBlend = BlendFactor::DestinationColour;
+
+        /// @brief How to perform blending on the output of the destination alpha
+        BlendFactor DestinationAlphaBlend = BlendFactor::DestinationAlpha;
+
+        /// @brief How the two RGB colour values should be blended together
+        BlendEquation ColorBlendFunction = BlendEquation::Add;
+
+        /// @brief How the two alpha value should be blended together
+        BlendEquation AlphaBlendFunction = BlendEquation::Add;
+
+        /// @brief How the pixel should be written to the render target
+        WriteMask PixelWriteMask = WriteMask{};
+    };
+
+    struct Offset3D
+    {
+        int32_t X = 0;
+        int32_t Y = 0;
+        int32_t Z = 0;
+    };
+
+    struct Extent2D
+    {
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+    };
+
+    struct SubresourceRange
+    {
+        uint32_t BaseMipLevel = 0;
+        uint32_t LevelCount = 1;
+        uint32_t BaseArrayLayer = 0;
+        uint32_t LayerCount = 1;
+    };
+
+    struct SubresourceLayers
+    {
+        uint32_t MipLevel = 0;
+        uint32_t BaseArrayLayer = 0;
+        uint32_t LayerCount = 0;
+    };
+
+    struct SwapchainPresentDescription
+    {
+        struct Rectangle
+        {
+            uint32_t X = 0;
+            uint32_t Y = 0;
+            uint32_t Width = 0;
+            uint32_t Height = 0;
+        };
+
+        std::vector<Rectangle> PresentRects = {};
+    };
+} // namespace Nexus::Graphics

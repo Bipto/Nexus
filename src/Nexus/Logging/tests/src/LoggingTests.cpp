@@ -7,14 +7,14 @@
 class TestLogSink : public Nexus::Logging::ILogSink
 {
   public:
-	void LogMessage(const std::string &message) final
-	{
-	}
+    void LogMessage(const std::string &message) final
+    {
+    }
 };
 
 TEST(LoggingTest, TempTest)
 {
-	Nexus::Logging::Logger logger = {};
-	logger.RegisterSink(std::make_unique<TestLogSink>());
-	EXPECT_EQ(0, 0);
+    Nexus::Logging::Logger logger = {};
+    logger.RegisterSink(std::make_unique<TestLogSink>());
+    EXPECT_EQ(0, 0);
 }

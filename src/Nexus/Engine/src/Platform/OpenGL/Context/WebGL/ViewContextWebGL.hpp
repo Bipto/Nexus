@@ -2,43 +2,47 @@
 
 #if defined(NX_PLATFORM_WEBGL)
 
-	#include "Platform/OpenGL/Context/IViewContext.hpp"
+#include "Platform/OpenGL/Context/IViewContext.hpp"
 
-	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 
 namespace Nexus::GL
 {
-	struct BoundingClientRect
-	{
-		double Left	  = 0;
-		double Top	  = 0;
-		double Width  = 0;
-		double Height = 0;
-	};
-	class ViewContextWebGL : public IViewContext
-	{
-	  public:
-		ViewContextWebGL(const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice, const ContextDescription &spec);
-		virtual ~ViewContextWebGL();
-		virtual bool					  MakeCurrent() override;
-		virtual void					  Swap() override;
-		virtual void					  SetVSync(bool enabled) override;
-		virtual const ContextDescription &GetDescription() const override;
-		virtual bool					  Validate() override;
-		void							  HandleResize();
+    struct BoundingClientRect
+    {
+        double Left = 0;
+        double Top = 0;
+        double Width = 0;
+        double Height = 0;
+    };
+    class ViewContextWebGL : public IViewContext
+    {
+      public:
+        ViewContextWebGL(
+            const std::string &canvasName,
+            Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
+            const ContextDescription &spec
+        );
+        virtual ~ViewContextWebGL();
+        virtual bool MakeCurrent() override;
+        virtual void Swap() override;
+        virtual void SetVSync(bool enabled) override;
+        virtual const ContextDescription &GetDescription() const override;
+        virtual bool Validate() override;
+        void HandleResize();
 
-	  private:
-		void CreateFramebuffer();
+      private:
+        void CreateFramebuffer();
 
-	  private:
-		Nexus::Graphics::GraphicsDeviceOpenGL *m_Device		 = nullptr;
-		ContextDescription					   m_Description = {};
-		std::string							   m_CanvasName	 = {};
+      private:
+        Nexus::Graphics::GraphicsDeviceOpenGL *m_Device = nullptr;
+        ContextDescription m_Description = {};
+        std::string m_CanvasName = {};
 
-		Ref<Graphics::Framebuffer> m_Framebuffer			= nullptr;
-		BoundingClientRect		   m_BoundingClientRect		= {};
-		inline static bool		   s_WindowResizeRegistered = false;
-	};
-};	  // namespace Nexus::GL
+        Ref<Graphics::Framebuffer> m_Framebuffer = nullptr;
+        BoundingClientRect m_BoundingClientRect = {};
+        inline static bool s_WindowResizeRegistered = false;
+    };
+}; // namespace Nexus::GL
 
 #endif

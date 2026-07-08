@@ -2,31 +2,31 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-	#include "RHI/IPhysicalDevice.hpp"
-	#include "Vk.hpp"
+#include "RHI/IPhysicalDevice.hpp"
+#include "Vk.hpp"
 
 namespace Nexus::Graphics
 {
-	class PhysicalDeviceVk final : public IPhysicalDevice
-	{
-	  public:
-		PhysicalDeviceVk(const GladVulkanContext &context, VkPhysicalDevice device);
-		virtual ~PhysicalDeviceVk();
-		const std::string &GetDeviceName() const final;
+    class PhysicalDeviceVk final : public IPhysicalDevice
+    {
+      public:
+        PhysicalDeviceVk(const GladVulkanContext &context, VkPhysicalDevice device);
+        virtual ~PhysicalDeviceVk();
+        const std::string &GetDeviceName() const final;
 
-		VkPhysicalDevice				  GetVkPhysicalDevice() const;
-		const VkPhysicalDeviceProperties &GetVkPhysicalDeviceProperties() const;
+        VkPhysicalDevice GetVkPhysicalDevice() const;
+        const VkPhysicalDeviceProperties &GetVkPhysicalDeviceProperties() const;
 
-		bool IsExtensionSupported(const char *extension) const;
-		bool IsVersionGreaterThan(uint32_t version) const;
+        bool IsExtensionSupported(const char *extension) const;
+        bool IsVersionGreaterThan(uint32_t version) const;
 
-	  private:
-		std::string		 m_Name	  = {};
-		VkPhysicalDevice m_Device = nullptr;
+      private:
+        std::string m_Name = {};
+        VkPhysicalDevice m_Device = nullptr;
 
-		VkPhysicalDeviceProperties		   m_VkPhysicalDeviceProperties = {};
-		std::vector<VkExtensionProperties> m_DeviceExtensions			= {};
-	};
-}	 // namespace Nexus::Graphics
+        VkPhysicalDeviceProperties m_VkPhysicalDeviceProperties = {};
+        std::vector<VkExtensionProperties> m_DeviceExtensions = {};
+    };
+} // namespace Nexus::Graphics
 
 #endif
