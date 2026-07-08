@@ -10,8 +10,7 @@ namespace Demos
     {
       public:
         AudioDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -27,10 +26,7 @@ namespace Demos
             m_CommandList = m_CommandQueue->CreateCommandList();
 
             auto loadedData = Nexus::Audio::AudioLoader::LoadAudioFile(
-                Nexus::FileSystem::GetFilePathAbsolute(
-                    "resources/demo/audio/laser_shoot.wav"
-                ),
-                m_AudioDevice
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice
             );
             loadedData
                 .transform([this](auto buffer) {
@@ -41,8 +37,7 @@ namespace Demos
                 })
                 .or_else([](const std::string &error) {
                     std::cerr << "Failed to load audio file: " << error << std::endl;
-                    return std::expected<
-                        Nexus::Audio::AudioBufferHandle, std::string>(
+                    return std::expected<Nexus::Audio::AudioBufferHandle, std::string>(
                         Nexus::Audio::AudioBufferHandle{}
                     );
                 });
@@ -52,15 +47,11 @@ namespace Demos
         {
             m_CommandList->Begin();
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
             m_CommandList->End();
 
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -93,9 +84,7 @@ namespace Demos
 
       private:
         Nexus::Graphics::CommandListHandle m_CommandList = {};
-        glm::vec3 m_ClearColour = {
-            100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f
-        };
+        glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
         Nexus::Audio::AudioBufferHandle m_AudioBuffer = {};
         Nexus::Audio::AudioSourceHandle m_AudioSource = {};

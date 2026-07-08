@@ -16,9 +16,7 @@ namespace Nexus::GL
         return gladLoaderLoadGLContext(&m_Context);
     }
 
-    std::expected<uint32_t, std::string> IGLContext::CreateTexture(
-        GLenum textureType
-    )
+    std::expected<uint32_t, std::string> IGLContext::CreateTexture(GLenum textureType)
     {
         MakeCurrent();
 
@@ -37,9 +35,7 @@ namespace Nexus::GL
         return textureHandle;
     }
 
-    void IGLContext::TextureParameteri(
-        GLuint texture, GLenum textureType, GLenum pname, GLint param
-    )
+    void IGLContext::TextureParameteri(GLuint texture, GLenum textureType, GLenum pname, GLint param)
     {
         MakeCurrent();
 
@@ -54,9 +50,7 @@ namespace Nexus::GL
         }
     }
 
-    bool IGLContext::IsTextureTypeSupported(
-        Graphics::TextureType type, uint32_t arrayLayers
-    )
+    bool IGLContext::IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers)
     {
         switch (type)
         {
@@ -108,53 +102,44 @@ namespace Nexus::GL
     }
 
     void IGLContext::CompressedTexSubImage1D(
-        GLuint texture, GLenum textureType, GLint level, GLint xoffset,
-        GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data
+        GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize,
+        const GLvoid *data
     )
     {
         MakeCurrent();
 
         if (m_Context.CompressedTextureSubImage1D)
         {
-            glCall(m_Context.CompressedTextureSubImage1D(
-                texture, level, xoffset, width, format, imageSize, data
-            ));
+            glCall(m_Context.CompressedTextureSubImage1D(texture, level, xoffset, width, format, imageSize, data));
         }
         else
         {
             glCall(m_Context.BindTexture(textureType, texture));
-            glCall(m_Context.CompressedTexSubImage1D(
-                textureType, level, xoffset, width, format, imageSize, data
-            ));
+            glCall(m_Context.CompressedTexSubImage1D(textureType, level, xoffset, width, format, imageSize, data));
         }
     }
 
     void IGLContext::TexSubImage1D(
-        GLuint texture, GLenum textureType, GLint level, GLint xoffset,
-        GLsizei width, GLenum format, GLenum type, const GLvoid *pixels
+        GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type,
+        const GLvoid *pixels
     )
     {
         MakeCurrent();
 
         if (m_Context.TextureSubImage1D)
         {
-            glCall(m_Context.TextureSubImage1D(
-                texture, level, xoffset, width, format, type, pixels
-            ));
+            glCall(m_Context.TextureSubImage1D(texture, level, xoffset, width, format, type, pixels));
         }
         else
         {
             glCall(m_Context.BindTexture(textureType, texture));
-            glCall(m_Context.TexSubImage1D(
-                textureType, level, xoffset, width, format, type, pixels
-            ));
+            glCall(m_Context.TexSubImage1D(textureType, level, xoffset, width, format, type, pixels));
         }
     }
 
     void IGLContext::CompressedTexSubImage2D(
-        GLuint texture, GLenum textureType, GLint level, GLint xoffset,
-        GLint yoffset, GLsizei width, GLsizei height, GLenum format,
-        GLsizei imageSize, const void *data
+        GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
+        GLenum format, GLsizei imageSize, const void *data
     )
     {
         MakeCurrent();
@@ -162,48 +147,39 @@ namespace Nexus::GL
         if (m_Context.CompressedTextureSubImage2D)
         {
             glCall(m_Context.CompressedTextureSubImage2D(
-                texture, level, xoffset, yoffset, width, height, format, imageSize,
-                data
+                texture, level, xoffset, yoffset, width, height, format, imageSize, data
             ));
         }
         else
         {
             glCall(m_Context.BindTexture(textureType, texture));
             glCall(m_Context.CompressedTexSubImage2D(
-                textureType, level, xoffset, yoffset, width, height, format,
-                imageSize, data
+                textureType, level, xoffset, yoffset, width, height, format, imageSize, data
             ));
         }
     }
 
     void IGLContext::TexSubImage2D(
-        GLuint texture, GLenum textureType, GLint level, GLint xoffset,
-        GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type,
-        const GLvoid *pixels
+        GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
+        GLenum format, GLenum type, const GLvoid *pixels
     )
     {
         MakeCurrent();
 
         if (m_Context.TextureSubImage2D)
         {
-            glCall(m_Context.TextureSubImage2D(
-                texture, level, xoffset, yoffset, width, height, format, type, pixels
-            ));
+            glCall(m_Context.TextureSubImage2D(texture, level, xoffset, yoffset, width, height, format, type, pixels));
         }
         else
         {
             glCall(m_Context.BindTexture(textureType, texture));
-            glCall(m_Context.TexSubImage2D(
-                textureType, level, xoffset, yoffset, width, height, format, type,
-                pixels
-            ));
+            glCall(m_Context.TexSubImage2D(textureType, level, xoffset, yoffset, width, height, format, type, pixels));
         }
     }
 
     void IGLContext::CompressedTexSubImage3D(
-        GLuint texture, GLenum textureType, GLint level, GLint xoffset,
-        GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
-        GLenum format, GLsizei imageSize, const void *data
+        GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width,
+        GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void *data
     )
     {
         MakeCurrent();
@@ -211,24 +187,21 @@ namespace Nexus::GL
         if (m_Context.CompressedTextureSubImage3D)
         {
             glCall(m_Context.CompressedTextureSubImage3D(
-                texture, level, xoffset, yoffset, zoffset, width, height, depth,
-                format, imageSize, data
+                texture, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data
             ));
         }
         else
         {
             glCall(m_Context.BindTexture(textureType, texture));
             glCall(m_Context.CompressedTexSubImage3D(
-                textureType, level, xoffset, yoffset, zoffset, width, height, depth,
-                format, imageSize, data
+                textureType, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data
             ));
         }
     }
 
     void IGLContext::TexSubImage3D(
-        GLuint texture, GLenum textureType, GLint level, GLint xoffset,
-        GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
-        GLenum format, GLenum type, const void *pixels
+        GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width,
+        GLsizei height, GLsizei depth, GLenum format, GLenum type, const void *pixels
     )
     {
         MakeCurrent();
@@ -236,23 +209,20 @@ namespace Nexus::GL
         if (m_Context.TextureSubImage3D)
         {
             glCall(m_Context.TextureSubImage3D(
-                texture, level, xoffset, yoffset, zoffset, width, height, depth,
-                format, type, pixels
+                texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels
             ));
         }
         else
         {
             glCall(m_Context.BindTexture(textureType, texture));
             glCall(m_Context.TexSubImage3D(
-                textureType, level, xoffset, yoffset, zoffset, width, height, depth,
-                format, type, pixels
+                textureType, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels
             ));
         }
     }
 
     void IGLContext::TexStorage1D(
-        GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat,
-        GLsizei width
+        GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width
     )
     {
         MakeCurrent();
@@ -269,30 +239,25 @@ namespace Nexus::GL
     }
 
     void IGLContext::TexStorage2D(
-        GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat,
-        GLsizei width, GLsizei height
+        GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height
     )
     {
         MakeCurrent();
 
         if (m_Context.TextureStorage2D)
         {
-            m_Context.TextureStorage2D(
-                texture, levels, internalformat, width, height
-            );
+            m_Context.TextureStorage2D(texture, levels, internalformat, width, height);
         }
         else
         {
             m_Context.BindTexture(textureType, texture);
-            m_Context.TexStorage2D(
-                textureType, levels, internalformat, width, height
-            );
+            m_Context.TexStorage2D(textureType, levels, internalformat, width, height);
         }
     }
 
     void IGLContext::TexStorage2DMultisample(
-        GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat,
-        GLsizei width, GLsizei height, GLboolean fixedsamplelocations
+        GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height,
+        GLboolean fixedsamplelocations
     )
     {
         MakeCurrent();
@@ -307,37 +272,32 @@ namespace Nexus::GL
         {
             m_Context.BindTexture(textureType, texture);
             m_Context.TexStorage2DMultisample(
-                textureType, samples, internalformat, width, height,
-                fixedsamplelocations
+                textureType, samples, internalformat, width, height, fixedsamplelocations
             );
         }
     }
 
     void IGLContext::TexStorage3D(
-        GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat,
-        GLsizei width, GLsizei height, GLsizei depth
+        GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height,
+        GLsizei depth
     )
     {
         MakeCurrent();
 
         if (m_Context.TextureStorage3D)
         {
-            m_Context.TextureStorage3D(
-                texture, levels, internalformat, width, height, depth
-            );
+            m_Context.TextureStorage3D(texture, levels, internalformat, width, height, depth);
         }
         else
         {
             m_Context.BindTexture(textureType, texture);
-            m_Context.TexStorage3D(
-                textureType, levels, internalformat, width, height, depth
-            );
+            m_Context.TexStorage3D(textureType, levels, internalformat, width, height, depth);
         }
     }
 
     void IGLContext::TexStorage3DMultisample(
-        GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat,
-        GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations
+        GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height,
+        GLsizei depth, GLboolean fixedsamplelocations
     )
     {
         MakeCurrent();
@@ -345,16 +305,14 @@ namespace Nexus::GL
         if (m_Context.TextureStorage3DMultisample)
         {
             m_Context.TextureStorage3DMultisample(
-                texture, samples, internalformat, width, height, depth,
-                fixedsamplelocations
+                texture, samples, internalformat, width, height, depth, fixedsamplelocations
             );
         }
         else
         {
             m_Context.BindTexture(textureType, texture);
             m_Context.TexStorage3DMultisample(
-                textureType, samples, internalformat, width, height, depth,
-                fixedsamplelocations
+                textureType, samples, internalformat, width, height, depth, fixedsamplelocations
             );
         }
     }
@@ -364,38 +322,28 @@ namespace Nexus::GL
         return m_Context.ARB_sparse_texture;
     }
 
-    std::expected<uint32_t, std::string> IGLContext::CreateTexelBuffer(
-        const Graphics::TexelBufferDescription &desc
-    )
+    std::expected<uint32_t, std::string> IGLContext::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
     {
         MakeCurrent();
 
         GLenum internalFormat = GL::GetSizedInternalFormat(desc.Format);
-        const Graphics::DeviceBufferOpenGL *buffer =
-            desc.Buffer.AsDerived<const Graphics::DeviceBufferOpenGL>();
+        const Graphics::DeviceBufferOpenGL *buffer = desc.Buffer.AsDerived<const Graphics::DeviceBufferOpenGL>();
 
-        NX_VALIDATE(
-            buffer, "Invalid buffer supplied when attempting to create texel buffer"
-        );
+        NX_VALIDATE(buffer, "Invalid buffer supplied when attempting to create texel buffer");
 
         uint32_t handle = 0;
 
-        if (m_Context.CreateTextures != nullptr &&
-            m_Context.TextureBufferRange != nullptr)
+        if (m_Context.CreateTextures != nullptr && m_Context.TextureBufferRange != nullptr)
         {
             m_Context.CreateTextures(GL_TEXTURE_BUFFER, 1, &handle);
-            m_Context.TextureBufferRange(
-                handle, internalFormat, buffer->GetHandle(), desc.Offset,
-                desc.SizeInBytes
-            );
+            m_Context.TextureBufferRange(handle, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes);
         }
         else if (m_Context.TexBufferRangeEXT != nullptr)
         {
             m_Context.GenTextures(1, &handle);
             m_Context.BindTexture(GL_TEXTURE_BUFFER, handle);
             m_Context.TexBufferRange(
-                GL_TEXTURE_BUFFER, internalFormat, buffer->GetHandle(), desc.Offset,
-                desc.SizeInBytes
+                GL_TEXTURE_BUFFER, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes
             );
         }
         else
@@ -428,9 +376,8 @@ namespace Nexus::GL
     }
 
     std::expected<void, std::string> IGLContext::CreateBuffer(
-        GLuint &buffer, GLenum target, GLsizeiptr size, const GLvoid *data,
-        GLbitfield mapFlags, GLenum bufferUsage, const std::string &debugName,
-        bool &supportsPersistentMapping
+        GLuint &buffer, GLenum target, GLsizeiptr size, const GLvoid *data, GLbitfield mapFlags, GLenum bufferUsage,
+        const std::string &debugName, bool &supportsPersistentMapping
     )
     {
         // try to use persistent mapping if the functionality is available
@@ -447,9 +394,7 @@ namespace Nexus::GL
             {
                 glCall(m_Context.GenBuffers(1, &buffer));
                 glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
-                glCall(m_Context.BufferStorage(
-                    GL_COPY_READ_BUFFER, size, data, mapFlags
-                ));
+                glCall(m_Context.BufferStorage(GL_COPY_READ_BUFFER, size, data, mapFlags));
             }
 
             // tell the user that persistent mapping is available
@@ -460,9 +405,7 @@ namespace Nexus::GL
         {
             glCall(m_Context.GenBuffers(1, &buffer));
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
-            glCall(
-                m_Context.BufferData(GL_COPY_READ_BUFFER, size, nullptr, bufferUsage)
-            );
+            glCall(m_Context.BufferData(GL_COPY_READ_BUFFER, size, nullptr, bufferUsage));
 
             // tell the user that persistent mapping is NOT available
             supportsPersistentMapping = false;
@@ -471,9 +414,7 @@ namespace Nexus::GL
         // assign a debug name if available
         if (m_Context.KHR_debug)
         {
-            glCall(m_Context.ObjectLabelKHR(
-                GL_BUFFER, buffer, debugName.size(), debugName.c_str()
-            ));
+            glCall(m_Context.ObjectLabelKHR(GL_BUFFER, buffer, debugName.size(), debugName.c_str()));
         }
 
         return std::expected<void, std::string>{};
@@ -485,17 +426,14 @@ namespace Nexus::GL
     }
 
     void IGLContext::CopyBufferSubData(
-        GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset,
-        GLintptr writeOffset, GLsizei size
+        GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size
     )
     {
         // use DSA if it is available
         if (m_Context.ARB_direct_state_access || m_Context.EXT_direct_state_access)
         {
             // execute copy operation
-            glCall(m_Context.CopyNamedBufferSubData(
-                readBuffer, writeBuffer, readOffset, writeOffset, size
-            ));
+            glCall(m_Context.CopyNamedBufferSubData(readBuffer, writeBuffer, readOffset, writeOffset, size));
         }
         // we need to use legacy binding
         else
@@ -505,10 +443,9 @@ namespace Nexus::GL
             glCall(m_Context.BindBuffer(GL_COPY_WRITE_BUFFER, writeBuffer));
 
             // execute the copy operation
-            glCall(m_Context.CopyBufferSubData(
-                GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset,
-                size
-            ));
+            glCall(
+                m_Context.CopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size)
+            );
 
             // unbind the target buffers
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, 0));
@@ -516,10 +453,7 @@ namespace Nexus::GL
         }
     }
 
-    void IGLContext::BufferSubData(
-        GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size,
-        const void *data
-    )
+    void IGLContext::BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data)
     {
         if (m_Context.NamedBufferSubData)
         {
@@ -532,9 +466,7 @@ namespace Nexus::GL
         }
     }
 
-    void IGLContext::GetBufferSubData(
-        GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data
-    )
+    void IGLContext::GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data)
     {
         if (m_Context.GetNamedBufferSubData)
         {
@@ -543,17 +475,13 @@ namespace Nexus::GL
         else if (m_Context.GetBufferSubData)
         {
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
-            glCall(
-                m_Context.GetBufferSubData(GL_COPY_READ_BUFFER, offset, size, data)
-            );
+            glCall(m_Context.GetBufferSubData(GL_COPY_READ_BUFFER, offset, size, data));
         }
         else
         {
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
 
-            void *mappedData = m_Context.MapBufferRange(
-                GL_COPY_READ_BUFFER, offset, size, GL_MAP_READ_BIT
-            );
+            void *mappedData = m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, size, GL_MAP_READ_BIT);
             if (mappedData)
             {
                 memcpy(data, mappedData, size);
@@ -563,9 +491,7 @@ namespace Nexus::GL
         }
     }
 
-    void *IGLContext::MapBufferRange(
-        GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access
-    )
+    void *IGLContext::MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access)
     {
         if (m_Context.MapNamedBufferRange)
         {
@@ -574,64 +500,44 @@ namespace Nexus::GL
         else
         {
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
-            return m_Context.MapBufferRange(
-                GL_COPY_READ_BUFFER, offset, length, access
-            );
+            return m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, length, access);
         }
     }
 
     void IGLContext::FramebufferTexture1D(
-        GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
-        GLint level
+        GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level
     )
     {
-        glCall(m_Context.FramebufferTexture1D(
-            target, attachment, textarget, texture, level
-        ));
+        glCall(m_Context.FramebufferTexture1D(target, attachment, textarget, texture, level));
     }
 
     void IGLContext::FramebufferTexture2D(
-        GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
-        GLint level
+        GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level
     )
     {
-        glCall(m_Context.FramebufferTexture2D(
-            target, attachment, textarget, texture, level
-        ));
+        glCall(m_Context.FramebufferTexture2D(target, attachment, textarget, texture, level));
     }
 
     void IGLContext::FramebufferTexture3D(
-        GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
-        GLint level, GLint layer
+        GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer
     )
     {
-        glCall(m_Context.FramebufferTexture3D(
-            target, attachment, textarget, texture, level, layer
-        ));
+        glCall(m_Context.FramebufferTexture3D(target, attachment, textarget, texture, level, layer));
     }
 
-    void IGLContext::FramebufferTextureLayer(
-        GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer
-    )
+    void IGLContext::FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
     {
-        glCall(m_Context.FramebufferTextureLayer(
-            target, attachment, texture, level, layer
-        ));
+        glCall(m_Context.FramebufferTextureLayer(target, attachment, texture, level, layer));
     }
 
     void IGLContext::FramebufferTextureMultiviewOVR(
-        GLenum target, GLenum attachment, GLuint texture, GLint level,
-        GLint baseViewIndex, GLsizei numViews
+        GLenum target, GLenum attachment, GLuint texture, GLint level, GLint baseViewIndex, GLsizei numViews
     )
     {
-        glCall(m_Context.FramebufferTextureMultiviewOVR(
-            target, attachment, texture, level, baseViewIndex, numViews
-        ));
+        glCall(m_Context.FramebufferTextureMultiviewOVR(target, attachment, texture, level, baseViewIndex, numViews));
     }
 
-    std::expected<uint32_t, std::string> IGLContext::CreateSampler(
-        const Graphics::SamplerDescription &desc
-    )
+    std::expected<uint32_t, std::string> IGLContext::CreateSampler(const Graphics::SamplerDescription &desc)
     {
         MakeCurrent();
 
@@ -642,9 +548,7 @@ namespace Nexus::GL
         {
             // the sampler must have been bound at least once to name it
             glCall(m_Context.BindSampler(0, handle));
-            glCall(m_Context.ObjectLabelKHR(
-                GL_SAMPLER, handle, -1, desc.DebugName.c_str()
-            ));
+            glCall(m_Context.ObjectLabelKHR(GL_SAMPLER, handle, -1, desc.DebugName.c_str()));
         }
 
         bool useMips = desc.MinimumLOD != 0 || desc.MaximumLOD != 0;
@@ -655,59 +559,37 @@ namespace Nexus::GL
         // texture sampling options
         glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_MIN_FILTER, min));
         glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_MAG_FILTER, max));
-        glCall(m_Context.SamplerParameteri(
-            handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(desc.AddressModeU)
-        ));
-        glCall(m_Context.SamplerParameteri(
-            handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(desc.AddressModeV)
-        ));
-        glCall(m_Context.SamplerParameteri(
-            handle, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(desc.AddressModeW)
-        ));
+        glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(desc.AddressModeU)));
+        glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(desc.AddressModeV)));
+        glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(desc.AddressModeW)));
 
         // texture anisotropy
         if (desc.SampleFilter == Graphics::SamplerFilter::Anisotropic)
         {
-            glCall(m_Context.SamplerParameterf(
-                handle, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, desc.MaximumAnisotropy
-            ));
+            glCall(m_Context.SamplerParameterf(handle, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, desc.MaximumAnisotropy));
         }
 
-        const glm::vec4 color =
-            Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
+        const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
 
         // border colour
         GLfloat border[] = {color.r, color.g, color.b, color.a};
-        glCall(
-            m_Context.SamplerParameterfv(handle, GL_TEXTURE_BORDER_COLOR, border)
-        );
+        glCall(m_Context.SamplerParameterfv(handle, GL_TEXTURE_BORDER_COLOR, border));
 
         // LOD
-        glCall(
-            m_Context.SamplerParameterf(handle, GL_TEXTURE_MIN_LOD, desc.MinimumLOD)
-        );
-        glCall(
-            m_Context.SamplerParameterf(handle, GL_TEXTURE_MAX_LOD, desc.MaximumLOD)
-        );
+        glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_MIN_LOD, desc.MinimumLOD));
+        glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_MAX_LOD, desc.MaximumLOD));
 
         if (m_Context.EXT_texture_lod_bias)
         {
-            glCall(m_Context.SamplerParameterf(
-                handle, GL_TEXTURE_LOD_BIAS_EXT, desc.LODBias
-            ));
+            glCall(m_Context.SamplerParameterf(handle, GL_TEXTURE_LOD_BIAS_EXT, desc.LODBias));
         }
 
         // texture comparison
         if (desc.SamplerComparisonFunction != Graphics::ComparisonFunction::Never)
         {
-            auto comparisonFunction =
-                GL::GetComparisonFunction(desc.SamplerComparisonFunction);
-            glCall(m_Context.SamplerParameteri(
-                handle, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE
-            ));
-            glCall(m_Context.SamplerParameteri(
-                handle, GL_TEXTURE_COMPARE_FUNC, comparisonFunction
-            ));
+            auto comparisonFunction = GL::GetComparisonFunction(desc.SamplerComparisonFunction);
+            glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+            glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_FUNC, comparisonFunction));
         }
 
         return handle;
@@ -725,9 +607,7 @@ namespace Nexus::GL
         glCall(m_Context.BindSampler(slot, handle));
     }
 
-    std::expected<GLsync, std::string> IGLContext::CreateFence(
-        const Graphics::FenceDescription &desc
-    )
+    std::expected<GLsync, std::string> IGLContext::CreateFence(const Graphics::FenceDescription &desc)
     {
         MakeCurrent();
         GLsync handle = m_Context.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -761,9 +641,7 @@ namespace Nexus::GL
         MakeCurrent();
 
         GLint status = -1;
-        m_Context.GetSynciv(
-            handle, GL_SYNC_STATUS, sizeof(status), nullptr, &status
-        );
+        m_Context.GetSynciv(handle, GL_SYNC_STATUS, sizeof(status), nullptr, &status);
         return status == GL_SIGNALED;
     }
 
@@ -799,9 +677,7 @@ namespace Nexus::GL
         return returnValue;
     }
 
-    void IGLContext::GetProgramInfoLog(
-        uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog
-    )
+    void IGLContext::GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
     {
         MakeCurrent();
         glCall(m_Context.GetProgramInfoLog(program, maxLength, nullptr, infoLog));
@@ -840,9 +716,7 @@ namespace Nexus::GL
         glCall(m_Context.StencilMask(mask));
     }
 
-    void IGLContext::SetStencilOp(
-        GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass
-    )
+    void IGLContext::SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
     {
         MakeCurrent();
         glCall(m_Context.StencilOpSeparate(face, sfail, dpfail, dppass));
@@ -911,18 +785,13 @@ namespace Nexus::GL
         return m_Context.ColorMaski != nullptr;
     }
 
-    void IGLContext::SetColourMask(
-        GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha
-    )
+    void IGLContext::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
     {
         MakeCurrent();
         glCall(m_Context.ColorMask(red, green, blue, alpha));
     }
 
-    void IGLContext::SetColourMaski(
-        uint32_t index, GLboolean red, GLboolean green, GLboolean blue,
-        GLboolean alpha
-    )
+    void IGLContext::SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
     {
         MakeCurrent();
         glCall(m_Context.ColorMaski(index, red, green, blue, alpha));
@@ -939,31 +808,24 @@ namespace Nexus::GL
         glCall(m_Context.BlendFunc(sfactor, dfactor));
     }
 
-    void IGLContext::SetBlendFunctioni(
-        uint32_t index, GLenum sfactor, GLenum dfactor
-    )
+    void IGLContext::SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)
     {
         MakeCurrent();
         glCall(m_Context.BlendFunci(index, sfactor, dfactor));
     }
 
-    void IGLContext::SetBlendFunctionSeparate(
-        GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha
-    )
+    void IGLContext::SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
     {
         MakeCurrent();
         glCall(m_Context.BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha));
     }
 
     void IGLContext::SetBlendFunctionSeparatei(
-        uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha,
-        GLenum dstAlpha
+        uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha
     )
     {
         MakeCurrent();
-        glCall(
-            m_Context.BlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha)
-        );
+        glCall(m_Context.BlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
     }
 
     void IGLContext::SetBlendEquation(GLenum mode)
@@ -984,17 +846,13 @@ namespace Nexus::GL
         glCall(m_Context.BlendEquationSeparate(modeRGB, modeAlpha));
     }
 
-    void IGLContext::SetBlendEquationSeparatei(
-        uint32_t index, GLenum modeRGB, GLenum modeAlpha
-    )
+    void IGLContext::SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)
     {
         MakeCurrent();
         glCall(m_Context.BlendEquationSeparatei(index, modeRGB, modeAlpha));
     }
 
-    void IGLContext::BlendColor(
-        GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha
-    )
+    void IGLContext::BlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     {
         MakeCurrent();
         glCall(m_Context.BlendColor(red, green, blue, alpha));
@@ -1002,8 +860,7 @@ namespace Nexus::GL
 
     bool IGLContext::SupportsTextureBarriers()
     {
-        return m_Context.TextureBarrier != nullptr ||
-               m_Context.TextureBarrierNV != nullptr;
+        return m_Context.TextureBarrier != nullptr || m_Context.TextureBarrierNV != nullptr;
     }
 
     void IGLContext::TextureBarrier()
@@ -1067,9 +924,7 @@ namespace Nexus::GL
         glCall(m_Context.BindBuffer(target, buffer));
     }
 
-    void IGLContext::BindBufferRange(
-        GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size
-    )
+    void IGLContext::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
     {
         MakeCurrent();
         glCall(m_Context.BindBufferRange(target, index, buffer, offset, size));
@@ -1120,48 +975,39 @@ namespace Nexus::GL
     }
 
     void IGLContext::SetVertexAttribPointer(
-        uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
-        GLboolean normalized, GLsizei stride, uint32_t offset
+        uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride,
+        uint32_t offset
     )
     {
         MakeCurrent();
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
         glCall(m_Context.VertexAttribPointer(
-            index, size, type, normalized, stride,
-            reinterpret_cast<const GLvoid *>(offset)
+            index, size, type, normalized, stride, reinterpret_cast<const GLvoid *>(offset)
         ));
     }
 
     void IGLContext::SetVertexAttribIPointer(
-        uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
-        GLsizei stride, uint32_t offset
+        uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset
     )
     {
         MakeCurrent();
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
-        glCall(m_Context.VertexAttribIPointer(
-            index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)
-        ));
+        glCall(m_Context.VertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
     }
 
     void IGLContext::SetVertexAttribLPointer(
-        uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
-        GLsizei stride, uint32_t offset
+        uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset
     )
     {
         MakeCurrent();
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
-        glCall(m_Context.VertexAttribLPointer(
-            index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)
-        ));
+        glCall(m_Context.VertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
     }
 
-    void IGLContext::SetVertexAttribDivisor(
-        uint32_t vao, GLuint index, GLuint divisor
-    )
+    void IGLContext::SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor)
     {
         MakeCurrent();
         glCall(m_Context.BindVertexArray(vao));
@@ -1170,30 +1016,20 @@ namespace Nexus::GL
 
     bool IGLContext::AreStorageBuffersSupported()
     {
-        return m_Context.ARB_shader_storage_buffer_object ||
-               (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
+        return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
     }
 
-    void IGLContext::ShaderStorageBlockBinding(
-        uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding
-    )
+    void IGLContext::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
     {
         MakeCurrent();
-        glCall(m_Context.ShaderStorageBlockBinding(
-            shader, storageBlockIndex, storageBlockBinding
-        ));
+        glCall(m_Context.ShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
     }
 
-    int32_t IGLContext::GetProgramResourceIndex(
-        uint32_t shader, GLenum programInterface, const char *name
-    )
+    int32_t IGLContext::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
     {
         MakeCurrent();
         int32_t location = 0;
-        glCall(
-            location =
-                m_Context.GetProgramResourceIndex(shader, programInterface, name)
-        );
+        glCall(location = m_Context.GetProgramResourceIndex(shader, programInterface, name));
         return location;
     }
 
@@ -1213,30 +1049,21 @@ namespace Nexus::GL
         return location;
     }
 
-    void IGLContext::UniformBlockBinding(
-        GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding
-    )
+    void IGLContext::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
     {
         MakeCurrent();
-        glCall(m_Context.UniformBlockBinding(
-            program, uniformBlockIndex, uniformBlockBinding
-        ));
+        glCall(m_Context.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding));
     }
 
     void IGLContext::BindImageTexture(
-        GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer,
-        GLenum access, GLenum format
+        GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format
     )
     {
         MakeCurrent();
-        glCall(m_Context.BindImageTexture(
-            unit, texture, level, layered, layer, access, format
-        ));
+        glCall(m_Context.BindImageTexture(unit, texture, level, layered, layer, access, format));
     }
 
-    void IGLContext::DrawArrays(
-        GLenum mode, GLint first, GLsizei count, GLsizei primcount
-    )
+    void IGLContext::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
     {
         MakeCurrent();
         if (primcount == 1)
@@ -1249,10 +1076,7 @@ namespace Nexus::GL
         }
     }
 
-    void IGLContext::DrawElements(
-        GLenum mode, GLsizei count, GLenum type, const void *indices,
-        GLsizei primcount
-    )
+    void IGLContext::DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
     {
         MakeCurrent();
         if (primcount == 1)
@@ -1261,47 +1085,36 @@ namespace Nexus::GL
         }
         else
         {
-            glCall(m_Context.DrawElementsInstanced(
-                mode, count, type, indices, primcount
-            ));
+            glCall(m_Context.DrawElementsInstanced(mode, count, type, indices, primcount));
         }
     }
 
-    void IGLContext::MultiDrawArraysIndirect(
-        GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride
-    )
+    void IGLContext::MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)
     {
         MakeCurrent();
         if (m_Context.MultiDrawArraysIndirect)
         {
-            glCall(
-                m_Context.MultiDrawArraysIndirect(mode, indirect, drawCount, stride)
-            );
+            glCall(m_Context.MultiDrawArraysIndirect(mode, indirect, drawCount, stride));
         }
         else
         {
             size_t offset = reinterpret_cast<size_t>(indirect);
             for (size_t i = 0; i < drawCount; i++)
             {
-                glCall(m_Context.DrawArraysIndirect(
-                    mode, reinterpret_cast<const void *>(offset)
-                ));
+                glCall(m_Context.DrawArraysIndirect(mode, reinterpret_cast<const void *>(offset)));
                 offset += stride;
             }
         }
     }
 
     void IGLContext::MultiDrawElementsIndirect(
-        GLenum mode, GLenum type, const void *indirect, GLsizei drawcount,
-        GLsizei stride
+        GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride
     )
     {
         MakeCurrent();
         if (m_Context.MultiDrawElementsIndirect)
         {
-            glCall(m_Context.MultiDrawElementsIndirect(
-                mode, type, indirect, drawcount, stride
-            ));
+            glCall(m_Context.MultiDrawElementsIndirect(mode, type, indirect, drawcount, stride));
         }
         else
         {
@@ -1314,9 +1127,7 @@ namespace Nexus::GL
         }
     }
 
-    void IGLContext::DispatchCompute(
-        GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z
-    )
+    void IGLContext::DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
     {
         MakeCurrent();
         glCall(m_Context.DispatchCompute(num_groups_x, num_groups_y, num_groups_z));
@@ -1328,29 +1139,21 @@ namespace Nexus::GL
         glCall(m_Context.DispatchComputeIndirect(indirect));
     }
 
-    void IGLContext::DrawMeshTasksEXT(
-        GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z
-    )
+    void IGLContext::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
     {
         MakeCurrent();
         if (m_Context.DrawMeshTasksEXT)
         {
-            glCall(
-                m_Context.DrawMeshTasksEXT(num_groups_x, num_groups_y, num_groups_z)
-            );
+            glCall(m_Context.DrawMeshTasksEXT(num_groups_x, num_groups_y, num_groups_z));
         }
     }
 
-    void IGLContext::DrawMeshTasksIndirectEXT(
-        GLintptr indirect, GLintptr drawCount, GLsizei stride
-    )
+    void IGLContext::DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)
     {
         MakeCurrent();
         if (m_Context.MultiDrawMeshTasksIndirectEXT)
         {
-            glCall(m_Context.MultiDrawMeshTasksIndirectEXT(
-                (GLintptr)indirect, drawCount, stride
-            ));
+            glCall(m_Context.MultiDrawMeshTasksIndirectEXT((GLintptr)indirect, drawCount, stride));
         }
         else if (m_Context.DrawMeshTasksIndirectEXT)
         {
@@ -1363,17 +1166,13 @@ namespace Nexus::GL
         }
     }
 
-    void IGLContext::ClearBufferfv(
-        GLenum buffer, GLint drawbuffer, const GLfloat *value
-    )
+    void IGLContext::ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
     {
         MakeCurrent();
         glCall(m_Context.ClearBufferfv(buffer, drawbuffer, value));
     }
 
-    void IGLContext::ClearBufferfi(
-        GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil
-    )
+    void IGLContext::ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
     {
         MakeCurrent();
         glCall(m_Context.ClearBufferfi(buffer, drawbuffer, depth, stencil));
@@ -1410,14 +1209,12 @@ namespace Nexus::GL
 
     bool IGLContext::IsIndirectRenderingSupported()
     {
-        return m_Context.DrawArraysIndirect != nullptr &&
-               m_Context.DrawElementsIndirect != nullptr;
+        return m_Context.DrawArraysIndirect != nullptr && m_Context.DrawElementsIndirect != nullptr;
     }
 
     bool IGLContext::IsMeshTaskSupported()
     {
-        return m_Context.DrawMeshTasksEXT != nullptr &&
-               m_Context.DrawMeshTasksIndirectEXT != nullptr;
+        return m_Context.DrawMeshTasksEXT != nullptr && m_Context.DrawMeshTasksIndirectEXT != nullptr;
     }
 
     void IGLContext::BindFramebuffer(GLenum target, GLuint framebuffer)
@@ -1454,8 +1251,8 @@ namespace Nexus::GL
     bool IGLContext::AreTimestampQueriesSupported()
     {
         return (
-            m_Context.VERSION_3_2 == 1 || m_Context.ES_VERSION_3_0 == 1 ||
-            m_Context.ARB_timer_query == 1 || m_Context.EXT_disjoint_timer_query == 1
+            m_Context.VERSION_3_2 == 1 || m_Context.ES_VERSION_3_0 == 1 || m_Context.ARB_timer_query == 1 ||
+            m_Context.EXT_disjoint_timer_query == 1
         );
     }
 
@@ -1465,21 +1262,16 @@ namespace Nexus::GL
     }
 
     void IGLContext::DebugMessageInsert(
-        GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-        const char *message
+        GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message
     )
     {
         if (m_Context.DebugMessageInsert != nullptr)
         {
-            m_Context.DebugMessageInsert(
-                source, type, id, severity, length, message
-            );
+            m_Context.DebugMessageInsert(source, type, id, severity, length, message);
         }
     }
 
-    void IGLContext::ObjectLabel(
-        GLenum identifier, GLuint name, GLsizei length, const char *label
-    )
+    void IGLContext::ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label)
     {
         if (m_Context.ObjectLabel)
         {

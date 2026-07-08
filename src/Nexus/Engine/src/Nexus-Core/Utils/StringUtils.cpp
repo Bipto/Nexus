@@ -2,9 +2,7 @@
 
 namespace Nexus::StringUtils
 {
-    std::vector<std::string> Split(
-        const std::string &str, const std::string &delimiter
-    )
+    std::vector<std::string> Split(const std::string &str, const std::string &delimiter)
     {
         std::vector<std::string> tokens;
         std::string::size_type start = 0;
@@ -20,10 +18,7 @@ namespace Nexus::StringUtils
         return tokens;
     }
 
-    std::string Replace(
-        const std::string &input, const std::string &wordToReplace,
-        const std::string &newWord
-    )
+    std::string Replace(const std::string &input, const std::string &wordToReplace, const std::string &newWord)
     {
         std::string text = input;
 
@@ -44,9 +39,7 @@ namespace Nexus::StringUtils
         return text;
     }
 
-    std::string RemoveSubString(
-        const std::string &input, const std::string &substring
-    )
+    std::string RemoveSubString(const std::string &input, const std::string &substring)
     {
         std::string result = input;
         size_t pos = result.find(substring);

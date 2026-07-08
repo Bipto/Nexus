@@ -8,10 +8,7 @@ namespace Nexus::Graphics
     class SurfaceWGL final : public SurfaceOpenGL
     {
       public:
-        SurfaceWGL(
-            uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance,
-            const GraphicsDeviceOpenGL *device
-        );
+        SurfaceWGL(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance, const GraphicsDeviceOpenGL *device);
         ~SurfaceWGL() override = default;
         std::unique_ptr<GL::IViewContext> CreateOpenGLContext(
             GraphicsDeviceOpenGL *device, const GL::ContextDescription &desc

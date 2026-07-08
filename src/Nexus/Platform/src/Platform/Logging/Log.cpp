@@ -9,14 +9,11 @@ Nexus::Logger *logger = new Nexus::Logger();
 namespace Nexus
 {
     Log::Log(const std::string &message, Severity severity)
-        : Message(message), MessageSeverity(severity),
-          Time(std::chrono::system_clock::now())
+        : Message(message), MessageSeverity(severity), Time(std::chrono::system_clock::now())
     {
     }
 
-    void Logger::LogInfo(
-        const std::string &message, const std::source_location location
-    )
+    void Logger::LogInfo(const std::string &message, const std::source_location location)
     {
         // build the message
         std::stringstream ss;
@@ -32,9 +29,7 @@ namespace Nexus
         this->m_Logs.push_back(log);
     }
 
-    void Logger::LogWarning(
-        const std::string &message, const std::source_location location
-    )
+    void Logger::LogWarning(const std::string &message, const std::source_location location)
     {
         // build the message
         std::stringstream ss;
@@ -50,9 +45,7 @@ namespace Nexus
         this->m_Logs.push_back(log);
     }
 
-    void Logger::LogError(
-        const std::string &message, const std::source_location location
-    )
+    void Logger::LogError(const std::string &message, const std::source_location location)
     {
         // build the message
         std::stringstream ss;

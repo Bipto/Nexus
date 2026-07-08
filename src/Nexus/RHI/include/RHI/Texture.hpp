@@ -109,14 +109,12 @@ namespace Nexus::Graphics
 
         bool IsColour() const
         {
-            return GetPixelFormatType(m_Description.Format) ==
-                   PixelFormatType::Colour;
+            return GetPixelFormatType(m_Description.Format) == PixelFormatType::Colour;
         }
 
         bool IsDepth() const
         {
-            return GetPixelFormatType(m_Description.Format) ==
-                   PixelFormatType::DepthStencil;
+            return GetPixelFormatType(m_Description.Format) == PixelFormatType::DepthStencil;
         }
 
         PixelFormat GetPixelFormat() const
@@ -166,17 +164,12 @@ namespace Nexus::Graphics
 
         bool IsLayeredTexture() const
         {
-            return m_Description.Type != TextureType::Texture3D &&
-                   m_Description.DepthOrArrayLayers > 1;
+            return m_Description.Type != TextureType::Texture3D && m_Description.DepthOrArrayLayers > 1;
         }
 
-        virtual TextureLayout GetTextureLayout(
-            uint32_t arrayLayer, uint32_t mipLevel
-        ) const = 0;
+        virtual TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
 
-        virtual SubresourceFootprint GetSubresourceFootprint(
-            uint32_t arrayLayer, uint32_t mipLevel
-        ) const = 0;
+        virtual SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const = 0;
 
       protected:
         TextureDescription m_Description = {};

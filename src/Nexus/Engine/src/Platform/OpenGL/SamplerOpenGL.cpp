@@ -9,9 +9,7 @@
 
 namespace Nexus::Graphics
 {
-    SamplerOpenGL::SamplerOpenGL(
-        const SamplerDescription &spec, GraphicsDeviceOpenGL *device
-    )
+    SamplerOpenGL::SamplerOpenGL(const SamplerDescription &spec, GraphicsDeviceOpenGL *device)
         : m_Device(device), m_Description(spec)
     {
         GL::IOffscreenContext *context = m_Device->GetOffscreenContext();

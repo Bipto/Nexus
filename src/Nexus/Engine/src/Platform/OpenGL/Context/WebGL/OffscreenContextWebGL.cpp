@@ -41,8 +41,7 @@ namespace Nexus::GL
         );
     });
 
-    OffscreenContextWebGL::OffscreenContextWebGL(const std::string &canvasName)
-        : m_CanvasName(canvasName)
+    OffscreenContextWebGL::OffscreenContextWebGL(const std::string &canvasName) : m_CanvasName(canvasName)
     {
         m_CSS_Selector = std::string("#") + m_CanvasName;
 

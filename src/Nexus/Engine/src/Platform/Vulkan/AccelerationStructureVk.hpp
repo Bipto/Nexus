@@ -8,9 +8,7 @@ namespace Nexus::Graphics
     class AccelerationStructureVk : public IAccelerationStructure
     {
       public:
-        AccelerationStructureVk(
-            const AccelerationStructureDescription &desc, GraphicsDeviceVk *device
-        );
+        AccelerationStructureVk(const AccelerationStructureDescription &desc, GraphicsDeviceVk *device);
         virtual ~AccelerationStructureVk();
 
         const AccelerationStructureDescription &GetDescription() const final;

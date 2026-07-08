@@ -15,9 +15,7 @@ namespace Nexus::Graphics
         /// @brief A constructor to create a new MeshFactory
         /// @param device A graphics device to use to create resources
         /// @param commandQueue A command queue to use to upload data to the GPU
-        explicit MeshFactory(
-            IGraphicsDevice *device, CommandQueueHandle commandQueue
-        )
+        explicit MeshFactory(IGraphicsDevice *device, CommandQueueHandle commandQueue)
             : m_Device(device), m_CommandQueue(commandQueue)
         {
         }

@@ -3,8 +3,7 @@
 
 namespace Nexus::Audio
 {
-    AudioSourceOpenAL::AudioSourceOpenAL()
-        : m_Source(0, [](ALuint audioSource) { alDeleteSources(1, &audioSource); })
+    AudioSourceOpenAL::AudioSourceOpenAL() : m_Source(0, [](ALuint audioSource) { alDeleteSources(1, &audioSource); })
     {
         alGenSources(1, &m_Source.Get());
     }
@@ -115,8 +114,7 @@ namespace Nexus::Audio
 
     void AudioSourceOpenAL::SetStaticSourceBuffer(AudioBufferHandle buffer)
     {
-        if (const AudioBufferOpenAL *alBuffer =
-                buffer.AsDerived<AudioBufferOpenAL>())
+        if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
         {
             alSourcei(m_Source.Get(), AL_BUFFER, (ALint)alBuffer->GetHandle());
             m_StaticBuffer = buffer;
@@ -125,8 +123,7 @@ namespace Nexus::Audio
 
     void AudioSourceOpenAL::QueueBuffer(AudioBufferHandle buffer)
     {
-        if (const AudioBufferOpenAL *alBuffer =
-                buffer.AsDerived<AudioBufferOpenAL>())
+        if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
         {
             ALuint handle = alBuffer->GetHandle();
             alSourceQueueBuffers(m_Source.Get(), 1, &handle);
@@ -135,8 +132,7 @@ namespace Nexus::Audio
 
     void AudioSourceOpenAL::UnqueueBuffer(AudioBufferHandle buffer)
     {
-        if (const AudioBufferOpenAL *alBuffer =
-                buffer.AsDerived<AudioBufferOpenAL>())
+        if (const AudioBufferOpenAL *alBuffer = buffer.AsDerived<AudioBufferOpenAL>())
         {
             ALuint handle = alBuffer->GetHandle();
             alSourceUnqueueBuffers(m_Source.Get(), 1, &handle);

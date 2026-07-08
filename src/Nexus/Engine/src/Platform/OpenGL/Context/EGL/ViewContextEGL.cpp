@@ -11,8 +11,7 @@
 namespace Nexus::GL
 {
     ViewContextEGL::ViewContextEGL(
-        EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer,
-        const ContextDescription &spec
+        EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextDescription &spec
     )
         : m_EGLDisplay(display), m_PBuffer(pbuffer), m_Description(spec)
     {
@@ -73,9 +72,7 @@ namespace Nexus::GL
 
         EGLConfig config;
         EGLint numConfigs;
-        if (!eglChooseConfig(
-                m_EGLDisplay, configAttribs.data(), &config, 1, &numConfigs
-            ))
+        if (!eglChooseConfig(m_EGLDisplay, configAttribs.data(), &config, 1, &numConfigs))
         {
             std::cout << "Failed to choose EGL config: ";
             const char *errorMessage = eglGetErrorString(eglGetError());
@@ -98,9 +95,7 @@ namespace Nexus::GL
             else
             {
                 contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
-                contextAttribs.push_back(
-                    EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT
-                );
+                contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
             }
         }
         else
@@ -118,9 +113,7 @@ namespace Nexus::GL
 
         contextAttribs.push_back(EGL_NONE);
 
-        m_Context = eglCreateContext(
-            m_EGLDisplay, config, pbuffer->GetEGLContext(), contextAttribs.data()
-        );
+        m_Context = eglCreateContext(m_EGLDisplay, config, pbuffer->GetEGLContext(), contextAttribs.data());
         if (m_Context == EGL_NO_CONTEXT)
         {
             std::cout << "Failed to create OpenGL context: ";
@@ -128,10 +121,7 @@ namespace Nexus::GL
             std::cout << errorMessage << std::endl;
         }
 
-        EGLAttrib attr[] = {
-            EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR, EGL_RENDER_BUFFER,
-            EGL_BACK_BUFFER, EGL_NONE
-        };
+        EGLAttrib attr[] = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR, EGL_RENDER_BUFFER, EGL_BACK_BUFFER, EGL_NONE};
 
         m_Surface = eglCreateWindowSurface(m_EGLDisplay, config, window, NULL);
         if (m_Surface == EGL_NO_SURFACE)
@@ -157,12 +147,9 @@ namespace Nexus::GL
         }
         else
         {
-            if (!gladLoadGLES2Context(
-                    &m_GladContext, (GLADloadfunc)eglGetProcAddress
-                ))
+            if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
             {
-                std::cout << "Failed to load OpenGLES function pointers"
-                          << std::endl;
+                std::cout << "Failed to load OpenGLES function pointers" << std::endl;
             }
         }
     }
@@ -179,10 +166,7 @@ namespace Nexus::GL
         return eglMakeCurrent(m_EGLDisplay, m_Surface, m_Surface, m_Context);
     }
 
-    void ViewContextEGL::Swap(
-        Graphics::TextureHandle texture,
-        const Graphics::SwapchainPresentDescription &presentDesc
-    )
+    void ViewContextEGL::Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc)
     {
         NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
@@ -202,17 +186,13 @@ namespace Nexus::GL
 
                     // framebuffer texture
                     copyDesc.Source = texture;
-                    copyDesc.SourceOffset = {
-                        static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0
-                    };
+                    copyDesc.SourceOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
                     copyDesc.SourceMipLevel = 0;
 
                     // backbuffer
                     copyDesc.Destination = {};
                     copyDesc.DestinationMipLevel = 0;
-                    copyDesc.DestinationOffset = {
-                        static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0
-                    };
+                    copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
                     copyDesc.Extent = {rect.Width, rect.Height};
                     GL::CopyTextureToTexture(copyDesc, context);
@@ -259,9 +239,7 @@ namespace Nexus::GL
                     .height = static_cast<EGLint>(presentRect.Height)
                 };
             }
-            eglSwapBuffersWithDamageKHR(
-                m_EGLDisplay, m_Surface, &presentRects[0].x, presentRects.size()
-            );
+            eglSwapBuffersWithDamageKHR(m_EGLDisplay, m_Surface, &presentRects[0].x, presentRects.size());
         }
         else
         {
@@ -281,8 +259,7 @@ namespace Nexus::GL
 
     bool ViewContextEGL::Validate()
     {
-        return m_EGLDisplay != 0 && m_NativeWindow != 0 && m_Surface != 0 &&
-               m_Context != 0;
+        return m_EGLDisplay != 0 && m_NativeWindow != 0 && m_Surface != 0 && m_Context != 0;
     }
 
     const GladGLContext &ViewContextEGL::GetContext() const

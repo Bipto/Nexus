@@ -11,10 +11,7 @@ namespace Nexus::Graphics
     class PhysicalDeviceWGL final : public PhysicalDeviceOpenGL
     {
       public:
-        PhysicalDeviceWGL(
-            const std::string &deviceName,
-            const std::vector<std::string> &displayNames, bool debug
-        );
+        PhysicalDeviceWGL(const std::string &deviceName, const std::vector<std::string> &displayNames, bool debug);
         virtual ~PhysicalDeviceWGL();
         const std::string &GetDeviceName() const final;
         virtual GL::IOffscreenContext *GetOffscreenContext() final;

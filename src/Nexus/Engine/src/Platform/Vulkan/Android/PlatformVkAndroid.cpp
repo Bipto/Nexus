@@ -8,9 +8,7 @@ namespace PlatformVk
 {
     std::vector<const char *> GetRequiredExtensions()
     {
-        return {
-            VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
-        };
+        return {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME};
     }
 
     VkSurfaceKHR CreateSurface(VkInstance instance, Nexus::IWindow *window)
@@ -24,8 +22,7 @@ namespace PlatformVk
 
         VkSurfaceKHR surface;
 
-        if (vkCreateAndroidSurfaceKHR(instance, &createInfo, nullptr, &surface) !=
-            VK_SUCCESS)
+        if (vkCreateAndroidSurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create Vulkan surface");
         }

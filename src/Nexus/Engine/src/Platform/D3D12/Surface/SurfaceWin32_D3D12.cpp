@@ -4,17 +4,13 @@
 
 namespace Nexus::Graphics
 {
-    SurfaceWin32_D3D12::SurfaceWin32_D3D12(
-        uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
-    )
+    SurfaceWin32_D3D12::SurfaceWin32_D3D12(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
         : m_Hwnd(hwnd), m_Hdc(hdc), m_Hinstance(hinstance)
     {
     }
 
-    std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string>
-    SurfaceWin32_D3D12::CreateDXGISwapchain(
-        const SwapchainDescription &swapchainDesc, ID3D12CommandQueue *commandQueue,
-        IDXGIFactory2 *factory
+    std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string> SurfaceWin32_D3D12::CreateDXGISwapchain(
+        const SwapchainDescription &swapchainDesc, ID3D12CommandQueue *commandQueue, IDXGIFactory2 *factory
     ) const
     {
         // set up properties for the swapchain
@@ -25,14 +21,12 @@ namespace Nexus::Graphics
         dxgiSwapchainDesc.Stereo = false;
         dxgiSwapchainDesc.SampleDesc.Count = 1;
         dxgiSwapchainDesc.SampleDesc.Quality = 0;
-        dxgiSwapchainDesc.BufferUsage =
-            DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
         dxgiSwapchainDesc.BufferCount = BUFFER_COUNT;
         dxgiSwapchainDesc.Scaling = DXGI_SCALING_STRETCH;
         dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         dxgiSwapchainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-        dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH |
-                                  DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+        dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
         // create a fullscreen description, we will not use exclusive fullscreen so
         // we don't need this
@@ -42,8 +36,8 @@ namespace Nexus::Graphics
         // create the swapchain and query for the correct swapchain type
         Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
         HRESULT hr = factory->CreateSwapChainForHwnd(
-            commandQueue, reinterpret_cast<HWND>(m_Hwnd), &dxgiSwapchainDesc,
-            &fullscreenDesc, nullptr, sc1.GetAddressOf()
+            commandQueue, reinterpret_cast<HWND>(m_Hwnd), &dxgiSwapchainDesc, &fullscreenDesc, nullptr,
+            sc1.GetAddressOf()
         );
 
         if (FAILED(hr))

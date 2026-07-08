@@ -21,8 +21,7 @@ namespace Demos
     {
       public:
         Demo3D(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -40,10 +39,7 @@ namespace Demos
             m_Mesh = factory.CreateCube();
             auto [texture, textureView] = Nexus::Utils::CreateTexture2DWithView(
                 m_CommandQueue,
-                Nexus::FileSystem::GetFilePathAbsolute(
-                    "resources/demo/textures/raw_plank_wall_diff_1k.jpg"
-                )
-                    .c_str(),
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
                 true
             );
 
@@ -51,25 +47,18 @@ namespace Demos
             m_TextureView = textureView;
 
             Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
-            cameraUniformBufferDesc.Access =
-                Nexus::Graphics::BufferMemoryAccess::Upload;
+            cameraUniformBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage_Uniform;
-            cameraUniformBufferDesc.StrideInBytes =
-                sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
+            cameraUniformBufferDesc.StrideInBytes = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
             cameraUniformBufferDesc.SizeInBytes = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
-            m_CameraUniformBuffer =
-                m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
+            m_CameraUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
             Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-            transformUniformBufferDesc.Access =
-                Nexus::Graphics::BufferMemoryAccess::Upload;
+            transformUniformBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage_Uniform;
-            transformUniformBufferDesc.StrideInBytes =
-                sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
-            transformUniformBufferDesc.SizeInBytes =
-                sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
-            m_TransformUniformBuffer =
-                m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+            transformUniformBufferDesc.StrideInBytes = sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
+            transformUniformBufferDesc.SizeInBytes = sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
             CreatePipeline();
 
@@ -79,18 +68,14 @@ namespace Demos
             Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
             cameraUniformBufferView.BufferHandle = m_CameraUniformBuffer;
             cameraUniformBufferView.Offset = 0;
-            cameraUniformBufferView.Size =
-                m_CameraUniformBuffer->GetDescription().SizeInBytes;
+            cameraUniformBufferView.Size = m_CameraUniformBuffer->GetDescription().SizeInBytes;
             m_ResourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
 
             Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
             transformUniformBufferView.BufferHandle = m_TransformUniformBuffer;
             transformUniformBufferView.Offset = 0;
-            transformUniformBufferView.Size =
-                m_TransformUniformBuffer->GetDescription().SizeInBytes;
-            m_ResourceSet->WriteUniformBuffer(
-                transformUniformBufferView, "Transform"
-            );
+            transformUniformBufferView.Size = m_TransformUniformBuffer->GetDescription().SizeInBytes;
+            m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 
             Nexus::Graphics::CombinedImageSampler ciSampler = {};
             ciSampler.ImageTexture = m_TextureView;
@@ -103,32 +88,22 @@ namespace Demos
         virtual void Render(Nexus::TimeSpan time) override
         {
             m_TransformUniforms.Transform = glm::rotate(
-                glm::mat4(1.0f),
-                glm::radians((float)m_ElapsedTime.GetSeconds<float>() * 100.0f),
+                glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds<float>() * 100.0f),
                 glm::vec3(0.0f, 1.0f, 1.0f)
             );
-            m_TransformUniformBuffer->SetData(
-                &m_TransformUniforms, 0, sizeof(m_TransformUniforms)
-            );
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
             auto [width, height] = m_Window->GetWindowSize();
 
-            m_CameraUniforms.View =
-                glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));
-            m_CameraUniforms.Projection = glm::perspectiveFov<float>(
-                glm::radians(60.0f), width, height, 0.1f, 100.0f
-            );
-            m_CameraUniformBuffer->SetData(
-                &m_CameraUniforms, 0, sizeof(m_CameraUniforms)
-            );
+            m_CameraUniforms.View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));
+            m_CameraUniforms.Projection = glm::perspectiveFov<float>(glm::radians(60.0f), width, height, 0.1f, 100.0f);
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -147,9 +122,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             Nexus::Graphics::ClearDepthStencilValue clearValue;
             m_CommandList->ClearDepthTarget(clearValue);
@@ -194,42 +167,28 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-                Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-                Nexus::Graphics::FrontFace::Clockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
-            pipelineDescription.VertexModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice, "resources/demo/shaders/3d/3d.vert.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Vertex
-                );
-            pipelineDescription.FragmentModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice, "resources/demo/shaders/3d/3d.frag.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Fragment
-                );
+            pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/3d/3d.vert.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
+            );
+            pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/3d/3d.frag.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
+            );
 
             pipelineDescription.ColourTargetCount = 1;
-            pipelineDescription.ColourFormats[0] =
-                Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-            pipelineDescription.Samples = Nexus::GetApplication()
-                                              ->GetPrimarySwapchain()
-                                              ->GetDescription()
-                                              .Samples;
+            pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+            pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
-            pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::
-                    GetLayout()
-            };
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceDescription.Descriptors = {
                 Nexus::Graphics::ResourceDescriptor{
                     .Name = "u_Texture",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::
-                        CombinedImageSampler,
+                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                     .CountOrSizeInBytes = 1
                 },
                 Nexus::Graphics::ResourceDescriptor{
@@ -244,8 +203,7 @@ namespace Demos
                 }
             };
 
-            m_Pipeline =
-                m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+            m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 

@@ -80,8 +80,7 @@ namespace Nexus::Graphics
     }
 
     void SetHLSLUniformNames(
-        spirv_cross::CompilerHLSL &compiler,
-        const spirv_cross::SmallVector<spirv_cross::Resource> &resources
+        spirv_cross::CompilerHLSL &compiler, const spirv_cross::SmallVector<spirv_cross::Resource> &resources
     )
     {
         for (const auto &resource : resources)
@@ -108,9 +107,7 @@ namespace Nexus::Graphics
         SetHLSLUniformNames(compiler, resources.separate_samplers);
     }
 
-    CompilationResult ShaderGenerator::Generate(
-        const std::string &source, ShaderGenerationOptions options
-    )
+    CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options)
     {
         CompilationResult output;
         output.Successful = false;
@@ -124,27 +121,21 @@ namespace Nexus::Graphics
         shaderc::CompileOptions compileOptions = {};
 
         // this means the standard of GLSL used in the written shader, not the output
-        if (options.OutputFormat == ShaderLanguage::GLSL ||
-            options.OutputFormat == ShaderLanguage::GLSLES)
+        if (options.OutputFormat == ShaderLanguage::GLSL || options.OutputFormat == ShaderLanguage::GLSLES)
         {
-            compileOptions.SetTargetEnvironment(
-                shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0
-            );
+            compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0);
             compileOptions.SetTargetSpirv(shaderc_spirv_version_1_0);
         }
         else
         {
-            compileOptions.SetTargetEnvironment(
-                shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3
-            );
+            compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
             compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
         }
 
         compileOptions.SetGenerateDebugInfo();
 
-        shaderc::CompilationResult result = compiler.CompileGlslToSpv(
-            source, shaderType, options.ShaderName.c_str(), compileOptions
-        );
+        shaderc::CompilationResult result =
+            compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str(), compileOptions);
 
         if (result.GetCompilationStatus() != shaderc_compilation_status_success)
         {
@@ -185,9 +176,7 @@ namespace Nexus::Graphics
             spirv_cross::CompilerHLSL compiler(spirv_binary);
 
             const std::string name = GetD3DShaderEntryPoint(options.Stage);
-            compiler.rename_entry_point(
-                "main", name.c_str(), GetShaderExecutionModel(options.Stage)
-            );
+            compiler.rename_entry_point("main", name.c_str(), GetShaderExecutionModel(options.Stage));
 
             MaintainHLSLUniformNames(compiler);
 
@@ -230,8 +219,7 @@ namespace Nexus::Graphics
     }
 
     static void GetShadercTargetEnvironment(
-        TargetEnvironment env, shaderc_target_env &shaderc_env,
-        shaderc_env_version &shaderc_env_version
+        TargetEnvironment env, shaderc_target_env &shaderc_env, shaderc_env_version &shaderc_env_version
     )
     {
         switch (env)
@@ -295,8 +283,7 @@ namespace Nexus::Graphics
     }
 
     std::vector<uint32_t> ShaderGenerator::GenerateSPIRV(
-        const std::string &source, ShaderStage stage, TargetEnvironment env,
-        SPIRV_Version version, bool debugInfo
+        const std::string &source, ShaderStage stage, TargetEnvironment env, SPIRV_Version version, bool debugInfo
     )
     {
         return std::vector<uint32_t>();

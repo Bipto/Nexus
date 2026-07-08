@@ -8,28 +8,22 @@
 namespace Nexus::Processors
 {
     GUID TextureProcessor::Process(
-        const std::string &filepath, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue, Project *project
+        const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
+        Project *project
     )
     {
         std::vector<Graphics::Image> mips = {};
-        Graphics::TextureHandle texture = Utils::CreateTexture2D(
-            commandQueue, filepath.c_str(), m_GenerateMips, m_Srgb
-        );
+        Graphics::TextureHandle texture =
+            Utils::CreateTexture2D(commandQueue, filepath.c_str(), m_GenerateMips, m_Srgb);
 
-        for (uint32_t arrayLayer = 0;
-             arrayLayer < texture->GetDescription().DepthOrArrayLayers; arrayLayer++)
+        for (uint32_t arrayLayer = 0; arrayLayer < texture->GetDescription().DepthOrArrayLayers; arrayLayer++)
         {
-            for (uint32_t level = 0; level < texture->GetDescription().MipLevels;
-                 level++)
+            for (uint32_t level = 0; level < texture->GetDescription().MipLevels; level++)
             {
-                Point2D<uint32_t> size = Utils::GetMipSize(
-                    texture->GetDescription().Width,
-                    texture->GetDescription().Height, arrayLayer
-                );
+                Point2D<uint32_t> size =
+                    Utils::GetMipSize(texture->GetDescription().Width, texture->GetDescription().Height, arrayLayer);
                 Graphics::Image mip = Graphics::Image::FromTexture(
-                    device, commandQueue, texture, arrayLayer, level, 0, 0, 0,
-                    size.X, size.Y
+                    device, commandQueue, texture, arrayLayer, level, 0, 0, 0, size.X, size.Y
                 );
 
                 if (device->GetGraphicsAPI().API == Graphics::GraphicsAPI::OpenGL)
@@ -43,8 +37,7 @@ namespace Nexus::Processors
 
         std::filesystem::path path = filepath;
         std::string assetPath = path.stem().string() + std::string(".texture2d");
-        std::filesystem::path outputFilePath =
-            project->GetFullAssetsDirectory() + "/" + assetPath;
+        std::filesystem::path outputFilePath = project->GetFullAssetsDirectory() + "/" + assetPath;
         std::ofstream file(outputFilePath, std::ios::binary);
 
         file << "Texture2D ";

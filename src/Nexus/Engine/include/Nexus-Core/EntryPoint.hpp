@@ -41,9 +41,7 @@ namespace Nexus
 
 namespace
 {
-    const std::vector<std::string> InputParametersToStringVector(
-        int argc, char **argv
-    )
+    const std::vector<std::string> InputParametersToStringVector(int argc, char **argv)
     {
         std::vector<std::string> commandLineArgs;
         for (int i = 0; i < argc; i++)

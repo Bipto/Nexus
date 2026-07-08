@@ -18,37 +18,30 @@ namespace Nexus::Graphics
         {
         }
 
-        RoundedRectangle(float x, float y, float width, float height)
-            : m_X(x), m_Y(y), m_Width(width), m_Height(height)
+        RoundedRectangle(float x, float y, float width, float height) : m_X(x), m_Y(y), m_Width(width), m_Height(height)
         {
         }
 
         RoundedRectangle(
-            const Point2D<float> &position, const Point2D<float> &size,
-            float radiusTL, float radiusTR, float radiusBL, float radiusBR
+            const Point2D<float> &position, const Point2D<float> &size, float radiusTL, float radiusTR, float radiusBL,
+            float radiusBR
         )
-            : m_X(position.X), m_Y(position.Y), m_Width(size.X), m_Height(size.Y),
-              m_RadiusTL(radiusTL), m_RadiusTR(radiusTR), m_RadiusBL(radiusBL),
-              m_RadiusBR(radiusBR)
-        {
-        }
-
-        RoundedRectangle(
-            float x, float y, float width, float height, float radiusTL,
-            float radiusTR, float radiusBL, float radiusBR
-        )
-            : m_X(x), m_Y(y), m_Width(width), m_Height(height), m_RadiusTL(radiusTL),
+            : m_X(position.X), m_Y(position.Y), m_Width(size.X), m_Height(size.Y), m_RadiusTL(radiusTL),
               m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
         {
         }
 
         RoundedRectangle(
-            const Rectangle<float> &rect, float radiusTL, float radiusTR,
-            float radiusBL, float radiusBR
+            float x, float y, float width, float height, float radiusTL, float radiusTR, float radiusBL, float radiusBR
         )
-            : m_X(rect.GetLeft()), m_Y(rect.GetTop()), m_Width(rect.GetWidth()),
-              m_Height(rect.GetHeight()), m_RadiusTL(radiusTL), m_RadiusTR(radiusTR),
+            : m_X(x), m_Y(y), m_Width(width), m_Height(height), m_RadiusTL(radiusTL), m_RadiusTR(radiusTR),
               m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
+        {
+        }
+
+        RoundedRectangle(const Rectangle<float> &rect, float radiusTL, float radiusTR, float radiusBL, float radiusBR)
+            : m_X(rect.GetLeft()), m_Y(rect.GetTop()), m_Width(rect.GetWidth()), m_Height(rect.GetHeight()),
+              m_RadiusTL(radiusTL), m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
         {
         }
 
@@ -193,8 +186,8 @@ namespace Nexus::Graphics
         }
 
         const void Deconstruct(
-            float *x, float *y, float *width, float *height, float *radiusTL,
-            float *radiusTR, float *radiusBL, float *radiusBR, float *pointsPerCorner
+            float *x, float *y, float *width, float *height, float *radiusTL, float *radiusTR, float *radiusBL,
+            float *radiusBR, float *pointsPerCorner
         ) const
         {
             if (x)
@@ -245,30 +238,19 @@ namespace Nexus::Graphics
 
         std::vector<glm::vec2> CreateOutline() const
         {
-            const glm::vec2 tr = {
-                GetRight() - GetRadiusTopRight(), GetTop() + GetRadiusTopRight()
-            };
+            const glm::vec2 tr = {GetRight() - GetRadiusTopRight(), GetTop() + GetRadiusTopRight()};
 
-            const glm::vec2 tl = {
-                GetLeft() + GetRadiusTopLeft(), GetTop() + GetRadiusTopLeft()
-            };
+            const glm::vec2 tl = {GetLeft() + GetRadiusTopLeft(), GetTop() + GetRadiusTopLeft()};
 
-            const glm::vec2 bl = {
-                GetLeft() + GetRadiusBottomLeft(),
-                GetBottom() - GetRadiusBottomLeft()
-            };
+            const glm::vec2 bl = {GetLeft() + GetRadiusBottomLeft(), GetBottom() - GetRadiusBottomLeft()};
 
-            const glm::vec2 br = {
-                GetRight() - GetRadiusBottomRight(),
-                GetBottom() - GetRadiusBottomRight()
-            };
+            const glm::vec2 br = {GetRight() - GetRadiusBottomRight(), GetBottom() - GetRadiusBottomRight()};
 
             std::vector<glm::vec2> points;
 
             if (m_RadiusTL > 0.0f)
             {
-                std::vector<glm::vec2> corner =
-                    CreateCircleRegion(tl, m_RadiusTL, 0.0f, 90.0f);
+                std::vector<glm::vec2> corner = CreateCircleRegion(tl, m_RadiusTL, 0.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
             }
             else
@@ -278,8 +260,7 @@ namespace Nexus::Graphics
 
             if (m_RadiusTR > 0.0f)
             {
-                std::vector<glm::vec2> corner =
-                    CreateCircleRegion(tr, m_RadiusTR, 90.0f, 90.0f);
+                std::vector<glm::vec2> corner = CreateCircleRegion(tr, m_RadiusTR, 90.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
             }
             else
@@ -289,8 +270,7 @@ namespace Nexus::Graphics
 
             if (m_RadiusBR > 0.0f)
             {
-                std::vector<glm::vec2> corner =
-                    CreateCircleRegion(br, m_RadiusBR, 180.0f, 90.0f);
+                std::vector<glm::vec2> corner = CreateCircleRegion(br, m_RadiusBR, 180.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
             }
             else
@@ -300,8 +280,7 @@ namespace Nexus::Graphics
 
             if (m_RadiusBL > 0.0f)
             {
-                std::vector<glm::vec2> corner =
-                    CreateCircleRegion(bl, m_RadiusBL, 270.0f, 90.0f);
+                std::vector<glm::vec2> corner = CreateCircleRegion(bl, m_RadiusBL, 270.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
             }
             else
@@ -336,8 +315,7 @@ namespace Nexus::Graphics
 
       private:
         std::vector<glm::vec2> CreateCircleRegion(
-            const glm::vec2 &position, float radius, float startAngle,
-            float fillAngle
+            const glm::vec2 &position, float radius, float startAngle, float fillAngle
         ) const
         {
             std::vector<glm::vec2> border;
@@ -350,8 +328,7 @@ namespace Nexus::Graphics
             for (uint32_t i = 0; i < m_PointsPerCorner; i++)
             {
                 glm::vec2 point = {
-                    glm::cos(currentAngle) * radius + position.x,
-                    glm::sin(currentAngle) * radius + position.y
+                    glm::cos(currentAngle) * radius + position.x, glm::sin(currentAngle) * radius + position.y
                 };
 
                 border.push_back(point);

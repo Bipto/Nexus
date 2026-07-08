@@ -39,9 +39,7 @@ namespace Nexus::Platform
 
     NX_PLATFORM_API void SetCursor(Cursor cursor);
 
-    NX_PLATFORM_API Utils::SharedLibrary *LoadSharedLibrary(
-        const std::string &filename
-    );
+    NX_PLATFORM_API Utils::SharedLibrary *LoadSharedLibrary(const std::string &filename);
 
     NX_PLATFORM_API std::vector<Keyboard> GetKeyboards();
     NX_PLATFORM_API std::vector<Mouse> GetMice();
@@ -58,22 +56,12 @@ namespace Nexus::Platform
     NX_PLATFORM_API void Update();
     NX_PLATFORM_API void PollEvents(Nexus::EventQueue &eventQueue);
     NX_PLATFORM_API void WaitEvent(Nexus::EventQueue &eventQueue);
-    NX_PLATFORM_API IWindow *CreatePlatformWindow(
-        const WindowDescription &windowProps
-    );
-    NX_PLATFORM_API MessageDialogBox *CreateMessageBox(
-        const MessageBoxDescription &description
-    );
+    NX_PLATFORM_API IWindow *CreatePlatformWindow(const WindowDescription &windowProps);
+    NX_PLATFORM_API MessageDialogBox *CreateMessageBox(const MessageBoxDescription &description);
 
-    NX_PLATFORM_API OpenFileDialog *CreateOpenFileDialog(
-        const OpenFileDialogDescription &desc
-    );
-    NX_PLATFORM_API SaveFileDialog *CreateSaveFileDialog(
-        const SaveFileDialogDescription &desc
-    );
-    NX_PLATFORM_API OpenFolderDialog *CreateOpenFolderDialog(
-        const OpenFolderDialogDescription &desc
-    );
+    NX_PLATFORM_API OpenFileDialog *CreateOpenFileDialog(const OpenFileDialogDescription &desc);
+    NX_PLATFORM_API SaveFileDialog *CreateSaveFileDialog(const SaveFileDialogDescription &desc);
+    NX_PLATFORM_API OpenFolderDialog *CreateOpenFolderDialog(const OpenFolderDialogDescription &desc);
 
     NX_PLATFORM_API std::optional<IWindow *> GetKeyboardFocus();
     NX_PLATFORM_API std::optional<IWindow *> GetMouseFocus();
@@ -88,26 +76,19 @@ namespace Nexus::Platform
 
     // filesystem
     NX_PLATFORM_API std::string GetRootPath();
-    NX_PLATFORM_API std::string GetApplicationPath(
-        const std::string &org, const std::string &app
-    );
+    NX_PLATFORM_API std::string GetApplicationPath(const std::string &org, const std::string &app);
     NX_PLATFORM_API std::string GetCurrentExecutableDirectory();
     NX_PLATFORM_API std::string GetCurrentUserFolder(IO::UserFolder folder);
 
     NX_PLATFORM_API std::string CopyFileTo(
-        const std::string &source, const std::string &destination,
-        bool overwriteIfExists
+        const std::string &source, const std::string &destination, bool overwriteIfExists
     );
     NX_PLATFORM_API std::string CreateDirectoryAt(const std::string &path);
     NX_PLATFORM_API IO::PathInfo GetPathInfo(const std::string &path);
     NX_PLATFORM_API std::string RemovePath(const std::string &path);
-    NX_PLATFORM_API std::string RenamePath(
-        const std::string &oldPath, const std::string &newPath
-    );
+    NX_PLATFORM_API std::string RenamePath(const std::string &oldPath, const std::string &newPath);
 
-    NX_PLATFORM_API std::vector<std::string> EnumerateDirectoryContents(
-        const std::string &path
-    );
+    NX_PLATFORM_API std::vector<std::string> EnumerateDirectoryContents(const std::string &path);
 
     NX_PLATFORM_API bool AreAnyWindowsOpen();
 
@@ -120,9 +101,7 @@ namespace Nexus::Platform
 
     NX_PLATFORM_API void Delay(TimeSpan timespan, DelayAccuracy accuracy);
 
-    NX_PLATFORM_API IO::FileStreamImpl *CreateFileStreamImpl(
-        const std::filesystem::path &path, IO::FileMode fileMode
-    );
+    NX_PLATFORM_API IO::FileStreamImpl *CreateFileStreamImpl(const std::filesystem::path &path, IO::FileMode fileMode);
 
     inline EventHandler<uint32_t> OnKeyboardAdded;
     inline EventHandler<uint32_t> OnKeyboardRemoved;

@@ -19,8 +19,7 @@ namespace Nexus::Graphics
     {
       public:
         SwapchainVk(
-            IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue,
-            const SwapchainDescription &swapchainSpec
+            IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec
         );
         virtual ~SwapchainVk();
 
@@ -32,9 +31,7 @@ namespace Nexus::Graphics
         PixelFormat GetColourFormat() final;
         PixelFormat GetDepthFormat() final;
 
-        std::expected<void, std::string> Resize(
-            uint32_t width, uint32_t height
-        ) final;
+        std::expected<void, std::string> Resize(uint32_t width, uint32_t height) final;
 
         VkSurfaceKHR GetSurface();
         VkSurfaceFormatKHR GetSurfaceFormat();
@@ -61,19 +58,13 @@ namespace Nexus::Graphics
 
         bool AcquireNextImage();
 
-        VkImageView CreateImageView(
-            VkImage image, VkFormat format, VkImageAspectFlags aspectFlags
-        );
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void CreateImage(
-            uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-            VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-            VkImage &image, VkDeviceMemory &imageMemory,
+            uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+            VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory,
             VkSampleCountFlagBits samples, GraphicsDeviceVk *graphicsDevice
         );
-        uint32_t FindMemoryType(
-            uint32_t typeFilter, VkMemoryPropertyFlags properties,
-            VkPhysicalDevice physicalDevice
-        );
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
         uint32_t GetCurrentFrameIndex();
 
       private:

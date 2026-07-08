@@ -13,8 +13,7 @@ namespace Nexus::D3D12
         // typename std::aligned_storage<sizeof(T), 8>::type Data;
         T Data;
 
-        AlignedSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type, const T &value)
-            : Type(type)
+        AlignedSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type, const T &value) : Type(type)
         {
             // std::memcpy(&Data, &value, sizeof(T));
             Type = type;
@@ -28,15 +27,9 @@ namespace Nexus::D3D12
         StreamStateBuilder() = default;
         ~StreamStateBuilder() = default;
 
-        template <typename T>
-        void AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE subobjectType, const T &subobject
-        )
+        template <typename T> void AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE subobjectType, const T &subobject)
         {
-            static_assert(
-                std::is_trivially_copyable<T>::value,
-                "Object must be trivially copyable"
-            );
+            static_assert(std::is_trivially_copyable<T>::value, "Object must be trivially copyable");
             AlignedSubObject<T> alignedSubObject{subobjectType, subobject};
             AppendBytes(&alignedSubObject, sizeof(alignedSubObject));
         }

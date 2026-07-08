@@ -6,25 +6,19 @@
 #if defined(NX_TEST_GRAPHICS)
 
 void CreateGraphicsAPIAndDevice(
-    Nexus::Graphics::GraphicsAPI api,
-    std::unique_ptr<Nexus::Graphics::IGraphicsAPI> &graphicsAPI,
-    std::unique_ptr<Nexus::Graphics::IGraphicsDevice> &device,
-    Nexus::Ref<Nexus::Graphics::ICommandQueue> &queue
+    Nexus::Graphics::GraphicsAPI api, std::unique_ptr<Nexus::Graphics::IGraphicsAPI> &graphicsAPI,
+    std::unique_ptr<Nexus::Graphics::IGraphicsDevice> &device, Nexus::Ref<Nexus::Graphics::ICommandQueue> &queue
 )
 {
     Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {};
     apiCreateInfo.API = api;
     apiCreateInfo.Debug = true;
 
-    graphicsAPI = std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(
-        Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo)
-    );
+    graphicsAPI =
+        std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo));
 
-    std::vector<std::shared_ptr<Nexus::Graphics::IPhysicalDevice>> physicalDevices =
-        graphicsAPI->GetPhysicalDevices();
-    device = std::unique_ptr<Nexus::Graphics::IGraphicsDevice>(
-        graphicsAPI->CreateGraphicsDevice(physicalDevices[0])
-    );
+    std::vector<std::shared_ptr<Nexus::Graphics::IPhysicalDevice>> physicalDevices = graphicsAPI->GetPhysicalDevices();
+    device = std::unique_ptr<Nexus::Graphics::IGraphicsDevice>(graphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
     const auto &queueFamilies = device->GetQueueFamilies();
 
@@ -47,9 +41,7 @@ TEST(CreateGraphicsDeviceOpenGL, Successful)
     std::unique_ptr<Nexus::Graphics::IGraphicsAPI> api = nullptr;
     std::unique_ptr<Nexus::Graphics::IGraphicsDevice> device = nullptr;
     Nexus::Ref<Nexus::Graphics::ICommandQueue> queue = nullptr;
-    CreateGraphicsAPIAndDevice(
-        Nexus::Graphics::GraphicsAPI::OpenGL, api, device, queue
-    );
+    CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI::OpenGL, api, device, queue);
     EXPECT_TRUE(device->Validate());
 }
 #endif
@@ -61,9 +53,7 @@ TEST(CreateGraphicsDeviceD3D12, Successful)
     std::unique_ptr<Nexus::Graphics::IGraphicsDevice> device = nullptr;
 
     Nexus::Ref<Nexus::Graphics::ICommandQueue> queue = nullptr;
-    CreateGraphicsAPIAndDevice(
-        Nexus::Graphics::GraphicsAPI::D3D12, api, device, queue
-    );
+    CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI::D3D12, api, device, queue);
     EXPECT_TRUE(device->Validate());
 }
 #endif
@@ -75,9 +65,7 @@ TEST(CreateGraphicsDeviceVulkan, Successful)
     std::unique_ptr<Nexus::Graphics::IGraphicsDevice> device = nullptr;
 
     Nexus::Ref<Nexus::Graphics::ICommandQueue> queue = nullptr;
-    CreateGraphicsAPIAndDevice(
-        Nexus::Graphics::GraphicsAPI::Vulkan, api, device, queue
-    );
+    CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI::Vulkan, api, device, queue);
     EXPECT_TRUE(device->Validate());
 }
 #endif
@@ -96,12 +84,10 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
     bufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
     bufferDesc.SizeInBytes = sizeof(uint32_t);
     bufferDesc.StrideInBytes = sizeof(uint32_t);
-    Nexus::Ref<Nexus::Graphics::IDeviceBuffer> uploadBuffer =
-        device->CreateDeviceBuffer(bufferDesc);
+    Nexus::Ref<Nexus::Graphics::IDeviceBuffer> uploadBuffer = device->CreateDeviceBuffer(bufferDesc);
 
     bufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Readback;
-    Nexus::Ref<Nexus::Graphics::IDeviceBuffer> readbackBuffer =
-        device->CreateDeviceBuffer(bufferDesc);
+    Nexus::Ref<Nexus::Graphics::IDeviceBuffer> readbackBuffer = device->CreateDeviceBuffer(bufferDesc);
 
     Nexus::Graphics::TextureDescription textureSpec = {};
     textureSpec.Width = 1;
@@ -109,10 +95,8 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
     textureSpec.DepthOrArrayLayers = 1;
     textureSpec.MipLevels = 1;
 
-    Nexus::Ref<Nexus::Graphics::ITexture> sourceTexture =
-        device->CreateTexture(textureSpec);
-    Nexus::Ref<Nexus::Graphics::ITexture> destTexture =
-        device->CreateTexture(textureSpec);
+    Nexus::Ref<Nexus::Graphics::ITexture> sourceTexture = device->CreateTexture(textureSpec);
+    Nexus::Ref<Nexus::Graphics::ITexture> destTexture = device->CreateTexture(textureSpec);
 
     uint32_t col = 0xFF0000FF;
     uploadBuffer->SetData(&col, 0, sizeof(col));

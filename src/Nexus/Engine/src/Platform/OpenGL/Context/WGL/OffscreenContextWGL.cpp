@@ -5,12 +5,9 @@
 
 namespace Nexus::GL
 {
-    OffscreenContextWGL::OffscreenContextWGL(
-        const ContextDescription &spec, Graphics::IPhysicalDevice *device
-    )
+    OffscreenContextWGL::OffscreenContextWGL(const ContextDescription &spec, Graphics::IPhysicalDevice *device)
     {
-        Graphics::PhysicalDeviceWGL *deviceWGL =
-            (Graphics::PhysicalDeviceWGL *)device;
+        Graphics::PhysicalDeviceWGL *deviceWGL = (Graphics::PhysicalDeviceWGL *)device;
 
         auto [pbuffer, hdc, hglrc] = CreatePBufferContext(deviceWGL->GetHDC(), spec);
 
@@ -70,17 +67,14 @@ namespace Nexus::GL
             0
         };
 
-        if (!wglChoosePixelFormatARB(
-                hdc, attributes, NULL, 1, &pixelFormat, &numFormats
-            ))
+        if (!wglChoosePixelFormatARB(hdc, attributes, NULL, 1, &pixelFormat, &numFormats))
         {
             std::cout << "Failed to choose pixel format" << std::endl;
         }
 
         int pbufferAttributes[] = {0};
 
-        HPBUFFERARB pbuffer =
-            wglCreatePbufferARB(hdc, pixelFormat, 1, 1, pbufferAttributes);
+        HPBUFFERARB pbuffer = wglCreatePbufferARB(hdc, pixelFormat, 1, 1, pbufferAttributes);
         NX_VALIDATE(pbuffer, "Failed to create PBuffer");
 
         HDC pbufferDC = wglGetPbufferDCARB(pbuffer);
@@ -115,8 +109,7 @@ namespace Nexus::GL
 
         contextAttributes.push_back(0);
 
-        HGLRC pbufferContext =
-            wglCreateContextAttribsARB(pbufferDC, NULL, contextAttributes.data());
+        HGLRC pbufferContext = wglCreateContextAttribsARB(pbufferDC, NULL, contextAttributes.data());
         NX_VALIDATE(pbufferContext, "Failed to create OpenGL context");
 
         return {pbuffer, pbufferDC, pbufferContext};

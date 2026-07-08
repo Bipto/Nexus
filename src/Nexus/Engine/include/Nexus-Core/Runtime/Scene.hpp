@@ -63,9 +63,8 @@ namespace Nexus
 
       public:
         static Scene *Deserialize(
-            const SceneInfo &info, const std::string &sceneDirectory,
-            Project *project, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
+            const SceneInfo &info, const std::string &sceneDirectory, Project *project,
+            Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
         );
 
       public:

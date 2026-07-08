@@ -49,11 +49,8 @@ namespace
     }
 } // namespace
 
-DemoImGuiLayer::DemoImGuiLayer(
-    Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue
-)
-    : Nexus::ImGuiLayer(app, commandQueue),
-      m_GraphicsDevice(commandQueue->GetGraphicsDevice())
+DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue)
+    : Nexus::ImGuiLayer(app, commandQueue), m_GraphicsDevice(commandQueue->GetGraphicsDevice())
 {
     ImGuiContext *context = m_ImGuiRenderer->GetContext();
     ImGui::SetCurrentContext(context);
@@ -68,9 +65,7 @@ DemoImGuiLayer::DemoImGuiLayer(
     size = 42;
 #endif
 
-    std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute(
-        "resources/demo/fonts/roboto/roboto-regular.ttf"
-    );
+    std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
     io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
     m_ImGuiRenderer->RebuildFontAtlas();
 
@@ -78,26 +73,15 @@ DemoImGuiLayer::DemoImGuiLayer(
     RegisterDemo<Demos::ClearRectDemo>("Graphics", "Clear Rects");
     RegisterDemo<Demos::TimingDemo>("Graphics", "Timings");
     RegisterDemo<Demos::HelloTriangleDemo>("Graphics", "Hello Triangle");
-    RegisterDemo<Demos::HelloTriangleIndexedDemo>(
-        "Graphics", "Hello Triangle Indexed"
-    );
-    RegisterDemo<Demos::HelloTriangleIndirectDemo>(
-        "Graphics", "Hello Triangle Indirect"
-    );
-    RegisterDemo<Demos::HelloTriangleIndirectIndexedDemo>(
-        "Graphics", "Hello Triangle Indexed Indirect"
-    );
+    RegisterDemo<Demos::HelloTriangleIndexedDemo>("Graphics", "Hello Triangle Indexed");
+    RegisterDemo<Demos::HelloTriangleIndirectDemo>("Graphics", "Hello Triangle Indirect");
+    RegisterDemo<Demos::HelloTriangleIndirectIndexedDemo>("Graphics", "Hello Triangle Indexed Indirect");
 
-    const Nexus::Graphics::DeviceFeatures deviceFeatures =
-        m_GraphicsDevice->GetPhysicalDeviceFeatures();
+    const Nexus::Graphics::DeviceFeatures deviceFeatures = m_GraphicsDevice->GetPhysicalDeviceFeatures();
     if (deviceFeatures.SupportsMeshTaskShaders)
     {
-        RegisterDemo<Demos::HelloTriangleMeshShadersDemo>(
-            "Graphics", "Hello Triangle Mesh Shaders"
-        );
-        RegisterDemo<Demos::HelloTriangleMeshShadersIndirect>(
-            "Graphics", "Hello Triangle Mesh Shaders Indirect"
-        );
+        RegisterDemo<Demos::HelloTriangleMeshShadersDemo>("Graphics", "Hello Triangle Mesh Shaders");
+        RegisterDemo<Demos::HelloTriangleMeshShadersIndirect>("Graphics", "Hello Triangle Mesh Shaders Indirect");
     }
 
     RegisterDemo<Demos::TexturingDemo>("Graphics", "Texturing");
@@ -116,17 +100,14 @@ DemoImGuiLayer::DemoImGuiLayer(
     RegisterDemo<Demos::ComputeIndirectDemo>("Graphics", "Compute Indirect");
 
     // geometry shaders have some issues with SPIRV-Cross HLSL backend
-    if (m_GraphicsDevice->GetGraphicsAPI().API !=
-        Nexus::Graphics::GraphicsAPI::D3D12)
+    if (m_GraphicsDevice->GetGraphicsAPI().API != Nexus::Graphics::GraphicsAPI::D3D12)
     {
         RegisterDemo<Demos::GeometryShaderDemo>("Graphics", "Geometry Shader");
     }
 
     RegisterDemo<Demos::RayTracingDemo>("Graphics", "Ray Tracing");
     RegisterDemo<Demos::AudioDemo>("Audio", "Audio");
-    RegisterDemo<Demos::ClippingAndTriangulationDemo>(
-        "Utils", "Polygon clipping and triangulation"
-    );
+    RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
     RegisterDemo<Demos::Splines>("Utils", "Splines");
 
     Nexus::UI::IFrame *frame = m_Layout.CreateFrame("ImGui Frame");
@@ -178,9 +159,7 @@ void DemoImGuiLayer::OnImGuiRenderer()
     std::println("{}", ss.str());
 }
 
-void DemoImGuiLayer::SetDemoSelectedCallback(
-    std::function<void(std::shared_ptr<Demos::Demo>)> function
-)
+void DemoImGuiLayer::SetDemoSelectedCallback(std::function<void(std::shared_ptr<Demos::Demo>)> function)
 {
     m_CallbackFunction = function;
 }
@@ -191,26 +170,20 @@ void DemoImGuiLayer::RenderDemoList()
 
     for (const auto &[menuName, demoList] : m_DemoInfos)
     {
-        if (ImGui::TreeNodeEx(
-                menuName.c_str(),
-                ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth
-            ))
+        if (ImGui::TreeNodeEx(menuName.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
         {
             for (const auto &pair : demoList)
             {
-                auto flags = ImGuiTreeNodeFlags_DefaultOpen |
-                             ImGuiTreeNodeFlags_SpanFullWidth |
-                             ImGuiTreeNodeFlags_Leaf;
+                auto flags =
+                    ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
 
                 if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
                 {
                     if (ImGui::IsItemClicked())
                     {
-                        m_CurrentDemo =
-                            std::shared_ptr<Demos::Demo>(pair.CreationFunction(
-                                m_Application, pair.Name, m_ImGuiRenderer.get(),
-                                m_CommandQueue
-                            ));
+                        m_CurrentDemo = std::shared_ptr<Demos::Demo>(
+                            pair.CreationFunction(m_Application, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue)
+                        );
                         m_CurrentDemo->Load();
 
                         if (m_CallbackFunction)
@@ -248,8 +221,7 @@ void DemoImGuiLayer::RenderDemoInfo()
         if (m_CurrentDemo)
         {
             // render demo name
-            std::string label =
-                std::string("Selected Demo - ") + m_CurrentDemo->GetName();
+            std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
             ImGui::Text("%s", label.c_str());
 
             const std::string &info = m_CurrentDemo->GetInfo();
@@ -261,20 +233,15 @@ void DemoImGuiLayer::RenderDemoInfo()
 
             ImGui::Separator();
 
-            std::shared_ptr<Nexus::Graphics::IPhysicalDevice> physicalDevice =
-                m_GraphicsDevice->GetPhysicalDevice();
+            std::shared_ptr<Nexus::Graphics::IPhysicalDevice> physicalDevice = m_GraphicsDevice->GetPhysicalDevice();
 
-            Nexus::Graphics::GraphicsAPIInfo apiInfo =
-                m_GraphicsDevice->GetGraphicsAPI();
-            std::string apiName = std::format(
-                "{} {}.{}", GraphicsAPIToString(apiInfo.API), apiInfo.Major,
-                apiInfo.Minor
-            );
+            Nexus::Graphics::GraphicsAPIInfo apiInfo = m_GraphicsDevice->GetGraphicsAPI();
+            std::string apiName =
+                std::format("{} {}.{}", GraphicsAPIToString(apiInfo.API), apiInfo.Major, apiInfo.Minor);
 
             std::string apiText = std::string("Running on : ") + apiName;
             ImGui::Text("%s", apiText.c_str());
-            std::string deviceName =
-                std::string("Device: ") + physicalDevice->GetDeviceName();
+            std::string deviceName = std::string("Device: ") + physicalDevice->GetDeviceName();
             ImGui::Text("%s", deviceName.c_str());
 
             // render framerate
@@ -299,10 +266,8 @@ void DemoImGuiLayer::RenderPerformanceInfo()
         const auto &results = Nexus::Timings::Profiler::Get().GetResults();
         for (const auto &profileResult : results)
         {
-            std::string output =
-                std::string(profileResult.Name) + std::string(": ") +
-                std::to_string(profileResult.Time.GetMilliseconds<float>()) +
-                std::string(" Ms");
+            std::string output = std::string(profileResult.Name) + std::string(": ") +
+                                 std::to_string(profileResult.Time.GetMilliseconds<float>()) + std::string(" Ms");
             ImGui::Text("%s", output.c_str());
         }
     }

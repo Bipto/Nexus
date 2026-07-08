@@ -12,11 +12,8 @@ namespace Nexus::Graphics
     {
       public:
         virtual ~IGraphicsAPI() = default;
-        virtual std::vector<std::shared_ptr<IPhysicalDevice>>
-        GetPhysicalDevices() = 0;
-        virtual Graphics::IGraphicsDevice *CreateGraphicsDevice(
-            std::shared_ptr<IPhysicalDevice> device
-        ) = 0;
+        virtual std::vector<std::shared_ptr<IPhysicalDevice>> GetPhysicalDevices() = 0;
+        virtual Graphics::IGraphicsDevice *CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device) = 0;
         virtual const GraphicsAPICreateInfo &GetGraphicsAPICreateInfo() const = 0;
 
         static IGraphicsAPI *CreateAPI(const GraphicsAPICreateInfo &createInfo);

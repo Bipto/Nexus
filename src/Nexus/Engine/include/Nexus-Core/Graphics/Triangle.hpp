@@ -39,15 +39,12 @@ namespace Nexus::Graphics
 
         WindingOrder GetWindingOrder() const
         {
-            return ((B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y)) < 0
-                       ? WindingOrder::Clockwise
-                       : WindingOrder::CounterClockwise;
+            return ((B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y)) < 0 ? WindingOrder::Clockwise
+                                                                               : WindingOrder::CounterClockwise;
         }
 
       private:
-        float EdgeFunction(
-            const glm::vec2 &a, const glm::vec2 &c, const glm::vec2 &b
-        ) const
+        float EdgeFunction(const glm::vec2 &a, const glm::vec2 &c, const glm::vec2 &b) const
         {
             return ((c.x - a.x) * (b.y - a.y)) - ((c.y - a.y) * (b.x - a.x));
         }
@@ -61,8 +58,7 @@ namespace Nexus::Graphics
         glm::vec3 C;
 
         Triangle3D(const Triangle2D &tri)
-            : A(tri.A.x, tri.A.y, 0.0f), B(tri.B.x, tri.B.y, 0.0f),
-              C(tri.C.x, tri.C.y, 0.0f)
+            : A(tri.A.x, tri.A.y, 0.0f), B(tri.B.x, tri.B.y, 0.0f), C(tri.C.x, tri.C.y, 0.0f)
         {
         }
     };

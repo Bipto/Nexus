@@ -5,9 +5,7 @@
 class DemoLayer final : public Nexus::ILayer
 {
   public:
-    DemoLayer(
-        Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue
-    );
+    DemoLayer(Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue);
     ~DemoLayer() final = default;
     bool OnEvent(const Nexus::Event &event) final;
     void OnRender(Nexus::TimeSpan time, Nexus::IWindow *window) final;

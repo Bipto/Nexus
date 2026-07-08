@@ -27,16 +27,14 @@ namespace Nexus
     {
       public:
         Project(
-            Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue, const std::string &name,
+            Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue, const std::string &name,
             const std::string &directory, bool createDefaultScene
         );
         Project() = default;
         ~Project();
         void Serialize();
         static Ref<Project> Deserialize(
-            const std::string &filepath, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
+            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
         );
 
         Scene *GetLoadedScene()
@@ -58,19 +56,12 @@ namespace Nexus
         size_t GetNumberOfScenes() const;
         bool IsSceneLoaded() const;
 
+        void LoadScene(uint32_t index, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
         void LoadScene(
-            uint32_t index, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
-        );
-        void LoadScene(
-            const std::string &name, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
+            const std::string &name, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
         );
         void CreateNewScene(const std::string &name);
-        void ReloadCurrentScene(
-            Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
-        );
+        void ReloadCurrentScene(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
 
         void OnUpdate(TimeSpan time);
         void OnRender(TimeSpan time);
@@ -87,54 +78,38 @@ namespace Nexus
         void LoadDataFromSharedLibrary();
 
         // script functions
-        std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>>
-        LoadAvailableScripts();
+        std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> LoadAvailableScripts();
         void CacheAvailableScripts();
         const std::vector<std::string> &GetCachedAvailableScripts() const;
 
         // component functions
         std::map<std::string, ECS::ComponentStorage> LoadAvailableComponents();
         void CacheAvailableComponents();
-        const std::map<std::string, ECS::ComponentStorage> &
-        GetCachedAvailableComponents() const;
+        const std::map<std::string, ECS::ComponentStorage> &GetCachedAvailableComponents() const;
 
         void LoadAvailableAssetProcessors();
-        const std::map<std::string, Processors::ProcessorInfo> &
-        GetCachedAvailableAssetProcessors() const;
-        std::optional<Processors::ProcessorInfo> GetProcessorInfo(
-            const std::string &name
-        );
+        const std::map<std::string, Processors::ProcessorInfo> &GetCachedAvailableAssetProcessors() const;
+        std::optional<Processors::ProcessorInfo> GetProcessorInfo(const std::string &name);
 
-        std::string GetComponentDisplayNameFromTypeName(
-            const std::string &typeName
-        ) const;
-        std::string GetComponentTypeNameFromDisplayName(
-            const std::string &displayName
-        ) const;
+        std::string GetComponentDisplayNameFromTypeName(const std::string &typeName) const;
+        std::string GetComponentTypeNameFromDisplayName(const std::string &displayName) const;
         std::string GetDisplayNameFromComponent(ECS::ComponentPtr component) const;
 
         void RenderComponentUI(
-            ECS::Registry &registry, ECS::ComponentPtr component,
-            Nexus::Ref<Nexus::Project> project
+            ECS::Registry &registry, ECS::ComponentPtr component, Nexus::Ref<Nexus::Project> project
         );
-        std::string SerializeComponentToString(
-            ECS::Registry &registry, ECS::ComponentPtr component
-        );
+        std::string SerializeComponentToString(ECS::Registry &registry, ECS::ComponentPtr component);
         void DeserializeComponentFromString(
-            ECS::Registry &registry, GUID guid, const std::string &displayName,
-            const std::string &data, size_t entityHierarchyIndex
+            ECS::Registry &registry, GUID guid, const std::string &displayName, const std::string &data,
+            size_t entityHierarchyIndex
         );
-        YAML::Node SerializeComponentToYaml(
-            ECS::Registry &registry, ECS::ComponentPtr component
-        );
+        YAML::Node SerializeComponentToYaml(ECS::Registry &registry, ECS::ComponentPtr component);
         void DeserializeComponentFromYaml(
-            ECS::Registry &registry, GUID guid, const std::string &displayName,
-            const YAML::Node &node, size_t entityHierarchyIndex
+            ECS::Registry &registry, GUID guid, const std::string &displayName, const YAML::Node &node,
+            size_t entityHierarchyIndex
         );
 
-        void CreateComponent(
-            const char *typeName, ECS::Registry &registry, const Entity &entity
-        );
+        void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
         Assets::AssetRegistry &GetAssetRegistry();
 
       private:
@@ -156,8 +131,7 @@ namespace Nexus
         Nexus::Utils::SharedLibrary *m_Library = nullptr;
         std::vector<std::string> m_AvailableScripts = {};
         std::map<std::string, ECS::ComponentStorage> m_AvailableComponents = {};
-        std::map<std::string, Processors::ProcessorInfo> m_AvailableAssetProcessors =
-            {};
+        std::map<std::string, Processors::ProcessorInfo> m_AvailableAssetProcessors = {};
         Assets::AssetRegistry m_AssetRegistry = {};
 
         std::unique_ptr<AssetManager> m_AssetManager = nullptr;

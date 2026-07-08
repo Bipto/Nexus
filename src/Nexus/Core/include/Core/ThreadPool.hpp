@@ -28,9 +28,7 @@ namespace Nexus
         /// applied to all created threads
         /// @param threadCount The number of threads to use in the thread pool
         /// @param maxQueueSize The maximum number of queue functions to call
-        explicit ThreadPool(
-            std::string_view name, size_t threadCount, size_t maxQueueSize = 1024
-        );
+        explicit ThreadPool(std::string_view name, size_t threadCount, size_t maxQueueSize = 1024);
 
         /// @brief A destructor to clean up the thread pool
         ~ThreadPool();
@@ -46,8 +44,7 @@ namespace Nexus
         /// @param ...args The parameters to pass into the function
         /// @return The value returned from the function called by the thread
         template <typename F, typename... Args>
-        auto Submit(F &&f, Args &&...args)
-            -> std::future<std::invoke_result_t<F, Args...>>;
+        auto Submit(F &&f, Args &&...args) -> std::future<std::invoke_result_t<F, Args...>>;
 
         /// @brief A function that prevents new submissions and helps to exit all
         /// threads

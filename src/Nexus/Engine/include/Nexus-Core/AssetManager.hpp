@@ -21,11 +21,9 @@ namespace Nexus
         /// device
         /// @param graphicsDevice A pointer to a graphics device
         AssetManager(
-            Graphics::IGraphicsDevice *graphicsDevice,
-            Graphics::CommandQueueHandle commandQueue, Project *project
+            Graphics::IGraphicsDevice *graphicsDevice, Graphics::CommandQueueHandle commandQueue, Project *project
         )
-            : m_GraphicsDevice(graphicsDevice), m_CommandQueue(commandQueue),
-              m_Project(project)
+            : m_GraphicsDevice(graphicsDevice), m_CommandQueue(commandQueue), m_Project(project)
         {
         }
 

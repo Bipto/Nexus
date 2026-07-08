@@ -29,9 +29,7 @@ namespace Nexus::UI
         void LogWarning(const std::string &message) final;
         void LogMessage(const std::string &message) final;
         void LogInfo(const std::string &message) final;
-        void ShowMessageBox(
-            const std::string &title, const std::string &message
-        ) final;
+        void ShowMessageBox(const std::string &title, const std::string &message) final;
 
         void Render() final;
 

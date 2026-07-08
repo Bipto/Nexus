@@ -14,9 +14,8 @@ const std::string DefaultSceneName = "UntitledScene";
 namespace Nexus
 {
     Project::Project(
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
-        const std::string &name, const std::string &directory,
-        bool createDefaultScene
+        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue, const std::string &name,
+        const std::string &directory, bool createDefaultScene
     )
         : m_Name(name), m_RootDirectory(directory + std::string("\\") + name),
           m_AssetManager(std::make_unique<AssetManager>(device, commandQueue, this))
@@ -50,12 +49,10 @@ namespace Nexus
     }
 
     Ref<Project> Project::Deserialize(
-        const std::string &filepath, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
+        const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
     )
     {
-        std::string directory =
-            std::filesystem::path(filepath).parent_path().string();
+        std::string directory = std::filesystem::path(filepath).parent_path().string();
 
         std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
         YAML::Node node = YAML::Load(input);
@@ -117,23 +114,19 @@ namespace Nexus
     }
 
     void Project::LoadScene(
-        uint32_t index, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
+        uint32_t index, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
     )
     {
         if (m_Scenes.size() > index)
         {
             const SceneInfo &info = m_Scenes.at(index);
-            Scene *scene = Scene::Deserialize(
-                info, GetFullSceneDirectory(), this, device, commandQueue
-            );
+            Scene *scene = Scene::Deserialize(info, GetFullSceneDirectory(), this, device, commandQueue);
             m_LoadedScene = std::unique_ptr<Scene>(scene);
         }
     }
 
     void Project::LoadScene(
-        const std::string &name, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
+        const std::string &name, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
     )
     {
         for (size_t i = 0; i < m_Scenes.size(); i++)
@@ -163,9 +156,7 @@ namespace Nexus
         m_LoadedScene->ParentProject = this;
     }
 
-    void Project::ReloadCurrentScene(
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
+    void Project::ReloadCurrentScene(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
     {
         LoadScene(m_LoadedScene->Name, device, commandQueue);
     }
@@ -217,18 +208,15 @@ namespace Nexus
 
     void Project::LoadSharedLibrary()
     {
-        std::string sharedLibraryPathFile =
-            m_RootDirectory + m_ScriptsDirectory + "loading\\output.txt";
+        std::string sharedLibraryPathFile = m_RootDirectory + m_ScriptsDirectory + "loading\\output.txt";
 
         if (!std::filesystem::exists(sharedLibraryPathFile))
         {
             return;
         }
 
-        std::string libraryPath =
-            Nexus::FileSystem::ReadFileToString(sharedLibraryPathFile);
-        std::string fullLibraryPath =
-            Nexus::StringUtils::RemoveCharacter(libraryPath, '\n');
+        std::string libraryPath = Nexus::FileSystem::ReadFileToString(sharedLibraryPathFile);
+        std::string fullLibraryPath = Nexus::StringUtils::RemoveCharacter(libraryPath, '\n');
         if (fullLibraryPath.empty() || !std::filesystem::exists(fullLibraryPath))
         {
             return;
@@ -239,11 +227,9 @@ namespace Nexus
         if (m_Library)
         {
             typedef void (*SharedEngineStateFunc)(
-                Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc,
-                ImGuiMemFreeFunc
+                Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc
             );
-            SharedEngineStateFunc func =
-                (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
+            SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
             if (func)
             {
                 ImGuiContext *context = nullptr;
@@ -265,20 +251,16 @@ namespace Nexus
         return m_Library;
     }
 
-    std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>>
-    Project::LoadAvailableScripts()
+    std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> Project::LoadAvailableScripts()
     {
-        typedef std::map<
-            std::string, std::function<Nexus::Scripting::NativeScript *()>>
-            &(*GetScriptRegistryFunc)();
+        typedef std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &(*GetScriptRegistryFunc)();
 
-        std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>>
-            scripts = Nexus::Scripting::GetScriptRegistry();
+        std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> scripts =
+            Nexus::Scripting::GetScriptRegistry();
 
         if (m_Library)
         {
-            GetScriptRegistryFunc func =
-                (GetScriptRegistryFunc)m_Library->LoadSymbol("GetScriptRegistry");
+            GetScriptRegistryFunc func = (GetScriptRegistryFunc)m_Library->LoadSymbol("GetScriptRegistry");
             if (func)
             {
                 auto loadedScripts = func();
@@ -332,10 +314,8 @@ namespace Nexus
 
         // find components with core library
         {
-            ECS::ComponentRegistry &componentRegistry =
-                ECS::ComponentRegistry::GetRegistry();
-            for (const auto &[name, storage] :
-                 componentRegistry.GetRegisteredComponents())
+            ECS::ComponentRegistry &componentRegistry = ECS::ComponentRegistry::GetRegistry();
+            for (const auto &[name, storage] : componentRegistry.GetRegisteredComponents())
             {
                 components[name] = storage;
             }
@@ -345,15 +325,11 @@ namespace Nexus
         {
             if (m_Library)
             {
-                GetComponentRegistryFunc func =
-                    (GetComponentRegistryFunc)m_Library->LoadSymbol(
-                        "GetComponentRegistry"
-                    );
+                GetComponentRegistryFunc func = (GetComponentRegistryFunc)m_Library->LoadSymbol("GetComponentRegistry");
                 if (func)
                 {
                     ECS::ComponentRegistry &componentRegistry = func();
-                    for (const auto &[name, storage] :
-                         componentRegistry.GetRegisteredComponents())
+                    for (const auto &[name, storage] : componentRegistry.GetRegisteredComponents())
                     {
                         components[name] = storage;
                     }
@@ -370,25 +346,20 @@ namespace Nexus
         m_AvailableComponents = components;
     }
 
-    const std::map<std::string, ECS::ComponentStorage> &Project::
-        GetCachedAvailableComponents() const
+    const std::map<std::string, ECS::ComponentStorage> &Project::GetCachedAvailableComponents() const
     {
         return m_AvailableComponents;
     }
 
     void Project::LoadAvailableAssetProcessors()
     {
-        typedef std::map<std::string, Processors::ProcessorInfo>
-            &(*GetAssetProcessorRegistryFunc)();
-        std::map<std::string, Processors::ProcessorInfo> processors =
-            Nexus::Processors::GetAssetProcessorRegistry();
+        typedef std::map<std::string, Processors::ProcessorInfo> &(*GetAssetProcessorRegistryFunc)();
+        std::map<std::string, Processors::ProcessorInfo> processors = Nexus::Processors::GetAssetProcessorRegistry();
 
         if (m_Library)
         {
             GetAssetProcessorRegistryFunc func =
-                (GetAssetProcessorRegistryFunc)m_Library->LoadSymbol(
-                    "GetAssetProcessorRegistry"
-                );
+                (GetAssetProcessorRegistryFunc)m_Library->LoadSymbol("GetAssetProcessorRegistry");
             if (func)
             {
                 auto loadedProcessors = func();
@@ -402,15 +373,12 @@ namespace Nexus
         m_AvailableAssetProcessors = processors;
     }
 
-    const std::map<std::string, Processors::ProcessorInfo> &Project::
-        GetCachedAvailableAssetProcessors() const
+    const std::map<std::string, Processors::ProcessorInfo> &Project::GetCachedAvailableAssetProcessors() const
     {
         return m_AvailableAssetProcessors;
     }
 
-    std::optional<Processors::ProcessorInfo> Project::GetProcessorInfo(
-        const std::string &name
-    )
+    std::optional<Processors::ProcessorInfo> Project::GetProcessorInfo(const std::string &name)
     {
         if (m_AvailableAssetProcessors.contains(name))
         {
@@ -420,9 +388,7 @@ namespace Nexus
         return {};
     }
 
-    std::string Project::GetComponentDisplayNameFromTypeName(
-        const std::string &typeName
-    ) const
+    std::string Project::GetComponentDisplayNameFromTypeName(const std::string &typeName) const
     {
         for (const auto &[name, storage] : m_AvailableComponents)
         {
@@ -435,9 +401,7 @@ namespace Nexus
         throw std::runtime_error("Could not find component display name");
     }
 
-    std::string Project::GetComponentTypeNameFromDisplayName(
-        const std::string &displayName
-    ) const
+    std::string Project::GetComponentTypeNameFromDisplayName(const std::string &displayName) const
     {
         for (auto &[typeName, storage] : m_AvailableComponents)
         {
@@ -450,12 +414,9 @@ namespace Nexus
         throw std::runtime_error("Could not find a component type name");
     }
 
-    std::string Project::GetDisplayNameFromComponent(
-        ECS::ComponentPtr component
-    ) const
+    std::string Project::GetDisplayNameFromComponent(ECS::ComponentPtr component) const
     {
-        if (m_AvailableComponents.find(component.typeName) !=
-            m_AvailableComponents.end())
+        if (m_AvailableComponents.find(component.typeName) != m_AvailableComponents.end())
         {
             auto &storage = m_AvailableComponents.at(component.typeName);
             return storage.DisplayName;
@@ -465,17 +426,13 @@ namespace Nexus
     }
 
     void Project::RenderComponentUI(
-        Nexus::ECS::Registry &registry, Nexus::ECS::ComponentPtr component,
-        Nexus::Ref<Nexus::Project> project
+        Nexus::ECS::Registry &registry, Nexus::ECS::ComponentPtr component, Nexus::Ref<Nexus::Project> project
     )
     {
-        if (m_AvailableComponents.find(component.typeName) !=
-            m_AvailableComponents.end())
+        if (m_AvailableComponents.find(component.typeName) != m_AvailableComponents.end())
         {
             auto &storage = m_AvailableComponents.at(component.typeName);
-            void *obj = registry.GetRawComponent(
-                component.typeName, component.componentIndex
-            );
+            void *obj = registry.GetRawComponent(component.typeName, component.componentIndex);
             storage.RenderFunc(obj, project);
             return;
         }
@@ -483,18 +440,14 @@ namespace Nexus
         throw std::runtime_error("Could not find component display name");
     }
 
-    std::string Project::SerializeComponentToString(
-        ECS::Registry &registry, ECS::ComponentPtr component
-    )
+    std::string Project::SerializeComponentToString(ECS::Registry &registry, ECS::ComponentPtr component)
     {
         const char *typeName = component.typeName;
 
         if (m_AvailableComponents.find(typeName) != m_AvailableComponents.end())
         {
             auto &componentStorage = m_AvailableComponents.at(typeName);
-            void *obj = registry.GetRawComponent(
-                component.typeName, component.componentIndex
-            );
+            void *obj = registry.GetRawComponent(component.typeName, component.componentIndex);
             return componentStorage.StringSerializer(obj);
         }
 
@@ -502,14 +455,13 @@ namespace Nexus
     }
 
     void Project::DeserializeComponentFromString(
-        ECS::Registry &registry, GUID guid, const std::string &displayName,
-        const std::string &data, size_t entityHierarchyIndex
+        ECS::Registry &registry, GUID guid, const std::string &displayName, const std::string &data,
+        size_t entityHierarchyIndex
     )
     {
         std::string typeName = GetComponentTypeNameFromDisplayName(displayName);
 
-        if (m_AvailableComponents.find(typeName.c_str()) !=
-            m_AvailableComponents.end())
+        if (m_AvailableComponents.find(typeName.c_str()) != m_AvailableComponents.end())
         {
             auto &storage = m_AvailableComponents.at(typeName.c_str());
             storage.StringDeserializer(guid, registry, data, entityHierarchyIndex);
@@ -519,18 +471,14 @@ namespace Nexus
         throw std::runtime_error("Type is not registered for deserialization");
     }
 
-    YAML::Node Project::SerializeComponentToYaml(
-        ECS::Registry &registry, ECS::ComponentPtr component
-    )
+    YAML::Node Project::SerializeComponentToYaml(ECS::Registry &registry, ECS::ComponentPtr component)
     {
         const char *typeName = component.typeName;
 
         if (m_AvailableComponents.find(typeName) != m_AvailableComponents.end())
         {
             auto &componentStorage = m_AvailableComponents.at(typeName);
-            void *obj = registry.GetRawComponent(
-                component.typeName, component.componentIndex
-            );
+            void *obj = registry.GetRawComponent(component.typeName, component.componentIndex);
             return componentStorage.YamlSerializer(obj);
         }
 
@@ -538,14 +486,13 @@ namespace Nexus
     }
 
     void Project::DeserializeComponentFromYaml(
-        ECS::Registry &registry, GUID guid, const std::string &displayName,
-        const YAML::Node &node, size_t entityHierarchyIndex
+        ECS::Registry &registry, GUID guid, const std::string &displayName, const YAML::Node &node,
+        size_t entityHierarchyIndex
     )
     {
         std::string typeName = GetComponentTypeNameFromDisplayName(displayName);
 
-        if (m_AvailableComponents.find(typeName.c_str()) !=
-            m_AvailableComponents.end())
+        if (m_AvailableComponents.find(typeName.c_str()) != m_AvailableComponents.end())
         {
             auto &storage = m_AvailableComponents.at(typeName.c_str());
             storage.YamlDeserializer(guid, registry, node, entityHierarchyIndex);
@@ -554,9 +501,7 @@ namespace Nexus
         throw std::runtime_error("Type is not registered for deserialization");
     }
 
-    void Project::CreateComponent(
-        const char *typeName, ECS::Registry &registry, const Entity &entity
-    )
+    void Project::CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity)
     {
         if (m_AvailableComponents.find(typeName) != m_AvailableComponents.end())
         {

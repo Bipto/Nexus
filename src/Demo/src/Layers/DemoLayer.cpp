@@ -6,9 +6,7 @@
 
 #include "Profiling/Profiler.hpp"
 
-DemoLayer::DemoLayer(
-    Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue
-)
+DemoLayer::DemoLayer(Nexus::Application *app, Nexus::Graphics::CommandQueueHandle commandQueue)
     : m_Application(app), m_CommandQueue(commandQueue)
 {
     m_CommandList = m_CommandQueue->CreateCommandList();
@@ -36,10 +34,8 @@ void DemoLayer::OnRender(Nexus::TimeSpan time, Nexus::IWindow *window)
         NX_PROFILE_SCOPE("Clear Screen");
         m_CommandList->Begin();
 
-        Nexus::Graphics::SwapchainHandle swapchain =
-            Nexus::GetApplication()->GetPrimarySwapchain();
-        Nexus::Graphics::FramebufferHandle framebuffer =
-            swapchain->GetCurrentFramebuffer();
+        Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+        Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
         m_CommandList->SetFramebuffer(framebuffer);
         m_CommandList->ClearColourTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 

@@ -56,10 +56,7 @@ namespace Nexus::Graphics
         /// @brief A constructor taking in an initializer list of vertex buffer
         /// elements to use to create the layout
         /// @param elements An initializer list of vertex buffer elements
-        VertexBufferLayout(
-            std::initializer_list<VertexBufferElement> elements, size_t stride,
-            StepRate stepRate
-        )
+        VertexBufferLayout(std::initializer_list<VertexBufferElement> elements, size_t stride, StepRate stepRate)
             : m_Elements(elements), m_Stride(stride), m_StepRate(stepRate)
         {
             CalculateOffsets();

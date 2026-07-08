@@ -84,9 +84,7 @@ bool MyApp::OnInit()
     Nexus::UI::IMenuItem *fileItem = newMenu->Append("File");
 
     Nexus::UI::IMenuItem *helloItem = fileMenu->Append("&Hello...\tCtrl-H");
-    helloItem->OnClick([this]() {
-        m_Layout.LogMessage("Hello world from wxWidgets!");
-    });
+    helloItem->OnClick([this]() { m_Layout.LogMessage("Hello world from wxWidgets!"); });
     fileMenu->AppendSeparator();
 
     Nexus::UI::IMenuItem *exitItem = fileMenu->Append("Exit");
@@ -95,9 +93,7 @@ bool MyApp::OnInit()
     Nexus::UI::IMenu *helpMenu = menubar->CreateMenu("&Help");
     Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
     aboutItem->OnClick([this]() {
-        m_Layout.ShowMessageBox(
-            "This is a wxWidgets Hello World example", "About Hello World"
-        );
+        m_Layout.ShowMessageBox("This is a wxWidgets Hello World example", "About Hello World");
     });
 
     Nexus::UI::IStatusBar *statusBar = frame->CreateStatusbar();
@@ -112,8 +108,7 @@ MyFrame::MyFrame()
           nullptr, wxID_ANY, "Hello World", wxDefaultPosition, wxDefaultSize,
           wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE
       ),
-      m_mgr(this),
-      m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
+      m_mgr(this), m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
     // std::unique_ptr<Nexus::UI::IMenubar> menubar = m_Layout.CreateMainMenubar();
 
@@ -212,10 +207,7 @@ void MyFrame::OnExit()
 
 void MyFrame::OnAbout()
 {
-    wxMessageBox(
-        "This is a wxWidgets Hello World example", "About Hello World",
-        wxOK | wxICON_INFORMATION
-    );
+    wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION);
 }
 
 void MyFrame::OnHello()

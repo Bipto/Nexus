@@ -25,9 +25,7 @@ namespace Nexus::Audio
         /// @param format The format of the data, including the size in bytes and
         /// whether it is mono or stereo
         /// @param frequency The sample frequency of the data
-        virtual void SetData(
-            const void *const data, size_t size, AudioFormat format, size_t frequency
-        ) = 0;
+        virtual void SetData(const void *const data, size_t size, AudioFormat format, size_t frequency) = 0;
 
         /// @brief A virtual method that returns the frequency of the sampled data
         /// @return The frequency of the data

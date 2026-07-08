@@ -9,9 +9,7 @@ namespace Nexus
     class NX_API ImGuiLayer : public ILayer
     {
       public:
-        ImGuiLayer(
-            Nexus::Application *app, Graphics::CommandQueueHandle commandQueue
-        );
+        ImGuiLayer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue);
         virtual ~ImGuiLayer() = default;
         bool OnEvent(const Event &event) final;
         void OnRender(Nexus::TimeSpan time, IWindow *window) final;

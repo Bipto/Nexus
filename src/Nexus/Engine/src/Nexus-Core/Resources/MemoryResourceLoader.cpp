@@ -14,8 +14,7 @@
 
 namespace Nexus
 {
-    std::expected<std::vector<std::byte>, std::string> MemoryResourceLoader::
-        LoadBytes(std::string_view path) const
+    std::expected<std::vector<std::byte>, std::string> MemoryResourceLoader::LoadBytes(std::string_view path) const
     {
         std::string filepath(path);
 
@@ -33,27 +32,16 @@ namespace Nexus
         else
         {
             return std::unexpected(
-                std::format(
-                    "Failed to find data mounted to given path: {}",
-                    filesystemPath.string()
-                )
+                std::format("Failed to find data mounted to given path: {}", filesystemPath.string())
             );
         }
     }
 
-    std::expected<std::string, std::string> MemoryResourceLoader::LoadString(
-        std::string_view path
-    ) const
+    std::expected<std::string, std::string> MemoryResourceLoader::LoadString(std::string_view path) const
     {
-        return LoadBytes(path).and_then(
-            [](
-                std::vector<std::byte> data
-            ) -> std::expected<std::string, std::string> {
-                return std::string(
-                    reinterpret_cast<const char *>(data.data()), data.size()
-                );
-            }
-        );
+        return LoadBytes(path).and_then([](std::vector<std::byte> data) -> std::expected<std::string, std::string> {
+            return std::string(reinterpret_cast<const char *>(data.data()), data.size());
+        });
     }
 
     bool MemoryResourceLoader::DoesFileExist(std::string_view path) const

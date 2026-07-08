@@ -26,20 +26,14 @@ namespace Nexus::ECS
         T Value = {};
     };
 
-    using CreateComponentFunc =
-        std::function<void(Registry &registry, const Entity &entity)>;
-    using RenderComponentFunc =
-        std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
+    using CreateComponentFunc = std::function<void(Registry &registry, const Entity &entity)>;
+    using RenderComponentFunc = std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
     using StringSerializerFunc = std::function<std::string(void *obj)>;
-    using StringDeserializerFunc = std::function<void(
-        GUID guid, Registry &registry, const std::string &data,
-        size_t entityHierarchyIndex
-    )>;
+    using StringDeserializerFunc =
+        std::function<void(GUID guid, Registry &registry, const std::string &data, size_t entityHierarchyIndex)>;
     using YamlSerializerFunc = std::function<YAML::Node(void *obj)>;
-    using YamlDeserializerFunc = std::function<void(
-        GUID guid, Registry &registry, const YAML::Node &node,
-        size_t entityHierarchyIndex
-    )>;
+    using YamlDeserializerFunc =
+        std::function<void(GUID guid, Registry &registry, const YAML::Node &node, size_t entityHierarchyIndex)>;
 
     struct ComponentStorage
     {
@@ -61,10 +55,7 @@ namespace Nexus::ECS
             return registry;
         }
 
-        template <typename T>
-        void RegisterComponent(
-            const char *displayName, RenderComponentFunc renderFunc
-        )
+        template <typename T> void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
         {
             const std::type_info &typeInfo = typeid(T);
             const char *typeName = typeInfo.name();
@@ -76,8 +67,7 @@ namespace Nexus::ECS
                 oss << *actualObj;
                 return oss.str();
             };
-            storage.StringDeserializer = [](GUID guid, Registry &registry,
-                                            const std::string &data,
+            storage.StringDeserializer = [](GUID guid, Registry &registry, const std::string &data,
                                             size_t entityHierarchyIndex) {
                 T obj{};
                 std::istringstream iss(data);
@@ -89,8 +79,7 @@ namespace Nexus::ECS
                 YAML::Node node = YAML::convert<T>::encode(*actualObj);
                 return node;
             };
-            storage.YamlDeserializer = [](GUID guid, Registry &registry,
-                                          const YAML::Node &node,
+            storage.YamlDeserializer = [](GUID guid, Registry &registry, const YAML::Node &node,
                                           size_t entityHierarchyIndex) {
                 T obj = node.as<T>();
                 registry.AddComponent(guid, obj, entityHierarchyIndex);
@@ -118,19 +107,17 @@ namespace Nexus::ECS
         std::map<std::string, ComponentStorage> m_RegisteredComponents = {};
     };
 
-#define NX_REGISTER_COMPONENT_WITH_CUSTOM_NAME(Comp, DisplayName, RenderFunc)       \
-    struct Comp##Register                                                           \
-    {                                                                               \
-        Comp##Register()                                                            \
-        {                                                                           \
-            Nexus::ECS::ComponentRegistry &registry =                               \
-                Nexus::ECS::ComponentRegistry::GetRegistry();                       \
-            registry.RegisterComponent<Comp>(DisplayName, RenderFunc);              \
-        }                                                                           \
-    };                                                                              \
+#define NX_REGISTER_COMPONENT_WITH_CUSTOM_NAME(Comp, DisplayName, RenderFunc)                                          \
+    struct Comp##Register                                                                                              \
+    {                                                                                                                  \
+        Comp##Register()                                                                                               \
+        {                                                                                                              \
+            Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();                    \
+            registry.RegisterComponent<Comp>(DisplayName, RenderFunc);                                                 \
+        }                                                                                                              \
+    };                                                                                                                 \
     static Comp##Register instance##Comp##Register;
 
-#define NX_REGISTER_COMPONENT(Comp, RenderFunc)                                     \
-    NX_REGISTER_COMPONENT_WITH_CUSTOM_NAME(Comp, #Comp, RenderFunc)
+#define NX_REGISTER_COMPONENT(Comp, RenderFunc) NX_REGISTER_COMPONENT_WITH_CUSTOM_NAME(Comp, #Comp, RenderFunc)
 
 } // namespace Nexus::ECS

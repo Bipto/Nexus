@@ -21,8 +21,7 @@ namespace Nexus::Vk
             }
             else
             {
-                auto *last =
-                    static_cast<VkBaseOutStructure *>(m_ChainElements.back());
+                auto *last = static_cast<VkBaseOutStructure *>(m_ChainElements.back());
                 last->pNext = (VkBaseOutStructure *)&element;
             }
 

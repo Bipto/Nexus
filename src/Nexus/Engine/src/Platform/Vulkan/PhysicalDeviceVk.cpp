@@ -2,22 +2,15 @@
 
 namespace Nexus::Graphics
 {
-    PhysicalDeviceVk::PhysicalDeviceVk(
-        const GladVulkanContext &context, VkPhysicalDevice device
-    )
-        : m_Device(device)
+    PhysicalDeviceVk::PhysicalDeviceVk(const GladVulkanContext &context, VkPhysicalDevice device) : m_Device(device)
     {
         context.GetPhysicalDeviceProperties(m_Device, &m_VkPhysicalDeviceProperties);
         m_Name = m_VkPhysicalDeviceProperties.deviceName;
 
         uint32_t extensionCount = 0;
-        context.EnumerateDeviceExtensionProperties(
-            m_Device, nullptr, &extensionCount, nullptr
-        );
+        context.EnumerateDeviceExtensionProperties(m_Device, nullptr, &extensionCount, nullptr);
         m_DeviceExtensions.resize(extensionCount);
-        context.EnumerateDeviceExtensionProperties(
-            m_Device, nullptr, &extensionCount, m_DeviceExtensions.data()
-        );
+        context.EnumerateDeviceExtensionProperties(m_Device, nullptr, &extensionCount, m_DeviceExtensions.data());
     }
 
     PhysicalDeviceVk::~PhysicalDeviceVk()
@@ -34,8 +27,7 @@ namespace Nexus::Graphics
         return m_Device;
     }
 
-    const VkPhysicalDeviceProperties &PhysicalDeviceVk::
-        GetVkPhysicalDeviceProperties() const
+    const VkPhysicalDeviceProperties &PhysicalDeviceVk::GetVkPhysicalDeviceProperties() const
     {
         return m_VkPhysicalDeviceProperties;
     }

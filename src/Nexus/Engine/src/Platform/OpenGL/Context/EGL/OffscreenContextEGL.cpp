@@ -14,10 +14,7 @@
 
 namespace Nexus::GL
 {
-    OffscreenContextEGL::OffscreenContextEGL(
-        const ContextDescription &spec, EGLDisplay display
-    )
-        : m_Description(spec)
+    OffscreenContextEGL::OffscreenContextEGL(const ContextDescription &spec, EGLDisplay display) : m_Description(spec)
     {
         m_EGLDisplay = display;
 
@@ -80,9 +77,7 @@ namespace Nexus::GL
 
         EGLConfig config;
         EGLint numConfigs;
-        if (!eglChooseConfig(
-                m_EGLDisplay, configAttribs.data(), &config, 1, &numConfigs
-            ))
+        if (!eglChooseConfig(m_EGLDisplay, configAttribs.data(), &config, 1, &numConfigs))
         {
             std::cout << "Failed to choose EGL config: ";
             const char *errorMessage = eglGetErrorString(eglGetError());
@@ -107,9 +102,7 @@ namespace Nexus::GL
                 }
                 else
                 {
-                    contextAttribs.push_back(
-                        EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT
-                    );
+                    contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
                 }
             }
             else
@@ -132,9 +125,7 @@ namespace Nexus::GL
 
         contextAttribs.push_back(EGL_NONE);
 
-        m_Context = eglCreateContext(
-            m_EGLDisplay, config, EGL_NO_CONTEXT, contextAttribs.data()
-        );
+        m_Context = eglCreateContext(m_EGLDisplay, config, EGL_NO_CONTEXT, contextAttribs.data());
         if (m_Context == EGL_NO_CONTEXT)
         {
             std::cout << "Failed to create EGL context: ";
@@ -158,12 +149,9 @@ namespace Nexus::GL
         }
         else
         {
-            if (!gladLoadGLES2Context(
-                    &m_GladContext, (GLADloadfunc)eglGetProcAddress
-                ))
+            if (!gladLoadGLES2Context(&m_GladContext, (GLADloadfunc)eglGetProcAddress))
             {
-                std::cout << "Failed to load OpenGLES function pointers"
-                          << std::endl;
+                std::cout << "Failed to load OpenGLES function pointers" << std::endl;
             }
         }
     }
@@ -178,9 +166,7 @@ namespace Nexus::GL
 
     bool OffscreenContextEGL::MakeCurrent()
     {
-        return eglMakeCurrent(
-            m_EGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, m_Context
-        );
+        return eglMakeCurrent(m_EGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, m_Context);
     }
 
     EGLContext OffscreenContextEGL::GetEGLContext()

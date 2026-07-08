@@ -8,8 +8,7 @@ namespace Demos
     {
       public:
         TexturingDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -30,11 +29,7 @@ namespace Demos
             m_Mesh = factory.CreateSprite();
 
             auto [texture, textureView] = Nexus::Utils::CreateTexture2DWithView(
-                m_CommandQueue,
-                Nexus::FileSystem::GetFilePathAbsolute(
-                    "resources/demo/textures/brick.jpg"
-                ),
-                false
+                m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false
             );
 
             m_Texture = texture;
@@ -53,10 +48,8 @@ namespace Demos
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -75,9 +68,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             Nexus::Graphics::CombinedImageSampler ciSampler = {};
             ciSampler.ImageTexture = m_TextureView;
@@ -128,48 +119,30 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-                Nexus::Graphics::CullMode::CullNone;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-                Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-            pipelineDescription.VertexModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/texturing/texturing.vert.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Vertex
-                );
-            pipelineDescription.FragmentModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/texturing/texturing.frag.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Fragment
-                );
+            pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/texturing/texturing.vert.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
+            );
+            pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/texturing/texturing.frag.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
+            );
 
             pipelineDescription.ColourTargetCount = 1;
-            pipelineDescription.ColourFormats[0] =
-                Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-            pipelineDescription.Samples = Nexus::GetApplication()
-                                              ->GetPrimarySwapchain()
-                                              ->GetDescription()
-                                              .Samples;
-            pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::
-                    GetLayout()
-            };
+            pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+            pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-            pipelineDescription.ResourceDescription
-                .Descriptors = {Nexus::Graphics::ResourceDescriptor{
+            pipelineDescription.ResourceDescription.Descriptors = {Nexus::Graphics::ResourceDescriptor{
                 .Name = "u_Texture",
-                .Type =
-                    Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                 .CountOrSizeInBytes = 1
             }};
 
-            m_Pipeline =
-                m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+            m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 

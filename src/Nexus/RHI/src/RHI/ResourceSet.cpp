@@ -6,8 +6,7 @@
 namespace Nexus::Graphics
 {
     static void CreateInitialStorageForDescriptors(
-        const ResourceSetDescription &resourceDesc,
-        ResourceSetDescriptors &boundResources,
+        const ResourceSetDescription &resourceDesc, ResourceSetDescriptors &boundResources,
         ResourceSetDescriptors &queuedResources
     )
     {
@@ -21,122 +20,74 @@ namespace Nexus::Graphics
                 continue;
             case ResourceDescriptorType::UniformBuffer:
             {
-                boundResources.UniformBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.UniformBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.UniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.UniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::DynamicUniformBuffer:
             {
-                boundResources.DynamicUniformBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.DynamicUniformBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.DynamicUniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.DynamicUniformBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::InlineUniformBlock:
             {
-                boundResources.InlineUniformBlocks[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.InlineUniformBlocks[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.InlineUniformBlocks[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.InlineUniformBlocks[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::StorageBuffer:
             {
-                boundResources.StorageBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.StorageBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.StorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.StorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::DynamicStorageBuffer:
             {
-                boundResources.DynamicStorageBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.DynamicStorageBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.DynamicStorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.DynamicStorageBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::StorageImage:
             {
-                boundResources.StorageImages[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.StorageImages[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.StorageImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.StorageImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::CombinedImageSampler:
             {
-                boundResources.CombinedImageSamplers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.CombinedImageSamplers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.CombinedImageSamplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.CombinedImageSamplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::SampledImage:
             {
-                boundResources.SampledImages[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.SampledImages[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.SampledImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.SampledImages[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::Sampler:
             {
-                boundResources.Samplers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.Samplers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.Samplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.Samplers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::AccelerationStructure:
             {
-                boundResources.AccelerationStructures[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.AccelerationStructures[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.AccelerationStructures[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.AccelerationStructures[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::UniformTexelBuffer:
             {
-                boundResources.UniformTexelBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.UniformTexelBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.UniformTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.UniformTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             case ResourceDescriptorType::StorageTexelBuffer:
             {
-                boundResources.StorageTexelBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
-                queuedResources.StorageTexelBuffers[descriptor.Name].resize(
-                    descriptor.CountOrSizeInBytes
-                );
+                boundResources.StorageTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
+                queuedResources.StorageTexelBuffers[descriptor.Name].resize(descriptor.CountOrSizeInBytes);
                 break;
             }
             default:
@@ -148,57 +99,42 @@ namespace Nexus::Graphics
     IResourceSet::IResourceSet(PipelineHandle pipeline) : m_Pipeline(pipeline)
     {
         m_ShaderResources = pipeline->GetRequiredShaderResources();
-        const ResourceSetDescription &resourceSetDesc =
-            pipeline->GetResourceSetDescription();
-        CreateInitialStorageForDescriptors(
-            resourceSetDesc, m_BoundResources, m_QueuedResources
-        );
+        const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
+        CreateInitialStorageForDescriptors(resourceSetDesc, m_BoundResources, m_QueuedResources);
     }
 
     IResourceSet::~IResourceSet()
     {
     }
 
-    void IResourceSet::WriteUniformBuffer(
-        const UniformBufferView &uniformBuffers, const std::string &name
-    )
+    void IResourceSet::WriteUniformBuffer(const UniformBufferView &uniformBuffers, const std::string &name)
     {
         WriteUniformBuffers(&uniformBuffers, name, 0, 1);
     }
 
-    void IResourceSet::WriteDynamicUniformBuffer(
-        const UniformBufferView &uniformBuffers, const std::string &name
-    )
+    void IResourceSet::WriteDynamicUniformBuffer(const UniformBufferView &uniformBuffers, const std::string &name)
     {
         WriteDynamicUniformBuffers(&uniformBuffers, name, 0, 1);
     }
 
-    void IResourceSet::WriteInlineUniformBlock(
-        const void *data, size_t sizeInBytes, const std::string &name
-    )
+    void IResourceSet::WriteInlineUniformBlock(const void *data, size_t sizeInBytes, const std::string &name)
     {
         auto &inlineBlock = m_QueuedResources.InlineUniformBlocks[name];
         inlineBlock.resize(sizeInBytes);
         memcpy(inlineBlock.data(), data, sizeInBytes);
     }
 
-    void IResourceSet::WriteStorageBuffer(
-        const StorageBufferView &views, const std::string &name
-    )
+    void IResourceSet::WriteStorageBuffer(const StorageBufferView &views, const std::string &name)
     {
         WriteStorageBuffers(&views, name, 0, 1);
     }
 
-    void IResourceSet::WriteDynamicStorageBuffer(
-        const StorageBufferView &storageBuffers, const std::string &name
-    )
+    void IResourceSet::WriteDynamicStorageBuffer(const StorageBufferView &storageBuffers, const std::string &name)
     {
         WriteDynamicStorageBuffers(&storageBuffers, name, 0, 1);
     }
 
-    void IResourceSet::WriteStorageImage(
-        const StorageImageView &views, const std::string &name
-    )
+    void IResourceSet::WriteStorageImage(const StorageImageView &views, const std::string &name)
     {
         WriteStorageImages(&views, name, 0, 1);
     }
@@ -210,9 +146,7 @@ namespace Nexus::Graphics
         WriteCombinedImageSamplers(&combinedImageSamplers, name, 0, 1);
     }
 
-    void IResourceSet::WriteSampledImage(
-        TextureViewHandle textureViews, const std::string &name
-    )
+    void IResourceSet::WriteSampledImage(TextureViewHandle textureViews, const std::string &name)
     {
         WriteSampledImages(&textureViews, name, 0, 1);
     }
@@ -229,23 +163,18 @@ namespace Nexus::Graphics
         WriteAccelerationStructures(&accelerationStructure, name, 0, 1);
     }
 
-    void IResourceSet::WriteUniformTexelBuffer(
-        TexelBufferHandle texelBuffers, const std::string &name
-    )
+    void IResourceSet::WriteUniformTexelBuffer(TexelBufferHandle texelBuffers, const std::string &name)
     {
         WriteUniformTexelBuffers(&texelBuffers, name, 0, 1);
     }
 
-    void IResourceSet::WriteStorageTexelBuffer(
-        TexelBufferHandle texelBuffers, const std::string &name
-    )
+    void IResourceSet::WriteStorageTexelBuffer(TexelBufferHandle texelBuffers, const std::string &name)
     {
         WriteStorageTexelBuffers(&texelBuffers, name, 0, 1);
     }
 
     void IResourceSet::WriteUniformBuffers(
-        const UniformBufferView *uniformBuffers, const std::string &name,
-        size_t startElement, size_t count
+        const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -256,8 +185,7 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteDynamicUniformBuffers(
-        const UniformBufferView *uniformBuffers, const std::string &name,
-        size_t startElement, size_t count
+        const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -268,8 +196,7 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteStorageBuffers(
-        const StorageBufferView *views, const std::string &name, size_t startElement,
-        size_t count
+        const StorageBufferView *views, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -280,8 +207,7 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteDynamicStorageBuffers(
-        const StorageBufferView *storageBuffers, const std::string &name,
-        size_t startElement, size_t count
+        const StorageBufferView *storageBuffers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -292,8 +218,7 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteStorageImages(
-        const StorageImageView *views, const std::string &name, size_t startElement,
-        size_t count
+        const StorageImageView *views, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -304,21 +229,18 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteCombinedImageSamplers(
-        const CombinedImageSampler *combinedImageSamplers, const std::string &name,
-        size_t startElement, size_t count
+        const CombinedImageSampler *combinedImageSamplers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
         {
-            m_QueuedResources.CombinedImageSamplers[name][index] =
-                *combinedImageSamplers;
+            m_QueuedResources.CombinedImageSamplers[name][index] = *combinedImageSamplers;
             combinedImageSamplers++;
         }
     }
 
     void IResourceSet::WriteSampledImages(
-        TextureViewHandle *textureViews, const std::string &name,
-        size_t startElement, size_t count
+        TextureViewHandle *textureViews, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -329,8 +251,7 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteSamplers(
-        SamplerHandle *samplers, const std::string &name, size_t startElement,
-        size_t count
+        SamplerHandle *samplers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -341,21 +262,18 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteAccelerationStructures(
-        AccelerationStructureHandle *accelerationStructures, const std::string &name,
-        size_t startElement, size_t count
+        AccelerationStructureHandle *accelerationStructures, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
         {
-            m_QueuedResources.AccelerationStructures[name][index] =
-                *accelerationStructures;
+            m_QueuedResources.AccelerationStructures[name][index] = *accelerationStructures;
             accelerationStructures++;
         }
     }
 
     void IResourceSet::WriteUniformTexelBuffers(
-        TexelBufferHandle *texelBuffers, const std::string &name,
-        size_t startElement, size_t count
+        TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)
@@ -366,8 +284,7 @@ namespace Nexus::Graphics
     }
 
     void IResourceSet::WriteStorageTexelBuffers(
-        TexelBufferHandle *texelBuffers, const std::string &name,
-        size_t startElement, size_t count
+        TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count
     )
     {
         for (size_t index = startElement; index < startElement + count; index++)

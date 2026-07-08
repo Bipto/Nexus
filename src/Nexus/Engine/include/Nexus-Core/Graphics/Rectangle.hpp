@@ -16,8 +16,7 @@ namespace Nexus::Graphics
         {
         }
 
-        Rectangle(T x, T y, T width, T height)
-            : m_X(x), m_Y(y), m_Width(width), m_Height(height)
+        Rectangle(T x, T y, T width, T height) : m_X(x), m_Y(y), m_Width(width), m_Height(height)
         {
         }
 
@@ -72,24 +71,20 @@ namespace Nexus::Graphics
 
         const bool Contains(const Nexus::Point2D<T> &other) const
         {
-            return other.X >= this->m_X && other.X < this->m_X + this->m_Width &&
-                   other.Y >= this->m_Y && other.Y < this->m_Y + this->m_Height;
+            return other.X >= this->m_X && other.X < this->m_X + this->m_Width && other.Y >= this->m_Y &&
+                   other.Y < this->m_Y + this->m_Height;
         }
 
         const bool Contains(const Rectangle<T> &other) const
         {
-            return this->GetRight() <= other.GetLeft() &&
-                   other.GetRight() <= this->GetRight() &&
-                   this->GetTop() <= other.GetTop() &&
-                   other.GetBottom() <= this->GetBottom();
+            return this->GetRight() <= other.GetLeft() && other.GetRight() <= this->GetRight() &&
+                   this->GetTop() <= other.GetTop() && other.GetBottom() <= this->GetBottom();
         }
 
         const bool Intersects(const Rectangle<T> &other) const
         {
-            return other.GetRight() < this->GetRight() &&
-                   this->GetLeft() < other.GetRight() &&
-                   other.GetTop() < this->GetBottom() &&
-                   this->GetTop() < other.GetBottom();
+            return other.GetRight() < this->GetRight() && this->GetLeft() < other.GetRight() &&
+                   other.GetTop() < this->GetBottom() && this->GetTop() < other.GetBottom();
         }
 
         // TODO: FIXME
@@ -115,10 +110,7 @@ namespace Nexus::Graphics
 
         template <typename Other> const Rectangle To() const
         {
-            return {
-                (Other)GetLeft(), (Other)GetTop(), (Other)GetWidth(),
-                (Other)GetHeight()
-            };
+            return {(Other)GetLeft(), (Other)GetTop(), (Other)GetWidth(), (Other)GetHeight()};
         }
 
         void Offset(T x, T y)

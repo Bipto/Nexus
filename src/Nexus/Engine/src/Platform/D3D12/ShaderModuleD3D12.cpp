@@ -46,9 +46,7 @@ namespace Nexus::Graphics
         return count;
     }
 
-    ShaderModuleD3D12::ShaderModuleD3D12(
-        const ShaderModuleDescription &shaderModuleSpec
-    )
+    ShaderModuleD3D12::ShaderModuleD3D12(const ShaderModuleDescription &shaderModuleSpec)
         : IShaderModule(shaderModuleSpec)
     {
         Microsoft::WRL::ComPtr<IDxcCompiler3> compiler;
@@ -61,20 +59,17 @@ namespace Nexus::Graphics
 
         Microsoft::WRL::ComPtr<IDxcBlobEncoding> sourceBlob;
         utils->CreateBlob(
-            m_ModuleDescription.Source.c_str(), m_ModuleDescription.Source.length(),
-            CP_UTF8, sourceBlob.GetAddressOf()
+            m_ModuleDescription.Source.c_str(), m_ModuleDescription.Source.length(), CP_UTF8, sourceBlob.GetAddressOf()
         );
 
-        std::string entryPoint =
-            GetD3DShaderEntryPoint(shaderModuleSpec.ShadingStage);
+        std::string entryPoint = GetD3DShaderEntryPoint(shaderModuleSpec.ShadingStage);
         std::wstring wsEntryPoint(entryPoint.begin(), entryPoint.end());
 
         std::string shaderVersion = GetShaderVersion(shaderModuleSpec.ShadingStage);
         std::wstring wsShaderVersion(shaderVersion.begin(), shaderVersion.end());
 
         std::vector<LPCWSTR> compilationArguments = {
-            L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(),
-            DXC_ARG_WARNINGS_ARE_ERRORS
+            L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS
         };
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -88,8 +83,8 @@ namespace Nexus::Graphics
 
         Microsoft::WRL::ComPtr<IDxcResult> compiledShaderBuffer = {};
         const HRESULT hr = compiler->Compile(
-            &sourceBuffer, compilationArguments.data(), compilationArguments.size(),
-            includeHandler.Get(), IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf())
+            &sourceBuffer, compilationArguments.data(), compilationArguments.size(), includeHandler.Get(),
+            IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf())
         );
 
         if (FAILED(hr))
@@ -112,9 +107,7 @@ namespace Nexus::Graphics
         return m_ReflectionData;
     }
 
-    static ReflectedShaderDataType ExtractComponentType(
-        D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount
-    )
+    static ReflectedShaderDataType ExtractComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
     {
         switch (componentType)
         {
@@ -171,13 +164,9 @@ namespace Nexus::Graphics
         }
     }
 
-    static void ExtractAttribute(
-        std::vector<Attribute> &attributes,
-        D3D12_SIGNATURE_PARAMETER_DESC shaderParameter
-    )
+    static void ExtractAttribute(std::vector<Attribute> &attributes, D3D12_SIGNATURE_PARAMETER_DESC shaderParameter)
     {
-        std::string name =
-            shaderParameter.SemanticName ? shaderParameter.SemanticName : "";
+        std::string name = shaderParameter.SemanticName ? shaderParameter.SemanticName : "";
         std::string fullName = name + std::to_string(shaderParameter.SemanticIndex);
         UINT index = shaderParameter.SemanticIndex;
         D3D_REGISTER_COMPONENT_TYPE type = shaderParameter.ComponentType;
@@ -193,90 +182,49 @@ namespace Nexus::Graphics
         attribute.StreamIndex = streamIndex;
     }
 
-    static std::pair<ReflectedShaderDataType, StorageResourceAccess>
-    ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type, UINT flags)
+    static std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(
+        D3D_SHADER_INPUT_TYPE type, UINT flags
+    )
     {
         switch (type)
         {
         case D3D_SIT_CBUFFER:
-            return {
-                ReflectedShaderDataType::UniformBuffer,
-                StorageResourceAccess::NoAccess
-            };
+            return {ReflectedShaderDataType::UniformBuffer, StorageResourceAccess::NoAccess};
         case D3D_SIT_TBUFFER:
-            return {
-                ReflectedShaderDataType::UniformTextureBuffer,
-                StorageResourceAccess::Read
-            };
+            return {ReflectedShaderDataType::UniformTextureBuffer, StorageResourceAccess::Read};
         case D3D_SIT_TEXTURE:
-            return {
-                ReflectedShaderDataType::Texture, StorageResourceAccess::NoAccess
-            };
+            return {ReflectedShaderDataType::Texture, StorageResourceAccess::NoAccess};
         case D3D_SIT_SAMPLER:
         {
             if (flags & D3D_SIF_COMPARISON_SAMPLER)
             {
-                return {
-                    ReflectedShaderDataType::ComparisonSampler,
-                    StorageResourceAccess::NoAccess
-                };
+                return {ReflectedShaderDataType::ComparisonSampler, StorageResourceAccess::NoAccess};
             }
             else
             {
-                return {
-                    ReflectedShaderDataType::Sampler, StorageResourceAccess::NoAccess
-                };
+                return {ReflectedShaderDataType::Sampler, StorageResourceAccess::NoAccess};
             }
         }
         case D3D_SIT_UAV_RWTYPED:
-            return {
-                ReflectedShaderDataType::StorageTextureBuffer,
-                StorageResourceAccess::ReadWrite
-            };
+            return {ReflectedShaderDataType::StorageTextureBuffer, StorageResourceAccess::ReadWrite};
         case D3D_SIT_STRUCTURED:
-            return {
-                ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::Read
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::Read};
         case D3D_SIT_UAV_RWSTRUCTURED:
-            return {
-                ReflectedShaderDataType::StorageBuffer,
-                StorageResourceAccess::ReadWrite
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWrite};
         case D3D_SIT_BYTEADDRESS:
-            return {
-                ReflectedShaderDataType::StorageBuffer,
-                StorageResourceAccess::ReadByteAddress
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadByteAddress};
         case D3D_SIT_UAV_RWBYTEADDRESS:
-            return {
-                ReflectedShaderDataType::StorageBuffer,
-                StorageResourceAccess::ReadWriteByteAddress
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWriteByteAddress};
         case D3D_SIT_UAV_APPEND_STRUCTURED:
-            return {
-                ReflectedShaderDataType::StorageBuffer,
-                StorageResourceAccess::AppendStructured
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::AppendStructured};
         case D3D_SIT_UAV_CONSUME_STRUCTURED:
-            return {
-                ReflectedShaderDataType::StorageBuffer,
-                StorageResourceAccess::ConsumeStructured
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ConsumeStructured};
         case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
-            return {
-                ReflectedShaderDataType::StorageBuffer,
-                StorageResourceAccess::ReadWriteStructuredWithCounter
-            };
+            return {ReflectedShaderDataType::StorageBuffer, StorageResourceAccess::ReadWriteStructuredWithCounter};
         case D3D_SIT_RTACCELERATIONSTRUCTURE:
-            return {
-                ReflectedShaderDataType::AccelerationStructure,
-                StorageResourceAccess::NoAccess
-            };
+            return {ReflectedShaderDataType::AccelerationStructure, StorageResourceAccess::NoAccess};
         case D3D_SIT_UAV_FEEDBACKTEXTURE:
-            return {
-                ReflectedShaderDataType::FeedbackTexture,
-                StorageResourceAccess::NoAccess
-            };
+            return {ReflectedShaderDataType::FeedbackTexture, StorageResourceAccess::NoAccess};
 
         default:
             throw std::runtime_error("Failed to find a valid resource type");
@@ -315,11 +263,9 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection
     )
     {
-        auto [dataType, storageAccess] =
-            ExtractShaderInputType(resource.Type, resource.uFlags);
+        auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
 
-        ReflectedResource &reflectedResource =
-            reflectionData.Resources.emplace_back();
+        ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
         reflectedResource.Type = dataType;
         // reflectedResource.BlockName				= resource.Name;
         reflectedResource.ResourceAccess = storageAccess;
@@ -331,16 +277,13 @@ namespace Nexus::Graphics
     }
 
     void ShaderModuleD3D12::ReflectShader(
-        Microsoft::WRL::ComPtr<IDxcUtils> utils,
-        Microsoft::WRL::ComPtr<IDxcResult> compileResult
+        Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult
     )
     {
         m_ReflectionData = {};
 
         Microsoft::WRL::ComPtr<IDxcBlob> reflectionData;
-        compileResult->GetOutput(
-            DXC_OUT_REFLECTION, IID_PPV_ARGS(reflectionData.GetAddressOf()), nullptr
-        );
+        compileResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(reflectionData.GetAddressOf()), nullptr);
 
         DxcBuffer reflectionBuffer;
         reflectionBuffer.Ptr = reflectionData->GetBufferPointer();
@@ -348,9 +291,7 @@ namespace Nexus::Graphics
         reflectionBuffer.Encoding = 0;
 
         Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection;
-        utils->CreateReflection(
-            &reflectionBuffer, IID_PPV_ARGS(shaderReflection.GetAddressOf())
-        );
+        utils->CreateReflection(&reflectionBuffer, IID_PPV_ARGS(shaderReflection.GetAddressOf()));
 
         D3D12_SHADER_DESC shaderDesc;
         shaderReflection->GetDesc(&shaderDesc);

@@ -24,16 +24,14 @@ namespace Nexus::Graphics
     {
     }
 
-    const GraphicsPipelineDescription &GraphicsPipelineOpenGL::
-        GetPipelineDescription() const
+    const GraphicsPipelineDescription &GraphicsPipelineOpenGL::GetPipelineDescription() const
     {
         return m_Description;
     }
 
     void GraphicsPipelineOpenGL::BindBuffers(
-        const std::map<uint32_t, VertexBufferView> &vertexBuffers,
-        std::optional<IndexBufferView> indexBuffer, uint32_t firstVertex,
-        uint32_t firstInstance, GL::IOffscreenContext *context
+        const std::map<uint32_t, VertexBufferView> &vertexBuffers, std::optional<IndexBufferView> indexBuffer,
+        uint32_t firstVertex, uint32_t firstInstance, GL::IOffscreenContext *context
     )
     {
         uint32_t index = 0;
@@ -42,8 +40,7 @@ namespace Nexus::Graphics
             if (slot >= m_Description.Layouts.size())
             {
                 std::string message =
-                    "Attempted to bind a vertex buffer to an invalid slot: (" +
-                    std::to_string(slot) + ")";
+                    "Attempted to bind a vertex buffer to an invalid slot: (" + std::to_string(slot) + ")";
                 NX_ERROR(message);
             }
 
@@ -78,9 +75,7 @@ namespace Nexus::Graphics
                 uint32_t componentCount;
                 GLboolean normalized;
                 GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
-                GL::GetBaseType(
-                    element, baseType, componentCount, normalized, primitiveType
-                );
+                GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
 
                 context->EnableVertexAttribArray(m_VAO, index);
 
@@ -95,8 +90,7 @@ namespace Nexus::Graphics
                     // offset)));
 
                     context->SetVertexAttribPointer(
-                        m_VAO, vertexBufferOpenGL->GetHandle(), index,
-                        componentCount, baseType, normalized, stride,
+                        m_VAO, vertexBufferOpenGL->GetHandle(), index, componentCount, baseType, normalized, stride,
                         static_cast<uint32_t>(element.Offset + offset)
                     );
                 }
@@ -106,8 +100,7 @@ namespace Nexus::Graphics
                     // baseType, stride, (void *)(element.Offset + offset)));
 
                     context->SetVertexAttribIPointer(
-                        m_VAO, vertexBufferOpenGL->GetHandle(), index,
-                        componentCount, baseType, stride,
+                        m_VAO, vertexBufferOpenGL->GetHandle(), index, componentCount, baseType, stride,
                         static_cast<uint32_t>(element.Offset + offset)
                     );
                 }
@@ -118,9 +111,7 @@ namespace Nexus::Graphics
 
                 if (layout.IsInstanceBuffer())
                 {
-                    context->SetVertexAttribDivisor(
-                        m_VAO, index, layout.GetInstanceStepRate()
-                    );
+                    context->SetVertexAttribDivisor(m_VAO, index, layout.GetInstanceStepRate());
                 }
 
                 index++;
@@ -129,11 +120,8 @@ namespace Nexus::Graphics
             if (indexBuffer)
             {
                 IndexBufferView &view = indexBuffer.value();
-                const DeviceBufferOpenGL *indexBufferOpenGL =
-                    view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
-                context->BindBuffer(
-                    GL_ELEMENT_ARRAY_BUFFER, indexBufferOpenGL->GetHandle()
-                );
+                const DeviceBufferOpenGL *indexBufferOpenGL = view.BufferHandle.AsDerived<const DeviceBufferOpenGL>();
+                context->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferOpenGL->GetHandle());
             }
         }
     }
@@ -163,82 +151,58 @@ namespace Nexus::Graphics
         context->DestroyVertexArray(m_VAO);
     }
 
-    void GraphicsPipelineOpenGL::SetStencilReference(
-        GL::IOffscreenContext *context, uint32_t stencilReference
-    )
+    void GraphicsPipelineOpenGL::SetStencilReference(GL::IOffscreenContext *context, uint32_t stencilReference)
     {
         // front face
         {
-            GLenum sfail = GL::GetStencilOperation(
-                m_Description.DepthStencilDesc.Front.StencilFailOperation
-            );
-            GLenum dpfail = GL::GetStencilOperation(
-                m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation
-            );
+            GLenum sfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilFailOperation);
+            GLenum dpfail =
+                GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation);
             GLenum dppass =
-                GL::GetStencilOperation(m_Description.DepthStencilDesc.Front
-                                            .StencilSuccessDepthSuccessOperation);
+                GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
             context->SetStencilOp(GL_FRONT, sfail, dpfail, dppass);
 
-            GLenum stencilCompareFunc = GL::GetComparisonFunction(
-                m_Description.DepthStencilDesc.Front.StencilComparisonFunction
-            );
+            GLenum stencilCompareFunc =
+                GL::GetComparisonFunction(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
             context->SetStencilFunc(
-                GL_FRONT, stencilCompareFunc, stencilReference,
-                m_Description.DepthStencilDesc.StencilCompareMask
+                GL_FRONT, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask
             );
         }
 
         // back face
         {
-            GLenum sfail = GL::GetStencilOperation(
-                m_Description.DepthStencilDesc.Back.StencilFailOperation
-            );
-            GLenum dpfail = GL::GetStencilOperation(
-                m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation
-            );
+            GLenum sfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilFailOperation);
+            GLenum dpfail =
+                GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation);
             GLenum dppass =
-                GL::GetStencilOperation(m_Description.DepthStencilDesc.Back
-                                            .StencilSuccessDepthSuccessOperation);
+                GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
 
             context->SetStencilOp(GL_BACK, sfail, dpfail, dppass);
 
-            GLenum stencilCompareFunc = GL::GetComparisonFunction(
-                m_Description.DepthStencilDesc.Back.StencilComparisonFunction
-            );
+            GLenum stencilCompareFunc =
+                GL::GetComparisonFunction(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
             context->SetStencilFunc(
-                GL_BACK, stencilCompareFunc, stencilReference,
-                m_Description.DepthStencilDesc.StencilCompareMask
+                GL_BACK, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask
             );
         }
     }
 
-    void GraphicsPipelineOpenGL::SetupDepthStencil(
-        GL::IOffscreenContext *context, uint32_t stencilReference
-    )
+    void GraphicsPipelineOpenGL::SetupDepthStencil(GL::IOffscreenContext *context, uint32_t stencilReference)
     {
         // enable/disable depth testing
-        context->EnableCapability(
-            GL_DEPTH_TEST, m_Description.DepthStencilDesc.EnableDepthTest
-        );
+        context->EnableCapability(GL_DEPTH_TEST, m_Description.DepthStencilDesc.EnableDepthTest);
 
         // enable/disable depth writing
         context->SetDepthMask(m_Description.DepthStencilDesc.EnableDepthWrite);
 
         // set up stencil options
-        context->EnableCapability(
-            GL_STENCIL_TEST, m_Description.DepthStencilDesc.EnableStencilTest
-        );
+        context->EnableCapability(GL_STENCIL_TEST, m_Description.DepthStencilDesc.EnableStencilTest);
         context->SetStencilMask(m_Description.DepthStencilDesc.StencilWriteMask);
 
-        SetStencilReference(
-            context, m_Description.DepthStencilDesc.StencilReference
-        );
+        SetStencilReference(context, m_Description.DepthStencilDesc.StencilReference);
 
         // depth comparison
-        GLenum depthFunction = GL::GetComparisonFunction(
-            m_Description.DepthStencilDesc.DepthComparisonFunction
-        );
+        GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
         // glCall(context.DepthFunc(depthFunction));
         context->SetDepthFunction(depthFunction);
 
@@ -246,14 +210,8 @@ namespace Nexus::Graphics
         // if (context.DepthBoundsEXT)
         if (context->IsDepthBoundsSupported())
         {
-            context->EnableCapability(
-                GL_DEPTH_BOUNDS_TEST_EXT,
-                m_Description.DepthStencilDesc.EnableDepthsBoundsTest
-            );
-            context->SetDepthBounds(
-                m_Description.DepthStencilDesc.MinDepth,
-                m_Description.DepthStencilDesc.MaxDepth
-            );
+            context->EnableCapability(GL_DEPTH_BOUNDS_TEST_EXT, m_Description.DepthStencilDesc.EnableDepthsBoundsTest);
+            context->SetDepthBounds(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
 
             // context.DepthBoundsEXT(m_Description.DepthStencilDesc.MinDepth,
             // m_Description.DepthStencilDesc.MaxDepth);
@@ -263,8 +221,7 @@ namespace Nexus::Graphics
     void GraphicsPipelineOpenGL::SetupRasterizer(GL::IOffscreenContext *context)
     {
         context->EnableCapability(
-            GL_CULL_FACE,
-            m_Description.RasterizerStateDesc.TriangleCullMode != CullMode::CullNone
+            GL_CULL_FACE, m_Description.RasterizerStateDesc.TriangleCullMode != CullMode::CullNone
         );
 
         switch (m_Description.RasterizerStateDesc.TriangleCullMode)
@@ -282,9 +239,7 @@ namespace Nexus::Graphics
 
         if (context->IsDepthClampSupported())
         {
-            context->EnableCapability(
-                GL_DEPTH_CLAMP, m_Description.RasterizerStateDesc.DepthClipEnabled
-            );
+            context->EnableCapability(GL_DEPTH_CLAMP, m_Description.RasterizerStateDesc.DepthClipEnabled);
         }
 
         switch (m_Description.RasterizerStateDesc.TriangleFillMode)
@@ -313,12 +268,11 @@ namespace Nexus::Graphics
 
         if (context->SupportsPerTargetColourMask())
         {
-            for (const auto &[index, blendState] :
-                 std::views::enumerate(m_Description.ColourBlendStates))
+            for (const auto &[index, blendState] : std::views::enumerate(m_Description.ColourBlendStates))
             {
                 context->SetColourMask(
-                    blendState.PixelWriteMask.Red, blendState.PixelWriteMask.Green,
-                    blendState.PixelWriteMask.Blue, blendState.PixelWriteMask.Alpha
+                    blendState.PixelWriteMask.Red, blendState.PixelWriteMask.Green, blendState.PixelWriteMask.Blue,
+                    blendState.PixelWriteMask.Alpha
                 );
             }
         }
@@ -326,10 +280,8 @@ namespace Nexus::Graphics
         {
             const auto &colourBlendState = m_Description.ColourBlendStates[0];
             context->SetColourMask(
-                colourBlendState.PixelWriteMask.Red,
-                colourBlendState.PixelWriteMask.Green,
-                colourBlendState.PixelWriteMask.Blue,
-                colourBlendState.PixelWriteMask.Alpha
+                colourBlendState.PixelWriteMask.Red, colourBlendState.PixelWriteMask.Green,
+                colourBlendState.PixelWriteMask.Blue, colourBlendState.PixelWriteMask.Alpha
             );
         }
 
@@ -344,35 +296,26 @@ namespace Nexus::Graphics
 
         if (context->SupportsPerTargetBlendFunction())
         {
-            for (const auto &[index, blendState] :
-                 std::views::enumerate(m_Description.ColourBlendStates))
+            for (const auto &[index, blendState] : std::views::enumerate(m_Description.ColourBlendStates))
             {
                 // enable blending for this attachment
                 if (blendState.EnableBlending)
                 {
-                    auto sourceColourFunction =
-                        GL::GetBlendFactor(blendState.SourceColourBlend);
-                    auto sourceAlphaFunction =
-                        GL::GetBlendFactor(blendState.SourceAlphaBlend);
+                    auto sourceColourFunction = GL::GetBlendFactor(blendState.SourceColourBlend);
+                    auto sourceAlphaFunction = GL::GetBlendFactor(blendState.SourceAlphaBlend);
 
-                    auto destinationColourFunction =
-                        GL::GetBlendFactor(blendState.DestinationColourBlend);
-                    auto destinationAlphaFunction =
-                        GL::GetBlendFactor(blendState.DestinationAlphaBlend);
+                    auto destinationColourFunction = GL::GetBlendFactor(blendState.DestinationColourBlend);
+                    auto destinationAlphaFunction = GL::GetBlendFactor(blendState.DestinationAlphaBlend);
 
                     context->SetBlendFunctionSeparatei(
-                        index, sourceColourFunction, destinationColourFunction,
-                        sourceAlphaFunction, destinationAlphaFunction
+                        index, sourceColourFunction, destinationColourFunction, sourceAlphaFunction,
+                        destinationAlphaFunction
                     );
 
-                    auto colourBlendFunction =
-                        GL::GetBlendFunction(blendState.ColorBlendFunction);
-                    auto alphaBlendFunction =
-                        GL::GetBlendFunction(blendState.AlphaBlendFunction);
+                    auto colourBlendFunction = GL::GetBlendFunction(blendState.ColorBlendFunction);
+                    auto alphaBlendFunction = GL::GetBlendFunction(blendState.AlphaBlendFunction);
 
-                    context->SetBlendEquationSeparatei(
-                        index, colourBlendFunction, alphaBlendFunction
-                    );
+                    context->SetBlendEquationSeparatei(index, colourBlendFunction, alphaBlendFunction);
                 }
                 // disable blending for this attachment
                 else
@@ -386,29 +329,20 @@ namespace Nexus::Graphics
         {
             const auto &blendState = m_Description.ColourBlendStates[0];
 
-            auto sourceColourFunction =
-                GL::GetBlendFactor(blendState.SourceColourBlend);
-            auto sourceAlphaFunction =
-                GL::GetBlendFactor(blendState.SourceAlphaBlend);
+            auto sourceColourFunction = GL::GetBlendFactor(blendState.SourceColourBlend);
+            auto sourceAlphaFunction = GL::GetBlendFactor(blendState.SourceAlphaBlend);
 
-            auto destinationColourFunction =
-                GL::GetBlendFactor(blendState.DestinationColourBlend);
-            auto destinationAlphaFunction =
-                GL::GetBlendFactor(blendState.DestinationAlphaBlend);
+            auto destinationColourFunction = GL::GetBlendFactor(blendState.DestinationColourBlend);
+            auto destinationAlphaFunction = GL::GetBlendFactor(blendState.DestinationAlphaBlend);
 
             context->SetBlendFunctionSeparate(
-                sourceColourFunction, destinationColourFunction, sourceAlphaFunction,
-                destinationAlphaFunction
+                sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction
             );
 
-            auto colourBlendFunction =
-                GL::GetBlendFunction(blendState.ColorBlendFunction);
-            auto alphaBlendFunction =
-                GL::GetBlendFunction(blendState.AlphaBlendFunction);
+            auto colourBlendFunction = GL::GetBlendFunction(blendState.ColorBlendFunction);
+            auto alphaBlendFunction = GL::GetBlendFunction(blendState.AlphaBlendFunction);
 
-            context->SetBlendEquationSeparate(
-                colourBlendFunction, alphaBlendFunction
-            );
+            context->SetBlendEquationSeparate(colourBlendFunction, alphaBlendFunction);
         }
     }
 
@@ -427,33 +361,27 @@ namespace Nexus::Graphics
 
         if (m_Description.FragmentModule.IsValid())
         {
-            auto glFragmentModule =
-                m_Description.FragmentModule.AsDerived<ShaderModuleOpenGL>();
+            auto glFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleOpenGL>();
             NX_VALIDATE(
-                glFragmentModule->GetShaderStage() == ShaderStage::Fragment,
-                "Shader module is not a fragment shader"
+                glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader"
             );
             modules.push_back(glFragmentModule);
         }
 
         if (m_Description.GeometryModule.IsValid())
         {
-            auto glGeometryModule =
-                m_Description.GeometryModule.AsDerived<ShaderModuleOpenGL>();
+            auto glGeometryModule = m_Description.GeometryModule.AsDerived<ShaderModuleOpenGL>();
             NX_VALIDATE(
-                glGeometryModule->GetShaderStage() == ShaderStage::Geometry,
-                "Shader module is not a geometry shader"
+                glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader"
             );
             modules.push_back(glGeometryModule);
         }
 
         if (m_Description.TesselationControlModule.IsValid())
         {
-            auto glTesselationControlModule = m_Description.TesselationControlModule
-                                                  .AsDerived<ShaderModuleOpenGL>();
+            auto glTesselationControlModule = m_Description.TesselationControlModule.AsDerived<ShaderModuleOpenGL>();
             NX_VALIDATE(
-                glTesselationControlModule->GetShaderStage() ==
-                    ShaderStage::TessellationControl,
+                glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
                 "Shader module is not a tesselation control shader"
             );
             modules.push_back(glTesselationControlModule);
@@ -461,11 +389,9 @@ namespace Nexus::Graphics
 
         if (m_Description.TesselationEvaluationModule.IsValid())
         {
-            auto glEvaluationModule = m_Description.TesselationEvaluationModule
-                                          .AsDerived<ShaderModuleOpenGL>();
+            auto glEvaluationModule = m_Description.TesselationEvaluationModule.AsDerived<ShaderModuleOpenGL>();
             NX_VALIDATE(
-                glEvaluationModule->GetShaderStage() ==
-                    ShaderStage::TessellationEvaluation,
+                glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
                 "Shader module is not a tesselation evaluation shader"
             );
             modules.push_back(glEvaluationModule);
@@ -473,11 +399,9 @@ namespace Nexus::Graphics
 
         if (m_Description.VertexModule.IsValid())
         {
-            auto glVertexModule =
-                m_Description.VertexModule.AsDerived<ShaderModuleOpenGL>();
+            auto glVertexModule = m_Description.VertexModule.AsDerived<ShaderModuleOpenGL>();
             NX_VALIDATE(
-                glVertexModule->GetShaderStage() == ShaderStage::Vertex,
-                "Shader module is not a vertex shader"
+                glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader"
             );
             modules.push_back(glVertexModule);
         }
@@ -492,13 +416,10 @@ namespace Nexus::Graphics
         int success = context->GetProgramiv(m_ShaderHandle, GL_LINK_STATUS);
         if (!success)
         {
-            GLint logLength =
-                context->GetProgramiv(m_ShaderHandle, GL_INFO_LOG_LENGTH);
+            GLint logLength = context->GetProgramiv(m_ShaderHandle, GL_INFO_LOG_LENGTH);
 
             std::string log(logLength, '\0');
-            context->GetProgramInfoLog(
-                m_ShaderHandle, logLength, nullptr, log.data()
-            );
+            context->GetProgramInfoLog(m_ShaderHandle, logLength, nullptr, log.data());
             NX_ERROR(log);
         }
 
@@ -538,8 +459,7 @@ namespace Nexus::Graphics
         );
 
         const Nexus::Graphics::ShaderModuleOpenGL *computeShader =
-            m_Description.ComputeShader
-                .AsDerived<const Nexus::Graphics::ShaderModuleOpenGL>();
+            m_Description.ComputeShader.AsDerived<const Nexus::Graphics::ShaderModuleOpenGL>();
 
         GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
 
@@ -551,13 +471,10 @@ namespace Nexus::Graphics
 
         if (!success)
         {
-            GLint logLength =
-                context->GetProgramiv(m_ShaderHandle, GL_INFO_LOG_LENGTH);
+            GLint logLength = context->GetProgramiv(m_ShaderHandle, GL_INFO_LOG_LENGTH);
 
             std::string log(logLength, '\0');
-            context->GetProgramInfoLog(
-                m_ShaderHandle, logLength, nullptr, log.data()
-            );
+            context->GetProgramInfoLog(m_ShaderHandle, logLength, nullptr, log.data());
             NX_ERROR(log);
         }
 

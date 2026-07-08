@@ -12,49 +12,47 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-const std::string HdriVertexShaderSource =
-    "#version 450 core\n"
+const std::string HdriVertexShaderSource = "#version 450 core\n"
 
-    "layout(location = 0) in vec3 a_Position;\n"
+                                           "layout(location = 0) in vec3 a_Position;\n"
 
-    "layout(location = 0) out vec3 o_LocalPos;\n"
+                                           "layout(location = 0) out vec3 o_LocalPos;\n"
 
-    "layout(binding = 0, set = 0) uniform Camera\n"
-    "{\n"
-    "    mat4 u_View;\n"
-    "    mat4 u_Projection;\n"
-    "};\n"
+                                           "layout(binding = 0, set = 0) uniform Camera\n"
+                                           "{\n"
+                                           "    mat4 u_View;\n"
+                                           "    mat4 u_Projection;\n"
+                                           "};\n"
 
-    "void main()\n"
-    "{\n"
-    "    o_LocalPos = a_Position;\n"
-    "    gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);\n"
-    "}";
+                                           "void main()\n"
+                                           "{\n"
+                                           "    o_LocalPos = a_Position;\n"
+                                           "    gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);\n"
+                                           "}";
 
-const std::string HdriFragmentShaderSource =
-    "#version 450 core\n"
+const std::string HdriFragmentShaderSource = "#version 450 core\n"
 
-    "layout(location = 0) in vec3 a_LocalPos;\n"
+                                             "layout(location = 0) in vec3 a_LocalPos;\n"
 
-    "layout(location = 0) out vec4 o_Colour;\n"
+                                             "layout(location = 0) out vec4 o_Colour;\n"
 
-    "layout(binding = 0, set = 1) uniform sampler2D u_EquirectangularMap;\n"
+                                             "layout(binding = 0, set = 1) uniform sampler2D u_EquirectangularMap;\n"
 
-    "const vec2 invAtan = vec2(0.1591, 0.3183);\n"
-    "vec2 SampleSphericalMap(vec3 v)\n"
-    "{\n"
-    "    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));\n"
-    "    uv *= invAtan;\n"
-    "    uv += 0.5;\n"
-    "    return uv;\n"
-    "}\n"
+                                             "const vec2 invAtan = vec2(0.1591, 0.3183);\n"
+                                             "vec2 SampleSphericalMap(vec3 v)\n"
+                                             "{\n"
+                                             "    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));\n"
+                                             "    uv *= invAtan;\n"
+                                             "    uv += 0.5;\n"
+                                             "    return uv;\n"
+                                             "}\n"
 
-    "void main()\n"
-    "{\n"
-    "    vec2 uv = SampleSphericalMap(normalize(a_LocalPos));\n"
-    "    vec3 colour = texture(u_EquirectangularMap, uv).rgb;\n"
-    "    o_Colour = vec4(colour, 1.0);\n"
-    "}";
+                                             "void main()\n"
+                                             "{\n"
+                                             "    vec2 uv = SampleSphericalMap(normalize(a_LocalPos));\n"
+                                             "    vec3 colour = texture(u_EquirectangularMap, uv).rgb;\n"
+                                             "    o_Colour = vec4(colour, 1.0);\n"
+                                             "}";
 
 namespace Nexus::Graphics
 {
@@ -64,18 +62,13 @@ namespace Nexus::Graphics
         glm::mat4 Projection = {};
     };
 
-    HdriProcessor::HdriProcessor(
-        const std::string &filepath, IGraphicsDevice *device,
-        CommandQueueHandle commandQueue
-    )
+    HdriProcessor::HdriProcessor(const std::string &filepath, IGraphicsDevice *device, CommandQueueHandle commandQueue)
         : m_Device(device), m_CommandQueue(commandQueue)
     {
         stbi_set_flip_vertically_on_load(true);
         int channels = 0;
         int requestedChannels = 4;
-        float *data = stbi_loadf(
-            filepath.c_str(), &m_Width, &m_Height, &channels, requestedChannels
-        );
+        float *data = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &channels, requestedChannels);
 
         std::vector<unsigned char> pixels;
         size_t bufferSize = m_Width * m_Height * requestedChannels * sizeof(float);
@@ -86,8 +79,7 @@ namespace Nexus::Graphics
         if (m_Device->GetGraphicsAPI().API == GraphicsAPI::OpenGL)
         {
             Utils::FlipPixelsHorizontally(
-                pixels.data(), m_Width, m_Height,
-                Graphics::PixelFormat::R32_G32_B32_A32_Float
+                pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float
             );
         }
 
@@ -101,10 +93,7 @@ namespace Nexus::Graphics
         textureDesc.Format = Graphics::PixelFormat::R32_G32_B32_A32_Float;
         textureDesc.DebugName = "HDRI";
         m_HdriImage = m_Device->CreateTexture(textureDesc);
-        Utils::WriteToTexture(
-            m_CommandQueue, m_HdriImage, 0, 0, 0, 0, m_Width, m_Height,
-            pixels.data(), pixels.size()
-        );
+        Utils::WriteToTexture(m_CommandQueue, m_HdriImage, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
 
         Graphics::TextureViewDescription cubemapViewDesc = {};
         cubemapViewDesc.TargetTexture = m_HdriImage;
@@ -125,13 +114,10 @@ namespace Nexus::Graphics
         framebufferSpec.Width = size;
         framebufferSpec.Height = size;
         framebufferSpec.Samples = 1;
-        framebufferSpec.ColourAttachmentFormats = {
-            PixelFormat::R32_G32_B32_A32_Float
-        };
+        framebufferSpec.ColourAttachmentFormats = {PixelFormat::R32_G32_B32_A32_Float};
         framebufferSpec.DepthAttachmentFormat = PixelFormat::D24_UNorm_S8_UInt;
 
-        FramebufferHandle framebuffer =
-            Utils::CreateFramebuffer(m_Device, framebufferSpec);
+        FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferSpec);
         CommandListHandle commandList = m_CommandQueue->CreateCommandList();
 
         Graphics::TextureDescription cubemapSpec = {};
@@ -146,41 +132,29 @@ namespace Nexus::Graphics
         TextureHandle cubemap = m_Device->CreateTexture(cubemapSpec);
 
         Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-        pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-            Nexus::Graphics::CullMode::Back;
-        pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-            Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+        pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDescription.VertexModule =
-            Nexus::Utils::CreateShaderModuleFromSpirvSource(
-                m_Device, HdriVertexShaderSource, "hdri.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Vertex
-            );
+        pipelineDescription.VertexModule = Nexus::Utils::CreateShaderModuleFromSpirvSource(
+            m_Device, HdriVertexShaderSource, "hdri.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Vertex
+        );
 
-        pipelineDescription.FragmentModule =
-            Nexus::Utils::CreateShaderModuleFromSpirvSource(
-                m_Device, HdriFragmentShaderSource, "hdri.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Fragment
-            );
+        pipelineDescription.FragmentModule = Nexus::Utils::CreateShaderModuleFromSpirvSource(
+            m_Device, HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Fragment
+        );
 
-        pipelineDescription.ColourFormats[0] =
-            framebufferSpec.ColourAttachmentFormats[0];
+        pipelineDescription.ColourFormats[0] = framebufferSpec.ColourAttachmentFormats[0];
         pipelineDescription.ColourTargetCount = 1;
-        pipelineDescription.DepthFormat =
-            framebufferSpec.DepthAttachmentFormat.value();
+        pipelineDescription.DepthFormat = framebufferSpec.DepthAttachmentFormat.value();
 
-        pipelineDescription.Layouts = {
-            Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::
-                GetLayout()
-        };
+        pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
         pipelineDescription.ResourceDescription.Descriptors = {
             Nexus::Graphics::ResourceDescriptor{
                 .Name = "u_EquirectangularMap",
-                .Type =
-                    Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                 .CountOrSizeInBytes = 1
             },
             Nexus::Graphics::ResourceDescriptor{
@@ -190,8 +164,7 @@ namespace Nexus::Graphics
             }
         };
 
-        PipelineHandle pipeline =
-            m_Device->CreateGraphicsPipeline(pipelineDescription);
+        PipelineHandle pipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
         ResourceSetHandle resourceSet = m_Device->CreateResourceSet(pipeline);
 
         Nexus::Graphics::SamplerDescription samplerSpec{};
@@ -208,12 +181,9 @@ namespace Nexus::Graphics
         Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
         cameraUniformBufferDesc.Access = BufferMemoryAccess::Upload;
         cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage_Uniform;
-        cameraUniformBufferDesc.StrideInBytes =
-            sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-        cameraUniformBufferDesc.SizeInBytes =
-            sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-        Graphics::DeviceBufferHandle uniformBuffer =
-            m_Device->CreateDeviceBuffer(cameraUniformBufferDesc);
+        cameraUniformBufferDesc.StrideInBytes = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
+        cameraUniformBufferDesc.SizeInBytes = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
+        Graphics::DeviceBufferHandle uniformBuffer = m_Device->CreateDeviceBuffer(cameraUniformBufferDesc);
 
         for (uint32_t i = 0; i < 6; i++)
         {
@@ -224,26 +194,20 @@ namespace Nexus::Graphics
 
             glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-            glm::quat rotP =
-                glm::angleAxis(glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-            glm::quat rotY =
-                glm::angleAxis(glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::quat rotP = glm::angleAxis(glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+            glm::quat rotY = glm::angleAxis(glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
             glm::mat4 view = glm::mat4_cast(rotY) * glm::mat4_cast(rotP);
 
             if (!m_Device->IsUVOriginTopLeft())
             {
-                view *= glm::rotate(
-                    glm::mat4(1.0f), glm::radians(180.0f),
-                    glm::vec3(1.0f, 0.0f, 0.0f)
-                );
+                view *= glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             }
 
             float fov = 90.0f;
             float aspectRatio = 1.0f;
             float camNear = 0.1f;
             float camFar = 100.0f;
-            glm::mat4 projection =
-                glm::perspective(glm::radians(fov), aspectRatio, camNear, camFar);
+            glm::mat4 projection = glm::perspective(glm::radians(fov), aspectRatio, camNear, camFar);
 
             cameraUniforms.View = view;
             cameraUniforms.Projection = projection;
@@ -259,9 +223,7 @@ namespace Nexus::Graphics
             CombinedImageSampler ciSampler = {};
             ciSampler.ImageTexture = m_HdriView;
             ciSampler.ImageSampler = sampler;
-            resourceSet->WriteCombinedImageSampler(
-                ciSampler, "u_EquirectangularMap"
-            );
+            resourceSet->WriteCombinedImageSampler(ciSampler, "u_EquirectangularMap");
 
             resourceSet->Flush();
 
@@ -319,14 +281,9 @@ namespace Nexus::Graphics
             m_Device->WaitForIdle();
 
             TextureHandle colourTexture = framebuffer->GetColorTextureHandle(0);
-            std::vector<char> pixels = Utils::ReadFromTexture(
-                m_CommandQueue, colourTexture, 0, 0, 0, 0, size, size
-            );
+            std::vector<char> pixels = Utils::ReadFromTexture(m_CommandQueue, colourTexture, 0, 0, 0, 0, size, size);
 
-            Utils::WriteToTexture(
-                m_CommandQueue, cubemap, 0, 0, 0, i, size, size, pixels.data(),
-                pixels.size()
-            );
+            Utils::WriteToTexture(m_CommandQueue, cubemap, 0, 0, 0, i, size, size, pixels.data(), pixels.size());
         }
 
         return cubemap;
@@ -355,9 +312,7 @@ namespace Nexus::Graphics
         return m_HdriImage;
     }
 
-    void HdriProcessor::GetDirection(
-        uint32_t face, float &yaw, float &pitch, bool yUp
-    )
+    void HdriProcessor::GetDirection(uint32_t face, float &yaw, float &pitch, bool yUp)
     {
         switch (face)
         {

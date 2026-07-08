@@ -13,9 +13,7 @@ namespace Nexus::Graphics
         queryPoolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
         queryPoolInfo.queryCount = 2;
 
-        context.CreateQueryPool(
-            m_Device->GetVkDevice(), &queryPoolInfo, nullptr, &m_QueryPool
-        );
+        context.CreateQueryPool(m_Device->GetVkDevice(), &queryPoolInfo, nullptr, &m_QueryPool);
     }
 
     TimingQueryVk::~TimingQueryVk()
@@ -27,22 +25,16 @@ namespace Nexus::Graphics
     void TimingQueryVk::Resolve()
     {
         std::shared_ptr<PhysicalDeviceVk> physicalDevice =
-            std::dynamic_pointer_cast<PhysicalDeviceVk>(
-                m_Device->GetPhysicalDevice()
-            );
-        const VkPhysicalDeviceProperties &deviceProperties =
-            physicalDevice->GetVkPhysicalDeviceProperties();
+            std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
+        const VkPhysicalDeviceProperties &deviceProperties = physicalDevice->GetVkPhysicalDeviceProperties();
         const GladVulkanContext &context = m_Device->GetVulkanContext();
 
         uint64_t timestamps[2];
         context.GetQueryPoolResults(
-            m_Device->GetVkDevice(), m_QueryPool, 0, 2, sizeof(timestamps),
-            timestamps, sizeof(uint64_t),
+            m_Device->GetVkDevice(), m_QueryPool, 0, 2, sizeof(timestamps), timestamps, sizeof(uint64_t),
             VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT
         );
-        m_ElapsedTime = ((timestamps[1] - timestamps[0]) *
-                         deviceProperties.limits.timestampPeriod) /
-                        1000000.0f;
+        m_ElapsedTime = ((timestamps[1] - timestamps[0]) * deviceProperties.limits.timestampPeriod) / 1000000.0f;
     }
 
     float TimingQueryVk::GetElapsedMilliseconds()

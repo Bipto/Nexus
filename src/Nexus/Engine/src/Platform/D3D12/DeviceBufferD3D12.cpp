@@ -5,9 +5,7 @@
 
 namespace Nexus::Graphics
 {
-    DeviceBufferD3D12::DeviceBufferD3D12(
-        const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice
-    )
+    DeviceBufferD3D12::DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice)
         : m_BufferDescription(desc), m_GraphicsDevice(graphicsDevice)
     {
         auto allocator = graphicsDevice->GetAllocator();
@@ -46,8 +44,8 @@ namespace Nexus::Graphics
         resourceDesc.Flags = D3D12::GetResourceFlags(desc.Usage);
 
         HRESULT hr = allocator->CreateResource2(
-            &allocationDesc, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
-            &m_Allocation, IID_PPV_ARGS(&m_BufferHandle)
+            &allocationDesc, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &m_Allocation,
+            IID_PPV_ARGS(&m_BufferHandle)
         );
 
         if (FAILED(hr))
@@ -55,10 +53,7 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to create buffer");
         }
 
-        std::wstring debugName = {
-            m_BufferDescription.DebugName.begin(),
-            m_BufferDescription.DebugName.end()
-        };
+        std::wstring debugName = {m_BufferDescription.DebugName.begin(), m_BufferDescription.DebugName.end()};
         m_BufferHandle->SetName(debugName.c_str());
     }
 

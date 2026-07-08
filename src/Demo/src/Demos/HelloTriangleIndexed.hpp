@@ -8,8 +8,7 @@ namespace Demos
     {
       public:
         HelloTriangleIndexedDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -35,13 +34,9 @@ namespace Demos
             vertexBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage_Vertex;
             vertexBufferDesc.StrideInBytes = sizeof(Nexus::Graphics::VertexPosition);
-            vertexBufferDesc.SizeInBytes =
-                vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+            vertexBufferDesc.SizeInBytes = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
             m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
-            m_VertexBuffer->SetData(
-                vertices.data(), 0,
-                vertices.size() * sizeof(Nexus::Graphics::VertexPosition)
-            );
+            m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
             std::vector<uint32_t> indices = {0, 1, 2};
 
@@ -51,9 +46,7 @@ namespace Demos
             indexBufferDesc.StrideInBytes = sizeof(uint32_t);
             indexBufferDesc.SizeInBytes = indices.size() * sizeof(uint32_t);
             m_IndexBuffer = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
-            m_IndexBuffer->SetData(
-                indices.data(), 0, indices.size() * sizeof(uint32_t)
-            );
+            m_IndexBuffer->SetData(indices.data(), 0, indices.size() * sizeof(uint32_t));
         }
 
         virtual void Render(Nexus::TimeSpan time) override
@@ -61,15 +54,11 @@ namespace Demos
             auto [width, height] = m_Window->GetWindowSize();
 
             m_CommandList->Begin();
-            Nexus::Graphics::ScopedDebugGroup debugGroup(
-                "Rendering Triangle", m_CommandList
-            );
+            Nexus::Graphics::ScopedDebugGroup debugGroup("Rendering Triangle", m_CommandList);
             m_CommandList->SetPipeline(m_Pipeline);
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -88,9 +77,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             Nexus::Graphics::VertexBufferView vertexBufferView = {};
             vertexBufferView.BufferHandle = m_VertexBuffer;
@@ -128,40 +115,25 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-                Nexus::Graphics::CullMode::CullNone;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-                Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
             pipelineDescription.ColourTargetCount = 1;
-            pipelineDescription.ColourFormats[0] =
-                Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-            pipelineDescription.Samples = Nexus::GetApplication()
-                                              ->GetPrimarySwapchain()
-                                              ->GetDescription()
-                                              .Samples;
+            pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+            pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
-            pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPosition::GetLayout()
-            };
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
-            pipelineDescription.VertexModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/hello_triangle/hello_triangle.vert.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Vertex
-                );
-            pipelineDescription.FragmentModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/hello_triangle/hello_triangle.frag.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Fragment
-                );
+            pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/hello_triangle/hello_triangle.vert.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
+            );
+            pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/hello_triangle/hello_triangle.frag.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
+            );
 
-            m_Pipeline =
-                m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+            m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
         }
 
       private:

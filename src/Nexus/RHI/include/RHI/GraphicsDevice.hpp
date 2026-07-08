@@ -88,25 +88,15 @@ namespace Nexus::Graphics
         /// pipeline description
         /// @param description The properties to use when creating the pipeline
         /// @return A pointer to a pipeline
-        virtual PipelineHandle CreateGraphicsPipeline(
-            const GraphicsPipelineDescription &description
-        ) = 0;
+        virtual PipelineHandle CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
 
-        virtual PipelineHandle CreateComputePipeline(
-            const ComputePipelineDescription &description
-        ) = 0;
+        virtual PipelineHandle CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
-        virtual PipelineHandle CreateMeshletPipeline(
-            const MeshletPipelineDescription &description
-        ) = 0;
+        virtual PipelineHandle CreateMeshletPipeline(const MeshletPipelineDescription &description) = 0;
 
-        virtual PipelineHandle CreateRayTracingPipeline(
-            const RayTracingPipelineDescription &description
-        ) = 0;
+        virtual PipelineHandle CreateRayTracingPipeline(const RayTracingPipelineDescription &description) = 0;
 
-        virtual FramebufferHandle CreateFramebuffer(
-            const FramebufferTextureSetDescription &desc
-        ) = 0;
+        virtual FramebufferHandle CreateFramebuffer(const FramebufferTextureSetDescription &desc) = 0;
 
         /// @brief A pure virtual method that creates a new resource set from a given
         /// specification
@@ -120,9 +110,7 @@ namespace Nexus::Graphics
         /// @return A pointer to a sampler
         virtual SamplerHandle CreateSampler(const SamplerDescription &spec) = 0;
 
-        virtual DeviceBufferHandle CreateDeviceBuffer(
-            const DeviceBufferDescription &desc
-        ) = 0;
+        virtual DeviceBufferHandle CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
         virtual TimingQueryHandle CreateTimingQuery() = 0;
 
@@ -130,9 +118,7 @@ namespace Nexus::Graphics
             const AccelerationStructureDescription &desc
         ) = 0;
 
-        virtual TexelBufferHandle CreateTexelBuffer(
-            const TexelBufferDescription &desc
-        ) = 0;
+        virtual TexelBufferHandle CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
 
         /// @brief A pure virtual method that returns a ShaderFormat enum
         /// representing the supported shading language of the backend
@@ -156,9 +142,7 @@ namespace Nexus::Graphics
 
         virtual TextureHandle CreateTexture(const TextureDescription &spec) = 0;
 
-        virtual TextureViewHandle CreateTextureView(
-            const TextureViewDescription &desc
-        ) = 0;
+        virtual TextureViewHandle CreateTextureView(const TextureViewDescription &desc) = 0;
 
         virtual FenceHandle CreateFence(const FenceDescription &desc) = 0;
 
@@ -166,17 +150,13 @@ namespace Nexus::Graphics
             FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
         ) = 0;
 
-        virtual ShaderModuleHandle CreateShaderModule(
-            const ShaderModuleDescription &moduleDesc
-        ) = 0;
+        virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
 
         virtual void ResetFences(FenceHandle *fences, uint32_t count) = 0;
 
         virtual std::vector<QueueFamilyInfo> GetQueueFamilies() = 0;
 
-        virtual CommandQueueHandle CreateCommandQueue(
-            const CommandQueueDescription &description
-        ) = 0;
+        virtual CommandQueueHandle CreateCommandQueue(const CommandQueueDescription &description) = 0;
 
         virtual bool Validate() = 0;
         virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
@@ -188,25 +168,16 @@ namespace Nexus::Graphics
         virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
         virtual const DeviceLimits &GetPhysicalDeviceLimits() const = 0;
         virtual bool IsIndexBufferFormatSupported(IndexFormat format) const = 0;
-        virtual AccelerationStructureBuildSizeDescription
-        GetAccelerationStructureBuildSize(
+        virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
             const AccelerationStructureGeometryBuildDescription &description
         ) const = 0;
 
-        virtual RayTracingDeviceDescription
-        GetRayTracingDeviceDescription() const = 0;
-        virtual AccelerationStructureProperties
-        GetAccelerationStructureProperties() const = 0;
+        virtual RayTracingDeviceDescription GetRayTracingDeviceDescription() const = 0;
+        virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;
 
-        virtual SurfaceHandle CreateSurfaceFromWin32(
-            uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
-        ) = 0;
-        virtual SurfaceHandle CreateSurfaceFromX11(
-            uintptr_t display, uint32_t screen, uint32_t window
-        ) = 0;
-        virtual SurfaceHandle CreateSurfaceFromWayland(
-            uintptr_t display, uintptr_t surface
-        ) = 0;
+        virtual SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) = 0;
+        virtual SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) = 0;
+        virtual SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) = 0;
         virtual SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow) = 0;
         virtual SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId) = 0;
 

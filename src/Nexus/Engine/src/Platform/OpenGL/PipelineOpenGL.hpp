@@ -24,18 +24,13 @@ namespace Nexus::Graphics
     class GraphicsPipelineOpenGL : public IGraphicsPipeline, public PipelineOpenGL
     {
       public:
-        GraphicsPipelineOpenGL(
-            const GraphicsPipelineDescription &description,
-            GraphicsDeviceOpenGL *device
-        );
+        GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description, GraphicsDeviceOpenGL *device);
         virtual ~GraphicsPipelineOpenGL();
-        virtual const GraphicsPipelineDescription &
-        GetPipelineDescription() const override;
+        virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 
         void BindBuffers(
-            const std::map<uint32_t, VertexBufferView> &vertexBuffers,
-            std::optional<IndexBufferView> indexBuffer, uint32_t firstVertex,
-            uint32_t firstInstance, GL::IOffscreenContext *context
+            const std::map<uint32_t, VertexBufferView> &vertexBuffers, std::optional<IndexBufferView> indexBuffer,
+            uint32_t firstVertex, uint32_t firstInstance, GL::IOffscreenContext *context
         );
 
         void Bind(GL::IOffscreenContext *context) final;
@@ -44,14 +39,10 @@ namespace Nexus::Graphics
         void CreateVAO(GL::IOffscreenContext *context);
         void DestroyVAO(GL::IOffscreenContext *context);
 
-        void SetStencilReference(
-            GL::IOffscreenContext *context, uint32_t stencilReference
-        );
+        void SetStencilReference(GL::IOffscreenContext *context, uint32_t stencilReference);
 
       private:
-        void SetupDepthStencil(
-            GL::IOffscreenContext *context, uint32_t stencilReference
-        );
+        void SetupDepthStencil(GL::IOffscreenContext *context, uint32_t stencilReference);
         void SetupRasterizer(GL::IOffscreenContext *context);
         void SetupBlending(GL::IOffscreenContext *context);
         void SetShader(GL::IOffscreenContext *context);
@@ -66,10 +57,7 @@ namespace Nexus::Graphics
     class ComputePipelineOpenGL : public IComputePipeline, public PipelineOpenGL
     {
       public:
-        ComputePipelineOpenGL(
-            const ComputePipelineDescription &description,
-            GraphicsDeviceOpenGL *device
-        );
+        ComputePipelineOpenGL(const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device);
         virtual ~ComputePipelineOpenGL();
         void Bind(GL::IOffscreenContext *context) final;
         uint32_t GetShaderHandle() const final;

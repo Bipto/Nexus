@@ -25,22 +25,19 @@ namespace Nexus::Processors
         {
         }
         ModelImportData LoadModel(
-            const std::string &filepath, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
+            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
         );
         Ref<Graphics::Model> Import(
-            const std::string &filepath, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue
+            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
         );
         GUID Process(
-            const std::string &filepath, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue, Project *project
+            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
+            Project *project
         ) final;
         virtual std::any Import(const std::string &filepath) final;
     };
 
     NX_REGISTER_PROCESSOR(
-        AssimpProcessor, Graphics::Model, MODELS_PROCESSOR_NAME,
-        (std::vector<std::string>{".fbx", ".obj", ".dae"})
+        AssimpProcessor, Graphics::Model, MODELS_PROCESSOR_NAME, (std::vector<std::string>{".fbx", ".obj", ".dae"})
     );
 } // namespace Nexus::Processors

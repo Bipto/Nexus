@@ -19,9 +19,7 @@ namespace Nexus::Graphics
         DeviceBufferOpenGL(const DeviceBufferDescription &desc);
         virtual ~DeviceBufferOpenGL();
         virtual void SetData(const void *data, uint32_t offset, uint32_t size) final;
-        virtual std::vector<char> GetData(
-            uint32_t offset, uint32_t size
-        ) const final;
+        virtual std::vector<char> GetData(uint32_t offset, uint32_t size) const final;
         virtual const DeviceBufferDescription &GetDescription() const final;
 
         void Bind(GLenum target);

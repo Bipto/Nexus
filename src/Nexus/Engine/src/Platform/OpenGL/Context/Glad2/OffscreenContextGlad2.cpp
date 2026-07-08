@@ -23,9 +23,7 @@ namespace Nexus::GL
         return result;
     }
 
-    void OffscreenContextGlad2::ExecuteCommands(
-        std::function<void(const GladGLContext &context)> function
-    )
+    void OffscreenContextGlad2::ExecuteCommands(std::function<void(const GladGLContext &context)> function)
     {
         function(m_Context);
     }

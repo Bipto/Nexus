@@ -19,30 +19,20 @@ namespace Nexus
 
         m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 
-        m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(
-            Graphics::IGraphicsAPI::CreateAPI(spec.GraphicsCreateInfo)
-        );
+        m_GraphicsAPI =
+            std::unique_ptr<Graphics::IGraphicsAPI>(Graphics::IGraphicsAPI::CreateAPI(spec.GraphicsCreateInfo));
 
-        std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices =
-            m_GraphicsAPI->GetPhysicalDevices();
-        m_GraphicsDevice = std::unique_ptr<Graphics::IGraphicsDevice>(
-            m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0])
-        );
+        std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
+        m_GraphicsDevice =
+            std::unique_ptr<Graphics::IGraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
         // iterate through all available command queues
-        std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies =
-            m_GraphicsDevice->GetQueueFamilies();
+        std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
         for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
         {
-            if (queueFamily.HasCapability(
-                    Nexus::Graphics::QueueCapabilities::Graphics
-                ) &&
-                queueFamily.HasCapability(
-                    Nexus::Graphics::QueueCapabilities::Compute
-                ) &&
-                queueFamily.HasCapability(
-                    Nexus::Graphics::QueueCapabilities::Transfer
-                ))
+            if (queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Graphics) &&
+                queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Compute) &&
+                queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Transfer))
             {
                 // create graphics queue
                 {
@@ -50,36 +40,24 @@ namespace Nexus
                     queueDesc.QueueFamilyIndex = queueFamily.QueueFamily;
                     queueDesc.QueueIndex = 0;
                     queueDesc.DebugName = "Application Graphics Queue";
-                    m_CommandQueueGroup.GraphicsQueue =
-                        m_GraphicsDevice->CreateCommandQueue(queueDesc);
+                    m_CommandQueueGroup.GraphicsQueue = m_GraphicsDevice->CreateCommandQueue(queueDesc);
                 }
             }
         }
 
-        Graphics::SurfaceHandle surface =
-            Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
+        Graphics::SurfaceHandle surface = Utils::CreateSurfaceForWindow(m_GraphicsDevice.get(), m_Window);
         m_Description.SwapchainDescription.Surface = surface;
 
         // hack, this probably needs removing at some point
-        m_Description.SwapchainDescription.Width =
-            m_Description.WindowProperties.Width;
-        m_Description.SwapchainDescription.Height =
-            m_Description.WindowProperties.Height;
-        m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(
-            m_Description.SwapchainDescription
-        );
+        m_Description.SwapchainDescription.Width = m_Description.WindowProperties.Width;
+        m_Description.SwapchainDescription.Height = m_Description.WindowProperties.Height;
+        m_Swapchain = m_CommandQueueGroup.GraphicsQueue->CreateSwapchain(m_Description.SwapchainDescription);
 
         m_AudioDevice = Nexus::Audio::OpenAL::CreateDevice();
 
-        m_Window->SetRenderFunction([&](Nexus::TimeSpan time) {
-            m_LayerStack.OnRender(time, m_Window);
-        });
-        m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) {
-            m_LayerStack.OnUpdate(time, m_Window);
-        });
-        m_Window->SetTickFunction([&](Nexus::TimeSpan time) {
-            m_LayerStack.OnTick(time, m_Window);
-        });
+        m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnRender(time, m_Window); });
+        m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnUpdate(time, m_Window); });
+        m_Window->SetTickFunction([&](Nexus::TimeSpan time) { m_LayerStack.OnTick(time, m_Window); });
         m_Window->AddResizeCallback([&](const Nexus::WindowResizedEventArgs &args) {
             auto [width, height] = args.Size;
             m_Swapchain->Resize(width, height);
@@ -177,8 +155,6 @@ namespace Nexus
 
     std::string Application::GetApplicationPath()
     {
-        return Platform::GetApplicationPath(
-            m_Description.Organization.c_str(), m_Description.App.c_str()
-        );
+        return Platform::GetApplicationPath(m_Description.Organization.c_str(), m_Description.App.c_str());
     }
 } // namespace Nexus

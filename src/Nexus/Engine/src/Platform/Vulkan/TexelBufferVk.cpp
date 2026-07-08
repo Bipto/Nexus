@@ -3,9 +3,7 @@
 
 namespace Nexus::Graphics
 {
-    TexelBufferVk::TexelBufferVk(
-        const TexelBufferDescription &desc, GraphicsDeviceVk *device
-    )
+    TexelBufferVk::TexelBufferVk(const TexelBufferDescription &desc, GraphicsDeviceVk *device)
         : m_Device(device), m_Description(desc)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
@@ -21,9 +19,7 @@ namespace Nexus::Graphics
         viewInfo.offset = desc.Offset;
         viewInfo.range = desc.SizeInBytes;
 
-        context.CreateBufferView(
-            device->GetVkDevice(), &viewInfo, nullptr, &m_BufferView
-        );
+        context.CreateBufferView(device->GetVkDevice(), &viewInfo, nullptr, &m_BufferView);
     }
 
     TexelBufferVk::~TexelBufferVk()

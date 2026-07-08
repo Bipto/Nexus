@@ -83,9 +83,7 @@ namespace Nexus
     {
       public:
         ScopedEvent() = default;
-        ScopedEvent(
-            EventHandler<Args...> *eventHandler, std::function<void(Args...)> func
-        )
+        ScopedEvent(EventHandler<Args...> *eventHandler, std::function<void(Args...)> func)
             : m_EventHandler(eventHandler)
         {
             m_BoundEvent = eventHandler->Bind(func);

@@ -11,8 +11,7 @@ namespace Nexus::UI
       public:
         template <typename EventTag>
         EventBinder(wxWindow *win, EventTag evt, wxWindowID id)
-            : m_Window(win), m_Id(id),
-              m_Callback(std::make_shared<std::function<void()>>())
+            : m_Window(win), m_Id(id), m_Callback(std::make_shared<std::function<void()>>())
         {
             // Store a binder function that knows how to bind this event type
             m_Binder = [win, evt, id](std::shared_ptr<std::function<void()>> cb) {

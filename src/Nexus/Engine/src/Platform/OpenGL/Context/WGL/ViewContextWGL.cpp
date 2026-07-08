@@ -7,10 +7,7 @@
 
 namespace Nexus::GL
 {
-    ViewContextWGL::ViewContextWGL(
-        HWND hwnd, HDC hdc, OffscreenContextWGL *context,
-        const ContextDescription &spec
-    )
+    ViewContextWGL::ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *context, const ContextDescription &spec)
         : m_HWND(hwnd), m_HDC(hdc), m_Description(spec), m_PBuffer(context)
     {
         m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
@@ -31,10 +28,8 @@ namespace Nexus::GL
     {
         LPSTR messageBuffer = nullptr;
         size_t size = FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPSTR)&messageBuffer, 0, NULL
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL
         );
 
         if (size > 0)
@@ -68,10 +63,7 @@ namespace Nexus::GL
         return success;
     }
 
-    void ViewContextWGL::Swap(
-        Graphics::TextureHandle texture,
-        const Graphics::SwapchainPresentDescription &presentDesc
-    )
+    void ViewContextWGL::Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc)
     {
         NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
@@ -85,17 +77,13 @@ namespace Nexus::GL
 
                     // framebuffer texture
                     copyDesc.Source = texture;
-                    copyDesc.SourceOffset = {
-                        static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0
-                    };
+                    copyDesc.SourceOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
                     copyDesc.SourceMipLevel = 0;
 
                     // backbuffer
                     copyDesc.Destination = {};
                     copyDesc.DestinationMipLevel = 0;
-                    copyDesc.DestinationOffset = {
-                        static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0
-                    };
+                    copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
                     copyDesc.Extent = {rect.Width, rect.Height};
                     GL::CopyTextureToTexture(copyDesc, gladContext, this);
@@ -141,9 +129,7 @@ namespace Nexus::GL
         return m_Description;
     }
 
-    HGLRC ViewContextWGL::CreateSharedContext(
-        HDC hdc, HGLRC sharedContext, const ContextDescription &spec
-    )
+    HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec)
     {
         PIXELFORMATDESCRIPTOR pfd = {
             sizeof(PIXELFORMATDESCRIPTOR),
@@ -215,9 +201,7 @@ namespace Nexus::GL
         iAttributes.push_back(spec.StencilBits);
         iAttributes.push_back(0);
 
-        wglChoosePixelFormatARB(
-            hdc, iAttributes.data(), fAttributes, 1, &pixelFormat, &numFormats
-        );
+        wglChoosePixelFormatARB(hdc, iAttributes.data(), fAttributes, 1, &pixelFormat, &numFormats);
         BOOL pixelFormatSet = SetPixelFormat(hdc, pixelFormat, &pfd);
         assert(pixelFormatSet && "Failed to set pixel format");
 
@@ -246,8 +230,7 @@ namespace Nexus::GL
 
         attributes.push_back(0);
 
-        HGLRC hglrc =
-            wglCreateContextAttribsARB(hdc, sharedContext, attributes.data());
+        HGLRC hglrc = wglCreateContextAttribsARB(hdc, sharedContext, attributes.data());
         NX_VALIDATE(wglShareLists(sharedContext, hglrc), "Failed to share contexts");
 
         NX_VALIDATE(hglrc, "Failed to create hglrc");

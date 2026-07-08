@@ -22,8 +22,7 @@ namespace Nexus
         FirstPersonCamera() = default;
 
         FirstPersonCamera(
-            Graphics::IGraphicsDevice *device, int width = 1280, int height = 720,
-            const glm::vec3 &position = {0, 0, 0}
+            Graphics::IGraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0}
         )
             : m_Device(device), m_Position(position)
         {
@@ -169,8 +168,7 @@ namespace Nexus
 
             float speed = 2.0f * time.GetSeconds<float>();
 
-            std::optional<uint32_t> defaultKeyboard =
-                Platform::GetActiveKeyboardId();
+            std::optional<uint32_t> defaultKeyboard = Platform::GetActiveKeyboardId();
 
             if (!defaultKeyboard.has_value())
                 return;
@@ -212,17 +210,15 @@ namespace Nexus
                 if (m_ProjectionType == ProjectionType::Orthographic)
                 {
                     m_Projection = glm::ortho<float>(
-                        (-m_Width / 2) / m_Zoom, (m_Width / 2) / m_Zoom,
-                        (-m_Height / 2) / m_Zoom, (m_Height / 2) / m_Zoom, 0.1f,
-                        10000.0f
+                        (-m_Width / 2) / m_Zoom, (m_Width / 2) / m_Zoom, (-m_Height / 2) / m_Zoom,
+                        (m_Height / 2) / m_Zoom, 0.1f, 10000.0f
                     );
                 }
                 // perspective
                 else
                 {
                     m_Projection = glm::perspectiveFov<float>(
-                        glm::radians(m_Zoom), (float)m_Width, (float)m_Height, 0.1f,
-                        1000.0f
+                        glm::radians(m_Zoom), (float)m_Width, (float)m_Height, 0.1f, 1000.0f
                     );
                 }
             }

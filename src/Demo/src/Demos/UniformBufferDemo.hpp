@@ -13,8 +13,7 @@ namespace Demos
     {
       public:
         UniformBufferDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -34,11 +33,7 @@ namespace Demos
             m_Mesh = factory.CreateSprite();
 
             auto [texture, textureView] = Nexus::Utils::CreateTexture2DWithView(
-                m_CommandQueue,
-                Nexus::FileSystem::GetFilePathAbsolute(
-                    "resources/demo/textures/brick.jpg"
-                ),
-                false
+                m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false
             );
 
             m_Texture = texture;
@@ -50,11 +45,8 @@ namespace Demos
             Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
             transformUniformBufferView.BufferHandle = m_TransformUniformBuffer;
             transformUniformBufferView.Offset = 0;
-            transformUniformBufferView.Size =
-                m_TransformUniformBuffer->GetDescription().SizeInBytes;
-            m_ResourceSet->WriteUniformBuffer(
-                transformUniformBufferView, "Transform"
-            );
+            transformUniformBufferView.Size = m_TransformUniformBuffer->GetDescription().SizeInBytes;
+            m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 
             Nexus::Graphics::CombinedImageSampler ciSampler = {};
             ciSampler.ImageTexture = m_TextureView;
@@ -68,18 +60,13 @@ namespace Demos
         {
             auto [width, height] = m_Window->GetWindowSize();
 
-            m_TransformUniforms.Transform =
-                glm::translate(glm::mat4(1.0f), m_Position);
-            m_TransformUniformBuffer->SetData(
-                &m_TransformUniforms, 0, sizeof(m_TransformUniforms)
-            );
+            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -98,9 +85,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
             resourceBindingDesc.TargetResourceSet = m_ResourceSet;
@@ -138,63 +123,43 @@ namespace Demos
 
         virtual void RenderUI() override
         {
-            ImGui::DragFloat2(
-                "Position", glm::value_ptr(m_Position), 0.1f, -1.0f, 1.0f
-            );
+            ImGui::DragFloat2("Position", glm::value_ptr(m_Position), 0.1f, -1.0f, 1.0f);
         }
 
       private:
         void CreatePipeline()
         {
             Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-                Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-                Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-            pipelineDescription
-                .VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                m_GraphicsDevice,
-                "resources/demo/shaders/uniform_buffers/uniform_buffers.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Vertex
+            pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/uniform_buffers/uniform_buffers.vert.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
             );
-            pipelineDescription
-                .FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+            pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, Nexus::GetApplication()->GetApplicationPath(),
                 "resources/demo/shaders/uniform_buffers/uniform_buffers.frag.glsl",
                 Nexus::Graphics::ShaderStage::Fragment
             );
 
             Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-            transformUniformBufferDesc.Access =
-                Nexus::Graphics::BufferMemoryAccess::Upload;
+            transformUniformBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage_Uniform;
-            transformUniformBufferDesc.StrideInBytes =
-                sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-            transformUniformBufferDesc.SizeInBytes =
-                sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-            m_TransformUniformBuffer =
-                m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+            transformUniformBufferDesc.StrideInBytes = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+            transformUniformBufferDesc.SizeInBytes = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
             pipelineDescription.ColourTargetCount = 1;
-            pipelineDescription.ColourFormats[0] =
-                Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-            pipelineDescription.Samples = Nexus::GetApplication()
-                                              ->GetPrimarySwapchain()
-                                              ->GetDescription()
-                                              .Samples;
+            pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+            pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
-            pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::
-                    GetLayout()
-            };
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceDescription.Descriptors = {
                 Nexus::Graphics::ResourceDescriptor{
                     .Name = "u_Texture",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::
-                        CombinedImageSampler,
+                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                     .CountOrSizeInBytes = 1
                 },
                 Nexus::Graphics::ResourceDescriptor{
@@ -204,8 +169,7 @@ namespace Demos
                 }
             };
 
-            m_Pipeline =
-                m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+            m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 

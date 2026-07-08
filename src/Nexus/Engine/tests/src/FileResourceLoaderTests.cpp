@@ -39,9 +39,7 @@ TEST_F(FileResourceLoaderTest, LoadBytes_LoadsExistingFile)
     auto result = loader.LoadBytes("hello.txt");
 
     ASSERT_TRUE(result.has_value());
-    std::string loaded(
-        reinterpret_cast<const char *>(result.value().data()), result.value().size()
-    );
+    std::string loaded(reinterpret_cast<const char *>(result.value().data()), result.value().size());
     EXPECT_EQ(loaded, "Hello world");
 }
 

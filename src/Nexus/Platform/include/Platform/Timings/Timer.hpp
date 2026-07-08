@@ -39,33 +39,23 @@ namespace Nexus::Timings
             m_Functions.clear();
         }
 
-        inline void After(
-            std::function<void(Nexus::TimeSpan)> function,
-            std::optional<double> seconds
-        )
+        inline void After(std::function<void(Nexus::TimeSpan)> function, std::optional<double> seconds)
         {
             AddFunction(function, seconds, ExecutionPolicy::After);
         }
 
-        inline void Every(
-            std::function<void(Nexus::TimeSpan)> function,
-            std::optional<double> seconds
-        )
+        inline void Every(std::function<void(Nexus::TimeSpan)> function, std::optional<double> seconds)
         {
             AddFunction(function, seconds, ExecutionPolicy::Every);
         }
 
       private:
         void AddFunction(
-            std::function<void(Nexus::TimeSpan)> func, std::optional<double> seconds,
-            ExecutionPolicy policy
+            std::function<void(Nexus::TimeSpan)> func, std::optional<double> seconds, ExecutionPolicy policy
         )
         {
             FunctionToExecute funcToExecute = {
-                .Func = func,
-                .WhenToExecute = seconds,
-                .Timer = Nexus::TimeSpan::FromNanoseconds(0),
-                .Policy = policy
+                .Func = func, .WhenToExecute = seconds, .Timer = Nexus::TimeSpan::FromNanoseconds(0), .Policy = policy
             };
             m_Functions.push_back(funcToExecute);
         }
@@ -113,12 +103,8 @@ namespace Nexus::Timings
     class NX_PLATFORM_API ProfilingTimer
     {
       public:
-        ProfilingTimer(
-            const char *name,
-            const std::source_location location = std::source_location::current()
-        )
-            : m_Name(name), m_StartTimepoint(std::chrono::steady_clock::now()),
-              m_Stopped(false), m_Location(location)
+        ProfilingTimer(const char *name, const std::source_location location = std::source_location::current())
+            : m_Name(name), m_StartTimepoint(std::chrono::steady_clock::now()), m_Stopped(false), m_Location(location)
         {
         }
 
@@ -130,18 +116,12 @@ namespace Nexus::Timings
 
         void Stop()
         {
-            std::chrono::steady_clock::time_point endTimepoint =
-                std::chrono::steady_clock::now();
+            std::chrono::steady_clock::time_point endTimepoint = std::chrono::steady_clock::now();
 
-            uint64_t start = std::chrono::time_point_cast<std::chrono::nanoseconds>(
-                                 m_StartTimepoint
-            )
-                                 .time_since_epoch()
-                                 .count();
+            uint64_t start =
+                std::chrono::time_point_cast<std::chrono::nanoseconds>(m_StartTimepoint).time_since_epoch().count();
             uint64_t end =
-                std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimepoint)
-                    .time_since_epoch()
-                    .count();
+                std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimepoint).time_since_epoch().count();
 
             uint64_t elapsed = end - start;
             m_Stopped = true;
@@ -173,8 +153,7 @@ namespace Nexus::Timings
 
       private:
         const char *m_Name = {};
-        std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint =
-            std::chrono::steady_clock::now();
+        std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint = std::chrono::steady_clock::now();
         bool m_Stopped = false;
         std::source_location m_Location = {};
     };

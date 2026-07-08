@@ -53,10 +53,8 @@ namespace Nexus
         /// during the preprocessing stage
         std::expected<std::string, std::string> PreprocessShader(
             const std::string &shaderPath, const std::string &shaderText,
-            const std::vector<std::string> &includeDirectories,
-            std::vector<std::string> &includeStack,
-            std::unordered_set<std::string> &onceIncluded,
-            const std::string &currentFile
+            const std::vector<std::string> &includeDirectories, std::vector<std::string> &includeStack,
+            std::unordered_set<std::string> &onceIncluded, const std::string &currentFile
         ) const;
 
       private:

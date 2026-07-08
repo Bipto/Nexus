@@ -30,9 +30,7 @@ namespace Nexus::Audio
         return m_Buffer.Get();
     }
 
-    void AudioBufferOpenAL::SetData(
-        const void *const data, size_t size, AudioFormat format, size_t frequency
-    )
+    void AudioBufferOpenAL::SetData(const void *const data, size_t size, AudioFormat format, size_t frequency)
     {
         ALenum alFormat = AL::GetOpenALFormat(format);
         alBufferData(m_Buffer.Get(), alFormat, data, size, frequency);

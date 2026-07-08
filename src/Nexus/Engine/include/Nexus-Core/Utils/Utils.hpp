@@ -23,8 +23,7 @@ namespace Nexus::Utils
     NX_API glm::vec4 GenerateRandomColour();
     NX_API uint32_t PackColour(const glm::vec4 &colour);
 
-    template <typename T>
-    inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
+    template <typename T> inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
     {
         return newMin + (newMax - newMin) * ((value - oldMin) / (oldMax - oldMin));
     }
@@ -44,29 +43,20 @@ namespace Nexus::Utils
         return a.x * b.y - b.x * a.y;
     }
 
-    inline bool IsInsideEdge(
-        const glm::vec2 &point, const glm::vec2 &a, const glm::vec2 &b
-    )
+    inline bool IsInsideEdge(const glm::vec2 &point, const glm::vec2 &a, const glm::vec2 &b)
     {
         return (Cross(a - b, point) + Cross(b, a)) < 0.0f;
     }
 
-    inline glm::vec2 Intersection(
-        const glm::vec2 &a1, const glm::vec2 &a2, const glm::vec2 &b1,
-        const glm::vec2 &b2
-    )
+    inline glm::vec2 Intersection(const glm::vec2 &a1, const glm::vec2 &a2, const glm::vec2 &b1, const glm::vec2 &b2)
     {
-        return ((b1 - b2) * Cross(a1, a2) - (a1 - a2) * Cross(b1, b2)) *
-               (1.0f / Cross(a1 - a2, b1 - b2));
+        return ((b1 - b2) * Cross(a1, a2) - (a1 - a2) * Cross(b1, b2)) * (1.0f / Cross(a1 - a2, b1 - b2));
     }
 
-    NX_API void Clip(
-        std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2
-    );
+    NX_API void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
 
     NX_API std::vector<glm::vec2> SutherlandHodgman(
-        const std::vector<glm::vec2> &subjectPolygon,
-        const std::vector<glm::vec2> &clipPolygon
+        const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon
     );
     NX_API Nexus::Graphics::Polygon SutherlandHodgman(
         const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip
@@ -74,25 +64,17 @@ namespace Nexus::Utils
 
     NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
 
-    NX_API bool Triangulate(
-        const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles
-    );
+    NX_API bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles);
 
     NX_API std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(
         const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices
     );
 
-    NX_API Nexus::Graphics::Polygon GeneratePolygon(
-        const std::vector<glm::vec2> &polygon
-    );
+    NX_API Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
 
-    NX_API Graphics::WindingOrder GetWindingOrder(
-        glm::vec2 a, glm::vec2 b, glm::vec2 c
-    );
+    NX_API Graphics::WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 
-    NX_API std::vector<glm::vec2> ReverseWindingOrder(
-        const std::vector<glm::vec2> &vertices
-    );
+    NX_API std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
 
     template <typename T> T GetItem(std::span<T> collection, int index)
     {
@@ -118,9 +100,7 @@ namespace Nexus::Utils
         return std::find(items.begin(), items.end(), toFind) != items.end();
     }
 
-    inline uint32_t CalculateSubresource(
-        uint32_t mipLevel, uint32_t arrayLayer, uint32_t totalMipLevels
-    )
+    inline uint32_t CalculateSubresource(uint32_t mipLevel, uint32_t arrayLayer, uint32_t totalMipLevels)
     {
         return mipLevel + arrayLayer * totalMipLevels;
     }
@@ -133,9 +113,7 @@ namespace Nexus::Utils
         return hasher(input);
     }
 
-    [[nodiscard]] inline Point2D<uint32_t> GetMipSize(
-        uint32_t baseWidth, uint32_t baseHeight, uint32_t level
-    )
+    [[nodiscard]] inline Point2D<uint32_t> GetMipSize(uint32_t baseWidth, uint32_t baseHeight, uint32_t level)
     {
         uint32_t width = baseWidth;
         uint32_t height = baseHeight;
@@ -160,23 +138,22 @@ namespace Nexus::Utils
     }
 
     Graphics::DeviceBufferHandle CreateUploadBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes,
-        Graphics::IGraphicsDevice *device
+        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device
     );
 
     Graphics::DeviceBufferHandle CreateFilledVertexBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes,
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
+        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
+        Graphics::CommandQueueHandle commandQueue
     );
 
     Graphics::DeviceBufferHandle CreateFilledIndexBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes,
-        Graphics::IGraphicsDevice *devic, Graphics::CommandQueueHandle commandQueuee
+        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *devic,
+        Graphics::CommandQueueHandle commandQueuee
     );
 
     Graphics::DeviceBufferHandle CreateFilledUniformBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes,
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
+        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
+        Graphics::CommandQueueHandle commandQueue
     );
 
     template <typename T> [[nodiscard]] T AlignTo(T value, T alignment)
@@ -211,11 +188,7 @@ namespace Nexus::Utils
 
     void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);
 
-    NX_API void FlipPixelsHorizontally(
-        void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format
-    );
-    NX_API void FlipPixelsVertically(
-        void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format
-    );
+    NX_API void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
+    NX_API void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 
 } // namespace Nexus::Utils

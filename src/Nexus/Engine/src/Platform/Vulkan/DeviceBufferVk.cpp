@@ -5,43 +5,34 @@
 
 namespace Nexus::Graphics
 {
-    DeviceBufferVk::DeviceBufferVk(
-        const DeviceBufferDescription &desc, GraphicsDeviceVk *device
-    )
+    DeviceBufferVk::DeviceBufferVk(const DeviceBufferDescription &desc, GraphicsDeviceVk *device)
         : m_BufferDescription(desc), m_Device(device)
     {
-        VkBufferCreateInfo bufferCreateInfo =
-            Vk::GetVkBufferCreateInfo(desc, device);
+        VkBufferCreateInfo bufferCreateInfo = Vk::GetVkBufferCreateInfo(desc, device);
 
         bool sparseBuffer = desc.Flags & BufferCreateFlags_SparseBinding;
         if (sparseBuffer)
         {
-            bufferCreateInfo.flags = VK_BUFFER_CREATE_SPARSE_BINDING_BIT |
-                                     VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT;
+            bufferCreateInfo.flags = VK_BUFFER_CREATE_SPARSE_BINDING_BIT | VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT;
         }
         else
         {
-            VmaAllocationCreateInfo vmaAllocInfo =
-                Vk::GetVmaAllocationCreateInfo(desc, device);
+            VmaAllocationCreateInfo vmaAllocInfo = Vk::GetVmaAllocationCreateInfo(desc, device);
             NX_VALIDATE(
                 vmaCreateBuffer(
-                    device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo,
-                    &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr
+                    device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation,
+                    nullptr
                 ) == VK_SUCCESS,
                 "Failed to create buffer"
             );
         }
 
-        device->SetObjectName(
-            VK_OBJECT_TYPE_BUFFER, (uint64_t)m_Buffer.Buffer, desc.DebugName.c_str()
-        );
+        device->SetObjectName(VK_OBJECT_TYPE_BUFFER, (uint64_t)m_Buffer.Buffer, desc.DebugName.c_str());
     }
 
     DeviceBufferVk::~DeviceBufferVk()
     {
-        vmaDestroyBuffer(
-            m_Device->GetAllocator(), m_Buffer.Buffer, m_Buffer.Allocation
-        );
+        vmaDestroyBuffer(m_Device->GetAllocator(), m_Buffer.Buffer, m_Buffer.Allocation);
     }
 
     void DeviceBufferVk::SetData(const void *data, uint32_t offset, uint32_t size)
@@ -96,9 +87,7 @@ namespace Nexus::Graphics
             info.pNext = nullptr;
             info.buffer = m_Buffer.Buffer;
 
-            VkDeviceAddress address =
-                context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info) +
-                offset;
+            VkDeviceAddress address = context.GetBufferDeviceAddressKHR(m_Device->GetVkDevice(), &info) + offset;
             return address;
         }
 

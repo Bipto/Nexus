@@ -39,12 +39,8 @@ namespace Nexus::Graphics
             T q3 = -3 * ttt + 4 * tt + t;
             T q4 = ttt - tt;
 
-            T tx = (m_Points[p0].X * q1 + m_Points[p1].X * q2 + m_Points[p2].X * q3 +
-                    m_Points[p3].X * q4) /
-                   2;
-            T ty = (m_Points[p0].Y * q1 + m_Points[p1].Y * q2 + m_Points[p2].Y * q3 +
-                    m_Points[p3].Y * q4) /
-                   2;
+            T tx = (m_Points[p0].X * q1 + m_Points[p1].X * q2 + m_Points[p2].X * q3 + m_Points[p3].X * q4) / 2;
+            T ty = (m_Points[p0].Y * q1 + m_Points[p1].Y * q2 + m_Points[p2].Y * q3 + m_Points[p3].Y * q4) / 2;
 
             return {tx, ty};
         }

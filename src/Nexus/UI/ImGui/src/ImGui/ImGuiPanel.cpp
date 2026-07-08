@@ -25,9 +25,7 @@ namespace Nexus::UI
                 basePos = ImGui::GetMainViewport()->Pos;
             }
 
-            ImGui::SetNextWindowPos(
-                ImVec2(basePos.x + m_Position->X, basePos.y + m_Position->Y)
-            );
+            ImGui::SetNextWindowPos(ImVec2(basePos.x + m_Position->X, basePos.y + m_Position->Y));
         }
 
         if (m_Size)
@@ -54,8 +52,7 @@ namespace Nexus::UI
         else
         {
             if (ImGui::Begin(
-                    m_Title.c_str(), &m_Open,
-                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+                    m_Title.c_str(), &m_Open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                 ))
             {
                 for (auto &child : m_Children)

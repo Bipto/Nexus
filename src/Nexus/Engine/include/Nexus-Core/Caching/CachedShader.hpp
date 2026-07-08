@@ -14,9 +14,7 @@ namespace Nexus::Graphics
     class NX_API CachedShader
     {
       public:
-        static CachedShader FromModule(
-            const ShaderModuleDescription &shaderSpec, size_t hash
-        )
+        static CachedShader FromModule(const ShaderModuleDescription &shaderSpec, size_t hash)
         {
             return CachedShader(shaderSpec, hash);
         }
@@ -76,8 +74,7 @@ namespace Nexus::Graphics
             std::string name = shaderNode["Name"].as<std::string>();
             std::string source = shaderNode["Source"].as<std::string>();
             ShaderStage stage = (ShaderStage)shaderNode["Stage"].as<uint32_t>();
-            std::vector<uint32_t> spirv =
-                shaderNode["SPIRV"].as<std::vector<uint32_t>>();
+            std::vector<uint32_t> spirv = shaderNode["SPIRV"].as<std::vector<uint32_t>>();
             ;
 
             m_Hash = hash;

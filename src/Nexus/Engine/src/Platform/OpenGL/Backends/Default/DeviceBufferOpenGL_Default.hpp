@@ -12,9 +12,7 @@ namespace Nexus::Graphics
     class DeviceBufferOpenGL final : public IDeviceBuffer
     {
       public:
-        DeviceBufferOpenGL(
-            const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device
-        );
+        DeviceBufferOpenGL(const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device);
         virtual ~DeviceBufferOpenGL();
         void SetData(const void *data, uint32_t offset, uint32_t size) final;
         std::vector<char> GetData(uint32_t offset, uint32_t size) final;

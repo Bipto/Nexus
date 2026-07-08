@@ -121,19 +121,14 @@ namespace Nexus
         return sdlFlags;
     }
 
-    SDL3Window::SDL3Window(const WindowDescription &windowProps)
-        : IWindow(windowProps), m_Description(windowProps)
+    SDL3Window::SDL3Window(const WindowDescription &windowProps) : IWindow(windowProps), m_Description(windowProps)
     {
         std::string idSelector = "#" + windowProps.CanvasId;
         SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
         uint32_t flags = GetSDl3WindowFlags(windowProps.Flags);
 
         m_Window = {
-            SDL_CreateWindow(
-                windowProps.Title.c_str(), windowProps.Width, windowProps.Height,
-                flags
-            ),
-            SDL_DestroyWindow
+            SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags), SDL_DestroyWindow
         };
 
         if (m_Window == nullptr)
@@ -344,9 +339,7 @@ namespace Nexus
         return SDL_GetWindowDisplayScale(m_Window.get());
     }
 
-    void SDL3Window::SetTextInputRect(
-        int32_t x, int32_t y, int32_t width, int32_t height
-    )
+    void SDL3Window::SetTextInputRect(int32_t x, int32_t y, int32_t width, int32_t height)
     {
         SDL_Rect r{
             .x = x,
@@ -386,16 +379,12 @@ namespace Nexus
         SetupTimer();
     }
 
-    void SDL3Window::SetRenderFunction(
-        std::function<void(Nexus::TimeSpan time)> func
-    )
+    void SDL3Window::SetRenderFunction(std::function<void(Nexus::TimeSpan time)> func)
     {
         m_RenderFunc = func;
     }
 
-    void SDL3Window::SetUpdateFunction(
-        std::function<void(Nexus::TimeSpan time)> func
-    )
+    void SDL3Window::SetUpdateFunction(std::function<void(Nexus::TimeSpan time)> func)
     {
         m_UpdateFunc = func;
     }
@@ -417,46 +406,29 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
 #if defined(NX_PLATFORM_WINDOWS)
-        info.hwnd = (HWND)SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr
-        );
-        info.hdc = (HDC)SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr
-        );
-        info.instance = (HINSTANCE)SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr
-        );
+        info.hwnd = (HWND)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+        info.hdc = (HDC)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr);
+        info.instance = (HINSTANCE)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr);
 #elif defined(NX_PLATFORM_LINUX)
-        info.display = (Display *)SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr
-        );
-        info.screen = (int)SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0
-        );
-        info.window = (Window)(unsigned long)SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0
-        );
+        info.display = (Display *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+        info.screen = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0);
+        info.window = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 #elif defined(NX_PLATFORM_WEB)
         info.canvasId = m_Description.CanvasId;
 #elif defined(NX_PLATFORM_ANDROID)
-        info.nativeWindow = (ANativeWindow *)SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr
-        );
+        info.nativeWindow =
+            (ANativeWindow *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
 #endif
 
         return info;
     }
 
-    void SDL3Window::AddResizeCallback(
-        std::function<void(const WindowResizedEventArgs &)> func
-    )
+    void SDL3Window::AddResizeCallback(std::function<void(const WindowResizedEventArgs &)> func)
     {
         m_OnResizeCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddMoveCallback(
-        std::function<void(const WindowMovedEventArgs &)> func
-    )
+    void SDL3Window::AddMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)
     {
         m_OnMoveCallbacks.push_back(func);
     }
@@ -501,58 +473,42 @@ namespace Nexus
         m_OnExposeCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddKeyPressedCallback(
-        std::function<void(const KeyPressedEventArgs &)> func
-    )
+    void SDL3Window::AddKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)
     {
         m_OnKeyPressedCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddKeyReleasedCallback(
-        std::function<void(const KeyReleasedEventArgs &)> func
-    )
+    void SDL3Window::AddKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func)
     {
         m_OnKeyReleasedCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddTextInputCallback(
-        std::function<void(const TextInputEventArgs &)> func
-    )
+    void SDL3Window::AddTextInputCallback(std::function<void(const TextInputEventArgs &)> func)
     {
         m_OnTextInputCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddTextEditCallback(
-        std::function<void(const TextEditEventArgs &)> func
-    )
+    void SDL3Window::AddTextEditCallback(std::function<void(const TextEditEventArgs &)> func)
     {
         m_OnTextEditCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddMousePressedCallback(
-        std::function<void(const MouseButtonPressedEventArgs &)> func
-    )
+    void SDL3Window::AddMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)
     {
         m_OnMouseButtonPressedCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddMouseReleasedCallback(
-        std::function<void(const MouseButtonReleasedEventArgs &)> func
-    )
+    void SDL3Window::AddMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func)
     {
         m_OnMouseButtonReleasedCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddMouseMovedCallback(
-        std::function<void(const MouseMovedEventArgs &)> func
-    )
+    void SDL3Window::AddMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)
     {
         m_OnMouseMovedCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddMouseScrollCallback(
-        std::function<void(const MouseScrolledEventArgs &)> func
-    )
+    void SDL3Window::AddMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)
     {
         m_OnMouseScrolledCallbacks.push_back(func);
     }
@@ -567,9 +523,7 @@ namespace Nexus
         m_OnMouseLeaveCallbacks.push_back(func);
     }
 
-    void SDL3Window::AddFileDropCallback(
-        std::function<void(const FileDropEventArgs &)> func
-    )
+    void SDL3Window::AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func)
     {
         m_OnFileDropCallbacks.push_back(func);
     }
@@ -579,15 +533,14 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         Win32Info info = {};
-        info.hWND = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr
-        ));
-        info.hDC = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr
-        ));
-        info.hINSTANCE = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr
-        ));
+        info.hWND = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)
+        );
+        info.hDC =
+            reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr));
+        info.hINSTANCE = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr)
+        );
 
         return info;
     }
@@ -597,15 +550,11 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         X11Info info = {};
-        info.display = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr
-        ));
-        info.screen = static_cast<uint32_t>(
-            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0)
+        info.display = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr)
         );
-        info.window = static_cast<uint32_t>(
-            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0)
-        );
+        info.screen = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0));
+        info.window = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0));
 
         return info;
     }
@@ -615,34 +564,32 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         WaylandInfo info = {};
-        info.display = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr
-        ));
-        info.surface = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr
-        ));
-        info.viewport = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_VIEWPORT_POINTER, nullptr
-        ));
-        info.eglWindow = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER, nullptr
-        ));
-        info.xdgSurface = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER, nullptr
-        ));
-        info.xdgToplevel = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER, nullptr
-        ));
-        info.xdgTopLevelExportHandle = SDL_GetStringProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING,
-            "invalid"
+        info.display = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr)
         );
-        info.xdgPopup = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER, nullptr
-        ));
-        info.xdgPositioner = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER, nullptr
-        ));
+        info.surface = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr)
+        );
+        info.viewport = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_VIEWPORT_POINTER, nullptr)
+        );
+        info.eglWindow = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER, nullptr)
+        );
+        info.xdgSurface = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER, nullptr)
+        );
+        info.xdgToplevel = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER, nullptr)
+        );
+        info.xdgTopLevelExportHandle =
+            SDL_GetStringProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING, "invalid");
+        info.xdgPopup = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER, nullptr)
+        );
+        info.xdgPositioner = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER, nullptr)
+        );
 
         return info;
     }
@@ -652,12 +599,12 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         AndroidInfo info = {};
-        info.window = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr
-        ));
-        info.surface = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER, nullptr
-        ));
+        info.window = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr)
+        );
+        info.surface = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER, nullptr)
+        );
 
         return info;
     }
@@ -667,23 +614,20 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         iOSInfo info = {};
-        info.window = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr
-        ));
-        info.metalViewTagNumber = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER, 0
-        ));
-        info.openglFramebufferHandle = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER, 0
-        ));
-        info.openglRenderbufferHandle = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER, 0
-        ));
-        info.openglResolveFramebufferHandle =
-            static_cast<uint32_t>(SDL_GetNumberProperty(
-                properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER,
-                0
-            ));
+        info.window = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr)
+        );
+        info.metalViewTagNumber =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER, 0));
+        info.openglFramebufferHandle = static_cast<uint32_t>(
+            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER, 0)
+        );
+        info.openglRenderbufferHandle = static_cast<uint32_t>(
+            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER, 0)
+        );
+        info.openglResolveFramebufferHandle = static_cast<uint32_t>(
+            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER, 0)
+        );
 
         return info;
     }
@@ -693,15 +637,12 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         KMSDRMInfo info = {};
-        info.deviceIndex = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER, 0
-        ));
-        info.drmFd = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_KMSDRM_DRM_FD_NUMBER, 0
-        ));
-        info.gbmDevice = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER, nullptr
-        ));
+        info.deviceIndex =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER, 0));
+        info.drmFd = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_KMSDRM_DRM_FD_NUMBER, 0));
+        info.gbmDevice = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER, nullptr)
+        );
 
         return info;
     }
@@ -711,12 +652,11 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         MacOSInfo info = {};
-        info.window = reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(
-            properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr
-        ));
-        info.metalViewTag = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER, 0
-        ));
+        info.window = reinterpret_cast<uintptr_t>(
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr)
+        );
+        info.metalViewTag =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER, 0));
 
         return info;
     }
@@ -727,9 +667,8 @@ namespace Nexus
 
         OpenVRInfo info = {};
 #ifdef SDL_PROP_WINDOW_OPENVR_OVERLAY_ID
-        info.overlayIdNumber = static_cast<uint32_t>(
-            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_OPENVR_OVERLAY_ID, 0)
-        );
+        info.overlayIdNumber =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_OPENVR_OVERLAY_ID, 0));
 #else
         throw std::runtime_error("OpenVR is currently unsupported");
 #endif
@@ -742,15 +681,12 @@ namespace Nexus
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window.get());
 
         VivanteInfo info = {};
-        info.display = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_VIVANTE_DISPLAY_POINTER, 0
-        ));
-        info.window = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_VIVANTE_WINDOW_POINTER, 0
-        ));
-        info.surface = static_cast<uint32_t>(SDL_GetNumberProperty(
-            properties, SDL_PROP_WINDOW_VIVANTE_SURFACE_POINTER, 0
-        ));
+        info.display =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_VIVANTE_DISPLAY_POINTER, 0));
+        info.window =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_VIVANTE_WINDOW_POINTER, 0));
+        info.surface =
+            static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_VIVANTE_SURFACE_POINTER, 0));
 
         return info;
     }
@@ -879,9 +815,7 @@ namespace Nexus
         }
     }
 
-    void SDL3Window::InvokeMousePressedCallback(
-        const MouseButtonPressedEventArgs &args
-    )
+    void SDL3Window::InvokeMousePressedCallback(const MouseButtonPressedEventArgs &args)
     {
         MouseState &state = m_MouseStates[args.MouseID];
 
@@ -912,9 +846,7 @@ namespace Nexus
         }
     }
 
-    void SDL3Window::InvokeMouseReleasedCallback(
-        const MouseButtonReleasedEventArgs &args
-    )
+    void SDL3Window::InvokeMouseReleasedCallback(const MouseButtonReleasedEventArgs &args)
     {
         MouseState &state = m_MouseStates[args.MouseID];
 
@@ -959,9 +891,7 @@ namespace Nexus
 
     void SDL3Window::InvokeMouseScrollCallback(const MouseScrolledEventArgs &args)
     {
-        m_MouseStates[args.MouseID].MouseWheel = {
-            args.Scroll.first, args.Scroll.second
-        };
+        m_MouseStates[args.MouseID].MouseWheel = {args.Scroll.first, args.Scroll.second};
 
         for (auto &func : m_OnMouseScrolledCallbacks)
         {

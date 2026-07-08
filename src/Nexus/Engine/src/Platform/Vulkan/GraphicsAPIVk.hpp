@@ -13,13 +13,9 @@ namespace Nexus::Graphics
       public:
         GraphicsAPI_Vk(const GraphicsAPICreateInfo &createInfo);
         virtual ~GraphicsAPI_Vk();
-        virtual std::vector<std::shared_ptr<IPhysicalDevice>>
-        GetPhysicalDevices() override;
-        virtual Graphics::IGraphicsDevice *CreateGraphicsDevice(
-            std::shared_ptr<IPhysicalDevice> device
-        ) override;
-        virtual const GraphicsAPICreateInfo &
-        GetGraphicsAPICreateInfo() const override;
+        virtual std::vector<std::shared_ptr<IPhysicalDevice>> GetPhysicalDevices() override;
+        virtual Graphics::IGraphicsDevice *CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device) override;
+        virtual const GraphicsAPICreateInfo &GetGraphicsAPICreateInfo() const override;
 
       private:
         void SetupDebugMessenger();

@@ -483,8 +483,7 @@ namespace Nexus::Graphics
 
     struct BuildAccelerationStructuresCommand
     {
-        std::vector<AccelerationStructureGeometryBuildDescription>
-            BuildDescriptions = {};
+        std::vector<AccelerationStructureGeometryBuildDescription> BuildDescriptions = {};
     };
 
     struct TraceRaysDescription
@@ -622,9 +621,7 @@ namespace Nexus::Graphics
     {
       public:
         virtual ~IGraphicsCommand() = default;
-        virtual void Execute(
-            CommandExecutor *executor, IGraphicsDevice *device
-        ) const = 0;
+        virtual void Execute(CommandExecutor *executor, IGraphicsDevice *device) const = 0;
     };
 
     class SetVertexBufferCommandImpl final : public IGraphicsCommand
@@ -784,9 +781,7 @@ namespace Nexus::Graphics
     class ClearDepthStencilTargetCommandImpl final : public IGraphicsCommand
     {
       public:
-        ClearDepthStencilTargetCommandImpl(
-            const ClearDepthStencilTargetCommand &desc
-        );
+        ClearDepthStencilTargetCommandImpl(const ClearDepthStencilTargetCommand &desc);
         ~ClearDepthStencilTargetCommandImpl() final = default;
         void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
@@ -959,23 +954,19 @@ namespace Nexus::Graphics
     {
       public:
         BuildAccelerationStructuresCommandImpl(
-            const std::vector<AccelerationStructureGeometryBuildDescription>
-                &description
+            const std::vector<AccelerationStructureGeometryBuildDescription> &description
         );
         ~BuildAccelerationStructuresCommandImpl() final = default;
         void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
       private:
-        std::vector<AccelerationStructureGeometryBuildDescription> m_Description =
-            {};
+        std::vector<AccelerationStructureGeometryBuildDescription> m_Description = {};
     };
 
     class CopyAccelerationStructuresCommandImpl final : public IGraphicsCommand
     {
       public:
-        CopyAccelerationStructuresCommandImpl(
-            const AccelerationStructureCopyDescription &description
-        );
+        CopyAccelerationStructuresCommandImpl(const AccelerationStructureCopyDescription &description);
         ~CopyAccelerationStructuresCommandImpl() final = default;
         void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
@@ -983,8 +974,7 @@ namespace Nexus::Graphics
         AccelerationStructureCopyDescription m_Description = {};
     };
 
-    class CopyAccelerationStructureToDeviceBufferCommandImpl final
-        : public IGraphicsCommand
+    class CopyAccelerationStructureToDeviceBufferCommandImpl final : public IGraphicsCommand
     {
       public:
         CopyAccelerationStructureToDeviceBufferCommandImpl(
@@ -997,8 +987,7 @@ namespace Nexus::Graphics
         AccelerationStructureDeviceBufferCopyDescription m_Description = {};
     };
 
-    class CopyDeviceBufferToAccelerationStructureCommandImpl final
-        : public IGraphicsCommand
+    class CopyDeviceBufferToAccelerationStructureCommandImpl final : public IGraphicsCommand
     {
       public:
         CopyDeviceBufferToAccelerationStructureCommandImpl(
@@ -1104,15 +1093,11 @@ namespace Nexus::Graphics
 
         void SetResourceSet(const ResourceSetBindingDescription &desc);
 
-        void ClearColourTarget(
-            uint32_t index, const ClearColourValue &color, ClearRect clearRect
-        );
+        void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
 
         void ClearColourTarget(uint32_t index, const ClearColourValue &color);
 
-        void ClearDepthTarget(
-            const ClearDepthStencilValue &value, ClearRect clearRect
-        );
+        void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
 
         void ClearDepthTarget(const ClearDepthStencilValue &value);
 
@@ -1130,13 +1115,9 @@ namespace Nexus::Graphics
 
         void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 
-        void CopyBufferToTexture(
-            const BufferTextureCopyDescription &bufferTextureCopy
-        );
+        void CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy);
 
-        void CopyTextureToBuffer(
-            const BufferTextureCopyDescription &textureBufferCopy
-        );
+        void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
 
         void CopyTextureToTexture(const TextureCopyDescription &textureCopy);
 
@@ -1150,14 +1131,9 @@ namespace Nexus::Graphics
 
         void SetStencilReference(uint32_t stencilReference);
 
-        void BuildAccelerationStructures(
-            const std::vector<AccelerationStructureGeometryBuildDescription>
-                &description
-        );
+        void BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
 
-        void CopyAccelerationStructure(
-            const AccelerationStructureCopyDescription &description
-        );
+        void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
 
         void CopyAccelerationStructureToDeviceBuffer(
             const AccelerationStructureDeviceBufferCopyDescription &description
@@ -1167,9 +1143,7 @@ namespace Nexus::Graphics
             const DeviceBufferAccelerationStructureCopyDescription &description
         );
 
-        void WritePushConstants(
-            const std::string &name, const void *data, size_t size, size_t offset
-        );
+        void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
 
         void SubmitMemoryBarrier(const MemoryBarrierDesc &desc);
 
@@ -1207,8 +1181,7 @@ namespace Nexus::Graphics
     class ScopedDebugGroup
     {
       public:
-        ScopedDebugGroup(const std::string &name, CommandListHandle commandList)
-            : m_CommandList(commandList)
+        ScopedDebugGroup(const std::string &name, CommandListHandle commandList) : m_CommandList(commandList)
         {
             if (m_CommandList->IsRecording())
             {

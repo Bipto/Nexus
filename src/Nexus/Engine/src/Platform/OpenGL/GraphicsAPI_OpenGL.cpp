@@ -6,8 +6,7 @@
 namespace Nexus::Graphics
 {
 
-    GraphicsAPI_OpenGL::GraphicsAPI_OpenGL(const GraphicsAPICreateInfo &createInfo)
-        : m_CreateInfo(createInfo)
+    GraphicsAPI_OpenGL::GraphicsAPI_OpenGL(const GraphicsAPICreateInfo &createInfo) : m_CreateInfo(createInfo)
     {
         NX_VALIDATE(GL::LoadOpenGL(), "Failed to load OpenGL");
     }
@@ -16,15 +15,12 @@ namespace Nexus::Graphics
     {
     }
 
-    std::vector<std::shared_ptr<IPhysicalDevice>> GraphicsAPI_OpenGL::
-        GetPhysicalDevices()
+    std::vector<std::shared_ptr<IPhysicalDevice>> GraphicsAPI_OpenGL::GetPhysicalDevices()
     {
         return GL::LoadAvailablePhysicalDevices(m_CreateInfo.Debug);
     }
 
-    IGraphicsDevice *GraphicsAPI_OpenGL::CreateGraphicsDevice(
-        std::shared_ptr<IPhysicalDevice> device
-    )
+    IGraphicsDevice *GraphicsAPI_OpenGL::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
     {
         return new GraphicsDeviceOpenGL(device, m_CreateInfo.Debug);
     }

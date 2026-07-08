@@ -396,9 +396,7 @@ namespace Nexus::D3D12
             return DXGI_FORMAT_R10G10B10A2_UNORM;
 
         default:
-            throw std::runtime_error(
-                "Failed to find valid vertex buffer element type"
-            );
+            throw std::runtime_error("Failed to find valid vertex buffer element type");
         }
     }
 
@@ -487,8 +485,7 @@ namespace Nexus::D3D12
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipelineTraditional(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::GraphicsPipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
         const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
     )
@@ -497,8 +494,7 @@ namespace Nexus::D3D12
 
         for (uint32_t index = 0; index < description.ColourTargetCount; index++)
         {
-            DXGI_FORMAT colourFormat =
-                D3D12::GetD3D12PixelFormat(description.ColourFormats.at(index));
+            DXGI_FORMAT colourFormat = D3D12::GetD3D12PixelFormat(description.ColourFormats.at(index));
             rtvFormats.push_back(colourFormat);
         }
 
@@ -522,11 +518,9 @@ namespace Nexus::D3D12
 
         if (description.FragmentModule.IsValid())
         {
-            auto d3d12FragmentModule =
-                description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12FragmentModule->GetShaderStage() ==
-                    Graphics::ShaderStage::Fragment,
+                d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
                 "Shader module is not a fragment shader"
             );
             auto blob = d3d12FragmentModule->GetBlob();
@@ -537,11 +531,9 @@ namespace Nexus::D3D12
 
         if (description.GeometryModule.IsValid())
         {
-            auto d3d12GeometryModule =
-                description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12GeometryModule = description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12GeometryModule->GetShaderStage() ==
-                    Graphics::ShaderStage::Geometry,
+                d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry,
                 "Shader module is not a geometry shader"
             );
             auto blob = d3d12GeometryModule->GetBlob();
@@ -553,11 +545,9 @@ namespace Nexus::D3D12
         if (description.TesselationControlModule.IsValid())
         {
             auto d3d12TesselationControlModule =
-                description.TesselationControlModule
-                    .AsDerived<Graphics::ShaderModuleD3D12>();
+                description.TesselationControlModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12TesselationControlModule->GetShaderStage() ==
-                    Graphics::ShaderStage::TessellationControl,
+                d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
                 "Shader module is not a tesselation control shader"
             );
             auto blob = d3d12TesselationControlModule->GetBlob();
@@ -569,11 +559,9 @@ namespace Nexus::D3D12
         if (description.TesselationEvaluationModule.IsValid())
         {
             auto d3d12TesselationEvaluationModule =
-                description.TesselationEvaluationModule
-                    .AsDerived<Graphics::ShaderModuleD3D12>();
+                description.TesselationEvaluationModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12TesselationEvaluationModule->GetShaderStage() ==
-                    Graphics::ShaderStage::TessellationEvaluation,
+                d3d12TesselationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
                 "Shader module is not a tesselation evaluation shader"
             );
             auto blob = d3d12TesselationEvaluationModule->GetBlob();
@@ -584,8 +572,7 @@ namespace Nexus::D3D12
 
         if (description.VertexModule.IsValid())
         {
-            auto d3d12VertexModule =
-                description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12VertexModule = description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
                 d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex,
                 "Shader module is not a vertex shader"
@@ -596,10 +583,8 @@ namespace Nexus::D3D12
             pipelineDesc.VS.pShaderBytecode = blob->GetBufferPointer();
         }
 
-        pipelineDesc.PrimitiveTopologyType =
-            D3D12::GetPipelineTopology(description.PrimitiveTopology);
-        pipelineDesc.RasterizerState =
-            D3D12::CreateRasterizerState(description.RasterizerStateDesc);
+        pipelineDesc.PrimitiveTopologyType = D3D12::GetPipelineTopology(description.PrimitiveTopology);
+        pipelineDesc.RasterizerState = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
         pipelineDesc.StreamOutput = D3D12::CreateStreamOutputDesc();
         pipelineDesc.NumRenderTargets = rtvFormats.size();
 
@@ -608,13 +593,10 @@ namespace Nexus::D3D12
             pipelineDesc.RTVFormats[rtvIndex] = rtvFormats.at(rtvIndex);
         }
 
-        DXGI_FORMAT depthFormat =
-            D3D12::GetD3D12PixelFormat(description.DepthFormat);
+        DXGI_FORMAT depthFormat = D3D12::GetD3D12PixelFormat(description.DepthFormat);
         pipelineDesc.DSVFormat = depthFormat;
-        pipelineDesc.BlendState =
-            D3D12::CreateBlendStateDesc(description.ColourBlendStates);
-        pipelineDesc.DepthStencilState =
-            D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+        pipelineDesc.BlendState = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
+        pipelineDesc.DepthStencilState = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
         pipelineDesc.SampleMask = description.SampleMask;
         pipelineDesc.SampleDesc.Count = description.Samples;
         pipelineDesc.SampleDesc.Quality = 0;
@@ -626,21 +608,16 @@ namespace Nexus::D3D12
         Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 
         auto d3d12Device = device->GetD3D12Device();
-        HRESULT hr = d3d12Device->CreateGraphicsPipelineState(
-            &pipelineDesc, IID_PPV_ARGS(&pso)
-        );
+        HRESULT hr = d3d12Device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pso));
         if (FAILED(hr))
         {
             _com_error error(hr);
-            std::string message = "Failed to create pipeline state: " +
-                                  std::string(error.ErrorMessage());
+            std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
             NX_ERROR(message);
         }
         else
         {
-            std::wstring debugName = {
-                description.DebugName.begin(), description.DebugName.end()
-            };
+            std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
             pso->SetName(debugName.c_str());
         }
 
@@ -648,22 +625,18 @@ namespace Nexus::D3D12
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipelineStream(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::GraphicsPipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
         const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
     )
     {
         D3D12::StreamStateBuilder builder;
         ID3D12RootSignature *rootSignaturePtr = rootSignature.Get();
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
 
         if (description.VertexModule.IsValid())
         {
-            auto d3d12VertexModule =
-                description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12VertexModule = description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
                 d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex,
                 "Shader module is not a vertex shader"
@@ -678,11 +651,9 @@ namespace Nexus::D3D12
 
         if (description.FragmentModule.IsValid())
         {
-            auto d3d12FragmentModule =
-                description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12FragmentModule->GetShaderStage() ==
-                    Graphics::ShaderStage::Fragment,
+                d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
                 "Shader module is not a fragment shader"
             );
             auto blob = d3d12FragmentModule->GetBlob();
@@ -696,11 +667,9 @@ namespace Nexus::D3D12
         if (description.TesselationEvaluationModule.IsValid())
         {
             auto d3d12TessellationEvaluationModule =
-                description.TesselationEvaluationModule
-                    .AsDerived<Graphics::ShaderModuleD3D12>();
+                description.TesselationEvaluationModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12TessellationEvaluationModule->GetShaderStage() ==
-                    Graphics::ShaderStage::TessellationEvaluation,
+                d3d12TessellationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
                 "Shader module is not a tessellation evaluation shader"
             );
             auto blob = d3d12TessellationEvaluationModule->GetBlob();
@@ -714,11 +683,9 @@ namespace Nexus::D3D12
         if (description.TesselationControlModule.IsValid())
         {
             auto d3d12TessellationControlModule =
-                description.TesselationControlModule
-                    .AsDerived<Graphics::ShaderModuleD3D12>();
+                description.TesselationControlModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12TessellationControlModule->GetShaderStage() ==
-                    Graphics::ShaderStage::TessellationControl,
+                d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
                 "Shader module is not a tessellation control shader"
             );
             auto blob = d3d12TessellationControlModule->GetBlob();
@@ -731,11 +698,9 @@ namespace Nexus::D3D12
 
         if (description.GeometryModule.IsValid())
         {
-            auto d3d12GeometryModule =
-                description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12GeometryModule = description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12GeometryModule->GetShaderStage() ==
-                    Graphics::ShaderStage::Geometry,
+                d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry,
                 "Shader module is not a geometry shader"
             );
             auto blob = d3d12GeometryModule->GetBlob();
@@ -746,80 +711,55 @@ namespace Nexus::D3D12
             builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_GS, byteCode);
         }
 
-        D3D12_BLEND_DESC blendDesc =
-            D3D12::CreateBlendStateDesc(description.ColourBlendStates);
+        D3D12_BLEND_DESC blendDesc = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, blendDesc);
 
-        D3D12_RASTERIZER_DESC rasterizerDesc =
-            D3D12::CreateRasterizerState(description.RasterizerStateDesc);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc
-        );
+        D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
 
         const auto &deviceFeatures = device->GetPhysicalDeviceFeatures();
         if (deviceFeatures.SupportsDepthBoundsTesting)
         {
-            D3D12_DEPTH_STENCIL_DESC1 depthStencilDesc =
-                D3D12::CreateDepthStencilDesc1(description.DepthStencilDesc);
-            builder.AddSubObject(
-                D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1, depthStencilDesc
-            );
+            D3D12_DEPTH_STENCIL_DESC1 depthStencilDesc = D3D12::CreateDepthStencilDesc1(description.DepthStencilDesc);
+            builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1, depthStencilDesc);
         }
         else
         {
-            D3D12_DEPTH_STENCIL_DESC depthStencilDesc =
-                D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
-            builder.AddSubObject(
-                D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc
-            );
+            D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+            builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
         }
 
         std::vector<D3D12_INPUT_ELEMENT_DESC> layout = inputLayout;
         D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
         inputLayoutDesc.pInputElementDescs = layout.data();
         inputLayoutDesc.NumElements = (UINT)layout.size();
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT, inputLayoutDesc
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT, inputLayoutDesc);
 
-        D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopology =
-            D3D12::GetPipelineTopology(description.PrimitiveTopology);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY, primitiveTopology
-        );
+        D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopology = D3D12::GetPipelineTopology(description.PrimitiveTopology);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY, primitiveTopology);
 
         D3D12_RT_FORMAT_ARRAY rtFormats = {};
         rtFormats.NumRenderTargets = description.ColourTargetCount;
         for (uint32_t index = 0; index < description.ColourTargetCount; index++)
         {
-            rtFormats.RTFormats[index] =
-                D3D12::GetD3D12PixelFormat(description.ColourFormats[index]);
+            rtFormats.RTFormats[index] = D3D12::GetD3D12PixelFormat(description.ColourFormats[index]);
         }
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS, rtFormats
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS, rtFormats);
 
-        DXGI_FORMAT depthFormat =
-            D3D12::GetD3D12PixelFormat(description.DepthFormat);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat
-        );
+        DXGI_FORMAT depthFormat = D3D12::GetD3D12PixelFormat(description.DepthFormat);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat);
 
         DXGI_SAMPLE_DESC sampleDesc = {};
         sampleDesc.Count = description.Samples;
         sampleDesc.Quality = 0;
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc);
 
         D3D12_SAMPLE_MASK mask = {};
         mask.SampleMask = description.SampleMask;
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, mask);
 
         UINT nodeMask = 0;
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
 
         D3D12_PIPELINE_STATE_FLAGS flags = D3D12_PIPELINE_STATE_FLAG_NONE;
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
@@ -835,15 +775,12 @@ namespace Nexus::D3D12
         if (FAILED(hr))
         {
             _com_error error(hr);
-            std::string message = "Failed to create pipeline state: " +
-                                  std::string(error.ErrorMessage());
+            std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
             NX_ERROR(message);
         }
         else
         {
-            std::wstring debugName = {
-                description.DebugName.begin(), description.DebugName.end()
-            };
+            std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
             pso->SetName(debugName.c_str());
         }
 
@@ -851,36 +788,28 @@ namespace Nexus::D3D12
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipeline(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::GraphicsPipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
         const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
     )
     {
-        const Graphics::D3D12DeviceFeatures &features =
-            device->GetD3D12DeviceFeatures();
+        const Graphics::D3D12DeviceFeatures &features = device->GetD3D12DeviceFeatures();
         if (features.SupportsPipelineStreams)
         {
-            return CreateGraphicsPipelineStream(
-                device, description, rootSignature, inputLayout
-            );
+            return CreateGraphicsPipelineStream(device, description, rootSignature, inputLayout);
         }
         else
         {
-            return CreateGraphicsPipelineTraditional(
-                device, description, rootSignature, inputLayout
-            );
+            return CreateGraphicsPipelineTraditional(device, description, rootSignature, inputLayout);
         }
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipelineStream(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::ComputePipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
     )
     {
-        auto d3d12ComputeShader =
-            description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
+        auto d3d12ComputeShader = description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
         NX_VALIDATE(
             d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
             "Shader provided to ComputePipelineDescription is not a compute shader"
@@ -890,9 +819,7 @@ namespace Nexus::D3D12
 
         D3D12::StreamStateBuilder builder;
         ID3D12RootSignature *rootSignaturePtr = rootSignature.Get();
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
 
         D3D12_SHADER_BYTECODE byteCode = {};
         byteCode.pShaderBytecode = blob->GetBufferPointer();
@@ -900,9 +827,7 @@ namespace Nexus::D3D12
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS, byteCode);
 
         UINT nodeMask = 0;
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
 
         D3D12_PIPELINE_STATE_FLAGS flags = D3D12_PIPELINE_STATE_FLAG_NONE;
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
@@ -918,27 +843,22 @@ namespace Nexus::D3D12
         if (FAILED(hr))
         {
             _com_error error(hr);
-            std::string message = "Failed to create pipeline state: " +
-                                  std::string(error.ErrorMessage());
+            std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
             NX_ERROR(message);
         }
 
-        std::wstring debugName = {
-            description.DebugName.begin(), description.DebugName.end()
-        };
+        std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
         pso->SetName(debugName.c_str());
 
         return pso;
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipelineTraditional(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::ComputePipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
     )
     {
-        auto d3d12ComputeShader =
-            description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
+        auto d3d12ComputeShader = description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
         NX_VALIDATE(
             d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
             "Shader provided to ComputePipelineDescription is not a compute shader"
@@ -958,20 +878,16 @@ namespace Nexus::D3D12
         Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 
         auto d3d12Device = device->GetD3D12Device();
-        HRESULT hr =
-            d3d12Device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&pso));
+        HRESULT hr = d3d12Device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&pso));
         if (FAILED(hr))
         {
             _com_error error(hr);
-            std::string message = "Failed to create pipeline state: " +
-                                  std::string(error.ErrorMessage());
+            std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
             NX_ERROR(message);
         }
         else
         {
-            std::wstring debugName = {
-                description.DebugName.begin(), description.DebugName.end()
-            };
+            std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
             pso->SetName(debugName.c_str());
         }
 
@@ -979,44 +895,35 @@ namespace Nexus::D3D12
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::ComputePipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
     )
     {
-        const Graphics::D3D12DeviceFeatures &features =
-            device->GetD3D12DeviceFeatures();
+        const Graphics::D3D12DeviceFeatures &features = device->GetD3D12DeviceFeatures();
         if (features.SupportsPipelineStreams)
         {
             return CreateComputePipelineStream(device, description, rootSignature);
         }
         else
         {
-            return CreateComputePipelineTraditional(
-                device, description, rootSignature
-            );
+            return CreateComputePipelineTraditional(device, description, rootSignature);
         }
     }
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::MeshletPipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::MeshletPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
     )
     {
         D3D12::StreamStateBuilder builder;
         ID3D12RootSignature *rootSignaturePtr = rootSignature.Get();
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, rootSignaturePtr);
 
         if (description.TaskModule.IsValid())
         {
-            auto d3d12TaskModule =
-                description.TaskModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12TaskModule = description.TaskModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task,
-                "Shader module is not a task shader"
+                d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task, "Shader module is not a task shader"
             );
             auto blob = d3d12TaskModule->GetBlob();
 
@@ -1028,11 +935,9 @@ namespace Nexus::D3D12
 
         if (description.MeshModule.IsValid())
         {
-            auto d3d12MeshModule =
-                description.MeshModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12MeshModule = description.MeshModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh,
-                "Shader module is not a mesh shader"
+                d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh, "Shader module is not a mesh shader"
             );
             auto blob = d3d12MeshModule->GetBlob();
 
@@ -1044,11 +949,9 @@ namespace Nexus::D3D12
 
         if (description.FragmentModule.IsValid())
         {
-            auto d3d12FragmentModule =
-                description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
+            auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
             NX_VALIDATE(
-                d3d12FragmentModule->GetShaderStage() ==
-                    Graphics::ShaderStage::Fragment,
+                d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
                 "Shader module is not a fragment shader"
             );
             auto blob = d3d12FragmentModule->GetBlob();
@@ -1062,75 +965,49 @@ namespace Nexus::D3D12
         const auto &deviceFeatures = device->GetPhysicalDeviceFeatures();
         if (deviceFeatures.SupportsDepthBoundsTesting)
         {
-            D3D12_DEPTH_STENCIL_DESC1 depthStencilDesc =
-                D3D12::CreateDepthStencilDesc1(description.DepthStencilDesc);
-            builder.AddSubObject(
-                D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1, depthStencilDesc
-            );
+            D3D12_DEPTH_STENCIL_DESC1 depthStencilDesc = D3D12::CreateDepthStencilDesc1(description.DepthStencilDesc);
+            builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1, depthStencilDesc);
         }
         else
         {
-            D3D12_DEPTH_STENCIL_DESC depthStencilDesc =
-                D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
-            builder.AddSubObject(
-                D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc
-            );
+            D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+            builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
         }
 
-        D3D12_BLEND_DESC blendDesc =
-            D3D12::CreateBlendStateDesc(description.ColourBlendStates);
+        D3D12_BLEND_DESC blendDesc = D3D12::CreateBlendStateDesc(description.ColourBlendStates);
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, blendDesc);
 
         D3D12_SAMPLE_MASK mask = {};
         mask.SampleMask = description.SampleMask;
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, mask);
 
-        D3D12_RASTERIZER_DESC rasterizerDesc =
-            D3D12::CreateRasterizerState(description.RasterizerStateDesc);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc
-        );
+        D3D12_RASTERIZER_DESC rasterizerDesc = D3D12::CreateRasterizerState(description.RasterizerStateDesc);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, rasterizerDesc);
 
-        D3D12_DEPTH_STENCIL_DESC depthStencilDesc =
-            D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc
-        );
+        D3D12_DEPTH_STENCIL_DESC depthStencilDesc = D3D12::CreateDepthStencilDesc(description.DepthStencilDesc);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL, depthStencilDesc);
 
-        D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopology =
-            D3D12::GetPipelineTopology(description.PrimitiveTopology);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY, primitiveTopology
-        );
+        D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopology = D3D12::GetPipelineTopology(description.PrimitiveTopology);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY, primitiveTopology);
 
         D3D12_RT_FORMAT_ARRAY rtFormats = {};
         rtFormats.NumRenderTargets = description.ColourTargetCount;
         for (uint32_t index = 0; index < description.ColourTargetCount; index++)
         {
-            rtFormats.RTFormats[index] =
-                D3D12::GetD3D12PixelFormat(description.ColourFormats[index]);
+            rtFormats.RTFormats[index] = D3D12::GetD3D12PixelFormat(description.ColourFormats[index]);
         }
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS, rtFormats
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS, rtFormats);
 
-        DXGI_FORMAT depthFormat =
-            D3D12::GetD3D12PixelFormat(description.DepthFormat);
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat
-        );
+        DXGI_FORMAT depthFormat = D3D12::GetD3D12PixelFormat(description.DepthFormat);
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT, depthFormat);
 
         DXGI_SAMPLE_DESC sampleDesc = {};
         sampleDesc.Count = description.Samples;
         sampleDesc.Quality = 0;
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC, sampleDesc);
 
         UINT nodeMask = 0;
-        builder.AddSubObject(
-            D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask
-        );
+        builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK, nodeMask);
 
         D3D12_PIPELINE_STATE_FLAGS flags = D3D12_PIPELINE_STATE_FLAG_NONE;
         builder.AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS, flags);
@@ -1146,14 +1023,11 @@ namespace Nexus::D3D12
         if (FAILED(hr))
         {
             _com_error error(hr);
-            std::string message = "Failed to create pipeline state: " +
-                                  std::string(error.ErrorMessage());
+            std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
             NX_ERROR(message);
         }
 
-        std::wstring debugName = {
-            description.DebugName.begin(), description.DebugName.end()
-        };
+        std::wstring debugName = {description.DebugName.begin(), description.DebugName.end()};
         pso->SetName(debugName.c_str());
 
         return pso;
@@ -1174,9 +1048,7 @@ namespace Nexus::D3D12
         }
     }
 
-    D3D12_RESOURCE_DIMENSION GetResourceDimensions(
-        Nexus::Graphics::TextureType textureType
-    )
+    D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType)
     {
         switch (textureType)
         {
@@ -1192,9 +1064,7 @@ namespace Nexus::D3D12
         }
     }
 
-    D3D12_RESOURCE_FLAGS GetResourceFlags(
-        const Graphics::TextureDescription &description
-    )
+    D3D12_RESOURCE_FLAGS GetResourceFlags(const Graphics::TextureDescription &description)
     {
         D3D12_RESOURCE_FLAGS flags = {};
 
@@ -1216,12 +1086,9 @@ namespace Nexus::D3D12
         return flags;
     }
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(
-        const Graphics::TextureViewDescription &desc
-    )
+    D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc)
     {
-        const Graphics::TextureD3D12 *texture =
-            desc.TargetTexture.AsDerived<const Graphics::TextureD3D12>();
+        const Graphics::TextureD3D12 *texture = desc.TargetTexture.AsDerived<const Graphics::TextureD3D12>();
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -1252,8 +1119,7 @@ namespace Nexus::D3D12
                 if (texture->GetSampleCount() > 1)
                 {
                     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-                    srvDesc.Texture2DMSArray.FirstArraySlice =
-                        desc.Range.BaseArrayLayer;
+                    srvDesc.Texture2DMSArray.FirstArraySlice = desc.Range.BaseArrayLayer;
                     srvDesc.Texture2DMSArray.ArraySize = desc.Range.LayerCount;
                 }
                 else
@@ -1261,8 +1127,7 @@ namespace Nexus::D3D12
                     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
                     srvDesc.Texture2DArray.MostDetailedMip = desc.Range.BaseMipLevel;
                     srvDesc.Texture2DArray.MipLevels = desc.Range.LevelCount;
-                    srvDesc.Texture2DArray.FirstArraySlice =
-                        desc.Range.BaseArrayLayer;
+                    srvDesc.Texture2DArray.FirstArraySlice = desc.Range.BaseArrayLayer;
                     srvDesc.Texture2DArray.ArraySize = desc.Range.LayerCount;
                 }
             }
@@ -1294,8 +1159,7 @@ namespace Nexus::D3D12
             if (desc.Range.LayerCount > 6)
             {
                 srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-                srvDesc.TextureCubeArray.First2DArrayFace =
-                    desc.Range.BaseArrayLayer / 6;
+                srvDesc.TextureCubeArray.First2DArrayFace = desc.Range.BaseArrayLayer / 6;
                 srvDesc.TextureCubeArray.NumCubes = desc.Range.LayerCount / 6;
                 srvDesc.TextureCubeArray.MostDetailedMip = desc.Range.BaseMipLevel;
                 srvDesc.TextureCubeArray.MipLevels = desc.Range.LevelCount;
@@ -1315,14 +1179,11 @@ namespace Nexus::D3D12
         return srvDesc;
     }
 
-    D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(
-        const Graphics::StorageImageView &view
-    )
+    D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view)
     {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
-        const Graphics::TextureD3D12 *texture =
-            view.Texture.AsDerived<const Graphics::TextureD3D12>();
+        const Graphics::TextureD3D12 *texture = view.Texture.AsDerived<const Graphics::TextureD3D12>();
         const Graphics::TextureDescription &textureDesc = texture->GetDescription();
         uav.Format = D3D12::GetD3D12PixelFormat(textureDesc.Format);
 
@@ -1358,9 +1219,7 @@ namespace Nexus::D3D12
         return uav;
     }
 
-    void GetShaderAccessModifiers(
-        Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress
-    )
+    void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress)
     {
         switch (access)
         {
@@ -1400,9 +1259,7 @@ namespace Nexus::D3D12
         }
     }
 
-    D3D12_SHADER_VISIBILITY GetShaderVisibility(
-        const Graphics::ShaderStageFlags &flags
-    )
+    D3D12_SHADER_VISIBILITY GetShaderVisibility(const Graphics::ShaderStageFlags &flags)
     {
         // if we don't specify any shader stages or we supply multiple, then we have
         // to make it visible to all shader stages
@@ -1446,9 +1303,7 @@ namespace Nexus::D3D12
         }
     }
 
-    D3D12_DESCRIPTOR_RANGE_TYPE GetDescriptorRangeType(
-        const Graphics::ShaderResource &resource
-    )
+    D3D12_DESCRIPTOR_RANGE_TYPE GetDescriptorRangeType(const Graphics::ShaderResource &resource)
     {
         switch (resource.Type)
         {
@@ -1512,14 +1367,11 @@ namespace Nexus::D3D12
         std::map<std::string, D3D12_ROOT_DESCRIPTOR> RootUAVs = {};
     };
 
-    static std::optional<Graphics::ResourceDescriptor>
-    GetDescriptorFromResourceSetDesc(
-        const std::string &name,
-        const Graphics::ResourceSetDescription &resourceSetDesc
+    static std::optional<Graphics::ResourceDescriptor> GetDescriptorFromResourceSetDesc(
+        const std::string &name, const Graphics::ResourceSetDescription &resourceSetDesc
     )
     {
-        for (const Graphics::ResourceDescriptor &descriptor :
-             resourceSetDesc.Descriptors)
+        for (const Graphics::ResourceDescriptor &descriptor : resourceSetDesc.Descriptors)
         {
             if (descriptor.Name == name)
             {
@@ -1534,8 +1386,7 @@ namespace Nexus::D3D12
         const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
         const Graphics::ResourceSetDescription &requestedResources,
         std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorRangeMap,
-        std::map<std::string, uint32_t> &rootParameterIndexes,
-        DescriptorHandleInfo &descriptorHandleInfo
+        std::map<std::string, uint32_t> &rootParameterIndexes, DescriptorHandleInfo &descriptorHandleInfo
     )
     {
         uint32_t samplerIndex = 0;
@@ -1544,30 +1395,24 @@ namespace Nexus::D3D12
 
         for (const auto &[name, resourceInfo] : reflectedResources)
         {
-            D3D12_SHADER_VISIBILITY visibility =
-                GetShaderVisibility(resourceInfo.Stage);
-            D3D12_DESCRIPTOR_RANGE_TYPE descriptorType =
-                GetDescriptorRangeType(resourceInfo);
+            D3D12_SHADER_VISIBILITY visibility = GetShaderVisibility(resourceInfo.Stage);
+            D3D12_DESCRIPTOR_RANGE_TYPE descriptorType = GetDescriptorRangeType(resourceInfo);
 
             // samplers cannot share a descriptor range with other descriptors so we
             // need them to be separate
             if (descriptorType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER)
             {
-                D3D12_DESCRIPTOR_RANGE &range =
-                    descriptorRangeMap[visibility].SamplerRanges.emplace_back();
+                D3D12_DESCRIPTOR_RANGE &range = descriptorRangeMap[visibility].SamplerRanges.emplace_back();
                 range.RangeType = GetDescriptorRangeType(resourceInfo);
                 range.BaseShaderRegister = resourceInfo.Binding;
                 range.NumDescriptors = resourceInfo.ResourceCount;
-                range.OffsetInDescriptorsFromTableStart =
-                    D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
                 range.RegisterSpace = resourceInfo.RegisterSpace;
 
                 // retrieve and then increment offset
                 for (size_t i = 0; i < resourceInfo.ResourceCount; i++)
                 {
-                    descriptorHandleInfo.SamplerIndexes[resourceInfo.Name].push_back(
-                        samplerIndex + i
-                    );
+                    descriptorHandleInfo.SamplerIndexes[resourceInfo.Name].push_back(samplerIndex + i);
                 }
 
                 samplerIndex += resourceInfo.ResourceCount;
@@ -1575,8 +1420,7 @@ namespace Nexus::D3D12
             }
             else
             {
-                RootParameterType rootParameterType =
-                    RootParameterType::CBV_SRV_UAV_HeapRange;
+                RootParameterType rootParameterType = RootParameterType::CBV_SRV_UAV_HeapRange;
                 size_t countOf32BitValues = 0;
 
                 std::optional<Graphics::ResourceDescriptor> requestedDescriptor =
@@ -1586,31 +1430,24 @@ namespace Nexus::D3D12
                 // exists in the provided ResourceSetDescription
                 if (requestedDescriptor.has_value())
                 {
-                    Graphics::ResourceDescriptor descriptor =
-                        requestedDescriptor.value();
+                    Graphics::ResourceDescriptor descriptor = requestedDescriptor.value();
 
-                    if (descriptor.Type ==
-                            Graphics::ResourceDescriptorType::PushConstants ||
-                        descriptor.Type ==
-                            Graphics::ResourceDescriptorType::InlineUniformBlock)
+                    if (descriptor.Type == Graphics::ResourceDescriptorType::PushConstants ||
+                        descriptor.Type == Graphics::ResourceDescriptorType::InlineUniformBlock)
                     {
                         rootParameterType = RootParameterType::RootConstants;
                         countOf32BitValues = descriptor.CountOrSizeInBytes / 4;
                     }
-                    else if (descriptor.Type ==
-                             Graphics::ResourceDescriptorType::DynamicUniformBuffer)
+                    else if (descriptor.Type == Graphics::ResourceDescriptorType::DynamicUniformBuffer)
                     {
                         rootParameterType = RootParameterType::RootCBV;
                     }
-                    else if (descriptor.Type ==
-                             Graphics::ResourceDescriptorType::DynamicStorageBuffer)
+                    else if (descriptor.Type == Graphics::ResourceDescriptorType::DynamicStorageBuffer)
                     {
                         Graphics::StorageResourceAccess access = resourceInfo.Access;
                         bool readonly = {};
                         bool byteAddress = {};
-                        D3D12::GetShaderAccessModifiers(
-                            access, readonly, byteAddress
-                        );
+                        D3D12::GetShaderAccessModifiers(access, readonly, byteAddress);
 
                         if (readonly)
                         {
@@ -1626,65 +1463,54 @@ namespace Nexus::D3D12
                 // we are creating a range in a sampler descriptor table
                 if (rootParameterType == RootParameterType::SamplerHeapRange)
                 {
-                    D3D12_DESCRIPTOR_RANGE &range =
-                        descriptorRangeMap[visibility].SamplerRanges.emplace_back();
+                    D3D12_DESCRIPTOR_RANGE &range = descriptorRangeMap[visibility].SamplerRanges.emplace_back();
                     range.RangeType = GetDescriptorRangeType(resourceInfo);
                     range.BaseShaderRegister = resourceInfo.Binding;
                     range.NumDescriptors = resourceInfo.ResourceCount;
-                    range.OffsetInDescriptorsFromTableStart =
-                        D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                    range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
                     range.RegisterSpace = resourceInfo.RegisterSpace;
 
                     for (size_t i = 0; i < resourceInfo.ResourceCount; i++)
                     {
-                        descriptorHandleInfo.SamplerIndexes[resourceInfo.Name]
-                            .push_back(samplerIndex + i);
+                        descriptorHandleInfo.SamplerIndexes[resourceInfo.Name].push_back(samplerIndex + i);
                     }
 
                     // retrieve and then increment offset
                     samplerIndex += resourceInfo.ResourceCount;
-                    descriptorHandleInfo.SamplerHeapCount +=
-                        resourceInfo.ResourceCount;
+                    descriptorHandleInfo.SamplerHeapCount += resourceInfo.ResourceCount;
                 }
                 // creating range in sampler heap
-                else if (rootParameterType ==
-                         RootParameterType::CBV_SRV_UAV_HeapRange)
+                else if (rootParameterType == RootParameterType::CBV_SRV_UAV_HeapRange)
                 {
-                    D3D12_DESCRIPTOR_RANGE &range =
-                        descriptorRangeMap[visibility].OtherRanges.emplace_back();
+                    D3D12_DESCRIPTOR_RANGE &range = descriptorRangeMap[visibility].OtherRanges.emplace_back();
 
                     range.RangeType = GetDescriptorRangeType(resourceInfo);
                     range.BaseShaderRegister = resourceInfo.Binding;
                     range.NumDescriptors = resourceInfo.ResourceCount;
-                    range.OffsetInDescriptorsFromTableStart =
-                        D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                    range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
                     range.RegisterSpace = resourceInfo.RegisterSpace;
 
                     for (size_t i = 0; i < resourceInfo.ResourceCount; i++)
                     {
-                        descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name]
-                            .push_back(nonSamplerIndex + i);
+                        descriptorHandleInfo.NonSamplerIndexes[resourceInfo.Name].push_back(nonSamplerIndex + i);
                     }
 
                     // retrieve and then increment offset
                     nonSamplerIndex += resourceInfo.ResourceCount;
-                    descriptorHandleInfo.SRV_UAV_CBV_HeapCount +=
-                        resourceInfo.ResourceCount;
+                    descriptorHandleInfo.SRV_UAV_CBV_HeapCount += resourceInfo.ResourceCount;
 
                     // if the resource is a storage buffer, we need to record how to
                     // bind it correctly in D3D12, e.g.
                     // StructuredBuffer/ByteAddressBuffer
                     if (resourceInfo.Type == Graphics::ResourceType::StorageBuffer)
                     {
-                        descriptorHandleInfo.StorageBuffers[name] =
-                            resourceInfo.Access;
+                        descriptorHandleInfo.StorageBuffers[name] = resourceInfo.Access;
                     }
                 }
                 // creating root constants
                 else if (rootParameterType == RootParameterType::RootConstants)
                 {
-                    D3D12_ROOT_CONSTANTS &constants =
-                        descriptorRangeMap[visibility].RootConstants[name];
+                    D3D12_ROOT_CONSTANTS &constants = descriptorRangeMap[visibility].RootConstants[name];
                     constants.Num32BitValues = countOf32BitValues;
                     constants.RegisterSpace = resourceInfo.RegisterSpace;
                     constants.ShaderRegister = resourceInfo.Binding;
@@ -1695,12 +1521,9 @@ namespace Nexus::D3D12
                 else if (rootParameterType == RootParameterType::RootCBV)
                 {
                     for (uint32_t shaderRegister = resourceInfo.Binding;
-                         shaderRegister <
-                         resourceInfo.Binding + resourceInfo.ResourceCount;
-                         shaderRegister++)
+                         shaderRegister < resourceInfo.Binding + resourceInfo.ResourceCount; shaderRegister++)
                     {
-                        D3D12_ROOT_DESCRIPTOR &descriptor =
-                            descriptorRangeMap[visibility].RootCBVs[name];
+                        D3D12_ROOT_DESCRIPTOR &descriptor = descriptorRangeMap[visibility].RootCBVs[name];
                         descriptor.RegisterSpace = resourceInfo.RegisterSpace;
                         descriptor.ShaderRegister = shaderRegister;
 
@@ -1711,12 +1534,9 @@ namespace Nexus::D3D12
                 else if (rootParameterType == RootParameterType::RootSRV)
                 {
                     for (uint32_t shaderRegister = resourceInfo.Binding;
-                         shaderRegister <
-                         resourceInfo.Binding + resourceInfo.ResourceCount;
-                         shaderRegister++)
+                         shaderRegister < resourceInfo.Binding + resourceInfo.ResourceCount; shaderRegister++)
                     {
-                        D3D12_ROOT_DESCRIPTOR &descriptor =
-                            descriptorRangeMap[visibility].RootSRVs[name];
+                        D3D12_ROOT_DESCRIPTOR &descriptor = descriptorRangeMap[visibility].RootSRVs[name];
                         descriptor.RegisterSpace = resourceInfo.RegisterSpace;
                         descriptor.ShaderRegister = shaderRegister;
 
@@ -1727,12 +1547,9 @@ namespace Nexus::D3D12
                 else if (rootParameterType == RootParameterType::RootUAV)
                 {
                     for (uint32_t shaderRegister = resourceInfo.Binding;
-                         shaderRegister <
-                         resourceInfo.Binding + resourceInfo.ResourceCount;
-                         shaderRegister++)
+                         shaderRegister < resourceInfo.Binding + resourceInfo.ResourceCount; shaderRegister++)
                     {
-                        D3D12_ROOT_DESCRIPTOR &descriptor =
-                            descriptorRangeMap[visibility].RootUAVs[name];
+                        D3D12_ROOT_DESCRIPTOR &descriptor = descriptorRangeMap[visibility].RootUAVs[name];
                         descriptor.RegisterSpace = resourceInfo.RegisterSpace;
                         descriptor.ShaderRegister = shaderRegister;
 
@@ -1741,17 +1558,14 @@ namespace Nexus::D3D12
                 }
                 else
                 {
-                    throw std::runtime_error(
-                        "Failed to find a valid descriptor type"
-                    );
+                    throw std::runtime_error("Failed to find a valid descriptor type");
                 }
             }
         }
     }
 
     static void FindCombinedImageSamplers(
-        const std::map<std::string, Graphics::ShaderResource> &resources,
-        DescriptorHandleInfo &descriptorHandleInfo
+        const std::map<std::string, Graphics::ShaderResource> &resources, DescriptorHandleInfo &descriptorHandleInfo
     )
     {
         // loop through all resources to find textures
@@ -1771,8 +1585,7 @@ namespace Nexus::D3D12
                         if (textureInfo.Binding == samplerInfo.Binding &&
                             textureInfo.ResourceCount == samplerInfo.ResourceCount)
                         {
-                            descriptorHandleInfo
-                                .CombinedImageSamplerMap[textureName] = samplerName;
+                            descriptorHandleInfo.CombinedImageSamplerMap[textureName] = samplerName;
                         }
                     }
                 }
@@ -1782,8 +1595,7 @@ namespace Nexus::D3D12
 
     static void CreateDescriptorRanges(
         const std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorMap,
-        DescriptorHandleInfo &descriptorHandleInfo,
-        std::vector<D3D12_ROOT_PARAMETER> &rootParameters,
+        DescriptorHandleInfo &descriptorHandleInfo, std::vector<D3D12_ROOT_PARAMETER> &rootParameters,
         std::map<std::string, uint32_t> &rootParameterIndexes,
         RootSignatureBindingLocations &rootSignatureBindingLocation
     )
@@ -1800,26 +1612,21 @@ namespace Nexus::D3D12
             if (!descriptorRange.SamplerRanges.empty())
             {
                 D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-                descriptorTable.pDescriptorRanges =
-                    descriptorRange.SamplerRanges.data();
-                descriptorTable.NumDescriptorRanges =
-                    descriptorRange.SamplerRanges.size();
+                descriptorTable.pDescriptorRanges = descriptorRange.SamplerRanges.data();
+                descriptorTable.NumDescriptorRanges = descriptorRange.SamplerRanges.size();
 
                 D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
-                rootParameter.ParameterType =
-                    D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
                 rootParameter.DescriptorTable = descriptorTable;
                 rootParameter.ShaderVisibility = shaderVisibility;
 
-                DescriptorTableInfo &descriptorTableInfo =
-                    descriptorHandleInfo.DescriptorTables.emplace_back();
+                DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
                 descriptorTableInfo.Source = DescriptorHandleSource::ISampler;
                 descriptorTableInfo.Offset = currentSamplerOffset;
 
                 RootParameterBindingLocation &samplerBindingLocation =
                     rootSignatureBindingLocation.HeapBindings.emplace_back();
-                samplerBindingLocation.ParameterType =
-                    RootParameterType::SamplerHeapRange;
+                samplerBindingLocation.ParameterType = RootParameterType::SamplerHeapRange;
                 samplerBindingLocation.RootParameterIndex = rootParameterIndex++;
                 samplerBindingLocation.DescriptorOffset = currentSamplerOffset;
 
@@ -1833,26 +1640,21 @@ namespace Nexus::D3D12
             if (!descriptorRange.OtherRanges.empty())
             {
                 D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-                descriptorTable.pDescriptorRanges =
-                    descriptorRange.OtherRanges.data();
-                descriptorTable.NumDescriptorRanges =
-                    descriptorRange.OtherRanges.size();
+                descriptorTable.pDescriptorRanges = descriptorRange.OtherRanges.data();
+                descriptorTable.NumDescriptorRanges = descriptorRange.OtherRanges.size();
 
                 D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
-                rootParameter.ParameterType =
-                    D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
                 rootParameter.DescriptorTable = descriptorTable;
                 rootParameter.ShaderVisibility = shaderVisibility;
 
-                DescriptorTableInfo &descriptorTableInfo =
-                    descriptorHandleInfo.DescriptorTables.emplace_back();
+                DescriptorTableInfo &descriptorTableInfo = descriptorHandleInfo.DescriptorTables.emplace_back();
                 descriptorTableInfo.Source = DescriptorHandleSource::SRV_UAV_CBV;
                 descriptorTableInfo.Offset = currentNonSamplerOffset;
 
                 RootParameterBindingLocation &samplerBindingLocation =
                     rootSignatureBindingLocation.HeapBindings.emplace_back();
-                samplerBindingLocation.ParameterType =
-                    RootParameterType::CBV_SRV_UAV_HeapRange;
+                samplerBindingLocation.ParameterType = RootParameterType::CBV_SRV_UAV_HeapRange;
                 samplerBindingLocation.RootParameterIndex = rootParameterIndex++;
                 samplerBindingLocation.DescriptorOffset = currentNonSamplerOffset;
 
@@ -1865,15 +1667,13 @@ namespace Nexus::D3D12
             for (const auto &[name, rootConstants] : descriptorRange.RootConstants)
             {
                 D3D12_ROOT_PARAMETER &rootParameter = rootParameters.emplace_back();
-                rootParameter.ParameterType =
-                    D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+                rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
                 rootParameter.Constants = rootConstants;
                 rootParameter.ShaderVisibility = shaderVisibility;
 
                 RootParameterBindingLocation &samplerBindingLocation =
                     rootSignatureBindingLocation.DynamicResources[name];
-                samplerBindingLocation.ParameterType =
-                    RootParameterType::RootConstants;
+                samplerBindingLocation.ParameterType = RootParameterType::RootConstants;
                 samplerBindingLocation.RootParameterIndex = rootParameterIndex++;
                 samplerBindingLocation.DescriptorOffset = 0;
             }
@@ -1924,13 +1724,10 @@ namespace Nexus::D3D12
 
     void CreateRootSignature(
         const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
-        const Graphics::ResourceSetDescription &requestedResources,
-        Microsoft::WRL::ComPtr<ID3D12Device9> device,
+        const Graphics::ResourceSetDescription &requestedResources, Microsoft::WRL::ComPtr<ID3D12Device9> device,
         Microsoft::WRL::ComPtr<ID3DBlob> &inRootSignatureBlob,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature,
-        DescriptorHandleInfo &descriptorHandleInfo,
-        RootSignatureBindingLocations &rootSignatureBindingLocation,
-        bool requiresInputAssembly
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature, DescriptorHandleInfo &descriptorHandleInfo,
+        RootSignatureBindingLocations &rootSignatureBindingLocation, bool requiresInputAssembly
     )
     {
         // create storage for descriptor ranges and root parameters
@@ -1939,64 +1736,53 @@ namespace Nexus::D3D12
         std::map<std::string, uint32_t> rootParameterIndexes = {};
 
         CreateDescriptorRangeMap(
-            reflectedResources, requestedResources, descriptorRanges,
-            rootParameterIndexes, descriptorHandleInfo
+            reflectedResources, requestedResources, descriptorRanges, rootParameterIndexes, descriptorHandleInfo
         );
         FindCombinedImageSamplers(reflectedResources, descriptorHandleInfo);
         CreateDescriptorRanges(
-            descriptorRanges, descriptorHandleInfo, rootParameters,
-            rootParameterIndexes, rootSignatureBindingLocation
+            descriptorRanges, descriptorHandleInfo, rootParameters, rootParameterIndexes, rootSignatureBindingLocation
         );
 
-        D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-            D3D12_ROOT_SIGNATURE_FLAG_NONE;
+        D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
         if (requiresInputAssembly)
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_VERTEX))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_HULL))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_DOMAIN))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_GEOMETRY))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_PIXEL))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_AMPLIFICATION))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS;
         }
 
         if (!descriptorRanges.contains(D3D12_SHADER_VISIBILITY_MESH))
         {
-            rootSignatureFlags |=
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS;
+            rootSignatureFlags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS;
         }
 
         std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers = {};
@@ -2004,42 +1790,30 @@ namespace Nexus::D3D12
         {
             const auto &resourceInfo = reflectedResources.at(name);
 
-            for (size_t samplerIndex = 0; samplerIndex < samplers.size();
-                 samplerIndex++)
+            for (size_t samplerIndex = 0; samplerIndex < samplers.size(); samplerIndex++)
             {
                 const auto &sampler = samplers[samplerIndex];
-                const Graphics::SamplerDescription &samplerDesc =
-                    sampler->GetSamplerDescription();
+                const Graphics::SamplerDescription &samplerDesc = sampler->GetSamplerDescription();
 
-                D3D12_STATIC_SAMPLER_DESC &staticSampler =
-                    staticSamplers.emplace_back();
-                staticSampler.Filter =
-                    D3D12::GetD3D12Filter(samplerDesc.SampleFilter);
-                staticSampler.AddressU =
-                    D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeU);
-                staticSampler.AddressV =
-                    D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeV);
-                staticSampler.AddressW =
-                    D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeW);
+                D3D12_STATIC_SAMPLER_DESC &staticSampler = staticSamplers.emplace_back();
+                staticSampler.Filter = D3D12::GetD3D12Filter(samplerDesc.SampleFilter);
+                staticSampler.AddressU = D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeU);
+                staticSampler.AddressV = D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeV);
+                staticSampler.AddressW = D3D12::GetD3D12TextureAddressMode(samplerDesc.AddressModeW);
                 staticSampler.MipLODBias = samplerDesc.LODBias;
                 staticSampler.MaxAnisotropy = samplerDesc.MaximumAnisotropy;
-                staticSampler.ComparisonFunc = D3D12::GetComparisonFunction(
-                    samplerDesc.SamplerComparisonFunction
-                );
+                staticSampler.ComparisonFunc = D3D12::GetComparisonFunction(samplerDesc.SamplerComparisonFunction);
 
                 switch (samplerDesc.TextureBorderColor)
                 {
                 case Graphics::BorderColour::TransparentBlack:
-                    staticSampler.BorderColor =
-                        D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+                    staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
                     break;
                 case Graphics::BorderColour::OpaqueBlack:
-                    staticSampler.BorderColor =
-                        D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+                    staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
                     break;
                 case Graphics::BorderColour::OpaqueWhite:
-                    staticSampler.BorderColor =
-                        D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+                    staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
                     break;
                 default:
                     throw std::runtime_error("Failed to find a valid BorderColor");
@@ -2047,11 +1821,9 @@ namespace Nexus::D3D12
 
                 staticSampler.MinLOD = samplerDesc.MinimumLOD;
                 staticSampler.MaxLOD = samplerDesc.MaximumLOD;
-                staticSampler.ShaderRegister =
-                    resourceInfo.Binding + static_cast<UINT>(samplerIndex);
+                staticSampler.ShaderRegister = resourceInfo.Binding + static_cast<UINT>(samplerIndex);
                 staticSampler.RegisterSpace = resourceInfo.RegisterSpace;
-                staticSampler.ShaderVisibility =
-                    GetShaderVisibility(resourceInfo.Stage);
+                staticSampler.ShaderVisibility = GetShaderVisibility(resourceInfo.Stage);
             }
         }
 
@@ -2065,26 +1837,22 @@ namespace Nexus::D3D12
         // serialize the root signature and report any errors if they occur
         Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
         if (SUCCEEDED(D3D12SerializeRootSignature(
-                &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                &inRootSignatureBlob, &errorBlob
+                &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob
             )))
         {
             device->CreateRootSignature(
-                0, inRootSignatureBlob->GetBufferPointer(),
-                inRootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&inRootSignature)
+                0, inRootSignatureBlob->GetBufferPointer(), inRootSignatureBlob->GetBufferSize(),
+                IID_PPV_ARGS(&inRootSignature)
             );
         }
         else
         {
-            std::string errorMessage =
-                std::string((char *)errorBlob->GetBufferPointer());
+            std::string errorMessage = std::string((char *)errorBlob->GetBufferPointer());
             throw std::runtime_error(errorMessage);
         }
     }
 
-    std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(
-        const std::vector<Graphics::VertexBufferLayout> &layouts
-    )
+    std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts)
     {
         std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayouts = {};
 
@@ -2097,10 +1865,9 @@ namespace Nexus::D3D12
             {
                 const auto &element = layout.GetElement(i);
 
-                D3D12_INPUT_CLASSIFICATION classification =
-                    layout.IsInstanceBuffer()
-                        ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA
-                        : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+                D3D12_INPUT_CLASSIFICATION classification = layout.IsInstanceBuffer()
+                                                                ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA
+                                                                : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
                 D3D12_INPUT_ELEMENT_DESC desc = {
                     element.Name.c_str(),
@@ -2144,16 +1911,13 @@ namespace Nexus::D3D12
         }
     }
 
-    D3D12_RASTERIZER_DESC CreateRasterizerState(
-        const Graphics::RasterizerStateDescription &rasterizerState
-    )
+    D3D12_RASTERIZER_DESC CreateRasterizerState(const Graphics::RasterizerStateDescription &rasterizerState)
     {
         D3D12_RASTERIZER_DESC desc{};
         desc.FillMode = D3D12_FILL_MODE_SOLID;
         desc.CullMode = D3D12::GetCullMode(rasterizerState.TriangleCullMode);
 
-        if (rasterizerState.TriangleFrontFace ==
-            Nexus::Graphics::FrontFace::CounterClockwise)
+        if (rasterizerState.TriangleFrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
         {
             desc.FrontCounterClockwise = true;
         }
@@ -2182,9 +1946,7 @@ namespace Nexus::D3D12
         return desc;
     }
 
-    D3D12_BLEND_DESC CreateBlendStateDesc(
-        const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates
-    )
+    D3D12_BLEND_DESC CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates)
     {
         D3D12_BLEND_DESC desc{};
         desc.AlphaToCoverageEnable = FALSE;
@@ -2193,20 +1955,13 @@ namespace Nexus::D3D12
         for (size_t i = 0; i < colourBlendStates.size(); i++)
         {
             desc.RenderTarget[i].BlendEnable = colourBlendStates[i].EnableBlending;
-            desc.RenderTarget[i].SrcBlend =
-                D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
-            desc.RenderTarget[i].SrcBlend =
-                D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
-            desc.RenderTarget[i].DestBlend =
-                D3D12::GetBlendFunction(colourBlendStates[i].DestinationColourBlend);
-            desc.RenderTarget[i].BlendOp =
-                D3D12::GetBlendEquation(colourBlendStates[i].ColorBlendFunction);
-            desc.RenderTarget[i].SrcBlendAlpha =
-                D3D12::GetBlendFunction(colourBlendStates[i].SourceAlphaBlend);
-            desc.RenderTarget[i].DestBlendAlpha =
-                D3D12::GetBlendFunction(colourBlendStates[i].DestinationAlphaBlend);
-            desc.RenderTarget[i].BlendOpAlpha =
-                D3D12::GetBlendEquation(colourBlendStates[i].AlphaBlendFunction);
+            desc.RenderTarget[i].SrcBlend = D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
+            desc.RenderTarget[i].SrcBlend = D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
+            desc.RenderTarget[i].DestBlend = D3D12::GetBlendFunction(colourBlendStates[i].DestinationColourBlend);
+            desc.RenderTarget[i].BlendOp = D3D12::GetBlendEquation(colourBlendStates[i].ColorBlendFunction);
+            desc.RenderTarget[i].SrcBlendAlpha = D3D12::GetBlendFunction(colourBlendStates[i].SourceAlphaBlend);
+            desc.RenderTarget[i].DestBlendAlpha = D3D12::GetBlendFunction(colourBlendStates[i].DestinationAlphaBlend);
+            desc.RenderTarget[i].BlendOpAlpha = D3D12::GetBlendEquation(colourBlendStates[i].AlphaBlendFunction);
             desc.RenderTarget[i].LogicOpEnable = FALSE;
             desc.RenderTarget[i].LogicOp = D3D12_LOGIC_OP_NOOP;
 
@@ -2234,14 +1989,11 @@ namespace Nexus::D3D12
         return desc;
     }
 
-    D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc(
-        const Graphics::DepthStencilDescription &depthStencilDesc
-    )
+    D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc)
     {
         D3D12_DEPTH_STENCIL_DESC desc{};
         desc.DepthEnable = depthStencilDesc.EnableDepthTest;
-        desc.DepthFunc =
-            D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
+        desc.DepthFunc = D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
 
         if (depthStencilDesc.EnableDepthWrite)
         {
@@ -2256,41 +2008,28 @@ namespace Nexus::D3D12
         desc.StencilReadMask = depthStencilDesc.StencilCompareMask;
         desc.StencilWriteMask = depthStencilDesc.StencilWriteMask;
 
-        desc.FrontFace.StencilFunc = D3D12::GetComparisonFunction(
-            depthStencilDesc.Front.StencilComparisonFunction
-        );
-        desc.FrontFace.StencilDepthFailOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Front.StencilSuccessDepthFailOperation
-        );
-        desc.FrontFace.StencilFailOp =
-            D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
-        desc.FrontFace.StencilPassOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Front.StencilSuccessDepthSuccessOperation
-        );
+        desc.FrontFace.StencilFunc = D3D12::GetComparisonFunction(depthStencilDesc.Front.StencilComparisonFunction);
+        desc.FrontFace.StencilDepthFailOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthFailOperation);
+        desc.FrontFace.StencilFailOp = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
+        desc.FrontFace.StencilPassOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
 
-        desc.BackFace.StencilFunc = D3D12::GetComparisonFunction(
-            depthStencilDesc.Back.StencilComparisonFunction
-        );
-        desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Back.StencilSuccessDepthFailOperation
-        );
-        desc.BackFace.StencilFailOp =
-            D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
-        desc.BackFace.StencilPassOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Back.StencilSuccessDepthSuccessOperation
-        );
+        desc.BackFace.StencilFunc = D3D12::GetComparisonFunction(depthStencilDesc.Back.StencilComparisonFunction);
+        desc.BackFace.StencilDepthFailOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
+        desc.BackFace.StencilFailOp = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
+        desc.BackFace.StencilPassOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
 
         return desc;
     }
 
-    D3D12_DEPTH_STENCIL_DESC1 CreateDepthStencilDesc1(
-        const Graphics::DepthStencilDescription &depthStencilDesc
-    )
+    D3D12_DEPTH_STENCIL_DESC1 CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc)
     {
         D3D12_DEPTH_STENCIL_DESC1 desc = {};
         desc.DepthEnable = depthStencilDesc.EnableDepthTest;
-        desc.DepthFunc =
-            D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
+        desc.DepthFunc = D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
 
         if (depthStencilDesc.EnableDepthWrite)
         {
@@ -2305,29 +2044,19 @@ namespace Nexus::D3D12
         desc.StencilReadMask = depthStencilDesc.StencilCompareMask;
         desc.StencilWriteMask = depthStencilDesc.StencilWriteMask;
 
-        desc.FrontFace.StencilFunc = D3D12::GetComparisonFunction(
-            depthStencilDesc.Front.StencilComparisonFunction
-        );
-        desc.FrontFace.StencilDepthFailOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Front.StencilSuccessDepthFailOperation
-        );
-        desc.FrontFace.StencilFailOp =
-            D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
-        desc.FrontFace.StencilPassOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Front.StencilSuccessDepthSuccessOperation
-        );
+        desc.FrontFace.StencilFunc = D3D12::GetComparisonFunction(depthStencilDesc.Front.StencilComparisonFunction);
+        desc.FrontFace.StencilDepthFailOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthFailOperation);
+        desc.FrontFace.StencilFailOp = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
+        desc.FrontFace.StencilPassOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
 
-        desc.BackFace.StencilFunc = D3D12::GetComparisonFunction(
-            depthStencilDesc.Back.StencilComparisonFunction
-        );
-        desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Back.StencilSuccessDepthFailOperation
-        );
-        desc.BackFace.StencilFailOp =
-            D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
-        desc.BackFace.StencilPassOp = D3D12::GetStencilOperation(
-            depthStencilDesc.Back.StencilSuccessDepthSuccessOperation
-        );
+        desc.BackFace.StencilFunc = D3D12::GetComparisonFunction(depthStencilDesc.Back.StencilComparisonFunction);
+        desc.BackFace.StencilDepthFailOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
+        desc.BackFace.StencilFailOp = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
+        desc.BackFace.StencilPassOp =
+            D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
 
         desc.DepthBoundsTestEnable = depthStencilDesc.EnableDepthsBoundsTest;
 
@@ -2499,11 +2228,9 @@ namespace Nexus::D3D12
         case Graphics::BarrierAccess::AccelerationStructureWrite:
             return D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
         case Graphics::BarrierAccess::VideoDecode:
-            return D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ |
-                   D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
+            return D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ | D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
         case Graphics::BarrierAccess::VideoEncode:
-            return D3D12_BARRIER_ACCESS_VIDEO_ENCODE_READ |
-                   D3D12_BARRIER_ACCESS_VIDEO_ENCODE_WRITE;
+            return D3D12_BARRIER_ACCESS_VIDEO_ENCODE_READ | D3D12_BARRIER_ACCESS_VIDEO_ENCODE_WRITE;
         default:
             throw std::runtime_error("Failed to find a valid access type");
         }
@@ -2562,9 +2289,7 @@ namespace Nexus::D3D12
         return flags;
     }
 
-    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE GetAccelerationStructureType(
-        Graphics::AccelerationStructureType type
-    )
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE GetAccelerationStructureType(Graphics::AccelerationStructureType type)
     {
         switch (type)
         {
@@ -2573,59 +2298,50 @@ namespace Nexus::D3D12
         case Graphics::AccelerationStructureType::TopLevel:
             return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
         default:
-            throw std::runtime_error(
-                "Failed to find a valid acceleration structure type"
-            );
+            throw std::runtime_error("Failed to find a valid acceleration structure type");
         }
     }
 
-    static D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS
-    GetAccelerationStructureBuildFlags(uint8_t flags, bool performUpdate)
+    static D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS GetAccelerationStructureBuildFlags(
+        uint8_t flags, bool performUpdate
+    )
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
         if (flags & Graphics::AccelerationStructureBuildFlags::AllowUpdate)
         {
-            buildFlags |=
-                D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+            buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::AllowCompaction)
         {
-            buildFlags |=
-                D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION;
+            buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION;
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastTrace)
         {
-            buildFlags |=
-                D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+            buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastBuild)
         {
-            buildFlags |=
-                D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+            buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
         }
         if (flags & Graphics::AccelerationStructureBuildFlags::MinimizeMemory)
         {
-            buildFlags |=
-                D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY;
+            buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY;
         }
 
         if (performUpdate)
         {
-            buildFlags |=
-                D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+            buildFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
         }
 
         return buildFlags;
     }
 
-    static D3D12_RAYTRACING_GEOMETRY_TYPE GetRayTracingGeometryType(
-        Graphics::GeometryType type
-    )
+    static D3D12_RAYTRACING_GEOMETRY_TYPE GetRayTracingGeometryType(Graphics::GeometryType type)
     {
         switch (type)
         {
@@ -2640,8 +2356,7 @@ namespace Nexus::D3D12
 
     static D3D12_RAYTRACING_GEOMETRY_FLAGS GetRayTracingGeometryFlags(uint8_t flags)
     {
-        D3D12_RAYTRACING_GEOMETRY_FLAGS outputFlags =
-            D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
+        D3D12_RAYTRACING_GEOMETRY_FLAGS outputFlags = D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
 
         if (flags & Graphics::AccelerationStructureGeometryFlags::Opaque)
         {
@@ -2650,8 +2365,7 @@ namespace Nexus::D3D12
 
         if (flags & Graphics::AccelerationStructureGeometryFlags::NoDuplicateAnyhit)
         {
-            outputFlags |=
-                D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION;
+            outputFlags |= D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION;
         }
 
         return outputFlags;
@@ -2692,9 +2406,8 @@ namespace Nexus::D3D12
 
     static void GetAccelerationStructureBuildGeometry(
         const Graphics::AccelerationStructureGeometryBuildDescription &description,
-        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &outputGeometry,
-        bool &isInstance, D3D12_GPU_VIRTUAL_ADDRESS &instanceAddress,
-        uint32_t &instanceCount
+        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &outputGeometry, bool &isInstance,
+        D3D12_GPU_VIRTUAL_ADDRESS &instanceAddress, uint32_t &instanceCount
     )
     {
         isInstance = false;
@@ -2710,16 +2423,13 @@ namespace Nexus::D3D12
             case Graphics::GeometryType::AxisAlignedBoundingBoxes:
             {
                 Graphics::AccelerationStructureAABBGeometry aabbs =
-                    std::get<Graphics::AccelerationStructureAABBGeometry>(
-                        buildGeometry.Geometry
-                    );
+                    std::get<Graphics::AccelerationStructureAABBGeometry>(buildGeometry.Geometry);
 
                 D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE address = {
                     .StartAddress = aabbs.AABBs, .StrideInBytes = aabbs.Stride
                 };
 
-                D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc =
-                    outputGeometry.emplace_back();
+                D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc = outputGeometry.emplace_back();
                 geometryDesc.Type = GetRayTracingGeometryType(buildGeometry.Type);
                 geometryDesc.Flags = GetRayTracingGeometryFlags(buildGeometry.Flags);
                 geometryDesc.AABBs.AABBs = address;
@@ -2729,37 +2439,27 @@ namespace Nexus::D3D12
             case Graphics::GeometryType::Triangles:
             {
                 Graphics::AccelerationStructureTriangleGeometry triangles =
-                    std::get<Graphics::AccelerationStructureTriangleGeometry>(
-                        buildGeometry.Geometry
-                    );
+                    std::get<Graphics::AccelerationStructureTriangleGeometry>(buildGeometry.Geometry);
 
                 D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE vertexDataAddress = {
-                    .StartAddress = triangles.VertexBuffer,
-                    .StrideInBytes = triangles.VertexBufferStride
+                    .StartAddress = triangles.VertexBuffer, .StrideInBytes = triangles.VertexBufferStride
                 };
                 D3D12_GPU_VIRTUAL_ADDRESS indexDataAddress = triangles.IndexBuffer;
-                D3D12_GPU_VIRTUAL_ADDRESS transformDataAddress =
-                    triangles.TransformBuffer;
+                D3D12_GPU_VIRTUAL_ADDRESS transformDataAddress = triangles.TransformBuffer;
 
-                D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc =
-                    outputGeometry.emplace_back();
+                D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc = outputGeometry.emplace_back();
                 geometryDesc.Type = GetRayTracingGeometryType(buildGeometry.Type);
                 geometryDesc.Flags = GetRayTracingGeometryFlags(buildGeometry.Flags);
-                geometryDesc.Triangles.VertexFormat =
-                    GetVertexFormat(triangles.VertexBufferFormat);
+                geometryDesc.Triangles.VertexFormat = GetVertexFormat(triangles.VertexBufferFormat);
                 geometryDesc.Triangles.VertexBuffer = vertexDataAddress;
                 geometryDesc.Triangles.VertexCount = triangles.VertexCount;
 
                 if (triangles.IndexBufferFormat.has_value())
                 {
-                    size_t indexSize = Graphics::GetIndexFormatSizeInBytes(
-                        triangles.IndexBufferFormat.value()
-                    );
+                    size_t indexSize = Graphics::GetIndexFormatSizeInBytes(triangles.IndexBufferFormat.value());
 
                     geometryDesc.Triangles.IndexBuffer = 0;
-                    geometryDesc.Triangles.IndexFormat = GetD3D12IndexBufferFormat(
-                        triangles.IndexBufferFormat.value()
-                    );
+                    geometryDesc.Triangles.IndexFormat = GetD3D12IndexBufferFormat(triangles.IndexBufferFormat.value());
                     geometryDesc.Triangles.IndexCount = triangles.IndexCount;
                 }
                 else
@@ -2775,9 +2475,7 @@ namespace Nexus::D3D12
             case Graphics::GeometryType::Instance:
             {
                 Graphics::AccelerationStructureInstanceGeometry instances =
-                    std::get<Graphics::AccelerationStructureInstanceGeometry>(
-                        buildGeometry.Geometry
-                    );
+                    std::get<Graphics::AccelerationStructureInstanceGeometry>(buildGeometry.Geometry);
 
                 isInstance = true;
                 instanceCount = instances.Count;
@@ -2795,20 +2493,16 @@ namespace Nexus::D3D12
         std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &geometry
     )
     {
-        bool performUpdate =
-            description.Mode == Graphics::AccelerationStructureBuildMode::Update;
+        bool performUpdate = description.Mode == Graphics::AccelerationStructureBuildMode::Update;
 
         bool isInstance = false;
         std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometryDesc = {};
         D3D12_GPU_VIRTUAL_ADDRESS instanceAddress = {};
         uint32_t instanceCount = 0;
-        GetAccelerationStructureBuildGeometry(
-            description, geometryDesc, isInstance, instanceAddress, instanceCount
-        );
+        GetAccelerationStructureBuildGeometry(description, geometryDesc, isInstance, instanceAddress, instanceCount);
 
         inputs.Type = GetAccelerationStructureType(description.Type);
-        inputs.Flags =
-            GetAccelerationStructureBuildFlags(description.Flags, performUpdate);
+        inputs.Flags = GetAccelerationStructureBuildFlags(description.Flags, performUpdate);
         inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 
         if (isInstance)
@@ -2823,9 +2517,7 @@ namespace Nexus::D3D12
         }
     }
 
-    void GetD3D12FeatureLevelAsMajorMinor(
-        D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor
-    )
+    void GetD3D12FeatureLevelAsMajorMinor(D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor)
     {
         switch (level)
         {

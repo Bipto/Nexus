@@ -6,10 +6,7 @@
 
 namespace Nexus::Graphics
 {
-    SurfaceEGL::SurfaceEGL(
-        uintptr_t display, uint32_t screen, uint32_t window,
-        const GraphicsDeviceOpenGL *device
-    )
+    SurfaceEGL::SurfaceEGL(uintptr_t display, uint32_t screen, uint32_t window, const GraphicsDeviceOpenGL *device)
         : m_Display(display), m_Screen(screen), m_Window(window), m_Device(device)
     {
     }
@@ -18,8 +15,7 @@ namespace Nexus::Graphics
         GraphicsDeviceOpenGL *device, const GL::ContextDescription &desc
     ) const
     {
-        GL::OffscreenContextEGL *pbufferEGL =
-            (GL::OffscreenContextEGL *)device->GetOffscreenContext();
+        GL::OffscreenContextEGL *pbufferEGL = (GL::OffscreenContextEGL *)device->GetOffscreenContext();
         Display *display = reinterpret_cast<Display *>(m_Display);
         int screen = static_cast<int>(m_Screen);
         Window window = static_cast<Window>(m_Window);
@@ -28,9 +24,7 @@ namespace Nexus::Graphics
 
         if (eglGetPlatformDisplay != nullptr)
         {
-            eglDisplay = eglGetPlatformDisplay(
-                EGL_PLATFORM_X11_EXT, (EGLNativeDisplayType)display, nullptr
-            );
+            eglDisplay = eglGetPlatformDisplay(EGL_PLATFORM_X11_EXT, (EGLNativeDisplayType)display, nullptr);
         }
         else
         {
@@ -39,9 +33,7 @@ namespace Nexus::Graphics
 
         EGLNativeWindowType nativeWindow = (EGLNativeWindowType)window;
 
-        auto context = std::make_unique<GL::ViewContextEGL>(
-            eglDisplay, nativeWindow, pbufferEGL, desc
-        );
+        auto context = std::make_unique<GL::ViewContextEGL>(eglDisplay, nativeWindow, pbufferEGL, desc);
         return context;
     }
 } // namespace Nexus::Graphics

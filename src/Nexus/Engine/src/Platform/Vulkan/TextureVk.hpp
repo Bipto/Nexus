@@ -18,10 +18,7 @@ namespace Nexus::Graphics
         bool operator<(const VulkanTextureViewInfo &other) const
         {
             return std::tie(BaseMipLevel, LevelCount, BaseArrayLayer, LayerCount) <
-                   std::tie(
-                       other.BaseMipLevel, other.LevelCount, other.BaseArrayLayer,
-                       other.LayerCount
-                   );
+                   std::tie(other.BaseMipLevel, other.LevelCount, other.BaseArrayLayer, other.LayerCount);
         }
     };
 
@@ -29,25 +26,16 @@ namespace Nexus::Graphics
     {
       public:
         TextureVk(const TextureDescription &spec, GraphicsDeviceVk *device);
-        TextureVk(
-            VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device,
-            bool owned = false
-        );
+        TextureVk(VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device, bool owned = false);
         virtual ~TextureVk();
 
         const VkImage GetImage() const;
         const VkImageView GetImageView(const VulkanTextureViewInfo &desc) const;
 
-        TextureLayout GetTextureLayout(
-            uint32_t arrayLayer, uint32_t mipLevel
-        ) const final;
-        void SetTextureLayout(
-            uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout
-        );
+        TextureLayout GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const final;
+        void SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout);
 
-        SubresourceFootprint GetSubresourceFootprint(
-            uint32_t arrayLayer, uint32_t mipLevel
-        ) const final;
+        SubresourceFootprint GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const final;
 
       private:
         GraphicsDeviceVk *m_GraphicsDevice = nullptr;

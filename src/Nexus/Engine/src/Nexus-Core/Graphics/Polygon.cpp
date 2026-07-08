@@ -4,8 +4,7 @@
 
 namespace Nexus::Graphics
 {
-    Polygon::Polygon(const std::vector<Triangle2D> &triangles)
-        : m_Triangles(triangles)
+    Polygon::Polygon(const std::vector<Triangle2D> &triangles) : m_Triangles(triangles)
     {
     }
 

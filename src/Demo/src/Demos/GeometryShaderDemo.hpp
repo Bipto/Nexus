@@ -8,8 +8,7 @@ namespace Demos
     {
       public:
         GeometryShaderDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -24,21 +23,15 @@ namespace Demos
         {
             m_CommandList = m_CommandQueue->CreateCommandList();
 
-            std::vector<glm::vec2> vertices = {
-                {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.5f, -0.5f}, {-0.5f, -0.5f}
-            };
+            std::vector<glm::vec2> vertices = {{-0.5f, 0.5f}, {0.5f, 0.5f}, {0.5f, -0.5f}, {-0.5f, -0.5f}};
 
             Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
             vertexBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage_Vertex;
             vertexBufferDesc.StrideInBytes = sizeof(Nexus::Graphics::VertexPosition);
-            vertexBufferDesc.SizeInBytes =
-                vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+            vertexBufferDesc.SizeInBytes = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
             m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
-            m_VertexBuffer->SetData(
-                vertices.data(), 0,
-                vertices.size() * sizeof(Nexus::Graphics::VertexPosition)
-            );
+            m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
             CreatePipeline();
         }
@@ -50,10 +43,8 @@ namespace Demos
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -72,9 +63,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             Nexus::Graphics::VertexBufferView vertexBufferView = {};
             vertexBufferView.BufferHandle = m_VertexBuffer;
@@ -114,50 +103,31 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-                Nexus::Graphics::CullMode::CullNone;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-                Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPosition::GetLayout()
-            };
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
             pipelineDescription.ColourTargetCount = 1;
-            pipelineDescription.ColourFormats[0] =
-                Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-            pipelineDescription.Samples = Nexus::GetApplication()
-                                              ->GetPrimarySwapchain()
-                                              ->GetDescription()
-                                              .Samples;
+            pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+            pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
-            pipelineDescription.PrimitiveTopology =
-                Nexus::Graphics::Topology::PointList;
+            pipelineDescription.PrimitiveTopology = Nexus::Graphics::Topology::PointList;
 
-            pipelineDescription.VertexModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/geometry/geometry_demo.vert.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Vertex
-                );
+            pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/geometry/geometry_demo.vert.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
+            );
 
-            pipelineDescription.GeometryModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/geometry/geometry_demo.geom.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Geometry
-                );
-            pipelineDescription.FragmentModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/geometry/geometry_demo.frag.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Fragment
-                );
+            pipelineDescription.GeometryModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/geometry/geometry_demo.geom.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Geometry
+            );
+            pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/geometry/geometry_demo.frag.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
+            );
 
-            m_Pipeline =
-                m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+            m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
         }
 
       private:

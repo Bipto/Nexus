@@ -13,9 +13,7 @@ namespace Nexus
       public:
         template <EventType E, typename... Args> E &Add(Args &&...args)
         {
-            auto &ref = *m_Events.emplace_back(
-                std::make_unique<E>(std::forward<Args>(args)...)
-            );
+            auto &ref = *m_Events.emplace_back(std::make_unique<E>(std::forward<Args>(args)...));
             return static_cast<E &>(ref);
         }
 

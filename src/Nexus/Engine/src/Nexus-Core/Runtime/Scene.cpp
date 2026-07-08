@@ -137,10 +137,8 @@ namespace Nexus
 
             out << YAML::Key << "Environment" << YAML::Value;
             out << YAML::BeginMap;
-            out << YAML::Key << "ClearColour" << YAML::Value
-                << SceneEnvironment.ClearColour;
-            out << YAML::Key << "Cubemap" << YAML::Value
-                << SceneEnvironment.CubemapPath;
+            out << YAML::Key << "ClearColour" << YAML::Value << SceneEnvironment.ClearColour;
+            out << YAML::Key << "Cubemap" << YAML::Value << SceneEnvironment.CubemapPath;
             out << YAML::EndMap;
 
             out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
@@ -282,8 +280,8 @@ namespace Nexus
     }
 
     Scene *Scene::Deserialize(
-        const SceneInfo &info, const std::string &sceneDirectory, Project *project,
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
+        const SceneInfo &info, const std::string &sceneDirectory, Project *project, Graphics::IGraphicsDevice *device,
+        Graphics::CommandQueueHandle commandQueue
     )
     {
         std::string filepath = sceneDirectory + info.Name + std::string(".scene");
@@ -302,17 +300,13 @@ namespace Nexus
         scene->ParentProject = project;
 
         auto environment = node["Environment"];
-        scene->SceneEnvironment.ClearColour =
-            environment["ClearColour"].as<glm::vec4>();
-        scene->SceneEnvironment.CubemapPath =
-            environment["Cubemap"].as<std::string>();
+        scene->SceneEnvironment.ClearColour = environment["ClearColour"].as<glm::vec4>();
+        scene->SceneEnvironment.CubemapPath = environment["Cubemap"].as<std::string>();
 
         if (!scene->SceneEnvironment.CubemapPath.empty() &&
             std::filesystem::exists(scene->SceneEnvironment.CubemapPath))
         {
-            Graphics::HdriProcessor processor(
-                scene->SceneEnvironment.CubemapPath, device, commandQueue
-            );
+            Graphics::HdriProcessor processor(scene->SceneEnvironment.CubemapPath, device, commandQueue);
             Graphics::TextureViewHandle skyboxView = processor.GenerateView(2048);
         }
 
@@ -331,18 +325,14 @@ namespace Nexus
                 {
                     for (auto component : components)
                     {
-                        Nexus::ECS::ComponentRegistry &componentRegistry =
-                            Nexus::ECS::ComponentRegistry::GetRegistry();
+                        Nexus::ECS::ComponentRegistry &componentRegistry = Nexus::ECS::ComponentRegistry::GetRegistry();
 
-                        std::string componentName =
-                            component["Name"].as<std::string>();
-                        size_t entityComponentIndex =
-                            component["HierarchyIndex"].as<size_t>();
+                        std::string componentName = component["Name"].as<std::string>();
+                        size_t entityComponentIndex = component["HierarchyIndex"].as<size_t>();
                         YAML::Node data = component["Data"];
 
                         project->DeserializeComponentFromYaml(
-                            scene->Registry, e.ID, componentName, data,
-                            entityComponentIndex
+                            scene->Registry, e.ID, componentName, data, entityComponentIndex
                         );
                     }
                 }

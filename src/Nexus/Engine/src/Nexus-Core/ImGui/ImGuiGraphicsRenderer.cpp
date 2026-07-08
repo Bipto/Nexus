@@ -12,62 +12,55 @@
 
 static std::string GetImGuiShaderVertexSource()
 {
-    std::string shader =
-        "#version 450 core\n"
+    std::string shader = "#version 450 core\n"
 
-        "layout(location = 0) in vec2 a_Position;\n"
-        "layout(location = 1) in vec2 a_TexCoord;\n"
-        "layout(location = 2) in vec4 a_Colour;\n"
+                         "layout(location = 0) in vec2 a_Position;\n"
+                         "layout(location = 1) in vec2 a_TexCoord;\n"
+                         "layout(location = 2) in vec4 a_Colour;\n"
 
-        "layout(location = 0) out vec2 o_Frag_UV;\n"
-        "layout(location = 1) out vec4 o_Frag_Colour;\n"
+                         "layout(location = 0) out vec2 o_Frag_UV;\n"
+                         "layout(location = 1) out vec4 o_Frag_Colour;\n"
 
-        "layout(push_constant) uniform PushConstants\n"
-        "{\n"
-        "    mat4 MVP;\n"
-        "} pushConstants;\n"
+                         "layout(push_constant) uniform PushConstants\n"
+                         "{\n"
+                         "    mat4 MVP;\n"
+                         "} pushConstants;\n"
 
-        "void main()\n"
-        "{\n"
-        "    gl_Position = pushConstants.MVP * vec4(a_Position, 0.0, 1.0);\n"
-        "    o_Frag_UV = vec2(a_TexCoord.x, a_TexCoord.y);\n"
-        "    o_Frag_Colour = a_Colour;\n"
-        "}";
+                         "void main()\n"
+                         "{\n"
+                         "    gl_Position = pushConstants.MVP * vec4(a_Position, 0.0, 1.0);\n"
+                         "    o_Frag_UV = vec2(a_TexCoord.x, a_TexCoord.y);\n"
+                         "    o_Frag_Colour = a_Colour;\n"
+                         "}";
     return shader;
 }
 
 static std::string GetImGuiShaderFragmentSource()
 {
-    std::string shader =
-        "#version 450 core\n"
+    std::string shader = "#version 450 core\n"
 
-        "layout(location = 0) in vec2 a_Frag_UV;\n"
-        "layout(location = 1) in vec4 a_Frag_Colour;\n"
+                         "layout(location = 0) in vec2 a_Frag_UV;\n"
+                         "layout(location = 1) in vec4 a_Frag_Colour;\n"
 
-        "layout(set = 1, binding = 0) uniform sampler2D u_Texture;\n"
+                         "layout(set = 1, binding = 0) uniform sampler2D u_Texture;\n"
 
-        "layout(location = 0) out vec4 o_Colour;\n"
+                         "layout(location = 0) out vec4 o_Colour;\n"
 
-        "void main()\n"
-        "{\n"
-        "    o_Colour = a_Frag_Colour * texture(u_Texture, a_Frag_UV.st)\n;"
-        "}";
+                         "void main()\n"
+                         "{\n"
+                         "    o_Colour = a_Frag_Colour * texture(u_Texture, a_Frag_UV.st)\n;"
+                         "}";
     return shader;
 }
 
 static Nexus::ImGuiUtils::ImGuiGraphicsRenderer *s_ImGuiRenderer = nullptr;
 
-static void ImGui_ImplNexus_SetPlatformImeData(
-    ImGuiViewport *vp, ImGuiPlatformImeData *data
-)
+static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformImeData *data)
 {
-    Nexus::ImGuiUtils::ImGuiWindowInfo *info =
-        static_cast<Nexus::ImGuiUtils::ImGuiWindowInfo *>(vp->PlatformUserData);
+    Nexus::ImGuiUtils::ImGuiWindowInfo *info = static_cast<Nexus::ImGuiUtils::ImGuiWindowInfo *>(vp->PlatformUserData);
     if (data->WantVisible)
     {
-        info->Window->SetTextInputRect(
-            data->InputPos.x, data->InputPos.y, 1, data->InputLineHeight
-        );
+        info->Window->SetTextInputRect(data->InputPos.x, data->InputPos.y, 1, data->InputLineHeight);
         info->Window->StartTextInput();
     }
     else
@@ -78,9 +71,7 @@ static void ImGui_ImplNexus_SetPlatformImeData(
 
 namespace Nexus::ImGuiUtils
 {
-    ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(
-        Nexus::Application *app, Graphics::CommandQueueHandle commandQueue
-    )
+    ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue)
         : m_Application(app), m_CommandQueue(commandQueue)
     {
         s_ImGuiRenderer = this;
@@ -98,13 +89,11 @@ namespace Nexus::ImGuiUtils
         auto fragmentSource = GetImGuiShaderFragmentSource();
 
         m_VertexShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-            m_GraphicsDevice, vertexSource, "ImGui.vert.glsl",
-            Nexus::GetApplication()->GetApplicationPath(),
+            m_GraphicsDevice, vertexSource, "ImGui.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
             Nexus::Graphics::ShaderStage::Vertex
         );
         m_FragmentShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-            m_GraphicsDevice, fragmentSource, "ImGui.frag.glsl",
-            Nexus::GetApplication()->GetApplicationPath(),
+            m_GraphicsDevice, fragmentSource, "ImGui.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
             Nexus::Graphics::ShaderStage::Fragment
         );
 
@@ -117,8 +106,7 @@ namespace Nexus::ImGuiUtils
         samplerDesc.MinimumLOD = 0;
         samplerDesc.MaximumLOD = 0;
         samplerDesc.LODBias = 0;
-        samplerDesc.SampleFilter =
-            Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
+        samplerDesc.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
         samplerDesc.DebugName = "ImGui Sampler";
         m_Sampler = m_GraphicsDevice->CreateSampler(samplerDesc);
 
@@ -140,52 +128,33 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.VertexModule = m_VertexShader;
         pipelineDesc.FragmentModule = m_FragmentShader;
 
-        pipelineDesc.ColourFormats[0] =
-            Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+        pipelineDesc.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
         pipelineDesc.ColourTargetCount = 1;
-        pipelineDesc.Samples =
-            Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
+        pipelineDesc.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
         pipelineDesc.ColourBlendStates[0].EnableBlending = true;
-        pipelineDesc.ColourBlendStates[0].SourceColourBlend =
-            Nexus::Graphics::BlendFactor::SourceAlpha;
-        pipelineDesc.ColourBlendStates[0].DestinationColourBlend =
-            Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-        pipelineDesc.ColourBlendStates[0].ColorBlendFunction =
-            Nexus::Graphics::BlendEquation::Add;
-        pipelineDesc.ColourBlendStates[0].SourceAlphaBlend =
-            Nexus::Graphics::BlendFactor::One;
-        pipelineDesc.ColourBlendStates[0].DestinationAlphaBlend =
-            Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-        pipelineDesc.ColourBlendStates[0].AlphaBlendFunction =
-            Nexus::Graphics::BlendEquation::Add;
+        pipelineDesc.ColourBlendStates[0].SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
+        pipelineDesc.ColourBlendStates[0].DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+        pipelineDesc.ColourBlendStates[0].ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
+        pipelineDesc.ColourBlendStates[0].SourceAlphaBlend = Nexus::Graphics::BlendFactor::One;
+        pipelineDesc.ColourBlendStates[0].DestinationAlphaBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+        pipelineDesc.ColourBlendStates[0].AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
-        pipelineDesc.RasterizerStateDesc.TriangleCullMode =
-            Nexus::Graphics::CullMode::CullNone;
-        pipelineDesc.RasterizerStateDesc.TriangleFillMode =
-            Nexus::Graphics::FillMode::Solid;
-        pipelineDesc.RasterizerStateDesc.TriangleFrontFace =
-            Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDesc.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
+        pipelineDesc.RasterizerStateDesc.TriangleFillMode = Nexus::Graphics::FillMode::Solid;
+        pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDesc.DepthFormat =
-            Nexus::GetApplication()->GetPrimarySwapchain()->GetDepthFormat();
+        pipelineDesc.DepthFormat = Nexus::GetApplication()->GetPrimarySwapchain()->GetDepthFormat();
 
-        pipelineDesc.DepthStencilDesc.DepthComparisonFunction =
-            Nexus::Graphics::ComparisonFunction::AlwaysPass;
+        pipelineDesc.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
         pipelineDesc.DepthStencilDesc.EnableDepthTest = false;
         pipelineDesc.DepthStencilDesc.EnableDepthWrite = false;
         pipelineDesc.DepthStencilDesc.EnableStencilTest = false;
 
         pipelineDesc.Layouts = {Nexus::Graphics::VertexBufferLayout(
-            {Nexus::Graphics::VertexBufferElement(
-                 Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"
-             ),
-             Nexus::Graphics::VertexBufferElement(
-                 Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"
-             ),
-             Nexus::Graphics::VertexBufferElement(
-                 Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD"
-             )},
+            {Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
+             Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
+             Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
             sizeof(ImDrawVert), Nexus::Graphics::StepRate::Vertex
         )};
 
@@ -214,11 +183,8 @@ namespace Nexus::ImGuiUtils
         int width, height, channels;
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &channels);
 
-        size_t bufferSize = static_cast<size_t>(width) *
-                            static_cast<size_t>(height) *
-                            Graphics::GetPixelFormatSizeInBytes(
-                                Graphics::PixelFormat::R8_G8_B8_A8_UNorm
-                            );
+        size_t bufferSize = static_cast<size_t>(width) * static_cast<size_t>(height) *
+                            Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
         Graphics::TextureDescription textureDesc = {};
         textureDesc.Type = Graphics::TextureType::Texture2D;
@@ -229,17 +195,12 @@ namespace Nexus::ImGuiUtils
         textureDesc.DebugName = "ImGui Font Texture";
         m_FontTexture = m_GraphicsDevice->CreateTexture(textureDesc);
 
-        Utils::WriteToTexture(
-            m_CommandQueue, m_FontTexture, 0, 0, 0, 0, width, height, pixels,
-            bufferSize
-        );
+        Utils::WriteToTexture(m_CommandQueue, m_FontTexture, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
         Graphics::TextureViewDescription viewDesc = {};
         viewDesc.TargetTexture = m_FontTexture;
         viewDesc.Format = m_FontTexture->GetPixelFormat();
-        viewDesc.Range = {
-            .BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1
-        };
+        viewDesc.Range = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
         viewDesc.DebugName = "ImGui Font View";
         m_FontTextureView = m_GraphicsDevice->CreateTextureView(viewDesc);
 
@@ -250,14 +211,11 @@ namespace Nexus::ImGuiUtils
         io.Fonts->ClearTexData();
     }
 
-    ImTextureID ImGuiGraphicsRenderer::BindTexture(
-        Graphics::TextureViewHandle texture
-    )
+    ImTextureID ImGuiGraphicsRenderer::BindTexture(Graphics::TextureViewHandle texture)
     {
         ImTextureID id = (ImTextureID)m_TextureID++;
 
-        Graphics::ResourceSetHandle resourceSet =
-            m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+        Graphics::ResourceSetHandle resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
         ImGuiDescriptorInfo &info = m_Descriptors[id];
         info.m_Texture = texture;
@@ -288,8 +246,7 @@ namespace Nexus::ImGuiUtils
         auto &io = ImGui::GetIO();
         io.DeltaTime = (float)gameTime.GetSeconds<float>();
 
-        auto [width, height] =
-            Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+        auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
         io.DisplaySize = {static_cast<float>(width), static_cast<float>(height)};
         io.DisplayFramebufferScale = {1, 1};
 
@@ -315,11 +272,9 @@ namespace Nexus::ImGuiUtils
             // issue
             for (int i = platform_io.Viewports.Size - 1; i >= 1; i--)
             {
-                ImGuiWindowInfo *info =
-                    (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
+                ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
 
-                if ((platform_io.Viewports[i]->Flags &
-                     ImGuiViewportFlags_IsMinimized) == 0)
+                if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
                 {
                     Nexus::IWindow *window = info->Window;
                     Graphics::SwapchainHandle swapchain = info->Swapchain;
@@ -329,9 +284,7 @@ namespace Nexus::ImGuiUtils
                         if (swapchain.IsValid())
                         {
                             RenderDrawData(platform_io.Viewports[i]->DrawData);
-                            swapchain->SwapBuffers(
-                                Graphics::SwapchainPresentDescription{}
-                            );
+                            swapchain->SwapBuffers(Graphics::SwapchainPresentDescription{});
                         }
                     }
                 }
@@ -415,26 +368,22 @@ namespace Nexus::ImGuiUtils
     {
         auto &io = ImGui::GetIO();
 
-        if (args.ScanCode == ScanCode::LeftShift ||
-            args.ScanCode == ScanCode::RightShift)
+        if (args.ScanCode == ScanCode::LeftShift || args.ScanCode == ScanCode::RightShift)
         {
             io.KeyShift = true;
         }
 
-        if (args.ScanCode == ScanCode::LeftControl ||
-            args.ScanCode == ScanCode::RightControl)
+        if (args.ScanCode == ScanCode::LeftControl || args.ScanCode == ScanCode::RightControl)
         {
             io.KeyCtrl = true;
         }
 
-        if (args.ScanCode == ScanCode::LeftAlt ||
-            args.ScanCode == ScanCode::RightAlt)
+        if (args.ScanCode == ScanCode::LeftAlt || args.ScanCode == ScanCode::RightAlt)
         {
             io.KeyAlt = true;
         }
 
-        if (args.ScanCode == ScanCode::LeftGUI ||
-            args.ScanCode == ScanCode::RightGUI)
+        if (args.ScanCode == ScanCode::LeftGUI || args.ScanCode == ScanCode::RightGUI)
         {
             io.KeySuper = true;
         }
@@ -449,26 +398,22 @@ namespace Nexus::ImGuiUtils
     {
         auto &io = ImGui::GetIO();
 
-        if (args.ScanCode == ScanCode::LeftShift ||
-            args.ScanCode == ScanCode::RightShift)
+        if (args.ScanCode == ScanCode::LeftShift || args.ScanCode == ScanCode::RightShift)
         {
             io.KeyShift = false;
         }
 
-        if (args.ScanCode == ScanCode::LeftControl ||
-            args.ScanCode == ScanCode::RightControl)
+        if (args.ScanCode == ScanCode::LeftControl || args.ScanCode == ScanCode::RightControl)
         {
             io.KeyCtrl = false;
         }
 
-        if (args.ScanCode == ScanCode::LeftAlt ||
-            args.ScanCode == ScanCode::RightAlt)
+        if (args.ScanCode == ScanCode::LeftAlt || args.ScanCode == ScanCode::RightAlt)
         {
             io.KeyAlt = false;
         }
 
-        if (args.ScanCode == ScanCode::LeftGUI ||
-            args.ScanCode == ScanCode::RightGUI)
+        if (args.ScanCode == ScanCode::LeftGUI || args.ScanCode == ScanCode::RightGUI)
         {
             io.KeySuper = false;
         }
@@ -485,9 +430,7 @@ namespace Nexus::ImGuiUtils
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
-            io.AddMousePosEvent(
-                args.ScreenPosition.first, args.ScreenPosition.second
-            );
+            io.AddMousePosEvent(args.ScreenPosition.first, args.ScreenPosition.second);
         }
         else
         {
@@ -495,9 +438,7 @@ namespace Nexus::ImGuiUtils
         }
     }
 
-    void ImGuiGraphicsRenderer::AddMouseButtonPressed(
-        const MouseButtonPressedEventArgs &args
-    )
+    void ImGuiGraphicsRenderer::AddMouseButtonPressed(const MouseButtonPressedEventArgs &args)
     {
         auto &io = ImGui::GetIO();
 
@@ -527,9 +468,7 @@ namespace Nexus::ImGuiUtils
         }
     }
 
-    void ImGuiGraphicsRenderer::AddMouseButtonReleased(
-        const MouseButtonReleasedEventArgs &args
-    )
+    void ImGuiGraphicsRenderer::AddMouseButtonReleased(const MouseButtonReleasedEventArgs &args)
     {
         auto &io = ImGui::GetIO();
 
@@ -648,10 +587,7 @@ namespace Nexus::ImGuiUtils
             for (int i = 0; i < drawData->CmdListsCount; i++)
             {
                 const ImDrawList *cmdList = drawData->CmdLists[i];
-                m_VertexBuffer->SetData(
-                    cmdList->VtxBuffer.Data, offset,
-                    cmdList->VtxBuffer.size_in_bytes()
-                );
+                m_VertexBuffer->SetData(cmdList->VtxBuffer.Data, offset, cmdList->VtxBuffer.size_in_bytes());
                 offset += cmdList->VtxBuffer.size_in_bytes();
             }
         }
@@ -663,10 +599,7 @@ namespace Nexus::ImGuiUtils
             for (int i = 0; i < drawData->CmdListsCount; i++)
             {
                 const ImDrawList *cmdList = drawData->CmdLists[i];
-                m_IndexBuffer->SetData(
-                    cmdList->IdxBuffer.Data, offset,
-                    cmdList->IdxBuffer.size_in_bytes()
-                );
+                m_IndexBuffer->SetData(cmdList->IdxBuffer.Data, offset, cmdList->IdxBuffer.size_in_bytes());
                 offset += cmdList->IdxBuffer.size_in_bytes();
             }
         }
@@ -685,8 +618,7 @@ namespace Nexus::ImGuiUtils
         if (!m_IndexBuffer.IsValid())
             return;
 
-        ImGuiWindowInfo *info =
-            (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
+        ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
 
         m_CommandList->Begin();
         m_CommandList->BeginDebugGroup("Rendering ImGui");
@@ -720,8 +652,7 @@ namespace Nexus::ImGuiUtils
 
         ImVec2 pos = drawData->DisplayPos;
         glm::mat4 mvp = glm::ortho<float>(
-            pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y,
-            pos.y, -1.f, 1.0f
+            pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f
         );
 
         ImGuiViewport *vp = drawData->OwnerViewport;
@@ -745,15 +676,12 @@ namespace Nexus::ImGuiUtils
                 m_CommandList->SetScissor(scissor);
 
                 auto &descriptorInfo = m_Descriptors.at(drawCmd.TextureId);
-                Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc =
-                    {};
+                Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
                 resourceBindingDesc.TargetResourceSet = descriptorInfo.m_ResourceSet;
                 resourceBindingDesc.DynamicOffsets = {};
                 m_CommandList->SetResourceSet(resourceBindingDesc);
 
-                m_CommandList->WritePushConstants(
-                    "PushConstants", &mvp, sizeof(mvp), 0
-                );
+                m_CommandList->WritePushConstants("PushConstants", &mvp, sizeof(mvp), 0);
 
                 if (drawCmd.ElemCount > 0)
                 {
@@ -856,16 +784,9 @@ namespace Nexus::ImGuiUtils
             ImGuiPlatformMonitor m;
             m.DpiScale = monitor.DPI;
             m.MainPos = {static_cast<float>(monitorX), static_cast<float>(monitorY)};
-            m.MainSize = {
-                static_cast<float>(monitorWidth), static_cast<float>(monitorHeight)
-            };
-            m.WorkPos = {
-                static_cast<float>(monitorWorkX), static_cast<float>(monitorWorkY)
-            };
-            m.WorkSize = {
-                static_cast<float>(monitorWorkWidth),
-                static_cast<float>(monitorWorkHeight)
-            };
+            m.MainSize = {static_cast<float>(monitorWidth), static_cast<float>(monitorHeight)};
+            m.WorkPos = {static_cast<float>(monitorWorkX), static_cast<float>(monitorWorkY)};
+            m.WorkSize = {static_cast<float>(monitorWorkWidth), static_cast<float>(monitorWorkHeight)};
 
             platformIo.Monitors.push_back(m);
         }
@@ -923,8 +844,7 @@ namespace Nexus::ImGuiUtils
             }
         };
 
-        platformIo.Platform_SetWindowPos = [](ImGuiViewport *vp,
-                                              ImVec2 pos) -> void {
+        platformIo.Platform_SetWindowPos = [](ImGuiViewport *vp, ImVec2 pos) -> void {
             if (vp->PlatformUserData && vp->RendererUserData)
             {
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
@@ -936,8 +856,7 @@ namespace Nexus::ImGuiUtils
             }
         };
 
-        platformIo.Platform_SetWindowSize = [](ImGuiViewport *vp,
-                                               ImVec2 size) -> void {
+        platformIo.Platform_SetWindowSize = [](ImGuiViewport *vp, ImVec2 size) -> void {
             if (vp->PlatformUserData && vp->RendererUserData)
             {
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
@@ -945,8 +864,7 @@ namespace Nexus::ImGuiUtils
                 uint32_t width = static_cast<uint32_t>(size.x);
                 uint32_t height = static_cast<uint32_t>(size.y);
 
-                if (!info->Window->IsClosing() && (info->LastWindowWidth != width ||
-                                                   info->LastWindowHeight != height))
+                if (!info->Window->IsClosing() && (info->LastWindowWidth != width || info->LastWindowHeight != height))
                 {
                     info->Window->SetSize(width, height);
                     info->LastWindowWidth = width;
@@ -986,15 +904,13 @@ namespace Nexus::ImGuiUtils
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                 if (!info->Window->IsClosing())
                 {
-                    return info->Window->GetCurrentWindowState() ==
-                           Nexus::WindowState::Minimized;
+                    return info->Window->GetCurrentWindowState() == Nexus::WindowState::Minimized;
                 }
             }
             return false;
         };
 
-        platformIo.Platform_SetWindowTitle = [](ImGuiViewport *vp,
-                                                const char *str) -> void {
+        platformIo.Platform_SetWindowTitle = [](ImGuiViewport *vp, const char *str) -> void {
             if (vp->PlatformUserData && vp->RendererUserData)
             {
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
@@ -1059,17 +975,13 @@ namespace Nexus::ImGuiUtils
             Graphics::SwapchainDescription swapchainDesc = {};
             swapchainDesc.Width = w;
             swapchainDesc.Height = h;
-            swapchainDesc.Surface = Utils::CreateSurfaceForWindow(
-                Nexus::GetApplication()->GetGraphicsDevice(), info->Window
-            );
+            swapchainDesc.Surface =
+                Utils::CreateSurfaceForWindow(Nexus::GetApplication()->GetGraphicsDevice(), info->Window);
             swapchainDesc.ImagePresentMode = Graphics::PresentMode::Immediate;
-            swapchainDesc.Samples =
-                app->GetPrimarySwapchain()->GetDescription().Samples;
+            swapchainDesc.Samples = app->GetPrimarySwapchain()->GetDescription().Samples;
 
             Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(
-                    swapchainDesc
-                );
+                Nexus::GetApplication()->GetGraphicsCommandQueue()->CreateSwapchain(swapchainDesc);
 
             info->Swapchain = swapchain;
         };

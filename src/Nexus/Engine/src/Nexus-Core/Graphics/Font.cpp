@@ -6,9 +6,8 @@
 
 void LoadCharacter(
     char character, FT_Face &face, Nexus::Graphics::FontData &data,
-    std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos,
-    uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight,
-    FT_Render_Mode renderMode
+    std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth,
+    uint32_t textureHeight, FT_Render_Mode renderMode
 )
 {
     if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
@@ -23,8 +22,7 @@ void LoadCharacter(
     {
         for (int x = 0; x < face->glyph->bitmap.width; x++)
         {
-            unsigned char pixel =
-                face->glyph->bitmap.buffer[x + (y * face->glyph->bitmap.width)];
+            unsigned char pixel = face->glyph->bitmap.buffer[x + (y * face->glyph->bitmap.width)];
             data.SetPixel(x + xPos, y + yPos, pixel);
         }
     }
@@ -34,8 +32,7 @@ void LoadCharacter(
 
     glm::vec2 texCoordsMin;
     texCoordsMin.x = u;
-    texCoordsMin.y =
-        1.0f - v - (1 / (float)textureHeight * face->glyph->bitmap.rows);
+    texCoordsMin.y = 1.0f - v - (1 / (float)textureHeight * face->glyph->bitmap.rows);
 
     glm::vec2 texCoordsMax;
     texCoordsMax.x = u + (1 / (float)textureWidth * face->glyph->bitmap.width);
@@ -51,8 +48,8 @@ void LoadCharacter(
 }
 
 Nexus::Point2D<uint32_t> FindLargestGlyphSize(
-    const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges,
-    uint32_t &numberOfCharacters, FT_Render_Mode renderMode
+    const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters,
+    FT_Render_Mode renderMode
 )
 {
     uint32_t width = 0;
@@ -84,8 +81,7 @@ Nexus::Point2D<uint32_t> FindLargestGlyphSize(
 namespace Nexus::Graphics
 {
     Font::Font(
-        const std::string &filepath, uint32_t size,
-        const std::vector<CharacterRange> &characterRanges, FontType type,
+        const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type,
         IGraphicsDevice *device
     )
         : m_CharacterRanges(characterRanges), m_FontSize(size), m_Type(type)
@@ -113,8 +109,7 @@ namespace Nexus::Graphics
         }
 
         uint32_t characterCount = 0;
-        m_MaxCharacterSize =
-            FindLargestGlyphSize(face, characterRanges, characterCount, renderMode);
+        m_MaxCharacterSize = FindLargestGlyphSize(face, characterRanges, characterCount, renderMode);
         uint32_t columnCount = ceil(sqrt(characterCount));
 
         m_TextureWidth = columnCount * m_MaxCharacterSize.X;
@@ -140,8 +135,7 @@ namespace Nexus::Graphics
             for (int character = range.Begin; character < range.End; character++)
             {
                 LoadCharacter(
-                    (char)character, face, pixels, m_Characters, xPos, yPos,
-                    m_TextureWidth, m_TextureHeight, renderMode
+                    (char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight, renderMode
                 );
 
                 xPos += m_MaxCharacterSize.X;
@@ -170,8 +164,7 @@ namespace Nexus::Graphics
         bufferDesc.Usage = Graphics::BufferUsage_None;
         bufferDesc.SizeInBytes = pixels.GetSizeInBytes();
         bufferDesc.StrideInBytes = pixels.GetSizeInBytes();
-        Nexus::Graphics::DeviceBufferHandle buffer =
-            device->CreateDeviceBuffer(bufferDesc);
+        Nexus::Graphics::DeviceBufferHandle buffer = device->CreateDeviceBuffer(bufferDesc);
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);

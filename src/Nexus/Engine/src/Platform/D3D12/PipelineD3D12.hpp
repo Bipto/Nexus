@@ -15,34 +15,23 @@ namespace Nexus::Graphics
         virtual ~PipelineD3D12()
         {
         }
-        virtual void Bind(
-            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
-        ) = 0;
-        virtual const D3D12::DescriptorHandleInfo &
-        GetDescriptorHandleInfo() const = 0;
-        virtual const D3D12::RootSignatureBindingLocations &
-        GetRootSignatureBindingLocations() const = 0;
+        virtual void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) = 0;
+        virtual const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() const = 0;
+        virtual const D3D12::RootSignatureBindingLocations &GetRootSignatureBindingLocations() const = 0;
     };
 
     class GraphicsPipelineD3D12 : public IGraphicsPipeline, public PipelineD3D12
     {
       public:
-        GraphicsPipelineD3D12(
-            GraphicsDeviceD3D12 *device,
-            const GraphicsPipelineDescription &description
-        );
+        GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description);
         virtual ~GraphicsPipelineD3D12();
-        virtual const GraphicsPipelineDescription &
-        GetPipelineDescription() const override;
+        virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
         Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature() const;
         Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPipelineState() const;
         D3D_PRIMITIVE_TOPOLOGY GetD3DPrimitiveTopology() const;
-        const D3D12::RootSignatureBindingLocations &
-        GetRootSignatureBindingLocations() const final;
+        const D3D12::RootSignatureBindingLocations &GetRootSignatureBindingLocations() const final;
 
-        void Bind(
-            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
-        ) final;
+        void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
         const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() const final;
 
       private:
@@ -62,20 +51,14 @@ namespace Nexus::Graphics
     class MeshletPipelineD3D12 : public IMeshletPipeline, public PipelineD3D12
     {
       public:
-        MeshletPipelineD3D12(
-            GraphicsDeviceD3D12 *device,
-            const MeshletPipelineDescription &description
-        );
+        MeshletPipelineD3D12(GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description);
         virtual ~MeshletPipelineD3D12();
         Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature() const;
         Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPipelineState() const;
         D3D_PRIMITIVE_TOPOLOGY GetD3DPrimitiveTopology() const;
-        const D3D12::RootSignatureBindingLocations &
-        GetRootSignatureBindingLocations() const final;
+        const D3D12::RootSignatureBindingLocations &GetRootSignatureBindingLocations() const final;
 
-        void Bind(
-            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
-        ) final;
+        void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
         const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() const final;
 
       private:
@@ -95,17 +78,11 @@ namespace Nexus::Graphics
     class ComputePipelineD3D12 : public IComputePipeline, public PipelineD3D12
     {
       public:
-        ComputePipelineD3D12(
-            GraphicsDeviceD3D12 *device,
-            const ComputePipelineDescription &description
-        );
+        ComputePipelineD3D12(GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description);
         virtual ~ComputePipelineD3D12();
-        void Bind(
-            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList
-        ) final;
+        void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
         const D3D12::DescriptorHandleInfo &GetDescriptorHandleInfo() const final;
-        const D3D12::RootSignatureBindingLocations &
-        GetRootSignatureBindingLocations() const final;
+        const D3D12::RootSignatureBindingLocations &GetRootSignatureBindingLocations() const final;
 
       private:
         Microsoft::WRL::ComPtr<ID3DBlob> m_RootSignatureBlob;

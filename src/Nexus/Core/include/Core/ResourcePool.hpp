@@ -283,8 +283,7 @@ namespace Nexus
         /// @tparam ...Args The types of the variables passed into the constructor
         /// @param ...args The values of the variables passed into the constructor
         /// @return A shared handle to the resource
-        template <typename... Args>
-        SharedHandle<T, Handle> EmplaceShared(Args &&...args);
+        template <typename... Args> SharedHandle<T, Handle> EmplaceShared(Args &&...args);
 
         /// @brief A method that creates a unique handle from an existing resource
         /// @param resource The resource that should be entered into the resource
@@ -297,8 +296,7 @@ namespace Nexus
         /// @tparam ...Args The types of the variables passed into the constructor
         /// @param ...args The values of the variables passed into the constructor
         /// @return A unique handle to the resource
-        template <typename... Args>
-        UniqueHandle<T, Handle> EmplaceUnique(Args &&...args);
+        template <typename... Args> UniqueHandle<T, Handle> EmplaceUnique(Args &&...args);
 
         /// @brief A method that retrieves a pointer to the resource from within the
         /// resource pool

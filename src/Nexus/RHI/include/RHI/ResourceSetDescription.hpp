@@ -64,15 +64,14 @@ namespace Nexus::Graphics
 
     inline bool IsBuffer(ResourceDescriptorType type)
     {
-        bool isBuffer =
-            type == Graphics::ResourceDescriptorType::UniformBuffer ||
-            type == Graphics::ResourceDescriptorType::DynamicUniformBuffer ||
-            type == Graphics::ResourceDescriptorType::InlineUniformBlock ||
-            type == Graphics::ResourceDescriptorType::StorageBuffer ||
-            type == Graphics::ResourceDescriptorType::DynamicStorageBuffer ||
-            type == Graphics::ResourceDescriptorType::UniformTexelBuffer ||
-            type == Graphics::ResourceDescriptorType::StorageTexelBuffer ||
-            type == Graphics::ResourceDescriptorType::PushConstants;
+        bool isBuffer = type == Graphics::ResourceDescriptorType::UniformBuffer ||
+                        type == Graphics::ResourceDescriptorType::DynamicUniformBuffer ||
+                        type == Graphics::ResourceDescriptorType::InlineUniformBlock ||
+                        type == Graphics::ResourceDescriptorType::StorageBuffer ||
+                        type == Graphics::ResourceDescriptorType::DynamicStorageBuffer ||
+                        type == Graphics::ResourceDescriptorType::UniformTexelBuffer ||
+                        type == Graphics::ResourceDescriptorType::StorageTexelBuffer ||
+                        type == Graphics::ResourceDescriptorType::PushConstants;
 
         return isBuffer;
     }

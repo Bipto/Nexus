@@ -5,9 +5,7 @@
 
 namespace Nexus::Graphics
 {
-    CommandQueueOpenGL::CommandQueueOpenGL(
-        GraphicsDeviceOpenGL *device, const CommandQueueDescription &description
-    )
+    CommandQueueOpenGL::CommandQueueOpenGL(GraphicsDeviceOpenGL *device, const CommandQueueDescription &description)
         : m_Device(device), m_Description(description)
     {
     }
@@ -21,9 +19,7 @@ namespace Nexus::Graphics
         return m_Description;
     }
 
-    SwapchainHandle CommandQueueOpenGL::CreateSwapchain(
-        const SwapchainDescription &spec
-    )
+    SwapchainHandle CommandQueueOpenGL::CreateSwapchain(const SwapchainDescription &spec)
     {
         auto swapchain = std::make_unique<SwapchainOpenGL>(spec, m_Device);
         return m_Resources.Swapchains.CreateShared(std::move(swapchain));
@@ -34,16 +30,12 @@ namespace Nexus::Graphics
         SubmitCommandList(commandList, nullptr);
     }
 
-    void CommandQueueOpenGL::SubmitCommandList(
-        CommandListHandle commandList, Ref<IFence> fence
-    )
+    void CommandQueueOpenGL::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
     {
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueOpenGL::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists
-    )
+    void CommandQueueOpenGL::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
     {
         SubmitCommandLists(commandLists, numCommandLists, nullptr);
     }
@@ -56,8 +48,7 @@ namespace Nexus::Graphics
 
         for (uint32_t i = 0; i < numCommandLists; i++)
         {
-            CommandListOpenGL *commandList =
-                commandLists[i].AsDerived<CommandListOpenGL>();
+            CommandListOpenGL *commandList = commandLists[i].AsDerived<CommandListOpenGL>();
             m_CommandExecutor.ExecuteCommands(commandList, m_Device);
             m_CommandExecutor.Reset();
         }
@@ -74,9 +65,7 @@ namespace Nexus::Graphics
         return true;
     }
 
-    CommandListHandle CommandQueueOpenGL::CreateCommandList(
-        const CommandListDescription &spec
-    )
+    CommandListHandle CommandQueueOpenGL::CreateCommandList(const CommandListDescription &spec)
     {
         auto commandList = std::make_unique<CommandListOpenGL>(spec);
         return m_Resources.CommandLists.CreateShared(std::move(commandList));

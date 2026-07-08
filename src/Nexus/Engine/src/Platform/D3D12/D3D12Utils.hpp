@@ -70,42 +70,29 @@ namespace Nexus::D3D12
     GetPipelineTopology(Nexus::Graphics::Topology topology);
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipeline(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::GraphicsPipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
         const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
     );
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::ComputePipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
     );
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(
-        Graphics::GraphicsDeviceD3D12 *device,
-        const Graphics::MeshletPipelineDescription &description,
+        Graphics::GraphicsDeviceD3D12 *device, const Graphics::MeshletPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
     );
 
     D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc);
-    D3D12_RESOURCE_DIMENSION GetResourceDimensions(
-        Nexus::Graphics::TextureType textureType
-    );
-    D3D12_RESOURCE_FLAGS GetResourceFlags(
-        const Graphics::TextureDescription &description
-    );
+    D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
+    D3D12_RESOURCE_FLAGS GetResourceFlags(const Graphics::TextureDescription &description);
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(
-        const Graphics::TextureViewDescription &desc
-    );
-    D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(
-        const Graphics::StorageImageView &view
-    );
+    D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureViewDescription &desc);
+    D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
 
-    void GetShaderAccessModifiers(
-        Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress
-    );
+    void GetShaderAccessModifiers(Graphics::StorageResourceAccess access, bool &readonly, bool &byteAddress);
 
     enum class RootParameterType
     {
@@ -133,32 +120,19 @@ namespace Nexus::D3D12
     // pipeline
     void CreateRootSignature(
         const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
-        const Graphics::ResourceSetDescription &requestedResources,
-        Microsoft::WRL::ComPtr<ID3D12Device9> device,
+        const Graphics::ResourceSetDescription &requestedResources, Microsoft::WRL::ComPtr<ID3D12Device9> device,
         Microsoft::WRL::ComPtr<ID3DBlob> &inRootSignatureBlob,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature,
-        DescriptorHandleInfo &descriptorHandleInfo,
-        RootSignatureBindingLocations &rootSignatureBindingLocation,
-        bool requiresInputAssembly
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature, DescriptorHandleInfo &descriptorHandleInfo,
+        RootSignatureBindingLocations &rootSignatureBindingLocation, bool requiresInputAssembly
     );
 
-    std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(
-        const std::vector<Graphics::VertexBufferLayout> &layouts
-    );
+    std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
     D3D_PRIMITIVE_TOPOLOGY CreatePrimitiveTopology(Graphics::Topology topology);
-    D3D12_RASTERIZER_DESC CreateRasterizerState(
-        const Graphics::RasterizerStateDescription &rasterizerState
-    );
+    D3D12_RASTERIZER_DESC CreateRasterizerState(const Graphics::RasterizerStateDescription &rasterizerState);
     D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc();
-    D3D12_BLEND_DESC CreateBlendStateDesc(
-        const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates
-    );
-    D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc(
-        const Graphics::DepthStencilDescription &depthStencilDesc
-    );
-    D3D12_DEPTH_STENCIL_DESC1 CreateDepthStencilDesc1(
-        const Graphics::DepthStencilDescription &depthStencilDesc
-    );
+    D3D12_BLEND_DESC CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates);
+    D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc);
+    D3D12_DEPTH_STENCIL_DESC1 CreateDepthStencilDesc1(const Graphics::DepthStencilDescription &depthStencilDesc);
 
     UINT GetSyncIntervalFromPresentMode(Graphics::PresentMode presentMode);
     D3D12_RESOURCE_STATES GetTextureResourceState(Graphics::TextureLayout layout);
@@ -174,9 +148,7 @@ namespace Nexus::D3D12
         std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &geometry
     );
 
-    void GetD3D12FeatureLevelAsMajorMinor(
-        D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor
-    );
+    void GetD3D12FeatureLevelAsMajorMinor(D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor);
 
 } // namespace Nexus::D3D12
 

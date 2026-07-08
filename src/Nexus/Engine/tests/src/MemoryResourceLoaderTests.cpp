@@ -28,9 +28,7 @@ TEST_F(MemoryResourceLoaderTest, LoadBytes_LoadFailsWhenFileNotMounted)
     auto result = loader.LoadBytes("missing.bin");
     ASSERT_FALSE(result.has_value());
     EXPECT_FALSE(result);
-    EXPECT_EQ(
-        result.error(), "Failed to find data mounted to given path: missing.bin"
-    );
+    EXPECT_EQ(result.error(), "Failed to find data mounted to given path: missing.bin");
 }
 
 TEST_F(MemoryResourceLoaderTest, LoadBytes_MountFileSucceedsForNewFile)
@@ -79,9 +77,7 @@ TEST_F(MemoryResourceLoaderTest, LoadBytes_MountFileOverwritesWhenAllowed)
 TEST_F(MemoryResourceLoaderTest, LoadBytes_LoadReturnsCorrectData)
 {
     auto data = Bytes({10, 20, 30, 40});
-    ASSERT_TRUE(
-        loader.MountBinaryFile("assets/texture.png", false, data).has_value()
-    );
+    ASSERT_TRUE(loader.MountBinaryFile("assets/texture.png", false, data).has_value());
 
     auto result = loader.LoadBytes("assets/texture.png");
     ASSERT_TRUE(result.has_value());
@@ -188,9 +184,7 @@ TEST_F(MemoryResourceLoaderTest, LoadString_FailsWhenFileNotMounted)
     auto result = loader.LoadString("missing.txt");
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(
-        result.error(), "Failed to find data mounted to given path: missing.txt"
-    );
+    EXPECT_EQ(result.error(), "Failed to find data mounted to given path: missing.txt");
 }
 
 TEST_F(MemoryResourceLoaderTest, LoadString_LoadsEmptyString)
@@ -214,10 +208,7 @@ TEST_F(MemoryResourceLoaderTest, LoadString_HandlesBinaryData)
 
     EXPECT_EQ(result->size(), data.size());
     for (size_t i = 0; i < data.size(); ++i)
-        EXPECT_EQ(
-            static_cast<unsigned char>((*result)[i]),
-            static_cast<unsigned char>(data[i])
-        );
+        EXPECT_EQ(static_cast<unsigned char>((*result)[i]), static_cast<unsigned char>(data[i]));
 }
 
 TEST_F(MemoryResourceLoaderTest, DoesFileExist_ReturnsTrueForMountedFile)
@@ -236,9 +227,7 @@ TEST_F(MemoryResourceLoaderTest, DoesFileExist_ReturnsFalseForMissingFile)
 TEST_F(MemoryResourceLoaderTest, DoesFileExist_WorksWithNestedPaths)
 {
     auto data = Bytes({9, 9, 9});
-    ASSERT_TRUE(
-        loader.MountBinaryFile("assets/textures/wood.png", false, data).has_value()
-    );
+    ASSERT_TRUE(loader.MountBinaryFile("assets/textures/wood.png", false, data).has_value());
 
     EXPECT_TRUE(loader.DoesFileExist("assets/textures/wood.png"));
     EXPECT_FALSE(loader.DoesFileExist("assets/textures/stone.png"));

@@ -228,22 +228,14 @@ namespace Nexus::Platform
         m_Cursors[Cursor::Arrow] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
         m_Cursors[Cursor::IBeam] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
         m_Cursors[Cursor::Wait] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);
-        m_Cursors[Cursor::Crosshair] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
-        m_Cursors[Cursor::WaitArrow] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_PROGRESS);
-        m_Cursors[Cursor::ArrowNWSE] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
-        m_Cursors[Cursor::ArrowNESW] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NESW_RESIZE);
-        m_Cursors[Cursor::ArrowWE] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE);
-        m_Cursors[Cursor::ArrowNS] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE);
-        m_Cursors[Cursor::ArrowAllDir] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_MOVE);
-        m_Cursors[Cursor::No] =
-            SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NOT_ALLOWED);
+        m_Cursors[Cursor::Crosshair] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
+        m_Cursors[Cursor::WaitArrow] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_PROGRESS);
+        m_Cursors[Cursor::ArrowNWSE] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
+        m_Cursors[Cursor::ArrowNESW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NESW_RESIZE);
+        m_Cursors[Cursor::ArrowWE] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE);
+        m_Cursors[Cursor::ArrowNS] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE);
+        m_Cursors[Cursor::ArrowAllDir] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_MOVE);
+        m_Cursors[Cursor::No] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NOT_ALLOWED);
         m_Cursors[Cursor::Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
     }
 
@@ -258,8 +250,7 @@ namespace Nexus::Platform
 
     void Initialise()
     {
-        bool success =
-            SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD);
+        bool success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD);
         if (!success)
         {
             throw std::runtime_error(SDL_GetError());
@@ -283,15 +274,9 @@ namespace Nexus::Platform
         {
             IWindow *window = m_WindowsToClose[i];
             delete window;
-            m_Windows.erase(
-                std::remove(m_Windows.begin(), m_Windows.end(), window),
-                m_Windows.end()
-            );
+            m_Windows.erase(std::remove(m_Windows.begin(), m_Windows.end(), window), m_Windows.end());
             m_WindowsToClose.erase(
-                std::remove(
-                    m_WindowsToClose.begin(), m_WindowsToClose.end(), window
-                ),
-                m_WindowsToClose.end()
+                std::remove(m_WindowsToClose.begin(), m_WindowsToClose.end(), window), m_WindowsToClose.end()
             );
             i--;
         }
@@ -320,15 +305,11 @@ namespace Nexus::Platform
         {
         case SDL_EVENT_KEY_DOWN:
         {
-            auto nexusKeyCode =
-                Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
-            auto nexusScanCode =
-                Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
-            auto mods =
-                Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
+            auto nexusKeyCode = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
+            auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
+            auto mods = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
 
-            KeyPressedEventArgs &keyPressedEvent =
-                eventQueue.Add<KeyPressedEventArgs>();
+            KeyPressedEventArgs &keyPressedEvent = eventQueue.Add<KeyPressedEventArgs>();
             keyPressedEvent.KeyCode = nexusKeyCode;
             keyPressedEvent.ScanCode = nexusScanCode;
             keyPressedEvent.Repeat = event.key.repeat;
@@ -343,13 +324,10 @@ namespace Nexus::Platform
         }
         case SDL_EVENT_KEY_UP:
         {
-            auto nexusKeyCode =
-                Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
-            auto nexusScanCode =
-                Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
+            auto nexusKeyCode = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
+            auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
 
-            KeyReleasedEventArgs &keyReleasedEvent =
-                eventQueue.Add<KeyReleasedEventArgs>();
+            KeyReleasedEventArgs &keyReleasedEvent = eventQueue.Add<KeyReleasedEventArgs>();
             keyReleasedEvent.KeyCode = nexusKeyCode;
             keyReleasedEvent.ScanCode = nexusScanCode;
             keyReleasedEvent.Unicode = event.key.raw;
@@ -372,24 +350,19 @@ namespace Nexus::Platform
         }
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
         {
-            auto [mouseType, mouseId] =
-                Nexus::SDL3::GetMouseInfo(event.button.which);
-            std::optional<Nexus::MouseButton> button =
-                Nexus::SDL3::GetMouseButton(event.button.button);
+            auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.button.which);
+            std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
             std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
             float scale = window->GetDisplayScale();
             std::pair<float, float> localPos = {event.button.x, event.button.y};
-            std::pair<float, float> screenPos = {
-                event.button.x + windowPos.first, event.button.y + windowPos.second
-            };
+            std::pair<float, float> screenPos = {event.button.x + windowPos.first, event.button.y + windowPos.second};
 
             if (button.has_value())
             {
                 std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
 
-                MouseButtonPressedEventArgs &mousePressedEvent =
-                    eventQueue.Add<MouseButtonPressedEventArgs>();
+                MouseButtonPressedEventArgs &mousePressedEvent = eventQueue.Add<MouseButtonPressedEventArgs>();
                 mousePressedEvent.Button = button.value();
                 mousePressedEvent.Position = localPos;
                 mousePressedEvent.ScreenPosition = screenPos;
@@ -405,24 +378,19 @@ namespace Nexus::Platform
         }
         case SDL_EVENT_MOUSE_BUTTON_UP:
         {
-            auto [mouseType, mouseId] =
-                Nexus::SDL3::GetMouseInfo(event.button.which);
-            std::optional<Nexus::MouseButton> button =
-                Nexus::SDL3::GetMouseButton(event.button.button);
+            auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.button.which);
+            std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
             std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
             float scale = window->GetDisplayScale();
             std::pair<float, float> localPos = {event.button.x, event.button.y};
-            std::pair<float, float> screenPos = {
-                event.button.x + windowPos.first, event.button.y + windowPos.second
-            };
+            std::pair<float, float> screenPos = {event.button.x + windowPos.first, event.button.y + windowPos.second};
 
             if (button.has_value())
             {
                 std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
 
-                MouseButtonReleasedEventArgs &mouseReleasedEvent =
-                    eventQueue.Add<MouseButtonReleasedEventArgs>();
+                MouseButtonReleasedEventArgs &mouseReleasedEvent = eventQueue.Add<MouseButtonReleasedEventArgs>();
                 mouseReleasedEvent.Button = button.value();
                 mouseReleasedEvent.Position = localPos;
                 mouseReleasedEvent.ScreenPosition = screenPos;
@@ -441,18 +409,12 @@ namespace Nexus::Platform
             float scale = window->GetDisplayScale();
 
             std::pair<float, float> localPos = {event.motion.x, event.motion.y};
-            std::pair<float, float> movement = {
-                event.motion.xrel, event.motion.yrel
-            };
-            std::pair<float, float> screenPos = {
-                event.button.x + windowPos.first, event.button.y + windowPos.second
-            };
+            std::pair<float, float> movement = {event.motion.xrel, event.motion.yrel};
+            std::pair<float, float> screenPos = {event.button.x + windowPos.first, event.button.y + windowPos.second};
 
-            auto [mouseType, mouseId] =
-                Nexus::SDL3::GetMouseInfo(event.motion.which);
+            auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
 
-            MouseMovedEventArgs &mouseMovedEvent =
-                eventQueue.Add<MouseMovedEventArgs>();
+            MouseMovedEventArgs &mouseMovedEvent = eventQueue.Add<MouseMovedEventArgs>();
             mouseMovedEvent.Position = localPos;
             mouseMovedEvent.ScreenPosition = screenPos;
             mouseMovedEvent.Movement = movement;
@@ -469,19 +431,14 @@ namespace Nexus::Platform
             float scale = window->GetDisplayScale();
 
             auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.wheel.which);
-            Nexus::ScrollDirection direction =
-                Nexus::SDL3::GetScrollDirection(event.wheel.direction);
+            Nexus::ScrollDirection direction = Nexus::SDL3::GetScrollDirection(event.wheel.direction);
 
-            std::pair<float, float> screenPos = {
-                event.button.x + windowPos.first, event.button.y + windowPos.second
-            };
+            std::pair<float, float> screenPos = {event.button.x + windowPos.first, event.button.y + windowPos.second};
 
-            Nexus::MouseScrolledEventArgs &scrollEvent =
-                eventQueue.Add<MouseScrolledEventArgs>();
+            Nexus::MouseScrolledEventArgs &scrollEvent = eventQueue.Add<MouseScrolledEventArgs>();
             scrollEvent.Scroll = {event.wheel.x, event.wheel.y};
             scrollEvent.Position = {event.wheel.mouse_x, event.wheel.mouse_y};
-            scrollEvent.ScreenPosition = screenPos, scrollEvent.MouseID = mouseId,
-            scrollEvent.Type = mouseType;
+            scrollEvent.ScreenPosition = screenPos, scrollEvent.MouseID = mouseId, scrollEvent.Type = mouseType;
             scrollEvent.Direction = direction;
 
             m_ActiveMouse = mouseId;
@@ -530,19 +487,15 @@ namespace Nexus::Platform
         }
         case SDL_EVENT_WINDOW_RESIZED:
         {
-            WindowResizedEventArgs &resizeEventArgs =
-                eventQueue.Add<WindowResizedEventArgs>();
-            resizeEventArgs.Size = {
-                (uint32_t)event.window.data1, (uint32_t)event.window.data2
-            };
+            WindowResizedEventArgs &resizeEventArgs = eventQueue.Add<WindowResizedEventArgs>();
+            resizeEventArgs.Size = {(uint32_t)event.window.data1, (uint32_t)event.window.data2};
             window->InvokeResizeCallback(resizeEventArgs);
 
             break;
         }
         case SDL_EVENT_WINDOW_MOVED:
         {
-            WindowMovedEventArgs &movedEventArgs =
-                eventQueue.Add<WindowMovedEventArgs>();
+            WindowMovedEventArgs &movedEventArgs = eventQueue.Add<WindowMovedEventArgs>();
             movedEventArgs.Position = {event.window.data1, event.window.data2};
             window->InvokeMoveCallback(movedEventArgs);
 
@@ -568,9 +521,7 @@ namespace Nexus::Platform
 
             float scale = window->GetDisplayScale();
             std::pair<float, float> localPos = {event.drop.x, event.drop.y};
-            std::pair<float, float> screenPos = {
-                event.drop.x + windowPos.first, event.drop.y + windowPos.second
-            };
+            std::pair<float, float> screenPos = {event.drop.x + windowPos.first, event.drop.y + windowPos.second};
 
             FileDropEventArgs &fileDropEvent = eventQueue.Add<FileDropEventArgs>();
             fileDropEvent.Type = type;
@@ -890,10 +841,7 @@ namespace Nexus::Platform
         return SDL_GetUserFolder(sdlFolder);
     }
 
-    std::string CopyFileTo(
-        const std::string &source, const std::string &destination,
-        bool overwriteIfExists
-    )
+    std::string CopyFileTo(const std::string &source, const std::string &destination, bool overwriteIfExists)
     {
         if (!SDL_CopyFile(source.c_str(), destination.c_str()))
         {
@@ -967,9 +915,7 @@ namespace Nexus::Platform
         return {};
     }
 
-    static SDL_EnumerationResult IterateDirectory(
-        void *userdata, const char *dirname, const char *fname
-    )
+    static SDL_EnumerationResult IterateDirectory(void *userdata, const char *dirname, const char *fname)
     {
         auto files = static_cast<std::vector<std::string> *>(userdata);
 
@@ -1015,9 +961,7 @@ namespace Nexus::Platform
         }
     }
 
-    IO::FileStreamImpl *CreateFileStreamImpl(
-        const std::filesystem::path &path, IO::FileMode fileMode
-    )
+    IO::FileStreamImpl *CreateFileStreamImpl(const std::filesystem::path &path, IO::FileMode fileMode)
     {
         return new IO::FileStreamSDL3(path, fileMode);
     }

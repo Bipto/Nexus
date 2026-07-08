@@ -13,26 +13,17 @@ namespace Nexus::Graphics
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-        NX_VALIDATE(
-            spec.DepthOrArrayLayers >= 1,
-            "Texture must have at least one array layer"
-        );
+        NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
         NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");
 
         if (spec.Samples > 1)
         {
-            NX_VALIDATE(
-                spec.MipLevels == 1,
-                "Multisampled textures do not support mipmapping"
-            );
+            NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
         }
 
         if (spec.Type == TextureType::TextureCube)
         {
-            NX_VALIDATE(
-                spec.DepthOrArrayLayers % 6 == 0,
-                "Cubemap textures must have a multiple of 6 faces"
-            );
+            NX_VALIDATE(spec.DepthOrArrayLayers % 6 == 0, "Cubemap textures must have a multiple of 6 faces");
         }
 
         uint32_t sizeInBytes = GetPixelFormatSizeInBytes(spec.Format);
@@ -53,10 +44,8 @@ namespace Nexus::Graphics
             imageExtent = {spec.Width, spec.Height, 1};
         }
 
-        VkSampleCountFlagBits samples =
-            Vk::GetVkSampleCountFlagsFromSampleCount(spec.Samples);
-        VkImageUsageFlagBits usage =
-            Vk::GetVkImageUsageFlags(spec.Format, spec.Usage);
+        VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(spec.Samples);
+        VkImageUsageFlagBits usage = Vk::GetVkImageUsageFlags(spec.Format, spec.Usage);
 
         VkImageCreateInfo imageInfo = {};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -83,80 +72,50 @@ namespace Nexus::Graphics
 
         // we only need to commit memory for this texture if it was not requested to
         // bound sparsely
-        bool sparseTexture =
-            m_Description.CreateFlags & TextureCreateFlags_SparseBinding;
+        bool sparseTexture = m_Description.CreateFlags & TextureCreateFlags_SparseBinding;
         if (sparseTexture)
         {
-            imageInfo.flags = VK_IMAGE_CREATE_SPARSE_BINDING_BIT |
-                              VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
+            imageInfo.flags = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
             NX_VALIDATE(
-                context.CreateImage(
-                    device->GetVkDevice(), &imageInfo, nullptr, &m_Image
-                ) == VK_SUCCESS,
+                context.CreateImage(device->GetVkDevice(), &imageInfo, nullptr, &m_Image) == VK_SUCCESS,
                 "Failed to create image"
             );
         }
         else
         {
-            VmaAllocationCreateInfo allocInfo = {
-                .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-            };
+            VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
 
             NX_VALIDATE(
-                vmaCreateImage(
-                    device->GetAllocator(), &imageInfo, &allocInfo, &m_Image,
-                    &m_Allocation, nullptr
-                ) == VK_SUCCESS,
+                vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) ==
+                    VK_SUCCESS,
                 "Failed to create image"
             );
         }
 
-        m_GraphicsDevice->SetObjectName(
-            VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Description.DebugName.c_str()
-        );
-        m_TextureLayouts.resize(
-            m_Description.DepthOrArrayLayers * m_Description.MipLevels,
-            TextureLayout::Undefined
-        );
+        m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Description.DebugName.c_str());
+        m_TextureLayouts.resize(m_Description.DepthOrArrayLayers * m_Description.MipLevels, TextureLayout::Undefined);
     }
 
-    TextureVk::TextureVk(
-        VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device,
-        bool owned
-    )
+    TextureVk::TextureVk(VkImage image, const TextureDescription &spec, GraphicsDeviceVk *device, bool owned)
         : ITexture(spec), m_GraphicsDevice(device), m_Image(image), m_Owned(owned)
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-        NX_VALIDATE(
-            spec.DepthOrArrayLayers >= 1,
-            "Texture must have at least one array layer"
-        );
+        NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
         NX_VALIDATE(spec.MipLevels >= 1, "Texture must have at least one mip level");
 
         if (spec.Samples > 1)
         {
-            NX_VALIDATE(
-                spec.MipLevels == 1,
-                "Multisampled textures do not support mipmapping"
-            );
+            NX_VALIDATE(spec.MipLevels == 1, "Multisampled textures do not support mipmapping");
         }
 
         if (spec.Type == TextureType::TextureCube)
         {
-            NX_VALIDATE(
-                spec.DepthOrArrayLayers % 6 == 0,
-                "Cubemap textures must have a multiple of 6 faces"
-            );
+            NX_VALIDATE(spec.DepthOrArrayLayers % 6 == 0, "Cubemap textures must have a multiple of 6 faces");
         }
 
-        m_GraphicsDevice->SetObjectName(
-            VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Description.DebugName.c_str()
-        );
-        m_TextureLayouts.resize(
-            m_Description.DepthOrArrayLayers * m_Description.MipLevels,
-            TextureLayout::Undefined
-        );
+        m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Description.DebugName.c_str());
+        m_TextureLayouts.resize(m_Description.DepthOrArrayLayers * m_Description.MipLevels, TextureLayout::Undefined);
     }
 
     TextureVk::~TextureVk()
@@ -182,9 +141,7 @@ namespace Nexus::Graphics
         return m_Image;
     }
 
-    const VkImageView TextureVk::GetImageView(
-        const VulkanTextureViewInfo &desc
-    ) const
+    const VkImageView TextureVk::GetImageView(const VulkanTextureViewInfo &desc) const
     {
         if (m_ImageViews.find(desc) != m_ImageViews.end())
         {
@@ -206,14 +163,12 @@ namespace Nexus::Graphics
             createInfo.subresourceRange.baseArrayLayer = desc.BaseArrayLayer;
             createInfo.subresourceRange.layerCount = desc.LayerCount;
 
-            PixelFormatType pixelFormatType =
-                GetPixelFormatType(m_Description.Format);
+            PixelFormatType pixelFormatType = GetPixelFormatType(m_Description.Format);
             bool isDepth = pixelFormatType == PixelFormatType::DepthStencil;
 
             if (isDepth)
             {
-                createInfo.subresourceRange.aspectMask =
-                    VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+                createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
             }
             else
             {
@@ -223,15 +178,13 @@ namespace Nexus::Graphics
             const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
             NX_VALIDATE(
-                context.CreateImageView(
-                    m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &imageView
-                ) == VK_SUCCESS,
+                context.CreateImageView(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &imageView) ==
+                    VK_SUCCESS,
                 "Failed to create image view"
             );
 
             m_GraphicsDevice->SetObjectName(
-                VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t)imageView,
-                m_Description.DebugName.c_str()
+                VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t)imageView, m_Description.DebugName.c_str()
             );
 
             m_ImageViews[desc] = imageView;
@@ -239,43 +192,31 @@ namespace Nexus::Graphics
         }
     }
 
-    TextureLayout TextureVk::GetTextureLayout(
-        uint32_t arrayLayer, uint32_t mipLevel
-    ) const
+    TextureLayout TextureVk::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
     {
         NX_VALIDATE(
             arrayLayer < m_Description.DepthOrArrayLayers,
             "Array layer is greater than the total number of array layers"
         );
-        NX_VALIDATE(
-            mipLevel < m_Description.MipLevels,
-            "Mip level is greater than the total number of mip levels"
-        );
+        NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
         size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
         return m_TextureLayouts[index];
     }
 
-    void TextureVk::SetTextureLayout(
-        uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout
-    )
+    void TextureVk::SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout)
     {
         NX_VALIDATE(
             arrayLayer < m_Description.DepthOrArrayLayers,
             "Array layer is greater than the total number of array layers"
         );
-        NX_VALIDATE(
-            mipLevel < m_Description.MipLevels,
-            "Mip level is greater than the total number of mip levels"
-        );
+        NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
         size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
         m_TextureLayouts[index] = layout;
     }
 
-    SubresourceFootprint TextureVk::GetSubresourceFootprint(
-        uint32_t arrayLayer, uint32_t mipLevel
-    ) const
+    SubresourceFootprint TextureVk::GetSubresourceFootprint(uint32_t arrayLayer, uint32_t mipLevel) const
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
         SubresourceFootprint footprint = {};
@@ -283,22 +224,19 @@ namespace Nexus::Graphics
         // we only need to retrieve the subresource layout for sparse images
         if (m_Description.CreateFlags & TextureCreateFlags_SparseBinding)
         {
-            PixelFormatType pixelFormatType =
-                GetPixelFormatType(m_Description.Format);
+            PixelFormatType pixelFormatType = GetPixelFormatType(m_Description.Format);
             bool isDepth = pixelFormatType == PixelFormatType::DepthStencil;
 
             VkImageSubresource subresourceInfo = {};
             subresourceInfo.arrayLayer = arrayLayer;
             subresourceInfo.mipLevel = mipLevel;
             subresourceInfo.aspectMask =
-                isDepth ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
-                        : VK_IMAGE_ASPECT_COLOR_BIT;
+                isDepth ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 
             VkSubresourceLayout subresourceLayout = {};
 
             context.GetImageSubresourceLayout(
-                m_GraphicsDevice->GetVkDevice(), m_Image, &subresourceInfo,
-                &subresourceLayout
+                m_GraphicsDevice->GetVkDevice(), m_Image, &subresourceInfo, &subresourceLayout
             );
 
             footprint.Size = static_cast<size_t>(subresourceLayout.size);
@@ -308,28 +246,22 @@ namespace Nexus::Graphics
             if (subresourceLayout.rowPitch == 0)
             {
                 size_t pixelSize = GetPixelFormatSizeInBytes(m_Description.Format);
-                size_t alignedPixelSize =
-                    Utils::AlignTo<size_t>(pixelSize, 4); // align to 4 bytes
+                size_t alignedPixelSize = Utils::AlignTo<size_t>(pixelSize, 4); // align to 4 bytes
                 footprint.RowPitch = alignedPixelSize * m_Description.Width;
                 footprint.RowCount = m_Description.Height;
             }
             else
             {
                 footprint.RowPitch = static_cast<size_t>(subresourceLayout.rowPitch);
-                footprint.RowCount = static_cast<size_t>(
-                    subresourceLayout.size / subresourceLayout.rowPitch
-                );
+                footprint.RowCount = static_cast<size_t>(subresourceLayout.size / subresourceLayout.rowPitch);
             }
         }
         // otherwise, it will be tightly packed
         else
         {
-            Point2D<uint32_t> mipSize = Utils::GetMipSize(
-                m_Description.Width, m_Description.Height, mipLevel
-            );
+            Point2D<uint32_t> mipSize = Utils::GetMipSize(m_Description.Width, m_Description.Height, mipLevel);
             footprint.RowCount = mipSize.Y;
-            footprint.RowPitch =
-                GetPixelFormatSizeInBytes(m_Description.Format) * mipSize.X;
+            footprint.RowPitch = GetPixelFormatSizeInBytes(m_Description.Format) * mipSize.X;
             footprint.Size = footprint.RowPitch * footprint.RowCount;
         }
 

@@ -3,56 +3,45 @@
 #include "Nexus-Core/Utils/GraphicsUtils.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 
-const std::string c_MipmapVertexSource =
-    "#version 450 core\n"
-    "layout (location = 0) in vec3 a_Position;\n"
-    "layout (location = 1) in vec2 a_TexCoord;\n"
-    "layout (location = 0) out vec2 o_TexCoord;\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = vec4(a_Position, 1.0);\n"
-    "    o_TexCoord = a_TexCoord;\n"
-    "}";
+const std::string c_MipmapVertexSource = "#version 450 core\n"
+                                         "layout (location = 0) in vec3 a_Position;\n"
+                                         "layout (location = 1) in vec2 a_TexCoord;\n"
+                                         "layout (location = 0) out vec2 o_TexCoord;\n"
+                                         "void main()\n"
+                                         "{\n"
+                                         "    gl_Position = vec4(a_Position, 1.0);\n"
+                                         "    o_TexCoord = a_TexCoord;\n"
+                                         "}";
 
-const std::string c_MipmapFragmentSource =
-    "#version 450 core\n"
-    "layout(location = 0) in vec2 a_TexCoord;\n"
-    "layout(location = 0) out vec4 o_Colour;\n"
-    "layout(binding = 0, set = 0) uniform sampler2D u_Texture;\n"
-    "void main()\n"
-    "{\n"
-    "    o_Colour = texture(u_Texture, a_TexCoord);\n"
-    "}";
+const std::string c_MipmapFragmentSource = "#version 450 core\n"
+                                           "layout(location = 0) in vec2 a_TexCoord;\n"
+                                           "layout(location = 0) out vec4 o_Colour;\n"
+                                           "layout(binding = 0, set = 0) uniform sampler2D u_Texture;\n"
+                                           "void main()\n"
+                                           "{\n"
+                                           "    o_Colour = texture(u_Texture, a_TexCoord);\n"
+                                           "}";
 
 namespace Nexus::Graphics
 {
-    MipmapGenerator::MipmapGenerator(
-        IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
-        : m_Device(device), m_CommandQueue(commandQueue),
-          m_Quad(device, commandQueue, true)
+    MipmapGenerator::MipmapGenerator(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
+        : m_Device(device), m_CommandQueue(commandQueue), m_Quad(device, commandQueue, true)
     {
         m_CommandList = m_CommandQueue->CreateCommandList();
 
-        ShaderModuleHandle m_VertexModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_MipmapVertexSource, "Mipmap-Gen.vert",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Vertex
-            );
-        ShaderModuleHandle m_FragmentModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_MipmapFragmentSource, "Mipmap-Gen.frag",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Fragment
-            );
+        ShaderModuleHandle m_VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Vertex
+        );
+        ShaderModuleHandle m_FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Fragment
+        );
 
         // set up pipeline for rendering
         Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-        pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-            Nexus::Graphics::CullMode::CullNone;
-        pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-            Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
+        pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
         pipelineDescription.VertexModule = m_VertexModule;
         pipelineDescription.FragmentModule = m_FragmentModule;
@@ -63,8 +52,7 @@ namespace Nexus::Graphics
 
         pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
 
-        pipelineDescription.ResourceDescription
-            .Descriptors = {Nexus::Graphics::ResourceDescriptor{
+        pipelineDescription.ResourceDescription.Descriptors = {Nexus::Graphics::ResourceDescriptor{
             .Name = "u_Texture",
             .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
             .CountOrSizeInBytes = 1
@@ -75,8 +63,7 @@ namespace Nexus::Graphics
     }
 
     std::vector<char> MipmapGenerator::GenerateMip(
-        TextureHandle texture, uint32_t levelToGenerate,
-        uint32_t levelToGenerateFrom, uint32_t arrayLayer
+        TextureHandle texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer
     )
     {
         std::vector<char> pixels = {};
@@ -84,21 +71,16 @@ namespace Nexus::Graphics
         const uint32_t textureWidth = texture->GetDescription().Width;
         const uint32_t textureHeight = texture->GetDescription().Height;
 
-        auto [mipWidth, mipHeight] =
-            Utils::GetMipSize(textureWidth, textureHeight, levelToGenerate);
+        auto [mipWidth, mipHeight] = Utils::GetMipSize(textureWidth, textureHeight, levelToGenerate);
 
         // generate mip
         {
-            Nexus::Graphics::FramebufferTextureCreateDescription
-                framebufferTextureDesc = {};
-            framebufferTextureDesc.ColourAttachmentFormats = {
-                texture->GetPixelFormat()
-            };
+            Nexus::Graphics::FramebufferTextureCreateDescription framebufferTextureDesc = {};
+            framebufferTextureDesc.ColourAttachmentFormats = {texture->GetPixelFormat()};
             framebufferTextureDesc.Width = mipWidth;
             framebufferTextureDesc.Height = mipHeight;
 
-            FramebufferHandle framebuffer =
-                Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
+            FramebufferHandle framebuffer = Utils::CreateFramebuffer(m_Device, framebufferTextureDesc);
 
             Nexus::Graphics::SamplerDescription samplerSpec;
             samplerSpec.MinimumLOD = levelToGenerateFrom;
@@ -178,9 +160,7 @@ namespace Nexus::Graphics
             m_Device->WaitForIdle();
 
             TextureHandle framebufferTexture = framebuffer->GetColorTextureHandle(0);
-            pixels = Utils::ReadFromTexture(
-                m_CommandQueue, framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight
-            );
+            pixels = Utils::ReadFromTexture(m_CommandQueue, framebufferTexture, 0, 0, 0, 0, mipWidth, mipHeight);
         }
 
         return pixels;

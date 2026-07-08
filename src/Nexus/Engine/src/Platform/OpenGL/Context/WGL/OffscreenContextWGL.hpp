@@ -11,9 +11,7 @@ namespace Nexus::GL
     class OffscreenContextWGL final : public IOffscreenContext
     {
       public:
-        OffscreenContextWGL(
-            const ContextDescription &spec, Graphics::IPhysicalDevice *device
-        );
+        OffscreenContextWGL(const ContextDescription &spec, Graphics::IPhysicalDevice *device);
         virtual ~OffscreenContextWGL();
         bool MakeCurrent() final;
         bool Validate() final;
@@ -22,9 +20,7 @@ namespace Nexus::GL
         HGLRC GetHGLRC();
 
       private:
-        std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(
-            HDC hdc, const ContextDescription &spec
-        );
+        std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextDescription &spec);
 
       private:
         HGLRC m_HGLRC = {};

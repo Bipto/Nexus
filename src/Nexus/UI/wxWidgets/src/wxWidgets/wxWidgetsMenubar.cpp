@@ -21,9 +21,7 @@ namespace Nexus::UI
         m_OnClickEventBinder->SetCallback(handler);
     }
 
-    wxWidgetsSeparatorMenuItem::wxWidgetsSeparatorMenuItem(
-        wxMenu *menu, wxFrame *frame
-    )
+    wxWidgetsSeparatorMenuItem::wxWidgetsSeparatorMenuItem(wxMenu *menu, wxFrame *frame)
         : m_Frame(frame), m_MenuItem(menu->AppendSeparator())
     {
         m_OnClickEventBinder =
@@ -35,17 +33,13 @@ namespace Nexus::UI
         m_OnClickEventBinder->SetCallback(handler);
     }
 
-    wxWidgetsMenu::wxWidgetsMenu(
-        const std::string &text, wxMenuBar *menubar, wxFrame *frame
-    )
+    wxWidgetsMenu::wxWidgetsMenu(const std::string &text, wxMenuBar *menubar, wxFrame *frame)
         : m_Menubar(menubar), m_Menu(new wxMenu()), m_Frame(frame)
     {
         m_Menubar->Append(m_Menu, text);
     }
 
-    wxWidgetsMenu::wxWidgetsMenu(
-        const std::string &text, wxMenu *parent, wxFrame *frame
-    )
+    wxWidgetsMenu::wxWidgetsMenu(const std::string &text, wxMenu *parent, wxFrame *frame)
         : m_ParentMenu(parent), m_Menu(new wxMenu()), m_Frame(frame)
     {
         m_ParentMenu->AppendSubMenu(m_Menu, text);
@@ -53,25 +47,19 @@ namespace Nexus::UI
 
     IMenuItem *wxWidgetsMenu::Append(const std::string &text)
     {
-        m_MenuItems.push_back(
-            std::make_unique<wxWidgetsTextMenuItem>(text, m_Menu, m_Frame)
-        );
+        m_MenuItems.push_back(std::make_unique<wxWidgetsTextMenuItem>(text, m_Menu, m_Frame));
         return dynamic_cast<IMenuItem *>(m_MenuItems.back().get());
     }
 
     IMenu *wxWidgetsMenu::AppendSubMenu(const std::string &text)
     {
-        m_MenuItems.push_back(
-            std::make_unique<wxWidgetsMenu>(text, m_Menu, m_Frame)
-        );
+        m_MenuItems.push_back(std::make_unique<wxWidgetsMenu>(text, m_Menu, m_Frame));
         return dynamic_cast<IMenu *>(m_MenuItems.back().get());
     }
 
     IMenuItem *wxWidgetsMenu::AppendSeparator()
     {
-        m_MenuItems.push_back(
-            std::make_unique<wxWidgetsSeparatorMenuItem>(m_Menu, m_Frame)
-        );
+        m_MenuItems.push_back(std::make_unique<wxWidgetsSeparatorMenuItem>(m_Menu, m_Frame));
         return dynamic_cast<IMenuItem *>(m_MenuItems.back().get());
     }
 
@@ -106,8 +94,7 @@ namespace Nexus::UI
         }
     }
 
-    wxWidgetsMenubar::wxWidgetsMenubar(wxFrame *frame)
-        : m_Frame(frame), m_Menubar(new wxMenuBar())
+    wxWidgetsMenubar::wxWidgetsMenubar(wxFrame *frame) : m_Frame(frame), m_Menubar(new wxMenuBar())
     {
         m_Frame->SetMenuBar(m_Menubar);
 
@@ -120,7 +107,8 @@ namespace Nexus::UI
                                                                                 for
         (auto &menu : m_Menus)
                                                                                 {
-                                                                                    if (event.GetMenu() == menu->GetMenu())
+                                                                                    if
+        (event.GetMenu() == menu->GetMenu())
                                                                                     {
                                                                                         menu->InvokeOnMenuOpened();
                                                                                     }
@@ -136,7 +124,8 @@ namespace Nexus::UI
                                                                                  for
         (auto &menu : m_Menus)
                                                                                  {
-                                                                                     if (event.GetMenu() == menu->GetMenu())
+                                                                                     if
+        (event.GetMenu() == menu->GetMenu())
                                                                                      {
                                                                                          menu->InvokeOnMenuClosed();
                                                                                      }

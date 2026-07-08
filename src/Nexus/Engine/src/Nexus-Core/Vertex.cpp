@@ -4,16 +4,13 @@
 
 namespace Nexus::Graphics
 {
-    std::vector<VertexPositionTexCoordNormalTangentBitangent> Utilities::
-        GenerateTangentAndBinormals(
-            const std::vector<VertexPositionTexCoordNormal> &vertices
-        )
+    std::vector<VertexPositionTexCoordNormalTangentBitangent> Utilities::GenerateTangentAndBinormals(
+        const std::vector<VertexPositionTexCoordNormal> &vertices
+    )
     {
         if (vertices.size() % 3 != 0)
         {
-            throw std::runtime_error(
-                "Attempting to generate normals from a mesh not made of triangles"
-            );
+            throw std::runtime_error("Attempting to generate normals from a mesh not made of triangles");
         }
 
         std::vector<VertexPositionTexCoordNormalTangentBitangent> output;
@@ -39,20 +36,12 @@ namespace Nexus::Graphics
             glm::vec2 deltaUV2 = uv3 - uv1;
 
             float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-            glm::vec3 tangent =
-                (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
-            glm::vec3 bitangent =
-                (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+            glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+            glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
 
-            VertexPositionTexCoordNormalTangentBitangent v1(
-                pos1, uv1, normal1, tangent, bitangent
-            );
-            VertexPositionTexCoordNormalTangentBitangent v2(
-                pos2, uv2, normal2, tangent, bitangent
-            );
-            VertexPositionTexCoordNormalTangentBitangent v3(
-                pos3, uv3, normal3, tangent, bitangent
-            );
+            VertexPositionTexCoordNormalTangentBitangent v1(pos1, uv1, normal1, tangent, bitangent);
+            VertexPositionTexCoordNormalTangentBitangent v2(pos2, uv2, normal2, tangent, bitangent);
+            VertexPositionTexCoordNormalTangentBitangent v3(pos3, uv3, normal3, tangent, bitangent);
 
             output.push_back(v1);
             output.push_back(v2);

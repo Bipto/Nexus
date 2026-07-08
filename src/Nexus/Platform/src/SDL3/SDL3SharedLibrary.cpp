@@ -12,9 +12,7 @@ namespace Nexus::Utils
         SDL_UnloadObject(m_LibraryHandle);
     }
 
-    FunctionPointer SharedLibrarySDL3::LoadSymbol(
-        const std::string &symbolName
-    ) const
+    FunctionPointer SharedLibrarySDL3::LoadSymbol(const std::string &symbolName) const
     {
         return SDL_LoadFunction(m_LibraryHandle, symbolName.c_str());
     }

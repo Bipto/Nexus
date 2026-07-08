@@ -4,9 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-std::expected<std::string, std::string> Nexus::FileSystem::ReadFileNew(
-    const std::filesystem::path &filepath
-)
+std::expected<std::string, std::string> Nexus::FileSystem::ReadFileNew(const std::filesystem::path &filepath)
 {
     std::ifstream file(filepath);
     if (!file.is_open())
@@ -41,9 +39,7 @@ std::string Nexus::FileSystem::ReadFileToStringAbsolute(const std::string &filep
     return buffer.str();
 }
 
-void Nexus::FileSystem::WriteFileAbsolute(
-    const std::string &filepath, const std::string &text
-)
+void Nexus::FileSystem::WriteFileAbsolute(const std::string &filepath, const std::string &text)
 {
     std::filesystem::path path = {filepath};
     std::filesystem::path directory = path.parent_path();
@@ -64,25 +60,19 @@ std::string Nexus::FileSystem::ReadFileToString(const std::string &filepath)
     return ReadFileToStringAbsolute(fullpath);
 }
 
-void Nexus::FileSystem::WriteFile(
-    const std::string &filepath, const std::string &text
-)
+void Nexus::FileSystem::WriteFile(const std::string &filepath, const std::string &text)
 {
     std::string fullpath = GetRootDirectory() + filepath;
     WriteFileAbsolute(fullpath, text);
 }
 
-void Nexus::FileSystem::WriteBuffer(
-    const std::string &filepath, const void *data, size_t size
-)
+void Nexus::FileSystem::WriteBuffer(const std::string &filepath, const void *data, size_t size)
 {
     std::string fullpath = GetRootDirectory() + filepath;
     WriteBufferAbsolute(filepath, data, size);
 }
 
-void Nexus::FileSystem::WriteBufferAbsolute(
-    const std::string &filepath, const void *data, size_t size
-)
+void Nexus::FileSystem::WriteBufferAbsolute(const std::string &filepath, const void *data, size_t size)
 {
     std::filesystem::path path = {filepath};
     std::filesystem::path directory = path.parent_path();
@@ -100,9 +90,7 @@ void Nexus::FileSystem::WriteBufferAbsolute(
     file.write((const char *)data, size);
 }
 
-void Nexus::FileSystem::CopyDirectory(
-    const std::string &from, const std::string &to, bool recurive
-)
+void Nexus::FileSystem::CopyDirectory(const std::string &from, const std::string &to, bool recurive)
 {
     std::filesystem::copy_options options = std::filesystem::copy_options::none;
 

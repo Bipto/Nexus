@@ -10,8 +10,7 @@ namespace Demos
     {
       public:
         FramebufferDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -29,25 +28,16 @@ namespace Demos
             Nexus::Graphics::FramebufferTextureCreateDescription framebufferDesc;
             framebufferDesc.Width = 1280;
             framebufferDesc.Height = 720;
-            framebufferDesc.ColourAttachmentFormats = {
-                Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm
-            };
+            framebufferDesc.ColourAttachmentFormats = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
             framebufferDesc.Samples = 1;
-            m_Framebuffer =
-                Nexus::Utils::CreateFramebuffer(m_GraphicsDevice, framebufferDesc);
+            m_Framebuffer = Nexus::Utils::CreateFramebuffer(m_GraphicsDevice, framebufferDesc);
 
-            Nexus::Graphics::TextureHandle texture =
-                m_Framebuffer->GetColorTextureHandle(0);
+            Nexus::Graphics::TextureHandle texture = m_Framebuffer->GetColorTextureHandle(0);
 
             Nexus::Graphics::TextureViewDescription viewDesc = {};
             viewDesc.TargetTexture = texture;
             viewDesc.Format = texture->GetPixelFormat();
-            viewDesc.Range = {
-                .BaseMipLevel = 0,
-                .LevelCount = 1,
-                .BaseArrayLayer = 0,
-                .LayerCount = 1
-            };
+            viewDesc.Range = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
             viewDesc.DebugName = "Framebuffer Texture View";
             m_TextureView = m_GraphicsDevice->CreateTextureView(viewDesc);
 
@@ -59,8 +49,7 @@ namespace Demos
             m_CommandList->Begin();
             m_CommandList->SetFramebuffer(m_Framebuffer);
             m_CommandList->ClearColourTarget(
-                0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g,
-                    m_RenderTargetClearColour.b, 1.0f}
+                0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f}
             );
             m_CommandList->End();
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -68,15 +57,11 @@ namespace Demos
 
             m_CommandList->Begin();
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
             m_CommandList->End();
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
             m_GraphicsDevice->WaitForIdle();
@@ -84,9 +69,7 @@ namespace Demos
 
         virtual void RenderUI() override
         {
-            ImGui::ColorEdit3(
-                "Clear Color", glm::value_ptr(m_RenderTargetClearColour)
-            );
+            ImGui::ColorEdit3("Clear Color", glm::value_ptr(m_RenderTargetClearColour));
             ImGui::Image(m_TextureID, {256, 256});
         }
 
@@ -98,9 +81,7 @@ namespace Demos
 
       private:
         Nexus::Graphics::CommandListHandle m_CommandList = {};
-        glm::vec3 m_ClearColour = {
-            100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f
-        };
+        glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
         Nexus::Graphics::FramebufferHandle m_Framebuffer = {};
         ImTextureID m_TextureID = 0;

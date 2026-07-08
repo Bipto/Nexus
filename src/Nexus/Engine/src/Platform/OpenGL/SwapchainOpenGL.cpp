@@ -10,21 +10,16 @@
 
 namespace Nexus::Graphics
 {
-    SwapchainOpenGL::SwapchainOpenGL(
-        const SwapchainDescription &swapchainSpec,
-        GraphicsDeviceOpenGL *graphicsDevice
-    )
+    SwapchainOpenGL::SwapchainOpenGL(const SwapchainDescription &swapchainSpec, GraphicsDeviceOpenGL *graphicsDevice)
         : ISwapchain(swapchainSpec), m_Device(graphicsDevice)
     {
         m_SwapchainWidth = swapchainSpec.Width;
         m_SwapchainHeight = swapchainSpec.Height;
 
-        if (const SurfaceOpenGL *surface =
-                swapchainSpec.Surface.AsDerived<const SurfaceOpenGL>())
+        if (const SurfaceOpenGL *surface = swapchainSpec.Surface.AsDerived<const SurfaceOpenGL>())
         {
             GL::ContextDescription contextDesc = {};
-            m_ViewContext =
-                surface->CreateOpenGLContext(graphicsDevice, contextDesc);
+            m_ViewContext = surface->CreateOpenGLContext(graphicsDevice, contextDesc);
         }
 
         m_ViewContext->MakeCurrent();
@@ -46,9 +41,7 @@ namespace Nexus::Graphics
                 // "SwapchainOpenGL::SwapBuffers");
             }
 
-            m_ViewContext->Swap(
-                m_Framebuffer->GetColorTextureHandle(0), presentDesc
-            );
+            m_ViewContext->Swap(m_Framebuffer->GetColorTextureHandle(0), presentDesc);
 
             if (context.PopDebugGroup)
             {
@@ -100,9 +93,7 @@ namespace Nexus::Graphics
         return m_DepthFormat;
     }
 
-    std::expected<void, std::string> SwapchainOpenGL::Resize(
-        uint32_t width, uint32_t height
-    )
+    std::expected<void, std::string> SwapchainOpenGL::Resize(uint32_t width, uint32_t height)
     {
         if (width != m_SwapchainWidth || height != m_SwapchainHeight)
         {

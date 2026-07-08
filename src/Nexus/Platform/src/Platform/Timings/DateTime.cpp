@@ -32,10 +32,7 @@ namespace Nexus
     DateTime DateTime::Now()
     {
         auto now = std::chrono::system_clock::now();
-        auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                               now.time_since_epoch()
-        )
-                               .count();
+        auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
         return DateTime::FromNanoseconds(nanoseconds);
     }
 

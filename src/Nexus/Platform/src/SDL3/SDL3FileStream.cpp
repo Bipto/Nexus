@@ -50,9 +50,7 @@ namespace Nexus::IO
         }
     }
 
-    FileStreamSDL3::FileStreamSDL3(
-        const std::filesystem::path &path, FileMode fileMode
-    )
+    FileStreamSDL3::FileStreamSDL3(const std::filesystem::path &path, FileMode fileMode)
     {
         const char *fileAccess = GetFileAccess(fileMode);
         m_File = {SDL_IOFromFile(path.string().c_str(), fileAccess), SDL_CloseIO};
@@ -63,9 +61,7 @@ namespace Nexus::IO
         }
     }
 
-    std::expected<std::vector<std::byte>, std::string> FileStreamSDL3::Read(
-        size_t count
-    )
+    std::expected<std::vector<std::byte>, std::string> FileStreamSDL3::Read(size_t count)
     {
         std::vector<std::byte> buffer(count);
         size_t bytesRead = SDL_ReadIO(m_File.get(), buffer.data(), count);
@@ -79,9 +75,7 @@ namespace Nexus::IO
         return buffer;
     }
 
-    std::expected<size_t, std::string> FileStreamSDL3::Write(
-        const std::byte *data, size_t count
-    )
+    std::expected<size_t, std::string> FileStreamSDL3::Write(const std::byte *data, size_t count)
     {
         size_t bytesWritten = SDL_WriteIO(m_File.get(), (void *)data, count);
 
@@ -93,9 +87,7 @@ namespace Nexus::IO
         return bytesWritten;
     }
 
-    std::expected<void, std::string> FileStreamSDL3::Seek(
-        int64_t offset, SeekOrigin origin
-    )
+    std::expected<void, std::string> FileStreamSDL3::Seek(int64_t offset, SeekOrigin origin)
     {
         SDL_IOWhence whence = GetSeekOrigin(origin);
 
@@ -106,9 +98,7 @@ namespace Nexus::IO
 
         if (SDL_SeekIO(m_File.get(), offset, whence) == -1)
         {
-            return std::unexpected(
-                std::string("Failed to seek in file: ") + SDL_GetError()
-            );
+            return std::unexpected(std::string("Failed to seek in file: ") + SDL_GetError());
         }
 
         return {};

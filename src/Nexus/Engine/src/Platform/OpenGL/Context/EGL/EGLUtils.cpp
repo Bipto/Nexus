@@ -21,8 +21,7 @@ namespace Nexus::GL
         return (bool)version;
     }
 
-    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>>
-    LoadAvailablePhysicalDevices(bool debug)
+    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug)
     {
         std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices;
 
@@ -39,9 +38,7 @@ namespace Nexus::GL
         EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
 
-        physicalDevices.push_back(
-            std::make_unique<Graphics::PhysicalDeviceEGL>(debug, display)
-        );
+        physicalDevices.push_back(std::make_unique<Graphics::PhysicalDeviceEGL>(debug, display));
 
         return physicalDevices;
     }

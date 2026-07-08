@@ -17,9 +17,7 @@ namespace Nexus
     class Input
     {
       public:
-        NX_PLATFORM_API static bool IsMouseButtonDown(
-            uint32_t id, MouseButton button
-        );
+        NX_PLATFORM_API static bool IsMouseButtonDown(uint32_t id, MouseButton button);
         NX_PLATFORM_API static bool IsMouseButtonUp(uint32_t id, MouseButton button);
         NX_PLATFORM_API static bool IsKeyDown(uint32_t id, ScanCode scancode);
         NX_PLATFORM_API static bool IsKeyUp(uint32_t id, ScanCode scancode);
@@ -30,12 +28,10 @@ namespace Nexus
         NX_PLATFORM_API static bool IsMouseButtonUp(MouseButton button);
         NX_PLATFORM_API static bool IsKeyDown(ScanCode scancode);
         NX_PLATFORM_API static bool IsKeyUp(ScanCode scancode);
-        NX_PLATFORM_API static std::optional<std::pair<float, float>>
-        GetMousePosition();
+        NX_PLATFORM_API static std::optional<std::pair<float, float>> GetMousePosition();
         NX_PLATFORM_API static std::optional<std::pair<float, float>> GetScroll();
 
-        NX_PLATFORM_API static std::optional<std::pair<float, float>>
-        GetCursorPosition();
+        NX_PLATFORM_API static std::optional<std::pair<float, float>> GetCursorPosition();
         NX_PLATFORM_API static std::pair<float, float> GetGlobalCursorPosition();
 
       public:

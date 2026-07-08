@@ -4,9 +4,7 @@
 
 namespace Nexus::Graphics
 {
-    FenceOpenGL::FenceOpenGL(
-        const FenceDescription &desc, GraphicsDeviceOpenGL *device
-    )
+    FenceOpenGL::FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device)
         : m_Description(desc), m_Device(device)
     {
         CreateFence();

@@ -50,8 +50,7 @@ namespace Nexus
         return bytes / ConvertUnitToBytes(to);
     }
 
-    MemorySize::MemorySize(double value, MemoryUnit unit)
-        : m_Bytes(value * ConvertUnitToBytes(unit))
+    MemorySize::MemorySize(double value, MemoryUnit unit) : m_Bytes(value * ConvertUnitToBytes(unit))
     {
     }
 
@@ -62,15 +61,11 @@ namespace Nexus
 
     MemorySize operator+(const MemorySize &a, const MemorySize &b)
     {
-        return MemorySize(
-            a.To(MemoryUnit::Bytes) + b.To(MemoryUnit::Bytes), MemoryUnit::Bytes
-        );
+        return MemorySize(a.To(MemoryUnit::Bytes) + b.To(MemoryUnit::Bytes), MemoryUnit::Bytes);
     }
 
     MemorySize operator-(const MemorySize &a, const MemorySize &b)
     {
-        return MemorySize(
-            a.To(MemoryUnit::Bytes) - b.To(MemoryUnit::Bytes), MemoryUnit::Bytes
-        );
+        return MemorySize(a.To(MemoryUnit::Bytes) - b.To(MemoryUnit::Bytes), MemoryUnit::Bytes);
     }
 } // namespace Nexus

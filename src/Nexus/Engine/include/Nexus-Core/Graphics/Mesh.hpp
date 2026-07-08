@@ -21,11 +21,10 @@ namespace Nexus::Graphics
         /// @param indexBuffer A set of indices to use for the mesh
         /// @param name A string representing the name of the mesh
         Mesh(
-            DeviceBufferHandle vertexBuffer, DeviceBufferHandle indexBuffer,
-            const Material &material, const std::string &name = "Mesh"
+            DeviceBufferHandle vertexBuffer, DeviceBufferHandle indexBuffer, const Material &material,
+            const std::string &name = "Mesh"
         )
-            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer),
-              m_Material(material), m_Name(name)
+            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_Material(material), m_Name(name)
         {
         }
 

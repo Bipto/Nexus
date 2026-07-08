@@ -49,8 +49,7 @@ namespace Nexus
     {
         Graphics::ShaderLanguage ShaderLanguage = {};
         Graphics::ShaderVersion ShaderVersion = {};
-        ShaderOptimisationLevel OptimisationLevel =
-            ShaderOptimisationLevel::Performance;
+        ShaderOptimisationLevel OptimisationLevel = ShaderOptimisationLevel::Performance;
         bool Debug = false;
     };
 

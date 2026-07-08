@@ -49,10 +49,7 @@ namespace Nexus::Graphics
 
         template <typename Other> const Circle<Other> To() const
         {
-            return Circle<Other>(
-                Nexus::Point2D<Other>((Other)m_Position.X, (Other)m_Position.Y),
-                (Other)m_Radius
-            );
+            return Circle<Other>(Nexus::Point2D<Other>((Other)m_Position.X, (Other)m_Position.Y), (Other)m_Radius);
         }
 
         void Deconstruct(T *x, T *y, T *radius) const

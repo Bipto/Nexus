@@ -13,8 +13,7 @@ namespace Nexus
     /// @tparam ...Args Arguments to provide to the constructor of the object
     /// @param ...args Argument parameters passed to the constructor
     /// @return A unique pointer containing the object
-    template <typename T, typename... Args>
-    constexpr Scope<T> CreateScope(Args &&...args)
+    template <typename T, typename... Args> constexpr Scope<T> CreateScope(Args &&...args)
     {
         return std::make_unique<T>(std::forward<Args>(args)...);
     }
@@ -28,8 +27,7 @@ namespace Nexus
     /// @tparam ...Args Arguments to provide to the constructor of the object
     /// @param ...args Argument parameters passed to the constructor
     /// @return A shared pointer containing the object
-    template <typename T, typename... Args>
-    constexpr Ref<T> CreateRef(Args &&...args)
+    template <typename T, typename... Args> constexpr Ref<T> CreateRef(Args &&...args)
     {
         return std::make_shared<T>(std::forward<Args>(args)...);
     }

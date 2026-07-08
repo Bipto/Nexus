@@ -10,8 +10,7 @@ namespace Nexus::Graphics
         SurfaceWin32_Vk(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance);
         virtual ~SurfaceWin32_Vk() final = default;
         std::expected<VkSurfaceKHR, VkResult> CreateVkSurface(
-            const SwapchainDescription &swapchainDesc, VkInstance instance,
-            const GladVulkanContext &context
+            const SwapchainDescription &swapchainDesc, VkInstance instance, const GladVulkanContext &context
         ) const final;
 
         const uintptr_t GetHwnd() const;

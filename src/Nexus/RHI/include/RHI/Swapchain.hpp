@@ -28,9 +28,7 @@ namespace Nexus::Graphics
         virtual PixelFormat GetDepthFormat() = 0;
         virtual void SwapBuffers(const SwapchainPresentDescription &presentDesc) = 0;
         virtual FramebufferHandle GetCurrentFramebuffer() = 0;
-        virtual std::expected<void, std::string> Resize(
-            uint32_t width, uint32_t height
-        ) = 0;
+        virtual std::expected<void, std::string> Resize(uint32_t width, uint32_t height) = 0;
 
         const SwapchainDescription &GetDescription()
         {

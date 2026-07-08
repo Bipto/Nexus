@@ -12,8 +12,7 @@ namespace Nexus::Graphics
         m_AddressModeU = D3D12::GetD3D12TextureAddressMode(spec.AddressModeU);
         m_AddressModeV = D3D12::GetD3D12TextureAddressMode(spec.AddressModeV);
         m_AddressModeW = D3D12::GetD3D12TextureAddressMode(spec.AddressModeW);
-        m_ComparisonFunc =
-            D3D12::GetComparisonFunction(spec.SamplerComparisonFunction);
+        m_ComparisonFunc = D3D12::GetComparisonFunction(spec.SamplerComparisonFunction);
     }
 
     SamplerD3D12::~SamplerD3D12()

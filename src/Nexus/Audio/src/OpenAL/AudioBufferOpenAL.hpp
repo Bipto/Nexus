@@ -18,9 +18,7 @@ namespace Nexus::Audio
         AudioBufferOpenAL(AudioDeviceOpenAL *device);
         ~AudioBufferOpenAL() final = default;
         const ALuint GetHandle() const;
-        virtual void SetData(
-            const void *const data, size_t size, AudioFormat format, size_t frequency
-        ) override;
+        virtual void SetData(const void *const data, size_t size, AudioFormat format, size_t frequency) override;
         virtual size_t GetFrequency() const override;
         virtual size_t GetBits() const override;
         virtual size_t GetChannels() const override;

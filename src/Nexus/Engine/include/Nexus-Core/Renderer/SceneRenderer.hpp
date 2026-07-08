@@ -12,9 +12,7 @@ namespace Nexus::Graphics
     class NX_API SceneRenderer
     {
       public:
-        SceneRenderer(
-            IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-        );
+        SceneRenderer(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
         ~SceneRenderer() = default;
         void Render(Scene *scene, FramebufferHandle target, TimeSpan time);
         const Nexus::FirstPersonCamera GetCamera() const;

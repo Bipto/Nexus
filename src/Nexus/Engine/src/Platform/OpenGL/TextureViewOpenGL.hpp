@@ -9,9 +9,7 @@ namespace Nexus::Graphics
     class TextureViewOpenGL : public ITextureView
     {
       public:
-        TextureViewOpenGL(
-            const TextureViewDescription &desc, GraphicsDeviceOpenGL *device
-        );
+        TextureViewOpenGL(const TextureViewDescription &desc, GraphicsDeviceOpenGL *device);
         virtual ~TextureViewOpenGL();
         const TextureViewDescription &GetDescription() const final;
         const uint32_t GetHandle() const;
@@ -21,9 +19,7 @@ namespace Nexus::Graphics
       private:
         void CreateTextureView(const GladGLContext &context);
         void CreateEmulatedView(const GladGLContext &context);
-        void UpdateEmulatedView(
-            GL::IGLContext *context, const GladGLContext &gladContext
-        ) const;
+        void UpdateEmulatedView(GL::IGLContext *context, const GladGLContext &gladContext) const;
 
       private:
         TextureViewDescription m_Description = {};

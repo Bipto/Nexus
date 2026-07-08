@@ -13,8 +13,7 @@ namespace Nexus::Graphics
     {
       public:
         CommandListVk(
-            GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue,
-            const CommandListDescription &spec
+            GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec
         );
         virtual ~CommandListVk();
 

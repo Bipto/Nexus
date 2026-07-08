@@ -86,13 +86,10 @@ namespace Nexus::Graphics
         /// native shader string
         /// @return A compilation result returning the output of the shader
         /// generation
-        CompilationResult Generate(
-            const std::string &source, ShaderGenerationOptions options
-        );
+        CompilationResult Generate(const std::string &source, ShaderGenerationOptions options);
 
         std::vector<uint32_t> GenerateSPIRV(
-            const std::string &source, ShaderStage stage, TargetEnvironment env,
-            SPIRV_Version version, bool debugInfo
+            const std::string &source, ShaderStage stage, TargetEnvironment env, SPIRV_Version version, bool debugInfo
         );
     };
 

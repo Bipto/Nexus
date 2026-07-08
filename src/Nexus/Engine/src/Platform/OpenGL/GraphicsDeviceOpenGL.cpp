@@ -27,8 +27,8 @@
 namespace Nexus::Graphics
 {
     static void glDebugCallback(
-        GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-        const GLchar *message, const void *userParam
+        GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message,
+        const void *userParam
     )
     {
         if (type == GL_DEBUG_TYPE_ERROR)
@@ -37,12 +37,9 @@ namespace Nexus::Graphics
         }
     }
 
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(
-        std::shared_ptr<IPhysicalDevice> physicalDevice, bool enableDebug
-    )
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice, bool enableDebug)
     {
-        m_PhysicalDevice =
-            std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
+        m_PhysicalDevice = std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
 
         GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
         context->Execute([&](const GladGLContext &context) {
@@ -50,8 +47,7 @@ namespace Nexus::Graphics
             m_Extensions = GetSupportedExtensions(context);
 
             // retrieve API and graphics adapter name
-            m_APIName = std::string("OpenGL - ") +
-                        std::string((const char *)context.GetString(GL_VERSION));
+            m_APIName = std::string("OpenGL - ") + std::string((const char *)context.GetString(GL_VERSION));
             m_RendererName = (const char *)context.GetString(GL_RENDERER);
 
             // enable debugging if available
@@ -88,17 +84,13 @@ namespace Nexus::Graphics
         return m_PhysicalDevice->GetOffscreenContext();
     }
 
-    ShaderModuleHandle GraphicsDeviceOpenGL::CreateShaderModule(
-        const ShaderModuleDescription &moduleDesc
-    )
+    ShaderModuleHandle GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleDescription &moduleDesc)
     {
         auto shader = std::make_unique<ShaderModuleOpenGL>(moduleDesc, this);
         return m_Resources.ShaderModules.CreateShared(std::move(shader));
     }
 
-    std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(
-        const GladGLContext &context
-    )
+    std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(const GladGLContext &context)
     {
         std::vector<std::string> extensions;
 
@@ -107,8 +99,7 @@ namespace Nexus::Graphics
 
         for (GLint i = 0; i < n; i++)
         {
-            const char *extension =
-                (const char *)context.GetStringi(GL_EXTENSIONS, i);
+            const char *extension = (const char *)context.GetStringi(GL_EXTENSIONS, i);
             extensions.push_back(extension);
         }
 
@@ -117,26 +108,20 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceOpenGL::GetFeatures()
     {
-        GL::IOffscreenContext *offscreenContext =
-            m_PhysicalDevice->GetOffscreenContext();
+        GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
 
         offscreenContext->Execute([&](const GladGLContext &context) {
-            m_Features.SupportsGeometryShaders =
-                context.ARB_geometry_shader4 || context.EXT_geometry_shader == 1;
-            m_Features.SupportsTesselationShaders =
-                context.ARB_tessellation_shader == 1;
+            m_Features.SupportsGeometryShaders = context.ARB_geometry_shader4 || context.EXT_geometry_shader == 1;
+            m_Features.SupportsTesselationShaders = context.ARB_tessellation_shader == 1;
             m_Features.SupportsComputeShaders = context.ARB_compute_shader == 1;
             m_Features.SupportsStorageBuffers = context.ARB_buffer_storage == 1;
             m_Features.SupportsMultiviewport = context.OVR_multiview == 1;
             m_Features.SupportsSamplerAnisotropy =
-                context.ARB_texture_filter_anisotropic == 1 ||
-                context.EXT_texture_filter_anisotropic == 1;
+                context.ARB_texture_filter_anisotropic == 1 || context.EXT_texture_filter_anisotropic == 1;
             m_Features.SupportsETC2Compression = context.ARB_ES3_compatibility == 1;
-            m_Features.SupportsASTC_LDRCompression =
-                context.KHR_texture_compression_astc_ldr == 1;
+            m_Features.SupportsASTC_LDRCompression = context.KHR_texture_compression_astc_ldr == 1;
             m_Features.SupportsBCCompression =
-                context.EXT_texture_compression_s3tc == 1 ||
-                context.ARB_texture_compression_bptc == 1;
+                context.EXT_texture_compression_s3tc == 1 || context.ARB_texture_compression_bptc == 1;
 
             GLint maxImageSamples = 0;
             context.GetIntegerv(GL_MAX_IMAGE_SAMPLES, &maxImageSamples);
@@ -144,14 +129,11 @@ namespace Nexus::Graphics
             m_Features.SupportShaderStorageImageMultisample = maxImageSamples > 1;
 
             m_Features.SupportsCubemapArray =
-                context.ARB_texture_cube_map_array == 1 ||
-                context.EXT_texture_cube_map_array == 1;
+                context.ARB_texture_cube_map_array == 1 || context.EXT_texture_cube_map_array == 1;
             m_Features.SupportsIndependentBlend =
-                context.ARB_draw_buffers_blend == 1 ||
-                context.EXT_draw_buffers_indexed == 1;
+                context.ARB_draw_buffers_blend == 1 || context.EXT_draw_buffers_indexed == 1;
             m_Features.SupportsMeshTaskShaders = context.EXT_mesh_shader == 1;
-            m_Features.SupportsDepthBoundsTesting =
-                context.EXT_depth_bounds_test == 1;
+            m_Features.SupportsDepthBoundsTesting = context.EXT_depth_bounds_test == 1;
         });
     }
 
@@ -187,32 +169,27 @@ namespace Nexus::Graphics
         }
     }
 
-    AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::
-        GetAccelerationStructureBuildSize(
-            const AccelerationStructureGeometryBuildDescription &description
-        ) const
+    AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::GetAccelerationStructureBuildSize(
+        const AccelerationStructureGeometryBuildDescription &description
+    ) const
     {
         NX_VALIDATE(0, "Ray tracing not supported on OpenGL backend");
         return AccelerationStructureBuildSizeDescription();
     }
 
-    RayTracingDeviceDescription GraphicsDeviceOpenGL::
-        GetRayTracingDeviceDescription() const
+    RayTracingDeviceDescription GraphicsDeviceOpenGL::GetRayTracingDeviceDescription() const
     {
         NX_VALIDATE(0, "Ray tracing not supported on OpenGL backend");
         return RayTracingDeviceDescription();
     }
 
-    AccelerationStructureProperties GraphicsDeviceOpenGL::
-        GetAccelerationStructureProperties() const
+    AccelerationStructureProperties GraphicsDeviceOpenGL::GetAccelerationStructureProperties() const
     {
         NX_VALIDATE(0, "Ray tracing not supported on OpenGL backend");
         return AccelerationStructureProperties();
     }
 
-    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWin32(
-        uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
-    )
+    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
     {
 #if defined(WIN32)
         auto surface = std::make_unique<SurfaceWGL>(hwnd, hdc, hinstance, this);
@@ -222,9 +199,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromX11(
-        uintptr_t display, uint32_t screen, uint32_t window
-    )
+    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
     {
 #if defined(__linux__)
         auto surface = std::make_unique<SurfaceEGL>(display, screen, window, this);
@@ -234,23 +209,17 @@ namespace Nexus::Graphics
 #endif
     }
 
-    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWayland(
-        uintptr_t display, uintptr_t surface
-    )
+    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
     {
         return {};
     }
 
-    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(
-        uintptr_t nativeWindow
-    )
+    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
     {
         return {};
     }
 
-    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromHTML(
-        const std::string &canvasId
-    )
+    SurfaceHandle GraphicsDeviceOpenGL::CreateSurfaceFromHTML(const std::string &canvasId)
     {
         return {};
     }
@@ -260,49 +229,37 @@ namespace Nexus::Graphics
         return m_PhysicalDevice;
     }
 
-    PipelineHandle GraphicsDeviceOpenGL::CreateGraphicsPipeline(
-        const GraphicsPipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
     {
         auto pipeline = std::make_unique<GraphicsPipelineOpenGL>(description, this);
         return m_Resources.Pipelines.CreateShared(std::move(pipeline));
     }
 
-    PipelineHandle GraphicsDeviceOpenGL::CreateComputePipeline(
-        const ComputePipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
     {
         auto pipeline = std::make_unique<ComputePipelineOpenGL>(description, this);
         return m_Resources.Pipelines.CreateShared(std::move(pipeline));
     }
 
-    PipelineHandle GraphicsDeviceOpenGL::CreateMeshletPipeline(
-        const MeshletPipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceOpenGL::CreateMeshletPipeline(const MeshletPipelineDescription &description)
     {
         NX_VALIDATE(false, "Meshlet pipelines are not supported by OpenGL");
         return {};
     }
 
-    PipelineHandle GraphicsDeviceOpenGL::CreateRayTracingPipeline(
-        const RayTracingPipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceOpenGL::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
     {
         NX_VALIDATE(false, "Ray tracing pipelines are not supported by OpenGL");
         return {};
     }
 
-    ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(
-        PipelineHandle pipeline
-    )
+    ResourceSetHandle GraphicsDeviceOpenGL::CreateResourceSet(PipelineHandle pipeline)
     {
         auto resourceSet = std::make_unique<ResourceSetOpenGL>(pipeline, this);
         return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
     }
 
-    FramebufferHandle GraphicsDeviceOpenGL::CreateFramebuffer(
-        const FramebufferTextureSetDescription &desc
-    )
+    FramebufferHandle GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
     {
         auto framebuffer = std::make_unique<FramebufferOpenGL>(desc, this);
         return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
@@ -320,9 +277,7 @@ namespace Nexus::Graphics
         return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
     }
 
-    DeviceBufferHandle GraphicsDeviceOpenGL::CreateDeviceBuffer(
-        const DeviceBufferDescription &desc
-    )
+    DeviceBufferHandle GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
     {
         auto deviceBuffer = std::make_unique<DeviceBufferOpenGL>(desc, this);
         return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
@@ -335,9 +290,7 @@ namespace Nexus::Graphics
         return {};
     }
 
-    TexelBufferHandle GraphicsDeviceOpenGL::CreateTexelBuffer(
-        const TexelBufferDescription &desc
-    )
+    TexelBufferHandle GraphicsDeviceOpenGL::CreateTexelBuffer(const TexelBufferDescription &desc)
     {
         auto texelBuffer = std::make_unique<TexelBufferOpenGL>(desc, this);
         return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
@@ -434,27 +387,21 @@ namespace Nexus::Graphics
         QueueFamilyInfo &info = queueFamilies.emplace_back();
         info.QueueFamily = 0;
         info.QueueCount = std::numeric_limits<uint32_t>::max();
-        info.Capabilities = QueueCapabilities(
-            QueueCapabilities::Graphics | QueueCapabilities::Compute |
-            QueueCapabilities::Transfer
-        );
+        info.Capabilities =
+            QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
 
         GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
         context->Execute([&](const GladGLContext &context) {
             if (context.ARB_sparse_buffer && context.ARB_sparse_texture)
             {
-                info.Capabilities = QueueCapabilities(
-                    info.Capabilities | QueueCapabilities::SparseBinding
-                );
+                info.Capabilities = QueueCapabilities(info.Capabilities | QueueCapabilities::SparseBinding);
             }
         });
 
         return queueFamilies;
     }
 
-    CommandQueueHandle GraphicsDeviceOpenGL::CreateCommandQueue(
-        const CommandQueueDescription &description
-    )
+    CommandQueueHandle GraphicsDeviceOpenGL::CreateCommandQueue(const CommandQueueDescription &description)
     {
         auto commandQueue = std::make_unique<CommandQueueOpenGL>(this, description);
         return m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
@@ -475,9 +422,7 @@ namespace Nexus::Graphics
         return m_Resources.Textures.CreateShared(std::move(texture));
     }
 
-    TextureViewHandle GraphicsDeviceOpenGL::CreateTextureView(
-        const TextureViewDescription &desc
-    )
+    TextureViewHandle GraphicsDeviceOpenGL::CreateTextureView(const TextureViewDescription &desc)
     {
         auto textureView = std::make_unique<TextureViewOpenGL>(desc, this);
         return m_Resources.TextureViews.CreateShared(std::move(textureView));

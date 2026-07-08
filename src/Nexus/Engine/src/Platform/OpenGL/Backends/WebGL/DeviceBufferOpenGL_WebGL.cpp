@@ -2,8 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    DeviceBufferOpenGL::DeviceBufferOpenGL(const DeviceBufferDescription &desc)
-        : m_BufferDescription(desc)
+    DeviceBufferOpenGL::DeviceBufferOpenGL(const DeviceBufferDescription &desc) : m_BufferDescription(desc)
     {
         std::vector<GLenum> targets = GL::GetWebGLBufferTargets(desc.Usage);
         GLenum bufferUsage = GL::GetBufferUsage(desc);
@@ -12,9 +11,7 @@ namespace Nexus::Graphics
             WebGLBufferData bufferData = {};
             glCall(glGenBuffers(1, &bufferData.Handle));
             glCall(glBindBuffer(target, bufferData.Handle));
-            glCall(glBufferData(
-                target, m_BufferDescription.SizeInBytes, nullptr, bufferUsage
-            ));
+            glCall(glBufferData(target, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
             m_BufferHandles[target] = bufferData;
         }
 
@@ -29,9 +26,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void DeviceBufferOpenGL::SetData(
-        const void *data, uint32_t offset, uint32_t size
-    )
+    void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
     {
         NX_VALIDATE(
             m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
@@ -45,9 +40,7 @@ namespace Nexus::Graphics
         MarkDirty();
     }
 
-    std::vector<char> DeviceBufferOpenGL::GetData(
-        uint32_t offset, uint32_t size
-    ) const
+    std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size) const
     {
         NX_VALIDATE(
             m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
@@ -78,8 +71,8 @@ namespace Nexus::Graphics
 
     void DeviceBufferOpenGL::Bind(GLenum target)
     {
-        if (target == GL_COPY_READ_BUFFER || target == GL_COPY_WRITE_BUFFER ||
-            target == GL_PIXEL_PACK_BUFFER || target == GL_PIXEL_UNPACK_BUFFER)
+        if (target == GL_COPY_READ_BUFFER || target == GL_COPY_WRITE_BUFFER || target == GL_PIXEL_PACK_BUFFER ||
+            target == GL_PIXEL_UNPACK_BUFFER)
         {
             auto [type, bufferData] = *m_BufferHandles.begin();
             glBindBuffer(target, bufferData.Handle);
@@ -91,9 +84,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void DeviceBufferOpenGL::BindRange(
-        GLenum target, uint32_t slot, size_t offset, size_t size
-    )
+    void DeviceBufferOpenGL::BindRange(GLenum target, uint32_t slot, size_t offset, size_t size)
     {
         auto [type, bufferData] = *m_BufferHandles.begin();
         glBindBufferRange(target, slot, bufferData.Handle, offset, size);

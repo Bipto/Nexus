@@ -4,9 +4,7 @@
 
 namespace Nexus::Graphics
 {
-    FullscreenQuad::FullscreenQuad(
-        IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv
-    )
+    FullscreenQuad::FullscreenQuad(IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv)
         : m_GraphicsDevice(device), m_CommandQueue(commandQueue), m_HasUV(hasUv)
     {
         if (m_HasUV)
@@ -42,8 +40,7 @@ namespace Nexus::Graphics
         else
         {
             return Nexus::Graphics::VertexBufferLayout(
-                {{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
-                sizeof(glm::vec3), StepRate::Vertex
+                {{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}}, sizeof(glm::vec3), StepRate::Vertex
             );
         }
     }
@@ -62,13 +59,12 @@ namespace Nexus::Graphics
         std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
         m_VertexBuffer = Utils::CreateFilledVertexBuffer(
-            vertices.data(), vertices.size() * sizeof(VertexPositionTexCoord),
-            sizeof(VertexPositionTexCoord), m_GraphicsDevice, m_CommandQueue
+            vertices.data(), vertices.size() * sizeof(VertexPositionTexCoord), sizeof(VertexPositionTexCoord),
+            m_GraphicsDevice, m_CommandQueue
         );
 
         m_IndexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t),
-            m_GraphicsDevice, m_CommandQueue
+            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_GraphicsDevice, m_CommandQueue
         );
     }
 
@@ -86,13 +82,12 @@ namespace Nexus::Graphics
         std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
         m_VertexBuffer = Utils::CreateFilledVertexBuffer(
-            vertices.data(), vertices.size() * sizeof(VertexPosition),
-            sizeof(VertexPosition), m_GraphicsDevice, m_CommandQueue
+            vertices.data(), vertices.size() * sizeof(VertexPosition), sizeof(VertexPosition), m_GraphicsDevice,
+            m_CommandQueue
         );
 
         m_IndexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t),
-            m_GraphicsDevice, m_CommandQueue
+            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_GraphicsDevice, m_CommandQueue
         );
     }
 

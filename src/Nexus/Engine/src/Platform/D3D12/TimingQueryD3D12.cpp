@@ -4,11 +4,9 @@
 
 namespace Nexus::Graphics
 {
-    TimingQueryD3D12::TimingQueryD3D12(GraphicsDeviceD3D12 *device)
-        : m_Device(device)
+    TimingQueryD3D12::TimingQueryD3D12(GraphicsDeviceD3D12 *device) : m_Device(device)
     {
-        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device =
-            m_Device->GetD3D12Device();
+        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetD3D12Device();
 
         CreateQueryHeap();
         CreateReadbackBuffer();
@@ -43,16 +41,14 @@ namespace Nexus::Graphics
         return m_ElapsedTime;
     }
 
-    const Microsoft::WRL::ComPtr<ID3D12QueryHeap> TimingQueryD3D12::
-        GetQueryHeap() const
+    const Microsoft::WRL::ComPtr<ID3D12QueryHeap> TimingQueryD3D12::GetQueryHeap() const
     {
         return m_QueryHeap;
     }
 
     void TimingQueryD3D12::CreateQueryHeap()
     {
-        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device =
-            m_Device->GetD3D12Device();
+        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetD3D12Device();
 
         // create query heap
         D3D12_QUERY_HEAP_DESC queryHeapDesc = {};
@@ -64,8 +60,7 @@ namespace Nexus::Graphics
 
     void TimingQueryD3D12::CreateReadbackBuffer()
     {
-        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device =
-            m_Device->GetD3D12Device();
+        Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = m_Device->GetD3D12Device();
 
         // create the heap
         D3D12_HEAP_PROPERTIES readbackHeapProperties = {};
@@ -90,8 +85,8 @@ namespace Nexus::Graphics
         readbackBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
         d3d12Device->CreateCommittedResource(
-            &readbackHeapProperties, D3D12_HEAP_FLAG_NONE, &readbackBufferDesc,
-            D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&m_ReadbackBuffer)
+            &readbackHeapProperties, D3D12_HEAP_FLAG_NONE, &readbackBufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+            IID_PPV_ARGS(&m_ReadbackBuffer)
         );
     }
 } // namespace Nexus::Graphics

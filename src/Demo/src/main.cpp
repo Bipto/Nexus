@@ -12,14 +12,12 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     desc.WindowProperties.Width = 1280;
     desc.WindowProperties.Height = 720;
     desc.WindowProperties.Title = "Demo";
-    desc.WindowProperties.Flags =
-        WindowFlags_Resizable | WindowFlags_HighPixelDensity;
+    desc.WindowProperties.Flags = WindowFlags_Resizable | WindowFlags_HighPixelDensity;
     desc.WindowProperties.RendersPerSecond = {};
     desc.WindowProperties.UpdatesPerSecond = {};
 
     desc.SwapchainDescription.Samples = 8;
-    desc.SwapchainDescription.ImagePresentMode =
-        Nexus::Graphics::PresentMode::Immediate;
+    desc.SwapchainDescription.ImagePresentMode = Nexus::Graphics::PresentMode::Immediate;
 
     desc.Organization = "Nexus";
     desc.App = "Demo";

@@ -12,13 +12,10 @@ namespace Nexus::Graphics
     class FramebufferVk : public IFramebuffer
     {
       public:
-        FramebufferVk(
-            const FramebufferTextureSetDescription &desc, GraphicsDeviceVk *device
-        );
+        FramebufferVk(const FramebufferTextureSetDescription &desc, GraphicsDeviceVk *device);
         ~FramebufferVk();
 
-        const FramebufferTextureSetDescription
-        GetTextureSetDescription() const final;
+        const FramebufferTextureSetDescription GetTextureSetDescription() const final;
 
         const TextureVk *GetVulkanColourTexture(uint32_t index = 0) const;
         const TextureVk *GetVulkanDepthTexture() const;

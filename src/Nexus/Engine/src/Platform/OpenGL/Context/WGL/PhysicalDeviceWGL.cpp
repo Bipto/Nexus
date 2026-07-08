@@ -3,8 +3,7 @@
 namespace Nexus::Graphics
 {
     PhysicalDeviceWGL::PhysicalDeviceWGL(
-        const std::string &deviceName, const std::vector<std::string> &displayNames,
-        bool debug
+        const std::string &deviceName, const std::vector<std::string> &displayNames, bool debug
     )
         : m_DeviceName(deviceName), m_DisplayNames(displayNames)
     {

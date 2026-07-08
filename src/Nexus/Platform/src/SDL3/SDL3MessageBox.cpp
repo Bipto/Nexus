@@ -69,33 +69,21 @@ namespace Nexus
     }
 
     static void GetSDLMessageBoxColourScheme(
-        const MessageBoxColourScheme &colourScheme,
-        SDL_MessageBoxColorScheme &sdlScheme
+        const MessageBoxColourScheme &colourScheme, SDL_MessageBoxColorScheme &sdlScheme
     )
     {
-        sdlScheme.colors[0] = {
-            colourScheme.Background.R, colourScheme.Background.G,
-            colourScheme.Background.B
-        };
-        sdlScheme.colors[1] = {
-            colourScheme.Text.R, colourScheme.Text.G, colourScheme.Text.B
-        };
-        sdlScheme.colors[2] = {
-            colourScheme.ButtonBorder.R, colourScheme.ButtonBorder.G,
-            colourScheme.ButtonBorder.B
-        };
+        sdlScheme.colors[0] = {colourScheme.Background.R, colourScheme.Background.G, colourScheme.Background.B};
+        sdlScheme.colors[1] = {colourScheme.Text.R, colourScheme.Text.G, colourScheme.Text.B};
+        sdlScheme.colors[2] = {colourScheme.ButtonBorder.R, colourScheme.ButtonBorder.G, colourScheme.ButtonBorder.B};
         sdlScheme.colors[3] = {
-            colourScheme.ButtonBackground.R, colourScheme.ButtonBackground.G,
-            colourScheme.ButtonBackground.B
+            colourScheme.ButtonBackground.R, colourScheme.ButtonBackground.G, colourScheme.ButtonBackground.B
         };
         sdlScheme.colors[4] = {
-            colourScheme.ButtonSelected.R, colourScheme.ButtonSelected.G,
-            colourScheme.ButtonSelected.B
+            colourScheme.ButtonSelected.R, colourScheme.ButtonSelected.G, colourScheme.ButtonSelected.B
         };
     }
 
-    MessageBoxSDL3::MessageBoxSDL3(const MessageBoxDescription &description)
-        : m_Description(description)
+    MessageBoxSDL3::MessageBoxSDL3(const MessageBoxDescription &description) : m_Description(description)
     {
     }
 

@@ -2,8 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    TextureViewD3D12::TextureViewD3D12(const TextureViewDescription &desc)
-        : m_Description(desc)
+    TextureViewD3D12::TextureViewD3D12(const TextureViewDescription &desc) : m_Description(desc)
     {
     }
 

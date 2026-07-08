@@ -114,20 +114,17 @@ void say_hello()
 )";
 
     void ScriptProjectGenerator::Generate(
-        const std::string &templatePath, const std::string &projectName,
-        const std::string &projectDirectory
+        const std::string &templatePath, const std::string &projectName, const std::string &projectDirectory
     )
     {
-        std::string scriptDirectory = projectDirectory + std::string("\\") +
-                                      projectName + std::string("\\Scripts");
+        std::string scriptDirectory = projectDirectory + std::string("\\") + projectName + std::string("\\Scripts");
         FileSystem::CreateFileDirectory(scriptDirectory);
 
         // setup script project
         {
             std::string scriptCmakeFile = scriptDirectory + "\\CMakeLists.txt";
-            std::string scriptProcessedCmakeText = StringUtils::Replace(
-                scriptCmakeText, "SCRIPT_PROJECT_NAME", projectName
-            );
+            std::string scriptProcessedCmakeText =
+                StringUtils::Replace(scriptCmakeText, "SCRIPT_PROJECT_NAME", projectName);
             FileSystem::WriteFile(scriptCmakeFile, scriptProcessedCmakeText);
 
             std::string scriptMainFile = scriptDirectory + "\\main.cpp";
@@ -140,9 +137,7 @@ void say_hello()
         }
     }
 
-    void ScriptProjectGenerator::CopyEngineSources(
-        const std::string &templatePath, const std::string &scriptDirectory
-    )
+    void ScriptProjectGenerator::CopyEngineSources(const std::string &templatePath, const std::string &scriptDirectory)
     {
         if (std::filesystem::exists(templatePath))
         {

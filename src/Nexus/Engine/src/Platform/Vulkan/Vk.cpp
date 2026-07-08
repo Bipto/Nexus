@@ -408,15 +408,12 @@ namespace Nexus::Vk
             return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 
         default:
-            throw std::runtime_error(
-                "Failed to find valid vertex buffer element type"
-            );
+            throw std::runtime_error("Failed to find valid vertex buffer element type");
         }
     }
 
     void GetVkFilterFromNexusFormat(
-        Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max,
-        VkSamplerMipmapMode &mipmapMode
+        Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode
     )
     {
         switch (filter)
@@ -480,9 +477,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkSamplerAddressMode GetVkSamplerAddressMode(
-        Nexus::Graphics::SamplerAddressMode addressMode
-    )
+    VkSamplerAddressMode GetVkSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode)
     {
         switch (addressMode)
         {
@@ -619,24 +614,18 @@ namespace Nexus::Vk
         }
     }
 
-    VkImageUsageFlagBits GetVkImageUsageFlags(
-        Graphics::PixelFormat format, uint8_t usage
-    )
+    VkImageUsageFlagBits GetVkImageUsageFlags(Graphics::PixelFormat format, uint8_t usage)
     {
-        VkImageUsageFlagBits flags = VkImageUsageFlagBits(
-            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT
-        );
+        VkImageUsageFlagBits flags =
+            VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
         if (usage & Nexus::Graphics::TextureUsage_ColourAttachment)
         {
-            flags =
-                VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
         }
         if (usage & Nexus::Graphics::TextureUsage_DepthStencilAttachment)
         {
-            flags = VkImageUsageFlagBits(
-                flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-            );
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         }
 
         // this is required to be set to use an VkImageView
@@ -653,23 +642,19 @@ namespace Nexus::Vk
         return flags;
     }
 
-    VkImageCreateFlagBits GetVkImageCreateFlagBits(
-        const Graphics::TextureDescription &description
-    )
+    VkImageCreateFlagBits GetVkImageCreateFlagBits(const Graphics::TextureDescription &description)
     {
         VkImageCreateFlagBits flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
 
         if (description.Type == Graphics::TextureType::TextureCube)
         {
-            flags =
-                VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
+            flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
         }
 
         if (description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
         {
             flags = VkImageCreateFlagBits(
-                flags | VK_IMAGE_CREATE_SPARSE_BINDING_BIT |
-                VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT |
+                flags | VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT |
                 VK_IMAGE_CREATE_SPARSE_ALIASED_BIT
             );
         }
@@ -783,9 +768,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkShaderStageFlagBits GetVkShaderStageFlagsFromShaderStages(
-        const Nexus::Graphics::ShaderStageFlags &flags
-    )
+    VkShaderStageFlagBits GetVkShaderStageFlagsFromShaderStages(const Nexus::Graphics::ShaderStageFlags &flags)
     {
         VkShaderStageFlags vkStageFlags = 0;
 
@@ -886,12 +869,10 @@ namespace Nexus::Vk
     }
 
     static VkBufferUsageFlags GetVkBufferUsage(
-        const Graphics::DeviceBufferDescription &desc,
-        Graphics::GraphicsDeviceVk *device
+        const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device
     )
     {
-        VkBufferUsageFlags flags =
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         if (desc.Usage & Graphics::BufferUsage_Vertex)
         {
@@ -918,20 +899,16 @@ namespace Nexus::Vk
             flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
         }
 
-        if (device->IsExtensionSupported(
-                VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-            ))
+        if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
         {
             if (desc.Usage & Graphics::BufferUsage_AccelerationStructureStorage)
             {
                 flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
             }
 
-            if (desc.Usage &
-                Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly)
+            if (desc.Usage & Graphics::BufferUsage_AccelerationStructureBuildInputReadOnly)
             {
-                flags |=
-                    VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+                flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
             }
         }
 
@@ -944,9 +921,7 @@ namespace Nexus::Vk
         }
 
         if (device->IsVersionGreaterThan(VK_VERSION_1_2) ||
-            device->IsExtensionSupported(
-                VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
-            ))
+            device->IsExtensionSupported(VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
         {
             flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         }
@@ -971,8 +946,7 @@ namespace Nexus::Vk
     }
 
     VkBufferCreateInfo GetVkBufferCreateInfo(
-        const Graphics::DeviceBufferDescription &desc,
-        Graphics::GraphicsDeviceVk *device
+        const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device
     )
     {
         VkBufferUsageFlags bufferUsage = GetVkBufferUsage(desc, device);
@@ -985,8 +959,7 @@ namespace Nexus::Vk
     }
 
     VmaAllocationCreateInfo GetVmaAllocationCreateInfo(
-        const Graphics::DeviceBufferDescription &desc,
-        Graphics::GraphicsDeviceVk *device
+        const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device
     )
     {
         VmaAllocationCreateInfo createInfo = {};
@@ -995,8 +968,7 @@ namespace Nexus::Vk
         if (desc.Access == Graphics::BufferMemoryAccess::Upload ||
             desc.Access == Graphics::BufferMemoryAccess::Readback)
         {
-            createInfo.flags =
-                VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+            createInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
             createInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
         }
 
@@ -1017,17 +989,14 @@ namespace Nexus::Vk
 
     VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples)
     {
-        VkSampleCountFlagBits vkSampleCountFlag =
-            static_cast<VkSampleCountFlagBits>(samples);
+        VkSampleCountFlagBits vkSampleCountFlag = static_cast<VkSampleCountFlagBits>(samples);
         return vkSampleCountFlag;
     }
 
     VkImageAspectFlagBits GetAspectFlags(bool isDepth)
     {
         if (isDepth)
-            return VkImageAspectFlagBits(
-                VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
-            );
+            return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
         else
             return VK_IMAGE_ASPECT_COLOR_BIT;
     }
@@ -1045,9 +1014,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkAccelerationStructureTypeKHR GetAccelerationStructureType(
-        Graphics::AccelerationStructureType type
-    )
+    VkAccelerationStructureTypeKHR GetAccelerationStructureType(Graphics::AccelerationStructureType type)
     {
         switch (type)
         {
@@ -1056,9 +1023,7 @@ namespace Nexus::Vk
         case Graphics::AccelerationStructureType::TopLevel:
             return VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
         default:
-            throw std::runtime_error(
-                "Failed to find a valid acceleration structure type"
-            );
+            throw std::runtime_error("Failed to find a valid acceleration structure type");
         }
     }
 
@@ -1076,24 +1041,21 @@ namespace Nexus::Vk
         if (flags & Graphics::AccelerationStructureBuildFlags::AllowCompaction)
         {
             vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags |
-                VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR
+                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR
             );
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastTrace)
         {
             vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags |
-                VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR
+                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR
             );
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastBuild)
         {
             vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags |
-                VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR
+                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR
             );
         }
 
@@ -1107,9 +1069,7 @@ namespace Nexus::Vk
         return vulkanFlags;
     }
 
-    VkBuildAccelerationStructureModeKHR GetAccelerationStructureBuildMode(
-        Graphics::AccelerationStructureBuildMode mode
-    )
+    VkBuildAccelerationStructureModeKHR GetAccelerationStructureBuildMode(Graphics::AccelerationStructureBuildMode mode)
     {
         switch (mode)
         {
@@ -1122,9 +1082,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkGeometryTypeKHR GetAccelerationStructureGeometryType(
-        Graphics::GeometryType type
-    )
+    VkGeometryTypeKHR GetAccelerationStructureGeometryType(Graphics::GeometryType type)
     {
         switch (type)
         {
@@ -1145,23 +1103,19 @@ namespace Nexus::Vk
 
         if (flags & Graphics::AccelerationStructureGeometryFlags::Opaque)
         {
-            geometryFlags =
-                (VkGeometryFlagsKHR)(geometryFlags | VK_GEOMETRY_OPAQUE_BIT_KHR);
+            geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_GEOMETRY_OPAQUE_BIT_KHR);
         }
 
         if (flags & Graphics::AccelerationStructureGeometryFlags::NoDuplicateAnyhit)
         {
-            geometryFlags =
-                (VkGeometryFlagsKHR)(geometryFlags |
-                                     VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR);
+            geometryFlags = (VkGeometryFlagsKHR)(geometryFlags | VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR);
         }
 
         return geometryFlags;
     }
 
     VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(
-        const Graphics::AccelerationStructureGeometryDescription &geometry,
-        uint32_t &primitiveCount
+        const Graphics::AccelerationStructureGeometryDescription &geometry, uint32_t &primitiveCount
     )
     {
         switch (geometry.Type)
@@ -1169,16 +1123,13 @@ namespace Nexus::Vk
         case Graphics::GeometryType::AxisAlignedBoundingBoxes:
         {
             Graphics::AccelerationStructureAABBGeometry aabbs =
-                std::get<Graphics::AccelerationStructureAABBGeometry>(
-                    geometry.Geometry
-                );
+                std::get<Graphics::AccelerationStructureAABBGeometry>(geometry.Geometry);
 
             VkDeviceOrHostAddressConstKHR dataAddress = {};
             dataAddress.deviceAddress = aabbs.AABBs;
 
             VkAccelerationStructureGeometryAabbsDataKHR outAabbs = {};
-            outAabbs.sType =
-                VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
+            outAabbs.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
             outAabbs.pNext = nullptr;
             outAabbs.stride = aabbs.Stride;
             outAabbs.data = dataAddress;
@@ -1190,31 +1141,24 @@ namespace Nexus::Vk
         case Graphics::GeometryType::Instance:
         {
             Graphics::AccelerationStructureInstanceGeometry instances =
-                std::get<Graphics::AccelerationStructureInstanceGeometry>(
-                    geometry.Geometry
-                );
+                std::get<Graphics::AccelerationStructureInstanceGeometry>(geometry.Geometry);
 
             VkDeviceOrHostAddressConstKHR dataAddress = {};
             dataAddress.deviceAddress = instances.InstanceBuffer;
 
             VkAccelerationStructureGeometryInstancesDataKHR instanceGeometry = {};
-            instanceGeometry.sType =
-                VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+            instanceGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
             instanceGeometry.pNext = nullptr;
             instanceGeometry.arrayOfPointers = instances.ArrayOfPointers;
             instanceGeometry.data = dataAddress;
             primitiveCount = instances.Count;
 
-            return VkAccelerationStructureGeometryDataKHR{
-                .instances = instanceGeometry
-            };
+            return VkAccelerationStructureGeometryDataKHR{.instances = instanceGeometry};
         }
         case Graphics::GeometryType::Triangles:
         {
             Graphics::AccelerationStructureTriangleGeometry triangles =
-                std::get<Graphics::AccelerationStructureTriangleGeometry>(
-                    geometry.Geometry
-                );
+                std::get<Graphics::AccelerationStructureTriangleGeometry>(geometry.Geometry);
 
             VkDeviceOrHostAddressConstKHR vertexDataAddress = {};
             vertexDataAddress.deviceAddress = triangles.VertexBuffer;
@@ -1226,20 +1170,16 @@ namespace Nexus::Vk
             transformDataAddress.deviceAddress = triangles.TransformBuffer;
 
             VkAccelerationStructureGeometryTrianglesDataKHR triangleGeometry = {};
-            triangleGeometry.sType =
-                VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+            triangleGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
             triangleGeometry.pNext = nullptr;
-            triangleGeometry.vertexFormat =
-                Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
+            triangleGeometry.vertexFormat = Vk::GetVulkanVertexFormat(triangles.VertexBufferFormat);
             triangleGeometry.vertexData = vertexDataAddress;
             triangleGeometry.vertexStride = triangles.VertexBufferStride;
             triangleGeometry.maxVertex = triangles.VertexCount;
 
             if (triangles.IndexBufferFormat.has_value())
             {
-                triangleGeometry.indexType = Vk::GetVulkanIndexBufferFormat(
-                    triangles.IndexBufferFormat.value()
-                );
+                triangleGeometry.indexType = Vk::GetVulkanIndexBufferFormat(triangles.IndexBufferFormat.value());
                 primitiveCount = triangles.IndexCount / 3;
             }
             else
@@ -1251,9 +1191,7 @@ namespace Nexus::Vk
             triangleGeometry.indexData = indexDataAddress;
             triangleGeometry.transformData = transformDataAddress;
 
-            return VkAccelerationStructureGeometryDataKHR{
-                .triangles = triangleGeometry
-            };
+            return VkAccelerationStructureGeometryDataKHR{.triangles = triangleGeometry};
         }
         default:
             throw std::runtime_error("Failed to get geometry");
@@ -1310,8 +1248,7 @@ namespace Nexus::Vk
         }
     }
 
-    std::vector<VkAccelerationStructureGeometryKHR>
-    GetVulkanAccelerationStructureGeometries(
+    std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
         const Graphics::AccelerationStructureGeometryBuildDescription &description,
         std::vector<uint32_t> &primitiveCounts
     )
@@ -1326,12 +1263,9 @@ namespace Nexus::Vk
             VkAccelerationStructureGeometryKHR asGeometry = {};
             asGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
             asGeometry.pNext = nullptr;
-            asGeometry.flags =
-                Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
-            asGeometry.geometryType =
-                Vk::GetAccelerationStructureGeometryType(geometry.Type);
-            asGeometry.geometry =
-                Vk::GetAccelerationStructureGeometryData(geometry, primitiveCount);
+            asGeometry.flags = Vk::GetAccelerationStructureGeometryFlags(geometry.Flags);
+            asGeometry.geometryType = Vk::GetAccelerationStructureGeometryType(geometry.Type);
+            asGeometry.geometry = Vk::GetAccelerationStructureGeometryData(geometry, primitiveCount);
             geometries.push_back(asGeometry);
         }
 
@@ -1344,8 +1278,7 @@ namespace Nexus::Vk
     )
     {
         VkAccelerationStructureBuildGeometryInfoKHR buildInfo = {};
-        buildInfo.sType =
-            VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+        buildInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
         buildInfo.pNext = nullptr;
         buildInfo.type = Vk::GetAccelerationStructureType(description.Type);
         buildInfo.flags = Vk::GetAccelerationStructureFlags(description.Flags);
@@ -1359,37 +1292,29 @@ namespace Nexus::Vk
         if (description.Source.IsValid())
         {
             if (const Graphics::AccelerationStructureVk *accelerationStructure =
-                    description.Source
-                        .AsDerived<const Graphics::AccelerationStructureVk>())
+                    description.Source.AsDerived<const Graphics::AccelerationStructureVk>())
             {
-                buildInfo.srcAccelerationStructure =
-                    accelerationStructure->GetHandle();
+                buildInfo.srcAccelerationStructure = accelerationStructure->GetHandle();
             }
         }
 
         if (description.Destination.IsValid())
         {
             if (const Graphics::AccelerationStructureVk *accelerationStructure =
-                    description.Destination
-                        .AsDerived<const Graphics::AccelerationStructureVk>())
+                    description.Destination.AsDerived<const Graphics::AccelerationStructureVk>())
             {
-                buildInfo.dstAccelerationStructure =
-                    accelerationStructure->GetHandle();
+                buildInfo.dstAccelerationStructure = accelerationStructure->GetHandle();
             }
         }
 
-        VkDeviceOrHostAddressKHR deviceAddress = {
-            .deviceAddress = description.ScratchBuffer
-        };
+        VkDeviceOrHostAddressKHR deviceAddress = {.deviceAddress = description.ScratchBuffer};
 
         buildInfo.scratchData = deviceAddress;
 
         return buildInfo;
     }
 
-    VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(
-        uint32_t primitiveCount
-    )
+    VkAccelerationStructureBuildRangeInfoKHR GetAccelerationStructureBuildRange(uint32_t primitiveCount)
     {
         VkAccelerationStructureBuildRangeInfoKHR rangeInfo = {};
         rangeInfo.primitiveCount = primitiveCount;
@@ -1400,8 +1325,7 @@ namespace Nexus::Vk
     }
 
     static VkRenderPass CreateVkRenderPass(
-        const GladVulkanContext &context, VkDevice device,
-        const VulkanRenderPassDescription &desc
+        const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc
     )
     {
         std::vector<VkAttachmentDescription> attachments = {};
@@ -1421,12 +1345,10 @@ namespace Nexus::Vk
             colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-            colourAttachment.initialLayout =
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            colourAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-            VkAttachmentReference &attachmentReference =
-                colourAttachmentReferences.emplace_back();
+            VkAttachmentReference &attachmentReference = colourAttachmentReferences.emplace_back();
             attachmentReference.attachment = attachmentIndex;
             attachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             attachmentIndex++;
@@ -1434,24 +1356,19 @@ namespace Nexus::Vk
             // we have a valid resolve attachment
             if (resolveFormat.has_value())
             {
-                VkAttachmentDescription &resolveAttachment =
-                    attachments.emplace_back();
+                VkAttachmentDescription &resolveAttachment = attachments.emplace_back();
                 resolveAttachment.format = resolveFormat.value();
                 resolveAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
                 resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
                 resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 resolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
                 resolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-                resolveAttachment.initialLayout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                resolveAttachment.finalLayout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-                VkAttachmentReference &resolveAttachmentReference =
-                    resolveAttachmentReferences.emplace_back();
+                VkAttachmentReference &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
                 resolveAttachmentReference.attachment = attachmentIndex;
-                resolveAttachmentReference.layout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                resolveAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 attachmentIndex++;
 
                 usingMultisampling = true;
@@ -1460,8 +1377,7 @@ namespace Nexus::Vk
             // image
             else
             {
-                VkAttachmentReference &resolveAttachmentReference =
-                    resolveAttachmentReferences.emplace_back();
+                VkAttachmentReference &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
                 resolveAttachmentReference.attachment = VK_ATTACHMENT_UNUSED;
                 resolveAttachmentReference.layout = VK_IMAGE_LAYOUT_UNDEFINED;
             }
@@ -1478,14 +1394,11 @@ namespace Nexus::Vk
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-            depthAttachment.initialLayout =
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-            depthAttachment.finalLayout =
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             depthAttachmentReference.attachment = attachmentIndex;
-            depthAttachmentReference.layout =
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             attachmentIndex++;
         }
@@ -1510,8 +1423,7 @@ namespace Nexus::Vk
 
         if (usingMultisampling)
         {
-            subpassDescription.pResolveAttachments =
-                resolveAttachmentReferences.data();
+            subpassDescription.pResolveAttachments = resolveAttachmentReferences.data();
         }
 
         std::vector<VkSubpassDependency> dependencies(1);
@@ -1520,8 +1432,7 @@ namespace Nexus::Vk
         dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
         dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo createInfo = {};
@@ -1535,16 +1446,14 @@ namespace Nexus::Vk
 
         VkRenderPass renderPass = VK_NULL_HANDLE;
         NX_VALIDATE(
-            context.CreateRenderPass(device, &createInfo, nullptr, &renderPass) ==
-                VK_SUCCESS,
+            context.CreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS,
             "Failed to create render pass"
         );
         return renderPass;
     }
 
     static VkRenderPass CreateVkRenderPass2(
-        const GladVulkanContext &context, VkDevice device,
-        const VulkanRenderPassDescription &desc
+        const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc
     )
     {
         std::vector<VkAttachmentDescription2KHR> attachments = {};
@@ -1557,8 +1466,7 @@ namespace Nexus::Vk
 
         for (const auto &[colourFormat, resolveFormat] : desc.ColourAttachments)
         {
-            VkAttachmentDescription2KHR &colourAttachment =
-                attachments.emplace_back();
+            VkAttachmentDescription2KHR &colourAttachment = attachments.emplace_back();
             colourAttachment.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
             colourAttachment.pNext = nullptr;
             colourAttachment.flags = 0;
@@ -1568,26 +1476,20 @@ namespace Nexus::Vk
             colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-            colourAttachment.initialLayout =
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            colourAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-            VkAttachmentReference2KHR &colourAttachmentReference =
-                colourAttachmentReferences.emplace_back();
-            colourAttachmentReference.sType =
-                VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+            VkAttachmentReference2KHR &colourAttachmentReference = colourAttachmentReferences.emplace_back();
+            colourAttachmentReference.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
             colourAttachmentReference.pNext = nullptr;
             colourAttachmentReference.attachment = attachmentIndex;
-            colourAttachmentReference.layout =
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            colourAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             attachmentIndex++;
 
             if (resolveFormat.has_value())
             {
-                VkAttachmentDescription2KHR &resolveAttachment =
-                    attachments.emplace_back();
-                resolveAttachment.sType =
-                    VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+                VkAttachmentDescription2KHR &resolveAttachment = attachments.emplace_back();
+                resolveAttachment.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
                 resolveAttachment.pNext = nullptr;
                 resolveAttachment.flags = 0;
                 resolveAttachment.format = resolveFormat.value();
@@ -1596,29 +1498,22 @@ namespace Nexus::Vk
                 resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 resolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
                 resolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-                resolveAttachment.initialLayout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                resolveAttachment.finalLayout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-                VkAttachmentReference2KHR &resolveAttachmentReference =
-                    resolveAttachmentReferences.emplace_back();
-                resolveAttachmentReference.sType =
-                    VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+                VkAttachmentReference2KHR &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+                resolveAttachmentReference.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
                 resolveAttachmentReference.pNext = nullptr;
                 resolveAttachmentReference.attachment = attachmentIndex;
-                resolveAttachmentReference.layout =
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                resolveAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 attachmentIndex++;
 
                 usingMultisampling = true;
             }
             else
             {
-                VkAttachmentReference2KHR &resolveAttachmentReference =
-                    resolveAttachmentReferences.emplace_back();
-                resolveAttachmentReference.sType =
-                    VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+                VkAttachmentReference2KHR &resolveAttachmentReference = resolveAttachmentReferences.emplace_back();
+                resolveAttachmentReference.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
                 resolveAttachmentReference.pNext = nullptr;
                 resolveAttachmentReference.attachment = VK_ATTACHMENT_UNUSED;
                 resolveAttachmentReference.layout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -1629,8 +1524,7 @@ namespace Nexus::Vk
         {
             VkFormat depthFormat = desc.DepthFormat.value();
 
-            VkAttachmentDescription2KHR &depthAttachment =
-                attachments.emplace_back();
+            VkAttachmentDescription2KHR &depthAttachment = attachments.emplace_back();
             depthAttachment.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
             depthAttachment.pNext = nullptr;
             depthAttachment.flags = 0;
@@ -1640,17 +1534,13 @@ namespace Nexus::Vk
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-            depthAttachment.initialLayout =
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-            depthAttachment.finalLayout =
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            depthAttachmentReference.sType =
-                VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+            depthAttachmentReference.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
             depthAttachmentReference.pNext = nullptr;
             depthAttachmentReference.attachment = attachmentIndex;
-            depthAttachmentReference.layout =
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             attachmentIndex++;
         }
@@ -1677,8 +1567,7 @@ namespace Nexus::Vk
 
         if (usingMultisampling)
         {
-            subpassDescription.pResolveAttachments =
-                resolveAttachmentReferences.data();
+            subpassDescription.pResolveAttachments = resolveAttachmentReferences.data();
         }
 
         std::vector<VkSubpassDependency2KHR> dependencies(1);
@@ -1689,8 +1578,7 @@ namespace Nexus::Vk
         dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
         dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo2KHR createInfo = {};
@@ -1708,17 +1596,13 @@ namespace Nexus::Vk
 
         VkRenderPass renderPass = VK_NULL_HANDLE;
         NX_VALIDATE(
-            context.CreateRenderPass2KHR(
-                device, &createInfo, nullptr, &renderPass
-            ) == VK_SUCCESS,
+            context.CreateRenderPass2KHR(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS,
             "Failed to create render pass"
         );
         return renderPass;
     }
 
-    VkRenderPass CreateRenderPass(
-        Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc
-    )
+    VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
 
@@ -1733,8 +1617,7 @@ namespace Nexus::Vk
     }
 
     VkFramebuffer CreateFramebuffer(
-        const GladVulkanContext &context, VkDevice device,
-        const VulkanFramebufferDescription &desc
+        const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc
     )
     {
         std::vector<VkImageView> attachments = {};
@@ -1766,8 +1649,7 @@ namespace Nexus::Vk
         VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
         NX_VALIDATE(
-            context.CreateFramebuffer(device, &createInfo, nullptr, &framebuffer) ==
-                VK_SUCCESS,
+            context.CreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS,
             "Failed to create framebuffer"
         );
 
@@ -1787,9 +1669,7 @@ namespace Nexus::Vk
         return createInfo;
     }
 
-    VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyCreateInfo(
-        VkPrimitiveTopology topology
-    )
+    VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology)
     {
         VkPipelineInputAssemblyStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -1804,10 +1684,8 @@ namespace Nexus::Vk
         const Graphics::DepthStencilDescription &depthStencilDesc
     )
     {
-        VkPolygonMode polygonMode =
-            Vk::GetPolygonMode(rasterizerDesc.TriangleFillMode);
-        VkCullModeFlags cullingFlags =
-            Vk::GetCullMode(rasterizerDesc.TriangleCullMode);
+        VkPolygonMode polygonMode = Vk::GetPolygonMode(rasterizerDesc.TriangleFillMode);
+        VkCullModeFlags cullingFlags = Vk::GetCullMode(rasterizerDesc.TriangleCullMode);
         VkFrontFace frontFace = Vk::GetFrontFace(rasterizerDesc.TriangleFrontFace);
 
         VkPipelineRasterizationStateCreateInfo info = {};
@@ -1827,12 +1705,9 @@ namespace Nexus::Vk
         return info;
     }
 
-    VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(
-        uint32_t sampleCount, uint32_t *sampleMask
-    )
+    VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo(uint32_t sampleCount, uint32_t *sampleMask)
     {
-        VkSampleCountFlagBits samples =
-            Vk::GetVkSampleCountFlagsFromSampleCount(sampleCount);
+        VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(sampleCount);
 
         VkPipelineMultisampleStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -1847,10 +1722,8 @@ namespace Nexus::Vk
         return info;
     }
 
-    std::vector<VkPipelineColorBlendAttachmentState>
-    CreateColorBlendAttachmentStates(
-        uint32_t colourAttachmentCount,
-        const std::array<Graphics::BlendStateDescription, 8> &blendStates
+    std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates(
+        uint32_t colourAttachmentCount, const std::array<Graphics::BlendStateDescription, 8> &blendStates
     )
     {
         std::vector<VkPipelineColorBlendAttachmentState> colourBlendStates;
@@ -1878,18 +1751,12 @@ namespace Nexus::Vk
             VkPipelineColorBlendAttachmentState blendState = {};
             blendState.colorWriteMask = writeMask;
             blendState.blendEnable = blendStates[i].EnableBlending;
-            blendState.srcColorBlendFactor =
-                Vk::GetVkBlendFactor(blendStates[i].SourceColourBlend);
-            blendState.dstColorBlendFactor =
-                Vk::GetVkBlendFactor(blendStates[i].DestinationColourBlend);
-            blendState.colorBlendOp =
-                Vk::GetVkBlendOp(blendStates[i].ColorBlendFunction);
-            blendState.srcAlphaBlendFactor =
-                Vk::GetVkBlendFactor(blendStates[i].SourceAlphaBlend);
-            blendState.dstAlphaBlendFactor =
-                Vk::GetVkBlendFactor(blendStates[i].DestinationAlphaBlend);
-            blendState.alphaBlendOp =
-                Vk::GetVkBlendOp(blendStates[i].AlphaBlendFunction);
+            blendState.srcColorBlendFactor = Vk::GetVkBlendFactor(blendStates[i].SourceColourBlend);
+            blendState.dstColorBlendFactor = Vk::GetVkBlendFactor(blendStates[i].DestinationColourBlend);
+            blendState.colorBlendOp = Vk::GetVkBlendOp(blendStates[i].ColorBlendFunction);
+            blendState.srcAlphaBlendFactor = Vk::GetVkBlendFactor(blendStates[i].SourceAlphaBlend);
+            blendState.dstAlphaBlendFactor = Vk::GetVkBlendFactor(blendStates[i].DestinationAlphaBlend);
+            blendState.alphaBlendOp = Vk::GetVkBlendOp(blendStates[i].AlphaBlendFunction);
             colourBlendStates.push_back(blendState);
         }
 
@@ -1905,8 +1772,7 @@ namespace Nexus::Vk
         info.pNext = nullptr;
         info.depthTestEnable = depthStencilDesc.EnableDepthTest;
         info.depthWriteEnable = depthStencilDesc.EnableDepthWrite;
-        info.depthCompareOp =
-            Vk::GetCompareOp(depthStencilDesc.DepthComparisonFunction);
+        info.depthCompareOp = Vk::GetCompareOp(depthStencilDesc.DepthComparisonFunction);
 
         if (depthStencilDesc.EnableDepthsBoundsTest)
         {
@@ -1925,29 +1791,18 @@ namespace Nexus::Vk
         info.back.writeMask = depthStencilDesc.StencilWriteMask;
         info.back.compareMask = depthStencilDesc.StencilCompareMask;
         info.back.reference = depthStencilDesc.StencilReference;
-        info.back.compareOp =
-            Vk::GetCompareOp(depthStencilDesc.Back.StencilComparisonFunction);
-        info.back.failOp =
-            Vk::GetStencilOp(depthStencilDesc.Back.StencilFailOperation);
-        info.back.passOp = Vk::GetStencilOp(
-            depthStencilDesc.Back.StencilSuccessDepthSuccessOperation
-        );
-        info.back.depthFailOp =
-            Vk::GetStencilOp(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
+        info.back.compareOp = Vk::GetCompareOp(depthStencilDesc.Back.StencilComparisonFunction);
+        info.back.failOp = Vk::GetStencilOp(depthStencilDesc.Back.StencilFailOperation);
+        info.back.passOp = Vk::GetStencilOp(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+        info.back.depthFailOp = Vk::GetStencilOp(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
 
         info.front.writeMask = depthStencilDesc.StencilWriteMask;
         info.front.compareMask = depthStencilDesc.StencilCompareMask;
         info.front.reference = depthStencilDesc.StencilReference;
-        info.front.compareOp =
-            Vk::GetCompareOp(depthStencilDesc.Front.StencilComparisonFunction);
-        info.front.failOp =
-            Vk::GetStencilOp(depthStencilDesc.Front.StencilFailOperation);
-        info.front.passOp = Vk::GetStencilOp(
-            depthStencilDesc.Front.StencilSuccessDepthSuccessOperation
-        );
-        info.front.depthFailOp = Vk::GetStencilOp(
-            depthStencilDesc.Front.StencilSuccessDepthFailOperation
-        );
+        info.front.compareOp = Vk::GetCompareOp(depthStencilDesc.Front.StencilComparisonFunction);
+        info.front.failOp = Vk::GetStencilOp(depthStencilDesc.Front.StencilFailOperation);
+        info.front.passOp = Vk::GetStencilOp(depthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
+        info.front.depthFailOp = Vk::GetStencilOp(depthStencilDesc.Front.StencilSuccessDepthFailOperation);
 
         return info;
     }
@@ -2044,22 +1899,18 @@ namespace Nexus::Vk
             VkVertexInputBindingDescription bindingDescription = {};
             bindingDescription.binding = layoutIndex;
             bindingDescription.stride = layout.GetStride();
-            bindingDescription.inputRate = layout.IsInstanceBuffer()
-                                               ? VK_VERTEX_INPUT_RATE_INSTANCE
-                                               : VK_VERTEX_INPUT_RATE_VERTEX;
+            bindingDescription.inputRate =
+                layout.IsInstanceBuffer() ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
             inputBindingDescriptions.push_back(bindingDescription);
         }
     }
 
-    VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(
-        const Nexus::Graphics::ShaderModuleVk *module
-    )
+    VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(const Nexus::Graphics::ShaderModuleVk *module)
     {
         VkPipelineShaderStageCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         createInfo.pNext = nullptr;
-        createInfo.stage =
-            Vk::GetVkShaderStageFlags(module->GetModuleDescription().ShadingStage);
+        createInfo.stage = Vk::GetVkShaderStageFlags(module->GetModuleDescription().ShadingStage);
         createInfo.module = module->GetShaderModule();
         createInfo.pName = "main";
         return createInfo;
@@ -2071,8 +1922,7 @@ namespace Nexus::Vk
     {
         std::map<std::string, VkShaderStageFlags> pushConstants = {};
 
-        const Graphics::ResourceSetDescription &resourceSetDesc =
-            pipeline->GetResourceSetDescription();
+        const Graphics::ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
         std::map<std::string, Graphics::ShaderResource> reflectedShaderResources =
             pipeline->GetRequiredShaderResources();
 
@@ -2082,12 +1932,9 @@ namespace Nexus::Vk
             {
                 if (reflectedShaderResources.contains(descriptor.Name))
                 {
-                    const Graphics::ShaderResource &reflectedResource =
-                        reflectedShaderResources.at(descriptor.Name);
+                    const Graphics::ShaderResource &reflectedResource = reflectedShaderResources.at(descriptor.Name);
                     VkShaderStageFlags shaderStageFlags =
-                        Vk::GetVkShaderStageFlagsFromShaderStages(
-                            reflectedResource.Stage
-                        );
+                        Vk::GetVkShaderStageFlagsFromShaderStages(reflectedResource.Stage);
                     pushConstants[descriptor.Name] = shaderStageFlags;
                 }
             }
@@ -2097,8 +1944,7 @@ namespace Nexus::Vk
     }
 
     static std::optional<VkDescriptorType> GetDescriptorType(
-        Graphics::GraphicsDeviceVk *device,
-        Graphics::ResourceDescriptorType resourceType,
+        Graphics::GraphicsDeviceVk *device, Graphics::ResourceDescriptorType resourceType,
         Graphics::ShaderResource shaderResource
     )
     {
@@ -2114,9 +1960,7 @@ namespace Nexus::Vk
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         case Graphics::ResourceDescriptorType::InlineUniformBlock:
         {
-            if (device->IsExtensionSupported(
-                    VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
             {
                 return VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
             }
@@ -2148,9 +1992,7 @@ namespace Nexus::Vk
         }
     } // namespace Nexus::Vk
 
-    uint32_t GetMaxDescriptorSetIndex(
-        const std::map<std::string, Graphics::ShaderResource> &resources
-    )
+    uint32_t GetMaxDescriptorSetIndex(const std::map<std::string, Graphics::ShaderResource> &resources)
     {
         uint32_t setIndex = 0;
 
@@ -2166,9 +2008,8 @@ namespace Nexus::Vk
     }
 
     static bool IsCompatibleResource(
-        Graphics::ResourceDescriptorType descriptorType,
-        Graphics::ResourceType reflectedType, uint32_t reflectedResourceCount,
-        uint32_t requestedDescriptorCount
+        Graphics::ResourceDescriptorType descriptorType, Graphics::ResourceType reflectedType,
+        uint32_t reflectedResourceCount, uint32_t requestedDescriptorCount
     )
     {
         switch (reflectedType)
@@ -2179,26 +2020,22 @@ namespace Nexus::Vk
         }
         case Graphics::ResourceType::StorageImage:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::StorageImage &&
+            return descriptorType == Graphics::ResourceDescriptorType::StorageImage &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::Texture:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::SampledImage &&
+            return descriptorType == Graphics::ResourceDescriptorType::SampledImage &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::UniformTextureBuffer:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::UniformTexelBuffer &&
+            return descriptorType == Graphics::ResourceDescriptorType::UniformTexelBuffer &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::StorageTextureBuffer:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::StorageTexelBuffer &&
+            return descriptorType == Graphics::ResourceDescriptorType::StorageTexelBuffer &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::Sampler:
@@ -2209,38 +2046,31 @@ namespace Nexus::Vk
         }
         case Graphics::ResourceType::CombinedImageSampler:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::CombinedImageSampler &&
+            return descriptorType == Graphics::ResourceDescriptorType::CombinedImageSampler &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::UniformBuffer:
         {
-            if (descriptorType ==
-                Graphics::ResourceDescriptorType::InlineUniformBlock)
+            if (descriptorType == Graphics::ResourceDescriptorType::InlineUniformBlock)
             {
                 return true;
             }
             else
             {
-                return descriptorType ==
-                           Graphics::ResourceDescriptorType::UniformBuffer ||
-                       descriptorType == Graphics::ResourceDescriptorType::
-                                             DynamicUniformBuffer &&
+                return descriptorType == Graphics::ResourceDescriptorType::UniformBuffer ||
+                       descriptorType == Graphics::ResourceDescriptorType::DynamicUniformBuffer &&
                            reflectedResourceCount == requestedDescriptorCount;
             }
         }
         case Graphics::ResourceType::StorageBuffer:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::StorageBuffer ||
-                   descriptorType ==
-                           Graphics::ResourceDescriptorType::DynamicStorageBuffer &&
+            return descriptorType == Graphics::ResourceDescriptorType::StorageBuffer ||
+                   descriptorType == Graphics::ResourceDescriptorType::DynamicStorageBuffer &&
                        reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::AccelerationStructure:
         {
-            return descriptorType ==
-                       Graphics::ResourceDescriptorType::AccelerationStructure &&
+            return descriptorType == Graphics::ResourceDescriptorType::AccelerationStructure &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         default:
@@ -2263,8 +2093,7 @@ namespace Nexus::Vk
                 {
                     NX_VALIDATE(
                         IsCompatibleResource(
-                            descriptor.Type, shaderResource.Type,
-                            shaderResource.ResourceCount,
+                            descriptor.Type, shaderResource.Type, shaderResource.ResourceCount,
                             descriptor.CountOrSizeInBytes
                         ),
                         "Mismatch between reflected shader type and requested "
@@ -2290,8 +2119,7 @@ namespace Nexus::Vk
     {
         const GladVulkanContext &context = device->GetVulkanContext();
 
-        const Graphics::ResourceSetDescription &resourceSetDesc =
-            pipeline->GetResourceSetDescription();
+        const Graphics::ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
         // retrieve the resources that are referenced by the shaders
         const auto &shaderResources = pipeline->GetRequiredShaderResources();
@@ -2301,9 +2129,7 @@ namespace Nexus::Vk
         uint32_t maxSetIndex = GetMaxDescriptorSetIndex(shaderResources);
 
         // create storage for descriptor set layout bindings
-        std::vector<std::vector<VkDescriptorSetLayoutBinding>> layoutBindings(
-            maxSetIndex + 1
-        );
+        std::vector<std::vector<VkDescriptorSetLayoutBinding>> layoutBindings(maxSetIndex + 1);
 
         // storage for immutable samplers
         std::map<std::string, std::vector<VkSampler>> vulkanImmutableSamplers = {};
@@ -2316,8 +2142,7 @@ namespace Nexus::Vk
             if (shaderResources.contains(descriptor.Name))
             {
                 // retrieve the descriptor type from the resource
-                const Graphics::ShaderResource &resourceDesc =
-                    shaderResources.at(descriptor.Name);
+                const Graphics::ShaderResource &resourceDesc = shaderResources.at(descriptor.Name);
                 std::optional<VkDescriptorType> descriptorTypeOpt =
                     GetDescriptorType(device, descriptor.Type, resourceDesc);
 
@@ -2329,15 +2154,11 @@ namespace Nexus::Vk
                     VkDescriptorType descriptorType = descriptorTypeOpt.value();
 
                     // create the Vulkan descriptor set layout binding
-                    VkDescriptorSetLayoutBinding &layoutBinding =
-                        layoutBindings[resourceDesc.Set].emplace_back();
+                    VkDescriptorSetLayoutBinding &layoutBinding = layoutBindings[resourceDesc.Set].emplace_back();
                     layoutBinding.binding = resourceDesc.Binding;
                     layoutBinding.descriptorCount = resourceDesc.ResourceCount;
                     layoutBinding.descriptorType = descriptorType;
-                    layoutBinding.stageFlags =
-                        Vk::GetVkShaderStageFlagsFromShaderStages(
-                            resourceDesc.Stage
-                        );
+                    layoutBinding.stageFlags = Vk::GetVkShaderStageFlagsFromShaderStages(resourceDesc.Stage);
                     layoutBinding.pImmutableSamplers = nullptr;
 
                     // create immutable samplers if requested
@@ -2349,16 +2170,13 @@ namespace Nexus::Vk
                         for (size_t i = 0; i < samplers.size(); i++)
                         {
                             if (const Graphics::SamplerVk *vkSampler =
-                                    samplers.at(i)
-                                        .AsDerived<const Graphics::SamplerVk>())
+                                    samplers.at(i).AsDerived<const Graphics::SamplerVk>())
                             {
-                                vulkanImmutableSamplers[descriptor.Name]
-                                    .emplace_back(vkSampler->GetSampler());
+                                vulkanImmutableSamplers[descriptor.Name].emplace_back(vkSampler->GetSampler());
                             }
                         }
 
-                        layoutBinding.pImmutableSamplers =
-                            vulkanImmutableSamplers[descriptor.Name].data();
+                        layoutBinding.pImmutableSamplers = vulkanImmutableSamplers[descriptor.Name].data();
                     }
 
                     descriptorCounts[descriptorType] += resourceDesc.ResourceCount;
@@ -2385,8 +2203,7 @@ namespace Nexus::Vk
             const auto &set = layoutBindings.at(setIndex);
 
             VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
-            layoutCreateInfo.sType =
-                VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
             layoutCreateInfo.pNext = nullptr;
             layoutCreateInfo.flags = 0;
             layoutCreateInfo.pBindings = set.data();
@@ -2394,9 +2211,8 @@ namespace Nexus::Vk
 
             VkDescriptorSetLayout &layout = descriptorSetLayouts[setIndex];
             NX_VALIDATE(
-                context.CreateDescriptorSetLayout(
-                    device->GetVkDevice(), &layoutCreateInfo, nullptr, &layout
-                ) == VK_SUCCESS,
+                context.CreateDescriptorSetLayout(device->GetVkDevice(), &layoutCreateInfo, nullptr, &layout) ==
+                    VK_SUCCESS,
                 "Failed to create descriptor set layout"
             );
 
@@ -2415,12 +2231,9 @@ namespace Nexus::Vk
             {
                 if (shaderResources.contains(resource.Name))
                 {
-                    const Graphics::ShaderResource &reflectedResource =
-                        shaderResources.at(resource.Name);
+                    const Graphics::ShaderResource &reflectedResource = shaderResources.at(resource.Name);
                     VkShaderStageFlags shaderStages =
-                        Vk::GetVkShaderStageFlagsFromShaderStages(
-                            reflectedResource.Stage
-                        );
+                        Vk::GetVkShaderStageFlagsFromShaderStages(reflectedResource.Stage);
 
                     VkPushConstantRange &range = pushConstantRanges.emplace_back();
                     range.stageFlags = shaderStages;
@@ -2441,9 +2254,7 @@ namespace Nexus::Vk
 
         // validate whether the layout was able to be created
         NX_VALIDATE(
-            context.CreatePipelineLayout(
-                device->GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout
-            ) == VK_SUCCESS,
+            context.CreatePipelineLayout(device->GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout) == VK_SUCCESS,
             "Failed to create pipeline layout"
         );
 
@@ -2454,27 +2265,22 @@ namespace Nexus::Vk
         VkRenderPass renderPass, Graphics::GraphicsDeviceVk *device,
         const Graphics::DepthStencilDescription &depthStencilDesc,
         const Graphics::RasterizerStateDescription &rasterizerDesc, uint32_t samples,
-        const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages,
-        uint32_t colourTargetCount,
+        const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages, uint32_t colourTargetCount,
         const std::array<Graphics::PixelFormat, 8> &colourFormats,
-        const std::array<Graphics::BlendStateDescription, 8> &blendStates,
-        Graphics::PixelFormat depthFormat, VkPipelineLayout pipelineLayout,
-        Graphics::Topology topology,
-        const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
-        uint32_t *pSampleMask
+        const std::array<Graphics::BlendStateDescription, 8> &blendStates, Graphics::PixelFormat depthFormat,
+        VkPipelineLayout pipelineLayout, Graphics::Topology topology,
+        const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts, uint32_t *pSampleMask
     )
     {
         const GladVulkanContext &context = device->GetVulkanContext();
-        const Graphics::VulkanDeviceFeatures &deviceFeatures =
-            device->GetDeviceFeatures();
+        const Graphics::VulkanDeviceFeatures &deviceFeatures = device->GetDeviceFeatures();
 
         VkPipelineDepthStencilStateCreateInfo depthStencilInfo =
             CreatePipelineDepthStencilStateCreateInfo(depthStencilDesc);
         VkPipelineRasterizationStateCreateInfo rasterizerInfo =
             Vk::CreateRasterizationStateCreateInfo(rasterizerDesc, depthStencilDesc);
 
-        VkPipelineMultisampleStateCreateInfo multisampleInfo =
-            CreateMultisampleStateCreateInfo(samples, pSampleMask);
+        VkPipelineMultisampleStateCreateInfo multisampleInfo = CreateMultisampleStateCreateInfo(samples, pSampleMask);
 
         VkPipelineViewportStateCreateInfo viewportState = {};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -2489,8 +2295,7 @@ namespace Nexus::Vk
             Vk::CreateColorBlendAttachmentStates(colourTargetCount, blendStates);
 
         VkPipelineColorBlendStateCreateInfo colorBlending = {};
-        colorBlending.sType =
-            VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         colorBlending.pNext = nullptr;
         colorBlending.logicOpEnable = VK_FALSE;
         colorBlending.logicOp = VK_LOGIC_OP_COPY;
@@ -2500,23 +2305,18 @@ namespace Nexus::Vk
         // create vertex input layout
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
         std::vector<VkVertexInputBindingDescription> bindingDescriptions;
-        Vk::CreateVertexInputLayout(
-            layouts, attributeDescriptions, bindingDescriptions
-        );
+        Vk::CreateVertexInputLayout(layouts, attributeDescriptions, bindingDescriptions);
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-        vertexInputInfo.sType =
-            VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.pNext = nullptr;
         vertexInputInfo.vertexBindingDescriptionCount = bindingDescriptions.size();
         vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
-        vertexInputInfo.vertexAttributeDescriptionCount =
-            attributeDescriptions.size();
+        vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         VkPrimitiveTopology primitiveTopology = Vk::GetPrimitiveTopology(topology);
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo =
-            CreateInputAssemblyCreateInfo(primitiveTopology);
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(primitiveTopology);
 
         std::vector<VkFormat> vkColourFormats;
 
@@ -2528,8 +2328,7 @@ namespace Nexus::Vk
         VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(depthFormat);
 
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
-        pipelineRenderingCreateInfo.sType =
-            VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+        pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRenderingCreateInfo.colorAttachmentCount = vkColourFormats.size();
         pipelineRenderingCreateInfo.pColorAttachmentFormats = vkColourFormats.data();
         pipelineRenderingCreateInfo.depthAttachmentFormat = depthStencilFormat;
@@ -2564,8 +2363,8 @@ namespace Nexus::Vk
         dynamicInfo.flags = 0;
 
         std::vector<VkDynamicState> dynamicStates = {
-            VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR,
-            VK_DYNAMIC_STATE_BLEND_CONSTANTS, VK_DYNAMIC_STATE_STENCIL_REFERENCE
+            VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_BLEND_CONSTANTS,
+            VK_DYNAMIC_STATE_STENCIL_REFERENCE
         };
 
         dynamicInfo.dynamicStateCount = dynamicStates.size();
@@ -2580,8 +2379,7 @@ namespace Nexus::Vk
         VkPipeline pipeline = VK_NULL_HANDLE;
 
         if (context.CreateGraphicsPipelines(
-                device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
-                &pipeline
+                device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline
             ) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create graphics pipeline");
@@ -2591,8 +2389,8 @@ namespace Nexus::Vk
     }
 
     VkResult AcquireNextImage(
-        Graphics::GraphicsDeviceVk *device, VkSwapchainKHR swapchain,
-        uint64_t timeout, VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex
+        Graphics::GraphicsDeviceVk *device, VkSwapchainKHR swapchain, uint64_t timeout, VkSemaphore semaphore,
+        VkFence fence, uint32_t *imageIndex
     )
     {
         const GladVulkanContext &context = device->GetVulkanContext();
@@ -2607,22 +2405,16 @@ namespace Nexus::Vk
             imageAcquireInfo.semaphore = semaphore;
             imageAcquireInfo.fence = fence;
             imageAcquireInfo.deviceMask = 1;
-            return context.AcquireNextImage2KHR(
-                device->GetVkDevice(), &imageAcquireInfo, imageIndex
-            );
+            return context.AcquireNextImage2KHR(device->GetVkDevice(), &imageAcquireInfo, imageIndex);
         }
         else
         {
-            return context.AcquireNextImageKHR(
-                device->GetVkDevice(), swapchain, timeout, semaphore, fence,
-                imageIndex
-            );
+            return context.AcquireNextImageKHR(device->GetVkDevice(), swapchain, timeout, semaphore, fence, imageIndex);
         }
     }
 
     VkResult SubmitQueue(
-        Graphics::GraphicsDeviceVk *device, VkQueue queue,
-        const std::vector<VkCommandBuffer> commandBuffers,
+        Graphics::GraphicsDeviceVk *device, VkQueue queue, const std::vector<VkCommandBuffer> commandBuffers,
         VkPipelineStageFlags waitStageMask, VkFence fence
     )
     {
@@ -2634,10 +2426,8 @@ namespace Nexus::Vk
 
             for (VkCommandBuffer commandBuffer : commandBuffers)
             {
-                VkCommandBufferSubmitInfoKHR &commandBufferInfo =
-                    commandBufferInfos.emplace_back();
-                commandBufferInfo.sType =
-                    VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+                VkCommandBufferSubmitInfoKHR &commandBufferInfo = commandBufferInfos.emplace_back();
+                commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
                 commandBufferInfo.pNext = nullptr;
                 commandBufferInfo.commandBuffer = commandBuffer;
                 commandBufferInfo.deviceMask = 0;
@@ -2672,61 +2462,44 @@ namespace Nexus::Vk
         }
     }
 
-    Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(
-        VkQueueFlags flags
-    )
+    Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags)
     {
         Graphics::QueueCapabilities caps = Graphics::QueueCapabilities::Invalid;
 
         if (flags & VK_QUEUE_GRAPHICS_BIT)
         {
-            caps = Graphics::QueueCapabilities(
-                caps | Graphics::QueueCapabilities::Graphics
-            );
+            caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Graphics);
         }
 
         if (flags & VK_QUEUE_COMPUTE_BIT)
         {
-            caps = Graphics::QueueCapabilities(
-                caps | Graphics::QueueCapabilities::Compute
-            );
+            caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Compute);
         }
 
         if (flags & VK_QUEUE_TRANSFER_BIT)
         {
-            caps = Graphics::QueueCapabilities(
-                caps | Graphics::QueueCapabilities::Transfer
-            );
+            caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::Transfer);
         }
 
         if (flags & VK_QUEUE_SPARSE_BINDING_BIT)
         {
-            caps = Graphics::QueueCapabilities(
-                caps | Graphics::QueueCapabilities::SparseBinding
-            );
+            caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::SparseBinding);
         }
 
         if (flags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR)
         {
-            caps = Graphics::QueueCapabilities(
-                caps | Graphics::QueueCapabilities::VideoEncode
-            );
+            caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::VideoEncode);
         }
 
         if (flags & VK_QUEUE_VIDEO_DECODE_BIT_KHR)
         {
-            caps = Graphics::QueueCapabilities(
-                caps | Graphics::QueueCapabilities::VideoDecode
-            );
+            caps = Graphics::QueueCapabilities(caps | Graphics::QueueCapabilities::VideoDecode);
         }
 
         return caps;
     }
 
-    VkQueue GetDeviceQueue(
-        Graphics::GraphicsDeviceVk *device,
-        const Graphics::CommandQueueDescription &description
-    )
+    VkQueue GetDeviceQueue(Graphics::GraphicsDeviceVk *device, const Graphics::CommandQueueDescription &description)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
 
@@ -2745,18 +2518,13 @@ namespace Nexus::Vk
         }
         else
         {
-            context.GetDeviceQueue(
-                device->GetVkDevice(), description.QueueFamilyIndex,
-                description.QueueIndex, &queue
-            );
+            context.GetDeviceQueue(device->GetVkDevice(), description.QueueFamilyIndex, description.QueueIndex, &queue);
         }
 
         return queue;
     }
 
-    VkAccessFlagBits GetAccessFlags(
-        Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access
-    )
+    VkAccessFlagBits GetAccessFlags(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access)
     {
         switch (access)
         {
@@ -2802,9 +2570,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
             {
                 return VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
             }
@@ -2817,9 +2583,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
             {
                 return VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
             }
@@ -2832,9 +2596,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
             {
                 return VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
             }
@@ -2847,9 +2609,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the video decode queue extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_ACCESS_MEMORY_READ_BIT;
             }
@@ -2862,9 +2622,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the video decode queue extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_ACCESS_MEMORY_WRITE_BIT;
             }
@@ -2932,9 +2690,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
             {
                 return VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT;
             }
@@ -2947,9 +2703,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if acceleration structure extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
             {
                 return VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
             }
@@ -2962,9 +2716,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the ray tracing pipeline extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
             {
                 return VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR;
             }
@@ -3005,9 +2757,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkAccessFlagBits2 GetAccessFlags2(
-        Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access
-    )
+    VkAccessFlagBits2 GetAccessFlags2(Graphics::GraphicsDeviceVk *device, Graphics::BarrierAccess access)
     {
         switch (access)
         {
@@ -3052,9 +2802,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
             {
                 return VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
             }
@@ -3067,9 +2815,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
             {
                 return VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
             }
@@ -3082,9 +2828,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
             {
                 return VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
             }
@@ -3098,12 +2842,9 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the video decode queue extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
             {
-                return VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR |
-                       VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+                return VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR | VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
             }
             else
             {
@@ -3114,12 +2855,9 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the video encode queue extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
             {
-                return VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR |
-                       VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR;
+                return VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR | VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR;
             }
             else
             {
@@ -3186,9 +2924,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
             {
                 return VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT;
             }
@@ -3201,9 +2937,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if acceleration structure extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
             {
                 return VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
                        VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
@@ -3217,9 +2951,7 @@ namespace Nexus::Vk
         {
             // this flag is only supported if the ray tracing pipeline extension is
             // available, so we need to query this
-            if (device->IsExtensionSupported(
-                    VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
             {
                 return VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR;
             }
@@ -3260,9 +2992,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkImageLayout GetImageLayout(
-        Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout
-    )
+    VkImageLayout GetImageLayout(Graphics::GraphicsDeviceVk *device, Graphics::TextureLayout layout)
     {
         switch (layout)
         {
@@ -3302,9 +3032,7 @@ namespace Nexus::Vk
         }
         case Graphics::TextureLayout::VideoEncodeDestination:
         {
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_ENCODE_DST_KHR;
             }
@@ -3315,9 +3043,7 @@ namespace Nexus::Vk
         }
         case Graphics::TextureLayout::VideoEncodeSource:
         {
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_ENCODE_SRC_KHR;
             }
@@ -3328,9 +3054,7 @@ namespace Nexus::Vk
         }
         case Graphics::TextureLayout::VideoDecodeDestination:
         {
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
             }
@@ -3341,9 +3065,7 @@ namespace Nexus::Vk
         }
         case Graphics::TextureLayout::VideoDecodeSource:
         {
-            if (device->IsExtensionSupported(
-                    VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME
-                ))
+            if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
             }
@@ -3405,9 +3127,7 @@ namespace Nexus::Vk
         }
     }
 
-    VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(
-        Graphics::ShaderGroupType type
-    )
+    VkRayTracingShaderGroupTypeKHR GetRayTracingShaderGroupType(Graphics::ShaderGroupType type)
     {
         switch (type)
         {
@@ -3423,11 +3143,9 @@ namespace Nexus::Vk
     }
 
     void BindDescriptorSets(
-        const GladVulkanContext &context, VkCommandBuffer commandBuffer,
-        VkPipelineBindPoint bindPoint, VkPipelineLayout pipelineLayout,
-        uint32_t setIndex, uint32_t setCount, const VkDescriptorSet *descriptorSets,
-        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets,
-        size_t dynamicOffsetCount
+        const GladVulkanContext &context, VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint,
+        VkPipelineLayout pipelineLayout, uint32_t setIndex, uint32_t setCount, const VkDescriptorSet *descriptorSets,
+        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets, size_t dynamicOffsetCount
     )
     {
         if (context.CmdBindDescriptorSets2)
@@ -3448,27 +3166,22 @@ namespace Nexus::Vk
         else
         {
             context.CmdBindDescriptorSets(
-                commandBuffer, bindPoint, pipelineLayout, setIndex, setCount,
-                descriptorSets, dynamicOffsetCount, dynamicOffsets
+                commandBuffer, bindPoint, pipelineLayout, setIndex, setCount, descriptorSets, dynamicOffsetCount,
+                dynamicOffsets
             );
         }
     }
 
     void CreateMemoryBarrier2(
-        Graphics::GraphicsDeviceVk *device,
-        const Graphics::MemoryBarrierDesc &memoryBarrier,
+        Graphics::GraphicsDeviceVk *device, const Graphics::MemoryBarrierDesc &memoryBarrier,
         std::vector<VkMemoryBarrier2> &memoryBarriers
     )
     {
-        VkAccessFlagBits2 srcAccess =
-            Vk::GetAccessFlags2(device, memoryBarrier.BeforeAccess);
-        VkAccessFlagBits2 dstAccess =
-            Vk::GetAccessFlags2(device, memoryBarrier.AfterAccess);
+        VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, memoryBarrier.BeforeAccess);
+        VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, memoryBarrier.AfterAccess);
 
-        VkPipelineStageFlagBits2 srcStage =
-            Vk::GetPipelineStageFlags2(device, memoryBarrier.BeforeStage);
-        VkPipelineStageFlagBits2 dstStage =
-            Vk::GetPipelineStageFlags2(device, memoryBarrier.AfterStage);
+        VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(device, memoryBarrier.BeforeStage);
+        VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(device, memoryBarrier.AfterStage);
 
         VkMemoryBarrier2KHR vkBarrier = memoryBarriers.emplace_back();
         vkBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
@@ -3480,20 +3193,15 @@ namespace Nexus::Vk
     }
 
     void CreateMemoryBarrier(
-        Graphics::GraphicsDeviceVk *device,
-        const Graphics::MemoryBarrierDesc &memoryBarrier,
+        Graphics::GraphicsDeviceVk *device, const Graphics::MemoryBarrierDesc &memoryBarrier,
         std::vector<VkMemoryBarrier> &memoryBarriers
     )
     {
-        VkAccessFlagBits srcAccess =
-            Vk::GetAccessFlags(device, memoryBarrier.BeforeAccess);
-        VkAccessFlagBits dstAccess =
-            Vk::GetAccessFlags(device, memoryBarrier.AfterAccess);
+        VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, memoryBarrier.BeforeAccess);
+        VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, memoryBarrier.AfterAccess);
 
-        VkPipelineStageFlagBits srcStage =
-            Vk::GetPipelineStageFlags(device, memoryBarrier.BeforeStage);
-        VkPipelineStageFlagBits dstStage =
-            Vk::GetPipelineStageFlags(device, memoryBarrier.AfterStage);
+        VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(device, memoryBarrier.BeforeStage);
+        VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(device, memoryBarrier.AfterStage);
 
         VkMemoryBarrier vkBarrier = memoryBarriers.emplace_back();
         vkBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -3503,31 +3211,24 @@ namespace Nexus::Vk
     }
 
     void CreateTextureBarrier2(
-        Graphics::GraphicsDeviceVk *device, VkImage image,
-        Graphics::BarrierAccess beforeAccess, Graphics::BarrierAccess afterAccess,
-        Graphics::BarrierPipelineStage beforeStage,
-        Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily,
-        uint32_t dstQueueFamily, VkImageLayout newLayout,
-        std::vector<VkImageMemoryBarrier2> &imageBarriers,
-        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>>
-            &subresourceRanges
+        Graphics::GraphicsDeviceVk *device, VkImage image, Graphics::BarrierAccess beforeAccess,
+        Graphics::BarrierAccess afterAccess, Graphics::BarrierPipelineStage beforeStage,
+        Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily, uint32_t dstQueueFamily,
+        VkImageLayout newLayout, std::vector<VkImageMemoryBarrier2> &imageBarriers,
+        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges
     )
     {
         VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, beforeAccess);
         VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, afterAccess);
 
-        VkPipelineStageFlagBits2 srcStage =
-            Vk::GetPipelineStageFlags2(device, beforeStage);
-        VkPipelineStageFlagBits2 dstStage =
-            Vk::GetPipelineStageFlags2(device, afterStage);
+        VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(device, beforeStage);
+        VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(device, afterStage);
 
         if (subresourceRanges.contains(image))
         {
-            for (const auto &[subresourceRange, imageLayout] :
-                 subresourceRanges.at(image))
+            for (const auto &[subresourceRange, imageLayout] : subresourceRanges.at(image))
             {
-                VkImageMemoryBarrier2KHR &imageBarrier =
-                    imageBarriers.emplace_back();
+                VkImageMemoryBarrier2KHR &imageBarrier = imageBarriers.emplace_back();
                 imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
                 imageBarrier.pNext = nullptr;
                 imageBarrier.srcStageMask = srcStage;
@@ -3545,28 +3246,22 @@ namespace Nexus::Vk
     }
 
     void CreateTextureBarrier(
-        Graphics::GraphicsDeviceVk *device, VkImage image,
-        Graphics::BarrierAccess beforeAccess, Graphics::BarrierAccess afterAccess,
-        Graphics::BarrierPipelineStage beforeStage,
-        Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily,
-        uint32_t dstQueueFamily, VkImageLayout newLayout,
-        std::vector<VkImageMemoryBarrier> &imageBarriers,
-        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>>
-            &subresourceRanges
+        Graphics::GraphicsDeviceVk *device, VkImage image, Graphics::BarrierAccess beforeAccess,
+        Graphics::BarrierAccess afterAccess, Graphics::BarrierPipelineStage beforeStage,
+        Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily, uint32_t dstQueueFamily,
+        VkImageLayout newLayout, std::vector<VkImageMemoryBarrier> &imageBarriers,
+        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges
     )
     {
         VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, beforeAccess);
         VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, afterAccess);
 
-        VkPipelineStageFlagBits srcStage =
-            Vk::GetPipelineStageFlags(device, beforeStage);
-        VkPipelineStageFlagBits dstStage =
-            Vk::GetPipelineStageFlags(device, afterStage);
+        VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(device, beforeStage);
+        VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(device, afterStage);
 
         if (subresourceRanges.contains(image))
         {
-            for (const auto &[subresourceRange, imageLayout] :
-                 subresourceRanges.at(image))
+            for (const auto &[subresourceRange, imageLayout] : subresourceRanges.at(image))
             {
                 VkImageMemoryBarrier &imageBarrier = imageBarriers.emplace_back();
                 imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -3584,26 +3279,18 @@ namespace Nexus::Vk
     }
 
     void CreateBufferBarrier2(
-        Graphics::GraphicsDeviceVk *device,
-        const Graphics::BufferBarrierDesc &bufferBarrierDesc,
-        std::vector<VkBufferMemoryBarrier2> &bufferBarriers, uint32_t srcQueueFamily,
-        uint32_t dstQueueFamily
+        Graphics::GraphicsDeviceVk *device, const Graphics::BufferBarrierDesc &bufferBarrierDesc,
+        std::vector<VkBufferMemoryBarrier2> &bufferBarriers, uint32_t srcQueueFamily, uint32_t dstQueueFamily
     )
     {
         Ref<Graphics::DeviceBufferVk> bufferVk =
-            std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(
-                bufferBarrierDesc.Buffer
-            );
+            std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferBarrierDesc.Buffer);
 
-        VkAccessFlagBits2 srcAccess =
-            Vk::GetAccessFlags2(device, bufferBarrierDesc.BeforeAccess);
-        VkAccessFlagBits2 dstAccess =
-            Vk::GetAccessFlags2(device, bufferBarrierDesc.AfterAccess);
+        VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, bufferBarrierDesc.BeforeAccess);
+        VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, bufferBarrierDesc.AfterAccess);
 
-        VkPipelineStageFlagBits2 srcStage =
-            Vk::GetPipelineStageFlags2(device, bufferBarrierDesc.BeforeStage);
-        VkPipelineStageFlagBits2 dstStage =
-            Vk::GetPipelineStageFlags2(device, bufferBarrierDesc.AfterStage);
+        VkPipelineStageFlagBits2 srcStage = Vk::GetPipelineStageFlags2(device, bufferBarrierDesc.BeforeStage);
+        VkPipelineStageFlagBits2 dstStage = Vk::GetPipelineStageFlags2(device, bufferBarrierDesc.AfterStage);
 
         VkBufferMemoryBarrier2KHR bufferBarrier = bufferBarriers.emplace_back();
         bufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2_KHR;
@@ -3620,26 +3307,18 @@ namespace Nexus::Vk
     }
 
     void CreateBufferBarrier(
-        Graphics::GraphicsDeviceVk *device,
-        const Graphics::BufferBarrierDesc &bufferBarrierDesc,
-        std::vector<VkBufferMemoryBarrier> &bufferBarriers, uint32_t srcQueueFamily,
-        uint32_t dstQueueFamily
+        Graphics::GraphicsDeviceVk *device, const Graphics::BufferBarrierDesc &bufferBarrierDesc,
+        std::vector<VkBufferMemoryBarrier> &bufferBarriers, uint32_t srcQueueFamily, uint32_t dstQueueFamily
     )
     {
         Ref<Graphics::DeviceBufferVk> bufferVk =
-            std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(
-                bufferBarrierDesc.Buffer
-            );
+            std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferBarrierDesc.Buffer);
 
-        VkAccessFlagBits srcAccess =
-            Vk::GetAccessFlags(device, bufferBarrierDesc.BeforeAccess);
-        VkAccessFlagBits dstAccess =
-            Vk::GetAccessFlags(device, bufferBarrierDesc.AfterAccess);
+        VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, bufferBarrierDesc.BeforeAccess);
+        VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, bufferBarrierDesc.AfterAccess);
 
-        VkPipelineStageFlagBits srcStage =
-            Vk::GetPipelineStageFlags(device, bufferBarrierDesc.BeforeStage);
-        VkPipelineStageFlagBits dstStage =
-            Vk::GetPipelineStageFlags(device, bufferBarrierDesc.AfterStage);
+        VkPipelineStageFlagBits srcStage = Vk::GetPipelineStageFlags(device, bufferBarrierDesc.BeforeStage);
+        VkPipelineStageFlagBits dstStage = Vk::GetPipelineStageFlags(device, bufferBarrierDesc.AfterStage);
 
         VkBufferMemoryBarrier barrier = bufferBarriers.emplace_back();
         barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -3659,22 +3338,19 @@ namespace Nexus::Vk
 
         if (data->device != VK_NULL_HANDLE)
         {
-            PFN_vkGetDeviceProcAddr getDeviceProcAddr =
-                (PFN_vkGetDeviceProcAddr)Vk::GetNxDeviceProcAddr();
+            PFN_vkGetDeviceProcAddr getDeviceProcAddr = (PFN_vkGetDeviceProcAddr)Vk::GetNxDeviceProcAddr();
             result = (void *)getDeviceProcAddr(data->device, pName);
         }
 
         if (!result && data->instance != VK_NULL_HANDLE)
         {
-            PFN_vkGetInstanceProcAddr getInstanceProcAddr =
-                (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
+            PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
             result = (void *)getInstanceProcAddr(data->instance, pName);
         }
 
         if (!result)
         {
-            PFN_vkGetInstanceProcAddr getInstanceProcAddr =
-                (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
+            PFN_vkGetInstanceProcAddr getInstanceProcAddr = (PFN_vkGetInstanceProcAddr)Vk::GetNxInstanceProcAddr();
             result = (void *)getInstanceProcAddr(VK_NULL_HANDLE, pName);
         }
 

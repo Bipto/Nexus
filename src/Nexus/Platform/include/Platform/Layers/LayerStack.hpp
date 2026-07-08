@@ -19,8 +19,7 @@ namespace Nexus
         LayerStack() = default;
         ~LayerStack() = default;
 
-        template <LayerType Layer, typename... Args>
-        [[maybe_unused]] Layer *AddLayer(Args &&...args)
+        template <LayerType Layer, typename... Args> [[maybe_unused]] Layer *AddLayer(Args &&...args)
         {
             auto layer = std::make_unique<Layer>(std::forward<Args>(args)...);
             ILayer *ptr = layer.get();
@@ -30,12 +29,9 @@ namespace Nexus
 
         void RemoveLayer(ILayer *layer)
         {
-            auto it = std::find_if(
-                m_Layers.begin(), m_Layers.end(),
-                [layer](const std::unique_ptr<ILayer> &ptr) {
-                    return ptr.get() == layer;
-                }
-            );
+            auto it = std::find_if(m_Layers.begin(), m_Layers.end(), [layer](const std::unique_ptr<ILayer> &ptr) {
+                return ptr.get() == layer;
+            });
 
             if (it != m_Layers.end())
                 m_Layers.erase(it);
@@ -43,19 +39,15 @@ namespace Nexus
 
         template <LayerType Layer> void RemoveLayer()
         {
-            auto it = std::find_if(
-                m_Layers.begin(), m_Layers.end(),
-                [](const std::unique_ptr<ILayer> &ptr) {
-                    return dynamic_cast<Layer *>(ptr.get()) != nullptr;
-                }
-            );
+            auto it = std::find_if(m_Layers.begin(), m_Layers.end(), [](const std::unique_ptr<ILayer> &ptr) {
+                return dynamic_cast<Layer *>(ptr.get()) != nullptr;
+            });
 
             if (it != m_Layers.end())
                 m_Layers.erase(it);
         }
 
-        template <LayerType Layer, typename... Args>
-        [[maybe_unused]] Layer *AddOverlay(Args &&...args)
+        template <LayerType Layer, typename... Args> [[maybe_unused]] Layer *AddOverlay(Args &&...args)
         {
             auto layer = std::make_unique<Layer>(std::forward<Args>(args)...);
             ILayer *ptr = layer.get();
@@ -65,12 +57,9 @@ namespace Nexus
 
         void RemoveOverlay(ILayer *layer)
         {
-            auto it = std::find_if(
-                m_Overlays.begin(), m_Overlays.end(),
-                [layer](const std::unique_ptr<ILayer> &ptr) {
-                    return ptr.get() == layer;
-                }
-            );
+            auto it = std::find_if(m_Overlays.begin(), m_Overlays.end(), [layer](const std::unique_ptr<ILayer> &ptr) {
+                return ptr.get() == layer;
+            });
 
             if (it != m_Overlays.end())
                 m_Overlays.erase(it);
@@ -78,12 +67,9 @@ namespace Nexus
 
         template <LayerType Layer> void RemoveOverlay()
         {
-            auto it = std::find_if(
-                m_Overlays.begin(), m_Overlays.end(),
-                [](const std::unique_ptr<ILayer> &ptr) {
-                    return dynamic_cast<Layer *>(ptr.get()) != nullptr;
-                }
-            );
+            auto it = std::find_if(m_Overlays.begin(), m_Overlays.end(), [](const std::unique_ptr<ILayer> &ptr) {
+                return dynamic_cast<Layer *>(ptr.get()) != nullptr;
+            });
 
             if (it != m_Overlays.end())
                 m_Overlays.erase(it);

@@ -17,8 +17,7 @@ namespace Nexus::Graphics
 
         spec.Debug = debug;
 
-        m_OffscreenContext =
-            std::make_unique<GL::OffscreenContextEGL>(spec, display);
+        m_OffscreenContext = std::make_unique<GL::OffscreenContextEGL>(spec, display);
         m_OffscreenContext->MakeCurrent();
 
         const GladGLContext &gladContext = m_OffscreenContext->GetContext();

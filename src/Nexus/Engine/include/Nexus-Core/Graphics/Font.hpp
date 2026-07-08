@@ -99,9 +99,8 @@ namespace Nexus::Graphics
     {
       public:
         Font(
-            const std::string &filepath, uint32_t size,
-            const std::vector<CharacterRange> &characterRanges, FontType type,
-            IGraphicsDevice *device
+            const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges,
+            FontType type, IGraphicsDevice *device
         );
 
         TextureHandle GetTexture();

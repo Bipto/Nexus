@@ -213,8 +213,7 @@ namespace Nexus::Graphics
     struct StencilState
     {
         /// @brief How the pixel should be tested against the stencil buffer
-        ComparisonFunction StencilComparisonFunction =
-            ComparisonFunction::AlwaysPass;
+        ComparisonFunction StencilComparisonFunction = ComparisonFunction::AlwaysPass;
 
         /// @brief The value that should be entered in the stencil buffer when the
         /// stencil test fails
@@ -226,8 +225,7 @@ namespace Nexus::Graphics
 
         /// @brief The value that should be entered in the stencil buffer when the
         /// stencil test is successful and the depth test is successful
-        StencilOperation StencilSuccessDepthSuccessOperation =
-            StencilOperation::Keep;
+        StencilOperation StencilSuccessDepthSuccessOperation = StencilOperation::Keep;
     };
 
     /// @brief A struct representing how the depth and stencil configuration should

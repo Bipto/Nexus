@@ -6,16 +6,11 @@
 
 namespace Nexus::Graphics
 {
-    SceneRenderer::SceneRenderer(
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
+    SceneRenderer::SceneRenderer(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
         : m_Device(device), m_CommandQueue(commandQueue)
     {
-        m_Renderer3D =
-            std::make_unique<Nexus::Graphics::Renderer3D>(device, commandQueue);
-        m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(
-            device, commandQueue, true, 1
-        );
+        m_Renderer3D = std::make_unique<Nexus::Graphics::Renderer3D>(device, commandQueue);
+        m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, commandQueue, true, 1);
     }
 
     void SceneRenderer::Render(Scene *scene, FramebufferHandle target, TimeSpan time)
@@ -43,20 +38,14 @@ namespace Nexus::Graphics
 
         m_BatchRenderer->Begin(target, vp, scissor, viewProj);
 
-        Nexus::ECS::View<Nexus::Transform, Nexus::SpriteRendererComponent>
-            transformsSpriteRenderers =
-                scene->Registry
-                    .GetView<Nexus::Transform, Nexus::SpriteRendererComponent>();
+        Nexus::ECS::View<Nexus::Transform, Nexus::SpriteRendererComponent> transformsSpriteRenderers =
+            scene->Registry.GetView<Nexus::Transform, Nexus::SpriteRendererComponent>();
 
         transformsSpriteRenderers.Each(
-            [&](
-                Nexus::Entity *entity,
-                const std::tuple<
-                    Nexus::Transform *, Nexus::SpriteRendererComponent *> &components
-            ) {
+            [&](Nexus::Entity *entity,
+                const std::tuple<Nexus::Transform *, Nexus::SpriteRendererComponent *> &components) {
                 Nexus::Transform *transform = std::get<0>(components);
-                Nexus::SpriteRendererComponent *spriteRenderer =
-                    std::get<1>(components);
+                Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
 
                 const Nexus::FirstPersonCamera &camera = m_Renderer3D->GetCamera();
                 glm::mat4 worldMatrix = transform->CreateTransformation();

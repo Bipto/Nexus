@@ -2,8 +2,8 @@
 
 #include "egl_include.hpp"
 
-#define CASE_STR(value)                                                             \
-    case value:                                                                     \
+#define CASE_STR(value)                                                                                                \
+    case value:                                                                                                        \
         return #value;
 inline const char *eglGetErrorString(EGLint error)
 {

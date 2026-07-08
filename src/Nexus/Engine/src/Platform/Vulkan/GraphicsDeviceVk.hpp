@@ -28,56 +28,33 @@ namespace Nexus::Graphics
     {
       public:
         GraphicsDeviceVk(
-            std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance,
-            const VulkanDeviceConfig &config
+            std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config
         );
         GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
         virtual ~GraphicsDeviceVk();
 
         std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-        PipelineHandle CreateGraphicsPipeline(
-            const GraphicsPipelineDescription &description
-        ) final;
-        PipelineHandle CreateComputePipeline(
-            const ComputePipelineDescription &description
-        ) final;
-        PipelineHandle CreateMeshletPipeline(
-            const MeshletPipelineDescription &description
-        ) final;
-        PipelineHandle CreateRayTracingPipeline(
-            const RayTracingPipelineDescription &description
-        ) final;
+        PipelineHandle CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+        PipelineHandle CreateComputePipeline(const ComputePipelineDescription &description) final;
+        PipelineHandle CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+        PipelineHandle CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
 
         ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) final;
-        FramebufferHandle CreateFramebuffer(
-            const FramebufferTextureSetDescription &desc
-        ) final;
+        FramebufferHandle CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
         SamplerHandle CreateSampler(const SamplerDescription &spec) final;
         TimingQueryHandle CreateTimingQuery() final;
-        DeviceBufferHandle CreateDeviceBuffer(
-            const DeviceBufferDescription &desc
-        ) final;
-        AccelerationStructureHandle CreateAccelerationStructure(
-            const AccelerationStructureDescription &desc
-        ) final;
-        TexelBufferHandle CreateTexelBuffer(
-            const TexelBufferDescription &desc
-        ) final;
+        DeviceBufferHandle CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+        AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
+        TexelBufferHandle CreateTexelBuffer(const TexelBufferDescription &desc) final;
 
         const GraphicsCapabilities GetGraphicsCapabilities() const final;
         TextureHandle CreateTexture(const TextureDescription &spec) final;
-        TextureViewHandle CreateTextureView(
-            const TextureViewDescription &desc
-        ) final;
+        TextureViewHandle CreateTextureView(const TextureViewDescription &desc) final;
         FenceHandle CreateFence(const FenceDescription &desc) final;
         std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-        FenceWaitResult WaitForFences(
-            FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
-        ) final;
-        CommandQueueHandle CreateCommandQueue(
-            const CommandQueueDescription &description
-        ) final;
+        FenceWaitResult WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
+        CommandQueueHandle CreateCommandQueue(const CommandQueueDescription &description) final;
         void ResetFences(FenceHandle *fences, uint32_t count) final;
 
         ShaderLanguage GetSupportedShaderFormat() final;
@@ -102,12 +79,9 @@ namespace Nexus::Graphics
         VmaAllocator GetAllocator();
 
         uint32_t FindMemoryType(
-            uint32_t typeFilter, VkMemoryPropertyFlags properties,
-            std::shared_ptr<PhysicalDeviceVk> physicalDevice
+            uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice
         );
-        Vk::AllocatedBuffer CreateBuffer(
-            size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage
-        );
+        Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
         const VulkanDeviceFeatures GetDeviceFeatures() const;
 
@@ -124,18 +98,11 @@ namespace Nexus::Graphics
         ) const final;
 
         RayTracingDeviceDescription GetRayTracingDeviceDescription() const final;
-        AccelerationStructureProperties
-        GetAccelerationStructureProperties() const final;
+        AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
-        SurfaceHandle CreateSurfaceFromWin32(
-            uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
-        ) final;
-        SurfaceHandle CreateSurfaceFromX11(
-            uintptr_t display, uint32_t screen, uint32_t window
-        ) final;
-        SurfaceHandle CreateSurfaceFromWayland(
-            uintptr_t display, uintptr_t surface
-        ) final;
+        SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) final;
+        SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) final;
+        SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) final;
         SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow) final;
         SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId) final;
 
@@ -145,22 +112,16 @@ namespace Nexus::Graphics
         const GladVulkanContext &GetVulkanContext() const;
 
         // vulkan functions
-        virtual ShaderModuleHandle CreateShaderModule(
-            const ShaderModuleDescription &moduleSpec
-        ) override;
+        virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleSpec) override;
 
       private:
         void RetrieveQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
         void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
-        void CreateAllocator(
-            std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance
-        );
+        void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
 
       private:
         std::vector<const char *> GetRequiredDeviceExtensions();
-        std::vector<std::string> GetSupportedDeviceExtensions(
-            std::shared_ptr<PhysicalDeviceVk> physicalDevice
-        );
+        std::vector<std::string> GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 
         VkDeviceAddress GetBufferDeviceAddress(Ref<DeviceBufferVk> buffer);
 

@@ -5,8 +5,7 @@
 namespace Nexus::UI
 {
     ImGuiButton::ImGuiButton(
-        std::string_view text, std::optional<Position> position,
-        std::optional<Size> size
+        std::string_view text, std::optional<Position> position, std::optional<Size> size
     )
         : m_Text(text), m_Position(position), m_Size(size)
     {
@@ -22,9 +21,7 @@ namespace Nexus::UI
         ImVec2 size = {0, 0};
         if (m_Size)
         {
-            size = {
-                static_cast<float>(m_Size->Width), static_cast<float>(m_Size->Height)
-            };
+            size = {static_cast<float>(m_Size->Width), static_cast<float>(m_Size->Height)};
         }
 
         if (ImGui::Button(m_Text.c_str(), size))

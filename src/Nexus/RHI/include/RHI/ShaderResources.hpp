@@ -158,8 +158,7 @@ namespace Nexus::Graphics
 
         inline bool HasFlag(ShaderStage stage) const
         {
-            return std::find(m_ShaderStages.begin(), m_ShaderStages.end(), stage) !=
-                   m_ShaderStages.end();
+            return std::find(m_ShaderStages.begin(), m_ShaderStages.end(), stage) != m_ShaderStages.end();
         }
 
         inline bool IsEmpty() const
@@ -191,25 +190,13 @@ namespace Nexus::Graphics
 
     inline bool operator==(const ShaderResource &lhs, const ShaderResource &rhs)
     {
-        return std::tie(
-                   lhs.Type, lhs.Name, lhs.Set, lhs.Binding, lhs.RegisterSpace,
-                   lhs.ResourceCount
-               ) ==
-               std::tie(
-                   rhs.Type, rhs.Name, rhs.Set, rhs.Binding, rhs.RegisterSpace,
-                   rhs.ResourceCount
-               );
+        return std::tie(lhs.Type, lhs.Name, lhs.Set, lhs.Binding, lhs.RegisterSpace, lhs.ResourceCount) ==
+               std::tie(rhs.Type, rhs.Name, rhs.Set, rhs.Binding, rhs.RegisterSpace, rhs.ResourceCount);
     }
 
     inline bool operator<(const ShaderResource &lhs, const ShaderResource &rhs)
     {
-        return std::tie(
-                   lhs.Type, lhs.Name, lhs.Set, lhs.Binding, lhs.RegisterSpace,
-                   lhs.ResourceCount
-               ) <
-               std::tie(
-                   rhs.Type, rhs.Name, rhs.Set, rhs.Binding, rhs.RegisterSpace,
-                   rhs.ResourceCount
-               );
+        return std::tie(lhs.Type, lhs.Name, lhs.Set, lhs.Binding, lhs.RegisterSpace, lhs.ResourceCount) <
+               std::tie(rhs.Type, rhs.Name, rhs.Set, rhs.Binding, rhs.RegisterSpace, rhs.ResourceCount);
     }
 } // namespace Nexus::Graphics

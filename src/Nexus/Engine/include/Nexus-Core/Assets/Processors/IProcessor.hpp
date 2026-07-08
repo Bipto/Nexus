@@ -21,8 +21,8 @@ namespace Nexus::Processors
 
         virtual ~IProcessor() = default;
         virtual GUID Process(
-            const std::string &filepath, Graphics::IGraphicsDevice *device,
-            Graphics::CommandQueueHandle commandQueue, Project *project
+            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
+            Project *project
         ) = 0;
         virtual std::any Import(const std::string &filepath) = 0;
 
@@ -65,8 +65,7 @@ namespace Nexus::Processors
 
         template <typename T>
         static void AddProcessor(
-            const std::string &name, const std::type_info &assetType,
-            const std::vector<std::string> &extensions
+            const std::string &name, const std::type_info &assetType, const std::vector<std::string> &extensions
         )
         {
             ProcessorInfo info = {};
@@ -79,29 +78,25 @@ namespace Nexus::Processors
         }
     };
 
-    extern "C++" inline NX_API std::map<std::string, ProcessorInfo> &
-    GetAssetProcessorRegistry()
+    extern "C++" inline NX_API std::map<std::string, ProcessorInfo> &GetAssetProcessorRegistry()
     {
         return ProcessorRegistry::GetRegistry();
     }
 
 } // namespace Nexus::Processors
 
-#define NX_REGISTER_PROCESSOR(ProcessorType, AssetType, ProcessorName, Extensions)  \
-    namespace                                                                       \
-    {                                                                               \
-        struct ProcessorType##Register                                              \
-        {                                                                           \
-            ProcessorType##Register()                                               \
-            {                                                                       \
-                constexpr const std::type_info &assetTypeInfo = typeid(AssetType);  \
-                ProcessorRegistry::AddProcessor<ProcessorType>(                     \
-                    ProcessorName, assetTypeInfo, Extensions                        \
-                );                                                                  \
-            }                                                                       \
-            ProcessorType##Register(const ProcessorType##Register &) = delete;      \
-            ProcessorType##Register &operator=(const ProcessorType##Register &) =   \
-                delete;                                                             \
-        };                                                                          \
-        static ProcessorType##Register instance##ProcessorType##Register;           \
+#define NX_REGISTER_PROCESSOR(ProcessorType, AssetType, ProcessorName, Extensions)                                     \
+    namespace                                                                                                          \
+    {                                                                                                                  \
+        struct ProcessorType##Register                                                                                 \
+        {                                                                                                              \
+            ProcessorType##Register()                                                                                  \
+            {                                                                                                          \
+                constexpr const std::type_info &assetTypeInfo = typeid(AssetType);                                     \
+                ProcessorRegistry::AddProcessor<ProcessorType>(ProcessorName, assetTypeInfo, Extensions);              \
+            }                                                                                                          \
+            ProcessorType##Register(const ProcessorType##Register &) = delete;                                         \
+            ProcessorType##Register &operator=(const ProcessorType##Register &) = delete;                              \
+        };                                                                                                             \
+        static ProcessorType##Register instance##ProcessorType##Register;                                              \
     }

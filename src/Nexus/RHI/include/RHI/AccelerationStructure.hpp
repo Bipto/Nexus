@@ -103,10 +103,7 @@ namespace Nexus::Graphics
         DeviceAddress AccelerationStructureReference = 0;
     };
 
-    static_assert(
-        sizeof(AccelerationStructureInstance) == 64,
-        "AccelerationStructureInstance size must be 64 bytes"
-    );
+    static_assert(sizeof(AccelerationStructureInstance) == 64, "AccelerationStructureInstance size must be 64 bytes");
 
     struct AccelerationStructureInstanceGeometry
     {
@@ -123,8 +120,7 @@ namespace Nexus::Graphics
     };
 
     typedef std::variant<
-        AccelerationStructureTriangleGeometry, AccelerationStructureAABBGeometry,
-        AccelerationStructureInstanceGeometry>
+        AccelerationStructureTriangleGeometry, AccelerationStructureAABBGeometry, AccelerationStructureInstanceGeometry>
         AccelerationStructureGeometry;
 
     struct AccelerationStructureGeometryDescription

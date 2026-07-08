@@ -2,8 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    FenceVk::FenceVk(const FenceDescription &desc, GraphicsDeviceVk *device)
-        : m_Description(desc), m_Device(device)
+    FenceVk::FenceVk(const FenceDescription &desc, GraphicsDeviceVk *device) : m_Description(desc), m_Device(device)
     {
         VkFenceCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -17,15 +16,11 @@ namespace Nexus::Graphics
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
         NX_VALIDATE(
-            context.CreateFence(
-                m_Device->GetVkDevice(), &createInfo, nullptr, &m_Fence
-            ) == VK_SUCCESS,
+            context.CreateFence(m_Device->GetVkDevice(), &createInfo, nullptr, &m_Fence) == VK_SUCCESS,
             "Failed to create fence"
         );
 
-        device->SetObjectName(
-            VK_OBJECT_TYPE_FENCE, (uint64_t)m_Fence, desc.DebugName.c_str()
-        );
+        device->SetObjectName(VK_OBJECT_TYPE_FENCE, (uint64_t)m_Fence, desc.DebugName.c_str());
     }
 
     FenceVk::~FenceVk()

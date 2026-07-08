@@ -12,30 +12,21 @@ namespace Nexus
         Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {
             .API = Nexus::Graphics::GraphicsAPI::OpenGL, .Debug = true
         };
-        m_GraphicsAPI = std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(
-            Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo)
-        );
+        m_GraphicsAPI =
+            std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo));
 
-        std::vector<std::shared_ptr<Nexus::Graphics::IPhysicalDevice>>
-            physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
-        m_GraphicsDevice = std::unique_ptr<Nexus::Graphics::IGraphicsDevice>(
-            m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0])
-        );
+        std::vector<std::shared_ptr<Nexus::Graphics::IPhysicalDevice>> physicalDevices =
+            m_GraphicsAPI->GetPhysicalDevices();
+        m_GraphicsDevice =
+            std::unique_ptr<Nexus::Graphics::IGraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
         // iterate through all available command queues
-        std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies =
-            m_GraphicsDevice->GetQueueFamilies();
+        std::vector<Nexus::Graphics::QueueFamilyInfo> queueFamilies = m_GraphicsDevice->GetQueueFamilies();
         for (const Nexus::Graphics::QueueFamilyInfo &queueFamily : queueFamilies)
         {
-            if (queueFamily.HasCapability(
-                    Nexus::Graphics::QueueCapabilities::Graphics
-                ) &&
-                queueFamily.HasCapability(
-                    Nexus::Graphics::QueueCapabilities::Compute
-                ) &&
-                queueFamily.HasCapability(
-                    Nexus::Graphics::QueueCapabilities::Transfer
-                ))
+            if (queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Graphics) &&
+                queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Compute) &&
+                queueFamily.HasCapability(Nexus::Graphics::QueueCapabilities::Transfer))
             {
                 // create graphics queue
                 {
@@ -43,8 +34,7 @@ namespace Nexus
                     queueDesc.QueueFamilyIndex = queueFamily.QueueFamily;
                     queueDesc.QueueIndex = 0;
                     queueDesc.DebugName = "Application Graphics Queue";
-                    m_GraphicsCommandQueue =
-                        m_GraphicsDevice->CreateCommandQueue(queueDesc);
+                    m_GraphicsCommandQueue = m_GraphicsDevice->CreateCommandQueue(queueDesc);
                 }
             }
         }

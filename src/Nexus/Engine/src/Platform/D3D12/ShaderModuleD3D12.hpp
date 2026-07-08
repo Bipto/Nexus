@@ -15,10 +15,7 @@ namespace Nexus::Graphics
         ShaderReflectionData Reflect() const final;
 
       private:
-        void ReflectShader(
-            Microsoft::WRL::ComPtr<IDxcUtils> utils,
-            Microsoft::WRL::ComPtr<IDxcResult> compileResult
-        );
+        void ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult);
 
       private:
         Microsoft::WRL::ComPtr<IDxcBlob> m_ShaderBlob = nullptr;

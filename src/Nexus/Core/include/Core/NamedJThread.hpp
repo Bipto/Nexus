@@ -37,10 +37,8 @@ namespace Nexus
         /// @param
         template <typename Callable, typename... Args>
         NamedJThread(
-            std::string_view name, std::function<void()> onStart,
-            std::function<void()> onStop,
-            std::function<void(std::exception_ptr)> onException, Callable &&func,
-            Args &&...args
+            std::string_view name, std::function<void()> onStart, std::function<void()> onStop,
+            std::function<void(std::exception_ptr)> onException, Callable &&func, Args &&...args
         );
 
         /// @brief Move constructor

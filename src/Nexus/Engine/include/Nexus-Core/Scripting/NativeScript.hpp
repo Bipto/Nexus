@@ -90,33 +90,26 @@ namespace Nexus::Scripting
     class NativeScriptRegistry
     {
       public:
-        static std::map<
-            std::string, std::function<Nexus::Scripting::NativeScript *()>> &
-        GetRegistry()
+        static std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &GetRegistry()
         {
-            static std::map<
-                std::string, std::function<Nexus::Scripting::NativeScript *()>>
-                registry;
+            static std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> registry;
             return registry;
         }
     };
 
-    extern "C++" inline NX_SCRIPT_EXPORT std::map<
-        std::string, std::function<Nexus::Scripting::NativeScript *()>> &
+    extern "C++" inline NX_SCRIPT_EXPORT std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &
     GetScriptRegistry()
     {
         return NativeScriptRegistry::GetRegistry();
     }
 
-    extern "C++" inline NX_SCRIPT_EXPORT ECS::ComponentRegistry &
-    GetComponentRegistry()
+    extern "C++" inline NX_SCRIPT_EXPORT ECS::ComponentRegistry &GetComponentRegistry()
     {
         return ECS::ComponentRegistry::GetRegistry();
     }
 
     extern "C++" inline NX_SCRIPT_EXPORT void ShareEngineState(
-        Nexus::Application *app, ImGuiContext *context, ImGuiMemAllocFunc allocFunc,
-        ImGuiMemFreeFunc freeFunc
+        Nexus::Application *app, ImGuiContext *context, ImGuiMemAllocFunc allocFunc, ImGuiMemFreeFunc freeFunc
     )
     {
         Nexus::SetApplication(app);
@@ -127,13 +120,12 @@ namespace Nexus::Scripting
 
 } // namespace Nexus::Scripting
 
-#define NX_REGISTER_SCRIPT(ClassType)                                               \
-    struct ClassType##Register                                                      \
-    {                                                                               \
-        ClassType##Register()                                                       \
-        {                                                                           \
-            Nexus::Scripting::NativeScriptRegistry::GetRegistry()[#ClassType] =     \
-                []() { return new ClassType(); };                                   \
-        }                                                                           \
-    };                                                                              \
+#define NX_REGISTER_SCRIPT(ClassType)                                                                                  \
+    struct ClassType##Register                                                                                         \
+    {                                                                                                                  \
+        ClassType##Register()                                                                                          \
+        {                                                                                                              \
+            Nexus::Scripting::NativeScriptRegistry::GetRegistry()[#ClassType] = []() { return new ClassType(); };      \
+        }                                                                                                              \
+    };                                                                                                                 \
     static ClassType##Register instance##ClassType##Register;

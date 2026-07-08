@@ -9,8 +9,7 @@ namespace Demos
     {
       public:
         ClearRectDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -40,10 +39,8 @@ namespace Demos
 
                 m_CommandList->Begin();
 
-                Nexus::Graphics::SwapchainHandle swapchain =
-                    Nexus::GetApplication()->GetPrimarySwapchain();
-                Nexus::Graphics::FramebufferHandle framebuffer =
-                    swapchain->GetCurrentFramebuffer();
+                Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+                Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
                 m_CommandList->SetFramebuffer(framebuffer);
 
                 {
@@ -53,8 +50,7 @@ namespace Demos
                     clearRect.Width = clearWidth;
                     clearRect.Height = clearHeight;
                     m_CommandList->ClearColourTarget(
-                        0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f},
-                        clearRect
+                        0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}, clearRect
                     );
                 }
 
@@ -64,9 +60,7 @@ namespace Demos
                     clearRect.Y = 0;
                     clearRect.Width = clearWidth;
                     clearRect.Height = clearHeight;
-                    m_CommandList->ClearColourTarget(
-                        0, {1.0f, 0.0f, 0.0f, 1.0f}, clearRect
-                    );
+                    m_CommandList->ClearColourTarget(0, {1.0f, 0.0f, 0.0f, 1.0f}, clearRect);
                 }
 
                 {
@@ -75,9 +69,7 @@ namespace Demos
                     clearRect.Y = clearHeight;
                     clearRect.Width = clearWidth;
                     clearRect.Height = clearHeight;
-                    m_CommandList->ClearColourTarget(
-                        0, {0.0f, 1.0f, 0.0f, 1.0f}, clearRect
-                    );
+                    m_CommandList->ClearColourTarget(0, {0.0f, 1.0f, 0.0f, 1.0f}, clearRect);
                 }
 
                 {
@@ -86,9 +78,7 @@ namespace Demos
                     clearRect.Y = clearHeight;
                     clearRect.Width = clearWidth;
                     clearRect.Height = clearHeight;
-                    m_CommandList->ClearColourTarget(
-                        0, {0.0f, 0.0f, 1.0f, 1.0f}, clearRect
-                    );
+                    m_CommandList->ClearColourTarget(0, {0.0f, 0.0f, 1.0f, 1.0f}, clearRect);
                 }
 
                 m_CommandList->End();

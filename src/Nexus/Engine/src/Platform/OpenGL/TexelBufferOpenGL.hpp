@@ -8,9 +8,7 @@ namespace Nexus::Graphics
     class TexelBufferOpenGL : public ITexelBuffer
     {
       public:
-        TexelBufferOpenGL(
-            const TexelBufferDescription &desc, GraphicsDeviceOpenGL *device
-        );
+        TexelBufferOpenGL(const TexelBufferDescription &desc, GraphicsDeviceOpenGL *device);
         virtual ~TexelBufferOpenGL();
         const TexelBufferDescription &GetDescription() const final;
         const uint32_t GetTexelBufferHandle() const;

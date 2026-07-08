@@ -9,9 +9,7 @@ namespace Nexus::Graphics
     {
       public:
         FullscreenQuad() = default;
-        explicit FullscreenQuad(
-            IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv
-        );
+        explicit FullscreenQuad(IGraphicsDevice *device, CommandQueueHandle commandQueue, bool hasUv);
 
         DeviceBufferHandle GetVertexBuffer();
         DeviceBufferHandle GetIndexBuffer();

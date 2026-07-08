@@ -8,10 +8,7 @@ namespace Nexus::Graphics
     class SurfaceEGL final : public SurfaceOpenGL
     {
       public:
-        SurfaceEGL(
-            uintptr_t display, uint32_t screen, uint32_t window,
-            const GraphicsDeviceOpenGL *device
-        );
+        SurfaceEGL(uintptr_t display, uint32_t screen, uint32_t window, const GraphicsDeviceOpenGL *device);
         ~SurfaceEGL() override = default;
         std::unique_ptr<GL::IViewContext> CreateOpenGLContext(
             GraphicsDeviceOpenGL *device, const GL::ContextDescription &desc

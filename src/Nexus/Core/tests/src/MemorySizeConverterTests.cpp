@@ -10,15 +10,13 @@ constexpr double EPS = 1e-9;
 
 TEST(MemorySizeConverterTests, BytesToKilobytes)
 {
-    double result =
-        MemorySizeConverter::Convert(1024, MemoryUnit::Bytes, MemoryUnit::Kilobytes);
+    double result = MemorySizeConverter::Convert(1024, MemoryUnit::Bytes, MemoryUnit::Kilobytes);
     EXPECT_NEAR(result, 1.024, EPS);
 }
 
 TEST(MemorySizeConverterTests, KibibytesToBytes)
 {
-    double result =
-        MemorySizeConverter::Convert(1, MemoryUnit::Kibibytes, MemoryUnit::Bytes);
+    double result = MemorySizeConverter::Convert(1, MemoryUnit::Kibibytes, MemoryUnit::Bytes);
     EXPECT_NEAR(result, 1024.0, EPS);
 }
 
@@ -73,12 +71,8 @@ TEST(MemorySizeTests, NegativeValues)
 TEST(MemorySizeConverterTests, RoundTripConversion)
 {
     double original = 12345.678;
-    double bytes = MemorySizeConverter::Convert(
-        original, MemoryUnit::Megabytes, MemoryUnit::Bytes
-    );
-    double back = MemorySizeConverter::Convert(
-        bytes, MemoryUnit::Bytes, MemoryUnit::Megabytes
-    );
+    double bytes = MemorySizeConverter::Convert(original, MemoryUnit::Megabytes, MemoryUnit::Bytes);
+    double back = MemorySizeConverter::Convert(bytes, MemoryUnit::Bytes, MemoryUnit::Megabytes);
 
     EXPECT_NEAR(back, original, EPS);
 }
@@ -126,16 +120,12 @@ static std::vector<ConversionCase> GetConversionCases()
     };
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    AllConversions, AllConversionTests, ::testing::ValuesIn(GetConversionCases())
-);
+INSTANTIATE_TEST_SUITE_P(AllConversions, AllConversionTests, ::testing::ValuesIn(GetConversionCases()));
 
 TEST_P(AllConversionTests, ConvertsCorrectly)
 {
     auto p = GetParam();
-    EXPECT_NEAR(
-        MemorySizeConverter::Convert(p.value, p.from, p.to), p.expected, EPS
-    );
+    EXPECT_NEAR(MemorySizeConverter::Convert(p.value, p.from, p.to), p.expected, EPS);
 }
 
 TEST(MemorySizeTests, AddZero)

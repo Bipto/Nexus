@@ -12,15 +12,11 @@
 
 namespace Nexus::Graphics
 {
-    ResourceSetD3D12::ResourceSetD3D12(
-        PipelineHandle pipeline, GraphicsDeviceD3D12 *device
-    )
+    ResourceSetD3D12::ResourceSetD3D12(PipelineHandle pipeline, GraphicsDeviceD3D12 *device)
         : IResourceSet(pipeline), m_Device(device)
     {
-        const PipelineD3D12 *pipelineD3D12 =
-            pipeline.AsDerived<const PipelineD3D12>();
-        m_RootSignatureBindingLocations =
-            pipelineD3D12->GetRootSignatureBindingLocations();
+        const PipelineD3D12 *pipelineD3D12 = pipeline.AsDerived<const PipelineD3D12>();
+        m_RootSignatureBindingLocations = pipelineD3D12->GetRootSignatureBindingLocations();
         m_DescriptorHandleInfo = pipelineD3D12->GetDescriptorHandleInfo();
         Microsoft::WRL::ComPtr<ID3D12Device9> d3dDevice = m_Device->GetD3D12Device();
 
@@ -33,9 +29,7 @@ namespace Nexus::Graphics
             samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
             samplerHeapDesc.NodeMask = 0;
 
-            d3dDevice->CreateDescriptorHeap(
-                &samplerHeapDesc, IID_PPV_ARGS(&m_SamplerDescriptorHeap)
-            );
+            d3dDevice->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&m_SamplerDescriptorHeap));
 
             for (const auto &[name, offsets] : m_DescriptorHandleInfo.SamplerIndexes)
             {
@@ -43,13 +37,9 @@ namespace Nexus::Graphics
                 {
                     uint32_t offset = offsets.at(i);
                     D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle =
-                        m_SamplerDescriptorHeap
-                            ->GetCPUDescriptorHandleForHeapStart();
+                        m_SamplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
                     descriptorHandle.ptr +=
-                        d3dDevice->GetDescriptorHandleIncrementSize(
-                            D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER
-                        ) *
-                        offset;
+                        d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) * offset;
                     m_SamplerDescriptorHandles[name].push_back(descriptorHandle);
                 }
             }
@@ -59,40 +49,29 @@ namespace Nexus::Graphics
         if (m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount > 0)
         {
             D3D12_DESCRIPTOR_HEAP_DESC srvUavCbvHeapDesc = {};
-            srvUavCbvHeapDesc.NumDescriptors =
-                m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount;
+            srvUavCbvHeapDesc.NumDescriptors = m_DescriptorHandleInfo.SRV_UAV_CBV_HeapCount;
             srvUavCbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
             srvUavCbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
             srvUavCbvHeapDesc.NodeMask = 0;
 
-            d3dDevice->CreateDescriptorHeap(
-                &srvUavCbvHeapDesc, IID_PPV_ARGS(&m_SRV_UAV_CBV_DescriptorHeap)
-            );
+            d3dDevice->CreateDescriptorHeap(&srvUavCbvHeapDesc, IID_PPV_ARGS(&m_SRV_UAV_CBV_DescriptorHeap));
 
-            for (const auto &[name, offsets] :
-                 m_DescriptorHandleInfo.NonSamplerIndexes)
+            for (const auto &[name, offsets] : m_DescriptorHandleInfo.NonSamplerIndexes)
             {
                 for (size_t i = 0; i < offsets.size(); i++)
                 {
                     uint32_t offset = offsets.at(i);
                     D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle =
-                        m_SRV_UAV_CBV_DescriptorHeap
-                            ->GetCPUDescriptorHandleForHeapStart();
+                        m_SRV_UAV_CBV_DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
                     descriptorHandle.ptr +=
-                        d3dDevice->GetDescriptorHandleIncrementSize(
-                            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-                        ) *
-                        offset;
-                    m_SRV_UAV_CBV_DescriptorHandles[name].push_back(
-                        descriptorHandle
-                    );
+                        d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;
+                    m_SRV_UAV_CBV_DescriptorHandles[name].push_back(descriptorHandle);
                 }
             }
         }
 
         // create descriptor table handles
-        for (const D3D12::DescriptorTableInfo &descriptorTableInfo :
-             m_DescriptorHandleInfo.DescriptorTables)
+        for (const D3D12::DescriptorTableInfo &descriptorTableInfo : m_DescriptorHandleInfo.DescriptorTables)
         {
             switch (descriptorTableInfo.Source)
             {
@@ -101,9 +80,7 @@ namespace Nexus::Graphics
                 D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle =
                     m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
                 descriptorHandle.ptr +=
-                    (d3dDevice->GetDescriptorHandleIncrementSize(
-                         D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER
-                     ) *
+                    (d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) *
                      descriptorTableInfo.Offset);
                 m_DescriptorTables.push_back(descriptorHandle);
 
@@ -112,20 +89,15 @@ namespace Nexus::Graphics
             case D3D12::DescriptorHandleSource::SRV_UAV_CBV:
             {
                 D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle =
-                    m_SRV_UAV_CBV_DescriptorHeap
-                        ->GetGPUDescriptorHandleForHeapStart();
+                    m_SRV_UAV_CBV_DescriptorHeap->GetGPUDescriptorHandleForHeapStart();
                 descriptorHandle.ptr +=
-                    (d3dDevice->GetDescriptorHandleIncrementSize(
-                         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-                     ) *
+                    (d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) *
                      descriptorTableInfo.Offset);
                 m_DescriptorTables.push_back(descriptorHandle);
                 break;
             }
             default:
-                throw std::runtime_error(
-                    "Failed to find a valid descriptor handle source"
-                );
+                throw std::runtime_error("Failed to find a valid descriptor handle source");
             }
         }
 
@@ -139,18 +111,15 @@ namespace Nexus::Graphics
             m_DescriptorHeapArray.push_back(m_SRV_UAV_CBV_DescriptorHeap.Get());
         }
 
-        const ResourceSetDescription &resourceSetDesc =
-            pipeline->GetResourceSetDescription();
+        const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
         for (const auto &descriptor : resourceSetDesc.Descriptors)
         {
             if (descriptor.Type == ResourceDescriptorType::PushConstants)
             {
-                const std::map<std::string, ShaderResource> &shaderResources =
-                    pipeline->GetRequiredShaderResources();
+                const std::map<std::string, ShaderResource> &shaderResources = pipeline->GetRequiredShaderResources();
                 if (shaderResources.contains(descriptor.Name))
                 {
-                    const ShaderResource &resource =
-                        shaderResources.at(descriptor.Name);
+                    const ShaderResource &resource = shaderResources.at(descriptor.Name);
                     m_PushConstants[descriptor.Name] = resource.Binding;
                 }
             }
@@ -158,9 +127,8 @@ namespace Nexus::Graphics
     }
 
     static void CreateConstantBufferView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device,
-        const DeviceBufferD3D12 *buffer, size_t offset, size_t sizeInBytes,
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
+        Microsoft::WRL::ComPtr<ID3D12Device9> device, const DeviceBufferD3D12 *buffer, size_t offset,
+        size_t sizeInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
     )
     {
         Microsoft::WRL::ComPtr<ID3D12Resource2> bufferHandle = buffer->GetHandle();
@@ -176,10 +144,9 @@ namespace Nexus::Graphics
     }
 
     static void CreateSrvBufferView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device,
-        Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset,
-        size_t sizeInBytes, size_t strideInBytes,
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress, DXGI_FORMAT format
+        Microsoft::WRL::ComPtr<ID3D12Device9> device, Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset,
+        size_t sizeInBytes, size_t strideInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress,
+        DXGI_FORMAT format
     )
     {
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -207,10 +174,9 @@ namespace Nexus::Graphics
     }
 
     static void CreateUavBufferView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device,
-        Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset,
-        size_t sizeInBytes, size_t strideInBytes,
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress, DXGI_FORMAT format
+        Microsoft::WRL::ComPtr<ID3D12Device9> device, Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset,
+        size_t sizeInBytes, size_t strideInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress,
+        DXGI_FORMAT format
     )
     {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -234,35 +200,29 @@ namespace Nexus::Graphics
             uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
         }
 
-        device->CreateUnorderedAccessView(
-            buffer.Get(), nullptr, &uavDesc, cpuHandle
-        );
+        device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uavDesc, cpuHandle);
     }
 
     static void CreateSrvTextureView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device,
-        const TextureViewD3D12 *textureView, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
+        Microsoft::WRL::ComPtr<ID3D12Device9> device, const TextureViewD3D12 *textureView,
+        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
     )
     {
-        const TextureD3D12 *texture =
-            textureView->GetTexture().AsDerived<const TextureD3D12>();
+        const TextureD3D12 *texture = textureView->GetTexture().AsDerived<const TextureD3D12>();
 
-        D3D12_SHADER_RESOURCE_VIEW_DESC srv =
-            D3D12::CreateTextureSrvView(textureView->GetDescription());
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv = D3D12::CreateTextureSrvView(textureView->GetDescription());
 
         auto resourceHandle = texture->GetHandle();
         device->CreateShaderResourceView(resourceHandle.Get(), &srv, cpuHandle);
     }
 
     static void CreateSampler(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device, const SamplerD3D12 *sampler,
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
+        Microsoft::WRL::ComPtr<ID3D12Device9> device, const SamplerD3D12 *sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
     )
     {
         const Graphics::SamplerDescription &desc = sampler->GetSamplerDescription();
 
-        const glm::vec4 color =
-            Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
+        const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
 
         D3D12_SAMPLER_DESC sd = {};
         sd.Filter = sampler->GetFilter();
@@ -295,13 +255,9 @@ namespace Nexus::Graphics
             {
                 const auto &view = views[arrayIndex];
 
-                if (const DeviceBufferD3D12 *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
+                if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
                 {
-                    CreateConstantBufferView(
-                        device, buffer, view.Offset, view.Size,
-                        descriptorHandles.at(arrayIndex)
-                    );
+                    CreateConstantBufferView(device, buffer, view.Offset, view.Size, descriptorHandles.at(arrayIndex));
                     m_BoundResources.UniformBuffers[name][arrayIndex] = view;
                 }
             }
@@ -313,8 +269,7 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferD3D12 *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
+                if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
                 {
                     m_BoundResources.DynamicUniformBuffers[name][arrayIndex] = view;
                 }
@@ -333,33 +288,26 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferD3D12 *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
+                if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
                 {
-                    StorageResourceAccess access =
-                        m_DescriptorHandleInfo.StorageBuffers.at(name);
+                    StorageResourceAccess access = m_DescriptorHandleInfo.StorageBuffers.at(name);
                     bool readonly = false;
                     bool byteAddress = false;
                     D3D12::GetShaderAccessModifiers(access, readonly, byteAddress);
-                    const auto &descriptorHandles =
-                        m_SRV_UAV_CBV_DescriptorHandles.at(name);
+                    const auto &descriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 
                     if (readonly)
                     {
                         CreateSrvBufferView(
-                            device, buffer->GetHandle(), view.Offset,
-                            view.SizeInBytes, buffer->GetStrideInBytes(),
-                            descriptorHandles.at(arrayIndex), byteAddress,
-                            DXGI_FORMAT_UNKNOWN
+                            device, buffer->GetHandle(), view.Offset, view.SizeInBytes, buffer->GetStrideInBytes(),
+                            descriptorHandles.at(arrayIndex), byteAddress, DXGI_FORMAT_UNKNOWN
                         );
                     }
                     else
                     {
                         CreateUavBufferView(
-                            device, buffer->GetHandle(), view.Offset,
-                            view.SizeInBytes, buffer->GetStrideInBytes(),
-                            descriptorHandles.at(arrayIndex), byteAddress,
-                            DXGI_FORMAT_UNKNOWN
+                            device, buffer->GetHandle(), view.Offset, view.SizeInBytes, buffer->GetStrideInBytes(),
+                            descriptorHandles.at(arrayIndex), byteAddress, DXGI_FORMAT_UNKNOWN
                         );
                     }
 
@@ -374,8 +322,7 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferD3D12 *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
+                if (const DeviceBufferD3D12 *buffer = view.BufferHandle.AsDerived<const DeviceBufferD3D12>())
                 {
                     m_BoundResources.DynamicStorageBuffers[name][arrayIndex] = view;
                 }
@@ -387,22 +334,16 @@ namespace Nexus::Graphics
         {
             const auto &descriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 
-            for (size_t arrayIndex = 0; arrayIndex < storageImages.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
             {
                 const auto &storageImage = storageImages[arrayIndex];
-                if (const TextureD3D12 *texture =
-                        storageImage.Texture.AsDerived<const TextureD3D12>())
+                if (const TextureD3D12 *texture = storageImage.Texture.AsDerived<const TextureD3D12>())
                 {
-                    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
-                        D3D12::CreateTextureUavView(storageImage);
+                    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(storageImage);
 
-                    D3D12_CPU_DESCRIPTOR_HANDLE uavHandle =
-                        descriptorHandles.at(arrayIndex);
+                    D3D12_CPU_DESCRIPTOR_HANDLE uavHandle = descriptorHandles.at(arrayIndex);
                     auto resourceHandle = texture->GetHandle();
-                    device->CreateUnorderedAccessView(
-                        resourceHandle.Get(), nullptr, &uavDesc, uavHandle
-                    );
+                    device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 
                     m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
                 }
@@ -410,40 +351,30 @@ namespace Nexus::Graphics
         }
 
         // combined image samplers
-        for (const auto &[name, combinedImageSamplers] :
-             m_QueuedResources.CombinedImageSamplers)
+        for (const auto &[name, combinedImageSamplers] : m_QueuedResources.CombinedImageSamplers)
         {
-            const auto &srv_crb_uavDescriptorHandles =
-                m_SRV_UAV_CBV_DescriptorHandles.at(name);
+            const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 
             // find the relevant sampler for the given texture
-            std::string samplerName =
-                m_DescriptorHandleInfo.CombinedImageSamplerMap.at(name);
-            const auto &samplerDescriptorHandles =
-                m_SamplerDescriptorHandles.at(samplerName);
+            std::string samplerName = m_DescriptorHandleInfo.CombinedImageSamplerMap.at(name);
+            const auto &samplerDescriptorHandles = m_SamplerDescriptorHandles.at(samplerName);
 
-            for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size(); arrayIndex++)
             {
                 auto combinedImageSampler = combinedImageSamplers[arrayIndex];
 
                 const TextureViewD3D12 *textureView =
-                    combinedImageSampler.ImageTexture
-                        .AsDerived<const TextureViewD3D12>();
-                SamplerD3D12 *sampler =
-                    combinedImageSampler.ImageSampler.AsDerived<SamplerD3D12>();
+                    combinedImageSampler.ImageTexture.AsDerived<const TextureViewD3D12>();
+                SamplerD3D12 *sampler = combinedImageSampler.ImageSampler.AsDerived<SamplerD3D12>();
                 if (textureView && sampler)
                 {
-                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle =
-                        srv_crb_uavDescriptorHandles.at(arrayIndex);
+                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
                     CreateSrvTextureView(device, textureView, textureHandle);
 
-                    D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle =
-                        samplerDescriptorHandles.at(arrayIndex);
+                    D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
                     CreateSampler(device, sampler, samplerHandle);
 
-                    m_BoundResources.CombinedImageSamplers[name][arrayIndex] =
-                        combinedImageSampler;
+                    m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
                 }
             }
         }
@@ -451,19 +382,15 @@ namespace Nexus::Graphics
         // sampled images
         for (const auto &[name, sampledImages] : m_QueuedResources.SampledImages)
         {
-            const auto &srv_crb_uavDescriptorHandles =
-                m_SRV_UAV_CBV_DescriptorHandles.at(name);
+            const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 
-            for (size_t arrayIndex = 0; arrayIndex < sampledImages.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < sampledImages.size(); arrayIndex++)
             {
                 const auto &sampledImage = sampledImages[arrayIndex];
 
-                if (const TextureViewD3D12 *textureView =
-                        sampledImage.AsDerived<const TextureViewD3D12>())
+                if (const TextureViewD3D12 *textureView = sampledImage.AsDerived<const TextureViewD3D12>())
                 {
-                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle =
-                        srv_crb_uavDescriptorHandles.at(arrayIndex);
+                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
                     CreateSrvTextureView(device, textureView, textureHandle);
 
                     m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
@@ -474,18 +401,15 @@ namespace Nexus::Graphics
         // samplers
         for (const auto &[name, samplers] : m_QueuedResources.Samplers)
         {
-            const auto &samplerDescriptorHandles =
-                m_SamplerDescriptorHandles.at(name);
+            const auto &samplerDescriptorHandles = m_SamplerDescriptorHandles.at(name);
 
             for (size_t arrayIndex = 0; arrayIndex < samplers.size(); arrayIndex++)
             {
                 const auto &sampler = samplers[arrayIndex];
 
-                if (const SamplerD3D12 *samplerD3D12 =
-                        sampler.AsDerived<const SamplerD3D12>())
+                if (const SamplerD3D12 *samplerD3D12 = sampler.AsDerived<const SamplerD3D12>())
                 {
-                    D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle =
-                        samplerDescriptorHandles.at(arrayIndex);
+                    D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = samplerDescriptorHandles.at(arrayIndex);
                     CreateSampler(device, samplerD3D12, samplerHandle);
 
                     m_BoundResources.Samplers[name][arrayIndex] = sampler;
@@ -494,103 +418,80 @@ namespace Nexus::Graphics
         }
 
         // uniform texel buffers
-        for (const auto &[name, texelBuffers] :
-             m_QueuedResources.UniformTexelBuffers)
+        for (const auto &[name, texelBuffers] : m_QueuedResources.UniformTexelBuffers)
         {
-            const auto &srv_crb_uavDescriptorHandles =
-                m_SRV_UAV_CBV_DescriptorHandles.at(name);
+            const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 
-            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
             {
                 const auto &texelBuffer = texelBuffers[arrayIndex];
-                if (const TexelBufferD3D12 *texelBufferD3D12 =
-                        texelBuffer.AsDerived<const TexelBufferD3D12>())
+                if (const TexelBufferD3D12 *texelBufferD3D12 = texelBuffer.AsDerived<const TexelBufferD3D12>())
                 {
                     const DeviceBufferD3D12 *buffer =
-                        texelBufferD3D12->GetDescription()
-                            .Buffer.AsDerived<const DeviceBufferD3D12>();
+                        texelBufferD3D12->GetDescription().Buffer.AsDerived<const DeviceBufferD3D12>();
 
-                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle =
-                        srv_crb_uavDescriptorHandles.at(arrayIndex);
-                    DXGI_FORMAT pixelFormat = D3D12::GetD3D12PixelFormat(
-                        texelBuffer->GetDescription().Format
-                    );
+                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
+                    DXGI_FORMAT pixelFormat = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
 
                     CreateSrvBufferView(
-                        device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(),
-                        buffer->GetStrideInBytes(), textureHandle, false, pixelFormat
+                        device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(), buffer->GetStrideInBytes(),
+                        textureHandle, false, pixelFormat
                     );
 
-                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] =
-                        texelBuffer;
+                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
             }
         }
 
         // storage texel buffers
-        for (const auto &[name, texelBuffers] :
-             m_QueuedResources.StorageTexelBuffers)
+        for (const auto &[name, texelBuffers] : m_QueuedResources.StorageTexelBuffers)
         {
-            const auto &srv_crb_uavDescriptorHandles =
-                m_SRV_UAV_CBV_DescriptorHandles.at(name);
+            const auto &srv_crb_uavDescriptorHandles = m_SRV_UAV_CBV_DescriptorHandles.at(name);
 
-            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
             {
                 const auto &texelBuffer = texelBuffers[arrayIndex];
-                if (const TexelBufferD3D12 *texelBufferD3D12 =
-                        texelBuffer.AsDerived<const TexelBufferD3D12>())
+                if (const TexelBufferD3D12 *texelBufferD3D12 = texelBuffer.AsDerived<const TexelBufferD3D12>())
                 {
                     const DeviceBufferD3D12 *buffer =
-                        texelBufferD3D12->GetDescription()
-                            .Buffer.AsDerived<const DeviceBufferD3D12>();
+                        texelBufferD3D12->GetDescription().Buffer.AsDerived<const DeviceBufferD3D12>();
 
-                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle =
-                        srv_crb_uavDescriptorHandles.at(arrayIndex);
-                    DXGI_FORMAT pixelFormat = D3D12::GetD3D12PixelFormat(
-                        texelBuffer->GetDescription().Format
-                    );
+                    D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
+                    DXGI_FORMAT pixelFormat = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
 
                     CreateUavBufferView(
-                        device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(),
-                        buffer->GetStrideInBytes(), textureHandle, false, pixelFormat
+                        device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(), buffer->GetStrideInBytes(),
+                        textureHandle, false, pixelFormat
                     );
 
-                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] =
-                        texelBuffer;
+                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
             }
         }
     }
 
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::
-        GetSamplerDescriptorHeap()
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetSamplerDescriptorHeap()
     {
         return m_SamplerDescriptorHeap;
     }
 
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::
-        GetTextureConstantBufferDescriptorHeap()
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetTextureConstantBufferDescriptorHeap()
     {
         return m_SRV_UAV_CBV_DescriptorHeap;
     }
 
-    const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> &ResourceSetD3D12::
-        GetDescriptorTables() const
+    const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> &ResourceSetD3D12::GetDescriptorTables() const
     {
         return m_DescriptorTables;
     }
 
-    const std::vector<ID3D12DescriptorHeap *> &ResourceSetD3D12::
-        GetDescriptorHeaps() const
+    const std::vector<ID3D12DescriptorHeap *> &ResourceSetD3D12::GetDescriptorHeaps() const
     {
         return m_DescriptorHeapArray;
     }
 
     void ResourceSetD3D12::SetPushConstants(
-        const std::string &name, const void *data, size_t offset, size_t size,
-        bool isGraphics,
+        const std::string &name, const void *data, size_t offset, size_t size, bool isGraphics,
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList
     )
     {
@@ -603,29 +504,24 @@ namespace Nexus::Graphics
             if (isGraphics)
             {
                 commandList->SetGraphicsRoot32BitConstants(
-                    rootParameterIndex, count32BitConstants, data,
-                    offset32BitConstants
+                    rootParameterIndex, count32BitConstants, data, offset32BitConstants
                 );
             }
             else
             {
                 commandList->SetComputeRoot32BitConstants(
-                    rootParameterIndex, count32BitConstants, data,
-                    offset32BitConstants
+                    rootParameterIndex, count32BitConstants, data, offset32BitConstants
                 );
             }
         }
     }
 
     void ResourceSetD3D12::Bind(
-        bool isGraphics,
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList,
+        bool isGraphics, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList,
         const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets
     )
     {
-        commandList->SetDescriptorHeaps(
-            m_DescriptorHeapArray.size(), m_DescriptorHeapArray.data()
-        );
+        commandList->SetDescriptorHeaps(m_DescriptorHeapArray.size(), m_DescriptorHeapArray.data());
 
         Microsoft::WRL::ComPtr<ID3D12Device9> device = m_Device->GetD3D12Device();
 
@@ -633,67 +529,46 @@ namespace Nexus::Graphics
         uint32_t samplerIncrementSize = 0;
         if (m_SamplerDescriptorHeap)
         {
-            samplerHeapStartDescriptorHandle =
-                m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-            samplerIncrementSize = device->GetDescriptorHandleIncrementSize(
-                D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER
-            );
+            samplerHeapStartDescriptorHandle = m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+            samplerIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
         }
 
         D3D12_GPU_DESCRIPTOR_HANDLE cbv_srv_uavHeapStartDescriptorHandle = {};
         uint32_t srv_uav_cbvIncrementSize = 0;
         if (m_SRV_UAV_CBV_DescriptorHeap)
         {
-            cbv_srv_uavHeapStartDescriptorHandle =
-                m_SRV_UAV_CBV_DescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-            srv_uav_cbvIncrementSize = device->GetDescriptorHandleIncrementSize(
-                D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-            );
+            cbv_srv_uavHeapStartDescriptorHandle = m_SRV_UAV_CBV_DescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+            srv_uav_cbvIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         }
 
         // bind descriptor tables
-        for (const auto &descriptorTable :
-             m_RootSignatureBindingLocations.HeapBindings)
+        for (const auto &descriptorTable : m_RootSignatureBindingLocations.HeapBindings)
         {
-            if (descriptorTable.ParameterType ==
-                D3D12::RootParameterType::CBV_SRV_UAV_HeapRange)
+            if (descriptorTable.ParameterType == D3D12::RootParameterType::CBV_SRV_UAV_HeapRange)
             {
-                D3D12_GPU_DESCRIPTOR_HANDLE tableHandle =
-                    cbv_srv_uavHeapStartDescriptorHandle;
-                tableHandle.ptr +=
-                    descriptorTable.DescriptorOffset * srv_uav_cbvIncrementSize;
+                D3D12_GPU_DESCRIPTOR_HANDLE tableHandle = cbv_srv_uavHeapStartDescriptorHandle;
+                tableHandle.ptr += descriptorTable.DescriptorOffset * srv_uav_cbvIncrementSize;
                 if (isGraphics)
                 {
-                    commandList->SetGraphicsRootDescriptorTable(
-                        descriptorTable.RootParameterIndex, tableHandle
-                    );
+                    commandList->SetGraphicsRootDescriptorTable(descriptorTable.RootParameterIndex, tableHandle);
                 }
                 else
                 {
-                    commandList->SetComputeRootDescriptorTable(
-                        descriptorTable.RootParameterIndex, tableHandle
-                    );
+                    commandList->SetComputeRootDescriptorTable(descriptorTable.RootParameterIndex, tableHandle);
                 }
             }
-            else if (descriptorTable.ParameterType ==
-                     D3D12::RootParameterType::SamplerHeapRange)
+            else if (descriptorTable.ParameterType == D3D12::RootParameterType::SamplerHeapRange)
             {
-                D3D12_GPU_DESCRIPTOR_HANDLE tableHandle =
-                    samplerHeapStartDescriptorHandle;
-                tableHandle.ptr +=
-                    descriptorTable.DescriptorOffset * samplerIncrementSize;
+                D3D12_GPU_DESCRIPTOR_HANDLE tableHandle = samplerHeapStartDescriptorHandle;
+                tableHandle.ptr += descriptorTable.DescriptorOffset * samplerIncrementSize;
 
                 if (isGraphics)
                 {
-                    commandList->SetGraphicsRootDescriptorTable(
-                        descriptorTable.RootParameterIndex, tableHandle
-                    );
+                    commandList->SetGraphicsRootDescriptorTable(descriptorTable.RootParameterIndex, tableHandle);
                 }
                 else
                 {
-                    commandList->SetComputeRootDescriptorTable(
-                        descriptorTable.RootParameterIndex, tableHandle
-                    );
+                    commandList->SetComputeRootDescriptorTable(descriptorTable.RootParameterIndex, tableHandle);
                 }
             }
             else
@@ -702,8 +577,7 @@ namespace Nexus::Graphics
             }
         }
 
-        for (const auto &[name, rootBinding] :
-             m_RootSignatureBindingLocations.DynamicResources)
+        for (const auto &[name, rootBinding] : m_RootSignatureBindingLocations.DynamicResources)
         {
             if (rootBinding.ParameterType == D3D12::RootParameterType::RootCBV)
             {
@@ -711,21 +585,17 @@ namespace Nexus::Graphics
                 {
                     const std::vector<UniformBufferView> &dynamicUniformBuffers =
                         m_BoundResources.DynamicUniformBuffers.at(name);
-                    for (size_t uniformBufferIndex = 0;
-                         uniformBufferIndex < dynamicUniformBuffers.size();
+                    for (size_t uniformBufferIndex = 0; uniformBufferIndex < dynamicUniformBuffers.size();
                          uniformBufferIndex++)
                     {
-                        const UniformBufferView &uboView =
-                            dynamicUniformBuffers.at(uniformBufferIndex);
+                        const UniformBufferView &uboView = dynamicUniformBuffers.at(uniformBufferIndex);
                         const DeviceBufferD3D12 *uniformBuffer =
-                            uboView.BufferHandle
-                                .AsDerived<const DeviceBufferD3D12>();
+                            uboView.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
                         uint32_t offset = 0;
                         if (dynamicOffsets.contains(name))
                         {
-                            const std::vector<uint32_t> &bufferOffsets =
-                                dynamicOffsets.at(name);
+                            const std::vector<uint32_t> &bufferOffsets = dynamicOffsets.at(name);
                             if (uniformBufferIndex > bufferOffsets.size())
                             {
                                 offset = bufferOffsets.at(uniformBufferIndex);
@@ -734,22 +604,19 @@ namespace Nexus::Graphics
 
                         // retrieve the GPU address and offset it by the requested
                         // dynamic offset
-                        D3D12_GPU_VIRTUAL_ADDRESS bufferAddress =
-                            uniformBuffer->GetHandle()->GetGPUVirtualAddress();
+                        D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = uniformBuffer->GetHandle()->GetGPUVirtualAddress();
                         bufferAddress += offset;
 
                         if (isGraphics)
                         {
                             commandList->SetGraphicsRootConstantBufferView(
-                                rootBinding.RootParameterIndex + uniformBufferIndex,
-                                bufferAddress
+                                rootBinding.RootParameterIndex + uniformBufferIndex, bufferAddress
                             );
                         }
                         else
                         {
                             commandList->SetComputeRootConstantBufferView(
-                                rootBinding.RootParameterIndex + uniformBufferIndex,
-                                bufferAddress
+                                rootBinding.RootParameterIndex + uniformBufferIndex, bufferAddress
                             );
                         }
                     }
@@ -761,21 +628,17 @@ namespace Nexus::Graphics
                 {
                     const std::vector<StorageBufferView> &dynamicStorageBuffers =
                         m_BoundResources.DynamicStorageBuffers.at(name);
-                    for (size_t storageBufferIndex = 0;
-                         storageBufferIndex < dynamicStorageBuffers.size();
+                    for (size_t storageBufferIndex = 0; storageBufferIndex < dynamicStorageBuffers.size();
                          storageBufferIndex++)
                     {
-                        const StorageBufferView &sboView =
-                            dynamicStorageBuffers.at(storageBufferIndex);
+                        const StorageBufferView &sboView = dynamicStorageBuffers.at(storageBufferIndex);
                         const DeviceBufferD3D12 *storageBuffer =
-                            sboView.BufferHandle
-                                .AsDerived<const DeviceBufferD3D12>();
+                            sboView.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
                         uint32_t offset = 0;
                         if (dynamicOffsets.contains(name))
                         {
-                            const std::vector<uint32_t> &bufferOffsets =
-                                dynamicOffsets.at(name);
+                            const std::vector<uint32_t> &bufferOffsets = dynamicOffsets.at(name);
                             if (storageBufferIndex > bufferOffsets.size())
                             {
                                 offset = bufferOffsets.at(storageBufferIndex);
@@ -784,22 +647,19 @@ namespace Nexus::Graphics
 
                         // retrieve the GPU address and offset it by the requested
                         // dynamic offset
-                        D3D12_GPU_VIRTUAL_ADDRESS bufferAddress =
-                            storageBuffer->GetHandle()->GetGPUVirtualAddress();
+                        D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = storageBuffer->GetHandle()->GetGPUVirtualAddress();
                         bufferAddress += offset;
 
                         if (isGraphics)
                         {
                             commandList->SetGraphicsRootShaderResourceView(
-                                rootBinding.RootParameterIndex + storageBufferIndex,
-                                bufferAddress
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
                             );
                         }
                         else
                         {
                             commandList->SetComputeRootShaderResourceView(
-                                rootBinding.RootParameterIndex + storageBufferIndex,
-                                bufferAddress
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
                             );
                         }
                     }
@@ -811,21 +671,17 @@ namespace Nexus::Graphics
                 {
                     const std::vector<StorageBufferView> &dynamicStorageBuffers =
                         m_BoundResources.DynamicStorageBuffers.at(name);
-                    for (size_t storageBufferIndex = 0;
-                         storageBufferIndex < dynamicStorageBuffers.size();
+                    for (size_t storageBufferIndex = 0; storageBufferIndex < dynamicStorageBuffers.size();
                          storageBufferIndex++)
                     {
-                        const StorageBufferView &sboView =
-                            dynamicStorageBuffers.at(storageBufferIndex);
+                        const StorageBufferView &sboView = dynamicStorageBuffers.at(storageBufferIndex);
                         const DeviceBufferD3D12 *storageBuffer =
-                            sboView.BufferHandle
-                                .AsDerived<const DeviceBufferD3D12>();
+                            sboView.BufferHandle.AsDerived<const DeviceBufferD3D12>();
 
                         uint32_t offset = 0;
                         if (dynamicOffsets.contains(name))
                         {
-                            const std::vector<uint32_t> &bufferOffsets =
-                                dynamicOffsets.at(name);
+                            const std::vector<uint32_t> &bufferOffsets = dynamicOffsets.at(name);
                             if (storageBufferIndex > bufferOffsets.size())
                             {
                                 offset = bufferOffsets.at(storageBufferIndex);
@@ -834,22 +690,19 @@ namespace Nexus::Graphics
 
                         // retrieve the GPU address and offset it by the requested
                         // dynamic offset
-                        D3D12_GPU_VIRTUAL_ADDRESS bufferAddress =
-                            storageBuffer->GetHandle()->GetGPUVirtualAddress();
+                        D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = storageBuffer->GetHandle()->GetGPUVirtualAddress();
                         bufferAddress += offset;
 
                         if (isGraphics)
                         {
                             commandList->SetGraphicsRootUnorderedAccessView(
-                                rootBinding.RootParameterIndex + storageBufferIndex,
-                                bufferAddress
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
                             );
                         }
                         else
                         {
                             commandList->SetGraphicsRootUnorderedAccessView(
-                                rootBinding.RootParameterIndex + storageBufferIndex,
-                                bufferAddress
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
                             );
                         }
                     }

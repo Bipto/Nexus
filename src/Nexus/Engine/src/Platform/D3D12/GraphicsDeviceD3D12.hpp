@@ -25,41 +25,24 @@ namespace Nexus::Graphics
     {
       public:
         GraphicsDeviceD3D12(
-            std::shared_ptr<IPhysicalDevice> physicalDevice,
-            Microsoft::WRL::ComPtr<IDXGIFactory7> factory
+            std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory
         );
         ~GraphicsDeviceD3D12();
 
         std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
 
-        PipelineHandle CreateGraphicsPipeline(
-            const GraphicsPipelineDescription &description
-        ) final;
-        PipelineHandle CreateComputePipeline(
-            const ComputePipelineDescription &description
-        ) final;
-        PipelineHandle CreateMeshletPipeline(
-            const MeshletPipelineDescription &description
-        ) final;
-        PipelineHandle CreateRayTracingPipeline(
-            const RayTracingPipelineDescription &description
-        ) final;
+        PipelineHandle CreateGraphicsPipeline(const GraphicsPipelineDescription &description) final;
+        PipelineHandle CreateComputePipeline(const ComputePipelineDescription &description) final;
+        PipelineHandle CreateMeshletPipeline(const MeshletPipelineDescription &description) final;
+        PipelineHandle CreateRayTracingPipeline(const RayTracingPipelineDescription &description) final;
         ResourceSetHandle CreateResourceSet(PipelineHandle pipeline) final;
 
-        FramebufferHandle CreateFramebuffer(
-            const FramebufferTextureSetDescription &desc
-        ) final;
+        FramebufferHandle CreateFramebuffer(const FramebufferTextureSetDescription &desc) final;
         SamplerHandle CreateSampler(const SamplerDescription &spec) final;
         TimingQueryHandle CreateTimingQuery() final;
-        DeviceBufferHandle CreateDeviceBuffer(
-            const DeviceBufferDescription &desc
-        ) final;
-        AccelerationStructureHandle CreateAccelerationStructure(
-            const AccelerationStructureDescription &desc
-        ) final;
-        TexelBufferHandle CreateTexelBuffer(
-            const TexelBufferDescription &desc
-        ) final;
+        DeviceBufferHandle CreateDeviceBuffer(const DeviceBufferDescription &desc) final;
+        AccelerationStructureHandle CreateAccelerationStructure(const AccelerationStructureDescription &desc) final;
+        TexelBufferHandle CreateTexelBuffer(const TexelBufferDescription &desc) final;
 
         ShaderLanguage GetSupportedShaderFormat() final
         {
@@ -77,17 +60,11 @@ namespace Nexus::Graphics
         }
         const GraphicsCapabilities GetGraphicsCapabilities() const final;
         TextureHandle CreateTexture(const TextureDescription &spec) final;
-        TextureViewHandle CreateTextureView(
-            const TextureViewDescription &desc
-        ) final;
+        TextureViewHandle CreateTextureView(const TextureViewDescription &desc) final;
         FenceHandle CreateFence(const FenceDescription &desc) final;
-        FenceWaitResult WaitForFences(
-            FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
-        ) final;
+        FenceWaitResult WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS) final;
         std::vector<QueueFamilyInfo> GetQueueFamilies() final;
-        CommandQueueHandle CreateCommandQueue(
-            const CommandQueueDescription &description
-        ) final;
+        CommandQueueHandle CreateCommandQueue(const CommandQueueDescription &description) final;
         void ResetFences(FenceHandle *fences, uint32_t count) final;
         bool IsUVOriginTopLeft() final
         {
@@ -113,26 +90,17 @@ namespace Nexus::Graphics
             const AccelerationStructureGeometryBuildDescription &description
         ) const final;
         RayTracingDeviceDescription GetRayTracingDeviceDescription() const final;
-        AccelerationStructureProperties
-        GetAccelerationStructureProperties() const final;
+        AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
-        SurfaceHandle CreateSurfaceFromWin32(
-            uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
-        ) final;
-        SurfaceHandle CreateSurfaceFromX11(
-            uintptr_t display, uint32_t screen, uint32_t window
-        ) final;
-        SurfaceHandle CreateSurfaceFromWayland(
-            uintptr_t display, uintptr_t surface
-        ) final;
+        SurfaceHandle CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance) final;
+        SurfaceHandle CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window) final;
+        SurfaceHandle CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface) final;
         SurfaceHandle CreateSurfaceFromAndroid(uintptr_t nativeWindow) final;
         SurfaceHandle CreateSurfaceFromHTML(const std::string &canvasId) final;
 
         bool IsVersionGreaterThan(D3D_FEATURE_LEVEL level);
 
-        virtual ShaderModuleHandle CreateShaderModule(
-            const ShaderModuleDescription &moduleSpec
-        ) override;
+        virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleSpec) override;
 
       private:
         void GetLimitsAndFeatures();

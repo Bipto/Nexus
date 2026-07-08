@@ -51,23 +51,18 @@ namespace Nexus
       public:
         /// @brief A method that adds a new info log to the logger
         /// @param message The text of the error message
-        void LogInfo(
-            const std::string &message,
-            const std::source_location location = std::source_location::current()
-        );
+        void LogInfo(const std::string &message, const std::source_location location = std::source_location::current());
 
         /// @brief A method that adds a new warning log to the logger
         /// @param message The text of the error message
         void LogWarning(
-            const std::string &message,
-            const std::source_location location = std::source_location::current()
+            const std::string &message, const std::source_location location = std::source_location::current()
         );
 
         /// @brief A method that adds a new error log to the logger
         /// @param message The text of the error message
         void LogError(
-            const std::string &message,
-            const std::source_location location = std::source_location::current()
+            const std::string &message, const std::source_location location = std::source_location::current()
         );
 
         /// @brief A method that returns the logs stored within the logger
@@ -93,13 +88,11 @@ namespace Nexus
 #define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message)
 #define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message)
 #define NX_ASSERT(expression, message) assert(expression &&message)
-#define NX_VALIDATE(expression, message)                                            \
-    do                                                                              \
-    {                                                                               \
-        if (!(expression))                                                          \
-        {                                                                           \
-            throw std::runtime_error(                                               \
-                std::string("Assertion failed: ") + (message)                       \
-            );                                                                      \
-        }                                                                           \
+#define NX_VALIDATE(expression, message)                                                                               \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (!(expression))                                                                                             \
+        {                                                                                                              \
+            throw std::runtime_error(std::string("Assertion failed: ") + (message));                                   \
+        }                                                                                                              \
     } while (false)

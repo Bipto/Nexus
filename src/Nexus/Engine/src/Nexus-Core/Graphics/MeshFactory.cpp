@@ -8,88 +8,40 @@ namespace Nexus::Graphics
     {
         std::vector<VertexPositionTexCoordNormal> vertices = {
             // FRONT
-            {{-0.5f, -0.5f, 0.5f},
-             {0.0f, 0.0f},
-             {0.0f, 0.0f, 1.0f}}, // 0  - FRONT TOP LEFT
-            {{0.5f, -0.5f, 0.5f},
-             {1.0f, 0.0f},
-             {0.0f, 0.0f, 1.0f}}, // 1  - FRONT TOP RIGHT
-            {{0.5f, 0.5f, 0.5f},
-             {1.0f, 1.0f},
-             {0.0f, 0.0f, 1.0f}}, // 2  - FRONT BOTTOM RIGHT
-            {{-0.5f, 0.5f, 0.5f},
-             {0.0f, 1.0f},
-             {0.0f, 0.0f, 1.0f}}, // 3  - FRONT BOTTOM LEFT
+            {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // 0  - FRONT TOP LEFT
+            {{0.5f, -0.5f, 0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // 1  - FRONT TOP RIGHT
+            {{0.5f, 0.5f, 0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},   // 2  - FRONT BOTTOM RIGHT
+            {{-0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},  // 3  - FRONT BOTTOM LEFT
 
             // BACK
-            {{-0.5f, -0.5f, -0.5f},
-             {0.0f, 0.0f},
-             {0.0f, 0.0f, -1.0f}}, // 4  - BACK TOP LEFT
-            {{0.5f, -0.5f, -0.5f},
-             {1.0f, 0.0f},
-             {0.0f, 0.0f, -1.0f}}, // 5  - BACK TOP RIGHT
-            {{0.5f, 0.5f, -0.5f},
-             {1.0f, 1.0f},
-             {0.0f, 0.0f, -1.0f}}, // 6  - BACK BOTTOM RIGHT
-            {{-0.5f, 0.5f, -0.5f},
-             {0.0f, 1.0f},
-             {0.0f, 0.0f, -1.0f}}, // 7  - BACK BOTTOM LEFT
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // 4  - BACK TOP LEFT
+            {{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},  // 5  - BACK TOP RIGHT
+            {{0.5f, 0.5f, -0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},   // 6  - BACK BOTTOM RIGHT
+            {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},  // 7  - BACK BOTTOM LEFT
 
             // TOP
-            {{-0.5f, -0.5f, -0.5f},
-             {0.0f, 0.0f},
-             {0.0f, 1.0f, 0.0f}}, // 8  - TOP BACK LEFT
-            {{0.5f, -0.5f, -0.5f},
-             {1.0f, 0.0f},
-             {0.0f, 1.0f, 0.0f}}, // 9  - TOP BACK RIGHT
-            {{0.5f, -0.5f, 0.5f},
-             {1.0f, 1.0f},
-             {0.0f, 1.0f, 0.0f}}, // 10 - TOP FRONT RIGHT
-            {{-0.5f, -0.5f, 0.5f},
-             {0.0f, 1.0f},
-             {0.0f, 1.0f, 0.0f}}, // 11 - TOP FRONT LEFT
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // 8  - TOP BACK LEFT
+            {{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // 9  - TOP BACK RIGHT
+            {{0.5f, -0.5f, 0.5f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},   // 10 - TOP FRONT RIGHT
+            {{-0.5f, -0.5f, 0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},  // 11 - TOP FRONT LEFT
 
             // BOTTOM
-            {{-0.5f, 0.5f, -0.5f},
-             {0.0f, 0.0f},
-             {0.0f, -1.0f, 0.0f}}, // 12  - BOTTOM BACK LEFT
-            {{0.5f, 0.5f, -0.5f},
-             {1.0f, 0.0f},
-             {0.0f, -1.0f, 0.0f}}, // 13  - BOTTOM BACK RIGHT
-            {{0.5f, 0.5f, 0.5f},
-             {1.0f, 1.0f},
-             {0.0f, -1.0f, 0.0f}}, // 14 - BOTTOM FRONT RIGHT
-            {{-0.5f, 0.5f, 0.5f},
-             {0.0f, 1.0f},
-             {0.0f, -1.0f, 0.0f}}, // 15 - BOTTOM FRONT LEFT
+            {{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // 12  - BOTTOM BACK LEFT
+            {{0.5f, 0.5f, -0.5f}, {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},  // 13  - BOTTOM BACK RIGHT
+            {{0.5f, 0.5f, 0.5f}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},   // 14 - BOTTOM FRONT RIGHT
+            {{-0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},  // 15 - BOTTOM FRONT LEFT
 
             // LEFT
-            {{-0.5f, -0.5f, -0.5f},
-             {0.0f, 0.0f},
-             {-1.0f, 0.0f, 0.0f}}, // 16 - LEFT BACK TOP
-            {{-0.5f, -0.5f, 0.5f},
-             {1.0f, 0.0f},
-             {-1.0f, 0.0f, 0.0f}}, // 17 - LEFT FRONT TOP
-            {{-0.5f, 0.5f, 0.5f},
-             {1.0f, 1.0f},
-             {-1.0f, 0.0f, 0.0f}}, // 18 - LEFT FRONT BOTTOM
-            {{-0.5f, 0.5f, -0.5f},
-             {0.0f, 1.0f},
-             {-1.0f, 0.0f, 0.0f}}, // 19 - LEFT BACK BOTTOM
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // 16 - LEFT BACK TOP
+            {{-0.5f, -0.5f, 0.5f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},  // 17 - LEFT FRONT TOP
+            {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},   // 18 - LEFT FRONT BOTTOM
+            {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},  // 19 - LEFT BACK BOTTOM
 
             // RIGHT
-            {{0.5f, -0.5f, -0.5f},
-             {0.0f, 0.0f},
-             {1.0f, 0.0f, 0.0f}}, // 20 - RIGHT BACK TOP
-            {{0.5f, -0.5f, 0.5f},
-             {1.0f, 0.0f},
-             {1.0f, 0.0f, 0.0f}}, // 21 - RIGHT FRONT TOP
-            {{0.5f, 0.5f, 0.5f},
-             {1.0f, 1.0f},
-             {1.0f, 0.0f, 0.0f}}, // 22 - RIGHT FRONT BOTTOM
-            {{0.5f, 0.5f, -0.5f},
-             {0.0f, 1.0f},
-             {1.0f, 0.0f, 0.0f}} // 23 - RIGHT BACK BOTTOM
+            {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 20 - RIGHT BACK TOP
+            {{0.5f, -0.5f, 0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // 21 - RIGHT FRONT TOP
+            {{0.5f, 0.5f, 0.5f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},   // 22 - RIGHT FRONT BOTTOM
+            {{0.5f, 0.5f, -0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}   // 23 - RIGHT BACK BOTTOM
         };
 
         std::vector<unsigned int> indices = {0,  1,  2, // FRONT
@@ -109,20 +61,15 @@ namespace Nexus::Graphics
 
                                              22, 21, 20, 20, 23, 22};
 
-        auto fullVertices =
-            Nexus::Graphics::Utilities::GenerateTangentAndBinormals(vertices);
+        auto fullVertices = Nexus::Graphics::Utilities::GenerateTangentAndBinormals(vertices);
 
         auto vertexBuffer = Utils::CreateFilledVertexBuffer(
-            fullVertices.data(),
-            fullVertices.size() *
-                sizeof(VertexPositionTexCoordNormalTangentBitangent),
-            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device,
-            m_CommandQueue
+            fullVertices.data(), fullVertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
+            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue
         );
 
         auto indexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t),
-            m_Device, m_CommandQueue
+            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue
         );
 
         return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material{});
@@ -131,40 +78,21 @@ namespace Nexus::Graphics
     Ref<Mesh> MeshFactory::CreateSprite()
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices = {
-            {{-0.5f, -0.5f, 0.0f},
-             {0.0f, 0.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}},
-            {{0.5f, -0.5f, 0.0f},
-             {1.0f, 0.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}},
-            {{0.5f, 0.5f, 0.0f},
-             {1.0f, 1.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}},
-            {{-0.5f, 0.5f, 0.0f},
-             {0.0f, 1.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}}
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+            {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+            {{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+            {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}
         };
 
         std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
         auto vertexBuffer = Utils::CreateFilledVertexBuffer(
-            vertices.data(),
-            vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
-            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device,
-            m_CommandQueue
+            vertices.data(), vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
+            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue
         );
 
         auto indexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t),
-            m_Device, m_CommandQueue
+            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue
         );
 
         return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material{});
@@ -173,35 +101,20 @@ namespace Nexus::Graphics
     Ref<Mesh> MeshFactory::CreateTriangle()
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices = {
-            {{-0.5f, -0.5f, 0.0f},
-             {0.0f, 0.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}},
-            {{0.0f, 0.5f, 0.0f},
-             {0.5f, 1.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}},
-            {{0.5f, -0.5f, 0.0f},
-             {1.0f, 0.0f},
-             {0.0f, 0.0f, 1.0f},
-             {1, 1, 1},
-             {1, 1, 1}}
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+            {{0.0f, 0.5f, 0.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+            {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}
         };
 
         std::vector<unsigned int> indices = {0, 1, 2};
 
         auto vertexBuffer = Utils::CreateFilledVertexBuffer(
-            vertices.data(),
-            vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
-            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device,
-            m_CommandQueue
+            vertices.data(), vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
+            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue
         );
 
         auto indexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t),
-            m_Device, m_CommandQueue
+            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue
         );
 
         return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material{});

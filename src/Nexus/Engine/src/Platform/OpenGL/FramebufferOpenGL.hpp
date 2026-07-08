@@ -13,13 +13,9 @@ namespace Nexus::Graphics
     class FramebufferOpenGL : public IFramebuffer
     {
       public:
-        FramebufferOpenGL(
-            const FramebufferTextureSetDescription &desc,
-            GraphicsDeviceOpenGL *graphicsDevice
-        );
+        FramebufferOpenGL(const FramebufferTextureSetDescription &desc, GraphicsDeviceOpenGL *graphicsDevice);
         ~FramebufferOpenGL();
-        const FramebufferTextureSetDescription
-        GetTextureSetDescription() const final;
+        const FramebufferTextureSetDescription GetTextureSetDescription() const final;
 
         void BindAsReadBuffer(uint32_t texture, GL::IGLContext *contextcontext);
         void BindAsDrawBuffer(GL::IGLContext *context);

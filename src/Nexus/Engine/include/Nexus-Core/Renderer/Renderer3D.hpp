@@ -43,9 +43,7 @@ namespace Nexus::Graphics
     class NX_API Renderer3D
     {
       public:
-        Renderer3D(
-            IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-        );
+        Renderer3D(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
         ~Renderer3D();
 
         void Begin(Scene *scene, FramebufferHandle target, Nexus::TimeSpan time);
@@ -54,10 +52,7 @@ namespace Nexus::Graphics
         const Nexus::FirstPersonCamera GetCamera() const;
 
       private:
-        void RenderModel(
-            Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform,
-            GUID guid
-        );
+        void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid);
         void RenderCubemap();
         void ClearGBuffer();
 
@@ -88,12 +83,9 @@ namespace Nexus::Graphics
         Graphics::SamplerHandle m_ModelSampler = {};
         Graphics::PipelineHandle m_ModelPipeline = {};
         Graphics::DeviceBufferHandle m_ModelCameraUniformBuffer = {};
-        std::map<Nexus::Ref<Nexus::Graphics::Model>, Graphics::DeviceBufferHandle>
-            m_ModelTransformUniformBuffers = {};
-        std::map<Nexus::Ref<Nexus::Graphics::Model>, ResourceSetHandle>
-            m_ModelResourceSets = {};
-        std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData> m_ModelIDs =
-            {};
+        std::map<Nexus::Ref<Nexus::Graphics::Model>, Graphics::DeviceBufferHandle> m_ModelTransformUniformBuffers = {};
+        std::map<Nexus::Ref<Nexus::Graphics::Model>, ResourceSetHandle> m_ModelResourceSets = {};
+        std::map<Nexus::Ref<Nexus::Graphics::Model>, ModelRenderData> m_ModelIDs = {};
 
         PipelineHandle m_ClearScreenPipeline = {};
 

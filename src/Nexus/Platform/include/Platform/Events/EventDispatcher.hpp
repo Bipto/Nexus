@@ -14,15 +14,12 @@ namespace Nexus
     class EventDispatcher
     {
       public:
-        template <EventType Message>
-        void Subscribe(EventHandlerFunction<Message> handler)
+        template <EventType Message> void Subscribe(EventHandlerFunction<Message> handler)
         {
             // Store erased handler
             auto &handlers = m_Subscribers[typeid(Message)];
 
-            handlers.push_back([handler](const Event &e) {
-                handler(static_cast<const Message &>(e));
-            });
+            handlers.push_back([handler](const Event &e) { handler(static_cast<const Message &>(e)); });
         }
 
         void Dispatch(const Event &message) const
@@ -37,7 +34,6 @@ namespace Nexus
 
       private:
         using ErasedHandler = std::function<void(const Event &)>;
-        std::unordered_map<std::type_index, std::vector<ErasedHandler>>
-            m_Subscribers;
+        std::unordered_map<std::type_index, std::vector<ErasedHandler>> m_Subscribers;
     };
 } // namespace Nexus

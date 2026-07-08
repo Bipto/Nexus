@@ -56,28 +56,19 @@ namespace Nexus::Graphics
       public:
         virtual ~ICommandQueue() = default;
         virtual const CommandQueueDescription &GetDescription() const = 0;
-        virtual SwapchainHandle CreateSwapchain(
-            const SwapchainDescription &spec
-        ) = 0;
+        virtual SwapchainHandle CreateSwapchain(const SwapchainDescription &spec) = 0;
         virtual void SubmitCommandList(CommandListHandle commandList) = 0;
-        virtual void SubmitCommandList(
-            CommandListHandle commandList, Ref<IFence> fence
-        ) = 0;
+        virtual void SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence) = 0;
+        virtual void SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists) = 0;
         virtual void SubmitCommandLists(
-            CommandListHandle *commandLists, uint32_t numCommandLists
-        ) = 0;
-        virtual void SubmitCommandLists(
-            CommandListHandle *commandLists, uint32_t numCommandLists,
-            Ref<IFence> fence
+            CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence
         ) = 0;
         virtual IGraphicsDevice *GetGraphicsDevice() = 0;
         virtual bool WaitForIdle() = 0;
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A pointer to a command list
-        virtual CommandListHandle CreateCommandList(
-            const CommandListDescription &spec = {}
-        ) = 0;
+        virtual CommandListHandle CreateCommandList(const CommandListDescription &spec = {}) = 0;
     };
 
     DEFINE_RESOURCE(CommandQueue, ICommandQueue);

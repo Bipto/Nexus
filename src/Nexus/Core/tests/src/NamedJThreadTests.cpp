@@ -48,12 +48,10 @@ TEST(NamedJThread, ThreadName)
     std::latch ready(1);
     std::string observedName = {};
 
-    Nexus::NamedJThread namedThread(
-        "test_thread", nullptr, nullptr, nullptr, [&](std::stop_token) {
-            observedName = GetCurrentThreadName();
-            ready.count_down();
-        }
-    );
+    Nexus::NamedJThread namedThread("test_thread", nullptr, nullptr, nullptr, [&](std::stop_token) {
+        observedName = GetCurrentThreadName();
+        ready.count_down();
+    });
 
     ready.wait();
 
@@ -64,9 +62,7 @@ TEST(NamedJThread, ThreadID)
 {
     std::latch ready(1);
 
-    Nexus::NamedJThread namedThread(
-        "test_thread", nullptr, nullptr, nullptr, [&](std::stop_token) {}
-    );
+    Nexus::NamedJThread namedThread("test_thread", nullptr, nullptr, nullptr, [&](std::stop_token) {});
     namedThread.Join();
 
     EXPECT_NE(namedThread.GetID(), std::this_thread::get_id());
@@ -76,15 +72,13 @@ TEST(NamedJThread, Cancellation)
 {
     std::atomic<bool> stopped = false;
 
-    Nexus::NamedJThread t(
-        "cancellable", nullptr, nullptr, nullptr, [&](std::stop_token st) {
-            while (!st.stop_requested())
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
-            stopped = true;
+    Nexus::NamedJThread t("cancellable", nullptr, nullptr, nullptr, [&](std::stop_token st) {
+        while (!st.stop_requested())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-    );
+        stopped = true;
+    });
 
     t.RequestStop();
     t.Join();
@@ -96,9 +90,7 @@ TEST(NamedJThread, WaitUntilStartedUnblocks)
 {
     std::atomic<bool> ran = false;
 
-    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) {
-        ran = true;
-    });
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) { ran = true; });
 
     t.WaitUntilStarted();
     t.WaitUntilStopped();
@@ -122,9 +114,7 @@ TEST(NamedJThread, LifecycleCallbacksFire)
 
     Nexus::NamedJThread t(
         "test", [&]() { started = true; }, [&]() { stopped = true; }, nullptr,
-        [&](std::stop_token) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        }
+        [&](std::stop_token) { std::this_thread::sleep_for(std::chrono::milliseconds(5)); }
     );
 
     t.Join();
@@ -138,8 +128,7 @@ TEST(NamedJThread, OnExceptionFires)
     std::atomic<bool> exceptionCaught = false;
 
     Nexus::NamedJThread t(
-        "test", []() {}, []() {},
-        [&](std::exception_ptr exception) { exceptionCaught = true; },
+        "test", []() {}, []() {}, [&](std::exception_ptr exception) { exceptionCaught = true; },
         [&](std::stop_token) { throw std::runtime_error("boom"); }
     );
 
@@ -151,15 +140,13 @@ TEST(NamedJThread, CancellationStopsThread)
 {
     std::atomic<bool> stopped = false;
 
-    Nexus::NamedJThread t(
-        "test", nullptr, nullptr, nullptr, [&](std::stop_token st) {
-            while (!st.stop_requested())
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
-            stopped = true;
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token st) {
+        while (!st.stop_requested())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-    );
+        stopped = true;
+    });
 
     t.RequestStop();
     t.Join();
@@ -195,8 +182,7 @@ TEST(NamedJThread, RunningStateTransitions)
 
 TEST(NamedJThread, DescribeReturnsString)
 {
-    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) {
-    });
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) {});
     t.Join();
 
     auto desc = t.Describe();
@@ -209,8 +195,7 @@ TEST(NamedJThread, ArgumentForwardingWorks)
     std::atomic<int> result = 0;
 
     Nexus::NamedJThread t(
-        "test", nullptr, nullptr, nullptr,
-        [&](std::stop_token, int a, int b) { result = a + b; }, 3, 4
+        "test", nullptr, nullptr, nullptr, [&](std::stop_token, int a, int b) { result = a + b; }, 3, 4
     );
 
     t.Join();

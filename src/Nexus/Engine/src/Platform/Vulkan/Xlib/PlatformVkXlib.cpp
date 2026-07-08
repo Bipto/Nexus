@@ -7,9 +7,7 @@ namespace PlatformVk
         return {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME};
     }
 
-    VkSurfaceKHR CreateSurface(
-        const GladVulkanContext &context, VkInstance instance, Nexus::IWindow *window
-    )
+    VkSurfaceKHR CreateSurface(const GladVulkanContext &context, VkInstance instance, Nexus::IWindow *window)
     {
         const auto &nativeWindowInfo = window->GetNativeWindowInfo();
 
@@ -20,8 +18,7 @@ namespace PlatformVk
 
         VkSurfaceKHR surface;
 
-        if (context.CreateXlibSurfaceKHR(instance, &createInfo, nullptr, &surface) !=
-            VK_SUCCESS)
+        if (context.CreateXlibSurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create Vulkan surface");
         }

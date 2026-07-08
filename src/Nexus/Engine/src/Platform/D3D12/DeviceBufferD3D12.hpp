@@ -12,9 +12,7 @@ namespace Nexus::Graphics
     class DeviceBufferD3D12 final : public IDeviceBuffer
     {
       public:
-        DeviceBufferD3D12(
-            const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice
-        );
+        DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice);
         virtual ~DeviceBufferD3D12();
         void SetData(const void *data, uint32_t offset, uint32_t size) final;
         std::vector<char> GetData(uint32_t offset, uint32_t size) final;

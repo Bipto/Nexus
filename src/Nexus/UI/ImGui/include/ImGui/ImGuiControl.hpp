@@ -14,16 +14,13 @@ namespace Nexus::UI
         virtual void Render() = 0;
 
       protected:
-        template <typename InstantiateType, typename ReturnType, typename... Args>
-        ReturnType *AddChild(Args &&...args)
+        template <typename InstantiateType, typename ReturnType, typename... Args> ReturnType *AddChild(Args &&...args)
         {
             static_assert(
-                std::derived_from<InstantiateType, ReturnType>,
-                "InstantiateType must derive from ReturnType"
+                std::derived_from<InstantiateType, ReturnType>, "InstantiateType must derive from ReturnType"
             );
 
-            std::unique_ptr<InstantiateType> control =
-                std::make_unique<InstantiateType>(std::forward<Args>(args)...);
+            std::unique_ptr<InstantiateType> control = std::make_unique<InstantiateType>(std::forward<Args>(args)...);
             ReturnType *returnValue = control.get();
             m_Children.push_back(std::move(control));
             return returnValue;

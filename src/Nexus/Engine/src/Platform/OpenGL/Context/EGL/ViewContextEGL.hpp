@@ -14,14 +14,12 @@ namespace Nexus::GL
     {
       public:
         ViewContextEGL(
-            EGLDisplay display, EGLNativeWindowType window,
-            OffscreenContextEGL *pbuffer, const ContextDescription &spec
+            EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextDescription &spec
         );
         virtual ~ViewContextEGL();
         virtual bool MakeCurrent() override;
         virtual void Swap(
-            Graphics::TextureHandle texture,
-            const Graphics::SwapchainPresentDescription &presentDesc
+            Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc
         ) override;
         virtual void SetVSync(bool enabled) override;
         virtual const ContextDescription &GetDescription() const override;

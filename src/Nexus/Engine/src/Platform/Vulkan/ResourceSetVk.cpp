@@ -15,14 +15,12 @@ namespace Nexus::Graphics
 {
     static void CreateDynamicOffsetDataAndStageFlags(
         IPipeline *pipeline, std::map<uint32_t, std::vector<uint32_t>> &offsetData,
-        std::map<std::string, ResourceSetVk::DynamicOffsetDescription>
-            &memberOffsets,
+        std::map<std::string, ResourceSetVk::DynamicOffsetDescription> &memberOffsets,
         VkShaderStageFlags &pipelineStages,
         const std::map<std::string, Nexus::Graphics::ShaderResource> &shaderResources
     )
     {
-        const ResourceSetDescription &resourceSetDesc =
-            pipeline->GetResourceSetDescription();
+        const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
         struct BindingData
         {
@@ -44,16 +42,14 @@ namespace Nexus::Graphics
             const ShaderResource &resource = shaderResources.at(descriptor.Name);
 
             // retrieve the stage flags for this descriptor and store it
-            pipelineStages |=
-                Vk::GetVkShaderStageFlagsFromShaderStages(resource.Stage);
+            pipelineStages |= Vk::GetVkShaderStageFlagsFromShaderStages(resource.Stage);
 
             // if the descriptor is dynamic, we need to work the position of it in
             // the offsets array
             if (descriptor.Type == ResourceDescriptorType::DynamicUniformBuffer ||
                 descriptor.Type == ResourceDescriptorType::DynamicStorageBuffer)
             {
-                BindingData &bindingData =
-                    descriptorMap[resource.Set][resource.Binding];
+                BindingData &bindingData = descriptorMap[resource.Set][resource.Binding];
                 bindingData.BindingName = descriptor.Name;
                 bindingData.ArraySize = descriptor.CountOrSizeInBytes;
 
@@ -68,8 +64,7 @@ namespace Nexus::Graphics
         {
             for (const auto &[bindingIndex, bindingData] : bindings)
             {
-                ResourceSetVk::DynamicOffsetDescription &vulkanOffsetDesc =
-                    memberOffsets[bindingData.BindingName];
+                ResourceSetVk::DynamicOffsetDescription &vulkanOffsetDesc = memberOffsets[bindingData.BindingName];
                 vulkanOffsetDesc.Set = setIndex;
                 vulkanOffsetDesc.Offset = totalDynamicBindingCount;
 
@@ -91,8 +86,7 @@ namespace Nexus::Graphics
 
         // calculate required descriptor pool size
         std::vector<VkDescriptorPoolSize> sizes = {};
-        for (const auto &[descriptorType, descriptorCount] :
-             vulkanPipeline->GetDescriptorCounts())
+        for (const auto &[descriptorType, descriptorCount] : vulkanPipeline->GetDescriptorCounts())
         {
             VkDescriptorPoolSize size = {};
             size.type = descriptorType;
@@ -111,9 +105,7 @@ namespace Nexus::Graphics
         poolInfo.poolSizeCount = (uint32_t)sizes.size();
         poolInfo.pPoolSizes = sizes.data();
 
-        if (context.CreateDescriptorPool(
-                device->GetVkDevice(), &poolInfo, nullptr, &m_DescriptorPool
-            ) != VK_SUCCESS)
+        if (context.CreateDescriptorPool(device->GetVkDevice(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create descriptor pool");
         }
@@ -130,36 +122,28 @@ namespace Nexus::Graphics
             allocInfo.descriptorSetCount = 1;
             allocInfo.pSetLayouts = &setLayout;
 
-            if (context.AllocateDescriptorSets(
-                    m_Device->GetVkDevice(), &allocInfo, &descriptorSet
-                ) != VK_SUCCESS)
+            if (context.AllocateDescriptorSets(m_Device->GetVkDevice(), &allocInfo, &descriptorSet) != VK_SUCCESS)
             {
                 throw std::runtime_error("Failed to create descriptor set");
             }
         }
 
-        m_PushConstantRanges =
-            Vk::GetPushConstantRanges(pipeline.GetResource(), device);
+        m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.GetResource(), device);
         CreateDynamicOffsetDataAndStageFlags(
-            pipeline.GetResource(), m_DynamicOffsets, m_DynamicOffsetMap,
-            m_PipelineStages, m_ShaderResources
+            pipeline.GetResource(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources
         );
     }
 
     ResourceSetVk::~ResourceSetVk()
     {
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.DestroyDescriptorPool(
-            m_Device->GetVkDevice(), m_DescriptorPool, nullptr
-        );
+        context.DestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
     }
 
     static void GenerateWriteBufferDescriptor(
-        const std::string &resourceName,
-        std::map<std::string, VkDescriptorBufferInfo> &buffersToWrite,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkBuffer buffer,
-        size_t offset, size_t size, VkDescriptorType descriptorType,
-        uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet
+        const std::string &resourceName, std::map<std::string, VkDescriptorBufferInfo> &buffersToWrite,
+        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkBuffer buffer, size_t offset, size_t size,
+        VkDescriptorType descriptorType, uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet
     )
     {
         VkDescriptorBufferInfo &bufferInfo = buffersToWrite[resourceName];
@@ -179,17 +163,13 @@ namespace Nexus::Graphics
 
     static void GenerateWriteInlineUniformBlockDescriptor(
         const std::string &resourceName,
-        std::map<std::string, VkWriteDescriptorSetInlineUniformBlockEXT>
-            &blocksToWrite,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, const void *data,
-        size_t dataSize, uint32_t binding, uint32_t arrayElement,
-        VkDescriptorSet descriptorSet
+        std::map<std::string, VkWriteDescriptorSetInlineUniformBlockEXT> &blocksToWrite,
+        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, const void *data, size_t dataSize, uint32_t binding,
+        uint32_t arrayElement, VkDescriptorSet descriptorSet
     )
     {
-        VkWriteDescriptorSetInlineUniformBlockEXT &blockInfo =
-            blocksToWrite[resourceName];
-        blockInfo.sType =
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT;
+        VkWriteDescriptorSetInlineUniformBlockEXT &blockInfo = blocksToWrite[resourceName];
+        blockInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT;
         blockInfo.pData = data;
         blockInfo.dataSize = dataSize;
 
@@ -204,11 +184,9 @@ namespace Nexus::Graphics
     }
 
     static void GenerateWriteImageDescriptor(
-        const std::string &resourceName,
-        std::map<std::string, VkDescriptorImageInfo> &imagesToWrite,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
-        VkImageView imageView, VkImageLayout imageLayout, VkSampler sampler,
-        VkDescriptorType descriptorType, uint32_t binding, uint32_t arrayElement,
+        const std::string &resourceName, std::map<std::string, VkDescriptorImageInfo> &imagesToWrite,
+        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkImageView imageView, VkImageLayout imageLayout,
+        VkSampler sampler, VkDescriptorType descriptorType, uint32_t binding, uint32_t arrayElement,
         VkDescriptorSet descriptorSet
     )
     {
@@ -230,17 +208,13 @@ namespace Nexus::Graphics
 
     static void GenerateWriteAccelerationStructureDescriptor(
         const std::string &resourceName,
-        std::map<std::string, VkWriteDescriptorSetAccelerationStructureKHR>
-            &accelerationStructuresToWrite,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
-        VkAccelerationStructureKHR accelerationStructure, uint32_t binding,
-        uint32_t arrayElement, VkDescriptorSet descriptorSet
+        std::map<std::string, VkWriteDescriptorSetAccelerationStructureKHR> &accelerationStructuresToWrite,
+        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkAccelerationStructureKHR accelerationStructure,
+        uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet
     )
     {
-        VkWriteDescriptorSetAccelerationStructureKHR &asWrite =
-            accelerationStructuresToWrite[resourceName];
-        asWrite.sType =
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+        VkWriteDescriptorSetAccelerationStructureKHR &asWrite = accelerationStructuresToWrite[resourceName];
+        asWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
         asWrite.pNext = nullptr;
         asWrite.accelerationStructureCount = 1;
         asWrite.pAccelerationStructures = &accelerationStructure;
@@ -252,15 +226,13 @@ namespace Nexus::Graphics
         descriptorInfo.dstBinding = binding;
         descriptorInfo.dstArrayElement = arrayElement;
         descriptorInfo.descriptorCount = 1;
-        descriptorInfo.descriptorType =
-            VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+        descriptorInfo.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 
     static void GenerateWriteTexelBufferDescriptor(
-        const std::string &resourceName,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
-        VkBufferView bufferView, uint32_t binding, VkDescriptorSet descriptorSet,
-        VkDescriptorType descriptorType, uint32_t arrayElement
+        const std::string &resourceName, std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
+        VkBufferView bufferView, uint32_t binding, VkDescriptorSet descriptorSet, VkDescriptorType descriptorType,
+        uint32_t arrayElement
     )
     {
         VkWriteDescriptorSet &descriptorInfo = descriptorSetWrites.emplace_back();
@@ -280,10 +252,8 @@ namespace Nexus::Graphics
 
         std::map<std::string, VkDescriptorBufferInfo> buffersToWrite = {};
         std::map<std::string, VkDescriptorImageInfo> imagesToWrite = {};
-        std::map<std::string, VkWriteDescriptorSetInlineUniformBlockEXT>
-            inlineBlocksToWrite = {};
-        std::map<std::string, VkWriteDescriptorSetAccelerationStructureKHR>
-            accelerationStructuresToWrite = {};
+        std::map<std::string, VkWriteDescriptorSetInlineUniformBlockEXT> inlineBlocksToWrite = {};
+        std::map<std::string, VkWriteDescriptorSetAccelerationStructureKHR> accelerationStructuresToWrite = {};
         std::vector<VkWriteDescriptorSet> descriptorSetWrites = {};
 
         // uniform buffers
@@ -292,16 +262,14 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferVk *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferVk>())
+                if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites,
-                        buffer->GetVkBuffer(), view.Offset, view.Size,
-                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
+                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
+                        view.Size, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, resource.Binding, arrayIndex,
+                        m_DescriptorSets.at(resource.Set)
                     );
 
                     m_BoundResources.UniformBuffers[name][arrayIndex] = view;
@@ -315,16 +283,14 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferVk *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferVk>())
+                if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites,
-                        buffer->GetVkBuffer(), view.Offset, view.Size,
-                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, arrayIndex,
-                        resource.Binding, m_DescriptorSets.at(resource.Set)
+                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
+                        view.Size, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, arrayIndex, resource.Binding,
+                        m_DescriptorSets.at(resource.Set)
                     );
 
                     m_BoundResources.DynamicUniformBuffers[name][arrayIndex] = view;
@@ -338,9 +304,8 @@ namespace Nexus::Graphics
             const ShaderResource &resource = m_ShaderResources.at(name);
 
             GenerateWriteInlineUniformBlockDescriptor(
-                resource.Name, inlineBlocksToWrite, descriptorSetWrites,
-                inlineData.data(), inlineData.size(), resource.Binding, 0,
-                m_DescriptorSets.at(resource.Set)
+                resource.Name, inlineBlocksToWrite, descriptorSetWrites, inlineData.data(), inlineData.size(),
+                resource.Binding, 0, m_DescriptorSets.at(resource.Set)
             );
 
             m_BoundResources.InlineUniformBlocks[name] = inlineData;
@@ -352,16 +317,14 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferVk *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferVk>())
+                if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites,
-                        buffer->GetVkBuffer(), view.Offset, view.SizeInBytes,
-                        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
+                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
+                        view.SizeInBytes, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, resource.Binding, arrayIndex,
+                        m_DescriptorSets.at(resource.Set)
                     );
 
                     m_BoundResources.StorageBuffers[name][arrayIndex] = view;
@@ -375,16 +338,14 @@ namespace Nexus::Graphics
             for (size_t arrayIndex = 0; arrayIndex < views.size(); arrayIndex++)
             {
                 const auto &view = views[arrayIndex];
-                if (const DeviceBufferVk *buffer =
-                        view.BufferHandle.AsDerived<const DeviceBufferVk>())
+                if (const DeviceBufferVk *buffer = view.BufferHandle.AsDerived<const DeviceBufferVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites,
-                        buffer->GetVkBuffer(), view.Offset, view.SizeInBytes,
-                        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
+                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
+                        view.SizeInBytes, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, resource.Binding, arrayIndex,
+                        m_DescriptorSets.at(resource.Set)
                     );
 
                     m_BoundResources.DynamicStorageBuffers[name][arrayIndex] = view;
@@ -395,12 +356,10 @@ namespace Nexus::Graphics
         // storage images
         for (const auto &[name, storageImages] : m_QueuedResources.StorageImages)
         {
-            for (size_t arrayIndex = 0; arrayIndex < storageImages.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < storageImages.size(); arrayIndex++)
             {
                 const auto &storageImage = storageImages[arrayIndex];
-                if (const TextureVk *texture =
-                        storageImage.Texture.AsDerived<const TextureVk>())
+                if (const TextureVk *texture = storageImage.Texture.AsDerived<const TextureVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
@@ -411,11 +370,9 @@ namespace Nexus::Graphics
                     viewInfo.LayerCount = 1;
 
                     GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites,
-                        texture->GetImageView(viewInfo), VK_IMAGE_LAYOUT_GENERAL,
-                        VK_NULL_HANDLE, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-                        resource.Binding, arrayIndex,
-                        m_DescriptorSets.at(resource.Set)
+                        name, imagesToWrite, descriptorSetWrites, texture->GetImageView(viewInfo),
+                        VK_IMAGE_LAYOUT_GENERAL, VK_NULL_HANDLE, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, resource.Binding,
+                        arrayIndex, m_DescriptorSets.at(resource.Set)
                     );
 
                     m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
@@ -424,34 +381,26 @@ namespace Nexus::Graphics
         }
 
         // combined image samplers
-        for (const auto &[name, combinedImageSamplers] :
-             m_QueuedResources.CombinedImageSamplers)
+        for (const auto &[name, combinedImageSamplers] : m_QueuedResources.CombinedImageSamplers)
         {
-            for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < combinedImageSamplers.size(); arrayIndex++)
             {
                 const auto &combinedImageSampler = combinedImageSamplers[arrayIndex];
 
-                const TextureViewVk *textureView =
-                    combinedImageSampler.ImageTexture
-                        .AsDerived<const TextureViewVk>();
-                const SamplerVk *sampler =
-                    combinedImageSampler.ImageSampler.AsDerived<const SamplerVk>();
+                const TextureViewVk *textureView = combinedImageSampler.ImageTexture.AsDerived<const TextureViewVk>();
+                const SamplerVk *sampler = combinedImageSampler.ImageSampler.AsDerived<const SamplerVk>();
                 if (textureView && sampler)
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites,
-                        textureView->GetVkImageView(),
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                        sampler->GetSampler(),
-                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
+                        name, imagesToWrite, descriptorSetWrites, textureView->GetVkImageView(),
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler->GetSampler(),
+                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, resource.Binding, arrayIndex,
+                        m_DescriptorSets.at(resource.Set)
                     );
 
-                    m_BoundResources.CombinedImageSamplers[name][arrayIndex] =
-                        combinedImageSampler;
+                    m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
                 }
             }
         }
@@ -459,22 +408,18 @@ namespace Nexus::Graphics
         // sampled images
         for (const auto &[name, sampledImages] : m_QueuedResources.SampledImages)
         {
-            for (size_t arrayIndex = 0; arrayIndex < sampledImages.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < sampledImages.size(); arrayIndex++)
             {
                 const auto &sampledImage = sampledImages[arrayIndex];
 
-                if (const TextureViewVk *textureView =
-                        sampledImage.AsDerived<const TextureViewVk>())
+                if (const TextureViewVk *textureView = sampledImage.AsDerived<const TextureViewVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites,
-                        textureView->GetVkImageView(),
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_NULL_HANDLE,
-                        VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
+                        name, imagesToWrite, descriptorSetWrites, textureView->GetVkImageView(),
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_NULL_HANDLE, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                        resource.Binding, arrayIndex, m_DescriptorSets.at(resource.Set)
                     );
 
                     m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
@@ -489,15 +434,13 @@ namespace Nexus::Graphics
             {
                 const auto &sampler = samplers[arrayIndex];
 
-                if (const SamplerVk *samplerVk =
-                        sampler.AsDerived<const SamplerVk>())
+                if (const SamplerVk *samplerVk = sampler.AsDerived<const SamplerVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites, VK_NULL_HANDLE,
-                        VK_IMAGE_LAYOUT_UNDEFINED, samplerVk->GetSampler(),
-                        VK_DESCRIPTOR_TYPE_SAMPLER, resource.Binding, arrayIndex,
+                        name, imagesToWrite, descriptorSetWrites, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_UNDEFINED,
+                        samplerVk->GetSampler(), VK_DESCRIPTOR_TYPE_SAMPLER, resource.Binding, arrayIndex,
                         m_DescriptorSets.at(resource.Set)
                     );
 
@@ -507,94 +450,74 @@ namespace Nexus::Graphics
         }
 
         // acceleration structures
-        for (const auto &[name, accelerationStructures] :
-             m_QueuedResources.AccelerationStructures)
+        for (const auto &[name, accelerationStructures] : m_QueuedResources.AccelerationStructures)
         {
-            for (size_t arrayIndex = 0; arrayIndex < accelerationStructures.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < accelerationStructures.size(); arrayIndex++)
             {
-                const auto &accelerationStructure =
-                    accelerationStructures[arrayIndex];
+                const auto &accelerationStructure = accelerationStructures[arrayIndex];
                 if (const AccelerationStructureVk *accelerationStructureVk =
-                        accelerationStructure
-                            .AsDerived<const AccelerationStructureVk>())
+                        accelerationStructure.AsDerived<const AccelerationStructureVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteAccelerationStructureDescriptor(
-                        name, accelerationStructuresToWrite, descriptorSetWrites,
-                        accelerationStructureVk->GetHandle(), resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
+                        name, accelerationStructuresToWrite, descriptorSetWrites, accelerationStructureVk->GetHandle(),
+                        resource.Binding, arrayIndex, m_DescriptorSets.at(resource.Set)
                     );
 
-                    m_BoundResources.AccelerationStructures[name][arrayIndex] =
-                        accelerationStructure;
+                    m_BoundResources.AccelerationStructures[name][arrayIndex] = accelerationStructure;
                 }
             }
         }
 
         // uniform texel buffers
-        for (const auto &[name, texelBuffers] :
-             m_QueuedResources.UniformTexelBuffers)
+        for (const auto &[name, texelBuffers] : m_QueuedResources.UniformTexelBuffers)
         {
-            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
             {
                 const auto &texelBuffer = texelBuffers[arrayIndex];
-                if (const TexelBufferVk *texelBufferVk =
-                        texelBuffer.AsDerived<const TexelBufferVk>())
+                if (const TexelBufferVk *texelBufferVk = texelBuffer.AsDerived<const TexelBufferVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteTexelBufferDescriptor(
-                        resource.Name, descriptorSetWrites,
-                        texelBufferVk->GetVkBufferView(), resource.Binding,
-                        m_DescriptorSets.at(resource.Set),
-                        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, arrayIndex
+                        resource.Name, descriptorSetWrites, texelBufferVk->GetVkBufferView(), resource.Binding,
+                        m_DescriptorSets.at(resource.Set), VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, arrayIndex
                     );
 
-                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] =
-                        texelBuffer;
+                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
             }
         }
 
         // storage texel buffers
-        for (const auto &[name, texelBuffers] :
-             m_QueuedResources.StorageTexelBuffers)
+        for (const auto &[name, texelBuffers] : m_QueuedResources.StorageTexelBuffers)
         {
-            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size();
-                 arrayIndex++)
+            for (size_t arrayIndex = 0; arrayIndex < texelBuffers.size(); arrayIndex++)
             {
                 const auto &texelBuffer = texelBuffers[arrayIndex];
-                if (const TexelBufferVk *texelBufferVk =
-                        texelBuffer.AsDerived<const TexelBufferVk>())
+                if (const TexelBufferVk *texelBufferVk = texelBuffer.AsDerived<const TexelBufferVk>())
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
                     GenerateWriteTexelBufferDescriptor(
-                        resource.Name, descriptorSetWrites,
-                        texelBufferVk->GetVkBufferView(), resource.Binding,
-                        m_DescriptorSets.at(resource.Set),
-                        VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, arrayIndex
+                        resource.Name, descriptorSetWrites, texelBufferVk->GetVkBufferView(), resource.Binding,
+                        m_DescriptorSets.at(resource.Set), VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, arrayIndex
                     );
 
-                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] =
-                        texelBuffer;
+                    m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
             }
         }
 
         // perform the descriptor set update
         context.UpdateDescriptorSets(
-            m_Device->GetVkDevice(), descriptorSetWrites.size(),
-            descriptorSetWrites.data(), 0, nullptr
+            m_Device->GetVkDevice(), descriptorSetWrites.size(), descriptorSetWrites.data(), 0, nullptr
         );
     }
 
     void ResourceSetVk::Bind(
-        const GladVulkanContext &context, VkCommandBuffer cmd, PipelineVk *pipeline,
-        VkPipelineBindPoint bindPoint,
+        const GladVulkanContext &context, VkCommandBuffer cmd, PipelineVk *pipeline, VkPipelineBindPoint bindPoint,
         const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets
     )
     {
@@ -602,22 +525,17 @@ namespace Nexus::Graphics
         // correct spot in the buffer
         for (const auto &[descriptorName, dynamicOffsetVector] : dynamicOffsets)
         {
-            const DynamicOffsetDescription &dynamicOffsetDesc =
-                m_DynamicOffsetMap[descriptorName];
+            const DynamicOffsetDescription &dynamicOffsetDesc = m_DynamicOffsetMap[descriptorName];
 
             // maybe this should iterate through each element in the stored list
             // rather than the submitted one to prevent crashes when accessing out of
             // bounds ????
-            for (size_t dynamicOffsetIndex = 0;
-                 dynamicOffsetIndex < dynamicOffsetVector.size();
-                 dynamicOffsetIndex++)
+            for (size_t dynamicOffsetIndex = 0; dynamicOffsetIndex < dynamicOffsetVector.size(); dynamicOffsetIndex++)
             {
                 // retrieve the actual dynamic offset and put it into the dynamic
                 // offsets buffer at the correct spot
                 uint32_t dynamicOffset = dynamicOffsetVector[dynamicOffsetIndex];
-                m_DynamicOffsets[dynamicOffsetDesc.Set]
-                                [dynamicOffsetDesc.Offset + dynamicOffset] =
-                                    dynamicOffset;
+                m_DynamicOffsets[dynamicOffsetDesc.Set][dynamicOffsetDesc.Offset + dynamicOffset] = dynamicOffset;
             }
         }
 
@@ -625,22 +543,18 @@ namespace Nexus::Graphics
         {
             std::vector<uint32_t> &dynamicOffsets = m_DynamicOffsets[setIndex];
             Vk::BindDescriptorSets(
-                context, cmd, bindPoint, pipeline->GetPipelineLayout(), setIndex, 1,
-                &descriptorSet, m_PipelineStages, dynamicOffsets.data(),
-                dynamicOffsets.size()
+                context, cmd, bindPoint, pipeline->GetPipelineLayout(), setIndex, 1, &descriptorSet, m_PipelineStages,
+                dynamicOffsets.data(), dynamicOffsets.size()
             );
         }
     }
 
-    const std::map<uint32_t, VkDescriptorSet> &ResourceSetVk::
-        GetDescriptorSets() const
+    const std::map<uint32_t, VkDescriptorSet> &ResourceSetVk::GetDescriptorSets() const
     {
         return m_DescriptorSets;
     }
 
-    std::optional<VkShaderStageFlags> ResourceSetVk::GetPushConstantsStageFlags(
-        const std::string &name
-    ) const
+    std::optional<VkShaderStageFlags> ResourceSetVk::GetPushConstantsStageFlags(const std::string &name) const
     {
         if (m_PushConstantRanges.contains(name))
         {

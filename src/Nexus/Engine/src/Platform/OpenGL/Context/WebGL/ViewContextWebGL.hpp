@@ -19,8 +19,7 @@ namespace Nexus::GL
     {
       public:
         ViewContextWebGL(
-            const std::string &canvasName,
-            Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
+            const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
             const ContextDescription &spec
         );
         virtual ~ViewContextWebGL();

@@ -13,10 +13,7 @@ namespace Nexus::UI
     class ImGuiButton final : public IButton, public ImGuiControl
     {
       public:
-        ImGuiButton(
-            std::string_view text, std::optional<Position> position,
-            std::optional<Size> size
-        );
+        ImGuiButton(std::string_view text, std::optional<Position> position, std::optional<Size> size);
         ~ImGuiButton() final = default;
 
         void Render() final;

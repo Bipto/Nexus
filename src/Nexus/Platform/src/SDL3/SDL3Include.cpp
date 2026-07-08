@@ -829,26 +829,22 @@ namespace Nexus::SDL3
             mods |= KeyboardModifier::Scroll;
         }
 
-        if (modifiers & KeyboardModifier::LeftControl ||
-            modifiers & KeyboardModifier::RightControl)
+        if (modifiers & KeyboardModifier::LeftControl || modifiers & KeyboardModifier::RightControl)
         {
             mods |= KeyboardModifier::Control;
         }
 
-        if (modifiers & KeyboardModifier::LeftShift ||
-            modifiers & KeyboardModifier::RightShift)
+        if (modifiers & KeyboardModifier::LeftShift || modifiers & KeyboardModifier::RightShift)
         {
             mods |= KeyboardModifier::Shift;
         }
 
-        if (modifiers & KeyboardModifier::LeftAlt ||
-            modifiers & KeyboardModifier::RightAlt)
+        if (modifiers & KeyboardModifier::LeftAlt || modifiers & KeyboardModifier::RightAlt)
         {
             mods |= KeyboardModifier::Alt;
         }
 
-        if (modifiers & KeyboardModifier::LeftGUI ||
-            modifiers & KeyboardModifier::RightGUI)
+        if (modifiers & KeyboardModifier::LeftGUI || modifiers & KeyboardModifier::RightGUI)
         {
             mods |= KeyboardModifier::GUI;
         }

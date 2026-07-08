@@ -9,8 +9,7 @@ namespace Demos
     {
       public:
         ClearScreenDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -34,15 +33,11 @@ namespace Demos
                 NX_PROFILE_SCOPE("Command recording");
                 m_CommandList->Begin();
 
-                Nexus::Graphics::SwapchainHandle swapchain =
-                    Nexus::GetApplication()->GetPrimarySwapchain();
-                Nexus::Graphics::FramebufferHandle framebuffer =
-                    swapchain->GetCurrentFramebuffer();
+                Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+                Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
                 m_CommandList->SetFramebuffer(framebuffer);
 
-                m_CommandList->ClearColourTarget(
-                    0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-                );
+                m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
                 m_CommandList->End();
             }
 

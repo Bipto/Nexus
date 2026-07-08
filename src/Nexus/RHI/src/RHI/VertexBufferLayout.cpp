@@ -2,9 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    VertexBufferElement::VertexBufferElement(
-        ShaderDataType type, const std::string &name
-    )
+    VertexBufferElement::VertexBufferElement(ShaderDataType type, const std::string &name)
         : Name(name), Type(type), Size(GetShaderDataTypeSize(type)), Offset(0)
     {
     }

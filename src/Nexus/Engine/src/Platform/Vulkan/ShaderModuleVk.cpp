@@ -8,24 +8,19 @@
 
 namespace Nexus::Graphics
 {
-    ShaderModuleVk::ShaderModuleVk(
-        const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceVk *device
-    )
+    ShaderModuleVk::ShaderModuleVk(const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceVk *device)
         : IShaderModule(shaderModuleSpec), m_GraphicsDevice(device)
     {
         CreateShaderModule();
         device->SetObjectName(
-            VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule,
-            shaderModuleSpec.DebugName.c_str()
+            VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule, shaderModuleSpec.DebugName.c_str()
         );
     }
 
     ShaderModuleVk::~ShaderModuleVk()
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
-        context.DestroyShaderModule(
-            m_GraphicsDevice->GetVkDevice(), m_ShaderModule, nullptr
-        );
+        context.DestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_ShaderModule, nullptr);
     }
 
     VkShaderModule ShaderModuleVk::GetShaderModule() const
@@ -34,12 +29,10 @@ namespace Nexus::Graphics
     }
 
     static void ExtractAttribute(
-        Attribute &attribute, const spirv_cross::Resource &spirvResource,
-        spirv_cross::Compiler &compiler
+        Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler
     )
     {
-        attribute.Binding =
-            compiler.get_decoration(spirvResource.id, spv::DecorationLocation);
+        attribute.Binding = compiler.get_decoration(spirvResource.id, spv::DecorationLocation);
         attribute.Name = spirvResource.name;
 
         const spirv_cross::SPIRType &type = compiler.get_type(spirvResource.type_id);
@@ -160,9 +153,7 @@ namespace Nexus::Graphics
                         break;
                     }
                     default:
-                        throw std::runtime_error(
-                            "Failed to find a valid matrix type"
-                        );
+                        throw std::runtime_error("Failed to find a valid matrix type");
                     }
                     break;
                 }
@@ -186,9 +177,7 @@ namespace Nexus::Graphics
                         break;
                     }
                     default:
-                        throw std::runtime_error(
-                            "Failed to find a valid matrix type"
-                        );
+                        throw std::runtime_error("Failed to find a valid matrix type");
                     }
                     break;
                 }
@@ -212,9 +201,7 @@ namespace Nexus::Graphics
                         break;
                     }
                     default:
-                        throw std::runtime_error(
-                            "Failed to find a valid matrix type"
-                        );
+                        throw std::runtime_error("Failed to find a valid matrix type");
                     }
                     break;
                 }
@@ -280,9 +267,7 @@ namespace Nexus::Graphics
                         break;
                     }
                     default:
-                        throw std::runtime_error(
-                            "Failed to find a valid matrix type"
-                        );
+                        throw std::runtime_error("Failed to find a valid matrix type");
                     }
                     break;
                 }
@@ -306,9 +291,7 @@ namespace Nexus::Graphics
                         break;
                     }
                     default:
-                        throw std::runtime_error(
-                            "Failed to find a valid matrix type"
-                        );
+                        throw std::runtime_error("Failed to find a valid matrix type");
                     }
                     break;
                 }
@@ -332,9 +315,7 @@ namespace Nexus::Graphics
                         break;
                     }
                     default:
-                        throw std::runtime_error(
-                            "Failed to find a valid matrix type"
-                        );
+                        throw std::runtime_error("Failed to find a valid matrix type");
                     }
                     break;
                 }
@@ -377,15 +358,12 @@ namespace Nexus::Graphics
     }
 
     static void ExtractResource(
-        ReflectedResource &reflectedResource,
-        const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler,
-        ReflectedShaderDataType dataType
+        ReflectedResource &reflectedResource, const spirv_cross::Resource &spirvResource,
+        spirv_cross::Compiler &compiler, ReflectedShaderDataType dataType
     )
     {
-        uint32_t set =
-            compiler.get_decoration(spirvResource.id, spv::DecorationDescriptorSet);
-        uint32_t binding =
-            compiler.get_decoration(spirvResource.id, spv::DecorationBinding);
+        uint32_t set = compiler.get_decoration(spirvResource.id, spv::DecorationDescriptorSet);
+        uint32_t binding = compiler.get_decoration(spirvResource.id, spv::DecorationBinding);
         const spirv_cross::SPIRType &type = compiler.get_type(spirvResource.type_id);
 
         reflectedResource.Type = dataType;
@@ -403,8 +381,7 @@ namespace Nexus::Graphics
             reflectedResource.BindingCount = 1;
         }
 
-        if (dataType == ReflectedShaderDataType::Texture ||
-            dataType == ReflectedShaderDataType::CombinedImageSampler)
+        if (dataType == ReflectedShaderDataType::Texture || dataType == ReflectedShaderDataType::CombinedImageSampler)
         {
             switch (type.image.dim)
             {
@@ -427,13 +404,11 @@ namespace Nexus::Graphics
                 {
                     if (type.image.ms)
                     {
-                        reflectedResource.Dimension =
-                            ResourceDimension::Texture2DMSArray;
+                        reflectedResource.Dimension = ResourceDimension::Texture2DMSArray;
                     }
                     else
                     {
-                        reflectedResource.Dimension =
-                            ResourceDimension::Texture2DArray;
+                        reflectedResource.Dimension = ResourceDimension::Texture2DArray;
                     }
                     break;
                 }
@@ -465,8 +440,7 @@ namespace Nexus::Graphics
             {
                 if (type.image.arrayed)
                 {
-                    reflectedResource.Dimension =
-                        ResourceDimension::TextureCubeArray;
+                    reflectedResource.Dimension = ResourceDimension::TextureCubeArray;
                     break;
                 }
                 else
@@ -486,9 +460,7 @@ namespace Nexus::Graphics
                 break;
             }
             default:
-                throw std::runtime_error(
-                    "Failed to find a valid resource dimension"
-                );
+                throw std::runtime_error("Failed to find a valid resource dimension");
             }
         }
         else if (dataType == ReflectedShaderDataType::Sampler)
@@ -559,102 +531,64 @@ namespace Nexus::Graphics
 
         for (const auto &uniformBuffer : resources.uniform_buffers)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, uniformBuffer, compiler,
-                ReflectedShaderDataType::UniformBuffer
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, uniformBuffer, compiler, ReflectedShaderDataType::UniformBuffer);
         }
 
         for (const auto &storageBuffer : resources.storage_buffers)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, storageBuffer, compiler,
-                ReflectedShaderDataType::StorageBuffer
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, storageBuffer, compiler, ReflectedShaderDataType::StorageBuffer);
         }
 
         for (const auto &subpassInput : resources.subpass_inputs)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, subpassInput, compiler,
-                ReflectedShaderDataType::InputAttachment
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, subpassInput, compiler, ReflectedShaderDataType::InputAttachment);
         }
 
         for (const auto &storageImage : resources.storage_images)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, storageImage, compiler,
-                ReflectedShaderDataType::StorageImage
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, storageImage, compiler, ReflectedShaderDataType::StorageImage);
         }
 
         for (const auto &sampledImage : resources.sampled_images)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, sampledImage, compiler,
-                ReflectedShaderDataType::CombinedImageSampler
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, sampledImage, compiler, ReflectedShaderDataType::CombinedImageSampler);
         }
 
         for (const auto &atomicCounter : resources.atomic_counters)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, atomicCounter, compiler,
-                ReflectedShaderDataType::AtomicUint
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, atomicCounter, compiler, ReflectedShaderDataType::AtomicUint);
         }
 
         for (const auto &accelerationStructure : resources.acceleration_structures)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
             ExtractResource(
-                reflectedResource, accelerationStructure, compiler,
-                ReflectedShaderDataType::AccelerationStructure
+                reflectedResource, accelerationStructure, compiler, ReflectedShaderDataType::AccelerationStructure
             );
         }
 
         for (const auto &pushConstant : resources.push_constant_buffers)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, pushConstant, compiler,
-                ReflectedShaderDataType::PushConstants
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, pushConstant, compiler, ReflectedShaderDataType::PushConstants);
         }
 
         for (const auto &separateImage : resources.separate_images)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, separateImage, compiler,
-                ReflectedShaderDataType::Texture
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, separateImage, compiler, ReflectedShaderDataType::Texture);
         }
 
         for (const auto &separateSampler : resources.separate_samplers)
         {
-            ReflectedResource &reflectedResource =
-                reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, separateSampler, compiler,
-                ReflectedShaderDataType::Sampler
-            );
+            ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
+            ExtractResource(reflectedResource, separateSampler, compiler, ReflectedShaderDataType::Sampler);
         }
 
         return reflectionData;
@@ -667,14 +601,11 @@ namespace Nexus::Graphics
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.pNext = nullptr;
-        createInfo.codeSize =
-            m_ModuleDescription.SpirvBinary.size() * sizeof(uint32_t);
+        createInfo.codeSize = m_ModuleDescription.SpirvBinary.size() * sizeof(uint32_t);
         createInfo.pCode = m_ModuleDescription.SpirvBinary.data();
 
-        if (context.CreateShaderModule(
-                m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr,
-                &m_ShaderModule
-            ) != VK_SUCCESS)
+        if (context.CreateShaderModule(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &m_ShaderModule) !=
+            VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create shader module");
         }

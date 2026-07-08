@@ -67,15 +67,11 @@ namespace Nexus::Graphics
 
             for (const Triangle3D &tri : m_Triangles)
             {
-                float maxX =
-                    glm::max<float>(tri.A.x, glm::max<float>(tri.B.x, tri.C.x));
-                float minX =
-                    glm::min<float>(tri.A.x, glm::min<float>(tri.B.x, tri.C.x));
+                float maxX = glm::max<float>(tri.A.x, glm::max<float>(tri.B.x, tri.C.x));
+                float minX = glm::min<float>(tri.A.x, glm::min<float>(tri.B.x, tri.C.x));
 
-                float maxY =
-                    glm::max<float>(tri.A.y, glm::max<float>(tri.B.y, tri.C.y));
-                float minY =
-                    glm::min<float>(tri.A.y, glm::min<float>(tri.B.y, tri.C.y));
+                float maxY = glm::max<float>(tri.A.y, glm::max<float>(tri.B.y, tri.C.y));
+                float minY = glm::min<float>(tri.A.y, glm::min<float>(tri.B.y, tri.C.y));
 
                 if (minX < min.x)
                 {

@@ -22,9 +22,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandExecutorVk::ExecuteCommands(
-        ICommandList *commandList, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -42,8 +40,7 @@ namespace Nexus::Graphics
                 VkCommandBufferBeginInfo beginInfo = {};
                 beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
                 beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-                if (context.BeginCommandBuffer(m_CommandBuffer, &beginInfo) !=
-                    VK_SUCCESS)
+                if (context.BeginCommandBuffer(m_CommandBuffer, &beginInfo) != VK_SUCCESS)
                 {
                     throw std::runtime_error("Failed to begin command buffer");
                 }
@@ -55,11 +52,9 @@ namespace Nexus::Graphics
         // execute commands
         {
             NX_PROFILE_SCOPE("CommandExecutorVk::ExecuteCommand");
-            const std::vector<std::unique_ptr<IGraphicsCommand>> &commands =
-                commandList->GetCommands();
+            const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
             m_Commands = commands;
-            for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size();
-                 m_CurrentCommandIndex++)
+            for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
             {
                 NX_PROFILE_SCOPE("CommandExecutorVk Inside Loop");
                 const auto &command = commands.at(m_CurrentCommandIndex);
@@ -86,23 +81,17 @@ namespace Nexus::Graphics
         m_CommandBuffer = commandBuffer;
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const SetVertexBufferCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
 
-        const DeviceBufferVk *vertexBufferVk =
-            command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
+        const DeviceBufferVk *vertexBufferVk = command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
         VkBuffer vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
         VkDeviceSize offsets[] = {command.View.Offset};
         VkDeviceSize sizes[] = {command.View.Size};
@@ -111,46 +100,31 @@ namespace Nexus::Graphics
 
         if (context.CmdBindVertexBuffers2)
         {
-            context.CmdBindVertexBuffers2(
-                m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes,
-                nullptr
-            );
+            context.CmdBindVertexBuffers2(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
         }
         else if (context.CmdBindVertexBuffers2EXT)
         {
-            context.CmdBindVertexBuffers2EXT(
-                m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes,
-                nullptr
-            );
+            context.CmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
         }
         else
         {
-            context.CmdBindVertexBuffers(
-                m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets
-            );
+            context.CmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const SetIndexBufferCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
 
-        const DeviceBufferVk *indexBufferVk =
-            command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
+        const DeviceBufferVk *indexBufferVk = command.View.BufferHandle.AsDerived<const DeviceBufferVk>();
         VkBuffer indexBufferHandle = indexBufferVk->GetVkBuffer();
-        VkIndexType indexType =
-            Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
+        VkIndexType indexType = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
         VkDeviceSize offset = command.View.Offset;
         VkDeviceSize size = command.View.Size;
 
@@ -158,27 +132,19 @@ namespace Nexus::Graphics
 
         if (context.CmdBindIndexBuffer2)
         {
-            context.CmdBindIndexBuffer2(
-                m_CommandBuffer, indexBufferHandle, offset, size, indexType
-            );
+            context.CmdBindIndexBuffer2(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
         }
         else if (context.CmdBindIndexBuffer2KHR)
         {
-            context.CmdBindIndexBuffer2KHR(
-                m_CommandBuffer, indexBufferHandle, offset, size, indexType
-            );
+            context.CmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
         }
         else
         {
-            context.CmdBindIndexBuffer(
-                m_CommandBuffer, indexBufferHandle, offset, indexType
-            );
+            context.CmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, offset, indexType);
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        PipelineHandle command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(PipelineHandle command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -193,8 +159,7 @@ namespace Nexus::Graphics
         {
             m_CurrentlyBoundPipeline = command;
 
-            if (command->GetType() != PipelineType::Graphics &&
-                command->GetType() != PipelineType::Meshlet)
+            if (command->GetType() != PipelineType::Graphics && command->GetType() != PipelineType::Meshlet)
             {
                 pipeline->Bind(m_CommandBuffer, VK_NULL_HANDLE);
             }
@@ -204,8 +169,7 @@ namespace Nexus::Graphics
                 // rendering is available, otherwise we need to know which
                 // VkRenderPass to use with it
                 GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
-                const VulkanDeviceFeatures &deviceFeatures =
-                    deviceVk->GetDeviceFeatures();
+                const VulkanDeviceFeatures &deviceFeatures = deviceVk->GetDeviceFeatures();
                 if (deviceFeatures.DynamicRenderingAvailable)
                 {
                     pipeline->Bind(m_CommandBuffer, VK_NULL_HANDLE);
@@ -214,17 +178,12 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DrawDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DrawDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
@@ -233,22 +192,16 @@ namespace Nexus::Graphics
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
         context.CmdDraw(
-            m_CommandBuffer, command.VertexCount, command.InstanceCount,
-            command.VertexStart, command.InstanceStart
+            m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart
         );
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DrawIndexedDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
@@ -257,70 +210,54 @@ namespace Nexus::Graphics
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
         context.CmdDrawIndexed(
-            m_CommandBuffer, command.IndexCount, command.InstanceCount,
-            command.IndexStart, command.VertexStart, command.InstanceStart
+            m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart,
+            command.InstanceStart
         );
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DrawIndirectDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
 
-        if (const DeviceBufferVk *indirectBuffer =
-                command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
+        if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
         {
             BindGraphicsPipeline();
 
             const GladVulkanContext &context = m_Device->GetVulkanContext();
             context.CmdDrawIndirect(
-                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset,
-                command.DrawCount, command.Stride
+                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride
             );
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DrawIndirectIndexedDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DrawIndirectIndexedDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
 
-        if (const DeviceBufferVk *indirectBuffer =
-                command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
+        if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
         {
             BindGraphicsPipeline();
 
             const GladVulkanContext &context = m_Device->GetVulkanContext();
             context.CmdDrawIndexedIndirect(
-                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset,
-                command.DrawCount, command.Stride
+                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride
             );
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DispatchDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DispatchDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -331,15 +268,10 @@ namespace Nexus::Graphics
         }
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.CmdDispatch(
-            m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY,
-            command.WorkGroupCountZ
-        );
+        context.CmdDispatch(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DispatchIndirectDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DispatchIndirectDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -349,27 +281,19 @@ namespace Nexus::Graphics
             return;
         }
 
-        if (const DeviceBufferVk *indirectBuffer =
-                command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
+        if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
         {
             const GladVulkanContext &context = m_Device->GetVulkanContext();
-            context.CmdDispatchIndirect(
-                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset
-            );
+            context.CmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DrawMeshDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DrawMeshDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
@@ -381,29 +305,22 @@ namespace Nexus::Graphics
         if (context.CmdDrawMeshTasksEXT)
         {
             context.CmdDrawMeshTasksEXT(
-                m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY,
-                command.WorkGroupCountZ
+                m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ
             );
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DrawMeshIndirectDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DrawMeshIndirectDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForGraphicsCall(
-                m_CurrentlyBoundPipeline, m_CurrentRenderTarget
-            ) ||
-            !ValidateIsRendering())
+        if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
         {
             return;
         }
 
-        if (const DeviceBufferVk *indirectBuffer =
-                command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
+        if (const DeviceBufferVk *indirectBuffer = command.IndirectBuffer.AsDerived<const DeviceBufferVk>())
         {
             BindGraphicsPipeline();
 
@@ -412,16 +329,13 @@ namespace Nexus::Graphics
             if (context.CmdDrawMeshTasksIndirectEXT)
             {
                 context.CmdDrawMeshTasksIndirectEXT(
-                    m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset,
-                    command.DrawCount, command.Stride
+                    m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride
                 );
             }
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const ResourceSetBindingDescription &desc, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const ResourceSetBindingDescription &desc, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -430,21 +344,17 @@ namespace Nexus::Graphics
         {
             pipeline->SetResourceSet(m_CommandBuffer, desc);
 
-            const ResourceSetVk *resourceSet =
-                desc.TargetResourceSet.AsDerived<const ResourceSetVk>();
+            const ResourceSetVk *resourceSet = desc.TargetResourceSet.AsDerived<const ResourceSetVk>();
             m_CurrentlyBoundResourceSet = resourceSet;
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const ClearColorTargetCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const ClearColorTargetCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
 
-        if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index) ||
-            !ValidateIsRendering())
+        if (!ValidateForClearColour(m_CurrentRenderTarget, command.Index) || !ValidateIsRendering())
         {
             return;
         }
@@ -452,8 +362,7 @@ namespace Nexus::Graphics
         VkClearAttachment clearAttachment{};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         clearAttachment.clearValue.color = {
-            command.Colour.Red, command.Colour.Green, command.Colour.Blue,
-            command.Colour.Alpha
+            command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha
         };
         clearAttachment.colorAttachment = command.Index;
 
@@ -479,14 +388,10 @@ namespace Nexus::Graphics
         }
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.CmdClearAttachments(
-            m_CommandBuffer, 1, &clearAttachment, 1, &clearRect
-        );
+        context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const ClearDepthStencilTargetCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -497,8 +402,7 @@ namespace Nexus::Graphics
         }
 
         VkClearAttachment clearAttachment{};
-        clearAttachment.aspectMask =
-            VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        clearAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         clearAttachment.clearValue.depthStencil.depth = command.Value.Depth;
         clearAttachment.clearValue.depthStencil.stencil = command.Value.Stencil;
         clearAttachment.colorAttachment = m_DepthAttachmentIndex;
@@ -525,20 +429,15 @@ namespace Nexus::Graphics
         }
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.CmdClearAttachments(
-            m_CommandBuffer, 1, &clearAttachment, 1, &clearRect
-        );
+        context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        FramebufferHandle command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(FramebufferHandle command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         StopRendering();
 
-        if (const FramebufferVk *framebuffer =
-                command.AsDerived<const FramebufferVk>())
+        if (const FramebufferVk *framebuffer = command.AsDerived<const FramebufferVk>())
         {
             StartRenderingToFramebuffer(command);
             m_CurrentRenderTarget = command;
@@ -546,9 +445,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const Viewport &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const Viewport &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -573,9 +470,7 @@ namespace Nexus::Graphics
         context.CmdSetViewport(m_CommandBuffer, 0, 1, &vp);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const Scissor &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const Scissor &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         TryStartRendering();
@@ -593,9 +488,7 @@ namespace Nexus::Graphics
         context.CmdSetScissor(m_CommandBuffer, 0, 1, &rect);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const ResolveTextureDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const ResolveTextureDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
         if (!ValidateForResolve(command))
@@ -608,16 +501,12 @@ namespace Nexus::Graphics
         auto source = command.Source.AsDerived<const TextureVk>();
         auto destination = command.Destination.AsDerived<const TextureVk>();
 
-        Point2D<uint32_t> size = Utils::GetMipSize(
-            command.Source->GetWidth(), command.Source->GetHeight(),
-            command.SourceMipLevel
-        );
+        Point2D<uint32_t> size =
+            Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
         VkImageSubresourceLayers srcSubresource = {};
         srcSubresource.aspectMask =
-            source->IsDepth()
-                ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
-                : VK_IMAGE_ASPECT_COLOR_BIT;
+            source->IsDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
         srcSubresource.mipLevel = command.SourceMipLevel;
         srcSubresource.baseArrayLayer = 0;
         srcSubresource.layerCount = 1;
@@ -638,10 +527,8 @@ namespace Nexus::Graphics
         }
 
         VkImageSubresourceLayers dstSubresource = {};
-        dstSubresource.aspectMask =
-            destination->IsDepth()
-                ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
-                : VK_IMAGE_ASPECT_COLOR_BIT;
+        dstSubresource.aspectMask = destination->IsDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
+                                                           : VK_IMAGE_ASPECT_COLOR_BIT;
         dstSubresource.mipLevel = command.DestinationMipLevel;
         dstSubresource.baseArrayLayer = 0;
         dstSubresource.layerCount = 1;
@@ -696,8 +583,7 @@ namespace Nexus::Graphics
             resolve.dstSubresource = dstSubresource;
 
             context.CmdResolveImage(
-                m_CommandBuffer, source->GetImage(),
-                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, destination->GetImage(),
+                m_CommandBuffer, source->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, destination->GetImage(),
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve
             );
         }
@@ -705,9 +591,7 @@ namespace Nexus::Graphics
         ExecuteCommand(m_CurrentRenderTarget, device);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const StartTimingQueryCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -715,19 +599,12 @@ namespace Nexus::Graphics
         if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
         {
             const GladVulkanContext &context = m_Device->GetVulkanContext();
-            context.CmdResetQueryPool(
-                m_CommandBuffer, queryVk->GetQueryPool(), 0, 2
-            );
-            context.CmdWriteTimestamp(
-                m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                queryVk->GetQueryPool(), 0
-            );
+            context.CmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
+            context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const StopTimingQueryCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const StopTimingQueryCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -736,22 +613,17 @@ namespace Nexus::Graphics
         {
             const GladVulkanContext &context = m_Device->GetVulkanContext();
             context.CmdWriteTimestamp(
-                m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                queryVk->GetQueryPool(), 1
+                m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1
             );
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const CopyBufferToBufferCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
-        const DeviceBufferVk *src =
-            command.BufferCopy.Source.AsDerived<const DeviceBufferVk>();
-        const DeviceBufferVk *dst =
-            command.BufferCopy.Destination.AsDerived<const DeviceBufferVk>();
+        const DeviceBufferVk *src = command.BufferCopy.Source.AsDerived<const DeviceBufferVk>();
+        const DeviceBufferVk *dst = command.BufferCopy.Destination.AsDerived<const DeviceBufferVk>();
 
         if (!src || !dst)
         {
@@ -797,23 +669,18 @@ namespace Nexus::Graphics
             }
 
             context.CmdCopyBuffer(
-                m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(),
-                bufferCopies.size(), bufferCopies.data()
+                m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(), bufferCopies.data()
             );
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const CopyBufferToTextureCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
         GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
-        const DeviceBufferVk *buffer =
-            command.BufferTextureCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
-        const TextureVk *texture =
-            command.BufferTextureCopy.Texture.AsDerived<const TextureVk>();
+        const DeviceBufferVk *buffer = command.BufferTextureCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
+        const TextureVk *texture = command.BufferTextureCopy.Texture.AsDerived<const TextureVk>();
         VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
         if (!buffer)
@@ -837,8 +704,7 @@ namespace Nexus::Graphics
 
             if (texture->GetType() != TextureType::Texture3D)
             {
-                imageSubresource.baseArrayLayer =
-                    command.BufferTextureCopy.TextureOffset.Z;
+                imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureOffset.Z;
                 imageSubresource.layerCount = copyDepth;
             }
 
@@ -863,10 +729,8 @@ namespace Nexus::Graphics
                 copyRegion.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR;
                 copyRegion.pNext = nullptr;
                 copyRegion.bufferOffset = command.BufferTextureCopy.BufferOffset;
-                copyRegion.bufferRowLength =
-                    command.BufferTextureCopy.BufferRowLength;
-                copyRegion.bufferImageHeight =
-                    command.BufferTextureCopy.BufferImageHeight;
+                copyRegion.bufferRowLength = command.BufferTextureCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = command.BufferTextureCopy.BufferImageHeight;
                 copyRegion.imageSubresource = imageSubresource;
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
@@ -886,39 +750,33 @@ namespace Nexus::Graphics
             {
                 VkBufferImageCopy copyRegion = {};
                 copyRegion.bufferOffset = command.BufferTextureCopy.BufferOffset;
-                copyRegion.bufferRowLength =
-                    command.BufferTextureCopy.BufferRowLength;
-                copyRegion.bufferImageHeight =
-                    command.BufferTextureCopy.BufferImageHeight;
+                copyRegion.bufferRowLength = command.BufferTextureCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = command.BufferTextureCopy.BufferImageHeight;
                 copyRegion.imageSubresource = imageSubresource;
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
 
                 context.CmdCopyBufferToImage(
-                    m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
+                    m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    1, &copyRegion
                 );
             }
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const CopyTextureToBufferCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
         GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
-        const DeviceBufferVk *buffer =
-            command.TextureBufferCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
+        const DeviceBufferVk *buffer = command.TextureBufferCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
 
         if (!buffer)
         {
             return;
         }
 
-        const TextureVk *texture =
-            command.TextureBufferCopy.Texture.AsDerived<const TextureVk>();
+        const TextureVk *texture = command.TextureBufferCopy.Texture.AsDerived<const TextureVk>();
         VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
 
         std::map<uint32_t, VkImageLayout> previousLayouts;
@@ -937,8 +795,7 @@ namespace Nexus::Graphics
 
             if (texture->GetType() != TextureType::Texture3D)
             {
-                imageSubresource.baseArrayLayer =
-                    command.TextureBufferCopy.TextureOffset.Z;
+                imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureOffset.Z;
                 imageSubresource.layerCount = copyDepth;
             }
 
@@ -963,10 +820,8 @@ namespace Nexus::Graphics
                 copyRegion.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR;
                 copyRegion.pNext = nullptr;
                 copyRegion.bufferOffset = command.TextureBufferCopy.BufferOffset;
-                copyRegion.bufferRowLength =
-                    command.TextureBufferCopy.BufferRowLength;
-                copyRegion.bufferImageHeight =
-                    command.TextureBufferCopy.BufferImageHeight;
+                copyRegion.bufferRowLength = command.TextureBufferCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = command.TextureBufferCopy.BufferImageHeight;
                 copyRegion.imageSubresource = imageSubresource;
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
@@ -986,34 +841,27 @@ namespace Nexus::Graphics
             {
                 VkBufferImageCopy copyRegion = {};
                 copyRegion.bufferOffset = command.TextureBufferCopy.BufferOffset;
-                copyRegion.bufferRowLength =
-                    command.TextureBufferCopy.BufferRowLength;
-                copyRegion.bufferImageHeight =
-                    command.TextureBufferCopy.BufferImageHeight;
+                copyRegion.bufferRowLength = command.TextureBufferCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = command.TextureBufferCopy.BufferImageHeight;
                 copyRegion.imageSubresource = imageSubresource;
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
 
                 context.CmdCopyImageToBuffer(
-                    m_CommandBuffer, texture->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1,
-                    &copyRegion
+                    m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(),
+                    1, &copyRegion
                 );
             }
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const CopyTextureToTextureCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
         GraphicsDeviceVk *deviceVk = (GraphicsDeviceVk *)device;
-        const TextureVk *srcTexture =
-            command.TextureCopy.Source.AsDerived<const TextureVk>();
-        const TextureVk *dstTexture =
-            command.TextureCopy.Destination.AsDerived<const TextureVk>();
+        const TextureVk *srcTexture = command.TextureCopy.Source.AsDerived<const TextureVk>();
+        const TextureVk *dstTexture = command.TextureCopy.Destination.AsDerived<const TextureVk>();
 
         VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(srcTexture->IsDepth());
         VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(dstTexture->IsDepth());
@@ -1057,8 +905,7 @@ namespace Nexus::Graphics
             // textures
             if (dstTexture->GetType() != TextureType::Texture3D)
             {
-                dstSubresource.baseArrayLayer =
-                    command.TextureCopy.DestinationOffset.Z;
+                dstSubresource.baseArrayLayer = command.TextureCopy.DestinationOffset.Z;
                 dstSubresource.layerCount = copyDepth;
             }
 
@@ -1118,17 +965,14 @@ namespace Nexus::Graphics
                 copyRegion.extent = copyExtent;
 
                 context.CmdCopyImage(
-                    m_CommandBuffer, srcTexture->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstTexture->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
+                    m_CommandBuffer, srcTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    dstTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
                 );
             }
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const BeginDebugGroupCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1160,9 +1004,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const EndDebugGroupCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1186,8 +1028,7 @@ namespace Nexus::Graphics
             }*/
 
             const auto &data = m_Commands.data() + m_CurrentCommandIndex;
-            if (auto command =
-                    dynamic_cast<SetFramebufferCommandImpl *>(data->get()))
+            if (auto command = dynamic_cast<SetFramebufferCommandImpl *>(data->get()))
             {
                 StopRendering();
             }
@@ -1203,9 +1044,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const InsertDebugMarkerCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1237,36 +1076,27 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const SetBlendFactorCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
         float blendConstants[4] = {
-            command.BlendFactor.Red, command.BlendFactor.Green,
-            command.BlendFactor.Blue, command.BlendFactor.Alpha
+            command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue, command.BlendFactor.Alpha
         };
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
         context.CmdSetBlendConstants(m_CommandBuffer, blendConstants);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const SetStencilReferenceCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.CmdSetStencilReference(
-            m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.StencilReference
-        );
+        context.CmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.StencilReference);
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1278,62 +1108,41 @@ namespace Nexus::Graphics
         }
 
         // create storage for the data
-        std::vector<std::vector<VkAccelerationStructureGeometryKHR>>
-            accelerationStructureGeometries = {};
-        std::vector<VkAccelerationStructureBuildGeometryInfoKHR> buildGeometries =
-            {};
-        std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>>
-            buildRanges = {};
+        std::vector<std::vector<VkAccelerationStructureGeometryKHR>> accelerationStructureGeometries = {};
+        std::vector<VkAccelerationStructureBuildGeometryInfoKHR> buildGeometries = {};
+        std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>> buildRanges = {};
 
         // loop through all requested builds
-        for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo :
-             command.BuildDescriptions)
+        for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : command.BuildDescriptions)
         {
             // validate that required members have been filled in correctly
             NX_VALIDATE(
-                buildGeometryInfo.Destination.IsValid(),
-                "Acceleration structure build must have a destination"
+                buildGeometryInfo.Destination.IsValid(), "Acceleration structure build must have a destination"
             );
-            NX_VALIDATE(
-                buildGeometryInfo.ScratchBuffer,
-                "Acceleration structure build must have a scratch buffer"
-            );
+            NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
 
             if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
             {
-                NX_VALIDATE(
-                    buildGeometryInfo.Source.IsValid(),
-                    "Acceleration structure update must have a source"
-                );
+                NX_VALIDATE(buildGeometryInfo.Source.IsValid(), "Acceleration structure update must have a source");
             }
 
             // create a new vector to hold the information for the individual build
             std::vector<uint32_t> primitiveCounts;
-            std::vector<VkAccelerationStructureGeometryKHR>
-                &accelerationStructureGeometry =
-                    accelerationStructureGeometries.emplace_back();
+            std::vector<VkAccelerationStructureGeometryKHR> &accelerationStructureGeometry =
+                accelerationStructureGeometries.emplace_back();
             accelerationStructureGeometry =
-                Vk::GetVulkanAccelerationStructureGeometries(
-                    buildGeometryInfo, primitiveCounts
-                );
+                Vk::GetVulkanAccelerationStructureGeometries(buildGeometryInfo, primitiveCounts);
 
             // create the new build description
-            buildGeometries.push_back(
-                Vk::GetGeometryBuildInfo(
-                    buildGeometryInfo, accelerationStructureGeometry
-                )
-            );
+            buildGeometries.push_back(Vk::GetGeometryBuildInfo(buildGeometryInfo, accelerationStructureGeometry));
 
             // create a new vector to hold the build range
-            std::vector<VkAccelerationStructureBuildRangeInfoKHR>
-                &geometryBuildRange = buildRanges.emplace_back();
+            std::vector<VkAccelerationStructureBuildRangeInfoKHR> &geometryBuildRange = buildRanges.emplace_back();
 
             // iterate through each build range and convert them to Vulkan types
             for (uint32_t primitiveCount : primitiveCounts)
             {
-                geometryBuildRange.push_back(
-                    Vk::GetAccelerationStructureBuildRange(primitiveCount)
-                );
+                geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(primitiveCount));
             }
         }
 
@@ -1346,37 +1155,30 @@ namespace Nexus::Graphics
 
         // execute the acceleration structure build
         context.CmdBuildAccelerationStructuresKHR(
-            m_CommandBuffer, buildGeometries.size(), buildGeometries.data(),
-            buildRangePtrs.data()
+            m_CommandBuffer, buildGeometries.size(), buildGeometries.data(), buildRangePtrs.data()
         );
     }
 
+    void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)
+    {
+        NX_PROFILE_FUNCTION();
+    }
+
     void CommandExecutorVk::ExecuteCommand(
-        const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device
+        const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device
     )
     {
         NX_PROFILE_FUNCTION();
     }
 
     void CommandExecutorVk::ExecuteCommand(
-        const AccelerationStructureDeviceBufferCopyDescription &command,
-        IGraphicsDevice *device
+        const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device
     )
     {
         NX_PROFILE_FUNCTION();
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DeviceBufferAccelerationStructureCopyDescription &command,
-        IGraphicsDevice *device
-    )
-    {
-        NX_PROFILE_FUNCTION();
-    }
-
-    void CommandExecutorVk::ExecuteCommand(
-        const PushConstantsDesc &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1422,17 +1224,14 @@ namespace Nexus::Graphics
             else
             {
                 context.CmdPushConstants(
-                    m_CommandBuffer, pipeline->GetPipelineLayout(),
-                    stageFlags.value(), command.Offset, command.Data.size(),
-                    command.Data.data()
+                    m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(), command.Offset,
+                    command.Data.size(), command.Data.data()
                 );
             }
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const BarrierGroupDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1453,33 +1252,25 @@ namespace Nexus::Graphics
         // ranges
         for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
         {
-            const TextureVk *textureVk =
-                textureBarrier.Texture.AsDerived<const TextureVk>();
+            const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 
-            for (uint32_t arrayLayer =
-                     textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+            for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
                  arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
                                   textureBarrier.TextureSubresourceRange.LayerCount;
                  arrayLayer++)
             {
-                for (uint32_t mipLevel =
-                         textureBarrier.TextureSubresourceRange.BaseMipLevel;
-                     mipLevel <
-                     textureBarrier.TextureSubresourceRange.BaseMipLevel +
-                         textureBarrier.TextureSubresourceRange.LevelCount;
+                for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                     mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                    textureBarrier.TextureSubresourceRange.LevelCount;
                      mipLevel++)
                 {
-                    Vk::SubresourceRangeLayout &range =
-                        ranges[textureVk->GetImage()].emplace_back();
-                    range.range.aspectMask =
-                        Vk::GetAspectFlags(textureVk->IsDepth());
+                    Vk::SubresourceRangeLayout &range = ranges[textureVk->GetImage()].emplace_back();
+                    range.range.aspectMask = Vk::GetAspectFlags(textureVk->IsDepth());
                     range.range.baseArrayLayer = arrayLayer;
                     range.range.layerCount = 1;
                     range.range.baseMipLevel = mipLevel;
                     range.range.levelCount = 1;
-                    range.layout = Vk::GetImageLayout(
-                        m_Device, textureVk->GetTextureLayout(arrayLayer, mipLevel)
-                    );
+                    range.layout = Vk::GetImageLayout(m_Device, textureVk->GetTextureLayout(arrayLayer, mipLevel));
                 }
             }
         }
@@ -1505,42 +1296,32 @@ namespace Nexus::Graphics
 
             for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
             {
-                VkImageLayout layout =
-                    Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-                const TextureVk *textureVk =
-                    textureBarrier.Texture.AsDerived<const TextureVk>();
+                VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+                const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
                 Vk::CreateTextureBarrier2(
-                    m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
-                    textureBarrier.AfterAccess, textureBarrier.BeforeStage,
-                    textureBarrier.AfterStage, srcQueue, dstQueue, layout,
-                    textureBarriers, ranges
+                    m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
+                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriers,
+                    ranges
                 );
             }
 
             for (const BufferBarrierDesc &bufferBarrier : command.BufferBarriers)
             {
-                Vk::CreateBufferBarrier2(
-                    m_Device, bufferBarrier, bufferBarriers, srcQueue, dstQueue
-                );
+                Vk::CreateBufferBarrier2(m_Device, bufferBarrier, bufferBarriers, srcQueue, dstQueue);
             }
 
             VkDependencyInfo dependencyInfo = {};
             dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
             dependencyInfo.pNext = nullptr;
             dependencyInfo.dependencyFlags = dependencyFlags;
-            dependencyInfo.memoryBarrierCount =
-                static_cast<uint32_t>(memoryBarriers.size());
+            dependencyInfo.memoryBarrierCount = static_cast<uint32_t>(memoryBarriers.size());
             dependencyInfo.pMemoryBarriers = memoryBarriers.data();
-            dependencyInfo.bufferMemoryBarrierCount =
-                static_cast<uint32_t>(bufferBarriers.size());
+            dependencyInfo.bufferMemoryBarrierCount = static_cast<uint32_t>(bufferBarriers.size());
             dependencyInfo.pBufferMemoryBarriers = bufferBarriers.data();
-            dependencyInfo.imageMemoryBarrierCount =
-                static_cast<uint32_t>(textureBarriers.size());
+            dependencyInfo.imageMemoryBarrierCount = static_cast<uint32_t>(textureBarriers.size());
             dependencyInfo.pImageMemoryBarriers = textureBarriers.data();
 
-            context.CmdPipelineBarrier2(
-                m_CommandBuffer, std::addressof(dependencyInfo)
-            );
+            context.CmdPipelineBarrier2(m_CommandBuffer, std::addressof(dependencyInfo));
         }
         // submit a legacy pipeline barrier
         else
@@ -1563,32 +1344,23 @@ namespace Nexus::Graphics
 
             for (const TextureBarrierDesc &textureBarrier : command.TextureBarriers)
             {
-                VkImageLayout layout =
-                    Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-                const TextureVk *textureVk =
-                    textureBarrier.Texture.AsDerived<const TextureVk>();
+                VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+                const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
                 Vk::CreateTextureBarrier(
-                    m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
-                    textureBarrier.AfterAccess, textureBarrier.BeforeStage,
-                    textureBarrier.AfterStage, srcQueue, dstQueue, layout,
-                    textureBarriers, ranges
+                    m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
+                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriers,
+                    ranges
                 );
 
-                srcStageMask |=
-                    Vk::GetPipelineStageFlags(m_Device, textureBarrier.BeforeStage);
-                dstStageMask |=
-                    Vk::GetPipelineStageFlags(m_Device, textureBarrier.AfterStage);
+                srcStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.BeforeStage);
+                dstStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.AfterStage);
             }
 
             for (const BufferBarrierDesc &bufferBarrier : command.BufferBarriers)
             {
-                Vk::CreateBufferBarrier(
-                    m_Device, bufferBarrier, bufferBarriers, srcQueue, dstQueue
-                );
-                srcStageMask |=
-                    Vk::GetPipelineStageFlags(m_Device, bufferBarrier.BeforeStage);
-                dstStageMask |=
-                    Vk::GetPipelineStageFlags(m_Device, bufferBarrier.AfterStage);
+                Vk::CreateBufferBarrier(m_Device, bufferBarrier, bufferBarriers, srcQueue, dstQueue);
+                srcStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.BeforeStage);
+                dstStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.AfterStage);
             }
 
             context.CmdPipelineBarrier(
@@ -1607,30 +1379,23 @@ namespace Nexus::Graphics
             TextureHandle handle = textureBarrier.Texture;
             TextureVk *textureVk = handle.AsDerived<TextureVk>();
 
-            for (uint32_t arrayLayer =
-                     textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+            for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
                  arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
                                   textureBarrier.TextureSubresourceRange.LayerCount;
                  arrayLayer++)
             {
-                for (uint32_t mipLevel =
-                         textureBarrier.TextureSubresourceRange.BaseMipLevel;
-                     mipLevel <
-                     textureBarrier.TextureSubresourceRange.BaseMipLevel +
-                         textureBarrier.TextureSubresourceRange.LevelCount;
+                for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                     mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                    textureBarrier.TextureSubresourceRange.LevelCount;
                      mipLevel++)
                 {
-                    textureVk->SetTextureLayout(
-                        arrayLayer, mipLevel, textureBarrier.Layout
-                    );
+                    textureVk->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
                 }
             }
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const TraceRaysDescription &desc, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1645,15 +1410,11 @@ namespace Nexus::Graphics
             };
 
             VkStridedDeviceAddressRegionKHR missRegion = {
-                .deviceAddress = desc.MissRegion.Address,
-                .stride = desc.MissRegion.Stride,
-                .size = desc.MissRegion.Size
+                .deviceAddress = desc.MissRegion.Address, .stride = desc.MissRegion.Stride, .size = desc.MissRegion.Size
             };
 
             VkStridedDeviceAddressRegionKHR hitRegion = {
-                .deviceAddress = desc.HitRegion.Address,
-                .stride = desc.HitRegion.Stride,
-                .size = desc.HitRegion.Size
+                .deviceAddress = desc.HitRegion.Address, .stride = desc.HitRegion.Stride, .size = desc.HitRegion.Size
             };
 
             VkStridedDeviceAddressRegionKHR callableRegion = {
@@ -1663,22 +1424,20 @@ namespace Nexus::Graphics
             };
 
             context.CmdTraceRaysKHR(
-                m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion,
-                &callableRegion, desc.Width, desc.Height, desc.Depth
+                m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, desc.Width, desc.Height,
+                desc.Depth
             );
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const EndRenderingCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
     }
 
     static void BeginRenderPass(
-        GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo,
-        VkSubpassContents subpassContents, VkCommandBuffer commandBuffer
+        GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
+        VkCommandBuffer commandBuffer
     )
     {
         NX_PROFILE_FUNCTION();
@@ -1701,8 +1460,7 @@ namespace Nexus::Graphics
     }
 
     static void BeginDynamicRenderingToFramebuffer(
-        GraphicsDeviceVk *device, FramebufferHandle framebuffer,
-        VkCommandBuffer commandBuffer
+        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
     )
     {
         NX_PROFILE_FUNCTION();
@@ -1716,18 +1474,15 @@ namespace Nexus::Graphics
         std::vector<VkRenderingAttachmentInfo> colourAttachments;
 
         // attach colour textures
-        for (uint32_t colourAttachmentIndex = 0;
-             colourAttachmentIndex < framebuffer->GetColorTextureCount();
+        for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount();
              colourAttachmentIndex++)
         {
             FramebufferColourAttachmentDescription textureBinding =
                 framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
 
-            const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture
-                                           .AsDerived<const TextureVk>();
+            const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture.AsDerived<const TextureVk>();
             TextureLayout layout = texture->GetTextureLayout(
-                textureBinding.ColourAttachment.BaseArrayLayer,
-                textureBinding.ColourAttachment.MipLevel
+                textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel
             );
 
             FramebufferColourAttachmentDescription colourAttachmentDesc =
@@ -1736,8 +1491,7 @@ namespace Nexus::Graphics
             VulkanTextureViewInfo viewInfo = {};
             viewInfo.BaseMipLevel = colourAttachmentDesc.ColourAttachment.MipLevel;
             viewInfo.LevelCount = 1;
-            viewInfo.BaseArrayLayer =
-                colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
+            viewInfo.BaseArrayLayer = colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
             viewInfo.LayerCount = colourAttachmentDesc.ColourAttachment.LayerCount;
 
             VkRenderingAttachmentInfo colourAttachment = {};
@@ -1751,13 +1505,10 @@ namespace Nexus::Graphics
             // handle the case of submitting a swapchain with multisampling
             if (colourAttachmentDesc.ResolveAttachment.has_value())
             {
-                FramebufferTextureDescription resolveDesc =
-                    colourAttachmentDesc.ResolveAttachment.value();
-                const TextureVk *resolveAttachment =
-                    resolveDesc.TargetTexture.AsDerived<const TextureVk>();
-                TextureLayout resolveLayout = resolveAttachment->GetTextureLayout(
-                    resolveDesc.BaseArrayLayer, resolveDesc.MipLevel
-                );
+                FramebufferTextureDescription resolveDesc = colourAttachmentDesc.ResolveAttachment.value();
+                const TextureVk *resolveAttachment = resolveDesc.TargetTexture.AsDerived<const TextureVk>();
+                TextureLayout resolveLayout =
+                    resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
 
                 VulkanTextureViewInfo viewInfo = {};
                 viewInfo.BaseMipLevel = resolveDesc.MipLevel;
@@ -1765,10 +1516,8 @@ namespace Nexus::Graphics
                 viewInfo.BaseArrayLayer = resolveDesc.BaseArrayLayer;
                 viewInfo.LayerCount = resolveDesc.LayerCount;
 
-                colourAttachment.resolveImageView =
-                    resolveAttachment->GetImageView(viewInfo);
-                colourAttachment.resolveImageLayout =
-                    Vk::GetImageLayout(device, resolveLayout);
+                colourAttachment.resolveImageView = resolveAttachment->GetImageView(viewInfo);
+                colourAttachment.resolveImageLayout = Vk::GetImageLayout(device, resolveLayout);
                 colourAttachment.resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT;
             }
 
@@ -1779,17 +1528,13 @@ namespace Nexus::Graphics
         VkRenderingAttachmentInfo depthAttachment = {};
         if (framebuffer->HasDepthTexture())
         {
-            FramebufferTextureDescription textureBinding =
-                framebuffer->GetDepthTextureBinding().value();
+            FramebufferTextureDescription textureBinding = framebuffer->GetDepthTextureBinding().value();
             FramebufferVk *framebufferVk = framebuffer.AsDerived<FramebufferVk>();
 
             const TextureVk *texture = framebufferVk->GetVulkanDepthTexture();
-            TextureLayout layout = texture->GetTextureLayout(
-                textureBinding.BaseArrayLayer, textureBinding.MipLevel
-            );
+            TextureLayout layout = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
 
-            FramebufferTextureDescription depthAttachmentDesc =
-                framebuffer->GetDepthTextureBinding().value();
+            FramebufferTextureDescription depthAttachmentDesc = framebuffer->GetDepthTextureBinding().value();
 
             VulkanTextureViewInfo viewInfo = {};
             viewInfo.BaseMipLevel = depthAttachmentDesc.MipLevel;
@@ -1827,14 +1572,12 @@ namespace Nexus::Graphics
     }
 
     static void BeginRenderPassToFramebuffer(
-        GraphicsDeviceVk *device, FramebufferHandle framebuffer,
-        VkCommandBuffer commandBuffer
+        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
     )
     {
         NX_PROFILE_FUNCTION();
 
-        const FramebufferVk *framebufferVk =
-            framebuffer.AsDerived<const FramebufferVk>();
+        const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>();
 
         VkRenderPassBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1842,9 +1585,7 @@ namespace Nexus::Graphics
         beginInfo.renderPass = framebufferVk->GetRenderPass();
         beginInfo.framebuffer = framebufferVk->GetFramebuffer();
         beginInfo.renderArea.offset = {0, 0};
-        beginInfo.renderArea.extent = {
-            framebuffer->GetWidth(), framebuffer->GetHeight()
-        };
+        beginInfo.renderArea.extent = {framebuffer->GetWidth(), framebuffer->GetHeight()};
         beginInfo.clearValueCount = 0;
         beginInfo.pClearValues = nullptr;
 
@@ -1853,18 +1594,14 @@ namespace Nexus::Graphics
         BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
     }
 
-    void CommandExecutorVk::StartRenderingToFramebuffer(
-        FramebufferHandle framebuffer
-    )
+    void CommandExecutorVk::StartRenderingToFramebuffer(FramebufferHandle framebuffer)
     {
         NX_PROFILE_FUNCTION();
 
         const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
         if (features.DynamicRenderingAvailable)
         {
-            BeginDynamicRenderingToFramebuffer(
-                m_Device, framebuffer, m_CommandBuffer
-            );
+            BeginDynamicRenderingToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
         }
         else
         {
@@ -1903,9 +1640,7 @@ namespace Nexus::Graphics
 
         if (!m_Rendering)
         {
-            NX_ERROR(
-                "Attempting to issue graphics command but rendering has not started"
-            );
+            NX_ERROR("Attempting to issue graphics command but rendering has not started");
             return false;
         }
         return true;
@@ -1926,17 +1661,14 @@ namespace Nexus::Graphics
                 const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
                 if (!features.DynamicRenderingAvailable)
                 {
-                    FramebufferVk *framebufferVk =
-                        m_CurrentRenderTarget.AsDerived<FramebufferVk>();
+                    FramebufferVk *framebufferVk = m_CurrentRenderTarget.AsDerived<FramebufferVk>();
                     renderPass = framebufferVk->GetRenderPass();
                     pipeline->Bind(m_CommandBuffer, renderPass);
                 }
             }
             else
             {
-                throw std::runtime_error(
-                    "Failed to find a valid render target type"
-                );
+                throw std::runtime_error("Failed to find a valid render target type");
             }
         }
     }

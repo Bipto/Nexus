@@ -152,9 +152,7 @@ void main()
 
 namespace Nexus::Graphics
 {
-    Renderer3D::Renderer3D(
-        IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
+    Renderer3D::Renderer3D(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
         : m_Device(device), m_CommandQueue(commandQueue), m_Camera(m_Device),
           m_FullscreenQuad(m_Device, commandQueue, false)
     {
@@ -176,17 +174,12 @@ namespace Nexus::Graphics
         m_DefaultTexture = m_Device->CreateTexture(textureDesc);
 
         uint32_t colour = 0xFFFFFFFF;
-        Utils::WriteToTexture(
-            m_CommandQueue, m_DefaultTexture, 0, 0, 0, 0, 1, 1, &colour,
-            sizeof(colour)
-        );
+        Utils::WriteToTexture(m_CommandQueue, m_DefaultTexture, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
 
         Graphics::TextureViewDescription viewDesc = {};
         viewDesc.TargetTexture = m_DefaultTexture;
         viewDesc.Format = m_DefaultTexture->GetPixelFormat();
-        viewDesc.Range = {
-            .BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1
-        };
+        viewDesc.Range = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
         viewDesc.DebugName = "Default Texture View";
         m_DefaultTextureView = m_Device->CreateTextureView(viewDesc);
     }
@@ -195,9 +188,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void Nexus::Graphics::Renderer3D::Begin(
-        Scene *scene, FramebufferHandle target, Nexus::TimeSpan time
-    )
+    void Nexus::Graphics::Renderer3D::Begin(Scene *scene, FramebufferHandle target, Nexus::TimeSpan time)
     {
         m_Scene = scene;
         m_RenderTarget = target;
@@ -213,17 +204,13 @@ namespace Nexus::Graphics
         CubemapCameraUniforms cubemapCameraUniforms = {};
         cubemapCameraUniforms.Projection = m_Camera.GetProjection();
         cubemapCameraUniforms.View = glm::mat4(glm::mat3(m_Camera.GetView()));
-        m_CubemapUniformBuffer->SetData(
-            &cubemapCameraUniforms, 0, sizeof(cubemapCameraUniforms)
-        );
+        m_CubemapUniformBuffer->SetData(&cubemapCameraUniforms, 0, sizeof(cubemapCameraUniforms));
 
         ModelCameraUniforms modelCameraUniforms = {};
         modelCameraUniforms.Projection = m_Camera.GetProjection();
         modelCameraUniforms.View = m_Camera.GetView();
         modelCameraUniforms.CamPosition = m_Camera.GetPosition();
-        m_ModelCameraUniformBuffer->SetData(
-            &modelCameraUniforms, 0, sizeof(modelCameraUniforms)
-        );
+        m_ModelCameraUniformBuffer->SetData(&modelCameraUniforms, 0, sizeof(modelCameraUniforms));
 
         ClearGBuffer();
         RenderCubemap();
@@ -252,21 +239,15 @@ namespace Nexus::Graphics
 
         ECS::View<Transform, ModelRenderer> transformsModelRenderers =
             m_Scene->Registry.GetView<Transform, ModelRenderer>();
-        transformsModelRenderers.Each(
-            [&](Entity *entity,
-                const std::tuple<Transform *, ModelRenderer *> &components) {
-                Transform *transform = std::get<0>(components);
-                ModelRenderer *modelRenderer = std::get<1>(components);
+        transformsModelRenderers.Each([&](Entity *entity, const std::tuple<Transform *, ModelRenderer *> &components) {
+            Transform *transform = std::get<0>(components);
+            ModelRenderer *modelRenderer = std::get<1>(components);
 
-                if (modelRenderer->Model)
-                {
-                    RenderModel(
-                        modelRenderer->Model, transform->CreateTransformation(),
-                        entity->ID
-                    );
-                }
+            if (modelRenderer->Model)
+            {
+                RenderModel(modelRenderer->Model, transform->CreateTransformation(), entity->ID);
             }
-        );
+        });
 
         m_CommandList->End();
         m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -309,15 +290,13 @@ namespace Nexus::Graphics
             UniformBufferView uniformBufferView = {};
             uniformBufferView.BufferHandle = m_CubemapUniformBuffer;
             uniformBufferView.Offset = 0;
-            uniformBufferView.Size =
-                m_CubemapUniformBuffer->GetDescription().SizeInBytes;
+            uniformBufferView.Size = m_CubemapUniformBuffer->GetDescription().SizeInBytes;
             m_CubemapResourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
 
             m_CubemapResourceSet->Flush();
 
             CombinedImageSampler skyboxCiSampelr = {
-                .ImageTexture = environment.EnvironmentCubemap,
-                .ImageSampler = environment.CubemapSampler
+                .ImageTexture = environment.EnvironmentCubemap, .ImageSampler = environment.CubemapSampler
             };
 
             Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
@@ -355,10 +334,7 @@ namespace Nexus::Graphics
         m_CommandQueue->WaitForIdle();
     } // namespace Nexus::Graphics
 
-    void Renderer3D::RenderModel(
-        Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform,
-        GUID guid
-    )
+    void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid)
     {
         if (model->GetMeshes().empty())
         {
@@ -373,18 +349,14 @@ namespace Nexus::Graphics
 
             // create the uniform buffer if needed
             {
-                if (m_ModelTransformUniformBuffers.find(model) ==
-                    m_ModelTransformUniformBuffers.end())
+                if (m_ModelTransformUniformBuffers.find(model) == m_ModelTransformUniformBuffers.end())
                 {
                     DeviceBufferDescription transformBufferDesc = {};
-                    transformBufferDesc.Access =
-                        Graphics::BufferMemoryAccess::Upload;
+                    transformBufferDesc.Access = Graphics::BufferMemoryAccess::Upload;
                     transformBufferDesc.Usage = Graphics::BufferUsage_Uniform;
-                    transformBufferDesc.StrideInBytes =
-                        sizeof(ModelTransformUniforms);
+                    transformBufferDesc.StrideInBytes = sizeof(ModelTransformUniforms);
                     transformBufferDesc.SizeInBytes = sizeof(ModelTransformUniforms);
-                    DeviceBufferHandle transformUniformBuffer =
-                        m_Device->CreateDeviceBuffer(transformBufferDesc);
+                    DeviceBufferHandle transformUniformBuffer = m_Device->CreateDeviceBuffer(transformBufferDesc);
                     m_ModelTransformUniformBuffers[model] = transformUniformBuffer;
                 }
             }
@@ -393,14 +365,12 @@ namespace Nexus::Graphics
             {
                 if (m_ModelResourceSets.find(model) == m_ModelResourceSets.end())
                 {
-                    ResourceSetHandle resourceSet =
-                        m_Device->CreateResourceSet(m_ModelPipeline);
+                    ResourceSetHandle resourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
                     m_ModelResourceSets[model] = resourceSet;
                 }
             }
 
-            DeviceBufferHandle transformUniformBuffer =
-                m_ModelTransformUniformBuffers[model];
+            DeviceBufferHandle transformUniformBuffer = m_ModelTransformUniformBuffers[model];
             ResourceSetHandle resourceSet = m_ModelResourceSets[model];
 
             // copy data into the uniform buffer
@@ -411,9 +381,7 @@ namespace Nexus::Graphics
                 modelTransformUniforms.Guid2 = splitId.second;
                 modelTransformUniforms.DiffuseColour = mat.DiffuseColour;
                 modelTransformUniforms.SpecularColour = mat.SpecularColour;
-                transformUniformBuffer->SetData(
-                    &modelTransformUniforms, 0, sizeof(modelTransformUniforms)
-                );
+                transformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
             }
 
             Graphics::TextureViewHandle diffuseTexture = m_DefaultTextureView;
@@ -440,9 +408,7 @@ namespace Nexus::Graphics
                 Graphics::CombinedImageSampler ciSampler = {
                     .ImageTexture = diffuseTexture, .ImageSampler = m_ModelSampler
                 };
-                resourceSet->WriteCombinedImageSampler(
-                    ciSampler, "diffuseMapSampler"
-                );
+                resourceSet->WriteCombinedImageSampler(ciSampler, "diffuseMapSampler");
             }
 
             // normal
@@ -450,9 +416,7 @@ namespace Nexus::Graphics
                 Graphics::CombinedImageSampler ciSampler = {
                     .ImageTexture = normalTexture, .ImageSampler = m_ModelSampler
                 };
-                resourceSet->WriteCombinedImageSampler(
-                    ciSampler, "normalMapSampler"
-                );
+                resourceSet->WriteCombinedImageSampler(ciSampler, "normalMapSampler");
             }
 
             // specular
@@ -460,23 +424,19 @@ namespace Nexus::Graphics
                 Graphics::CombinedImageSampler ciSampler = {
                     .ImageTexture = specularTexture, .ImageSampler = m_ModelSampler
                 };
-                resourceSet->WriteCombinedImageSampler(
-                    ciSampler, "specularMapSampler"
-                );
+                resourceSet->WriteCombinedImageSampler(ciSampler, "specularMapSampler");
             }
 
             UniformBufferView modelCameraUniformView = {};
             modelCameraUniformView.BufferHandle = m_ModelCameraUniformBuffer;
             modelCameraUniformView.Offset = 0;
-            modelCameraUniformView.Size =
-                m_ModelCameraUniformBuffer->GetDescription().SizeInBytes;
+            modelCameraUniformView.Size = m_ModelCameraUniformBuffer->GetDescription().SizeInBytes;
             resourceSet->WriteUniformBuffer(modelCameraUniformView, "Camera");
 
             UniformBufferView modelTransformUniformView = {};
             modelTransformUniformView.BufferHandle = transformUniformBuffer;
             modelTransformUniformView.Offset = 0;
-            modelTransformUniformView.Size =
-                transformUniformBuffer->GetDescription().SizeInBytes;
+            modelTransformUniformView.Size = transformUniformBuffer->GetDescription().SizeInBytes;
             resourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
 
             resourceSet->Flush();
@@ -564,42 +524,29 @@ namespace Nexus::Graphics
     void Renderer3D::CreateCubemapPipeline()
     {
         Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
-        pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-            Nexus::Graphics::CullMode::Back;
-        pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-            Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+        pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDescription.VertexModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_CubemapVertexShader, "cubemap.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Vertex
-            );
+        pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_CubemapVertexShader, "cubemap.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Vertex
+        );
 
-        pipelineDescription.FragmentModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_CubemapFragmentShader, "cubemap.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Fragment
-            );
+        pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_CubemapFragmentShader, "cubemap.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Fragment
+        );
 
         pipelineDescription.ColourTargetCount = 2;
-        pipelineDescription.ColourFormats[0] =
-            Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-        pipelineDescription.ColourFormats[1] =
-            Nexus::Graphics::PixelFormat::R32_G32_UInt;
+        pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        pipelineDescription.ColourFormats[1] = Nexus::Graphics::PixelFormat::R32_G32_UInt;
         pipelineDescription.Samples = 1;
-        pipelineDescription.Layouts = {
-            Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::
-                GetLayout()
-        };
+        pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
         pipelineDescription.DepthStencilDesc.EnableDepthTest = false;
         pipelineDescription.DepthStencilDesc.EnableDepthWrite = false;
-        pipelineDescription.DepthFormat =
-            Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
-        pipelineDescription.DepthStencilDesc.DepthComparisonFunction =
-            Nexus::Graphics::ComparisonFunction::Less;
+        pipelineDescription.DepthFormat = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
+        pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
         pipelineDescription.ResourceDescription.Descriptors = {
             {Nexus::Graphics::ResourceDescriptor{
@@ -609,8 +556,7 @@ namespace Nexus::Graphics
              },
              Nexus::Graphics::ResourceDescriptor{
                  .Name = "skybox",
-                 .Type =
-                     Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                  .CountOrSizeInBytes = 1
              }}
         };
@@ -635,53 +581,38 @@ namespace Nexus::Graphics
     void Renderer3D::CreateModelPipeline()
     {
         Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
-        pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-            Nexus::Graphics::CullMode::Back;
-        pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-            Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+        pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
         pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
         pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
-        pipelineDescription.DepthStencilDesc.DepthComparisonFunction =
-            Nexus::Graphics::ComparisonFunction::Less;
+        pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-        pipelineDescription.VertexModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_ModelVertexShader, "model.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Vertex
-            );
-        pipelineDescription.FragmentModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_ModelFragmentShader, "model.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Fragment
-            );
+        pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_ModelVertexShader, "model.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Vertex
+        );
+        pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_ModelFragmentShader, "model.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
+            Nexus::Graphics::ShaderStage::Fragment
+        );
 
         pipelineDescription.Layouts = {
-            Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::
-                GetLayout()
+            Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()
         };
 
         pipelineDescription.ColourTargetCount = 2;
-        pipelineDescription.ColourFormats[0] =
-            Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-        pipelineDescription.ColourFormats[1] =
-            Nexus::Graphics::PixelFormat::R32_G32_UInt;
+        pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        pipelineDescription.ColourFormats[1] = Nexus::Graphics::PixelFormat::R32_G32_UInt;
         pipelineDescription.Samples = 1;
 
         pipelineDescription.ColourBlendStates[0].EnableBlending = true;
-        pipelineDescription.ColourBlendStates[0].SourceColourBlend =
-            Nexus::Graphics::BlendFactor::SourceAlpha;
+        pipelineDescription.ColourBlendStates[0].SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
         pipelineDescription.ColourBlendStates[0].DestinationColourBlend =
             Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-        pipelineDescription.ColourBlendStates[0].ColorBlendFunction =
-            Nexus::Graphics::BlendEquation::Add;
-        pipelineDescription.ColourBlendStates[0].SourceAlphaBlend =
-            Nexus::Graphics::BlendFactor::One;
-        pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend =
-            Nexus::Graphics::BlendFactor::Zero;
-        pipelineDescription.ColourBlendStates[0].AlphaBlendFunction =
-            Nexus::Graphics::BlendEquation::Add;
+        pipelineDescription.ColourBlendStates[0].ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
+        pipelineDescription.ColourBlendStates[0].SourceAlphaBlend = Nexus::Graphics::BlendFactor::One;
+        pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend = Nexus::Graphics::BlendFactor::Zero;
+        pipelineDescription.ColourBlendStates[0].AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
         pipelineDescription.ResourceDescription.Descriptors = {
             {Nexus::Graphics::ResourceDescriptor{
@@ -696,20 +627,17 @@ namespace Nexus::Graphics
              },
              Nexus::Graphics::ResourceDescriptor{
                  .Name = "diffuseMapSampler",
-                 .Type =
-                     Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                  .CountOrSizeInBytes = 1
              },
              Nexus::Graphics::ResourceDescriptor{
                  .Name = "normalMapSampler",
-                 .Type =
-                     Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                  .CountOrSizeInBytes = 1
              },
              Nexus::Graphics::ResourceDescriptor{
                  .Name = "specularMapSampler",
-                 .Type =
-                     Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                  .CountOrSizeInBytes = 1
              }}
         };
@@ -723,8 +651,7 @@ namespace Nexus::Graphics
             cameraBufferDesc.Usage = Graphics::BufferUsage_Uniform;
             cameraBufferDesc.StrideInBytes = sizeof(ModelCameraUniforms);
             cameraBufferDesc.SizeInBytes = sizeof(ModelCameraUniforms);
-            m_ModelCameraUniformBuffer =
-                m_Device->CreateDeviceBuffer(cameraBufferDesc);
+            m_ModelCameraUniformBuffer = m_Device->CreateDeviceBuffer(cameraBufferDesc);
         }
 
         Nexus::Graphics::SamplerDescription samplerSpec = {};
@@ -737,55 +664,40 @@ namespace Nexus::Graphics
     void Renderer3D::CreateClearGBufferPipeline()
     {
         Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
-        pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-            Nexus::Graphics::CullMode::Back;
-        pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-            Nexus::Graphics::FrontFace::Clockwise;
+        pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+        pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
         pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
         pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
-        pipelineDescription.DepthStencilDesc.DepthComparisonFunction =
-            Nexus::Graphics::ComparisonFunction::Less;
+        pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-        pipelineDescription.VertexModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_ClearGBufferVertexShader, "clearscreen.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Vertex
-            );
-        pipelineDescription.FragmentModule =
-            Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
-                m_Device, c_ClearGBufferFragmentShader, "clearscreen.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Fragment
-            );
+        pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_ClearGBufferVertexShader, "clearscreen.vert.glsl",
+            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
+        );
+        pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
+            m_Device, c_ClearGBufferFragmentShader, "clearscreen.frag.glsl",
+            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
+        );
 
         pipelineDescription.Layouts = {m_FullscreenQuad.GetVertexBufferLayout()};
 
         pipelineDescription.ColourTargetCount = 2;
-        pipelineDescription.ColourFormats[0] =
-            Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-        pipelineDescription.ColourFormats[1] =
-            Nexus::Graphics::PixelFormat::R32_G32_UInt;
+        pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        pipelineDescription.ColourFormats[1] = Nexus::Graphics::PixelFormat::R32_G32_UInt;
         pipelineDescription.Samples = 1;
 
         pipelineDescription.ColourBlendStates[0].EnableBlending = true;
-        pipelineDescription.ColourBlendStates[0].SourceColourBlend =
-            Nexus::Graphics::BlendFactor::SourceAlpha;
+        pipelineDescription.ColourBlendStates[0].SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
         pipelineDescription.ColourBlendStates[0].DestinationColourBlend =
             Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-        pipelineDescription.ColourBlendStates[0].ColorBlendFunction =
-            Nexus::Graphics::BlendEquation::Add;
-        pipelineDescription.ColourBlendStates[0].SourceAlphaBlend =
-            Nexus::Graphics::BlendFactor::One;
-        pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend =
-            Nexus::Graphics::BlendFactor::Zero;
-        pipelineDescription.ColourBlendStates[0].AlphaBlendFunction =
-            Nexus::Graphics::BlendEquation::Add;
+        pipelineDescription.ColourBlendStates[0].ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
+        pipelineDescription.ColourBlendStates[0].SourceAlphaBlend = Nexus::Graphics::BlendFactor::One;
+        pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend = Nexus::Graphics::BlendFactor::Zero;
+        pipelineDescription.ColourBlendStates[0].AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
         pipelineDescription.ColourBlendStates[1].EnableBlending = false;
 
-        m_ClearScreenPipeline =
-            m_Device->CreateGraphicsPipeline(pipelineDescription);
+        m_ClearScreenPipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
     }
 
 } // namespace Nexus::Graphics

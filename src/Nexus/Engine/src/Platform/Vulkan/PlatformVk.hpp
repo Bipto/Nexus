@@ -7,8 +7,6 @@
 namespace PlatformVk
 {
     std::vector<const char *> GetRequiredExtensions();
-    VkSurfaceKHR CreateSurface(
-        const GladVulkanContext &context, VkInstance instance, Nexus::IWindow *window
-    );
+    VkSurfaceKHR CreateSurface(const GladVulkanContext &context, VkInstance instance, Nexus::IWindow *window);
 
 } // namespace PlatformVk

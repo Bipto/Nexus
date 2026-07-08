@@ -5,19 +5,11 @@
 
 namespace Nexus::Graphics
 {
-    FramebufferVk::FramebufferVk(
-        const FramebufferTextureSetDescription &desc, GraphicsDeviceVk *device
-    )
+    FramebufferVk::FramebufferVk(const FramebufferTextureSetDescription &desc, GraphicsDeviceVk *device)
         : m_Device(device), m_Description(desc)
     {
-        NX_VALIDATE(
-            desc.ValidateSamples(),
-            "Sample count must match across all textures in a framebuffer"
-        );
-        NX_VALIDATE(
-            desc.ValidateDimensions(),
-            "The dimensions of all textures in a framebuffer must match"
-        );
+        NX_VALIDATE(desc.ValidateSamples(), "Sample count must match across all textures in a framebuffer");
+        NX_VALIDATE(desc.ValidateDimensions(), "The dimensions of all textures in a framebuffer must match");
         NX_VALIDATE(
             desc.ValidateUsageFlags(), "The usage flags of all textures must be "
                                        "correct for usage in a framebuffer"
@@ -34,8 +26,7 @@ namespace Nexus::Graphics
         context.DestroyRenderPass(m_Device->GetVkDevice(), m_RenderPass, nullptr);
     }
 
-    const FramebufferTextureSetDescription FramebufferVk::
-        GetTextureSetDescription() const
+    const FramebufferTextureSetDescription FramebufferVk::GetTextureSetDescription() const
     {
         return m_Description;
     }
@@ -82,10 +73,7 @@ namespace Nexus::Graphics
         for (int i = 0; i < m_Description.ColourAttachments.size(); i++)
         {
             const auto &colourAttachment = m_Description.ColourAttachments.at(i);
-            m_ColourAttachments.push_back(
-                colourAttachment.ColourAttachment.TargetTexture
-                    .AsDerived<const TextureVk>()
-            );
+            m_ColourAttachments.push_back(colourAttachment.ColourAttachment.TargetTexture.AsDerived<const TextureVk>());
         }
     }
 
@@ -95,11 +83,8 @@ namespace Nexus::Graphics
         // the framebuffer if there is
         if (m_Description.DepthAttachment.has_value())
         {
-            TextureHandle texture =
-                m_Description.DepthAttachment.value().TargetTexture;
-            m_DepthAttachment = dynamic_cast<const TextureVk *>(
-                texture.AsDerived<const TextureVk>()
-            );
+            TextureHandle texture = m_Description.DepthAttachment.value().TargetTexture;
+            m_DepthAttachment = dynamic_cast<const TextureVk *>(texture.AsDerived<const TextureVk>());
         }
     }
 
@@ -110,17 +95,13 @@ namespace Nexus::Graphics
         {
             for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
             {
-                const auto &colourAttachmentDesc =
-                    m_Description.ColourAttachments.at(i);
+                const auto &colourAttachmentDesc = m_Description.ColourAttachments.at(i);
 
                 // if the colour attachment has a resolve attachment, we bind this
                 if (colourAttachmentDesc.ResolveAttachment.has_value())
                 {
-                    TextureHandle resolveTexture =
-                        colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
-                    m_ResolveAttachments.push_back(
-                        resolveTexture.AsDerived<const TextureVk>()
-                    );
+                    TextureHandle resolveTexture = colourAttachmentDesc.ResolveAttachment.value().TargetTexture;
+                    m_ResolveAttachments.push_back(resolveTexture.AsDerived<const TextureVk>());
                 }
                 // otherwise, we bind a placeholder to preserve alignment
                 else
@@ -137,32 +118,25 @@ namespace Nexus::Graphics
 
         for (const auto &colourAttachment : m_Description.ColourAttachments)
         {
-            TextureHandle colourTexture =
-                colourAttachment.ColourAttachment.TargetTexture;
+            TextureHandle colourTexture = colourAttachment.ColourAttachment.TargetTexture;
             Vk::VulkanRenderPassDescription::VulkanColourAttachmentDesc &desc =
                 renderPassDesc.ColourAttachments.emplace_back();
-            desc.ColourFromat =
-                Vk::GetVkPixelDataFormat(colourTexture->GetPixelFormat());
+            desc.ColourFromat = Vk::GetVkPixelDataFormat(colourTexture->GetPixelFormat());
 
             if (colourAttachment.ResolveAttachment.has_value())
             {
-                TextureHandle resolveTexture =
-                    colourAttachment.ResolveAttachment.value().TargetTexture;
-                desc.ResolveFormat =
-                    Vk::GetVkPixelDataFormat(resolveTexture->GetPixelFormat());
+                TextureHandle resolveTexture = colourAttachment.ResolveAttachment.value().TargetTexture;
+                desc.ResolveFormat = Vk::GetVkPixelDataFormat(resolveTexture->GetPixelFormat());
             }
         }
 
         if (m_Description.DepthAttachment.has_value())
         {
-            TextureHandle texture =
-                m_Description.DepthAttachment.value().TargetTexture;
-            renderPassDesc.DepthFormat =
-                Vk::GetVkPixelDataFormat(texture->GetPixelFormat());
+            TextureHandle texture = m_Description.DepthAttachment.value().TargetTexture;
+            renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(texture->GetPixelFormat());
         }
 
-        renderPassDesc.Samples =
-            Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.GetSampleCount());
+        renderPassDesc.Samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.GetSampleCount());
 
         m_RenderPass = Vk::CreateRenderPass(m_Device, renderPassDesc);
     }
@@ -173,30 +147,23 @@ namespace Nexus::Graphics
 
         for (size_t i = 0; i < m_Description.ColourAttachments.size(); i++)
         {
-            const FramebufferColourAttachmentDescription &colourAttachmentDesc =
-                m_Description.ColourAttachments.at(i);
+            const FramebufferColourAttachmentDescription &colourAttachmentDesc = m_Description.ColourAttachments.at(i);
             const TextureVk *colourTexture = m_ColourAttachments.at(i);
 
             Graphics::VulkanTextureViewInfo colourViewInfo = {};
-            colourViewInfo.BaseArrayLayer =
-                colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
-            colourViewInfo.LayerCount =
-                colourAttachmentDesc.ColourAttachment.LayerCount;
-            colourViewInfo.BaseMipLevel =
-                colourAttachmentDesc.ColourAttachment.MipLevel;
+            colourViewInfo.BaseArrayLayer = colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
+            colourViewInfo.LayerCount = colourAttachmentDesc.ColourAttachment.LayerCount;
+            colourViewInfo.BaseMipLevel = colourAttachmentDesc.ColourAttachment.MipLevel;
             colourViewInfo.LevelCount = 1;
 
-            Vk::VulkanFramebufferDescription::VulkanColourAttachment
-                &framebufferColourAttachment =
-                    framebufferDesc.ColourImageViews.emplace_back();
-            framebufferColourAttachment.ColourView =
-                colourTexture->GetImageView(colourViewInfo);
+            Vk::VulkanFramebufferDescription::VulkanColourAttachment &framebufferColourAttachment =
+                framebufferDesc.ColourImageViews.emplace_back();
+            framebufferColourAttachment.ColourView = colourTexture->GetImageView(colourViewInfo);
 
             if (colourAttachmentDesc.ResolveAttachment.has_value())
             {
                 const TextureVk *resolveTexture = m_ResolveAttachments.at(i);
-                FramebufferTextureDescription resolveDesc =
-                    colourAttachmentDesc.ResolveAttachment.value();
+                FramebufferTextureDescription resolveDesc = colourAttachmentDesc.ResolveAttachment.value();
 
                 Graphics::VulkanTextureViewInfo resolveViewInfo = {};
                 resolveViewInfo.BaseArrayLayer = resolveDesc.BaseArrayLayer;
@@ -204,23 +171,20 @@ namespace Nexus::Graphics
                 resolveViewInfo.BaseMipLevel = resolveDesc.MipLevel;
                 resolveViewInfo.LevelCount = 1;
 
-                framebufferColourAttachment.ResolveView =
-                    resolveTexture->GetImageView(resolveViewInfo);
+                framebufferColourAttachment.ResolveView = resolveTexture->GetImageView(resolveViewInfo);
             }
         }
 
         if (m_Description.DepthAttachment.has_value())
         {
-            FramebufferTextureDescription depthAttachmentDesc =
-                m_Description.DepthAttachment.value();
+            FramebufferTextureDescription depthAttachmentDesc = m_Description.DepthAttachment.value();
 
             Graphics::VulkanTextureViewInfo viewInfo = {};
             viewInfo.BaseArrayLayer = depthAttachmentDesc.BaseArrayLayer;
             viewInfo.LayerCount = depthAttachmentDesc.LayerCount;
             viewInfo.BaseMipLevel = depthAttachmentDesc.MipLevel;
             viewInfo.LevelCount = 1;
-            framebufferDesc.DepthImageView =
-                m_DepthAttachment->GetImageView(viewInfo);
+            framebufferDesc.DepthImageView = m_DepthAttachment->GetImageView(viewInfo);
         }
 
         auto [width, height] = m_Description.GetSize();
@@ -228,9 +192,7 @@ namespace Nexus::Graphics
         framebufferDesc.Height = height;
         framebufferDesc.VulkanRenderPass = m_RenderPass;
 
-        m_Framebuffer = Vk::CreateFramebuffer(
-            m_Device->GetVulkanContext(), m_Device->GetVkDevice(), framebufferDesc
-        );
+        m_Framebuffer = Vk::CreateFramebuffer(m_Device->GetVulkanContext(), m_Device->GetVkDevice(), framebufferDesc);
     }
 } // namespace Nexus::Graphics
 

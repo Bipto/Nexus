@@ -4,12 +4,9 @@
 
 namespace Nexus::Graphics
 {
-    const GLbitfield mapFlags = GL_MAP_WRITE_BIT | GL_MAP_READ_BIT |
-                                GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+    const GLbitfield mapFlags = GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
-    DeviceBufferOpenGL::DeviceBufferOpenGL(
-        const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device
-    )
+    DeviceBufferOpenGL::DeviceBufferOpenGL(const DeviceBufferDescription &desc, GraphicsDeviceOpenGL *device)
         : m_Device(device), m_BufferDescription(desc)
     {
         const GLenum bufferUsage = GL::GetBufferUsage(desc);
@@ -19,8 +16,8 @@ namespace Nexus::Graphics
         // fall back to using BufferData and a vector of CPU data for mapping)
         GL::IGLContext *context = m_Device->GetOffscreenContext();
         context->CreateBuffer(
-            m_BufferHandle, GL_COPY_READ_BUFFER, desc.SizeInBytes, nullptr,
-            createFlags, bufferUsage, desc.DebugName, m_PersistentMapping
+            m_BufferHandle, GL_COPY_READ_BUFFER, desc.SizeInBytes, nullptr, createFlags, bufferUsage, desc.DebugName,
+            m_PersistentMapping
         );
     }
 
@@ -30,9 +27,7 @@ namespace Nexus::Graphics
         context->DeleteBuffers(1, &m_BufferHandle);
     }
 
-    void DeviceBufferOpenGL::SetData(
-        const void *data, uint32_t offset, uint32_t size
-    )
+    void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
     {
         NX_VALIDATE(
             m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
@@ -40,9 +35,7 @@ namespace Nexus::Graphics
         );
 
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->BufferSubData(
-            m_BufferHandle, GL_COPY_READ_BUFFER, offset, size, data
-        );
+        context->BufferSubData(m_BufferHandle, GL_COPY_READ_BUFFER, offset, size, data);
     }
 
     std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size)
@@ -75,9 +68,9 @@ namespace Nexus::Graphics
         if (m_PersistentMapping)
         {
             GL::IGLContext *context = m_Device->GetOffscreenContext();
-            return reinterpret_cast<uint8_t *>(context->MapBufferRange(
-                m_BufferHandle, 0, m_BufferDescription.SizeInBytes, mapFlags
-            ));
+            return reinterpret_cast<uint8_t *>(
+                context->MapBufferRange(m_BufferHandle, 0, m_BufferDescription.SizeInBytes, mapFlags)
+            );
         }
         else
         {

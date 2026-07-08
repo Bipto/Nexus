@@ -9,12 +9,9 @@ namespace Nexus::Graphics
     {
       public:
         MipmapGenerator() = default;
-        explicit MipmapGenerator(
-            IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-        );
+        explicit MipmapGenerator(IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
         std::vector<char> GenerateMip(
-            TextureHandle texture, uint32_t levelToGenerate,
-            uint32_t levelToGenerateFrom, uint32_t arrayLayer
+            TextureHandle texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer
         );
 
         static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);

@@ -14,8 +14,7 @@ namespace Nexus::Graphics
     {
     }
 
-    const AccelerationStructureDescription &AccelerationStructureD3D12::
-        GetDescription() const
+    const AccelerationStructureDescription &AccelerationStructureD3D12::GetDescription() const
     {
         return m_Description;
     }

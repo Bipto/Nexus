@@ -17,9 +17,7 @@ namespace Nexus::GL
 
         bool Load();
 
-        void ExecuteCommands(
-            std::function<void(const GladGLContext &context)> function
-        );
+        void ExecuteCommands(std::function<void(const GladGLContext &context)> function);
 
         const GladGLContext &GetContext() const;
 

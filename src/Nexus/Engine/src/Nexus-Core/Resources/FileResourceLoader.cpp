@@ -14,8 +14,7 @@
 
 namespace Nexus
 {
-    FileResourceLoader::FileResourceLoader(std::string_view directory)
-        : m_Directory(directory)
+    FileResourceLoader::FileResourceLoader(std::string_view directory) : m_Directory(directory)
     {
     }
 
@@ -24,8 +23,7 @@ namespace Nexus
     )
     {
         std::filesystem::path base = std::filesystem::weakly_canonical(directory);
-        std::filesystem::path resolved =
-            std::filesystem::weakly_canonical(base / path);
+        std::filesystem::path resolved = std::filesystem::weakly_canonical(base / path);
 
         // Check if resolved is inside base
         auto rel = resolved.lexically_relative(base);
@@ -40,15 +38,12 @@ namespace Nexus
         return resolved.string();
     }
 
-    std::expected<std::vector<std::byte>, std::string> FileResourceLoader::LoadBytes(
-        std::string_view path
-    ) const
+    std::expected<std::vector<std::byte>, std::string> FileResourceLoader::LoadBytes(std::string_view path) const
     {
         try
         {
             // resolve the path and then attempt to read the contents
-            return ResolveFilepath(path, m_Directory)
-                .and_then(IO::File::ReadAllBytes);
+            return ResolveFilepath(path, m_Directory).and_then(IO::File::ReadAllBytes);
         }
         catch (const std::exception &e)
         {
@@ -56,15 +51,12 @@ namespace Nexus
         }
     }
 
-    std::expected<std::string, std::string> FileResourceLoader::LoadString(
-        std::string_view path
-    ) const
+    std::expected<std::string, std::string> FileResourceLoader::LoadString(std::string_view path) const
     {
         try
         {
             // resolve the path and then attempt to read the contents
-            return ResolveFilepath(path, m_Directory)
-                .and_then(IO::File::ReadAllText);
+            return ResolveFilepath(path, m_Directory).and_then(IO::File::ReadAllText);
         }
         catch (const std::exception &e)
         {

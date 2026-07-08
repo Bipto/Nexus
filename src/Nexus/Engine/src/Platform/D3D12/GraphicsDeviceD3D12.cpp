@@ -26,21 +26,17 @@
 namespace Nexus::Graphics
 {
     GraphicsDeviceD3D12::GraphicsDeviceD3D12(
-        std::shared_ptr<IPhysicalDevice> physicalDevice,
-        Microsoft::WRL::ComPtr<IDXGIFactory7> factory
+        std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory
     )
         : m_DxgiFactory(factory), m_PhysicalDevice(physicalDevice)
     {
         std::shared_ptr<PhysicalDeviceD3D12> physicalDeviceD3D12 =
             std::dynamic_pointer_cast<PhysicalDeviceD3D12>(physicalDevice);
-        Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter =
-            physicalDeviceD3D12->GetAdapter();
+        Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter = physicalDeviceD3D12->GetAdapter();
 
         // create the D3D12Device
         if (SUCCEEDED(D3D12CreateDevice(
-                adapter.Get(),
-                physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(),
-                IID_PPV_ARGS(&m_Device)
+                adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), IID_PPV_ARGS(&m_Device)
             )))
         {
             // Create a command queue to submit work to the GPU
@@ -76,41 +72,31 @@ namespace Nexus::Graphics
         return m_PhysicalDevice;
     }
 
-    ShaderModuleHandle GraphicsDeviceD3D12::CreateShaderModule(
-        const ShaderModuleDescription &moduleSpec
-    )
+    ShaderModuleHandle GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleDescription &moduleSpec)
     {
         auto shader = std::make_unique<ShaderModuleD3D12>(moduleSpec);
         return m_Resources.ShaderModules.CreateShared(std::move(shader));
     }
 
-    PipelineHandle GraphicsDeviceD3D12::CreateGraphicsPipeline(
-        const GraphicsPipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
     {
         auto pipeline = std::make_unique<GraphicsPipelineD3D12>(this, description);
         return m_Resources.Pipelines.CreateShared(std::move(pipeline));
     }
 
-    PipelineHandle GraphicsDeviceD3D12::CreateComputePipeline(
-        const ComputePipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
     {
         auto pipeline = std::make_unique<ComputePipelineD3D12>(this, description);
         return m_Resources.Pipelines.CreateShared(std::move(pipeline));
     }
 
-    PipelineHandle GraphicsDeviceD3D12::CreateMeshletPipeline(
-        const MeshletPipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceD3D12::CreateMeshletPipeline(const MeshletPipelineDescription &description)
     {
         auto pipeline = std::make_unique<MeshletPipelineD3D12>(this, description);
         return m_Resources.Pipelines.CreateShared(std::move(pipeline));
     }
 
-    PipelineHandle GraphicsDeviceD3D12::CreateRayTracingPipeline(
-        const RayTracingPipelineDescription &description
-    )
+    PipelineHandle GraphicsDeviceD3D12::CreateRayTracingPipeline(const RayTracingPipelineDescription &description)
     {
         return {};
     }
@@ -121,9 +107,7 @@ namespace Nexus::Graphics
         return m_Resources.ResourceSets.CreateShared(std::move(resourceSet));
     }
 
-    FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(
-        const FramebufferTextureSetDescription &desc
-    )
+    FramebufferHandle GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferTextureSetDescription &desc)
     {
         auto framebuffer = std::make_unique<FramebufferD3D12>(desc, this);
         return m_Resources.Framebuffers.CreateShared(std::move(framebuffer));
@@ -141,9 +125,7 @@ namespace Nexus::Graphics
         return m_Resources.TimingQueries.CreateShared(std::move(timingQuery));
     }
 
-    DeviceBufferHandle GraphicsDeviceD3D12::CreateDeviceBuffer(
-        const DeviceBufferDescription &desc
-    )
+    DeviceBufferHandle GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
     {
         auto deviceBuffer = std::make_unique<DeviceBufferD3D12>(desc, this);
         return m_Resources.DeviceBuffers.CreateShared(std::move(deviceBuffer));
@@ -153,16 +135,11 @@ namespace Nexus::Graphics
         const AccelerationStructureDescription &desc
     )
     {
-        auto accelerationStructure =
-            std::make_unique<AccelerationStructureD3D12>(desc, this);
-        return m_Resources.AccelerationStructures.CreateShared(
-            std::move(accelerationStructure)
-        );
+        auto accelerationStructure = std::make_unique<AccelerationStructureD3D12>(desc, this);
+        return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
     }
 
-    TexelBufferHandle GraphicsDeviceD3D12::CreateTexelBuffer(
-        const TexelBufferDescription &desc
-    )
+    TexelBufferHandle GraphicsDeviceD3D12::CreateTexelBuffer(const TexelBufferDescription &desc)
     {
         auto texelBuffer = std::make_unique<TexelBufferD3D12>(desc);
         return m_Resources.TexelBuffers.CreateShared(std::move(texelBuffer));
@@ -192,8 +169,7 @@ namespace Nexus::Graphics
     {
         for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
         {
-            CommandQueueD3D12 *commandQueue =
-                m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
+            CommandQueueD3D12 *commandQueue = m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
 
             // check if the command queue pointer has expired, if it has remove it
             // and continue iterating
@@ -216,9 +192,7 @@ namespace Nexus::Graphics
         uint32_t major = 0;
         uint32_t minor = 0;
 
-        D3D12::GetD3D12FeatureLevelAsMajorMinor(
-            physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), major, minor
-        );
+        D3D12::GetD3D12FeatureLevelAsMajorMinor(physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), major, minor);
 
         return GraphicsAPIInfo{
             .API = GraphicsAPI::D3D12,
@@ -244,9 +218,7 @@ namespace Nexus::Graphics
         return m_Resources.Textures.CreateShared(std::move(texture));
     }
 
-    TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(
-        const TextureViewDescription &desc
-    )
+    TextureViewHandle GraphicsDeviceD3D12::CreateTextureView(const TextureViewDescription &desc)
     {
         auto textureView = std::make_unique<TextureViewD3D12>(desc);
         return m_Resources.TextureViews.CreateShared(std::move(textureView));
@@ -270,9 +242,7 @@ namespace Nexus::Graphics
         }
 
         uint64_t timeoutMS = timeoutNS / 1000000ULL;
-        DWORD result = WaitForMultipleObjects(
-            eventHandles.size(), eventHandles.data(), waitAll, timeoutMS
-        );
+        DWORD result = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeoutMS);
 
         if (result == WAIT_OBJECT_0)
         {
@@ -296,21 +266,17 @@ namespace Nexus::Graphics
         info.QueueFamily = 0;
         info.QueueCount = std::numeric_limits<uint32_t>::max();
         info.Capabilities = QueueCapabilities(
-            QueueCapabilities::Graphics | QueueCapabilities::Compute |
-            QueueCapabilities::Transfer | QueueCapabilities::SparseBinding |
-            QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode
+            QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer |
+            QueueCapabilities::SparseBinding | QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode
         );
 
         return queueFamilies;
     }
 
-    CommandQueueHandle GraphicsDeviceD3D12::CreateCommandQueue(
-        const CommandQueueDescription &description
-    )
+    CommandQueueHandle GraphicsDeviceD3D12::CreateCommandQueue(const CommandQueueDescription &description)
     {
         auto commandQueue = std::make_unique<CommandQueueD3D12>(this, description);
-        CommandQueueHandle handle =
-            m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
+        CommandQueueHandle handle = m_Resources.CommandQueues.CreateShared(std::move(commandQueue));
         m_CreatedCommandQueues.push_back(handle);
         return handle;
     }
@@ -366,10 +332,9 @@ namespace Nexus::Graphics
         }
     }
 
-    AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::
-        GetAccelerationStructureBuildSize(
-            const AccelerationStructureGeometryBuildDescription &description
-        ) const
+    AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
+        const AccelerationStructureGeometryBuildDescription &description
+    ) const
     {
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
@@ -377,9 +342,7 @@ namespace Nexus::Graphics
 
         D3D12::GetD3D12AccelerationStructureInputs(description, inputs, geometry);
 
-        m_Device->GetRaytracingAccelerationStructurePrebuildInfo(
-            &inputs, &prebuildInfo
-        );
+        m_Device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
 
         return AccelerationStructureBuildSizeDescription{
             .AccelerationStructureSize = prebuildInfo.ResultDataMaxSizeInBytes,
@@ -388,14 +351,12 @@ namespace Nexus::Graphics
         };
     }
 
-    RayTracingDeviceDescription GraphicsDeviceD3D12::
-        GetRayTracingDeviceDescription() const
+    RayTracingDeviceDescription GraphicsDeviceD3D12::GetRayTracingDeviceDescription() const
     {
         return RayTracingDeviceDescription();
     }
 
-    AccelerationStructureProperties GraphicsDeviceD3D12::
-        GetAccelerationStructureProperties() const
+    AccelerationStructureProperties GraphicsDeviceD3D12::GetAccelerationStructureProperties() const
     {
         AccelerationStructureProperties properties = {};
         properties.MinAccelerationStructureScratchOffsetAlignment =
@@ -403,9 +364,7 @@ namespace Nexus::Graphics
         return properties;
     }
 
-    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWin32(
-        uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance
-    )
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWin32(uintptr_t hwnd, uintptr_t hdc, uintptr_t hinstance)
     {
 #if defined(WIN32)
         auto surface = std::make_unique<SurfaceWin32_D3D12>(hwnd, hdc, hinstance);
@@ -416,37 +375,28 @@ namespace Nexus::Graphics
 #endif
     }
 
-    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromX11(
-        uintptr_t display, uint32_t screen, uint32_t window
-    )
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromX11(uintptr_t display, uint32_t screen, uint32_t window)
     {
         return {};
     }
-    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWayland(
-        uintptr_t display, uintptr_t surface
-    )
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromWayland(uintptr_t display, uintptr_t surface)
     {
         return {};
     }
 
-    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromAndroid(
-        uintptr_t nativeWindow
-    )
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromAndroid(uintptr_t nativeWindow)
     {
         return {};
     }
 
-    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromHTML(
-        const std::string &canvasId
-    )
+    SurfaceHandle GraphicsDeviceD3D12::CreateSurfaceFromHTML(const std::string &canvasId)
     {
         return {};
     }
 
     bool GraphicsDeviceD3D12::IsVersionGreaterThan(D3D_FEATURE_LEVEL level)
     {
-        Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 =
-            std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
+        Ref<PhysicalDeviceD3D12> physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(m_PhysicalDevice);
         return physicalDeviceD3D12->IsVersionGreaterThan(level);
     }
 
@@ -460,13 +410,11 @@ namespace Nexus::Graphics
 
         m_Limits.MaxUniformBufferRange = D3D12_REQ_CONSTANT_BUFFER_ELEMENT_COUNT;
 
-        HRESULT hr = m_Device->CheckFeatureSupport(
-            D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT, &vaSupport, sizeof(vaSupport)
-        );
+        HRESULT hr =
+            m_Device->CheckFeatureSupport(D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT, &vaSupport, sizeof(vaSupport));
         if (SUCCEEDED(hr))
         {
-            m_Limits.MaxStorageBufferRange =
-                vaSupport.MaxGPUVirtualAddressBitsPerResource;
+            m_Limits.MaxStorageBufferRange = vaSupport.MaxGPUVirtualAddressBitsPerResource;
         }
 
         m_Limits.MaxVertexInputAttributes = 32;
@@ -474,8 +422,7 @@ namespace Nexus::Graphics
         m_Limits.MaxVertexInputOffset = std::numeric_limits<uint32_t>::max();
         m_Limits.MaxVertexInputStride = 255;
         m_Limits.MaxFramebufferColourAttachmentCount = 8;
-        m_Limits.MaxViewports =
-            D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+        m_Limits.MaxViewports = D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
 
         m_Features.SupportsGeometryShaders = true;
         m_Features.SupportsTesselationShaders = true;
@@ -493,9 +440,7 @@ namespace Nexus::Graphics
         // check for depth bounds testing support
         {
             D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2 = {};
-            HRESULT hr = m_Device->CheckFeatureSupport(
-                D3D12_FEATURE_D3D12_OPTIONS2, &options2, sizeof(options2)
-            );
+            HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2, sizeof(options2));
             if (SUCCEEDED(hr))
             {
                 if (options2.DepthBoundsTestSupported)
@@ -510,9 +455,7 @@ namespace Nexus::Graphics
             m_D3D12Features.SupportsPipelineStreams = true;
 
             D3D12_FEATURE_DATA_D3D12_OPTIONS7 options7 = {};
-            HRESULT hr = m_Device->CheckFeatureSupport(
-                D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7)
-            );
+            HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7));
             if (SUCCEEDED(hr))
             {
                 if (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
@@ -522,9 +465,7 @@ namespace Nexus::Graphics
             }
 
             D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
-            hr = m_Device->CheckFeatureSupport(
-                D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)
-            );
+            hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12));
             if (SUCCEEDED(hr))
             {
                 if (options12.EnhancedBarriersSupported)
@@ -543,10 +484,7 @@ namespace Nexus::Graphics
         {
             OutputDebugStringW(L"Reporting live D3D12 objects:\n");
             debug->ReportLiveObjects(
-                DXGI_DEBUG_ALL,
-                DXGI_DEBUG_RLO_FLAGS(
-                    DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL
-                )
+                DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL)
             );
         }
     } // namespace Nexus::Graphics

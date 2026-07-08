@@ -14,16 +14,12 @@ namespace Nexus::Graphics
         {
             OutputDebugStringW(L"Reporting live D3D12 objects:\n");
             debug->ReportLiveObjects(
-                DXGI_DEBUG_ALL,
-                DXGI_DEBUG_RLO_FLAGS(
-                    DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL
-                )
+                DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL)
             );
         }
     }
 
-    GraphicsAPI_D3D12::GraphicsAPI_D3D12(const GraphicsAPICreateInfo &createInfo)
-        : m_CreateInfo(createInfo)
+    GraphicsAPI_D3D12::GraphicsAPI_D3D12(const GraphicsAPICreateInfo &createInfo) : m_CreateInfo(createInfo)
     {
         UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
         D3D12EnableExperimentalFeatures(0, nullptr, nullptr, nullptr);
@@ -41,25 +37,19 @@ namespace Nexus::Graphics
             }
         }
 
-        typedef HRESULT(WINAPI * PFN_CreateDXGIFactory2)(
-            UINT Flags, REFIID riid, void **ppFactory
-        );
+        typedef HRESULT(WINAPI * PFN_CreateDXGIFactory2)(UINT Flags, REFIID riid, void **ppFactory);
 
         HMODULE dxgi = LoadLibraryA("dxgi.dll");
         auto fn = (PFN_CreateDXGIFactory2)GetProcAddress(dxgi, "CreateDXGIFactory2");
 
-        NX_VALIDATE(
-            SUCCEEDED(fn(0, IID_PPV_ARGS(&m_DXGIFactory))),
-            "Failed to create DXGI Factory"
-        );
+        NX_VALIDATE(SUCCEEDED(fn(0, IID_PPV_ARGS(&m_DXGIFactory))), "Failed to create DXGI Factory");
     }
 
     GraphicsAPI_D3D12::~GraphicsAPI_D3D12()
     {
     }
 
-    std::vector<std::shared_ptr<IPhysicalDevice>> GraphicsAPI_D3D12::
-        GetPhysicalDevices()
+    std::vector<std::shared_ptr<IPhysicalDevice>> GraphicsAPI_D3D12::GetPhysicalDevices()
     {
         std::vector<std::shared_ptr<IPhysicalDevice>> physicalDevices;
         Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter = nullptr;
@@ -67,9 +57,8 @@ namespace Nexus::Graphics
         // DXGI_ERROR_NOT_FOUND, i++) {}
 
         for (UINT i = 0;
-             m_DXGIFactory->EnumAdapterByGpuPreference(
-                 i, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter)
-             ) != DXGI_ERROR_NOT_FOUND;
+             m_DXGIFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter)) !=
+             DXGI_ERROR_NOT_FOUND;
              ++i)
         {
             DXGI_ADAPTER_DESC3 desc;
@@ -77,18 +66,14 @@ namespace Nexus::Graphics
 
             if (!(desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE))
             {
-                physicalDevices.push_back(
-                    std::make_shared<PhysicalDeviceD3D12>(adapter)
-                );
+                physicalDevices.push_back(std::make_shared<PhysicalDeviceD3D12>(adapter));
             }
         }
 
         return physicalDevices;
     }
 
-    Graphics::IGraphicsDevice *GraphicsAPI_D3D12::CreateGraphicsDevice(
-        std::shared_ptr<IPhysicalDevice> device
-    )
+    Graphics::IGraphicsDevice *GraphicsAPI_D3D12::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
     {
         return new Graphics::GraphicsDeviceD3D12(device, m_DXGIFactory);
     }

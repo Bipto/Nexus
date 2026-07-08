@@ -10,8 +10,7 @@ namespace Nexus::Graphics
     }
 
     std::expected<VkSurfaceKHR, VkResult> SurfaceX11_Vk::CreateVkSurface(
-        const SwapchainDescription &swapchainDesc, VkInstance instance,
-        const GladVulkanContext &context
+        const SwapchainDescription &swapchainDesc, VkInstance instance, const GladVulkanContext &context
     ) const
     {
         Display *display = reinterpret_cast<Display *>(m_Display);
@@ -25,8 +24,7 @@ namespace Nexus::Graphics
 
         VkSurfaceKHR surface = {};
 
-        VkResult result =
-            context.CreateXlibSurfaceKHR(instance, &createInfo, nullptr, &surface);
+        VkResult result = context.CreateXlibSurfaceKHR(instance, &createInfo, nullptr, &surface);
 
         if (result == VK_SUCCESS)
         {

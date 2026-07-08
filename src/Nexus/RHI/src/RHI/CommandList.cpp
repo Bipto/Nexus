@@ -5,41 +5,30 @@
 
 namespace Nexus::Graphics
 {
-    SetVertexBufferCommandImpl::SetVertexBufferCommandImpl(
-        const SetVertexBufferCommand &command
-    )
-        : m_Command(command)
+    SetVertexBufferCommandImpl::SetVertexBufferCommandImpl(const SetVertexBufferCommand &command) : m_Command(command)
     {
     }
 
-    void SetVertexBufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetVertexBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Command, device);
     }
 
-    SetIndexBufferCommandImpl::SetIndexBufferCommandImpl(const IndexBufferView &view)
-        : m_BufferView(view)
+    SetIndexBufferCommandImpl::SetIndexBufferCommandImpl(const IndexBufferView &view) : m_BufferView(view)
     {
     }
 
-    void SetIndexBufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetIndexBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         SetIndexBufferCommand command{.View = m_BufferView};
         executor->ExecuteCommand(command, device);
     }
 
-    SetPipelineCommandImpl::SetPipelineCommandImpl(PipelineHandle pipeline)
-        : m_Pipeline(pipeline)
+    SetPipelineCommandImpl::SetPipelineCommandImpl(PipelineHandle pipeline) : m_Pipeline(pipeline)
     {
     }
 
-    void SetPipelineCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetPipelineCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Pipeline, device);
     }
@@ -48,358 +37,256 @@ namespace Nexus::Graphics
     {
     }
 
-    void DrawCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void DrawCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_DrawDesc, device);
     }
 
-    DrawIndexedCommandImpl::DrawIndexedCommandImpl(
-        const DrawIndexedDescription &desc
-    )
+    DrawIndexedCommandImpl::DrawIndexedCommandImpl(const DrawIndexedDescription &desc) : m_DrawDesc(desc)
+    {
+    }
+
+    void DrawIndexedCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
+    {
+        executor->ExecuteCommand(m_DrawDesc, device);
+    }
+
+    DrawIndirectCommandImpl::DrawIndirectCommandImpl(const DrawIndirectDescription &desc) : m_DrawDesc(desc)
+    {
+    }
+
+    void DrawIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
+    {
+        executor->ExecuteCommand(m_DrawDesc, device);
+    }
+
+    DrawIndexedIndirectCommandImpl::DrawIndexedIndirectCommandImpl(const DrawIndirectIndexedDescription &desc)
         : m_DrawDesc(desc)
     {
     }
 
-    void DrawIndexedCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void DrawIndexedIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_DrawDesc, device);
     }
 
-    DrawIndirectCommandImpl::DrawIndirectCommandImpl(
-        const DrawIndirectDescription &desc
-    )
-        : m_DrawDesc(desc)
+    DrawMeshCommandImpl::DrawMeshCommandImpl(const DrawMeshDescription &desc) : m_DrawDesc(desc)
     {
     }
 
-    void DrawIndirectCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void DrawMeshCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_DrawDesc, device);
     }
 
-    DrawIndexedIndirectCommandImpl::DrawIndexedIndirectCommandImpl(
-        const DrawIndirectIndexedDescription &desc
-    )
-        : m_DrawDesc(desc)
+    DrawMeshIndirectCommandImpl::DrawMeshIndirectCommandImpl(const DrawMeshIndirectDescription &desc) : m_DrawDesc(desc)
     {
     }
 
-    void DrawIndexedIndirectCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void DrawMeshIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_DrawDesc, device);
     }
 
-    DrawMeshCommandImpl::DrawMeshCommandImpl(const DrawMeshDescription &desc)
-        : m_DrawDesc(desc)
+    DispatchCommandImpl::DispatchCommandImpl(const DispatchDescription &desc) : m_DispatchDesc(desc)
     {
     }
 
-    void DrawMeshCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
-    {
-        executor->ExecuteCommand(m_DrawDesc, device);
-    }
-
-    DrawMeshIndirectCommandImpl::DrawMeshIndirectCommandImpl(
-        const DrawMeshIndirectDescription &desc
-    )
-        : m_DrawDesc(desc)
-    {
-    }
-
-    void DrawMeshIndirectCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
-    {
-        executor->ExecuteCommand(m_DrawDesc, device);
-    }
-
-    DispatchCommandImpl::DispatchCommandImpl(const DispatchDescription &desc)
-        : m_DispatchDesc(desc)
-    {
-    }
-
-    void DispatchCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void DispatchCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_DispatchDesc, device);
     }
 
-    DispatchIndirectCommandImpl::DispatchIndirectCommandImpl(
-        const DispatchIndirectDescription &desc
-    )
+    DispatchIndirectCommandImpl::DispatchIndirectCommandImpl(const DispatchIndirectDescription &desc)
         : m_DispatchDesc(desc)
     {
     }
 
-    void DispatchIndirectCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void DispatchIndirectCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_DispatchDesc, device);
     }
 
-    TraceRaysCommandImpl::TraceRaysCommandImpl(const TraceRaysDescription &desc)
-        : m_TraceRaysDesc(desc)
+    TraceRaysCommandImpl::TraceRaysCommandImpl(const TraceRaysDescription &desc) : m_TraceRaysDesc(desc)
     {
     }
 
-    void TraceRaysCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void TraceRaysCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_TraceRaysDesc, device);
     }
 
-    SetResourceSetCommandImpl::SetResourceSetCommandImpl(
-        const ResourceSetBindingDescription &desc
-    )
+    SetResourceSetCommandImpl::SetResourceSetCommandImpl(const ResourceSetBindingDescription &desc)
         : m_ResourceSetBindings(desc)
     {
     }
 
-    void SetResourceSetCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetResourceSetCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_ResourceSetBindings, device);
     }
 
-    ClearColourTargetCommandImpl::ClearColourTargetCommandImpl(
-        const ClearColorTargetCommand &desc
-    )
+    ClearColourTargetCommandImpl::ClearColourTargetCommandImpl(const ClearColorTargetCommand &desc)
         : m_CommandData(desc)
     {
     }
 
-    void ClearColourTargetCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void ClearColourTargetCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_CommandData, device);
     }
 
-    ClearDepthStencilTargetCommandImpl::ClearDepthStencilTargetCommandImpl(
-        const ClearDepthStencilTargetCommand &desc
-    )
+    ClearDepthStencilTargetCommandImpl::ClearDepthStencilTargetCommandImpl(const ClearDepthStencilTargetCommand &desc)
         : m_CommandData(desc)
     {
     }
 
-    void ClearDepthStencilTargetCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void ClearDepthStencilTargetCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_CommandData, device);
     }
 
-    SetFramebufferCommandImpl::SetFramebufferCommandImpl(
-        FramebufferHandle framebuffer
-    )
-        : m_Framebuffer(framebuffer)
+    SetFramebufferCommandImpl::SetFramebufferCommandImpl(FramebufferHandle framebuffer) : m_Framebuffer(framebuffer)
     {
     }
 
-    void SetFramebufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetFramebufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Framebuffer, device);
     }
 
-    SetViewportCommandImpl::SetViewportCommandImpl(const Viewport &viewport)
-        : m_Viewport(viewport)
+    SetViewportCommandImpl::SetViewportCommandImpl(const Viewport &viewport) : m_Viewport(viewport)
     {
     }
 
-    void SetViewportCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetViewportCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Viewport, device);
     }
 
-    SetScissorCommandImpl::SetScissorCommandImpl(const Scissor &scissor)
-        : m_Scissor(scissor)
+    SetScissorCommandImpl::SetScissorCommandImpl(const Scissor &scissor) : m_Scissor(scissor)
     {
     }
 
-    void SetScissorCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetScissorCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Scissor, device);
     }
 
-    ResolveFramebufferCommandImpl::ResolveFramebufferCommandImpl(
-        const ResolveTextureDescription &desc
-    )
+    ResolveFramebufferCommandImpl::ResolveFramebufferCommandImpl(const ResolveTextureDescription &desc)
         : m_CommandData(desc)
     {
     }
 
-    void ResolveFramebufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void ResolveFramebufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_CommandData, device);
     }
 
-    StartTimingQueryCommandImpl::StartTimingQueryCommandImpl(TimingQueryHandle query)
-        : m_Query(query)
+    StartTimingQueryCommandImpl::StartTimingQueryCommandImpl(TimingQueryHandle query) : m_Query(query)
     {
     }
 
-    void StartTimingQueryCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void StartTimingQueryCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         StartTimingQueryCommand command{.Query = m_Query};
         executor->ExecuteCommand(command, device);
     }
 
-    EndTimingQueryCommandImpl::EndTimingQueryCommandImpl(TimingQueryHandle query)
-        : m_Query(query)
+    EndTimingQueryCommandImpl::EndTimingQueryCommandImpl(TimingQueryHandle query) : m_Query(query)
     {
     }
 
-    void EndTimingQueryCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void EndTimingQueryCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         StopTimingQueryCommand command{.Query = m_Query};
         executor->ExecuteCommand(command, device);
     }
 
-    CopyBufferToBufferCommandImpl::CopyBufferToBufferCommandImpl(
-        const BufferCopyDescription &desc
-    )
-        : m_Desc(desc)
+    CopyBufferToBufferCommandImpl::CopyBufferToBufferCommandImpl(const BufferCopyDescription &desc) : m_Desc(desc)
     {
     }
 
-    void CopyBufferToBufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyBufferToBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         CopyBufferToBufferCommand command{.BufferCopy = m_Desc};
         executor->ExecuteCommand(command, device);
     }
 
-    CopyBufferToTextureCommandImpl::CopyBufferToTextureCommandImpl(
-        const BufferTextureCopyDescription &desc
-    )
+    CopyBufferToTextureCommandImpl::CopyBufferToTextureCommandImpl(const BufferTextureCopyDescription &desc)
         : m_Desc(desc)
     {
     }
 
-    void CopyBufferToTextureCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyBufferToTextureCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         CopyBufferToTextureCommand command{.BufferTextureCopy = m_Desc};
         executor->ExecuteCommand(command, device);
     }
 
-    CopyTextureToBufferCommandImpl::CopyTextureToBufferCommandImpl(
-        const BufferTextureCopyDescription &desc
-    )
+    CopyTextureToBufferCommandImpl::CopyTextureToBufferCommandImpl(const BufferTextureCopyDescription &desc)
         : m_Desc(desc)
     {
     }
 
-    void CopyTextureToBufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyTextureToBufferCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         CopyTextureToBufferCommand command{.TextureBufferCopy = m_Desc};
         executor->ExecuteCommand(command, device);
     }
 
-    CopyTextureToTextureCommandImpl::CopyTextureToTextureCommandImpl(
-        const TextureCopyDescription &desc
-    )
-        : m_Desc(desc)
+    CopyTextureToTextureCommandImpl::CopyTextureToTextureCommandImpl(const TextureCopyDescription &desc) : m_Desc(desc)
     {
     }
 
-    void CopyTextureToTextureCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyTextureToTextureCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         CopyTextureToTextureCommand command{.TextureCopy = m_Desc};
         executor->ExecuteCommand(command, device);
     }
 
-    BeginDebugGroupCommandImpl::BeginDebugGroupCommandImpl(const std::string &name)
-        : m_Name(name)
+    BeginDebugGroupCommandImpl::BeginDebugGroupCommandImpl(const std::string &name) : m_Name(name)
     {
     }
 
-    void BeginDebugGroupCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void BeginDebugGroupCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         BeginDebugGroupCommand command{.GroupName = m_Name};
         executor->ExecuteCommand(command, device);
     }
 
-    void EndDebugGroupCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void EndDebugGroupCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         EndDebugGroupCommand command{};
         executor->ExecuteCommand(command, device);
     }
 
-    InsertDebugMarkerCommandImpl::InsertDebugMarkerCommandImpl(
-        const std::string &name
-    )
-        : m_Name(name)
+    InsertDebugMarkerCommandImpl::InsertDebugMarkerCommandImpl(const std::string &name) : m_Name(name)
     {
     }
 
-    void InsertDebugMarkerCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void InsertDebugMarkerCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         InsertDebugMarkerCommand command{.MarkerName = m_Name};
         executor->ExecuteCommand(command, device);
     }
 
-    SetBlendFactorCommandImpl::SetBlendFactorCommandImpl(const BlendFactorDesc &desc)
-        : m_CommandData(desc)
+    SetBlendFactorCommandImpl::SetBlendFactorCommandImpl(const BlendFactorDesc &desc) : m_CommandData(desc)
     {
     }
 
-    void SetBlendFactorCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetBlendFactorCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         SetBlendFactorCommand command{.BlendFactor = m_CommandData};
         executor->ExecuteCommand(command, device);
     }
 
-    SetStencilReferenceCommandImpl::SetStencilReferenceCommandImpl(
-        uint32_t stencilReference
-    )
+    SetStencilReferenceCommandImpl::SetStencilReferenceCommandImpl(uint32_t stencilReference)
         : m_StencilReference(stencilReference)
     {
     }
 
-    void SetStencilReferenceCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SetStencilReferenceCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         SetStencilReferenceCommand command{.StencilReference = m_StencilReference};
         executor->ExecuteCommand(command, device);
@@ -412,13 +299,9 @@ namespace Nexus::Graphics
     {
     }
 
-    void BuildAccelerationStructuresCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void BuildAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
-        BuildAccelerationStructuresCommand command{
-            .BuildDescriptions = m_Description
-        };
+        BuildAccelerationStructuresCommand command{.BuildDescriptions = m_Description};
         executor->ExecuteCommand(command, device);
     }
 
@@ -429,17 +312,14 @@ namespace Nexus::Graphics
     {
     }
 
-    void CopyAccelerationStructuresCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyAccelerationStructuresCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Description, device);
     }
 
-    CopyAccelerationStructureToDeviceBufferCommandImpl::
-        CopyAccelerationStructureToDeviceBufferCommandImpl(
-            const AccelerationStructureDeviceBufferCopyDescription &description
-        )
+    CopyAccelerationStructureToDeviceBufferCommandImpl::CopyAccelerationStructureToDeviceBufferCommandImpl(
+        const AccelerationStructureDeviceBufferCopyDescription &description
+    )
         : m_Description(description)
     {
     }
@@ -451,10 +331,9 @@ namespace Nexus::Graphics
         executor->ExecuteCommand(m_Description, device);
     }
 
-    CopyDeviceBufferToAccelerationStructureCommandImpl::
-        CopyDeviceBufferToAccelerationStructureCommandImpl(
-            const DeviceBufferAccelerationStructureCopyDescription &description
-        )
+    CopyDeviceBufferToAccelerationStructureCommandImpl::CopyDeviceBufferToAccelerationStructureCommandImpl(
+        const DeviceBufferAccelerationStructureCopyDescription &description
+    )
         : m_Description(description)
     {
     }
@@ -466,51 +345,37 @@ namespace Nexus::Graphics
         executor->ExecuteCommand(m_Description, device);
     }
 
-    PushConstantsCommandImpl::PushConstantsCommandImpl(
-        const PushConstantsDesc &description
-    )
+    PushConstantsCommandImpl::PushConstantsCommandImpl(const PushConstantsDesc &description)
         : m_Description(description)
     {
     }
 
-    void PushConstantsCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void PushConstantsCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Description, device);
     }
 
-    SubmitBarriersCommandImpl::SubmitBarriersCommandImpl(
-        const BarrierGroupDescription &description
-    )
+    SubmitBarriersCommandImpl::SubmitBarriersCommandImpl(const BarrierGroupDescription &description)
         : m_Description(description)
     {
     }
 
-    void SubmitBarriersCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void SubmitBarriersCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Description, device);
     }
 
-    EndRenderingCommandImpl::EndRenderingCommandImpl(
-        const EndRenderingCommand &command
-    )
-        : m_CommandData(command)
+    EndRenderingCommandImpl::EndRenderingCommandImpl(const EndRenderingCommand &command) : m_CommandData(command)
     {
     }
 
-    void EndRenderingCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void EndRenderingCommandImpl::Execute(CommandExecutor *executor, IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_CommandData, device);
     }
 
     ICommandList::ICommandList(const CommandListDescription &spec)
-        : m_Description(spec),
-          m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
+        : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
     {
     }
 
@@ -541,9 +406,7 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to end a CommandList but the CommandList was not begun"
-            );
+            PushError("Attempting to end a CommandList but the CommandList was not begun");
         }
 
         // just in case
@@ -590,9 +453,7 @@ namespace Nexus::Graphics
         command.Slot = slot;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetVertexBufferCommandImpl>(command)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetVertexBufferCommandImpl>(command));
     }
 
     void ICommandList::SetIndexBuffer(IndexBufferView indexBuffer)
@@ -610,9 +471,7 @@ namespace Nexus::Graphics
         command.View = indexBuffer;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetIndexBufferCommandImpl>(indexBuffer)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetIndexBufferCommandImpl>(indexBuffer));
     }
 
     void ICommandList::SetPipeline(PipelineHandle pipeline)
@@ -627,9 +486,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetPipelineCommandImpl>(pipeline)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetPipelineCommandImpl>(pipeline));
     }
 
     void ICommandList::Draw(const DrawDescription &desc)
@@ -677,9 +534,7 @@ namespace Nexus::Graphics
         m_CommandImpls.emplace_back(std::make_unique<DrawIndirectCommandImpl>(desc));
     }
 
-    void ICommandList::DrawIndexedIndirect(
-        const DrawIndirectIndexedDescription &desc
-    )
+    void ICommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
     {
         if (!m_Started)
         {
@@ -691,9 +546,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<DrawIndexedIndirectCommandImpl>(desc)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<DrawIndexedIndirectCommandImpl>(desc));
     }
 
     void ICommandList::Dispatch(const DispatchDescription &desc)
@@ -723,9 +576,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<DispatchIndirectCommandImpl>(desc)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<DispatchIndirectCommandImpl>(desc));
     }
 
     void ICommandList::DrawMesh(const DrawMeshDescription &desc)
@@ -755,9 +606,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<DrawMeshIndirectCommandImpl>(desc)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<DrawMeshIndirectCommandImpl>(desc));
     }
 
     void ICommandList::TraceRays(const TraceRaysDescription &desc)
@@ -790,17 +639,14 @@ namespace Nexus::Graphics
         {
             const auto &boundResources = desc.TargetResourceSet->GetBoundResources();
 
-            for (const auto &[name, ciSamplers] :
-                 boundResources.CombinedImageSamplers)
+            for (const auto &[name, ciSamplers] : boundResources.CombinedImageSamplers)
             {
                 for (const CombinedImageSampler &ciSampler : ciSamplers)
                 {
-                    if (ciSampler.ImageSampler.IsValid() &&
-                        ciSampler.ImageTexture.IsValid())
+                    if (ciSampler.ImageSampler.IsValid() && ciSampler.ImageTexture.IsValid())
                     {
                         TextureViewHandle textureView = ciSampler.ImageTexture;
-                        const TextureViewDescription &viewDesc =
-                            textureView->GetDescription();
+                        const TextureViewDescription &viewDesc = textureView->GetDescription();
 
                         TextureBarrierDesc barrier = {};
                         barrier.BeforeAccess = BarrierAccess::NoAccess;
@@ -809,14 +655,10 @@ namespace Nexus::Graphics
                         barrier.AfterStage = BarrierPipelineStage::AllGraphics;
                         barrier.Texture = textureView->GetTexture();
                         barrier.Layout = TextureLayout::ShaderReadOnlyOptimal;
-                        barrier.TextureSubresourceRange.BaseArrayLayer =
-                            viewDesc.Range.BaseArrayLayer;
-                        barrier.TextureSubresourceRange.LayerCount =
-                            viewDesc.Range.LayerCount;
-                        barrier.TextureSubresourceRange.BaseMipLevel =
-                            viewDesc.Range.BaseMipLevel;
-                        barrier.TextureSubresourceRange.LevelCount =
-                            viewDesc.Range.LevelCount;
+                        barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+                        barrier.TextureSubresourceRange.LayerCount = viewDesc.Range.LayerCount;
+                        barrier.TextureSubresourceRange.BaseMipLevel = viewDesc.Range.BaseMipLevel;
+                        barrier.TextureSubresourceRange.LevelCount = viewDesc.Range.LevelCount;
                         SubmitTextureBarrier(barrier);
                     }
                 }
@@ -826,8 +668,7 @@ namespace Nexus::Graphics
             {
                 for (TextureViewHandle imageView : imageViews)
                 {
-                    const TextureViewDescription &viewDesc =
-                        imageView->GetDescription();
+                    const TextureViewDescription &viewDesc = imageView->GetDescription();
 
                     TextureBarrierDesc barrier = {};
                     barrier.BeforeAccess = BarrierAccess::NoAccess;
@@ -836,14 +677,10 @@ namespace Nexus::Graphics
                     barrier.AfterStage = BarrierPipelineStage::AllGraphics;
                     barrier.Texture = imageView->GetTexture();
                     barrier.Layout = TextureLayout::ShaderReadOnlyOptimal;
-                    barrier.TextureSubresourceRange.BaseArrayLayer =
-                        viewDesc.Range.BaseArrayLayer;
-                    barrier.TextureSubresourceRange.LayerCount =
-                        viewDesc.Range.LayerCount;
-                    barrier.TextureSubresourceRange.BaseMipLevel =
-                        viewDesc.Range.BaseMipLevel;
-                    barrier.TextureSubresourceRange.LevelCount =
-                        viewDesc.Range.LevelCount;
+                    barrier.TextureSubresourceRange.BaseArrayLayer = viewDesc.Range.BaseArrayLayer;
+                    barrier.TextureSubresourceRange.LayerCount = viewDesc.Range.LayerCount;
+                    barrier.TextureSubresourceRange.BaseMipLevel = viewDesc.Range.BaseMipLevel;
+                    barrier.TextureSubresourceRange.LevelCount = viewDesc.Range.LevelCount;
                     SubmitTextureBarrier(barrier);
                 }
             }
@@ -859,11 +696,9 @@ namespace Nexus::Graphics
                     barrier.AfterStage = BarrierPipelineStage::AllGraphics;
                     barrier.Texture = storageImage.Texture;
                     barrier.Layout = TextureLayout::General;
-                    barrier.TextureSubresourceRange.BaseArrayLayer =
-                        storageImage.ArrayLayer;
+                    barrier.TextureSubresourceRange.BaseArrayLayer = storageImage.ArrayLayer;
                     barrier.TextureSubresourceRange.LayerCount = 1;
-                    barrier.TextureSubresourceRange.BaseMipLevel =
-                        storageImage.MipLevel;
+                    barrier.TextureSubresourceRange.BaseMipLevel = storageImage.MipLevel;
                     barrier.TextureSubresourceRange.LevelCount = 1;
                     SubmitTextureBarrier(barrier);
                 }
@@ -873,14 +708,10 @@ namespace Nexus::Graphics
         FlushBarriers();
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetResourceSetCommandImpl>(desc)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetResourceSetCommandImpl>(desc));
     }
 
-    void ICommandList::ClearColourTarget(
-        uint32_t index, const ClearColourValue &color, ClearRect clearRect
-    )
+    void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
     {
         if (!m_Started)
         {
@@ -897,14 +728,10 @@ namespace Nexus::Graphics
         command.Rect = clearRect;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<ClearColourTargetCommandImpl>(command)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
     }
 
-    void ICommandList::ClearColourTarget(
-        uint32_t index, const ClearColourValue &color
-    )
+    void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
     {
         if (!m_Started)
         {
@@ -921,14 +748,10 @@ namespace Nexus::Graphics
         command.Rect = std::nullopt;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<ClearColourTargetCommandImpl>(command)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
     }
 
-    void ICommandList::ClearDepthTarget(
-        const ClearDepthStencilValue &value, ClearRect clearRect
-    )
+    void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
     {
         if (!m_Started)
         {
@@ -944,9 +767,7 @@ namespace Nexus::Graphics
         command.Rect = clearRect;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<ClearDepthStencilTargetCommandImpl>(command)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
     }
 
     void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
@@ -965,40 +786,33 @@ namespace Nexus::Graphics
         command.Rect = std::nullopt;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<ClearDepthStencilTargetCommandImpl>(command)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
     }
 
     static void TransitionFramebufferLayouts(
-        ICommandList *commandList, FramebufferHandle framebuffer,
-        TextureLayout colourLayout, TextureLayout depthLayout
+        ICommandList *commandList, FramebufferHandle framebuffer, TextureLayout colourLayout, TextureLayout depthLayout
     )
     {
         // transition colour attachment layouts
         for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
         {
-            std::optional<FramebufferColourAttachmentDescription>
-                colourAttachmentOpt = framebuffer->GetColorTextureBinding(i);
+            std::optional<FramebufferColourAttachmentDescription> colourAttachmentOpt =
+                framebuffer->GetColorTextureBinding(i);
             if (colourAttachmentOpt.has_value())
             {
-                FramebufferColourAttachmentDescription colourAttachment =
-                    colourAttachmentOpt.value();
+                FramebufferColourAttachmentDescription colourAttachment = colourAttachmentOpt.value();
 
                 TextureBarrierDesc barrierDesc = {};
-                barrierDesc.Texture =
-                    colourAttachment.ColourAttachment.TargetTexture;
+                barrierDesc.Texture = colourAttachment.ColourAttachment.TargetTexture;
                 barrierDesc.BeforeAccess = BarrierAccess::NoAccess;
                 barrierDesc.AfterAccess = BarrierAccess::ColourAttachmentWrite;
                 barrierDesc.BeforeStage = BarrierPipelineStage::NoStage;
-                barrierDesc.AfterStage =
-                    BarrierPipelineStage::ColourAttachmentOutput;
+                barrierDesc.AfterStage = BarrierPipelineStage::ColourAttachmentOutput;
                 barrierDesc.Layout = colourLayout;
                 barrierDesc.TextureSubresourceRange = {
                     .BaseMipLevel = colourAttachment.ColourAttachment.MipLevel,
                     .LevelCount = 1,
-                    .BaseArrayLayer =
-                        colourAttachment.ColourAttachment.BaseArrayLayer,
+                    .BaseArrayLayer = colourAttachment.ColourAttachment.BaseArrayLayer,
                     .LayerCount = colourAttachment.ColourAttachment.LayerCount
                 };
 
@@ -1006,15 +820,13 @@ namespace Nexus::Graphics
 
                 if (colourAttachment.ResolveAttachment.has_value())
                 {
-                    FramebufferTextureDescription resolveAttachmentDesc =
-                        colourAttachment.ResolveAttachment.value();
+                    FramebufferTextureDescription resolveAttachmentDesc = colourAttachment.ResolveAttachment.value();
 
                     TextureBarrierDesc barrierDesc = {};
                     barrierDesc.Texture = resolveAttachmentDesc.TargetTexture;
                     barrierDesc.BeforeAccess = BarrierAccess::ColourAttachmentWrite;
                     barrierDesc.AfterAccess = BarrierAccess::NoAccess;
-                    barrierDesc.BeforeStage =
-                        BarrierPipelineStage::ColourAttachmentOutput;
+                    barrierDesc.BeforeStage = BarrierPipelineStage::ColourAttachmentOutput;
                     barrierDesc.AfterStage = BarrierPipelineStage::AllGraphics;
                     barrierDesc.Layout = colourLayout;
                     barrierDesc.TextureSubresourceRange = {
@@ -1030,11 +842,9 @@ namespace Nexus::Graphics
         }
 
         // transition depth attachment layout if exists
-        if (std::optional<FramebufferTextureDescription> depthAttachmentOpt =
-                framebuffer->GetDepthTextureBinding())
+        if (std::optional<FramebufferTextureDescription> depthAttachmentOpt = framebuffer->GetDepthTextureBinding())
         {
-            FramebufferTextureDescription depthAttachment =
-                depthAttachmentOpt.value();
+            FramebufferTextureDescription depthAttachment = depthAttachmentOpt.value();
 
             TextureBarrierDesc barrierDesc = {};
             barrierDesc.Texture = depthAttachment.TargetTexture;
@@ -1070,15 +880,12 @@ namespace Nexus::Graphics
         EndRendering();
 
         TransitionFramebufferLayouts(
-            this, framebuffer, TextureLayout::ColourAttachmentOptimal,
-            TextureLayout::DepthStencilAttachmentOptimal
+            this, framebuffer, TextureLayout::ColourAttachmentOptimal, TextureLayout::DepthStencilAttachmentOptimal
         );
         m_CurrentFramebuffer = framebuffer;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetFramebufferCommandImpl>(framebuffer)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetFramebufferCommandImpl>(framebuffer));
     }
 
     void ICommandList::SetViewport(const Viewport &viewport)
@@ -1093,9 +900,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetViewportCommandImpl>(viewport)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetViewportCommandImpl>(viewport));
     }
 
     void ICommandList::SetScissor(const Scissor &scissor)
@@ -1110,9 +915,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetScissorCommandImpl>(scissor)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetScissorCommandImpl>(scissor));
     }
 
     void ICommandList::ResolveFramebuffer(const ResolveTextureDescription &desc)
@@ -1132,8 +935,7 @@ namespace Nexus::Graphics
             sourceBarrierDesc.Texture = desc.Source;
             sourceBarrierDesc.BeforeAccess = BarrierAccess::ColourAttachmentWrite;
             sourceBarrierDesc.AfterAccess = BarrierAccess::TransferRead;
-            sourceBarrierDesc.BeforeStage =
-                BarrierPipelineStage::ColourAttachmentOutput;
+            sourceBarrierDesc.BeforeStage = BarrierPipelineStage::ColourAttachmentOutput;
             sourceBarrierDesc.AfterStage = BarrierPipelineStage::Resolve;
             sourceBarrierDesc.Layout = TextureLayout::ResolveSrc;
             sourceBarrierDesc.TextureSubresourceRange = {
@@ -1161,9 +963,7 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<ResolveFramebufferCommandImpl>(desc)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<ResolveFramebufferCommandImpl>(desc));
     }
 
     void Nexus::Graphics::ICommandList::StartTimingQuery(TimingQueryHandle query)
@@ -1181,9 +981,7 @@ namespace Nexus::Graphics
         command.Query = query;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<StartTimingQueryCommandImpl>(query)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<StartTimingQueryCommandImpl>(query));
     }
 
     void Nexus::Graphics::ICommandList::StopTimingQuery(TimingQueryHandle query)
@@ -1201,9 +999,7 @@ namespace Nexus::Graphics
         command.Query = query;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<EndTimingQueryCommandImpl>(query)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<EndTimingQueryCommandImpl>(query));
     }
 
     void ICommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
@@ -1221,14 +1017,10 @@ namespace Nexus::Graphics
         command.BufferCopy = bufferCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyBufferToBufferCommandImpl>(bufferCopy)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyBufferToBufferCommandImpl>(bufferCopy));
     }
 
-    void ICommandList::CopyBufferToTexture(
-        const BufferTextureCopyDescription &bufferTextureCopy
-    )
+    void ICommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
     {
         if (!m_Started)
         {
@@ -1263,14 +1055,10 @@ namespace Nexus::Graphics
         command.BufferTextureCopy = bufferTextureCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyBufferToTextureCommandImpl>(bufferTextureCopy)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyBufferToTextureCommandImpl>(bufferTextureCopy));
     }
 
-    void ICommandList::CopyTextureToBuffer(
-        const BufferTextureCopyDescription &textureBufferCopy
-    )
+    void ICommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
     {
         if (!m_Started)
         {
@@ -1305,14 +1093,10 @@ namespace Nexus::Graphics
         command.TextureBufferCopy = textureBufferCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyTextureToBufferCommandImpl>(textureBufferCopy)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyTextureToBufferCommandImpl>(textureBufferCopy));
     }
 
-    void ICommandList::CopyTextureToTexture(
-        const TextureCopyDescription &textureCopy
-    )
+    void ICommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
     {
         if (!m_Started)
         {
@@ -1362,9 +1146,7 @@ namespace Nexus::Graphics
         command.TextureCopy = textureCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyTextureToTextureCommandImpl>(textureCopy)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyTextureToTextureCommandImpl>(textureCopy));
     }
 
     void ICommandList::BeginDebugGroup(const std::string &name)
@@ -1382,9 +1164,7 @@ namespace Nexus::Graphics
         command.GroupName = name;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<BeginDebugGroupCommandImpl>(name)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<BeginDebugGroupCommandImpl>(name));
 
         m_DebugGroups++;
     }
@@ -1423,9 +1203,7 @@ namespace Nexus::Graphics
         command.MarkerName = name;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<InsertDebugMarkerCommandImpl>(name)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<InsertDebugMarkerCommandImpl>(name));
     }
 
     void ICommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
@@ -1434,9 +1212,7 @@ namespace Nexus::Graphics
         command.BlendFactor = blendFactor;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetBlendFactorCommandImpl>(blendFactor)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetBlendFactorCommandImpl>(blendFactor));
     }
 
     void ICommandList::SetStencilReference(uint32_t stencilReference)
@@ -1445,9 +1221,7 @@ namespace Nexus::Graphics
         command.StencilReference = stencilReference;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SetStencilReferenceCommandImpl>(stencilReference)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SetStencilReferenceCommandImpl>(stencilReference));
     }
 
     void ICommandList::BuildAccelerationStructures(
@@ -1458,19 +1232,13 @@ namespace Nexus::Graphics
         command.BuildDescriptions = description;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<BuildAccelerationStructuresCommandImpl>(description)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<BuildAccelerationStructuresCommandImpl>(description));
     }
 
-    void ICommandList::CopyAccelerationStructure(
-        const AccelerationStructureCopyDescription &description
-    )
+    void ICommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyAccelerationStructuresCommandImpl>(description)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructuresCommandImpl>(description));
     }
 
     void ICommandList::CopyAccelerationStructureToDeviceBuffer(
@@ -1478,11 +1246,7 @@ namespace Nexus::Graphics
     )
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyAccelerationStructureToDeviceBufferCommandImpl>(
-                description
-            )
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructureToDeviceBufferCommandImpl>(description));
     }
 
     void ICommandList::CopyDeviceBufferToAccelerationStructure(
@@ -1490,16 +1254,10 @@ namespace Nexus::Graphics
     )
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<CopyDeviceBufferToAccelerationStructureCommandImpl>(
-                description
-            )
-        );
+        m_CommandImpls.emplace_back(std::make_unique<CopyDeviceBufferToAccelerationStructureCommandImpl>(description));
     }
 
-    void ICommandList::WritePushConstants(
-        const std::string &name, const void *data, size_t size, size_t offset
-    )
+    void ICommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
 
@@ -1508,9 +1266,7 @@ namespace Nexus::Graphics
         pushConstantDesc.Offset = offset;
         pushConstantDesc.Data.resize(size);
         memcpy(pushConstantDesc.Data.data(), data, size);
-        m_CommandImpls.emplace_back(
-            std::make_unique<PushConstantsCommandImpl>(pushConstantDesc)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<PushConstantsCommandImpl>(pushConstantDesc));
     }
 
     void ICommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
@@ -1534,9 +1290,7 @@ namespace Nexus::Graphics
     void ICommandList::FlushBarriers()
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(
-            std::make_unique<SubmitBarriersCommandImpl>(m_Barriers)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<SubmitBarriersCommandImpl>(m_Barriers));
         m_Barriers.Clear();
     }
 
@@ -1567,15 +1321,12 @@ namespace Nexus::Graphics
 
         EndRenderingCommand command = {};
         command.TargetFramebuffer = m_CurrentFramebuffer;
-        m_CommandImpls.emplace_back(
-            std::make_unique<EndRenderingCommandImpl>(command)
-        );
+        m_CommandImpls.emplace_back(std::make_unique<EndRenderingCommandImpl>(command));
 
         if (m_CurrentFramebuffer->IsOwnedBySwapchain())
         {
             TransitionFramebufferLayouts(
-                this, m_CurrentFramebuffer, TextureLayout::PresentSrc,
-                TextureLayout::DepthStencilAttachmentOptimal
+                this, m_CurrentFramebuffer, TextureLayout::PresentSrc, TextureLayout::DepthStencilAttachmentOptimal
             );
         }
 

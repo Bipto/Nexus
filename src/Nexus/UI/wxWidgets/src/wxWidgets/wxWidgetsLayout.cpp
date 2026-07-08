@@ -42,9 +42,7 @@ namespace Nexus::UI
         wxLogInfo(message);
     }
 
-    void wxWidgetsLayout::ShowMessageBox(
-        const std::string &title, const std::string &message
-    )
+    void wxWidgetsLayout::ShowMessageBox(const std::string &title, const std::string &message)
     {
         wxMessageBox(title, message, wxOK | wxICON_INFORMATION);
     }

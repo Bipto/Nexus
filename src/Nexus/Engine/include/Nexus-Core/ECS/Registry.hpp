@@ -58,8 +58,7 @@ namespace Nexus::ECS
           public:
             using IteratorCategory = std::forward_iterator_tag;
             using difference_type = std::ptrdiff_t;
-            using value_type =
-                std::pair<Entity *, std::vector<std::tuple<Args *...>>>;
+            using value_type = std::pair<Entity *, std::vector<std::tuple<Args *...>>>;
             using pointer = value_type *;
             using reference = value_type &;
 
@@ -107,10 +106,7 @@ namespace Nexus::ECS
       public:
         View() = default;
 
-        View(
-            const std::vector<
-                std::pair<Entity *, std::vector<std::tuple<Args *...>>>> &components
-        )
+        View(const std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> &components)
             : m_EntityComponents(components)
         {
         }
@@ -166,8 +162,7 @@ namespace Nexus::ECS
         }
 
       private:
-        std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>>
-            m_EntityComponents = {};
+        std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> m_EntityComponents = {};
     };
 
     class Registry
@@ -185,16 +180,14 @@ namespace Nexus::ECS
             m_Entities.push_back(entity);
         }
 
-        template <typename T>
-        void AddComponent(GUID guid, T component, size_t entityHierarchyPosition)
+        template <typename T> void AddComponent(GUID guid, T component, size_t entityHierarchyPosition)
         {
             const char *typeName = typeid(T).name();
             ComponentArray<T> *components = GetComponentArray<T>();
             size_t position = components->GetComponentCount();
 
             ComponentPositionData componentPosition = {
-                .componentIndex = position,
-                .entityComponentIndex = entityHierarchyPosition
+                .componentIndex = position, .entityComponentIndex = entityHierarchyPosition
             };
             components->AddComponent(component);
 
@@ -233,17 +226,14 @@ namespace Nexus::ECS
                 return nullptr;
             }
 
-            const std::vector<Nexus::ECS::ComponentPositionData> &componentIndices =
-                m_ComponentIds[id][typeName];
+            const std::vector<Nexus::ECS::ComponentPositionData> &componentIndices = m_ComponentIds[id][typeName];
             if (componentIndices.empty() || componentIndices.size() < index)
             {
                 return nullptr;
             }
 
             ComponentArray<T> *componentArray = GetComponentArray<T>();
-            return componentArray->GetComponent(
-                componentIndices[index].componentIndex
-            );
+            return componentArray->GetComponent(componentIndices[index].componentIndex);
         }
 
         void *GetRawComponent(const std::string &typeName, size_t index)
@@ -267,8 +257,7 @@ namespace Nexus::ECS
 
             components->RemoveComponent(index);
 
-            std::vector<ComponentPositionData> &ids =
-                m_ComponentIds[guid][name.c_str()];
+            std::vector<ComponentPositionData> &ids = m_ComponentIds[guid][name.c_str()];
 
             size_t removeIndex = 0;
             for (const auto &[position, entityIndex] : ids)
@@ -287,8 +276,7 @@ namespace Nexus::ECS
         template <typename T> T *GetFirstOrNull(GUID guid)
         {
             const char *typeName = typeid(T).name();
-            const std::vector<Nexus::ECS::ComponentPositionData> &entityComponents =
-                m_ComponentIds[guid][typeName];
+            const std::vector<Nexus::ECS::ComponentPositionData> &entityComponents = m_ComponentIds[guid][typeName];
 
             if (entityComponents.size() > 0)
             {
@@ -328,8 +316,7 @@ namespace Nexus::ECS
                     {
                         ComponentPtr ptr = {};
                         ptr.componentIndex = componentIndex.componentIndex;
-                        ptr.entityComponentIndex =
-                            componentIndex.entityComponentIndex;
+                        ptr.entityComponentIndex = componentIndex.entityComponentIndex;
                         ptr.typeName = componentArray->GetTypeName();
                         returnComponents.push_back(ptr);
                     }
@@ -339,8 +326,7 @@ namespace Nexus::ECS
             return returnComponents;
         }
 
-        template <typename... Args>
-        std::tuple<Args *...> GetFirstOrNullComponents(GUID guid)
+        template <typename... Args> std::tuple<Args *...> GetFirstOrNullComponents(GUID guid)
         {
             return std::make_tuple((Args *)GetFirstOrNull<Args>(guid)...);
         }
@@ -350,12 +336,10 @@ namespace Nexus::ECS
             std::vector<T *> returnComponents = {};
             const char *typeName = typeid(T).name();
 
-            const std::vector<ComponentPositionData> &entityComponents =
-                m_ComponentIds[guid][typeName];
+            const std::vector<ComponentPositionData> &entityComponents = m_ComponentIds[guid][typeName];
 
             ComponentArray<T> *components = GetComponentArray<T>();
-            for (const Nexus::ECS::ComponentPositionData &componentData :
-                 entityComponents)
+            for (const Nexus::ECS::ComponentPositionData &componentData : entityComponents)
             {
                 T *casted = components->GetComponent(componentData.componentIndex);
                 returnComponents.push_back(casted);
@@ -364,8 +348,7 @@ namespace Nexus::ECS
             return returnComponents;
         }
 
-        template <typename... Args>
-        std::tuple<std::vector<Args *>...> GetAllOrEmpty(GUID guid)
+        template <typename... Args> std::tuple<std::vector<Args *>...> GetAllOrEmpty(GUID guid)
         {
             return std::make_tuple(GetComponentVector<Args>(guid)...);
         }
@@ -390,29 +373,21 @@ namespace Nexus::ECS
 
         template <typename... Args> View<Args...> GetView()
         {
-            std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>>
-                viewData;
+            std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> viewData;
 
             for (Entity &entity : m_Entities)
             {
                 auto components = GetAllOrEmpty<Args...>(entity.ID);
 
-                bool hasAllComponents =
-                    ((std::get<std::vector<Args *>>(components).size() > 0) && ...);
+                bool hasAllComponents = ((std::get<std::vector<Args *>>(components).size() > 0) && ...);
                 if (hasAllComponents)
                 {
                     std::vector<std::tuple<Args *...>> entityComponents;
-                    size_t minSize = std::min(
-                        {std::get<std::vector<Args *>>(components).size()...}
-                    );
+                    size_t minSize = std::min({std::get<std::vector<Args *>>(components).size()...});
 
                     for (size_t i = 0; i < minSize; i++)
                     {
-                        entityComponents.emplace_back(
-                            std::make_tuple(
-                                std::get<std::vector<Args *>>(components)[i]...
-                            )
-                        );
+                        entityComponents.emplace_back(std::make_tuple(std::get<std::vector<Args *>>(components)[i]...));
                     }
                     viewData.push_back({&entity, entityComponents});
                 }
@@ -466,8 +441,7 @@ namespace Nexus::ECS
         std::map<std::string, IComponentArray *> m_Components = {};
 
         // map of entity ownership
-        std::map<GUID, std::map<std::string, std::vector<ComponentPositionData>>>
-            m_ComponentIds = {};
+        std::map<GUID, std::map<std::string, std::vector<ComponentPositionData>>> m_ComponentIds = {};
     };
 } // namespace Nexus::ECS
 

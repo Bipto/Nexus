@@ -102,10 +102,7 @@ namespace Nexus::Graphics
         /// representing the texture coordinates
         /// @param color A const reference to 4 floating point values repsenting the
         /// colour
-        VertexPositionTexCoordColor(
-            const glm::vec3 &position, const glm::vec2 &texCoords,
-            const glm::vec4 &color
-        )
+        VertexPositionTexCoordColor(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color)
             : Position(position), TexCoords(texCoords), Colour(color)
         {
         }
@@ -151,10 +148,7 @@ namespace Nexus::Graphics
         /// representing the texture coordinates
         /// @param normal A const reference to 3 floating point values representing
         /// the normal
-        VertexPositionTexCoordNormal(
-            const glm::vec3 &position, const glm::vec2 &texCoords,
-            const glm::vec3 &normal
-        )
+        VertexPositionTexCoordNormal(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec3 &normal)
             : Position(position), TexCoords(texCoords), Normal(normal)
         {
         }
@@ -207,12 +201,10 @@ namespace Nexus::Graphics
         /// @param normal A const reference to 3 floating point values representing
         /// the normal
         VertexPositionTexCoordNormalTangentBitangent(
-            const glm::vec3 &position, const glm::vec2 &texCoords,
-            const glm::vec3 &normal, const glm::vec3 &tangent,
+            const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec3 &normal, const glm::vec3 &tangent,
             const glm::vec3 &bitangent
         )
-            : Position(position), TexCoords(texCoords), Normal(normal),
-              Tangent(tangent), Bitangent(bitangent)
+            : Position(position), TexCoords(texCoords), Normal(normal), Tangent(tangent), Bitangent(bitangent)
         {
         }
 
@@ -269,12 +261,11 @@ namespace Nexus::Graphics
         /// @param normal A const reference to 3 floating point values representing
         /// the normal
         VertexPositionTexCoordNormalColourTangentBitangent(
-            const glm::vec3 &position, const glm::vec2 &texCoords,
-            const glm::vec3 &normal, const glm::vec4 &colour,
+            const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec3 &normal, const glm::vec4 &colour,
             const glm::vec3 &tangent, const glm::vec3 &bitangent
         )
-            : Position(position), TexCoords(texCoords), Normal(normal),
-              Colour(colour), Tangent(tangent), Bitangent(bitangent)
+            : Position(position), TexCoords(texCoords), Normal(normal), Colour(colour), Tangent(tangent),
+              Bitangent(bitangent)
         {
         }
 
@@ -300,10 +291,8 @@ namespace Nexus::Graphics
 
     namespace Utilities
     {
-        NX_RHI_API std::vector<VertexPositionTexCoordNormalTangentBitangent>
-        GenerateTangentAndBinormals(
-            const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal>
-                &vertices
+        NX_RHI_API std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
+            const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices
         );
     }
 } // namespace Nexus::Graphics

@@ -19,8 +19,7 @@ namespace Nexus::Graphics
     struct GraphicsState
     {
         /// @brief The optional bindings of vertex buffers to the command list
-        std::array<std::optional<VertexBufferView>, MaxVertexBufferBindings>
-            VertexBufferBindings = {};
+        std::array<std::optional<VertexBufferView>, MaxVertexBufferBindings> VertexBufferBindings = {};
 
         /// @brief The optional index buffer that is bound to the command list
         std::optional<IndexBufferView> IndexBufferBinding = {};

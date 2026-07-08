@@ -25,8 +25,7 @@ TEST(SPIRVShaderCompiler, CompilesValidShader)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "ValidShader"
     };
@@ -61,8 +60,7 @@ TEST(SPIRVShaderCompiler, FailsOnInvalidShader)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "InvalidShader"
     };
@@ -97,8 +95,7 @@ TEST(SPIRVShaderCompiler, DeterministicOutput)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "ValidShader"
     };
@@ -139,8 +136,7 @@ TEST(SPIRVShaderCompiler, HandlesPreprocessorDefines)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "ValidShader"
     };
@@ -175,8 +171,7 @@ TEST(SPIRVShaderCompiler, ErrorMessageContainsLineNumber)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "InvalidShader"
     };
@@ -211,8 +206,7 @@ TEST(SPIRVShaderCompiler, CompilesLargeShader)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "LargeShader"
     };
@@ -247,8 +241,7 @@ TEST(SPIRVShaderCompiler, MultipleSequentialCompilations)
              .ShaderVersion = {.Major = 1, .Minor = 6},
              .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
              .Debug = true},
-        .Environment =
-            {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
+        .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
         .DebugName = "ValidShader"
     };

@@ -109,19 +109,15 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method to return the FramebufferSpecification
         /// @return The FramebufferSpecification
-        virtual const FramebufferTextureSetDescription
-        GetTextureSetDescription() const = 0;
+        virtual const FramebufferTextureSetDescription GetTextureSetDescription() const = 0;
 
         /// @brief A pure virtual method to retrieve a color texture from the
         /// framebuffer at the specified index
         /// @param index The index of the texture to retrieve
         /// @return A struct containing how the texture is bound to the framebuffer
-        std::optional<FramebufferColourAttachmentDescription> GetColorTextureBinding(
-            uint32_t index = 0
-        )
+        std::optional<FramebufferColourAttachmentDescription> GetColorTextureBinding(uint32_t index = 0)
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             if (index < desc.ColourAttachments.size())
             {
                 return desc.ColourAttachments.at(index);
@@ -138,12 +134,10 @@ namespace Nexus::Graphics
         /// @return A pointer to a texture object
         TextureHandle GetColorTextureHandle(uint32_t index = 0)
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             if (index < desc.ColourAttachments.size())
             {
-                return desc.ColourAttachments.at(index)
-                    .ColourAttachment.TargetTexture;
+                return desc.ColourAttachments.at(index).ColourAttachment.TargetTexture;
             }
             else
             {
@@ -157,8 +151,7 @@ namespace Nexus::Graphics
         /// @return A pointer to a texture object
         TextureHandle GetResolveTextureHandle(uint32_t index = 0)
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             if (index < desc.ColourAttachments.size())
             {
                 std::optional<FramebufferTextureDescription> resolveDesc =
@@ -183,8 +176,7 @@ namespace Nexus::Graphics
         /// @return A struct describing how the texture is bound to the framebuffer
         std::optional<FramebufferTextureDescription> GetDepthTextureBinding()
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             if (desc.DepthAttachment.has_value())
             {
                 return desc.DepthAttachment.value();
@@ -200,8 +192,7 @@ namespace Nexus::Graphics
         /// @return A pointer to the texture
         TextureHandle GetDepthTextureHandle()
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             if (desc.DepthAttachment.has_value())
             {
                 return desc.DepthAttachment.value().TargetTexture;
@@ -217,8 +208,7 @@ namespace Nexus::Graphics
         /// @return An integer representing the number of colour attachments
         size_t GetColorTextureCount()
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             return desc.ColourAttachments.size();
         }
 
@@ -227,8 +217,7 @@ namespace Nexus::Graphics
         /// attachment
         virtual bool HasColorTexture()
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             return desc.ColourAttachments.size() > 0;
         }
 
@@ -237,8 +226,7 @@ namespace Nexus::Graphics
         /// attachment
         virtual bool HasDepthTexture()
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             return desc.DepthAttachment.has_value();
         }
 
@@ -247,8 +235,7 @@ namespace Nexus::Graphics
         /// framebuffer
         std::pair<uint32_t, uint32_t> GetSize() const
         {
-            const FramebufferTextureSetDescription &desc =
-                GetTextureSetDescription();
+            const FramebufferTextureSetDescription &desc = GetTextureSetDescription();
             return desc.GetSize();
         }
 

@@ -42,9 +42,7 @@ namespace Nexus::Audio
         else
             format = Audio::AudioFormat::MonoFloat32;
 
-        buffer->SetData(
-            samples.data(), samples.size() * sizeof(float), format, info.samplerate
-        );
+        buffer->SetData(samples.data(), samples.size() * sizeof(float), format, info.samplerate);
 
         return buffer;
     }
@@ -58,14 +56,10 @@ namespace Nexus::Audio
         if (!path.has_extension())
             return std::unexpected("File has no extension");
 
-        static const std::unordered_set<std::string> supported = {
-            ".wav", ".flac", ".ogg", ".mp3", ".aiff"
-        };
+        static const std::unordered_set<std::string> supported = {".wav", ".flac", ".ogg", ".mp3", ".aiff"};
 
         if (!supported.contains(path.extension().string()))
-            return std::unexpected(
-                "Unsupported audio format: " + path.extension().string()
-            );
+            return std::unexpected("Unsupported audio format: " + path.extension().string());
 
         return LoadAudioFileToBuffer(filepath, device);
     }

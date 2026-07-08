@@ -177,9 +177,7 @@ namespace Nexus::Graphics
         RayTracing
     };
 
-    inline ShaderResource ReflectedShaderResourceToShaderResource(
-        const ReflectedResource &resource, ShaderStage stage
-    )
+    inline ShaderResource ReflectedShaderResourceToShaderResource(const ReflectedResource &resource, ShaderStage stage)
     {
         ShaderResource output;
 
@@ -245,8 +243,7 @@ namespace Nexus::Graphics
         }
 
         output.Access = resource.ResourceAccess;
-        output.Name =
-            !resource.BlockName.empty() ? resource.BlockName : resource.InstanceName;
+        output.Name = !resource.BlockName.empty() ? resource.BlockName : resource.InstanceName;
         output.Set = resource.DescriptorSet;
         output.Binding = resource.BindingPoint;
         output.ResourceCount = resource.BindingCount;
@@ -278,19 +275,13 @@ namespace Nexus::Graphics
                 ShaderReflectionData reflectionData = module->Reflect();
                 for (const auto &resource : reflectionData.Resources)
                 {
-                    std::string resourceName = !resource.BlockName.empty()
-                                                   ? resource.BlockName
-                                                   : resource.InstanceName;
+                    std::string resourceName = !resource.BlockName.empty() ? resource.BlockName : resource.InstanceName;
 
-                    if (requiredResources.find(resourceName) !=
-                        requiredResources.end())
+                    if (requiredResources.find(resourceName) != requiredResources.end())
                     {
-                        ShaderResource &requiredResource =
-                            requiredResources.at(resourceName);
+                        ShaderResource &requiredResource = requiredResources.at(resourceName);
                         ShaderResource newResource =
-                            ReflectedShaderResourceToShaderResource(
-                                resource, module->GetShaderStage()
-                            );
+                            ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
 
                         if (newResource == requiredResource)
                         {
@@ -305,9 +296,7 @@ namespace Nexus::Graphics
                     else
                     {
                         ShaderResource newResource =
-                            ReflectedShaderResourceToShaderResource(
-                                resource, module->GetShaderStage()
-                            );
+                            ReflectedShaderResourceToShaderResource(resource, module->GetShaderStage());
                         requiredResources[resourceName] = newResource;
                     }
                 }
@@ -323,8 +312,7 @@ namespace Nexus::Graphics
       public:
         /// @brief A constructor that takes in a PipelineDescription object to use
         /// for creation
-        IGraphicsPipeline(const GraphicsPipelineDescription &description)
-            : m_Description(description)
+        IGraphicsPipeline(const GraphicsPipelineDescription &description) : m_Description(description)
         {
         }
 
@@ -339,8 +327,7 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method returning a const reference to a pipeline
         /// description
         /// @return A const reference to a pipelinedescription
-        virtual const GraphicsPipelineDescription &
-        GetPipelineDescription() const = 0;
+        virtual const GraphicsPipelineDescription &GetPipelineDescription() const = 0;
 
         PipelineType GetType() const final
         {
@@ -393,8 +380,7 @@ namespace Nexus::Graphics
     class IComputePipeline : public IPipeline
     {
       public:
-        IComputePipeline(const ComputePipelineDescription &description)
-            : m_Description(description)
+        IComputePipeline(const ComputePipelineDescription &description) : m_Description(description)
         {
         }
 
@@ -439,8 +425,7 @@ namespace Nexus::Graphics
     class IMeshletPipeline : public IPipeline
     {
       public:
-        IMeshletPipeline(const MeshletPipelineDescription &description)
-            : m_Description(description)
+        IMeshletPipeline(const MeshletPipelineDescription &description) : m_Description(description)
         {
         }
 
@@ -493,8 +478,7 @@ namespace Nexus::Graphics
     class IRayTracingPipeline : public IPipeline
     {
       public:
-        IRayTracingPipeline(const RayTracingPipelineDescription &description)
-            : m_Description(description)
+        IRayTracingPipeline(const RayTracingPipelineDescription &description) : m_Description(description)
         {
         }
 

@@ -9,9 +9,7 @@
 
 namespace Nexus::Graphics
 {
-    static std::expected<SurfaceD3D12 *, std::string> GetD3D12Surface(
-        SurfaceHandle surface
-    )
+    static std::expected<SurfaceD3D12 *, std::string> GetD3D12Surface(SurfaceHandle surface)
     {
         if (SurfaceD3D12 *surfaceD3D12 = surface.AsDerived<SurfaceD3D12>())
         {
@@ -19,14 +17,13 @@ namespace Nexus::Graphics
         }
         else
         {
-            return std::unexpected(
-                "Failed to create D3D12 swapchain: Surface is not a D3D12 surface"
-            );
+            return std::unexpected("Failed to create D3D12 swapchain: Surface is not a D3D12 surface");
         }
     }
 
-    static std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain3>, std::string>
-    QuerySwapchainComInterface(Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain)
+    static std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain3>, std::string> QuerySwapchainComInterface(
+        Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain
+    )
     {
         Microsoft::WRL::ComPtr<IDXGISwapChain3> outputSC;
 
@@ -41,8 +38,7 @@ namespace Nexus::Graphics
     }
 
     SwapchainD3D12::SwapchainD3D12(
-        IGraphicsDevice *device, ICommandQueue *queue,
-        const SwapchainDescription &swapchainSpec
+        IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec
     )
         : ISwapchain(swapchainSpec), m_CommandQueue(queue)
     {
@@ -50,8 +46,7 @@ namespace Nexus::Graphics
         m_Device = (GraphicsDeviceD3D12 *)device;
 
         // get the sync interval for the swapchain
-        m_SyncInterval =
-            D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
+        m_SyncInterval = D3D12::GetSyncIntervalFromPresentMode(m_Description.ImagePresentMode);
 
         // assign the surface
         m_Surface = m_Description.Surface.AsDerived<SurfaceD3D12>();
@@ -136,9 +131,7 @@ namespace Nexus::Graphics
         return PixelFormat::D24_UNorm_S8_UInt;
     }
 
-    std::expected<void, std::string> SwapchainD3D12::Resize(
-        uint32_t width, uint32_t height
-    )
+    std::expected<void, std::string> SwapchainD3D12::Resize(uint32_t width, uint32_t height)
     {
         // if the size of the window is the same, we do not need to do anything and
         // can return
@@ -183,8 +176,7 @@ namespace Nexus::Graphics
         for (const auto &framebuffer : m_SwapchainFramebuffers)
         {
             FramebufferHandle handle = framebuffer;
-            FramebufferD3D12 *framebufferD3D12 =
-                handle.AsDerived<FramebufferD3D12>();
+            FramebufferD3D12 *framebufferD3D12 = handle.AsDerived<FramebufferD3D12>();
             framebufferD3D12->Flush();
         }
 
@@ -203,8 +195,7 @@ namespace Nexus::Graphics
         // resize the swapchains buffers
         m_Swapchain->ResizeBuffers(
             BUFFER_COUNT, m_SwapchainWidth, m_SwapchainHeight, DXGI_FORMAT_UNKNOWN,
-            DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH |
-                DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
+            DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
         );
 
         // retrieve the new buffers
@@ -234,13 +225,9 @@ namespace Nexus::Graphics
             swapchainTextureDesc.Usage = Graphics::TextureUsage_ColourAttachment;
             swapchainTextureDesc.DebugName = "Swapchain Colour Texture";
 
-            auto swapchainTexture = std::make_unique<TextureD3D12>(
-                buffer, swapchainTextureDesc, m_Device
-            );
+            auto swapchainTexture = std::make_unique<TextureD3D12>(buffer, swapchainTextureDesc, m_Device);
             TextureHandle swapchainTextureHandle =
-                m_Device->m_Resources.Textures.CreateShared(
-                    std::move(swapchainTexture)
-                );
+                m_Device->m_Resources.Textures.CreateShared(std::move(swapchainTexture));
 
             Graphics::TextureDescription depthAttachmentDesc = {};
             depthAttachmentDesc.Width = m_SwapchainWidth;
@@ -249,11 +236,9 @@ namespace Nexus::Graphics
             depthAttachmentDesc.MipLevels = 1;
             depthAttachmentDesc.Samples = m_Description.Samples;
             depthAttachmentDesc.Format = PixelFormat::D24_UNorm_S8_UInt;
-            depthAttachmentDesc.Usage =
-                Graphics::TextureUsage_DepthStencilAttachment;
+            depthAttachmentDesc.Usage = Graphics::TextureUsage_DepthStencilAttachment;
             depthAttachmentDesc.DebugName = "Swapchain Depth Texture";
-            TextureHandle depthAttachment =
-                m_Device->CreateTexture(depthAttachmentDesc);
+            TextureHandle depthAttachment = m_Device->CreateTexture(depthAttachmentDesc);
 
             Graphics::FramebufferTextureSetDescription framebufferDesc = {};
 
@@ -264,60 +249,38 @@ namespace Nexus::Graphics
                 Graphics::TextureDescription multisampledDesc = swapchainTextureDesc;
                 multisampledDesc.Samples = m_Description.Samples;
                 multisampledDesc.DebugName = "Swapchain Multisampled Colour Texture";
-                TextureHandle multisampledTexture =
-                    m_Device->CreateTexture(multisampledDesc);
+                TextureHandle multisampledTexture = m_Device->CreateTexture(multisampledDesc);
 
-                framebufferDesc.ColourAttachments = {
-                    FramebufferColourAttachmentDescription{
-                        .ColourAttachment =
-                            FramebufferTextureDescription{
-                                .BaseArrayLayer = 0,
-                                .LayerCount = 1,
-                                .MipLevel = 0,
-                                .TargetTexture = multisampledTexture
-                            },
-                        .ResolveAttachment = FramebufferTextureDescription{
-                            .BaseArrayLayer = 0,
-                            .LayerCount = 1,
-                            .MipLevel = 0,
-                            .TargetTexture = swapchainTextureHandle
-                        }
+                framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription{
+                    .ColourAttachment =
+                        FramebufferTextureDescription{
+                            .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = multisampledTexture
+                        },
+                    .ResolveAttachment = FramebufferTextureDescription{
+                        .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle
                     }
-                };
+                }};
                 framebufferDesc.DepthAttachment = {FramebufferTextureDescription{
-                    .BaseArrayLayer = 0,
-                    .LayerCount = 1,
-                    .MipLevel = 0,
-                    .TargetTexture = depthAttachment
+                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment
                 }};
 
                 framebufferDesc.OwnedBySwapchain = true;
 
-                m_SwapchainFramebuffers[i] =
-                    m_Device->CreateFramebuffer(framebufferDesc);
+                m_SwapchainFramebuffers[i] = m_Device->CreateFramebuffer(framebufferDesc);
             }
             // create a single sampled framebuffer (no need for a resolve attachment)
             else
             {
-                framebufferDesc.ColourAttachments = {
-                    FramebufferColourAttachmentDescription{.ColourAttachment{
-                        .BaseArrayLayer = 0,
-                        .LayerCount = 1,
-                        .MipLevel = 0,
-                        .TargetTexture = swapchainTextureHandle
-                    }}
-                };
+                framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription{.ColourAttachment{
+                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle
+                }}};
                 framebufferDesc.DepthAttachment = {FramebufferTextureDescription{
-                    .BaseArrayLayer = 0,
-                    .LayerCount = 1,
-                    .MipLevel = 0,
-                    .TargetTexture = depthAttachment
+                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment
                 }};
 
                 framebufferDesc.OwnedBySwapchain = true;
 
-                m_SwapchainFramebuffers[i] =
-                    m_Device->CreateFramebuffer(framebufferDesc);
+                m_SwapchainFramebuffers[i] = m_Device->CreateFramebuffer(framebufferDesc);
             }
         }
     } // namespace Nexus::Graphics
@@ -334,19 +297,15 @@ namespace Nexus::Graphics
 
         // retrieve the underlying D3D12 command queue
         CommandQueueD3D12 *commandQueueD3D12 = (CommandQueueD3D12 *)m_CommandQueue;
-        Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue =
-            commandQueueD3D12->GetHandle();
+        Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = commandQueueD3D12->GetHandle();
 
-        auto value =
-            GetD3D12Surface(m_Description.Surface)
-                .and_then([&](SurfaceD3D12 *surface) {
-                    return surface->CreateDXGISwapchain(
-                        m_Description, commandQueue.Get(), factory.Get()
-                    );
-                })
-                .and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) {
-                    return QuerySwapchainComInterface(swapchain);
-                });
+        auto value = GetD3D12Surface(m_Description.Surface)
+                         .and_then([&](SurfaceD3D12 *surface) {
+                             return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get());
+                         })
+                         .and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) {
+                             return QuerySwapchainComInterface(swapchain);
+                         });
 
         if (value.has_value())
         {

@@ -24,8 +24,7 @@ namespace Nexus::Graphics
     class NX_RHI_API IShaderModule
     {
       public:
-        IShaderModule(const ShaderModuleDescription &shaderModuleDesc)
-            : m_ModuleDescription(shaderModuleDesc)
+        IShaderModule(const ShaderModuleDescription &shaderModuleDesc) : m_ModuleDescription(shaderModuleDesc)
         {
         }
 

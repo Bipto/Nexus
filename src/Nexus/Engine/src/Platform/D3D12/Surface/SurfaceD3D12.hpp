@@ -13,10 +13,8 @@ namespace Nexus::Graphics
     {
       public:
         virtual ~SurfaceD3D12() = default;
-        virtual std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string>
-        CreateDXGISwapchain(
-            const SwapchainDescription &swapchainDesc,
-            ID3D12CommandQueue *commandQueue, IDXGIFactory2 *factory
+        virtual std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string> CreateDXGISwapchain(
+            const SwapchainDescription &swapchainDesc, ID3D12CommandQueue *commandQueue, IDXGIFactory2 *factory
         ) const = 0;
     };
 } // namespace Nexus::Graphics

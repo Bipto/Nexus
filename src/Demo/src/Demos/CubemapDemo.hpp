@@ -17,16 +17,13 @@ namespace Demos
     {
       public:
         CubemapDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
             auto [width, height] = m_Window->GetWindowSizeInPixels();
-            m_Camera = Nexus::FirstPersonCamera(
-                m_GraphicsDevice, width, height, glm::vec3(0.0f, 0.0f, 0.0f)
-            );
+            m_Camera = Nexus::FirstPersonCamera(m_GraphicsDevice, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
         }
 
         virtual ~CubemapDemo()
@@ -40,32 +37,25 @@ namespace Demos
             CreatePipeline();
 
             Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
-            cameraUniformBufferDesc.Access =
-                Nexus::Graphics::BufferMemoryAccess::Upload;
+            cameraUniformBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage_Uniform;
-            cameraUniformBufferDesc.StrideInBytes =
-                sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
-            cameraUniformBufferDesc.SizeInBytes =
-                sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
-            m_CameraUniformBuffer =
-                m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
+            cameraUniformBufferDesc.StrideInBytes = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
+            cameraUniformBufferDesc.SizeInBytes = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
+            m_CameraUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
             Nexus::Graphics::SamplerDescription samplerDesc{};
             samplerDesc.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
             samplerDesc.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
             samplerDesc.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
-            samplerDesc.SampleFilter =
-                Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint;
+            samplerDesc.SampleFilter = Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint;
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerDesc);
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
             m_Cube = factory.CreateCube();
 
             Nexus::Graphics::HdriProcessor processor(
-                Nexus::FileSystem::GetFilePathAbsolute(
-                    "resources/demo/hdri/hangar_interior_4k.hdr"
-                ),
-                m_GraphicsDevice, m_CommandQueue
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/hdri/hangar_interior_4k.hdr"), m_GraphicsDevice,
+                m_CommandQueue
             );
             m_Cubemap = processor.Generate(2048);
 
@@ -84,8 +74,7 @@ namespace Demos
             Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
             cameraUniformBufferView.BufferHandle = m_CameraUniformBuffer;
             cameraUniformBufferView.Offset = 0;
-            cameraUniformBufferView.Size =
-                m_CameraUniformBuffer->GetDescription().SizeInBytes;
+            cameraUniformBufferView.Size = m_CameraUniformBuffer->GetDescription().SizeInBytes;
             m_ResourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
 
             Nexus::Graphics::CombinedImageSampler ciSampler = {};
@@ -98,8 +87,7 @@ namespace Demos
 
         virtual void Render(Nexus::TimeSpan time) override
         {
-            auto [width, height] =
-                Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+            auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
             m_Camera.Update(width, height, time);
 
             // handle camera movement
@@ -107,10 +95,7 @@ namespace Demos
             {
                 Nexus::IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
                 auto [windowWidth, windowHeight] = window->GetWindowSize();
-                window->WarpMouse(
-                    static_cast<float>(windowWidth) / 2.0f,
-                    static_cast<float>(windowHeight) / 2.0f
-                );
+                window->WarpMouse(static_cast<float>(windowWidth) / 2.0f, static_cast<float>(windowHeight) / 2.0f);
 
                 glm::vec3 movement = {0.0f, 0.0f, 0.0f};
                 float cameraSpeed = 2.0f * time.GetSeconds<float>();
@@ -146,17 +131,13 @@ namespace Demos
 
             m_CameraUniforms.Projection = m_Camera.GetProjection();
             m_CameraUniforms.View = glm::mat4(glm::mat3(m_Camera.GetView()));
-            m_CameraUniformBuffer->SetData(
-                &m_CameraUniforms, 0, sizeof(m_CameraUniforms)
-            );
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -175,9 +156,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             Nexus::Graphics::ClearDepthStencilValue clearDepth{};
             m_CommandList->ClearDepthTarget(clearDepth);
@@ -229,44 +208,28 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode =
-                Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace =
-                Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-            pipelineDescription.VertexModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/cubemap/cubemap.vert.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Vertex
-                );
-            pipelineDescription.FragmentModule =
-                Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
-                    m_GraphicsDevice,
-                    "resources/demo/shaders/cubemap/cubemap.frag.glsl",
-                    Nexus::GetApplication()->GetApplicationPath(),
-                    Nexus::Graphics::ShaderStage::Fragment
-                );
+            pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/cubemap/cubemap.vert.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
+            );
+            pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
+                m_GraphicsDevice, "resources/demo/shaders/cubemap/cubemap.frag.glsl",
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
+            );
 
             pipelineDescription.ColourTargetCount = 1;
-            pipelineDescription.ColourFormats[0] =
-                Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-            pipelineDescription.Samples = Nexus::GetApplication()
-                                              ->GetPrimarySwapchain()
-                                              ->GetDescription()
-                                              .Samples;
+            pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+            pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
-            pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::
-                    GetLayout()
-            };
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceDescription.Descriptors = {
                 Nexus::Graphics::ResourceDescriptor{
                     .Name = "u_Skybox",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::
-                        CombinedImageSampler,
+                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
                     .CountOrSizeInBytes = 1
                 },
                 Nexus::Graphics::ResourceDescriptor{
@@ -276,8 +239,7 @@ namespace Demos
                 }
             };
 
-            m_Pipeline =
-                m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
+            m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 
@@ -295,33 +257,25 @@ namespace Demos
                     if (args.Button == Nexus::MouseButton::Right)
                     {
                         m_CameraActive = true;
-                        Nexus::GetApplication()
-                            ->GetPrimaryWindow()
-                            ->SetRelativeMouseMode(true);
+                        Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
                     }
                 }
             );
 
-            dispatcher.Subscribe<Nexus::KeyPressedEventArgs>(
-                [this](const Nexus::KeyPressedEventArgs &args) {
-                    if (args.ScanCode == Nexus::ScanCode::Escape)
-                    {
-                        m_CameraActive = false;
-                        Nexus::GetApplication()
-                            ->GetPrimaryWindow()
-                            ->SetRelativeMouseMode(false);
-                    }
+            dispatcher.Subscribe<Nexus::KeyPressedEventArgs>([this](const Nexus::KeyPressedEventArgs &args) {
+                if (args.ScanCode == Nexus::ScanCode::Escape)
+                {
+                    m_CameraActive = false;
+                    Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(false);
                 }
-            );
+            });
 
-            dispatcher.Subscribe<Nexus::MouseMovedEventArgs>(
-                [this](const Nexus::MouseMovedEventArgs &args) {
-                    if (m_CameraActive)
-                    {
-                        m_Camera.Rotate(args.Movement.first, args.Movement.second);
-                    }
+            dispatcher.Subscribe<Nexus::MouseMovedEventArgs>([this](const Nexus::MouseMovedEventArgs &args) {
+                if (m_CameraActive)
+                {
+                    m_Camera.Rotate(args.Movement.first, args.Movement.second);
                 }
-            );
+            });
 
             dispatcher.Dispatch(event);
         }

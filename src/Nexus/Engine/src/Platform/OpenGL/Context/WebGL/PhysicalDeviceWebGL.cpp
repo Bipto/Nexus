@@ -2,11 +2,9 @@
 
 namespace Nexus::Graphics
 {
-    PhysicalDeviceWebGL::PhysicalDeviceWebGL(const std::string &deviceName)
-        : m_DeviceName(deviceName)
+    PhysicalDeviceWebGL::PhysicalDeviceWebGL(const std::string &deviceName) : m_DeviceName(deviceName)
     {
-        m_OffscreenContext =
-            std::make_unique<GL::OffscreenContextWebGL>("offscreenContext");
+        m_OffscreenContext = std::make_unique<GL::OffscreenContextWebGL>("offscreenContext");
     }
 
     PhysicalDeviceWebGL::~PhysicalDeviceWebGL()

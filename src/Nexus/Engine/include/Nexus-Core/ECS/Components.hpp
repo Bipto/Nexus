@@ -33,15 +33,9 @@ namespace Nexus
             transformation = glm::translate(transformation, Position);
 
             // apply rotation
-            transformation = glm::rotate(
-                transformation, glm::radians(Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f)
-            );
-            transformation = glm::rotate(
-                transformation, glm::radians(Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f)
-            );
-            transformation = glm::rotate(
-                transformation, glm::radians(Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f)
-            );
+            transformation = glm::rotate(transformation, glm::radians(Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            transformation = glm::rotate(transformation, glm::radians(Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            transformation = glm::rotate(transformation, glm::radians(Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
             // apply scale
             transformation = glm::scale(transformation, Scale);
@@ -51,21 +45,16 @@ namespace Nexus
 
         friend std::ostream &operator<<(std::ostream &os, const Transform &transform)
         {
-            os << transform.Position.x << " " << transform.Position.y << " "
-               << transform.Position.z << " ";
-            os << transform.Rotation.x << " " << transform.Rotation.y << " "
-               << transform.Rotation.z << " ";
-            os << transform.Scale.x << " " << transform.Scale.y << " "
-               << transform.Scale.z;
+            os << transform.Position.x << " " << transform.Position.y << " " << transform.Position.z << " ";
+            os << transform.Rotation.x << " " << transform.Rotation.y << " " << transform.Rotation.z << " ";
+            os << transform.Scale.x << " " << transform.Scale.y << " " << transform.Scale.z;
             return os;
         }
 
         friend std::istream &operator>>(std::istream &is, Transform &transform)
         {
-            is >> transform.Position.x >> transform.Position.y >>
-                transform.Position.z;
-            is >> transform.Rotation.x >> transform.Rotation.y >>
-                transform.Rotation.z;
+            is >> transform.Position.x >> transform.Position.y >> transform.Position.z;
+            is >> transform.Rotation.x >> transform.Rotation.y >> transform.Rotation.z;
             is >> transform.Scale.x >> transform.Scale.y >> transform.Scale.z;
 
             return is;
@@ -77,14 +66,12 @@ namespace Nexus
         }
     };
 
-    NX_REGISTER_COMPONENT(
-        Transform, [](void *data, Nexus::Ref<Nexus::Project> project) {
-            Nexus::Transform *transform = static_cast<Nexus::Transform *>(data);
-            ImGui::DragFloat3("Position", glm::value_ptr(transform->Position));
-            ImGui::DragFloat3("Rotation", glm::value_ptr(transform->Rotation));
-            ImGui::DragFloat3("Scale", glm::value_ptr(transform->Scale));
-        }
-    );
+    NX_REGISTER_COMPONENT(Transform, [](void *data, Nexus::Ref<Nexus::Project> project) {
+        Nexus::Transform *transform = static_cast<Nexus::Transform *>(data);
+        ImGui::DragFloat3("Position", glm::value_ptr(transform->Position));
+        ImGui::DragFloat3("Rotation", glm::value_ptr(transform->Rotation));
+        ImGui::DragFloat3("Scale", glm::value_ptr(transform->Scale));
+    });
 
     struct ModelRenderer
     {
@@ -98,25 +85,20 @@ namespace Nexus
                 if (std::filesystem::exists(FilePath))
                 {
                     Graphics::MeshFactory factory(
-                        Nexus::GetApplication()->GetGraphicsDevice(),
-                        Nexus::GetApplication()->GetGraphicsCommandQueue()
+                        Nexus::GetApplication()->GetGraphicsDevice(), Nexus::GetApplication()->GetGraphicsCommandQueue()
                     );
                     Model = factory.CreateFrom3DModelFile(FilePath);
                 }
             }
         }
 
-        friend std::ostream &operator<<(
-            std::ostream &os, const ModelRenderer &modelRenderer
-        )
+        friend std::ostream &operator<<(std::ostream &os, const ModelRenderer &modelRenderer)
         {
             os << modelRenderer.FilePath;
             return os;
         }
 
-        friend std::istream &operator>>(
-            std::istream &is, ModelRenderer &modelRenderer
-        )
+        friend std::istream &operator>>(std::istream &is, ModelRenderer &modelRenderer)
         {
             is >> modelRenderer.FilePath;
             modelRenderer.LoadModel();
@@ -128,8 +110,7 @@ namespace Nexus
         ModelRenderer,
 
         [](void *data, Nexus::Ref<Nexus::Project> project) {
-            Nexus::ModelRenderer *renderer =
-                static_cast<Nexus::ModelRenderer *>(data);
+            Nexus::ModelRenderer *renderer = static_cast<Nexus::ModelRenderer *>(data);
             ImGui::Text("%s", renderer->FilePath.c_str());
             ImGui::SameLine();
             ImGui::PushID(Nexus::GUID{});
@@ -138,19 +119,14 @@ namespace Nexus
             if (ImGui::IsItemClicked())
             {
                 std::vector<Nexus::FileDialogFilter> filters;
-                filters.push_back(
-                    Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"}
-                );
+                filters.push_back(Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"});
 
                 Nexus::OpenFileDialogDescription fileDialogDesc = {};
-                fileDialogDesc.WindowHandle =
-                    Nexus::GetApplication()->GetPrimaryWindow();
+                fileDialogDesc.WindowHandle = Nexus::GetApplication()->GetPrimaryWindow();
                 fileDialogDesc.Filters = filters;
 
                 std::unique_ptr<Nexus::OpenFileDialog> dialog =
-                    std::unique_ptr<Nexus::OpenFileDialog>(
-                        Nexus::Platform::CreateOpenFileDialog(fileDialogDesc)
-                    );
+                    std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(fileDialogDesc));
                 Nexus::FileDialogResult result = dialog->Show();
 
                 if (result.FilePaths.size() > 0)
@@ -196,17 +172,13 @@ namespace Nexus
             }
         }
 
-        friend std::ostream &operator<<(
-            std::ostream &os, const NativeScriptComponent &component
-        )
+        friend std::ostream &operator<<(std::ostream &os, const NativeScriptComponent &component)
         {
             os << component.ScriptName;
             return os;
         }
 
-        friend std::istream &operator>>(
-            std::istream &is, NativeScriptComponent &component
-        )
+        friend std::istream &operator>>(std::istream &is, NativeScriptComponent &component)
         {
             is >> component.ScriptName;
             return is;
@@ -220,8 +192,7 @@ namespace Nexus
             if (!project)
                 return;
 
-            Nexus::NativeScriptComponent *component =
-                static_cast<Nexus::NativeScriptComponent *>(data);
+            Nexus::NativeScriptComponent *component = static_cast<Nexus::NativeScriptComponent *>(data);
 
             auto availableScripts = project->GetCachedAvailableScripts();
 
@@ -260,24 +231,20 @@ namespace Nexus
         glm::vec4 SpriteColour = {1.0f, 1.0f, 1.0f, 1.0f};
         float Tiling = 1.0f;
 
-        friend std::ostream &operator<<(
-            std::ostream &os, const SpriteRendererComponent &component
-        )
+        friend std::ostream &operator<<(std::ostream &os, const SpriteRendererComponent &component)
         {
             os << component.TexturePath;
-            os << component.SpriteColour.r << " " << component.SpriteColour.g << " "
-               << component.SpriteColour.b << " " << component.SpriteColour.a;
+            os << component.SpriteColour.r << " " << component.SpriteColour.g << " " << component.SpriteColour.b << " "
+               << component.SpriteColour.a;
             os << component.Tiling;
             return os;
         }
 
-        friend std::istream &operator>>(
-            std::istream &is, SpriteRendererComponent &component
-        )
+        friend std::istream &operator>>(std::istream &is, SpriteRendererComponent &component)
         {
             is >> component.TexturePath;
-            is >> component.SpriteColour.r >> component.SpriteColour.g >>
-                component.SpriteColour.b >> component.SpriteColour.a;
+            is >> component.SpriteColour.r >> component.SpriteColour.g >> component.SpriteColour.b >>
+                component.SpriteColour.a;
             is >> component.Tiling;
             return is;
         }
@@ -286,12 +253,10 @@ namespace Nexus
         {
             if (!TexturePath.empty())
             {
-                Nexus::Graphics::IGraphicsDevice *device =
-                    Nexus::GetApplication()->GetGraphicsDevice();
+                Nexus::Graphics::IGraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
 
                 auto [texture, view] = Utils::CreateTexture2DWithView(
-                    Nexus::GetApplication()->GetGraphicsCommandQueue(), TexturePath,
-                    true, false
+                    Nexus::GetApplication()->GetGraphicsCommandQueue(), TexturePath, true, false
                 );
                 SpriteTexture = texture;
                 SpriteTextureView = view;
@@ -306,8 +271,7 @@ namespace Nexus
             if (!project)
                 return;
 
-            Nexus::SpriteRendererComponent *component =
-                static_cast<Nexus::SpriteRendererComponent *>(data);
+            Nexus::SpriteRendererComponent *component = static_cast<Nexus::SpriteRendererComponent *>(data);
 
             ImGui::ColorEdit4("Colour", glm::value_ptr(component->SpriteColour));
             ImGui::DragFloat("Tiling", &component->Tiling);
@@ -320,20 +284,15 @@ namespace Nexus
             if (ImGui::IsItemClicked())
             {
                 std::vector<Nexus::FileDialogFilter> filters;
-                filters.push_back(
-                    Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"}
-                );
+                filters.push_back(Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"});
 
                 Nexus::OpenFileDialogDescription dialogDesc = {};
-                dialogDesc.WindowHandle =
-                    Nexus::GetApplication()->GetPrimaryWindow();
+                dialogDesc.WindowHandle = Nexus::GetApplication()->GetPrimaryWindow();
                 dialogDesc.Filters = filters;
                 dialogDesc.AllowMany = false;
 
                 std::unique_ptr<Nexus::OpenFileDialog> dialog =
-                    std::unique_ptr<Nexus::OpenFileDialog>(
-                        Nexus::Platform::CreateOpenFileDialog(dialogDesc)
-                    );
+                    std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(dialogDesc));
                 Nexus::FileDialogResult result = dialog->Show();
 
                 if (result.FilePaths.size() > 0)

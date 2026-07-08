@@ -79,15 +79,9 @@ namespace Nexus::IO
     {
       public:
         virtual ~FileStreamImpl() = default;
-        virtual std::expected<std::vector<std::byte>, std::string> Read(
-            size_t count
-        ) = 0;
-        virtual std::expected<size_t, std::string> Write(
-            const std::byte *data, size_t count
-        ) = 0;
-        virtual std::expected<void, std::string> Seek(
-            int64_t offset, SeekOrigin origin
-        ) = 0;
+        virtual std::expected<std::vector<std::byte>, std::string> Read(size_t count) = 0;
+        virtual std::expected<size_t, std::string> Write(const std::byte *data, size_t count) = 0;
+        virtual std::expected<void, std::string> Seek(int64_t offset, SeekOrigin origin) = 0;
         virtual std::expected<int64_t, std::string> GetSize() = 0;
         virtual std::expected<int64_t, std::string> GetCursorPosition() = 0;
     };
@@ -98,9 +92,7 @@ namespace Nexus::IO
         FileStream(const std::filesystem::path &path, FileMode fileMode);
         virtual ~FileStream() = default;
         std::expected<std::vector<std::byte>, std::string> Read(size_t count);
-        std::expected<size_t, std::string> Write(
-            const std::byte *data, size_t count
-        );
+        std::expected<size_t, std::string> Write(const std::byte *data, size_t count);
         std::expected<void, std::string> Seek(int64_t offset, SeekOrigin origin);
         std::expected<int64_t, std::string> GetSize();
         std::expected<int64_t, std::string> GetCursorPosition();
@@ -112,12 +104,8 @@ namespace Nexus::IO
     class NX_PLATFORM_API File
     {
       public:
-        static std::expected<std::vector<std::byte>, std::string> ReadAllBytes(
-            const std::filesystem::path &path
-        );
-        static std::expected<std::string, std::string> ReadAllText(
-            const std::filesystem::path &path
-        );
+        static std::expected<std::vector<std::byte>, std::string> ReadAllBytes(const std::filesystem::path &path);
+        static std::expected<std::string, std::string> ReadAllText(const std::filesystem::path &path);
         static std::expected<size_t, std::string> WriteAllBytes(
             const std::filesystem::path &path, const std::byte *data, size_t size
         );

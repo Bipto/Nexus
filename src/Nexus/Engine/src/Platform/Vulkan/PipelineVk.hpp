@@ -16,12 +16,9 @@ namespace Nexus::Graphics
         }
 
         virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) = 0;
-        virtual void SetResourceSet(
-            VkCommandBuffer cmd, const ResourceSetBindingDescription &desc
-        ) = 0;
+        virtual void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) = 0;
 
-        const std::map<uint32_t, VkDescriptorSetLayout> &
-        GetDescriptorSetLayouts() const
+        const std::map<uint32_t, VkDescriptorSetLayout> &GetDescriptorSetLayouts() const
         {
             return m_DescriptorSetLayouts;
         }
@@ -45,18 +42,12 @@ namespace Nexus::Graphics
     class GraphicsPipelineVk : public IGraphicsPipeline, public PipelineVk
     {
       public:
-        GraphicsPipelineVk(
-            const GraphicsPipelineDescription &description,
-            GraphicsDeviceVk *graphicsDevice
-        );
+        GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
         virtual ~GraphicsPipelineVk();
-        virtual const GraphicsPipelineDescription &
-        GetPipelineDescription() const override;
+        virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 
         void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-        void SetResourceSet(
-            VkCommandBuffer cmd, const ResourceSetBindingDescription &desc
-        ) final;
+        void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
 
       private:
         std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
@@ -69,16 +60,11 @@ namespace Nexus::Graphics
     class MeshletPipelineVk : public IMeshletPipeline, public PipelineVk
     {
       public:
-        MeshletPipelineVk(
-            const MeshletPipelineDescription &description,
-            GraphicsDeviceVk *graphicsDevice
-        );
+        MeshletPipelineVk(const MeshletPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
         virtual ~MeshletPipelineVk();
 
         void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-        void SetResourceSet(
-            VkCommandBuffer cmd, const ResourceSetBindingDescription &desc
-        ) final;
+        void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
 
       private:
         std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
@@ -91,15 +77,10 @@ namespace Nexus::Graphics
     class ComputePipelineVk : public IComputePipeline, public PipelineVk
     {
       public:
-        ComputePipelineVk(
-            const ComputePipelineDescription &description,
-            GraphicsDeviceVk *graphicsDevice
-        );
+        ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
         virtual ~ComputePipelineVk();
         void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-        void SetResourceSet(
-            VkCommandBuffer cmd, const ResourceSetBindingDescription &desc
-        ) final;
+        void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
 
       private:
         VkPipeline m_Pipeline = {};
@@ -109,15 +90,10 @@ namespace Nexus::Graphics
     class RayTracingPipelineVk : public IRayTracingPipeline, public PipelineVk
     {
       public:
-        RayTracingPipelineVk(
-            const RayTracingPipelineDescription &description,
-            GraphicsDeviceVk *graphicsDevice
-        );
+        RayTracingPipelineVk(const RayTracingPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
         virtual ~RayTracingPipelineVk();
         void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
-        void SetResourceSet(
-            VkCommandBuffer cmd, const ResourceSetBindingDescription &desc
-        ) final;
+        void SetResourceSet(VkCommandBuffer cmd, const ResourceSetBindingDescription &desc) final;
         std::vector<uint8_t> GetRayTracingShaderGroupHandles() const final;
 
       private:

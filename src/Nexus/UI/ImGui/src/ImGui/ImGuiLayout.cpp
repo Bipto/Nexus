@@ -37,9 +37,7 @@ namespace Nexus::UI
     {
     }
 
-    void ImGuiLayout::ShowMessageBox(
-        const std::string &title, const std::string &message
-    )
+    void ImGuiLayout::ShowMessageBox(const std::string &title, const std::string &message)
     {
     }
 

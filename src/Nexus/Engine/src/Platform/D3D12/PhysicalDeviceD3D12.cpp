@@ -2,10 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    PhysicalDeviceD3D12::PhysicalDeviceD3D12(
-        Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter
-    )
-        : m_Adapter(adapter)
+    PhysicalDeviceD3D12::PhysicalDeviceD3D12(Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter) : m_Adapter(adapter)
     {
         DXGI_ADAPTER_DESC3 desc;
         adapter->GetDesc3(&desc);
@@ -50,21 +47,16 @@ namespace Nexus::Graphics
     void PhysicalDeviceD3D12::FindMaximumSupportedFeatureLevel()
     {
         D3D_FEATURE_LEVEL featureLevels[] = {
-            D3D_FEATURE_LEVEL_12_2,     D3D_FEATURE_LEVEL_12_1,
-            D3D_FEATURE_LEVEL_12_0,     D3D_FEATURE_LEVEL_11_1,
-            D3D_FEATURE_LEVEL_11_0,     D3D_FEATURE_LEVEL_10_1,
-            D3D_FEATURE_LEVEL_10_0,     D3D_FEATURE_LEVEL_9_3,
-            D3D_FEATURE_LEVEL_9_2,      D3D_FEATURE_LEVEL_9_1,
-            D3D_FEATURE_LEVEL_1_0_CORE, D3D_FEATURE_LEVEL_1_0_GENERIC,
+            D3D_FEATURE_LEVEL_12_2, D3D_FEATURE_LEVEL_12_1, D3D_FEATURE_LEVEL_12_0,     D3D_FEATURE_LEVEL_11_1,
+            D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0,     D3D_FEATURE_LEVEL_9_3,
+            D3D_FEATURE_LEVEL_9_2,  D3D_FEATURE_LEVEL_9_1,  D3D_FEATURE_LEVEL_1_0_CORE, D3D_FEATURE_LEVEL_1_0_GENERIC,
         };
 
         Microsoft::WRL::ComPtr<ID3D12Device> testDevice = nullptr;
 
         for (auto level : featureLevels)
         {
-            if (SUCCEEDED(D3D12CreateDevice(
-                    m_Adapter.Get(), level, IID_PPV_ARGS(&testDevice)
-                )))
+            if (SUCCEEDED(D3D12CreateDevice(m_Adapter.Get(), level, IID_PPV_ARGS(&testDevice))))
             {
                 m_MaxFeatureLevel = level;
                 break;

@@ -24,8 +24,8 @@ namespace Nexus::GL
         RegisterClass(&wc);
 
         HWND hwnd = CreateWindowEx(
-            0, className, "TempWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, NULL, NULL
+            0, className, "TempWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+            NULL, NULL, NULL, NULL
         );
 
         if (!IsWindow(hwnd))
@@ -87,8 +87,7 @@ namespace Nexus::GL
         return true;
     }
 
-    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>>
-    LoadAvailablePhysicalDevices(bool debug)
+    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug)
     {
         std::map<std::string, std::vector<std::string>> displays;
 
@@ -109,9 +108,7 @@ namespace Nexus::GL
         for (const auto &[name, attachedDisplays] : displays)
         {
             std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice =
-                std::make_shared<Graphics::PhysicalDeviceWGL>(
-                    name, attachedDisplays, debug
-                );
+                std::make_shared<Graphics::PhysicalDeviceWGL>(name, attachedDisplays, debug);
             physicalDevices.push_back(physicalDevice);
         }
 

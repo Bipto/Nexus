@@ -8,22 +8,16 @@
 
 #include "Nexus-Core/Resources/FileResourceLoader.hpp"
 
-DemoApplication::DemoApplication(const Nexus::ApplicationDescription &desc)
-    : Application(desc)
+DemoApplication::DemoApplication(const Nexus::ApplicationDescription &desc) : Application(desc)
 {
 }
 
 void DemoApplication::Load()
 {
-    DemoImGuiLayer *imGuiLayer = m_LayerStack.AddOverlay<DemoImGuiLayer>(
-        this, m_CommandQueueGroup.GraphicsQueue
-    );
+    DemoImGuiLayer *imGuiLayer = m_LayerStack.AddOverlay<DemoImGuiLayer>(this, m_CommandQueueGroup.GraphicsQueue);
 
-    DemoLayer *demoLayer =
-        m_LayerStack.AddLayer<DemoLayer>(this, m_CommandQueueGroup.GraphicsQueue);
-    imGuiLayer->SetDemoSelectedCallback(
-        [demoLayer](std::shared_ptr<Demos::Demo> demo) { demoLayer->SetDemo(demo); }
-    );
+    DemoLayer *demoLayer = m_LayerStack.AddLayer<DemoLayer>(this, m_CommandQueueGroup.GraphicsQueue);
+    imGuiLayer->SetDemoSelectedCallback([demoLayer](std::shared_ptr<Demos::Demo> demo) { demoLayer->SetDemo(demo); });
 }
 
 void DemoApplication::Update(Nexus::TimeSpan time)

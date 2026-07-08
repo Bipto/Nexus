@@ -18,9 +18,7 @@ namespace Nexus::Assets
         return {};
     }
 
-    GUID AssetRegistry::RegisterAsset(
-        const std::string &processor, const std::string &filepath
-    )
+    GUID AssetRegistry::RegisterAsset(const std::string &processor, const std::string &filepath)
     {
         // generate a new GUID
         GUID id = {};
@@ -38,16 +36,13 @@ namespace Nexus::Assets
         return id;
     }
 
-    void AssetRegistry::RegisterAsset(
-        const std::string &processor, const std::string &filepath, GUID id
-    )
+    void AssetRegistry::RegisterAsset(const std::string &processor, const std::string &filepath, GUID id)
     {
         AssetInfo info = {.Filepath = filepath, .ProcessorName = processor};
         m_Assets[id] = info;
     }
 
-    const std::map<GUID, AssetInfo> &Nexus::Assets::AssetRegistry::
-        GetStoredAssets() const
+    const std::map<GUID, AssetInfo> &Nexus::Assets::AssetRegistry::GetStoredAssets() const
     {
         return m_Assets;
     }

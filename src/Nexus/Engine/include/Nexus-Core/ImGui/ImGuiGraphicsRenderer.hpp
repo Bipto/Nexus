@@ -41,9 +41,7 @@ namespace Nexus::ImGuiUtils
     class NX_API ImGuiGraphicsRenderer
     {
       public:
-        ImGuiGraphicsRenderer(
-            Nexus::Application *app, Graphics::CommandQueueHandle commandQueue
-        );
+        ImGuiGraphicsRenderer(Nexus::Application *app, Graphics::CommandQueueHandle commandQueue);
         virtual ~ImGuiGraphicsRenderer();
         void RebuildFontAtlas();
 

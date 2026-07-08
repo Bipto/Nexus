@@ -8,8 +8,7 @@ namespace Demos
     {
       public:
         ComputeIndirectDemo(
-            const std::string &name, Nexus::Application *app,
-            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
             Nexus::Graphics::CommandQueueHandle commandQueue
         )
             : Demo(name, app, imGuiRenderer, commandQueue)
@@ -30,28 +29,21 @@ namespace Demos
             textureDesc.Format = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
             textureDesc.Samples = 1;
             textureDesc.MipLevels = 1;
-            textureDesc.Usage = Nexus::Graphics::TextureUsage_Storage |
-                                Nexus::Graphics::TextureUsage_Sampled;
+            textureDesc.Usage = Nexus::Graphics::TextureUsage_Storage | Nexus::Graphics::TextureUsage_Sampled;
             textureDesc.DebugName = "Compute Texture";
             m_Texture = m_GraphicsDevice->CreateTexture(textureDesc);
 
             Nexus::Graphics::TextureViewDescription viewDesc = {};
             viewDesc.TargetTexture = m_Texture;
             viewDesc.Format = m_Texture->GetPixelFormat();
-            viewDesc.Range = {
-                .BaseMipLevel = 0,
-                .LevelCount = 1,
-                .BaseArrayLayer = 0,
-                .LayerCount = 1
-            };
+            viewDesc.Range = {.BaseMipLevel = 0, .LevelCount = 1, .BaseArrayLayer = 0, .LayerCount = 1};
             viewDesc.DebugName = "Compute Texture View";
             m_TextureView = m_GraphicsDevice->CreateTextureView(viewDesc);
 
             Nexus::Graphics::ComputePipelineDescription desc = {};
             desc.ComputeShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/compute/compute.glsl",
-                Nexus::GetApplication()->GetApplicationPath(),
-                Nexus::Graphics::ShaderStage::Compute
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Compute
             );
             desc.ResourceDescription.Descriptors = {
                 Nexus::Graphics::ResourceDescriptor{
@@ -76,10 +68,8 @@ namespace Demos
             Nexus::Graphics::DeviceBufferDescription indirectDesc = {};
             indirectDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
             indirectDesc.Usage = Nexus::Graphics::BufferUsage_Indirect;
-            indirectDesc.SizeInBytes =
-                sizeof(Nexus::Graphics::IndirectDispatchArguments);
-            indirectDesc.StrideInBytes =
-                sizeof(Nexus::Graphics::IndirectDispatchArguments);
+            indirectDesc.SizeInBytes = sizeof(Nexus::Graphics::IndirectDispatchArguments);
+            indirectDesc.StrideInBytes = sizeof(Nexus::Graphics::IndirectDispatchArguments);
             m_IndirectBuffer = m_GraphicsDevice->CreateDeviceBuffer(indirectDesc);
 
             Nexus::Graphics::IndirectDispatchArguments args = {};
@@ -91,8 +81,7 @@ namespace Demos
 
         virtual void Render(Nexus::TimeSpan time) override
         {
-            auto [width, height] =
-                Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
+            auto [width, height] = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
             m_CommandList->Begin();
 
@@ -108,10 +97,8 @@ namespace Demos
             dispatchDesc.Stride = m_IndirectBuffer->GetStrideInBytes();
             m_CommandList->DispatchIndirect(dispatchDesc);
 
-            Nexus::Graphics::SwapchainHandle swapchain =
-                Nexus::GetApplication()->GetPrimarySwapchain();
-            Nexus::Graphics::FramebufferHandle framebuffer =
-                swapchain->GetCurrentFramebuffer();
+            Nexus::Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+            Nexus::Graphics::FramebufferHandle framebuffer = swapchain->GetCurrentFramebuffer();
             m_CommandList->SetFramebuffer(framebuffer);
 
             Nexus::Graphics::Viewport vp;
@@ -130,9 +117,7 @@ namespace Demos
             scissor.Height = height;
             m_CommandList->SetScissor(scissor);
 
-            m_CommandList->ClearColourTarget(
-                0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}
-            );
+            m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
             m_CommandList->End();
 

@@ -4,8 +4,7 @@
 
 namespace Nexus::UI
 {
-    wxWidgetsPanel::wxWidgetsPanel(wxFrame *frame)
-        : m_Frame(frame), m_Panel(new wxPanel(frame))
+    wxWidgetsPanel::wxWidgetsPanel(wxFrame *frame) : m_Frame(frame), m_Panel(new wxPanel(frame))
     {
     }
 
