@@ -29,7 +29,7 @@ namespace Nexus::Graphics
     void TexelBufferOpenGL::Bind(uint32_t slot) const
     {
         GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
-        context->BindTextureBuffer(m_Handle, slot);
+        context->BindTexture(GL_TEXTURE_BUFFER, m_Handle, slot);
     }
 
 } // namespace Nexus::Graphics

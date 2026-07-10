@@ -74,9 +74,7 @@ namespace Nexus::Graphics
                 const Graphics::FramebufferColourAttachmentDescription &colourAttachment =
                     m_Description.ColourAttachments.at(i);
                 TextureHandle texture = colourAttachment.ColourAttachment.TargetTexture;
-                GL::AttachTexture(
-                    m_FBO, colourAttachment.ColourAttachment, texture->IsDepth(), i, gladContext, context
-                );
+                GL::AttachTexture(m_FBO, colourAttachment.ColourAttachment, texture->IsDepth(), i, context);
             }
 
             // attach depth target if needed
@@ -84,7 +82,7 @@ namespace Nexus::Graphics
             {
                 Graphics::FramebufferTextureDescription depthAttachment = m_Description.DepthAttachment.value();
                 TextureHandle texture = depthAttachment.TargetTexture;
-                GL::AttachTexture(m_FBO, depthAttachment, texture->IsDepth(), 0, gladContext, context);
+                GL::AttachTexture(m_FBO, depthAttachment, texture->IsDepth(), 0, context);
             }
 
             // validate the framebuffer

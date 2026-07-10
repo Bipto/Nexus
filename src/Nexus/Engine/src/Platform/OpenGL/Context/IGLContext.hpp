@@ -30,6 +30,7 @@ namespace Nexus::GL
 
         // textures
         std::expected<uint32_t, std::string> CreateTexture(GLenum textureType);
+        void BindTexture(GLenum textureType, GLuint handle, GLuint slot);
         void TextureParameteri(GLuint texture, GLenum textureType, GLenum pname, GLint param);
         bool IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers);
 
@@ -85,7 +86,6 @@ namespace Nexus::GL
         // texture buffers
         std::expected<uint32_t, std::string> CreateTexelBuffer(const Graphics::TexelBufferDescription &desc);
         void DestroyTextureBuffer(uint32_t handle);
-        void BindTextureBuffer(uint32_t handle, uint32_t slot);
 
         // buffers
         std::expected<void, std::string> CreateBuffer(
@@ -102,6 +102,8 @@ namespace Nexus::GL
         void *MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access);
 
         // framebuffers
+        GLuint CreateFramebuffer();
+        void DestroyFramebuffer(GLuint framebuffer);
         void FramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
         void FramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
         void FramebufferTexture3D(
@@ -111,6 +113,10 @@ namespace Nexus::GL
         void FramebufferTextureMultiviewOVR(
             GLenum target, GLenum attachment, GLuint texture, GLint level, GLint baseViewIndex, GLsizei numViews
         );
+        GLenum CheckFramebufferStatus(GLuint framebuffer, GLenum target);
+
+        void ReadBuffer(GLuint framebuffer, GLenum target, GLenum mode);
+        void ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data);
 
         // samplers
         virtual std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc);

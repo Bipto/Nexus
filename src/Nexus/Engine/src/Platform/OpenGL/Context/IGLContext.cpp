@@ -35,6 +35,21 @@ namespace Nexus::GL
         return textureHandle;
     }
 
+    void IGLContext::BindTexture(GLenum textureType, GLuint handle, GLuint slot)
+    {
+        MakeCurrent();
+
+        if (m_Context.BindTextureUnit != nullptr)
+        {
+            glCall(m_Context.BindTextureUnit(slot, handle));
+        }
+        else
+        {
+            glCall(m_Context.ActiveTexture(GL_TEXTURE0 + slot));
+            glCall(m_Context.BindTexture(textureType, handle));
+        }
+    }
+
     void IGLContext::TextureParameteri(GLuint texture, GLenum textureType, GLenum pname, GLint param)
     {
         MakeCurrent();
@@ -360,26 +375,13 @@ namespace Nexus::GL
         glCall(m_Context.DeleteTextures(1, &handle));
     }
 
-    void IGLContext::BindTextureBuffer(uint32_t handle, uint32_t slot)
-    {
-        MakeCurrent();
-
-        if (m_Context.BindTextureUnit != nullptr)
-        {
-            glCall(m_Context.BindTextureUnit(slot, handle));
-        }
-        else
-        {
-            glCall(m_Context.ActiveTexture(GL_TEXTURE0 + slot));
-            glCall(m_Context.BindTexture(GL_TEXTURE_BUFFER, handle));
-        }
-    }
-
     std::expected<void, std::string> IGLContext::CreateBuffer(
         GLuint &buffer, GLenum target, GLsizeiptr size, const GLvoid *data, GLbitfield mapFlags, GLenum bufferUsage,
         const std::string &debugName, bool &supportsPersistentMapping
     )
     {
+        MakeCurrent();
+
         // try to use persistent mapping if the functionality is available
         if (m_Context.ARB_buffer_storage || m_Context.VERSION_4_4)
         {
@@ -422,6 +424,7 @@ namespace Nexus::GL
 
     void IGLContext::DeleteBuffers(GLsizei n, const GLuint *buffers)
     {
+        MakeCurrent();
         glCall(m_Context.DeleteBuffers(n, buffers));
     }
 
@@ -429,6 +432,8 @@ namespace Nexus::GL
         GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size
     )
     {
+        MakeCurrent();
+
         // use DSA if it is available
         if (m_Context.ARB_direct_state_access || m_Context.EXT_direct_state_access)
         {
@@ -455,6 +460,8 @@ namespace Nexus::GL
 
     void IGLContext::BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data)
     {
+        MakeCurrent();
+
         if (m_Context.NamedBufferSubData)
         {
             glCall(m_Context.NamedBufferSubData(buffer, offset, size, data));
@@ -468,6 +475,8 @@ namespace Nexus::GL
 
     void IGLContext::GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data)
     {
+        MakeCurrent();
+
         if (m_Context.GetNamedBufferSubData)
         {
             glCall(m_Context.GetNamedBufferSubData(buffer, offset, size, data));
@@ -493,6 +502,8 @@ namespace Nexus::GL
 
     void *IGLContext::MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access)
     {
+        MakeCurrent();
+
         if (m_Context.MapNamedBufferRange)
         {
             return m_Context.MapNamedBufferRange(buffer, offset, length, access);
@@ -503,11 +514,35 @@ namespace Nexus::GL
             return m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, length, access);
         }
     }
+    GLuint IGLContext::CreateFramebuffer()
+    {
+        MakeCurrent();
+
+        GLuint framebuffer = 0;
+
+        if (m_Context.CreateFramebuffers)
+        {
+            m_Context.CreateFramebuffers(1, &framebuffer);
+        }
+        else
+        {
+            m_Context.GenFramebuffers(1, &framebuffer);
+        }
+
+        return framebuffer;
+    }
+
+    void IGLContext::DestroyFramebuffer(GLuint framebuffer)
+    {
+        MakeCurrent();
+        m_Context.DeleteFramebuffers(1, &framebuffer);
+    }
 
     void IGLContext::FramebufferTexture1D(
         GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level
     )
     {
+        MakeCurrent();
         glCall(m_Context.FramebufferTexture1D(target, attachment, textarget, texture, level));
     }
 
@@ -515,6 +550,7 @@ namespace Nexus::GL
         GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level
     )
     {
+        MakeCurrent();
         glCall(m_Context.FramebufferTexture2D(target, attachment, textarget, texture, level));
     }
 
@@ -522,6 +558,7 @@ namespace Nexus::GL
         GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer
     )
     {
+        MakeCurrent();
         glCall(m_Context.FramebufferTexture3D(target, attachment, textarget, texture, level, layer));
     }
 
@@ -534,7 +571,46 @@ namespace Nexus::GL
         GLenum target, GLenum attachment, GLuint texture, GLint level, GLint baseViewIndex, GLsizei numViews
     )
     {
+        MakeCurrent();
+
         glCall(m_Context.FramebufferTextureMultiviewOVR(target, attachment, texture, level, baseViewIndex, numViews));
+    }
+
+    GLenum IGLContext::CheckFramebufferStatus(GLuint framebuffer, GLenum target)
+    {
+        MakeCurrent();
+
+        if (m_Context.CheckNamedFramebufferStatus)
+        {
+            return m_Context.CheckNamedFramebufferStatus(framebuffer, target);
+        }
+        else
+        {
+            BindFramebuffer(target, framebuffer);
+            return m_Context.CheckFramebufferStatus(target);
+        }
+    }
+
+    void IGLContext::ReadBuffer(GLuint framebuffer, GLenum target, GLenum mode)
+    {
+        MakeCurrent();
+
+        if (m_Context.NamedFramebufferReadBuffer)
+        {
+            m_Context.NamedFramebufferReadBuffer(framebuffer, mode);
+        }
+        else
+        {
+            BindFramebuffer(target, framebuffer);
+            m_Context.ReadBuffer(mode);
+        }
+    }
+
+    void IGLContext::ReadPixels(
+        GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data
+    )
+    {
+        MakeCurrent();
     }
 
     std::expected<uint32_t, std::string> IGLContext::CreateSampler(const Graphics::SamplerDescription &desc)

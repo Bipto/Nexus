@@ -79,10 +79,10 @@ namespace Nexus::GL
     GLbitfield GetBarrierFlags(Graphics::BarrierAccess access, bool supportsStorageBuffers, bool &supportsByRegion);
 
     GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec);
-    void ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context);
+    void ValidateFramebuffer(GLuint framebuffer, GL::IGLContext *context);
     void AttachTexture(
         GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth, uint32_t colourIndex,
-        const GladGLContext &gladContext, GL::IGLContext *context
+        GL::IGLContext *context
     );
 
     void GetBaseType(
