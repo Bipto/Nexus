@@ -97,7 +97,7 @@ namespace Nexus::GL
 
     std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::IGraphicsDevice *device);
 
-    void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, const GladGLContext &context);
+    void CopyBufferToTexture(const Graphics::CopyBufferToTextureCommand &command, GL::IGLContext *context);
 
     void CopyTextureToBuffer(
         const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &gladContext, GL::IGLContext *context

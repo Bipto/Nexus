@@ -530,7 +530,7 @@ namespace Nexus::Graphics
             TextureOpenGL *texture = textureHandle.AsDerived<TextureOpenGL>();
             GL::IGLContext *context = m_Device->GetOffscreenContext();
 
-            context->Execute([&](const GladGLContext &context) { GL::CopyBufferToTexture(command, context); });
+            GL::CopyBufferToTexture(command, context);
             texture->MarkDirty();
         }
     }
