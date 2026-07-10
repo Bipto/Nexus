@@ -117,6 +117,17 @@ namespace Nexus::GL
 
         void ReadBuffer(GLuint framebuffer, GLenum target, GLenum mode);
         void ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data);
+        void BlitFramebuffer(
+            GLuint readFramebuffer, GLuint drawFramebuffer, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+            GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter
+        );
+
+        void CopyImageSubData(
+            GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName,
+            GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight,
+            GLsizei srcDepth
+        );
+        bool SupportsCopyImageSubData();
 
         // samplers
         virtual std::expected<uint32_t, std::string> CreateSampler(const Graphics::SamplerDescription &desc);

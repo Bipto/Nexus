@@ -437,28 +437,26 @@ namespace Nexus::Graphics
 
         GL::IGLContext *context = m_Device->GetOffscreenContext();
 
-        context->Execute([&](const GladGLContext &gladContext) {
-            Point2D<uint32_t> size =
-                Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
+        Point2D<uint32_t> size =
+            Utils::GetMipSize(command.Source->GetWidth(), command.Source->GetHeight(), command.SourceMipLevel);
 
-            Graphics::TextureCopyDescription copyDesc = {};
-            copyDesc.Source = command.Source;
-            copyDesc.Destination = command.Destination;
-            copyDesc.SourceOffset = {0, 0, (int32_t)command.SourceArrayLayer};
-            copyDesc.DestinationOffset = {0, 0, (int32_t)command.DestinationArrayLayer};
-            copyDesc.SourceMipLevel = command.SourceMipLevel;
-            copyDesc.DestinationMipLevel = command.DestinationMipLevel;
-            copyDesc.Extent = {size.X, size.Y};
+        Graphics::TextureCopyDescription copyDesc = {};
+        copyDesc.Source = command.Source;
+        copyDesc.Destination = command.Destination;
+        copyDesc.SourceOffset = {0, 0, (int32_t)command.SourceArrayLayer};
+        copyDesc.DestinationOffset = {0, 0, (int32_t)command.DestinationArrayLayer};
+        copyDesc.SourceMipLevel = command.SourceMipLevel;
+        copyDesc.DestinationMipLevel = command.DestinationMipLevel;
+        copyDesc.Extent = {size.X, size.Y};
 
-            GL::CopyTextureToTexture(copyDesc, gladContext, context);
+        GL::CopyTextureToTexture(copyDesc, context);
 
-            TextureHandle handle = command.Destination;
-            TextureOpenGL *texture = handle.AsDerived<TextureOpenGL>();
-            if (texture)
-            {
-                texture->MarkDirty();
-            }
-        });
+        TextureHandle handle = command.Destination;
+        TextureOpenGL *texture = handle.AsDerived<TextureOpenGL>();
+        if (texture)
+        {
+            texture->MarkDirty();
+        }
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(const StartTimingQueryCommand &command, IGraphicsDevice *device)
@@ -545,9 +543,7 @@ namespace Nexus::Graphics
             TextureOpenGL *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
             GL::IGLContext *context = m_Device->GetOffscreenContext();
 
-            context->Execute([&](const GladGLContext &gladContext) {
-                GL::CopyTextureToBuffer(command, gladContext, context);
-            });
+            GL::CopyTextureToBuffer(command, context);
         }
     }
 
@@ -564,22 +560,20 @@ namespace Nexus::Graphics
 
         GL::IGLContext *context = m_Device->GetOffscreenContext();
 
-        context->Execute([&](const GladGLContext &gladContext) {
-            if (gladContext.ARB_copy_image || gladContext.VERSION_4_3)
-            {
-                gladContext.CopyImageSubData(
-                    sourceTexture->GetHandle(), sourceTexture->GetTextureType(), copyDesc.SourceMipLevel,
-                    copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y, copyDesc.SourceOffset.Z, destTexture->GetHandle(),
-                    destTexture->GetTextureType(), copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
-                    copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
-                    copyDesc.Extent.Height, copyDepth
-                );
-            }
-            else
-            {
-                GL::CopyTextureToTexture(copyDesc, gladContext, context);
-            }
-        });
+        if (context->SupportsCopyImageSubData())
+        {
+            context->CopyImageSubData(
+                sourceTexture->GetHandle(), sourceTexture->GetTextureType(), copyDesc.SourceMipLevel,
+                copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y, copyDesc.SourceOffset.Z, destTexture->GetHandle(),
+                destTexture->GetTextureType(), copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
+                copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
+                copyDesc.Extent.Height, copyDepth
+            );
+        }
+        else
+        {
+            GL::CopyTextureToTexture(copyDesc, context);
+        }
 
         destTexture->MarkDirty();
     }

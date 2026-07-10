@@ -357,7 +357,7 @@ namespace Nexus::GL
         {
             m_Context.GenTextures(1, &handle);
             m_Context.BindTexture(GL_TEXTURE_BUFFER, handle);
-            m_Context.TexBufferRange(
+            m_Context.TexBufferRangeEXT(
                 GL_TEXTURE_BUFFER, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes
             );
         }
@@ -611,6 +611,49 @@ namespace Nexus::GL
     )
     {
         MakeCurrent();
+        m_Context.ReadPixels(x, y, width, height, format, type, data);
+    }
+
+    void IGLContext::BlitFramebuffer(
+        GLuint readFramebuffer, GLuint drawFramebuffer, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0,
+        GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter
+    )
+    {
+        MakeCurrent();
+
+        if (m_Context.BlitNamedFramebuffer)
+        {
+            m_Context.BlitNamedFramebuffer(
+                readFramebuffer, drawFramebuffer, srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter
+            );
+        }
+        else
+        {
+            m_Context.BindFramebuffer(GL_READ_FRAMEBUFFER, readFramebuffer);
+            m_Context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFramebuffer);
+
+            m_Context.BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+
+            m_Context.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+            m_Context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        }
+    }
+
+    void IGLContext::CopyImageSubData(
+        GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName,
+        GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight,
+        GLsizei srcDepth
+    )
+    {
+        m_Context.CopyImageSubData(
+            srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth,
+            srcHeight, srcDepth
+        );
+    }
+
+    bool IGLContext::SupportsCopyImageSubData()
+    {
+        return m_Context.CopyImageSubData != nullptr;
     }
 
     std::expected<uint32_t, std::string> IGLContext::CreateSampler(const Graphics::SamplerDescription &desc)

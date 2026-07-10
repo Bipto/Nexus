@@ -1536,9 +1536,7 @@ namespace Nexus::GL
         context->BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     }
 
-    void CopyTextureToBuffer(
-        const Graphics::CopyTextureToBufferCommand &command, const GladGLContext &gladContext, GL::IGLContext *context
-    )
+    void CopyTextureToBuffer(const Graphics::CopyTextureToBufferCommand &command, GL::IGLContext *context)
     {
         const Graphics::TextureOpenGL *texture =
             command.TextureBufferCopy.Texture.AsDerived<const Graphics::TextureOpenGL>();
@@ -1588,68 +1586,11 @@ namespace Nexus::GL
         context->BindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     }
 
-    static void CopyTextureToTextureDSA(
-        const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &gladContext, GL::IGLContext *context
-    )
+    void CopyTextureToTexture(const Graphics::TextureCopyDescription &copyDesc, GL::IGLContext *context)
     {
         const Graphics::TextureOpenGL *source = copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
         const Graphics::TextureOpenGL *destination = copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
-        NX_VALIDATE(source, "Source texture must be valid");
 
-        GLuint sourceFramebufferHandle = 0;
-        GLuint destFramebufferHandle = 0;
-
-        // set up source framebuffer
-        {
-            Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-            framebufferTextureDesc.TargetTexture = copyDesc.Source;
-            framebufferTextureDesc.MipLevel = copyDesc.SourceMipLevel;
-            framebufferTextureDesc.BaseArrayLayer = copyDesc.SourceOffset.Z;
-            framebufferTextureDesc.LayerCount = 1;
-
-            gladContext.CreateFramebuffers(1, &sourceFramebufferHandle);
-            GL::AttachTexture(sourceFramebufferHandle, framebufferTextureDesc, source->IsDepth(), 0, context);
-            GL::ValidateFramebuffer(sourceFramebufferHandle, context);
-        }
-
-        if (destination)
-        {
-            Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
-            framebufferTextureDesc.TargetTexture = copyDesc.Destination;
-            framebufferTextureDesc.MipLevel = copyDesc.DestinationMipLevel;
-            framebufferTextureDesc.BaseArrayLayer = copyDesc.DestinationOffset.Z;
-            framebufferTextureDesc.LayerCount = 1;
-
-            gladContext.CreateFramebuffers(1, &destFramebufferHandle);
-            GL::AttachTexture(destFramebufferHandle, framebufferTextureDesc, destination->IsDepth(), 0, context);
-            GL::ValidateFramebuffer(destFramebufferHandle, context);
-        }
-        else
-        {
-            destFramebufferHandle = 0;
-        }
-
-        context->Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
-        context->EnableCapability(GL_SCISSOR_TEST, false);
-
-        gladContext.BlitNamedFramebuffer(
-            sourceFramebufferHandle, destFramebufferHandle, copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y,
-            copyDesc.SourceOffset.X + copyDesc.Extent.Width, copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
-            copyDesc.DestinationOffset.X, copyDesc.DestinationOffset.Y,
-            copyDesc.DestinationOffset.X + copyDesc.Extent.Width, copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
-            GL_COLOR_BUFFER_BIT, GL_NEAREST
-        );
-
-        context->DestroyFramebuffer(sourceFramebufferHandle);
-        context->DestroyFramebuffer(destFramebufferHandle);
-    }
-
-    static void CopyTextureToTextureNonDSA(
-        const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &gladContext, GL::IGLContext *context
-    )
-    {
-        const Graphics::TextureOpenGL *source = copyDesc.Source.AsDerived<const Graphics::TextureOpenGL>();
-        const Graphics::TextureOpenGL *destination = copyDesc.Destination.AsDerived<const Graphics::TextureOpenGL>();
         NX_VALIDATE(source, "Source texture must be valid");
 
         GLuint sourceFramebufferHandle = 0;
@@ -1668,7 +1609,6 @@ namespace Nexus::GL
             GL::ValidateFramebuffer(sourceFramebufferHandle, context);
         }
 
-        // set up dest framebuffer (or use the backbuffer)
         if (destination)
         {
             Graphics::FramebufferTextureDescription framebufferTextureDesc = {};
@@ -1677,8 +1617,7 @@ namespace Nexus::GL
             framebufferTextureDesc.BaseArrayLayer = copyDesc.DestinationOffset.Z;
             framebufferTextureDesc.LayerCount = 1;
 
-            glCall(gladContext.GenFramebuffers(1, &destFramebufferHandle));
-            glCall(gladContext.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
+            destFramebufferHandle = context->CreateFramebuffer();
             GL::AttachTexture(destFramebufferHandle, framebufferTextureDesc, destination->IsDepth(), 0, context);
             GL::ValidateFramebuffer(destFramebufferHandle, context);
         }
@@ -1687,52 +1626,19 @@ namespace Nexus::GL
             destFramebufferHandle = 0;
         }
 
-        gladContext.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
-        gladContext.ReadBuffer(GL_COLOR_ATTACHMENT0);
+        context->Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
+        context->EnableCapability(GL_SCISSOR_TEST, false);
 
-        gladContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
-
-        if (destFramebufferHandle == 0)
-        {
-            gladContext.DrawBuffer(GL_BACK);
-        }
-        else
-        {
-            gladContext.DrawBuffer(GL_COLOR_ATTACHMENT0);
-        }
-
-        gladContext.Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
-        gladContext.Disable(GL_SCISSOR_TEST);
-
-        // copy all attached aspect masks
-        gladContext.BlitFramebuffer(
-            copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y, copyDesc.SourceOffset.X + copyDesc.Extent.Width,
-            copyDesc.SourceOffset.Y + copyDesc.Extent.Height, copyDesc.DestinationOffset.X,
-            copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.X + copyDesc.Extent.Width,
-            copyDesc.DestinationOffset.Y + copyDesc.Extent.Height, GL_COLOR_BUFFER_BIT, GL_NEAREST
+        context->BlitFramebuffer(
+            sourceFramebufferHandle, destFramebufferHandle, copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y,
+            copyDesc.SourceOffset.X + copyDesc.Extent.Width, copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
+            copyDesc.DestinationOffset.X, copyDesc.DestinationOffset.Y,
+            copyDesc.DestinationOffset.X + copyDesc.Extent.Width, copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
+            GL_COLOR_BUFFER_BIT, GL_NEAREST
         );
 
-        gladContext.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        gladContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-        glCall(gladContext.DeleteFramebuffers(1, &sourceFramebufferHandle));
-
-        if (destFramebufferHandle != 0)
-            glCall(gladContext.DeleteFramebuffers(1, &destFramebufferHandle));
-    }
-
-    void CopyTextureToTexture(
-        const Graphics::TextureCopyDescription &copyDesc, const GladGLContext &gladContext, GL::IGLContext *context
-    )
-    {
-        if (gladContext.ARB_direct_state_access || gladContext.EXT_direct_state_access)
-        {
-            CopyTextureToTextureDSA(copyDesc, gladContext, context);
-        }
-        else
-        {
-            CopyTextureToTextureNonDSA(copyDesc, gladContext, context);
-        }
+        context->DestroyFramebuffer(sourceFramebufferHandle);
+        context->DestroyFramebuffer(destFramebufferHandle);
     }
 
     static GLenum GetSamplerState(Nexus::Graphics::SamplerState state)

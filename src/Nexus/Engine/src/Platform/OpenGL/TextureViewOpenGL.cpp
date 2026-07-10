@@ -33,7 +33,7 @@ namespace Nexus::Graphics
                 }
                 else
                 {
-                    CreateEmulatedView(context);
+                    CreateEmulatedView();
                 }
             });
         }
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
                 {
                     if (m_Dirty && !textureViewSupported)
                     {
-                        UpdateEmulatedView(context, gladContext);
+                        UpdateEmulatedView(context);
                     }
 
                     // if we have texture view support, bind normally
@@ -129,7 +129,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void TextureViewOpenGL::CreateEmulatedView(const GladGLContext &context)
+    void TextureViewOpenGL::CreateEmulatedView()
     {
         Point2D<uint32_t> mipSize = Utils::GetMipSize(
             m_Description.TargetTexture->GetDescription().Width, m_Description.TargetTexture->GetDescription().Height,
@@ -155,7 +155,7 @@ namespace Nexus::Graphics
         m_Handle = emulatedTexture->GetHandle();
     }
 
-    void TextureViewOpenGL::UpdateEmulatedView(GL::IGLContext *context, const GladGLContext &gladContext) const
+    void TextureViewOpenGL::UpdateEmulatedView(GL::IGLContext *context) const
     {
         const TextureOpenGL *source = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
@@ -179,7 +179,7 @@ namespace Nexus::Graphics
                 copyDesc.DestinationMipLevel = mip - m_Description.Range.BaseMipLevel;
                 copyDesc.Extent = {mipWidth, mipHeight};
 
-                GL::CopyTextureToTexture(copyDesc, gladContext, context);
+                GL::CopyTextureToTexture(copyDesc, context);
             }
         }
     }

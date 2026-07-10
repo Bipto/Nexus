@@ -86,7 +86,7 @@ namespace Nexus::GL
                     copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
                     copyDesc.Extent = {rect.Width, rect.Height};
-                    GL::CopyTextureToTexture(copyDesc, gladContext, this);
+                    GL::CopyTextureToTexture(copyDesc, this);
                 }
             }
             // copy the full image
@@ -104,7 +104,7 @@ namespace Nexus::GL
                 copyDesc.DestinationMipLevel = 0;
                 copyDesc.DestinationOffset = {0, 0, 0};
                 copyDesc.Extent = {texture->GetWidth(), texture->GetHeight()};
-                GL::CopyTextureToTexture(copyDesc, gladContext, this);
+                GL::CopyTextureToTexture(copyDesc, this);
             }
         });
 
