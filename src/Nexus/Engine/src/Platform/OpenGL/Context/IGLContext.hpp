@@ -253,6 +253,8 @@ namespace Nexus::GL
             GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message
         );
         void ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label);
+        void PushDebugGroup(GLenum source, GLuint id, GLsizei length, const char *message);
+        void PopDebugGroup();
 
         void Execute(std::function<void(const GladGLContext &context)> function)
         {

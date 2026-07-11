@@ -580,15 +580,14 @@ namespace Nexus::Graphics
 
     void CommandExecutorOpenGL::ExecuteCommand(const BeginDebugGroupCommand &command, IGraphicsDevice *device)
     {
-        /*GL::ExecuteGLCommands([&](const GladGLContext &context)
-                              {
-           glCall(context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1,
-           command.GroupName.c_str())); });*/
+        // GL::IGLContext *context = m_Device->GetOffscreenContext();
+        // context->PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str());
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(const EndDebugGroupCommand &command, IGraphicsDevice *device)
-    { /*GL::ExecuteGLCommands([&](const GladGLContext &context) {
-         context.PopDebugGroup(); });*/
+    {
+        // GL::IGLContext *context = m_Device->GetOffscreenContext();
+        // context->PopDebugGroup();
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)

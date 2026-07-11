@@ -1401,4 +1401,20 @@ namespace Nexus::GL
             m_Context.ObjectLabelKHR(identifier, name, length, label);
         }
     }
+
+    void IGLContext::PushDebugGroup(GLenum source, GLuint id, GLsizei length, const char *message)
+    {
+        if (m_Context.PushDebugGroup)
+        {
+            m_Context.PushDebugGroup(source, id, length, message);
+        }
+    }
+
+    void IGLContext::PopDebugGroup()
+    {
+        if (m_Context.PopDebugGroup)
+        {
+            m_Context.PopDebugGroup();
+        }
+    }
 } // namespace Nexus::GL
