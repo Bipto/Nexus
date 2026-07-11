@@ -42,7 +42,7 @@ namespace Nexus::Graphics
     TextureOpenGL::~TextureOpenGL()
     {
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
+        context->DestroyTexture(m_Handle);
     }
 
     TextureLayout TextureOpenGL::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
@@ -71,12 +71,11 @@ namespace Nexus::Graphics
         GLint readbackAlignment = 0;
         GLint uploadAlignment = 0;
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) {
-            context.GetIntegerv(GL_PACK_ALIGNMENT, &readbackAlignment);
-            context.GetIntegerv(GL_UNPACK_ALIGNMENT, &uploadAlignment);
 
-            NX_ASSERT(readbackAlignment == uploadAlignment, "Mismatch between upload and readback alignment");
-        });
+        context->GetIntegerv(GL_PACK_ALIGNMENT, &readbackAlignment);
+        context->GetIntegerv(GL_UNPACK_ALIGNMENT, &uploadAlignment);
+
+        NX_ASSERT(readbackAlignment == uploadAlignment, "Mismatch between upload and readback alignment");
 
         size_t alignedPixelSize = Utils::AlignTo<size_t>(pixelSize, readbackAlignment);
         Point2D<uint32_t> mipSize = Utils::GetMipSize(m_Description.Width, m_Description.Height, mipLevel);
@@ -91,17 +90,7 @@ namespace Nexus::Graphics
     void TextureOpenGL::Bind(uint32_t slot) const
     {
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) {
-            if (context.ARB_direct_state_access || context.EXT_direct_state_access)
-            {
-                glCall(context.BindTextureUnit(slot, m_Handle));
-            }
-            else
-            {
-                glCall(context.ActiveTexture(GL_TEXTURE0 + slot));
-                glCall(context.BindTexture(m_TextureType, m_Handle));
-            }
-        });
+        context->BindTexture(m_TextureType, m_Handle, slot);
     }
 
     uint32_t TextureOpenGL::GetHandle() const

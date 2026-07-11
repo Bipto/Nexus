@@ -17,7 +17,7 @@ namespace Nexus::Graphics
         void MarkDirty() const;
 
       private:
-        void CreateTextureView(const GladGLContext &context);
+        void CreateTextureView(GL::IGLContext *context);
         void CreateEmulatedView();
         void UpdateEmulatedView(GL::IGLContext *context) const;
 

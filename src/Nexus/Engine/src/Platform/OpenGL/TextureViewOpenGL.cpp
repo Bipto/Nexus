@@ -24,18 +24,16 @@ namespace Nexus::Graphics
         if (m_TextureViewRequired)
         {
             GL::IGLContext *context = m_Device->GetOffscreenContext();
-            context->Execute([&](const GladGLContext &context) {
-                const bool textureViewSupported = context.TextureViewEXT != nullptr;
+            const bool textureViewSupported = context->SupportsTextureViews();
 
-                if (textureViewSupported)
-                {
-                    CreateTextureView(context);
-                }
-                else
-                {
-                    CreateEmulatedView();
-                }
-            });
+            if (textureViewSupported)
+            {
+                CreateTextureView(context);
+            }
+            else
+            {
+                CreateEmulatedView();
+            }
         }
     }
 
@@ -44,7 +42,7 @@ namespace Nexus::Graphics
         if (m_Handle)
         {
             GL::IGLContext *context = m_Device->GetOffscreenContext();
-            context->Execute([&](const GladGLContext &context) { context.DeleteTextures(1, &m_Handle); });
+            context->DestroyTexture(m_Handle);
         }
     }
 
@@ -63,39 +61,29 @@ namespace Nexus::Graphics
         if (m_TextureViewRequired)
         {
             GL::IGLContext *context = m_Device->GetOffscreenContext();
-            context->Execute([&](const GladGLContext &gladContext) {
-                const bool textureViewSupported = gladContext.TextureViewEXT != nullptr;
+            const bool textureViewSupported = context->SupportsTextureViews();
 
-                // we have a valid texture view
-                if (m_Handle)
+            // we have a valid texture view
+            if (m_Handle)
+            {
+                if (m_Dirty && !textureViewSupported)
                 {
-                    if (m_Dirty && !textureViewSupported)
-                    {
-                        UpdateEmulatedView(context);
-                    }
-
-                    // if we have texture view support, bind normally
-                    if (textureViewSupported)
-                    {
-                        // try to use DSA if available
-                        if (gladContext.ARB_direct_state_access || gladContext.EXT_direct_state_access)
-                        {
-                            glCall(gladContext.BindTextureUnit(slot, m_Handle));
-                        }
-                        else
-                        {
-                            glCall(gladContext.ActiveTexture(GL_TEXTURE0 + slot));
-                            glCall(gladContext.BindTexture(m_ViewType, m_Handle));
-                        }
-                    }
-                    // otherwise bind the emulated texture view
-                    else
-                    {
-                        const TextureOpenGL *texture = m_EmulatedTextureView.AsDerived<const TextureOpenGL>();
-                        texture->Bind(slot);
-                    }
+                    UpdateEmulatedView(context);
                 }
-            });
+
+                // if we have texture view support, bind normally
+                if (textureViewSupported)
+                {
+                    // try to use DSA if available
+                    context->BindTexture(m_ViewType, m_Handle, slot);
+                }
+                // otherwise bind the emulated texture view
+                else
+                {
+                    const TextureOpenGL *texture = m_EmulatedTextureView.AsDerived<const TextureOpenGL>();
+                    texture->Bind(slot);
+                }
+            }
         }
         else
         {
@@ -111,22 +99,21 @@ namespace Nexus::Graphics
         m_Dirty = true;
     }
 
-    void TextureViewOpenGL::CreateTextureView(const GladGLContext &context)
+    void TextureViewOpenGL::CreateTextureView(GL::IGLContext *context)
     {
         const TextureOpenGL *texture = m_Description.TargetTexture.AsDerived<const TextureOpenGL>();
 
         GLenum internalFormat = GL::GetSizedInternalFormat(m_Description.Format);
         GLenum m_ViewType = GL::GetViewType(m_Description);
 
-        context.GenTextures(1, &m_Handle);
-        context.TextureViewEXT(
+        m_Handle = context->CreateTexture(m_ViewType).value();
+
+        context->TextureView(
             m_Handle, m_ViewType, texture->GetHandle(), internalFormat, m_Description.Range.BaseMipLevel,
             m_Description.Range.LevelCount, m_Description.Range.BaseArrayLayer, m_Description.Range.LayerCount
         );
-        if (context.KHR_debug)
-        {
-            context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
-        }
+
+        context->ObjectLabel(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
     }
 
     void TextureViewOpenGL::CreateEmulatedView()

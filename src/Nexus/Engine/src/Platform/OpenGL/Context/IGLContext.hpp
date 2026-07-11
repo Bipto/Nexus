@@ -30,9 +30,18 @@ namespace Nexus::GL
 
         // textures
         std::expected<uint32_t, std::string> CreateTexture(GLenum textureType);
+        void DestroyTexture(uint32_t handle);
         void BindTexture(GLenum textureType, GLuint handle, GLuint slot);
         void TextureParameteri(GLuint texture, GLenum textureType, GLenum pname, GLint param);
         bool IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers);
+
+        // shaders
+        GLuint CreateShader(GLenum shaderType);
+        void DeleteShader(GLuint shader);
+        void ShaderSource(GLuint shader, GLsizei count, const GLchar **string, const GLint *length);
+        void CompileShader(GLuint shader);
+        void GetShaderiv(GLuint shader, GLenum pname, GLint *params);
+        void GetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
 
         // 1D textures
         void CompressedTexSubImage1D(
@@ -79,6 +88,11 @@ namespace Nexus::GL
         void TexStorage3DMultisample(
             GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height,
             GLsizei depth, GLboolean fixedsamplelocations
+        );
+
+        void TextureView(
+            GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels,
+            GLuint minlayer, GLuint numlayers
         );
 
         bool IsSparseBindingSupported();
@@ -256,12 +270,18 @@ namespace Nexus::GL
         void PushDebugGroup(GLenum source, GLuint id, GLsizei length, const char *message);
         void PopDebugGroup();
 
-        void Execute(std::function<void(const GladGLContext &context)> function)
-        {
-            MakeCurrent();
-            const GladGLContext &context = GetContext();
-            function(context);
-        }
+        using DebugCallback = GLDEBUGPROC;
+        void DebugMessageCallback(DebugCallback callback, void *userParam);
+
+        Graphics::DeviceFeatures GetDeviceFeatures();
+        const GLubyte *GetString(GLenum name);
+        const GLubyte *GetStringi(GLenum name, GLuint index);
+        void PixelStoref(GLenum pname, GLfloat param);
+        void PixelStorei(GLenum pname, GLint param);
+
+        bool SupportsSparseTextures();
+        bool SupportsSparseBuffers();
+        bool SupportsTextureViews();
 
       protected:
         GladGLContext m_Context = {};

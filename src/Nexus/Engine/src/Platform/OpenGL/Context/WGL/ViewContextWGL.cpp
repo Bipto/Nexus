@@ -67,46 +67,44 @@ namespace Nexus::GL
     {
         NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
-        Execute([&](const GladGLContext &gladContext) {
-            // copy the sections requested
-            if (presentDesc.PresentRects.size() > 0)
-            {
-                for (const auto &rect : presentDesc.PresentRects)
-                {
-                    Graphics::TextureCopyDescription copyDesc = {};
-
-                    // framebuffer texture
-                    copyDesc.Source = texture;
-                    copyDesc.SourceOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
-                    copyDesc.SourceMipLevel = 0;
-
-                    // backbuffer
-                    copyDesc.Destination = {};
-                    copyDesc.DestinationMipLevel = 0;
-                    copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
-
-                    copyDesc.Extent = {rect.Width, rect.Height};
-                    GL::CopyTextureToTexture(copyDesc, this);
-                }
-            }
-            // copy the full image
-            else
+        // copy the sections requested
+        if (presentDesc.PresentRects.size() > 0)
+        {
+            for (const auto &rect : presentDesc.PresentRects)
             {
                 Graphics::TextureCopyDescription copyDesc = {};
 
                 // framebuffer texture
                 copyDesc.Source = texture;
-                copyDesc.SourceOffset = {0, 0, 0};
+                copyDesc.SourceOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
                 copyDesc.SourceMipLevel = 0;
 
                 // backbuffer
                 copyDesc.Destination = {};
                 copyDesc.DestinationMipLevel = 0;
-                copyDesc.DestinationOffset = {0, 0, 0};
-                copyDesc.Extent = {texture->GetWidth(), texture->GetHeight()};
+                copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
+
+                copyDesc.Extent = {rect.Width, rect.Height};
                 GL::CopyTextureToTexture(copyDesc, this);
             }
-        });
+        }
+        // copy the full image
+        else
+        {
+            Graphics::TextureCopyDescription copyDesc = {};
+
+            // framebuffer texture
+            copyDesc.Source = texture;
+            copyDesc.SourceOffset = {0, 0, 0};
+            copyDesc.SourceMipLevel = 0;
+
+            // backbuffer
+            copyDesc.Destination = {};
+            copyDesc.DestinationMipLevel = 0;
+            copyDesc.DestinationOffset = {0, 0, 0};
+            copyDesc.Extent = {texture->GetWidth(), texture->GetHeight()};
+            GL::CopyTextureToTexture(copyDesc, this);
+        }
 
         if (wglSwapLayerBuffers != nullptr)
         {

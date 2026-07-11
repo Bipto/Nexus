@@ -34,20 +34,7 @@ namespace Nexus::Graphics
 
     void SwapchainOpenGL::SwapBuffers(const SwapchainPresentDescription &presentDesc)
     {
-        m_ViewContext->Execute([&](const GladGLContext &context) {
-            if (context.PushDebugGroup)
-            {
-                // context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1,
-                // "SwapchainOpenGL::SwapBuffers");
-            }
-
-            m_ViewContext->Swap(m_Framebuffer->GetColorTextureHandle(0), presentDesc);
-
-            if (context.PopDebugGroup)
-            {
-                // context.PopDebugGroup();
-            }
-        });
+        m_ViewContext->Swap(m_Framebuffer->GetColorTextureHandle(0), presentDesc);
     }
 
     FramebufferHandle SwapchainOpenGL::GetCurrentFramebuffer()

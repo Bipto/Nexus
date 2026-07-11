@@ -83,7 +83,7 @@ namespace Nexus::Graphics
         ) const final;
 
       private:
-        std::vector<std::string> GetSupportedExtensions(const GladGLContext &context);
+        std::vector<std::string> GetSupportedExtensions(GL::IGLContext *context);
         void GetFeatures();
 
       private:

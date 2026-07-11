@@ -16,34 +16,30 @@ namespace Nexus::Graphics
           m_Device(device)
     {
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) {
-            m_Handle = context.CreateShader(m_ShaderStage);
-            const char *source = m_ModuleDescription.Source.c_str();
-            glCall(context.ShaderSource(m_Handle, 1, &source, nullptr));
-            glCall(context.CompileShader(m_Handle));
 
-            int success;
-            glCall(context.GetShaderiv(m_Handle, GL_COMPILE_STATUS, &success));
+        m_Handle = context->CreateShader(m_ShaderStage);
+        const char *source = m_ModuleDescription.Source.c_str();
+        context->ShaderSource(m_Handle, 1, &source, nullptr);
+        context->CompileShader(m_Handle);
 
-            if (!success)
-            {
-                char infoLog[512];
-                glCall(context.GetShaderInfoLog(m_Handle, 512, NULL, infoLog));
-                std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
-                NX_ERROR(errorMessage);
-            }
+        int success;
+        context->GetShaderiv(m_Handle, GL_COMPILE_STATUS, &success);
 
-            if (context.KHR_debug)
-            {
-                context.ObjectLabelKHR(GL_SHADER, m_Handle, -1, m_ModuleDescription.DebugName.c_str());
-            }
-        });
+        if (!success)
+        {
+            char infoLog[512];
+            context->GetShaderInfoLog(m_Handle, 512, NULL, infoLog);
+            std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
+            NX_ERROR(errorMessage);
+        }
+
+        context->ObjectLabel(GL_SHADER, m_Handle, -1, m_ModuleDescription.DebugName.c_str());
     }
 
     ShaderModuleOpenGL::~ShaderModuleOpenGL()
     {
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) { context.DeleteShader(m_Handle); });
+        context->DeleteShader(m_Handle);
     }
 
     GLenum ShaderModuleOpenGL::GetGLShaderStage() const

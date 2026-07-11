@@ -35,6 +35,12 @@ namespace Nexus::GL
         return textureHandle;
     }
 
+    void IGLContext::DestroyTexture(uint32_t handle)
+    {
+        MakeCurrent();
+        m_Context.DeleteTextures(1, &handle);
+    }
+
     void IGLContext::BindTexture(GLenum textureType, GLuint handle, GLuint slot)
     {
         MakeCurrent();
@@ -114,6 +120,42 @@ namespace Nexus::GL
         default:
             return false;
         }
+    }
+
+    GLuint IGLContext::CreateShader(GLenum shaderType)
+    {
+        MakeCurrent();
+        return m_Context.CreateShader(shaderType);
+    }
+
+    void IGLContext::DeleteShader(GLuint shader)
+    {
+        MakeCurrent();
+        m_Context.DeleteShader(shader);
+    }
+
+    void IGLContext::ShaderSource(GLuint shader, GLsizei count, const GLchar **string, const GLint *length)
+    {
+        MakeCurrent();
+        m_Context.ShaderSource(shader, count, string, length);
+    }
+
+    void IGLContext::CompileShader(GLuint shader)
+    {
+        MakeCurrent();
+        m_Context.CompileShader(shader);
+    }
+
+    void IGLContext::GetShaderiv(GLuint shader, GLenum pname, GLint *params)
+    {
+        MakeCurrent();
+        m_Context.GetShaderiv(shader, pname, params);
+    }
+
+    void IGLContext::GetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
+    {
+        MakeCurrent();
+        m_Context.GetShaderInfoLog(shader, maxLength, length, infoLog);
     }
 
     void IGLContext::CompressedTexSubImage1D(
@@ -330,6 +372,16 @@ namespace Nexus::GL
                 textureType, samples, internalformat, width, height, depth, fixedsamplelocations
             );
         }
+    }
+
+    void IGLContext::TextureView(
+        GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels,
+        GLuint minlayer, GLuint numlayers
+    )
+    {
+        MakeCurrent();
+
+        m_Context.TextureView(texture, target, origtexture, internalformat, minlevel, numlevels, minlayer, numlayers);
     }
 
     bool IGLContext::IsSparseBindingSupported()
@@ -1343,6 +1395,8 @@ namespace Nexus::GL
 
     void IGLContext::DrawBuffers(GLuint framebuffer, GLsizei n, const GLenum *bufs)
     {
+        MakeCurrent();
+
         if (m_Context.NamedFramebufferDrawBuffers)
         {
             m_Context.NamedFramebufferDrawBuffers(framebuffer, n, bufs);
@@ -1356,6 +1410,8 @@ namespace Nexus::GL
 
     void IGLContext::ReadBuffer(GLuint framebuffer, GLenum mode)
     {
+        MakeCurrent();
+
         if (m_Context.NamedFramebufferReadBuffer)
         {
             m_Context.NamedFramebufferReadBuffer(framebuffer, mode);
@@ -1377,6 +1433,7 @@ namespace Nexus::GL
 
     void IGLContext::GetTimestamp(GLint64 *data)
     {
+        MakeCurrent();
         glCall(m_Context.GetInteger64v(GL_TIMESTAMP, data));
     }
 
@@ -1384,6 +1441,8 @@ namespace Nexus::GL
         GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message
     )
     {
+        MakeCurrent();
+
         if (m_Context.DebugMessageInsert != nullptr)
         {
             m_Context.DebugMessageInsert(source, type, id, severity, length, message);
@@ -1392,6 +1451,8 @@ namespace Nexus::GL
 
     void IGLContext::ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label)
     {
+        MakeCurrent();
+
         if (m_Context.ObjectLabel)
         {
             m_Context.ObjectLabel(identifier, name, length, label);
@@ -1404,6 +1465,8 @@ namespace Nexus::GL
 
     void IGLContext::PushDebugGroup(GLenum source, GLuint id, GLsizei length, const char *message)
     {
+        MakeCurrent();
+
         if (m_Context.PushDebugGroup)
         {
             m_Context.PushDebugGroup(source, id, length, message);
@@ -1412,9 +1475,93 @@ namespace Nexus::GL
 
     void IGLContext::PopDebugGroup()
     {
+        MakeCurrent();
+
         if (m_Context.PopDebugGroup)
         {
             m_Context.PopDebugGroup();
         }
+    }
+
+    void IGLContext::DebugMessageCallback(DebugCallback callback, void *userParam)
+    {
+        MakeCurrent();
+
+        if (m_Context.DebugMessageCallback)
+        {
+            m_Context.DebugMessageCallback(callback, userParam);
+        }
+    }
+
+    Graphics::DeviceFeatures IGLContext::GetDeviceFeatures()
+    {
+        MakeCurrent();
+
+        Graphics::DeviceFeatures features = {};
+
+        features.SupportsGeometryShaders = m_Context.ARB_geometry_shader4 || m_Context.EXT_geometry_shader == 1;
+        features.SupportsTesselationShaders = m_Context.ARB_tessellation_shader == 1;
+        features.SupportsComputeShaders = m_Context.ARB_compute_shader == 1;
+        features.SupportsStorageBuffers = m_Context.ARB_buffer_storage == 1;
+        features.SupportsMultiviewport = m_Context.OVR_multiview == 1;
+        features.SupportsSamplerAnisotropy =
+            m_Context.ARB_texture_filter_anisotropic == 1 || m_Context.EXT_texture_filter_anisotropic == 1;
+        features.SupportsETC2Compression = m_Context.ARB_ES3_compatibility == 1;
+        features.SupportsASTC_LDRCompression = m_Context.KHR_texture_compression_astc_ldr == 1;
+        features.SupportsBCCompression =
+            m_Context.EXT_texture_compression_s3tc == 1 || m_Context.ARB_texture_compression_bptc == 1;
+
+        GLint maxImageSamples = 0;
+        m_Context.GetIntegerv(GL_MAX_IMAGE_SAMPLES, &maxImageSamples);
+
+        features.SupportShaderStorageImageMultisample = maxImageSamples > 1;
+
+        features.SupportsCubemapArray =
+            m_Context.ARB_texture_cube_map_array == 1 || m_Context.EXT_texture_cube_map_array == 1;
+        features.SupportsIndependentBlend =
+            m_Context.ARB_draw_buffers_blend == 1 || m_Context.EXT_draw_buffers_indexed == 1;
+        features.SupportsMeshTaskShaders = m_Context.EXT_mesh_shader == 1;
+        features.SupportsDepthBoundsTesting = m_Context.EXT_depth_bounds_test == 1;
+
+        return features;
+    }
+
+    const GLubyte *IGLContext::GetString(GLenum name)
+    {
+        MakeCurrent();
+        return m_Context.GetString(name);
+    }
+
+    const GLubyte *IGLContext::GetStringi(GLenum name, GLuint index)
+    {
+        MakeCurrent();
+        return m_Context.GetStringi(name, index);
+    }
+
+    void IGLContext::PixelStoref(GLenum pname, GLfloat param)
+    {
+        MakeCurrent();
+        m_Context.PixelStoref(pname, param);
+    }
+
+    void IGLContext::PixelStorei(GLenum pname, GLint param)
+    {
+        MakeCurrent();
+        m_Context.PixelStorei(pname, param);
+    }
+
+    bool IGLContext::SupportsSparseTextures()
+    {
+        return m_Context.ARB_sparse_texture;
+    }
+
+    bool IGLContext::SupportsSparseBuffers()
+    {
+        return m_Context.ARB_sparse_buffer;
+    }
+
+    bool IGLContext::SupportsTextureViews()
+    {
+        return m_Context.TextureView != nullptr;
     }
 } // namespace Nexus::GL

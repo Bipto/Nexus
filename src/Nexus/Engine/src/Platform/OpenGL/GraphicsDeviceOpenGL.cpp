@@ -42,28 +42,26 @@ namespace Nexus::Graphics
         m_PhysicalDevice = std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
 
         GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) {
-            // retrieve available extensions
-            m_Extensions = GetSupportedExtensions(context);
+        // retrieve available extensions
+        m_Extensions = GetSupportedExtensions(context);
 
-            // retrieve API and graphics adapter name
-            m_APIName = std::string("OpenGL - ") + std::string((const char *)context.GetString(GL_VERSION));
-            m_RendererName = (const char *)context.GetString(GL_RENDERER);
+        // retrieve API and graphics adapter name
+        m_APIName = std::string("OpenGL - ") + std::string((const char *)context->GetString(GL_VERSION));
+        m_RendererName = (const char *)context->GetString(GL_RENDERER);
 
-            // enable debugging if available
+        // enable debugging if available
 #if !defined(__EMSCRIPTEN__)
-            if (enableDebug)
-            {
-                context.Enable(GL_DEBUG_OUTPUT);
-                context.Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        if (enableDebug)
+        {
+            context->EnableCapability(GL_DEBUG_OUTPUT, true);
+            context->EnableCapability(GL_DEBUG_OUTPUT_SYNCHRONOUS, true);
 
-                context.DebugMessageCallback(glDebugCallback, nullptr);
-            }
+            context->DebugMessageCallback(glDebugCallback, nullptr);
+        }
 #endif
-            // set pixel alignment to the default globally
-            context.PixelStorei(GL_PACK_ALIGNMENT, 4);
-            context.PixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        });
+        // set pixel alignment to the default globally
+        context->PixelStorei(GL_PACK_ALIGNMENT, 4);
+        context->PixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
         GetFeatures();
     }
@@ -90,16 +88,16 @@ namespace Nexus::Graphics
         return m_Resources.ShaderModules.CreateShared(std::move(shader));
     }
 
-    std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(const GladGLContext &context)
+    std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions(GL::IGLContext *context)
     {
         std::vector<std::string> extensions;
 
         GLint n = 0;
-        glCall(context.GetIntegerv(GL_NUM_EXTENSIONS, &n));
+        context->GetIntegerv(GL_NUM_EXTENSIONS, &n);
 
         for (GLint i = 0; i < n; i++)
         {
-            const char *extension = (const char *)context.GetStringi(GL_EXTENSIONS, i);
+            const char *extension = (const char *)context->GetStringi(GL_EXTENSIONS, i);
             extensions.push_back(extension);
         }
 
@@ -109,32 +107,7 @@ namespace Nexus::Graphics
     void GraphicsDeviceOpenGL::GetFeatures()
     {
         GL::IOffscreenContext *offscreenContext = m_PhysicalDevice->GetOffscreenContext();
-
-        offscreenContext->Execute([&](const GladGLContext &context) {
-            m_Features.SupportsGeometryShaders = context.ARB_geometry_shader4 || context.EXT_geometry_shader == 1;
-            m_Features.SupportsTesselationShaders = context.ARB_tessellation_shader == 1;
-            m_Features.SupportsComputeShaders = context.ARB_compute_shader == 1;
-            m_Features.SupportsStorageBuffers = context.ARB_buffer_storage == 1;
-            m_Features.SupportsMultiviewport = context.OVR_multiview == 1;
-            m_Features.SupportsSamplerAnisotropy =
-                context.ARB_texture_filter_anisotropic == 1 || context.EXT_texture_filter_anisotropic == 1;
-            m_Features.SupportsETC2Compression = context.ARB_ES3_compatibility == 1;
-            m_Features.SupportsASTC_LDRCompression = context.KHR_texture_compression_astc_ldr == 1;
-            m_Features.SupportsBCCompression =
-                context.EXT_texture_compression_s3tc == 1 || context.ARB_texture_compression_bptc == 1;
-
-            GLint maxImageSamples = 0;
-            context.GetIntegerv(GL_MAX_IMAGE_SAMPLES, &maxImageSamples);
-
-            m_Features.SupportShaderStorageImageMultisample = maxImageSamples > 1;
-
-            m_Features.SupportsCubemapArray =
-                context.ARB_texture_cube_map_array == 1 || context.EXT_texture_cube_map_array == 1;
-            m_Features.SupportsIndependentBlend =
-                context.ARB_draw_buffers_blend == 1 || context.EXT_draw_buffers_indexed == 1;
-            m_Features.SupportsMeshTaskShaders = context.EXT_mesh_shader == 1;
-            m_Features.SupportsDepthBoundsTesting = context.EXT_depth_bounds_test == 1;
-        });
+        m_Features = offscreenContext->GetDeviceFeatures();
     }
 
     PixelFormatProperties GraphicsDeviceOpenGL::GetPixelFormatProperties(
@@ -391,12 +364,10 @@ namespace Nexus::Graphics
             QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer);
 
         GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
-        context->Execute([&](const GladGLContext &context) {
-            if (context.ARB_sparse_buffer && context.ARB_sparse_texture)
-            {
-                info.Capabilities = QueueCapabilities(info.Capabilities | QueueCapabilities::SparseBinding);
-            }
-        });
+        if (context->SupportsSparseBuffers() && context->SupportsSparseTextures())
+        {
+            info.Capabilities = QueueCapabilities(info.Capabilities | QueueCapabilities::SparseBinding);
+        }
 
         return queueFamilies;
     }
@@ -453,10 +424,8 @@ namespace Nexus::Graphics
 
         GL::IGLContext *context = m_PhysicalDevice->GetOffscreenContext();
 
-        context->Execute([&](const GladGLContext &context) {
-            context.GetIntegerv(GL_MAJOR_VERSION, &major);
-            context.GetIntegerv(GL_MINOR_VERSION, &minor);
-        });
+        context->GetIntegerv(GL_MAJOR_VERSION, &major);
+        context->GetIntegerv(GL_MINOR_VERSION, &minor);
 
         return GraphicsAPIInfo{
             .API = GraphicsAPI::OpenGL,
