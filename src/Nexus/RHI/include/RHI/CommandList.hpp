@@ -1185,7 +1185,7 @@ namespace Nexus::Graphics
         {
             if (m_CommandList->IsRecording())
             {
-                m_CommandList->BeginDebugGroup(name);
+                // m_CommandList->BeginDebugGroup(name);
             }
         }
 
@@ -1193,7 +1193,7 @@ namespace Nexus::Graphics
         {
             if (m_CommandList->IsRecording())
             {
-                m_CommandList->EndDebugGroup();
+                // m_CommandList->EndDebugGroup();
             }
         }
 

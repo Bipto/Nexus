@@ -1,9 +1,18 @@
 #include "Logging/Logger.hpp"
 
+#include <algorithm>
+#include <optional>
+#include <ranges>
+
 namespace Nexus::Logging
 {
-    void Logger::RegisterSink(std::unique_ptr<ILogSink> sink)
+    void Logger::RemoveSink(ILogSink *sink)
     {
-        m_Sinks.push_back(std::move(sink));
+        std::erase_if(m_Sinks, [sink](const std::unique_ptr<ILogSink> &item) { return item.get() == sink; });
+    }
+
+    size_t Logger::GetSinkCount() const
+    {
+        return m_Sinks.size();
     }
 } // namespace Nexus::Logging
