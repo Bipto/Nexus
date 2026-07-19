@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <mutex>
+#include <print>
 #include <string>
 #include <vector>
 
@@ -1062,6 +1063,13 @@ namespace Nexus::Graphics
         SetFramebuffer,
         Viewport,
         Scissor,
+        ResolveFramebuffer,
+        StartTimingQuery,
+        StopTimingQuery,
+        CopyBufferToBuffer,
+        CopyBufferToTexture,
+        CopyTextureToBuffer,
+        CopyTextureToTexture,
         DebugLabel,
     };
 
@@ -1069,6 +1077,72 @@ namespace Nexus::Graphics
     {
         CommandType Type = {};
         size_t Length = 0;
+
+        std::string_view GetCommandTypeAsString() const
+        {
+            switch (Type)
+            {
+            case CommandType::SetVertexBuffer:
+                return "SetVertexBuffer";
+            case CommandType::SetIndexBuffer:
+                return "SetIndexBuffer";
+            case CommandType::SetPipeline:
+                return "SetPipeline";
+            case CommandType::Draw:
+                return "Draw";
+            case CommandType::DrawIndexed:
+                return "DrawIndexed";
+            case CommandType::DrawIndirect:
+                return "DrawIndirect";
+            case CommandType::DrawIndexedIndirect:
+                return "DrawIndexedIndirect";
+            case CommandType::Dispatch:
+                return "Dispatch";
+            case CommandType::DispatchIndirect:
+                return "DispatchIndirect";
+            case CommandType::DrawMesh:
+                return "DrawMesh";
+            case CommandType::DrawMeshIndirect:
+                return "DrawMeshIndirect";
+            case CommandType::TraceRays:
+                return "TraceRays";
+            case CommandType::ResourceSetBinding:
+                return "ResourceSetBinding";
+            case CommandType::ClearColourTarget:
+                return "ClearColourTarget";
+            case CommandType::ClearDepthTarget:
+                return "ClearDepthTarget";
+            case CommandType::SetFramebuffer:
+                return "SetFramebuffer";
+            case CommandType::Viewport:
+                return "Viewport";
+            case CommandType::Scissor:
+                return "Scissor";
+            case CommandType::ResolveFramebuffer:
+                return "ResolveFramebuffer";
+            case CommandType::StartTimingQuery:
+                return "StartTimingQuery";
+            case CommandType::StopTimingQuery:
+                return "StopTimingQuery";
+            case CommandType::CopyBufferToBuffer:
+                "CopyBufferToBuffer";
+            case CommandType::CopyBufferToTexture:
+                "CopyBufferToTexture";
+            case CommandType::CopyTextureToBuffer:
+                "CopyTextureToBuffer";
+            case CommandType::CopyTextureToTexture:
+                "CopyTextureToTexture";
+            case CommandType::DebugLabel:
+                return "DebugLabel";
+            default:
+                return "Unknown command";
+            }
+        }
+
+        void Print() const
+        {
+            std::println("Command Type: {}", GetCommandTypeAsString());
+        }
     };
 
     struct SetVertexBufferCommandStorage
@@ -1126,6 +1200,50 @@ namespace Nexus::Graphics
         size_t FramebufferIndex = 0;
     };
 
+    struct ResolveTextureCommandStorage
+    {
+        size_t SourceTextureIndex = 0;
+        size_t DestinationTextureIndex = 0;
+        uint32_t SourceArrayLayer = 0;
+        uint32_t SourceMipLevel = 0;
+        uint32_t DestinationArrayLayer = 0;
+        uint32_t DestinationMipLevel = 0;
+    };
+
+    struct TimingQueryCommandStorage
+    {
+        size_t QueryIndex = 0;
+    };
+
+    struct BufferCopyCommandStorage
+    {
+        size_t SourceIndex = 0;
+        size_t DestinationIndex = 0;
+    };
+
+    struct BufferTextureCopyCommandStorage
+    {
+        size_t BufferIndex = 0;
+        uint64_t BufferOffset = 0;
+        uint64_t BufferRowLength = 0;
+        uint64_t BufferImageHeight = 0;
+        size_t TextureIndex = 0;
+        Offset3D TextureOffset = {};
+        Extent2D TextureExtent = {};
+        uint32_t MipLevel = 0;
+    };
+
+    struct TextureCopyCommandStorage
+    {
+        size_t SourceTextureIndex = 0;
+        size_t DestinationTextureIndex = 0;
+        Offset3D SourceOffset = {};
+        Offset3D DestinationOffset = {};
+        Extent2D Extent = {};
+        uint32_t SourceMipLevel = 0;
+        uint32_t DestinationMipLevel = 0;
+    };
+
     struct DebugLabelCommandStorage
     {
         uint32_t TextLength;
@@ -1158,6 +1276,7 @@ namespace Nexus::Graphics
 
         void Clear();
         void Reset();
+        void Print() const;
 
         void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
         void SetIndexBuffer(IndexBufferView indexBuffer);
@@ -1177,6 +1296,13 @@ namespace Nexus::Graphics
         void SetFramebuffer(FramebufferHandle framebuffer);
         void SetViewport(const Viewport &viewport);
         void SetScissor(const Scissor &scissor);
+        void ResolveFramebuffer(const ResolveTextureDescription &desc);
+        void StartTimingQuery(TimingQueryHandle query);
+        void StopTimingQuery(TimingQueryHandle query);
+        void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
+        void CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy);
+        void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
+        void CopyTextureToTexture(const TextureCopyDescription &textureCopy);
         void InsertDebugMarker(const std::string &name);
     };
 
@@ -1299,6 +1425,8 @@ namespace Nexus::Graphics
         const std::vector<std::unique_ptr<IGraphicsCommand>> &GetCommands();
 
         bool IsRecording() const;
+
+        void Print() const;
 
       private:
         void EndRendering();

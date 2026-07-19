@@ -399,6 +399,20 @@ namespace Nexus::Graphics
         *this = CommandListStorage{};
     }
 
+    void CommandListStorage::Print() const
+    {
+        size_t offset = 0;
+
+        while (offset < CommandData.size())
+        {
+            const auto *header = reinterpret_cast<const CommandHeader *>(CommandData.data() + offset);
+
+            header->Print();
+
+            offset += header->Length;
+        }
+    }
+
     template <typename T>
     Allocation<T> Allocate(std::vector<std::byte> &commandStream, CommandType type, size_t payloadSize = 0)
     {
@@ -416,11 +430,12 @@ namespace Nexus::Graphics
         size_t payloadOffset = AlignUp(commandOffset + sizeof(T), PayloadAlign);
         size_t endOffset = payloadOffset + payloadSize;
 
-        commandStream.resize(endOffset);
+        size_t nextHeader = AlignUp(endOffset, HeaderAlign);
+        commandStream.resize(nextHeader);
 
         auto *header = reinterpret_cast<CommandHeader *>(commandStream.data() + headerOffset);
         header->Type = type;
-        header->Length = endOffset - headerOffset;
+        header->Length = nextHeader - headerOffset;
 
         // data
         auto *command = reinterpret_cast<T *>(commandStream.data() + commandOffset);
@@ -600,6 +615,96 @@ namespace Nexus::Graphics
         alloc.Command->Y = scissor.Y;
         alloc.Command->Width = scissor.Width;
         alloc.Command->Height = scissor.Height;
+    }
+
+    void CommandListStorage::ResolveFramebuffer(const ResolveTextureDescription &desc)
+    {
+        auto alloc = Allocate<ResolveTextureCommandStorage>(CommandData, CommandType::ResolveFramebuffer);
+        alloc.Command->SourceTextureIndex = Textures.size();
+        alloc.Command->DestinationTextureIndex = Textures.size();
+        alloc.Command->SourceArrayLayer = desc.SourceArrayLayer;
+        alloc.Command->SourceMipLevel = desc.SourceMipLevel;
+        alloc.Command->DestinationArrayLayer = desc.DestinationArrayLayer;
+        alloc.Command->DestinationMipLevel = desc.DestinationMipLevel;
+
+        Textures.push_back(desc.Source);
+        Textures.push_back(desc.Destination);
+    }
+
+    void CommandListStorage::StartTimingQuery(TimingQueryHandle query)
+    {
+        auto alloc = Allocate<TimingQueryCommandStorage>(CommandData, CommandType::StartTimingQuery);
+        alloc.Command->QueryIndex = TimingQueries.size();
+
+        TimingQueries.push_back(query);
+    }
+
+    void CommandListStorage::StopTimingQuery(TimingQueryHandle query)
+    {
+        auto alloc = Allocate<TimingQueryCommandStorage>(CommandData, CommandType::StopTimingQuery);
+        alloc.Command->QueryIndex = TimingQueries.size();
+
+        TimingQueries.push_back(query);
+    }
+
+    void CommandListStorage::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
+    {
+        size_t payloadSize = bufferCopy.Copies.size() * sizeof(BufferCopy);
+
+        auto alloc = Allocate<BufferCopyCommandStorage>(CommandData, CommandType::CopyBufferToBuffer, payloadSize);
+        alloc.Command->SourceIndex = DeviceBuffers.size();
+        alloc.Command->DestinationIndex = DeviceBuffers.size() + 1;
+        memcpy(alloc.Payload, bufferCopy.Copies.data(), payloadSize);
+
+        DeviceBuffers.push_back(bufferCopy.Source);
+        DeviceBuffers.push_back(bufferCopy.Destination);
+    }
+
+    void CommandListStorage::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
+    {
+        auto alloc = Allocate<BufferTextureCopyCommandStorage>(CommandData, CommandType::CopyBufferToTexture);
+        alloc.Command->BufferIndex = DeviceBuffers.size();
+        alloc.Command->BufferOffset = bufferTextureCopy.BufferOffset;
+        alloc.Command->BufferRowLength = bufferTextureCopy.BufferRowLength;
+        alloc.Command->BufferImageHeight = bufferTextureCopy.BufferImageHeight;
+        alloc.Command->TextureIndex = Textures.size();
+        alloc.Command->TextureOffset = bufferTextureCopy.TextureOffset;
+        alloc.Command->TextureExtent = bufferTextureCopy.TextureExtent;
+        alloc.Command->MipLevel = bufferTextureCopy.MipLevel;
+
+        DeviceBuffers.push_back(bufferTextureCopy.BufferHandle);
+        Textures.push_back(bufferTextureCopy.Texture);
+    }
+
+    void CommandListStorage::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
+    {
+        auto alloc = Allocate<BufferTextureCopyCommandStorage>(CommandData, CommandType::CopyTextureToBuffer);
+        alloc.Command->BufferIndex = DeviceBuffers.size();
+        alloc.Command->BufferOffset = textureBufferCopy.BufferOffset;
+        alloc.Command->BufferRowLength = textureBufferCopy.BufferRowLength;
+        alloc.Command->BufferImageHeight = textureBufferCopy.BufferImageHeight;
+        alloc.Command->TextureIndex = Textures.size();
+        alloc.Command->TextureOffset = textureBufferCopy.TextureOffset;
+        alloc.Command->TextureExtent = textureBufferCopy.TextureExtent;
+        alloc.Command->MipLevel = textureBufferCopy.MipLevel;
+
+        DeviceBuffers.push_back(textureBufferCopy.BufferHandle);
+        Textures.push_back(textureBufferCopy.Texture);
+    }
+
+    void CommandListStorage::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
+    {
+        auto alloc = Allocate<TextureCopyCommandStorage>(CommandData, CommandType::CopyTextureToTexture);
+        alloc.Command->SourceTextureIndex = Textures.size();
+        alloc.Command->DestinationTextureIndex = Textures.size() + 1;
+        alloc.Command->SourceOffset = textureCopy.SourceOffset;
+        alloc.Command->DestinationOffset = textureCopy.DestinationOffset;
+        alloc.Command->Extent = textureCopy.Extent;
+        alloc.Command->SourceMipLevel = textureCopy.SourceMipLevel;
+        alloc.Command->DestinationMipLevel = textureCopy.DestinationMipLevel;
+
+        Textures.push_back(textureCopy.Source);
+        Textures.push_back(textureCopy.Destination);
     }
 
     void CommandListStorage::InsertDebugMarker(const std::string &name)
@@ -880,6 +985,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<TraceRaysCommandImpl>(desc));
+
+        m_CommandListStorage.TraceRays(desc);
     }
 
     void ICommandList::SetResourceSet(const ResourceSetBindingDescription &desc)
@@ -1586,6 +1693,11 @@ namespace Nexus::Graphics
         std::lock_guard<std::mutex> lock(m_Mutex);
 
         return m_Started;
+    }
+
+    void ICommandList::Print() const
+    {
+        m_CommandListStorage.Print();
     }
 
     void ICommandList::EndRendering()
