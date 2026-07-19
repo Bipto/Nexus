@@ -1042,10 +1042,27 @@ namespace Nexus::Graphics
         bool AutomaticBarrierTransitions = true;
     };
 
-    enum class CommandType : uint32_t
+    enum class CommandType : uint16_t
     {
         SetVertexBuffer,
-        DebugLabel
+        SetIndexBuffer,
+        SetPipeline,
+        Draw,
+        DrawIndexed,
+        DrawIndirect,
+        DrawIndexedIndirect,
+        Dispatch,
+        DispatchIndirect,
+        DrawMesh,
+        DrawMeshIndirect,
+        TraceRays,
+        ResourceSetBinding,
+        ClearColourTarget,
+        ClearDepthTarget,
+        SetFramebuffer,
+        Viewport,
+        Scissor,
+        DebugLabel,
     };
 
     struct CommandHeader
@@ -1060,6 +1077,53 @@ namespace Nexus::Graphics
         size_t Offset = 0;
         size_t Size = 0;
         uint32_t Slot = 0;
+    };
+
+    struct SetIndexBufferCommandStorage
+    {
+        size_t DeviceBufferIndex = 0;
+        size_t Offset = 0;
+        size_t Size = 0;
+        IndexFormat BufferFormat = IndexFormat::UInt32;
+    };
+
+    struct SetPipelineCommandStorage
+    {
+        size_t PipelineIndex = 0;
+    };
+
+    struct DrawIndirectCommandStorage
+    {
+        size_t DeviceBufferIndex = 0;
+        size_t Offset = 0;
+        size_t Stride = 0;
+        size_t DrawCount = 0;
+    };
+
+    struct DispatchIndirectCommandStorage
+    {
+        size_t DeviceBufferIndex = 0;
+        size_t Offset = 0;
+        size_t Stride = 0;
+    };
+
+    struct DrawMeshIndirectCommandStorage
+    {
+        size_t DeviceBufferIndex = 0;
+        size_t Offset = 0;
+        size_t Stride = 0;
+        size_t DrawCount = 0;
+    };
+
+    struct ResourceSetBindingCommandStorage
+    {
+        size_t ResourceSetIndex = 0;
+        std::map<std::string, std::vector<uint32_t>> DynamicOffsets = {};
+    };
+
+    struct FramebufferCommandStorage
+    {
+        size_t FramebufferIndex = 0;
     };
 
     struct DebugLabelCommandStorage
@@ -1096,6 +1160,23 @@ namespace Nexus::Graphics
         void Reset();
 
         void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
+        void SetIndexBuffer(IndexBufferView indexBuffer);
+        void SetPipeline(PipelineHandle pipeline);
+        void Draw(const DrawDescription &desc);
+        void DrawIndexed(const DrawIndexedDescription &desc);
+        void DrawIndirect(const DrawIndirectDescription &desc);
+        void DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc);
+        void Dispatch(const DispatchDescription &desc);
+        void DispatchIndirect(const DispatchIndirectDescription &desc);
+        void DrawMesh(const DrawMeshDescription &desc);
+        void DrawMeshIndirect(const DrawMeshIndirectDescription &desc);
+        void TraceRays(const TraceRaysDescription &desc);
+        void SetResourceSet(const ResourceSetBindingDescription &desc);
+        void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
+        void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
+        void SetFramebuffer(FramebufferHandle framebuffer);
+        void SetViewport(const Viewport &viewport);
+        void SetScissor(const Scissor &scissor);
         void InsertDebugMarker(const std::string &name);
     };
 

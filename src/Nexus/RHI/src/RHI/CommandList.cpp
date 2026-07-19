@@ -440,6 +440,168 @@ namespace Nexus::Graphics
         DeviceBuffers.push_back(vertexBuffer.BufferHandle);
     }
 
+    void CommandListStorage::SetIndexBuffer(IndexBufferView indexBuffer)
+    {
+        auto alloc = Allocate<SetIndexBufferCommandStorage>(CommandData, CommandType::SetIndexBuffer);
+        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
+        alloc.Command->Offset = indexBuffer.Offset;
+        alloc.Command->Size = indexBuffer.Size;
+        alloc.Command->BufferFormat = indexBuffer.BufferFormat;
+
+        DeviceBuffers.push_back(indexBuffer.BufferHandle);
+    }
+
+    void CommandListStorage::SetPipeline(PipelineHandle pipeline)
+    {
+        auto alloc = Allocate<SetPipelineCommandStorage>(CommandData, CommandType::SetPipeline);
+        alloc.Command->PipelineIndex = Pipelines.size();
+
+        Pipelines.push_back(pipeline);
+    }
+
+    void CommandListStorage::Draw(const DrawDescription &desc)
+    {
+        auto alloc = Allocate<DrawDescription>(CommandData, CommandType::Draw);
+        alloc.Command->VertexCount = desc.VertexCount;
+        alloc.Command->InstanceCount = desc.InstanceCount;
+        alloc.Command->VertexStart = desc.VertexStart;
+        alloc.Command->InstanceStart = desc.InstanceStart;
+    }
+
+    void CommandListStorage::DrawIndexed(const DrawIndexedDescription &desc)
+    {
+        auto alloc = Allocate<DrawIndexedDescription>(CommandData, CommandType::DrawIndexed);
+        alloc.Command->IndexCount = desc.IndexCount;
+        alloc.Command->InstanceCount = desc.InstanceCount;
+        alloc.Command->VertexStart = desc.VertexStart;
+        alloc.Command->IndexStart = desc.IndexStart;
+        alloc.Command->InstanceStart = desc.InstanceStart;
+    }
+
+    void CommandListStorage::DrawIndirect(const DrawIndirectDescription &desc)
+    {
+        auto alloc = Allocate<DrawIndirectCommandStorage>(CommandData, CommandType::DrawIndirect);
+        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
+        alloc.Command->Offset = desc.Offset;
+        alloc.Command->Stride = desc.Stride;
+        alloc.Command->DrawCount = desc.DrawCount;
+
+        DeviceBuffers.push_back(desc.IndirectBuffer);
+    }
+
+    void CommandListStorage::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
+    {
+        // the same structure can be used for both indirect and indexed indirect draw commands
+        auto alloc = Allocate<DrawIndirectCommandStorage>(CommandData, CommandType::DrawIndexedIndirect);
+        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
+        alloc.Command->Offset = desc.Offset;
+        alloc.Command->Stride = desc.Stride;
+        alloc.Command->DrawCount = desc.DrawCount;
+
+        DeviceBuffers.push_back(desc.IndirectBuffer);
+    }
+
+    void CommandListStorage::Dispatch(const DispatchDescription &desc)
+    {
+        auto alloc = Allocate<DispatchDescription>(CommandData, CommandType::Dispatch);
+        alloc.Command->WorkGroupCountX = desc.WorkGroupCountX;
+        alloc.Command->WorkGroupCountY = desc.WorkGroupCountY;
+        alloc.Command->WorkGroupCountZ = desc.WorkGroupCountZ;
+    }
+
+    void CommandListStorage::DispatchIndirect(const DispatchIndirectDescription &desc)
+    {
+        auto alloc = Allocate<DispatchIndirectCommandStorage>(CommandData, CommandType::DispatchIndirect);
+        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
+        alloc.Command->Offset = desc.Offset;
+        alloc.Command->Stride = desc.Stride;
+
+        DeviceBuffers.push_back(desc.IndirectBuffer);
+    }
+
+    void CommandListStorage::DrawMesh(const DrawMeshDescription &desc)
+    {
+        auto alloc = Allocate<DrawMeshDescription>(CommandData, CommandType::DrawMesh);
+        alloc.Command->WorkGroupCountX = desc.WorkGroupCountX;
+        alloc.Command->WorkGroupCountY = desc.WorkGroupCountY;
+        alloc.Command->WorkGroupCountZ = desc.WorkGroupCountZ;
+    }
+
+    void CommandListStorage::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
+    {
+        auto alloc = Allocate<DrawMeshIndirectCommandStorage>(CommandData, CommandType::DrawMeshIndirect);
+        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
+        alloc.Command->Offset = desc.Offset;
+        alloc.Command->Stride = desc.Stride;
+        alloc.Command->DrawCount = desc.DrawCount;
+
+        DeviceBuffers.push_back(desc.IndirectBuffer);
+    }
+
+    void CommandListStorage::TraceRays(const TraceRaysDescription &desc)
+    {
+        auto alloc = Allocate<TraceRaysDescription>(CommandData, CommandType::TraceRays);
+        alloc.Command->RaygenRegion = desc.RaygenRegion;
+        alloc.Command->MissRegion = desc.MissRegion;
+        alloc.Command->HitRegion = desc.HitRegion;
+        alloc.Command->CallableRegion = desc.CallableRegion;
+        alloc.Command->Width = desc.Width;
+        alloc.Command->Height = desc.Height;
+        alloc.Command->Depth = desc.Depth;
+    }
+
+    void CommandListStorage::SetResourceSet(const ResourceSetBindingDescription &desc)
+    {
+        auto alloc = Allocate<ResourceSetBindingCommandStorage>(CommandData, CommandType::ResourceSetBinding);
+        alloc.Command->ResourceSetIndex = ResourceSets.size();
+        alloc.Command->DynamicOffsets = desc.DynamicOffsets;
+
+        ResourceSets.push_back(desc.TargetResourceSet);
+    }
+
+    void CommandListStorage::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
+    {
+        auto alloc = Allocate<ClearColorTargetCommand>(CommandData, CommandType::ClearColourTarget);
+        alloc.Command->Index = index;
+        alloc.Command->Colour = color;
+        alloc.Command->Rect = clearRect;
+    }
+
+    void CommandListStorage::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
+    {
+        auto alloc = Allocate<ClearDepthStencilTargetCommand>(CommandData, CommandType::ClearDepthTarget);
+        alloc.Command->Value = value;
+        alloc.Command->Rect = clearRect;
+    }
+
+    void CommandListStorage::SetFramebuffer(FramebufferHandle framebuffer)
+    {
+        auto alloc = Allocate<FramebufferCommandStorage>(CommandData, CommandType::SetFramebuffer);
+        alloc.Command->FramebufferIndex = Framebuffers.size();
+
+        Framebuffers.push_back(framebuffer);
+    }
+
+    void CommandListStorage::SetViewport(const Viewport &viewport)
+    {
+        auto alloc = Allocate<Viewport>(CommandData, CommandType::Viewport);
+        alloc.Command->X = viewport.X;
+        alloc.Command->Y = viewport.Y;
+        alloc.Command->Width = viewport.Width;
+        alloc.Command->Height = viewport.Height;
+        alloc.Command->MinDepth = viewport.MinDepth;
+        alloc.Command->MaxDepth = viewport.MaxDepth;
+    }
+
+    void CommandListStorage::SetScissor(const Scissor &scissor)
+    {
+        auto alloc = Allocate<Scissor>(CommandData, CommandType::Scissor);
+        alloc.Command->X = scissor.X;
+        alloc.Command->Y = scissor.Y;
+        alloc.Command->Width = scissor.Width;
+        alloc.Command->Height = scissor.Height;
+    }
+
     void CommandListStorage::InsertDebugMarker(const std::string &name)
     {
         auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::SetVertexBuffer, name.size());
@@ -548,6 +710,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetIndexBufferCommandImpl>(indexBuffer));
+
+        m_CommandListStorage.SetIndexBuffer(indexBuffer);
     }
 
     void ICommandList::SetPipeline(PipelineHandle pipeline)
@@ -563,6 +727,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetPipelineCommandImpl>(pipeline));
+
+        m_CommandListStorage.SetPipeline(pipeline);
     }
 
     void ICommandList::Draw(const DrawDescription &desc)
@@ -578,6 +744,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DrawCommandImpl>(desc));
+
+        m_CommandListStorage.Draw(desc);
     }
 
     void ICommandList::DrawIndexed(const DrawIndexedDescription &desc)
@@ -593,6 +761,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DrawIndexedCommandImpl>(desc));
+
+        m_CommandListStorage.DrawIndexed(desc);
     }
 
     void ICommandList::DrawIndirect(const DrawIndirectDescription &desc)
@@ -608,6 +778,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DrawIndirectCommandImpl>(desc));
+
+        m_CommandListStorage.DrawIndirect(desc);
     }
 
     void ICommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
@@ -623,6 +795,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DrawIndexedIndirectCommandImpl>(desc));
+
+        m_CommandListStorage.DrawIndexedIndirect(desc);
     }
 
     void ICommandList::Dispatch(const DispatchDescription &desc)
@@ -638,6 +812,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DispatchCommandImpl>(desc));
+
+        m_CommandListStorage.Dispatch(desc);
     }
 
     void ICommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
@@ -653,6 +829,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DispatchIndirectCommandImpl>(desc));
+
+        m_CommandListStorage.DispatchIndirect(desc);
     }
 
     void ICommandList::DrawMesh(const DrawMeshDescription &desc)
@@ -668,6 +846,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DrawMeshCommandImpl>(desc));
+
+        m_CommandListStorage.DrawMesh(desc);
     }
 
     void ICommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
@@ -683,6 +863,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<DrawMeshIndirectCommandImpl>(desc));
+
+        m_CommandListStorage.DrawMeshIndirect(desc);
     }
 
     void ICommandList::TraceRays(const TraceRaysDescription &desc)
@@ -785,6 +967,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetResourceSetCommandImpl>(desc));
+
+        m_CommandListStorage.SetResourceSet(desc);
     }
 
     void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
@@ -805,6 +989,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
+
+        m_CommandListStorage.ClearColourTarget(index, color, clearRect);
     }
 
     void ICommandList::ClearColourTarget(uint32_t index, const ClearColourValue &color)
@@ -825,6 +1011,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
+
+        m_CommandListStorage.ClearColourTarget(index, color, {});
     }
 
     void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
@@ -844,6 +1032,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
+
+        m_CommandListStorage.ClearDepthTarget(value, clearRect);
     }
 
     void ICommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
@@ -863,6 +1053,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
+
+        m_CommandListStorage.ClearDepthTarget(value, {});
     }
 
     static void TransitionFramebufferLayouts(
@@ -962,6 +1154,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetFramebufferCommandImpl>(framebuffer));
+
+        m_CommandListStorage.SetFramebuffer(framebuffer);
     }
 
     void ICommandList::SetViewport(const Viewport &viewport)
@@ -977,6 +1171,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetViewportCommandImpl>(viewport));
+
+        m_CommandListStorage.SetViewport(viewport);
     }
 
     void ICommandList::SetScissor(const Scissor &scissor)
@@ -992,6 +1188,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetScissorCommandImpl>(scissor));
+
+        m_CommandListStorage.SetScissor(scissor);
     }
 
     void ICommandList::ResolveFramebuffer(const ResolveTextureDescription &desc)
