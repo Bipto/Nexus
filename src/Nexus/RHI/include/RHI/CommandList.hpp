@@ -11,7 +11,10 @@
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/ComputeState.hpp"
 #include "RHI/DeviceBuffer.hpp"
+#include "RHI/Fence.hpp"
 #include "RHI/Framebuffer.hpp"
+#include "RHI/GraphicsResourceHandles.hpp"
+#include "RHI/ISurface.hpp"
 #include "RHI/Pipeline.hpp"
 #include "RHI/RHI-Core.hpp"
 #include "RHI/Scissor.hpp"
@@ -1039,6 +1042,63 @@ namespace Nexus::Graphics
         bool AutomaticBarrierTransitions = true;
     };
 
+    enum class CommandType : uint32_t
+    {
+        SetVertexBuffer,
+        DebugLabel
+    };
+
+    struct CommandHeader
+    {
+        CommandType Type = {};
+        size_t Length = 0;
+    };
+
+    struct SetVertexBufferCommandStorage
+    {
+        size_t DeviceBufferIndex = 0;
+        size_t Offset = 0;
+        size_t Size = 0;
+        uint32_t Slot = 0;
+    };
+
+    struct DebugLabelCommandStorage
+    {
+        uint32_t TextLength;
+    };
+
+    template <typename T> struct Allocation
+    {
+        T *Command;
+        std::byte *Payload;
+    };
+
+    struct NX_RHI_API CommandListStorage
+    {
+        std::vector<SamplerHandle> Samplers = {};
+        std::vector<TextureHandle> Textures = {};
+        std::vector<TextureViewHandle> TextureViews = {};
+        std::vector<TexelBufferHandle> TexelBuffers = {};
+        std::vector<AccelerationStructureHandle> AccelerationStructures = {};
+        std::vector<TimingQueryHandle> TimingQueries = {};
+        std::vector<FenceHandle> Fences = {};
+        std::vector<FramebufferHandle> Framebuffers = {};
+        std::vector<ShaderModuleHandle> ShaderModules = {};
+        std::vector<ResourceSetHandle> ResourceSets = {};
+        std::vector<PipelineHandle> Pipelines = {};
+        std::vector<SurfaceHandle> Surfaces = {};
+        std::vector<CommandQueueHandle> CommandQueues = {};
+        std::vector<DeviceBufferHandle> DeviceBuffers = {};
+
+        std::vector<std::byte> CommandData = {};
+
+        void Clear();
+        void Reset();
+
+        void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
+        void InsertDebugMarker(const std::string &name);
+    };
+
     /// @brief A class representing a command list
     class NX_RHI_API ICommandList
     {
@@ -1164,6 +1224,7 @@ namespace Nexus::Graphics
         void PushError(const std::string &message);
 
       private:
+        CommandListStorage m_CommandListStorage = {};
         CommandListDescription m_Description = {};
         mutable std::mutex m_Mutex = {};
         std::atomic<bool> m_Started = false;
@@ -1175,8 +1236,6 @@ namespace Nexus::Graphics
 
         std::vector<std::unique_ptr<IGraphicsCommand>> m_CommandImpls = {};
     };
-
-    DEFINE_RESOURCE(CommandList, ICommandList);
 
     class ScopedDebugGroup
     {

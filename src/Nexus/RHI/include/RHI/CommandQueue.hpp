@@ -11,6 +11,8 @@
 
 #include "Core/Utils.hpp"
 
+#include "RHI/GraphicsResourceHandles.hpp"
+
 namespace Nexus::Graphics
 {
     enum QueueCapabilities
@@ -70,6 +72,4 @@ namespace Nexus::Graphics
         /// @return A pointer to a command list
         virtual CommandListHandle CreateCommandList(const CommandListDescription &spec = {}) = 0;
     };
-
-    DEFINE_RESOURCE(CommandQueue, ICommandQueue);
 } // namespace Nexus::Graphics

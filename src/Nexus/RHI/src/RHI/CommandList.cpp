@@ -374,6 +374,79 @@ namespace Nexus::Graphics
         executor->ExecuteCommand(m_CommandData, device);
     }
 
+    void CommandListStorage::Clear()
+    {
+        Samplers.clear();
+        Textures.clear();
+        TextureViews.clear();
+        TexelBuffers.clear();
+        AccelerationStructures.clear();
+        TimingQueries.clear();
+        Fences.clear();
+        Framebuffers.clear();
+        ShaderModules.clear();
+        ResourceSets.clear();
+        Pipelines.clear();
+        Surfaces.clear();
+        CommandQueues.clear();
+        DeviceBuffers.clear();
+
+        CommandData.clear();
+    }
+
+    void CommandListStorage::Reset()
+    {
+        *this = CommandListStorage{};
+    }
+
+    template <typename T>
+    Allocation<T> Allocate(std::vector<std::byte> &commandStream, CommandType type, size_t payloadSize = 0)
+    {
+        constexpr size_t HeaderAlign = alignof(CommandHeader);
+        constexpr size_t CommandAlign = alignof(T);
+        constexpr size_t PayloadAlign = alignof(std::max_align_t);
+
+        auto AlignUp = [](size_t value, size_t alignment) { return (value + alignment - 1) & ~(alignment - 1); };
+
+        size_t offset = commandStream.size();
+
+        // header
+        size_t headerOffset = AlignUp(offset, HeaderAlign);
+        size_t commandOffset = AlignUp(headerOffset + sizeof(CommandHeader), CommandAlign);
+        size_t payloadOffset = AlignUp(commandOffset + sizeof(T), PayloadAlign);
+        size_t endOffset = payloadOffset + payloadSize;
+
+        commandStream.resize(endOffset);
+
+        auto *header = reinterpret_cast<CommandHeader *>(commandStream.data() + headerOffset);
+        header->Type = type;
+        header->Length = endOffset - headerOffset;
+
+        // data
+        auto *command = reinterpret_cast<T *>(commandStream.data() + commandOffset);
+        std::construct_at(command);
+
+        return {command, payloadSize ? commandStream.data() + payloadOffset : nullptr};
+    }
+
+    void CommandListStorage::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
+    {
+        auto alloc = Allocate<SetVertexBufferCommandStorage>(CommandData, CommandType::SetVertexBuffer);
+        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
+        alloc.Command->Offset = vertexBuffer.Offset;
+        alloc.Command->Size = vertexBuffer.Size;
+        alloc.Command->Slot = slot;
+
+        DeviceBuffers.push_back(vertexBuffer.BufferHandle);
+    }
+
+    void CommandListStorage::InsertDebugMarker(const std::string &name)
+    {
+        auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::SetVertexBuffer, name.size());
+        alloc.Command->TextLength = name.size();
+        memcpy(alloc.Payload, name.data(), name.size());
+    }
+
     ICommandList::ICommandList(const CommandListDescription &spec)
         : m_Description(spec), m_AutomaticBarrierTracking(spec.AutomaticBarrierTransitions)
     {
@@ -396,6 +469,7 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.clear();
+        m_CommandListStorage.Clear();
         m_Started = true;
         m_DebugGroups = 0;
         m_AutomaticBarrierTracking = m_Description.AutomaticBarrierTransitions;
@@ -454,6 +528,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetVertexBufferCommandImpl>(command));
+
+        m_CommandListStorage.SetVertexBuffer(vertexBuffer, slot);
     }
 
     void ICommandList::SetIndexBuffer(IndexBufferView indexBuffer)
@@ -1204,6 +1280,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<InsertDebugMarkerCommandImpl>(name));
+
+        m_CommandListStorage.InsertDebugMarker(name);
     }
 
     void ICommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
