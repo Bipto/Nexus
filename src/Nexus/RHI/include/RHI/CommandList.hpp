@@ -1125,13 +1125,13 @@ namespace Nexus::Graphics
             case CommandType::StopTimingQuery:
                 return "StopTimingQuery";
             case CommandType::CopyBufferToBuffer:
-                "CopyBufferToBuffer";
+                return "CopyBufferToBuffer";
             case CommandType::CopyBufferToTexture:
-                "CopyBufferToTexture";
+                return "CopyBufferToTexture";
             case CommandType::CopyTextureToBuffer:
-                "CopyTextureToBuffer";
+                return "CopyTextureToBuffer";
             case CommandType::CopyTextureToTexture:
-                "CopyTextureToTexture";
+                return "CopyTextureToTexture";
             case CommandType::DebugLabel:
                 return "DebugLabel";
             default:
