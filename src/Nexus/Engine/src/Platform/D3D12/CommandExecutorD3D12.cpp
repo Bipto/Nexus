@@ -871,7 +871,7 @@ namespace Nexus::Graphics
             // buffer barriers
             for (const auto &bufferBarrier : command.BufferBarriers)
             {
-                Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(bufferBarrier.Buffer);
+                const DeviceBufferD3D12 *buffer = bufferBarrier.Buffer.AsDerived<DeviceBufferD3D12>();
                 Microsoft::WRL::ComPtr<ID3D12Resource2> handle = buffer->GetHandle();
 
                 D3D12_BARRIER_SYNC beforeSync = D3D12::GetBarrierSync(bufferBarrier.BeforeStage);
@@ -967,7 +967,7 @@ namespace Nexus::Graphics
             {
                 if (bufferBarrier.BeforeAccess == BarrierAccess::ShaderWrite)
                 {
-                    Ref<DeviceBufferD3D12> buffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(bufferBarrier.Buffer);
+                    const DeviceBufferD3D12 *buffer = bufferBarrier.Buffer.AsDerived<DeviceBufferD3D12>();
                     Microsoft::WRL::ComPtr<ID3D12Resource2> handle = buffer->GetHandle();
 
                     D3D12_RESOURCE_BARRIER barrier = resourceBarriers.emplace_back();

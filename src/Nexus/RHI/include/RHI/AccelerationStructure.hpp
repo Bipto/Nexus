@@ -176,6 +176,7 @@ namespace Nexus::Graphics
     struct AccelerationStructureCopyDescription
     {
         DeviceAddress Source = {};
+        DeviceAddress Destination = {};
         AccelerationStructureCopyMode Mode = AccelerationStructureCopyMode::Clone;
     };
 

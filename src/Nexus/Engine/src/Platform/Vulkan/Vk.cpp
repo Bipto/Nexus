@@ -3283,8 +3283,7 @@ namespace Nexus::Vk
         std::vector<VkBufferMemoryBarrier2> &bufferBarriers, uint32_t srcQueueFamily, uint32_t dstQueueFamily
     )
     {
-        Ref<Graphics::DeviceBufferVk> bufferVk =
-            std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferBarrierDesc.Buffer);
+        const Graphics::DeviceBufferVk *bufferVk = bufferBarrierDesc.Buffer.AsDerived<Graphics::DeviceBufferVk>();
 
         VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, bufferBarrierDesc.BeforeAccess);
         VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, bufferBarrierDesc.AfterAccess);
@@ -3311,8 +3310,7 @@ namespace Nexus::Vk
         std::vector<VkBufferMemoryBarrier> &bufferBarriers, uint32_t srcQueueFamily, uint32_t dstQueueFamily
     )
     {
-        Ref<Graphics::DeviceBufferVk> bufferVk =
-            std::dynamic_pointer_cast<Graphics::DeviceBufferVk>(bufferBarrierDesc.Buffer);
+        const Graphics::DeviceBufferVk *bufferVk = bufferBarrierDesc.Buffer.AsDerived<Graphics::DeviceBufferVk>();
 
         VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, bufferBarrierDesc.BeforeAccess);
         VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, bufferBarrierDesc.AfterAccess);

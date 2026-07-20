@@ -707,11 +707,187 @@ namespace Nexus::Graphics
         Textures.push_back(textureCopy.Destination);
     }
 
+    void CommandListStorage::BeginDebugGroup(const std::string &name)
+    {
+        size_t payloadSize = name.size();
+
+        auto alloc = Allocate<DebugGroupCommandStorage>(CommandData, CommandType::BeginDebugGroup, payloadSize);
+        memcpy(alloc.Payload, name.data(), name.size());
+    }
+
+    void CommandListStorage::EndDebugGroup()
+    {
+        auto alloc = Allocate<DebugGroupCommandStorage>(CommandData, CommandType::EndDebugGroup);
+    }
+
     void CommandListStorage::InsertDebugMarker(const std::string &name)
     {
         auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::SetVertexBuffer, name.size());
         alloc.Command->TextLength = name.size();
         memcpy(alloc.Payload, name.data(), name.size());
+    }
+
+    void CommandListStorage::SetBlendFactor(const BlendFactorDesc &blendFactor)
+    {
+        auto alloc = Allocate<BlendFactorDesc>(CommandData, CommandType::SetBlendFactor);
+        *alloc.Command = blendFactor;
+    }
+
+    void CommandListStorage::SetStencilReference(uint32_t stencilReference)
+    {
+        auto alloc = Allocate<uint32_t>(CommandData, CommandType::SetStencilReference);
+        *alloc.Command = stencilReference;
+    }
+
+    void CommandListStorage::BuildAccelerationStructures(
+        const std::vector<AccelerationStructureGeometryBuildDescription> &descriptions
+    )
+    {
+        size_t totalPayloadSize = 0;
+        std::vector<size_t> offsets = {};
+
+        // calculate the offsets for each build command
+        for (const auto &buildDesc : descriptions)
+        {
+            offsets.push_back(totalPayloadSize);
+            totalPayloadSize += sizeof(AccelerationStructureGeometryBuildCommandStorage);
+            totalPayloadSize += buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
+            totalPayloadSize += buildDesc.PrimitiveCounts.size() * sizeof(uint32_t);
+        }
+
+        auto alloc = Allocate<AccelerationStructureGeometryBuildCommandStorage>(
+            CommandData, CommandType::BuildAccelerationStructures, totalPayloadSize
+        );
+
+        std::byte *rawPtr = alloc.Payload;
+        for (size_t index = 0; index < descriptions.size(); index++)
+        {
+            const auto &buildDesc = descriptions[index];
+
+            AccelerationStructureGeometryBuildCommandStorage *command =
+                reinterpret_cast<AccelerationStructureGeometryBuildCommandStorage *>(rawPtr);
+            command->Type = buildDesc.Type;
+            command->Flags = buildDesc.Flags;
+            command->Mode = buildDesc.Mode;
+            command->SourceIndex = AccelerationStructures.size();
+            command->DestinationIndex = AccelerationStructures.size() + 1;
+            command->ScratchBuffer = buildDesc.ScratchBuffer;
+
+            AccelerationStructures.push_back(buildDesc.Source);
+            AccelerationStructures.push_back(buildDesc.Destination);
+
+            command->GeometryOffset = sizeof(AccelerationStructureGeometryBuildCommandStorage);
+            command->GeometryCount = buildDesc.Geometry.size();
+
+            command->PrimitiveOffset =
+                sizeof(AccelerationStructureGeometryBuildCommandStorage) +
+                sizeof(buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryDescription));
+            command->PrimitiveCount = buildDesc.PrimitiveCounts.size();
+
+            memcpy(
+                rawPtr + command->GeometryOffset, buildDesc.Geometry.data(),
+                buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryBuildCommandStorage)
+            );
+
+            memcpy(
+                rawPtr + command->PrimitiveOffset, buildDesc.PrimitiveCounts.data(),
+                buildDesc.PrimitiveCounts.size() * sizeof(uint32_t)
+            );
+        }
+    }
+
+    void CommandListStorage::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
+    {
+        auto alloc =
+            Allocate<AccelerationStructureCopyDescription>(CommandData, CommandType::CopyAccelerationStructure);
+        *alloc.Command = description;
+    }
+
+    void CommandListStorage::CopyAccelerationStructureToDeviceBuffer(
+        const AccelerationStructureDeviceBufferCopyDescription &description
+    )
+    {
+        auto alloc = Allocate<AccelerationStructureDeviceBufferCopyDescription>(
+            CommandData, CommandType::CopyAccelerationStructure
+        );
+        *alloc.Command = description;
+    }
+
+    void CommandListStorage::CopyDeviceBufferToAccelerationStructure(
+        const DeviceBufferAccelerationStructureCopyDescription &description
+    )
+    {
+        auto alloc = Allocate<DeviceBufferAccelerationStructureCopyDescription>(
+            CommandData, CommandType::CopyAccelerationStructure
+        );
+        *alloc.Command = description;
+    }
+
+    void CommandListStorage::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
+    {
+        size_t payloadSize = name.size() + size;
+
+        auto alloc = Allocate<PushConstantsCommandStorage>(CommandData, CommandType::PushConstants, payloadSize);
+        alloc.Command->NameLength = name.size();
+        alloc.Command->Offset = offset;
+        alloc.Command->DataLength = size;
+
+        memcpy(alloc.Payload, data, size);
+    }
+
+    void CommandListStorage::SubmitBarrierGroup(const BarrierGroupDescription &description)
+    {
+        size_t payloadSize = (description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc)) +
+                             (description.TextureBarriers.size() * sizeof(TextureBarrierCommandStorage)) +
+                             (description.BufferBarriers.size() * sizeof(BufferBarrierCommandStorage));
+
+        auto alloc = Allocate<BarrierGroupCommandStorage>(CommandData, CommandType::BarrierGroup, payloadSize);
+        alloc.Command->MemoryBarrierCount = description.MemoryBarriers.size();
+        alloc.Command->TextureBarrierCount = description.TextureBarriers.size();
+        alloc.Command->BufferBarrierCount = description.BufferBarriers.size();
+
+        // write memory barriers
+        std::byte *rawPtr = alloc.Payload;
+        memcpy(
+            rawPtr, description.MemoryBarriers.data(), description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc)
+        );
+        rawPtr += description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc);
+
+        // write texture barriers
+        for (const auto &textureBarrier : description.TextureBarriers)
+        {
+            TextureBarrierCommandStorage barrier = {};
+            barrier.TextureIndex = Textures.size();
+            barrier.Layout = textureBarrier.Layout;
+            barrier.BeforeAccess = textureBarrier.BeforeAccess;
+            barrier.AfterAccess = textureBarrier.AfterAccess;
+            barrier.BeforeStage = textureBarrier.BeforeStage;
+            barrier.AfterStage = textureBarrier.AfterStage;
+            barrier.TextureSubresourceRange = textureBarrier.TextureSubresourceRange;
+            memcpy(rawPtr, &barrier, sizeof(barrier));
+
+            Textures.push_back(textureBarrier.Texture);
+
+            rawPtr += sizeof(TextureBarrierCommandStorage);
+        }
+
+        // write buffer barriers
+        for (const auto &bufferBarrier : description.BufferBarriers)
+        {
+            BufferBarrierCommandStorage barrier = {};
+            barrier.BufferIndex = DeviceBuffers.size();
+            barrier.BeforeAccess = bufferBarrier.BeforeAccess;
+            barrier.AfterAccess = bufferBarrier.AfterAccess;
+            barrier.BeforeStage = bufferBarrier.BeforeStage;
+            barrier.AfterStage = bufferBarrier.AfterStage;
+            barrier.Offset = bufferBarrier.Offset;
+            barrier.Size = bufferBarrier.Size;
+            memcpy(rawPtr, &barrier, sizeof(barrier));
+
+            DeviceBuffers.push_back(bufferBarrier.Buffer);
+
+            rawPtr += sizeof(BufferBarrierCommandStorage);
+        }
     }
 
     ICommandList::ICommandList(const CommandListDescription &spec)
@@ -1345,6 +1521,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<ResolveFramebufferCommandImpl>(desc));
+
+        m_CommandListStorage.ResolveFramebuffer(desc);
     }
 
     void Nexus::Graphics::ICommandList::StartTimingQuery(TimingQueryHandle query)
@@ -1363,6 +1541,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<StartTimingQueryCommandImpl>(query));
+
+        m_CommandListStorage.StartTimingQuery(query);
     }
 
     void Nexus::Graphics::ICommandList::StopTimingQuery(TimingQueryHandle query)
@@ -1381,6 +1561,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<EndTimingQueryCommandImpl>(query));
+
+        m_CommandListStorage.StopTimingQuery(query);
     }
 
     void ICommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
@@ -1399,6 +1581,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyBufferToBufferCommandImpl>(bufferCopy));
+
+        m_CommandListStorage.CopyBufferToBuffer(bufferCopy);
     }
 
     void ICommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
@@ -1437,6 +1621,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyBufferToTextureCommandImpl>(bufferTextureCopy));
+
+        m_CommandListStorage.CopyBufferToTexture(bufferTextureCopy);
     }
 
     void ICommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
@@ -1475,6 +1661,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyTextureToBufferCommandImpl>(textureBufferCopy));
+
+        m_CommandListStorage.CopyTextureToBuffer(textureBufferCopy);
     }
 
     void ICommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
@@ -1528,6 +1716,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyTextureToTextureCommandImpl>(textureCopy));
+
+        m_CommandListStorage.CopyTextureToTexture(textureCopy);
     }
 
     void ICommandList::BeginDebugGroup(const std::string &name)
@@ -1547,6 +1737,8 @@ namespace Nexus::Graphics
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<BeginDebugGroupCommandImpl>(name));
 
+        m_CommandListStorage.BeginDebugGroup(name);
+
         m_DebugGroups++;
     }
 
@@ -1565,6 +1757,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<EndDebugGroupCommandImpl>());
+
+        m_CommandListStorage.EndDebugGroup();
 
         m_DebugGroups--;
     }
@@ -1596,6 +1790,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetBlendFactorCommandImpl>(blendFactor));
+
+        m_CommandListStorage.SetBlendFactor(blendFactor);
     }
 
     void ICommandList::SetStencilReference(uint32_t stencilReference)
@@ -1605,6 +1801,8 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SetStencilReferenceCommandImpl>(stencilReference));
+
+        m_CommandListStorage.SetStencilReference(stencilReference);
     }
 
     void ICommandList::BuildAccelerationStructures(
@@ -1616,12 +1814,16 @@ namespace Nexus::Graphics
 
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<BuildAccelerationStructuresCommandImpl>(description));
+
+        m_CommandListStorage.BuildAccelerationStructures(description);
     }
 
     void ICommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructuresCommandImpl>(description));
+
+        m_CommandListStorage.CopyAccelerationStructure(description);
     }
 
     void ICommandList::CopyAccelerationStructureToDeviceBuffer(
@@ -1630,6 +1832,8 @@ namespace Nexus::Graphics
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructureToDeviceBufferCommandImpl>(description));
+
+        m_CommandListStorage.CopyAccelerationStructureToDeviceBuffer(description);
     }
 
     void ICommandList::CopyDeviceBufferToAccelerationStructure(
@@ -1638,6 +1842,8 @@ namespace Nexus::Graphics
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<CopyDeviceBufferToAccelerationStructureCommandImpl>(description));
+
+        m_CommandListStorage.CopyDeviceBufferToAccelerationStructure(description);
     }
 
     void ICommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
@@ -1650,6 +1856,8 @@ namespace Nexus::Graphics
         pushConstantDesc.Data.resize(size);
         memcpy(pushConstantDesc.Data.data(), data, size);
         m_CommandImpls.emplace_back(std::make_unique<PushConstantsCommandImpl>(pushConstantDesc));
+
+        m_CommandListStorage.WritePushConstants(name, data, size, offset);
     }
 
     void ICommandList::SubmitMemoryBarrier(const MemoryBarrierDesc &desc)
@@ -1674,6 +1882,7 @@ namespace Nexus::Graphics
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandImpls.emplace_back(std::make_unique<SubmitBarriersCommandImpl>(m_Barriers));
+        m_CommandListStorage.SubmitBarrierGroup(m_Barriers);
         m_Barriers.Clear();
     }
 

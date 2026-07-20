@@ -586,7 +586,7 @@ namespace Nexus::Graphics
 
     struct BufferBarrierDesc
     {
-        Ref<Graphics::IDeviceBuffer> Buffer = nullptr;
+        DeviceBufferHandle Buffer = {};
         BarrierAccess BeforeAccess = {};
         BarrierAccess AfterAccess = {};
         BarrierPipelineStage BeforeStage = {};
@@ -1070,7 +1070,17 @@ namespace Nexus::Graphics
         CopyBufferToTexture,
         CopyTextureToBuffer,
         CopyTextureToTexture,
+        BeginDebugGroup,
+        EndDebugGroup,
         DebugLabel,
+        SetBlendFactor,
+        SetStencilReference,
+        BuildAccelerationStructures,
+        CopyAccelerationStructure,
+        CopyAccelerationStructureToDeviceBuffer,
+        CopyDeviceBufferToAccelerationStructure,
+        PushConstants,
+        BarrierGroup
     };
 
     struct CommandHeader
@@ -1132,8 +1142,28 @@ namespace Nexus::Graphics
                 return "CopyTextureToBuffer";
             case CommandType::CopyTextureToTexture:
                 return "CopyTextureToTexture";
+            case CommandType::BeginDebugGroup:
+                return "BeginDebugGroup";
+            case CommandType::EndDebugGroup:
+                return "EndDebugGroup";
             case CommandType::DebugLabel:
                 return "DebugLabel";
+            case CommandType::SetBlendFactor:
+                return "SetBlendFactor";
+            case CommandType::SetStencilReference:
+                return "SetStencilReference";
+            case CommandType::BuildAccelerationStructures:
+                return "BuildAccelerationStructures";
+            case CommandType::CopyAccelerationStructure:
+                return "CopyAccelerationStructure";
+            case CommandType::CopyAccelerationStructureToDeviceBuffer:
+                return "CopyAccelerationStructureToDeviceBuffer";
+            case CommandType::CopyDeviceBufferToAccelerationStructure:
+                return "CopyDeviceBufferToAccelerationStructure";
+            case CommandType::PushConstants:
+                return "PushConstants";
+            case CommandType::BarrierGroup:
+                return "BarrierGroup";
             default:
                 return "Unknown command";
             }
@@ -1244,9 +1274,65 @@ namespace Nexus::Graphics
         uint32_t DestinationMipLevel = 0;
     };
 
+    struct DebugGroupCommandStorage
+    {
+    };
+
     struct DebugLabelCommandStorage
     {
         uint32_t TextLength;
+    };
+
+    struct AccelerationStructureGeometryBuildCommandStorage
+    {
+        AccelerationStructureType Type = AccelerationStructureType::BottomLevel;
+        uint8_t Flags = 0;
+        AccelerationStructureBuildMode Mode = AccelerationStructureBuildMode::Build;
+        size_t SourceIndex = 0;
+        size_t DestinationIndex = 0;
+        DeviceAddress ScratchBuffer = {};
+
+        size_t GeometryOffset = 0;
+        size_t GeometryCount = 0;
+
+        size_t PrimitiveOffset = 0;
+        size_t PrimitiveCount = 0;
+    };
+
+    struct PushConstantsCommandStorage
+    {
+        size_t NameLength = 0;
+        size_t Offset = 0;
+        size_t DataLength = 0;
+    };
+
+    struct TextureBarrierCommandStorage
+    {
+        size_t TextureIndex = {};
+        TextureLayout Layout = {};
+        BarrierAccess BeforeAccess = {};
+        BarrierAccess AfterAccess = {};
+        BarrierPipelineStage BeforeStage = {};
+        BarrierPipelineStage AfterStage = {};
+        SubresourceRange TextureSubresourceRange = {};
+    };
+
+    struct BufferBarrierCommandStorage
+    {
+        size_t BufferIndex = 0;
+        BarrierAccess BeforeAccess = {};
+        BarrierAccess AfterAccess = {};
+        BarrierPipelineStage BeforeStage = {};
+        BarrierPipelineStage AfterStage = {};
+        size_t Offset = 0;
+        size_t Size = 0;
+    };
+
+    struct BarrierGroupCommandStorage
+    {
+        size_t MemoryBarrierCount = 0;
+        size_t TextureBarrierCount = 0;
+        size_t BufferBarrierCount = 0;
     };
 
     template <typename T> struct Allocation
@@ -1303,7 +1389,21 @@ namespace Nexus::Graphics
         void CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy);
         void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
         void CopyTextureToTexture(const TextureCopyDescription &textureCopy);
+        void BeginDebugGroup(const std::string &name);
+        void EndDebugGroup();
         void InsertDebugMarker(const std::string &name);
+        void SetBlendFactor(const BlendFactorDesc &blendFactor);
+        void SetStencilReference(uint32_t stencilReference);
+        void BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
+        void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
+        void CopyAccelerationStructureToDeviceBuffer(
+            const AccelerationStructureDeviceBufferCopyDescription &description
+        );
+        void CopyDeviceBufferToAccelerationStructure(
+            const DeviceBufferAccelerationStructureCopyDescription &description
+        );
+        void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
+        void SubmitBarrierGroup(const BarrierGroupDescription &description);
     };
 
     /// @brief A class representing a command list
