@@ -1222,7 +1222,7 @@ namespace Nexus::Graphics
     struct ResourceSetBindingCommandStorage
     {
         size_t ResourceSetIndex = 0;
-        std::map<std::string, std::vector<uint32_t>> DynamicOffsets = {};
+        size_t DynamicOffsetCount = 0;
     };
 
     struct FramebufferCommandStorage

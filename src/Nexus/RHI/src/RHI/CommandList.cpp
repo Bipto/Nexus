@@ -567,9 +567,27 @@ namespace Nexus::Graphics
 
     void CommandListStorage::SetResourceSet(const ResourceSetBindingDescription &desc)
     {
-        auto alloc = Allocate<ResourceSetBindingCommandStorage>(CommandData, CommandType::ResourceSetBinding);
+        size_t payloadSize = 0;
+
+        for (const auto &[name, offset] : desc.DynamicOffsets)
+        {
+            payloadSize += name.size();
+            payloadSize += sizeof(uint32_t);
+        }
+
+        auto alloc =
+            Allocate<ResourceSetBindingCommandStorage>(CommandData, CommandType::ResourceSetBinding, payloadSize);
         alloc.Command->ResourceSetIndex = ResourceSets.size();
-        alloc.Command->DynamicOffsets = desc.DynamicOffsets;
+        alloc.Command->DynamicOffsetCount = desc.DynamicOffsets.size();
+
+        std::byte *rawPtr = alloc.Payload;
+        for (const auto &[name, dynamicOffset] : desc.DynamicOffsets)
+        {
+            memcpy(rawPtr, name.data(), name.size());
+            rawPtr += name.size();
+            memcpy(rawPtr, std::addressof(dynamicOffset), sizeof(dynamicOffset));
+            rawPtr += sizeof(dynamicOffset);
+        }
 
         ResourceSets.push_back(desc.TargetResourceSet);
     }
@@ -779,9 +797,8 @@ namespace Nexus::Graphics
             command->GeometryOffset = sizeof(AccelerationStructureGeometryBuildCommandStorage);
             command->GeometryCount = buildDesc.Geometry.size();
 
-            command->PrimitiveOffset =
-                sizeof(AccelerationStructureGeometryBuildCommandStorage) +
-                sizeof(buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryDescription));
+            command->PrimitiveOffset = sizeof(AccelerationStructureGeometryBuildCommandStorage) +
+                                       buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
             command->PrimitiveCount = buildDesc.PrimitiveCounts.size();
 
             memcpy(
