@@ -83,6 +83,20 @@ if (BUILD_TESTING)
 endif()
 
 # ------------------------------------------------------------
+# Benchmarking
+# ------------------------------------------------------------
+if (BUILD_BENCHMARKING)
+    CPMAddPackage(
+        benchmark
+        GITHUB_REPOSITORY google/benchmark
+        GIT_TAG v1.9.5
+        OPTIONS
+            "BENCHMARK_ENABLE_TESTING OFF"
+    )
+endif()
+
+
+# ------------------------------------------------------------
 # Subdirectories
 # ------------------------------------------------------------
 add_subdirectory(src/Nexus)
