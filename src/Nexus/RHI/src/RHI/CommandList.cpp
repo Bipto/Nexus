@@ -729,7 +729,8 @@ namespace Nexus::Graphics
     {
         size_t payloadSize = name.size();
 
-        auto alloc = Allocate<DebugGroupCommandStorage>(CommandData, CommandType::BeginDebugGroup, payloadSize);
+        auto alloc = Allocate<size_t>(CommandData, CommandType::BeginDebugGroup, payloadSize);
+        *alloc.Command = payloadSize;
         memcpy(alloc.Payload, name.data(), name.size());
     }
 
@@ -740,7 +741,7 @@ namespace Nexus::Graphics
 
     void CommandListStorage::InsertDebugMarker(const std::string &name)
     {
-        auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::SetVertexBuffer, name.size());
+        auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::DebugLabel, name.size());
         alloc.Command->TextLength = name.size();
         memcpy(alloc.Payload, name.data(), name.size());
     }
@@ -849,7 +850,10 @@ namespace Nexus::Graphics
         alloc.Command->Offset = offset;
         alloc.Command->DataLength = size;
 
-        memcpy(alloc.Payload, data, size);
+        std::byte *rawPtr = alloc.Payload;
+        memcpy(rawPtr, name.data(), name.size());
+        rawPtr += name.size();
+        memcpy(rawPtr, data, size);
     }
 
     void CommandListStorage::SubmitBarrierGroup(const BarrierGroupDescription &description)
