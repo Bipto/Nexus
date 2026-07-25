@@ -1283,6 +1283,11 @@ namespace Nexus::Graphics
         uint32_t TextLength;
     };
 
+    struct AccelerationStructureGeometryBuildCountStorage
+    {
+        size_t BuildCount = 0;
+    };
+
     struct AccelerationStructureGeometryBuildCommandStorage
     {
         AccelerationStructureType Type = AccelerationStructureType::BottomLevel;

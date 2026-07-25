@@ -1,9 +1,18 @@
 add_executable(RHITests
     include/CommandListStorageTestHelpers.hpp
+    src/CommandListStorageAccelerationTests.cpp
+    src/CommandListStorageBarrierTests.cpp
     src/CommandListStorageBasicTests.cpp
+    src/CommandListStorageCopyTests.cpp
+    src/CommandListStorageDebugTests.cpp
     src/CommandListStorageDrawTests.cpp
-    src/CommandListStorageCopyTests.cpp 
-    src/CommandListStorageStateTests.cpp)   
+    src/CommandListStoragePushConstantsTests.cpp
+    src/CommandListStorageResetTests.cpp
+    src/CommandListStorageResourceTests.cpp
+    src/CommandListStorageStateTests.cpp 
+     
+    src/CommandListStorageStressTests.cpp 
+)   
 
 target_link_libraries(RHITests 
     PRIVATE 

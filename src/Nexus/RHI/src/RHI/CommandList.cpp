@@ -572,7 +572,7 @@ namespace Nexus::Graphics
         for (const auto &[name, offset] : desc.DynamicOffsets)
         {
             payloadSize += name.size();
-            payloadSize += sizeof(uint32_t);
+            payloadSize += offset.size() * sizeof(uint32_t);
         }
 
         auto alloc =
@@ -585,7 +585,7 @@ namespace Nexus::Graphics
         {
             memcpy(rawPtr, name.data(), name.size());
             rawPtr += name.size();
-            memcpy(rawPtr, std::addressof(dynamicOffset), sizeof(dynamicOffset));
+            memcpy(rawPtr, dynamicOffset.data(), dynamicOffset.size() * sizeof(uint32_t));
             rawPtr += sizeof(dynamicOffset);
         }
 
@@ -762,55 +762,60 @@ namespace Nexus::Graphics
         const std::vector<AccelerationStructureGeometryBuildDescription> &descriptions
     )
     {
-        size_t totalPayloadSize = 0;
-        std::vector<size_t> offsets = {};
+        size_t payloadSize = sizeof(AccelerationStructureGeometryBuildCountStorage);
 
-        // calculate the offsets for each build command
-        for (const auto &buildDesc : descriptions)
+        for (const auto &build : descriptions)
         {
-            offsets.push_back(totalPayloadSize);
-            totalPayloadSize += sizeof(AccelerationStructureGeometryBuildCommandStorage);
-            totalPayloadSize += buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
-            totalPayloadSize += buildDesc.PrimitiveCounts.size() * sizeof(uint32_t);
+            payloadSize += sizeof(AccelerationStructureGeometryBuildCommandStorage);
+            payloadSize += build.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
+            payloadSize += build.PrimitiveCounts.size() * sizeof(uint32_t);
         }
 
-        auto alloc = Allocate<AccelerationStructureGeometryBuildCommandStorage>(
-            CommandData, CommandType::BuildAccelerationStructures, totalPayloadSize
+        auto alloc = Allocate<AccelerationStructureGeometryBuildCountStorage>(
+            CommandData, CommandType::BuildAccelerationStructures, payloadSize
         );
+        alloc.Command->BuildCount = descriptions.size();
 
-        std::byte *rawPtr = alloc.Payload;
-        for (size_t index = 0; index < descriptions.size(); index++)
+        std::byte *ptr = alloc.Payload + sizeof(AccelerationStructureGeometryBuildCountStorage);
+
+        for (const auto &build : descriptions)
         {
-            const auto &buildDesc = descriptions[index];
+            auto *command = reinterpret_cast<AccelerationStructureGeometryBuildCommandStorage *>(ptr);
 
-            AccelerationStructureGeometryBuildCommandStorage *command =
-                reinterpret_cast<AccelerationStructureGeometryBuildCommandStorage *>(rawPtr);
-            command->Type = buildDesc.Type;
-            command->Flags = buildDesc.Flags;
-            command->Mode = buildDesc.Mode;
+            ptr += sizeof(AccelerationStructureGeometryBuildCommandStorage);
+
+            command->Type = build.Type;
+            command->Flags = build.Flags;
+            command->Mode = build.Mode;
+            command->ScratchBuffer = build.ScratchBuffer;
+
             command->SourceIndex = AccelerationStructures.size();
-            command->DestinationIndex = AccelerationStructures.size() + 1;
-            command->ScratchBuffer = buildDesc.ScratchBuffer;
+            AccelerationStructures.push_back(build.Source);
 
-            AccelerationStructures.push_back(buildDesc.Source);
-            AccelerationStructures.push_back(buildDesc.Destination);
+            command->DestinationIndex = AccelerationStructures.size();
+            AccelerationStructures.push_back(build.Destination);
+
+            const size_t geometryBytes = build.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
 
             command->GeometryOffset = sizeof(AccelerationStructureGeometryBuildCommandStorage);
-            command->GeometryCount = buildDesc.Geometry.size();
+            command->GeometryCount = build.Geometry.size();
 
-            command->PrimitiveOffset = sizeof(AccelerationStructureGeometryBuildCommandStorage) +
-                                       buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
-            command->PrimitiveCount = buildDesc.PrimitiveCounts.size();
+            if (geometryBytes > 0)
+            {
+                memcpy(ptr, build.Geometry.data(), geometryBytes);
+                ptr += geometryBytes;
+            }
 
-            memcpy(
-                rawPtr + command->GeometryOffset, buildDesc.Geometry.data(),
-                buildDesc.Geometry.size() * sizeof(AccelerationStructureGeometryBuildCommandStorage)
-            );
+            const size_t primitiveBytes = build.PrimitiveCounts.size() * sizeof(uint32_t);
 
-            memcpy(
-                rawPtr + command->PrimitiveOffset, buildDesc.PrimitiveCounts.data(),
-                buildDesc.PrimitiveCounts.size() * sizeof(uint32_t)
-            );
+            command->PrimitiveOffset = command->GeometryOffset + geometryBytes;
+            command->PrimitiveCount = build.PrimitiveCounts.size();
+
+            if (primitiveBytes > 0)
+            {
+                memcpy(ptr, build.PrimitiveCounts.data(), primitiveBytes);
+                ptr += primitiveBytes;
+            }
         }
     }
 
