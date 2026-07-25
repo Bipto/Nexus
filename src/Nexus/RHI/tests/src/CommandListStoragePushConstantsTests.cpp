@@ -44,3 +44,24 @@ TEST(CommandListStoragePushConstantsTests, StoresPushConstantPayload)
 
     EXPECT_EQ(stored, value);
 }
+
+TEST(CommandListStoragePushConstantsTests, ZeroLengthPushConstants)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.WritePushConstants("Empty", nullptr, 0, 16);
+
+    auto *header = FirstCommand(storage);
+
+    EXPECT_EQ(header->Type, Nexus::Graphics::CommandType::PushConstants);
+
+    auto *cmd = GetCommand<Nexus::Graphics::PushConstantsCommandStorage>(header);
+
+    EXPECT_EQ(cmd->NameLength, 5u);
+    EXPECT_EQ(cmd->Offset, 16u);
+    EXPECT_EQ(cmd->DataLength, 0u);
+
+    auto *payload = GetPayloadAs<Nexus::Graphics::PushConstantsCommandStorage, char>(header);
+
+    EXPECT_EQ(std::string(payload, 5), "Empty");
+}

@@ -1342,8 +1342,61 @@ namespace Nexus::Graphics
 
     template <typename T> struct Allocation
     {
-        T *Command;
-        std::byte *Payload;
+        size_t CommandOffset;
+        size_t PayloadOffset;
+
+        T *GetCommand(std::vector<std::byte> &stream)
+        {
+            return reinterpret_cast<T *>(stream.data() + CommandOffset);
+        }
+
+        std::byte *GetPayload(std::vector<std::byte> &stream)
+        {
+            return PayloadOffset != SIZE_MAX ? stream.data() + PayloadOffset : nullptr;
+        }
+    };
+
+    class CommandIterator
+    {
+      public:
+        CommandIterator(std::vector<std::byte> &commandData)
+            : m_Current(nullptr), m_End(commandData.data() + commandData.size())
+        {
+            if (!commandData.empty())
+            {
+                m_Current = reinterpret_cast<CommandHeader *>(commandData.data());
+            }
+        }
+
+        CommandHeader *Get() const
+        {
+            return m_Current;
+        }
+
+        bool HasNext() const
+        {
+            return m_Current != nullptr;
+        }
+
+        void Next()
+        {
+            if (m_Current == nullptr)
+                return;
+
+            auto *next = reinterpret_cast<std::byte *>(m_Current) + m_Current->Length;
+
+            if (next >= m_End)
+            {
+                m_Current = nullptr;
+                return;
+            }
+
+            m_Current = reinterpret_cast<CommandHeader *>(next);
+        }
+
+      private:
+        CommandHeader *m_Current;
+        std::byte *m_End;
     };
 
     struct NX_RHI_API CommandListStorage
@@ -1409,6 +1462,11 @@ namespace Nexus::Graphics
         );
         void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
         void SubmitBarrierGroup(const BarrierGroupDescription &description);
+
+        CommandIterator Commands()
+        {
+            return CommandIterator(CommandData);
+        }
     };
 
     /// @brief A class representing a command list

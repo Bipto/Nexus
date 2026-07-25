@@ -169,3 +169,32 @@ TEST(CommandListStorageStateTests, PipelineIndicesIncrease)
     EXPECT_EQ(GetCommand<Nexus::Graphics::SetPipelineCommandStorage>(first)->PipelineIndex, 0u);
     EXPECT_EQ(GetCommand<Nexus::Graphics::SetPipelineCommandStorage>(second)->PipelineIndex, 1u);
 }
+
+TEST(CommandListStorageStateTests, MixedCommandsRemainInCorrectOrder)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.SetPipeline({});
+    storage.SetViewport({});
+    storage.BeginDebugGroup("Frame");
+    storage.Draw({});
+    storage.InsertDebugMarker("Marker");
+    storage.SetStencilReference(5);
+    storage.EndDebugGroup();
+
+    auto *c1 = FirstCommand(storage);
+    auto *c2 = NextCommand(c1);
+    auto *c3 = NextCommand(c2);
+    auto *c4 = NextCommand(c3);
+    auto *c5 = NextCommand(c4);
+    auto *c6 = NextCommand(c5);
+    auto *c7 = NextCommand(c6);
+
+    EXPECT_EQ(c1->Type, Nexus::Graphics::CommandType::SetPipeline);
+    EXPECT_EQ(c2->Type, Nexus::Graphics::CommandType::Viewport);
+    EXPECT_EQ(c3->Type, Nexus::Graphics::CommandType::BeginDebugGroup);
+    EXPECT_EQ(c4->Type, Nexus::Graphics::CommandType::Draw);
+    EXPECT_EQ(c5->Type, Nexus::Graphics::CommandType::DebugLabel);
+    EXPECT_EQ(c6->Type, Nexus::Graphics::CommandType::SetStencilReference);
+    EXPECT_EQ(c7->Type, Nexus::Graphics::CommandType::EndDebugGroup);
+}

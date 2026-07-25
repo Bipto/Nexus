@@ -15,19 +15,19 @@ namespace TestHelpers
         return (value + alignment - 1) & ~(alignment - 1);
     }
 
-    inline const Nexus::Graphics::CommandHeader *FirstCommand(const Nexus::Graphics::CommandListStorage &storage)
+    inline Nexus::Graphics::CommandHeader *FirstCommand(Nexus::Graphics::CommandListStorage &storage)
     {
         if (storage.CommandData.empty())
             return nullptr;
 
-        return reinterpret_cast<const Nexus::Graphics::CommandHeader *>(storage.CommandData.data());
+        return reinterpret_cast<Nexus::Graphics::CommandHeader *>(storage.CommandData.data());
     }
 
-    inline const Nexus::Graphics::CommandHeader *NextCommand(const Nexus::Graphics::CommandHeader *header)
+    inline Nexus ::Graphics::CommandHeader *NextCommand(Nexus::Graphics::CommandHeader *command)
     {
-        return reinterpret_cast<const Nexus::Graphics::CommandHeader *>(
-            reinterpret_cast<const std::byte *>(header) + header->Length
-        );
+        auto *next = reinterpret_cast<std::byte *>(command) + command->Length;
+
+        return reinterpret_cast<Nexus::Graphics::CommandHeader *>(next);
     }
 
     template <typename T> const T *GetCommand(const Nexus::Graphics::CommandHeader *header)
@@ -39,7 +39,7 @@ namespace TestHelpers
         return reinterpret_cast<const T *>(base + commandOffset);
     }
 
-    template <typename T> const T *GetCommand(const Nexus::Graphics::CommandListStorage &storage)
+    template <typename T> const T *GetCommand(Nexus::Graphics::CommandListStorage &storage)
     {
         return GetCommand<T>(FirstCommand(storage));
     }

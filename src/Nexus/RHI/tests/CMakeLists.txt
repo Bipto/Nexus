@@ -9,10 +9,10 @@ add_executable(RHITests
     src/CommandListStoragePushConstantsTests.cpp
     src/CommandListStorageResetTests.cpp
     src/CommandListStorageResourceTests.cpp
-    src/CommandListStorageStateTests.cpp 
-     
+    src/CommandListStorageStateTests.cpp      
     src/CommandListStorageStressTests.cpp 
-)   
+    src/CommandHeaderTests.cpp 
+    src/CommandListStorageStreamTests.cpp)   
 
 target_link_libraries(RHITests 
     PRIVATE 

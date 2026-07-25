@@ -416,41 +416,43 @@ namespace Nexus::Graphics
     template <typename T>
     Allocation<T> Allocate(std::vector<std::byte> &commandStream, CommandType type, size_t payloadSize = 0)
     {
+        static_assert(std::is_trivially_copyable_v<T>);
+        static_assert(std::is_standard_layout_v<T>);
+
         constexpr size_t HeaderAlign = alignof(CommandHeader);
         constexpr size_t CommandAlign = alignof(T);
         constexpr size_t PayloadAlign = alignof(std::max_align_t);
 
         auto AlignUp = [](size_t value, size_t alignment) { return (value + alignment - 1) & ~(alignment - 1); };
 
-        size_t offset = commandStream.size();
+        // The header is always exactly at the end
+        size_t headerOffset = commandStream.size();
 
-        // header
-        size_t headerOffset = AlignUp(offset, HeaderAlign);
         size_t commandOffset = AlignUp(headerOffset + sizeof(CommandHeader), CommandAlign);
+
         size_t payloadOffset = AlignUp(commandOffset + sizeof(T), PayloadAlign);
+
         size_t endOffset = payloadOffset + payloadSize;
 
-        size_t nextHeader = AlignUp(endOffset, HeaderAlign);
-        commandStream.resize(nextHeader);
+        commandStream.resize(endOffset);
 
         auto *header = reinterpret_cast<CommandHeader *>(commandStream.data() + headerOffset);
+
         header->Type = type;
-        header->Length = nextHeader - headerOffset;
+        header->Length = endOffset - headerOffset;
 
-        // data
-        auto *command = reinterpret_cast<T *>(commandStream.data() + commandOffset);
-        std::construct_at(command);
-
-        return {command, payloadSize ? commandStream.data() + payloadOffset : nullptr};
+        return {commandOffset, payloadSize ? payloadOffset : SIZE_MAX};
     }
 
     void CommandListStorage::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
     {
         auto alloc = Allocate<SetVertexBufferCommandStorage>(CommandData, CommandType::SetVertexBuffer);
-        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
-        alloc.Command->Offset = vertexBuffer.Offset;
-        alloc.Command->Size = vertexBuffer.Size;
-        alloc.Command->Slot = slot;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->DeviceBufferIndex = DeviceBuffers.size();
+        command->Offset = vertexBuffer.Offset;
+        command->Size = vertexBuffer.Size;
+        command->Slot = slot;
 
         DeviceBuffers.push_back(vertexBuffer.BufferHandle);
     }
@@ -458,10 +460,12 @@ namespace Nexus::Graphics
     void CommandListStorage::SetIndexBuffer(IndexBufferView indexBuffer)
     {
         auto alloc = Allocate<SetIndexBufferCommandStorage>(CommandData, CommandType::SetIndexBuffer);
-        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
-        alloc.Command->Offset = indexBuffer.Offset;
-        alloc.Command->Size = indexBuffer.Size;
-        alloc.Command->BufferFormat = indexBuffer.BufferFormat;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->DeviceBufferIndex = DeviceBuffers.size();
+        command->Offset = indexBuffer.Offset;
+        command->Size = indexBuffer.Size;
+        command->BufferFormat = indexBuffer.BufferFormat;
 
         DeviceBuffers.push_back(indexBuffer.BufferHandle);
     }
@@ -469,7 +473,8 @@ namespace Nexus::Graphics
     void CommandListStorage::SetPipeline(PipelineHandle pipeline)
     {
         auto alloc = Allocate<SetPipelineCommandStorage>(CommandData, CommandType::SetPipeline);
-        alloc.Command->PipelineIndex = Pipelines.size();
+        auto *command = alloc.GetCommand(CommandData);
+        command->PipelineIndex = Pipelines.size();
 
         Pipelines.push_back(pipeline);
     }
@@ -477,29 +482,35 @@ namespace Nexus::Graphics
     void CommandListStorage::Draw(const DrawDescription &desc)
     {
         auto alloc = Allocate<DrawDescription>(CommandData, CommandType::Draw);
-        alloc.Command->VertexCount = desc.VertexCount;
-        alloc.Command->InstanceCount = desc.InstanceCount;
-        alloc.Command->VertexStart = desc.VertexStart;
-        alloc.Command->InstanceStart = desc.InstanceStart;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->VertexCount = desc.VertexCount;
+        command->InstanceCount = desc.InstanceCount;
+        command->VertexStart = desc.VertexStart;
+        command->InstanceStart = desc.InstanceStart;
     }
 
     void CommandListStorage::DrawIndexed(const DrawIndexedDescription &desc)
     {
         auto alloc = Allocate<DrawIndexedDescription>(CommandData, CommandType::DrawIndexed);
-        alloc.Command->IndexCount = desc.IndexCount;
-        alloc.Command->InstanceCount = desc.InstanceCount;
-        alloc.Command->VertexStart = desc.VertexStart;
-        alloc.Command->IndexStart = desc.IndexStart;
-        alloc.Command->InstanceStart = desc.InstanceStart;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->IndexCount = desc.IndexCount;
+        command->InstanceCount = desc.InstanceCount;
+        command->VertexStart = desc.VertexStart;
+        command->IndexStart = desc.IndexStart;
+        command->InstanceStart = desc.InstanceStart;
     }
 
     void CommandListStorage::DrawIndirect(const DrawIndirectDescription &desc)
     {
         auto alloc = Allocate<DrawIndirectCommandStorage>(CommandData, CommandType::DrawIndirect);
-        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
-        alloc.Command->Offset = desc.Offset;
-        alloc.Command->Stride = desc.Stride;
-        alloc.Command->DrawCount = desc.DrawCount;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->DeviceBufferIndex = DeviceBuffers.size();
+        command->Offset = desc.Offset;
+        command->Stride = desc.Stride;
+        command->DrawCount = desc.DrawCount;
 
         DeviceBuffers.push_back(desc.IndirectBuffer);
     }
@@ -508,10 +519,12 @@ namespace Nexus::Graphics
     {
         // the same structure can be used for both indirect and indexed indirect draw commands
         auto alloc = Allocate<DrawIndirectCommandStorage>(CommandData, CommandType::DrawIndexedIndirect);
-        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
-        alloc.Command->Offset = desc.Offset;
-        alloc.Command->Stride = desc.Stride;
-        alloc.Command->DrawCount = desc.DrawCount;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->DeviceBufferIndex = DeviceBuffers.size();
+        command->Offset = desc.Offset;
+        command->Stride = desc.Stride;
+        command->DrawCount = desc.DrawCount;
 
         DeviceBuffers.push_back(desc.IndirectBuffer);
     }
@@ -519,17 +532,21 @@ namespace Nexus::Graphics
     void CommandListStorage::Dispatch(const DispatchDescription &desc)
     {
         auto alloc = Allocate<DispatchDescription>(CommandData, CommandType::Dispatch);
-        alloc.Command->WorkGroupCountX = desc.WorkGroupCountX;
-        alloc.Command->WorkGroupCountY = desc.WorkGroupCountY;
-        alloc.Command->WorkGroupCountZ = desc.WorkGroupCountZ;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->WorkGroupCountX = desc.WorkGroupCountX;
+        command->WorkGroupCountY = desc.WorkGroupCountY;
+        command->WorkGroupCountZ = desc.WorkGroupCountZ;
     }
 
     void CommandListStorage::DispatchIndirect(const DispatchIndirectDescription &desc)
     {
         auto alloc = Allocate<DispatchIndirectCommandStorage>(CommandData, CommandType::DispatchIndirect);
-        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
-        alloc.Command->Offset = desc.Offset;
-        alloc.Command->Stride = desc.Stride;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->DeviceBufferIndex = DeviceBuffers.size();
+        command->Offset = desc.Offset;
+        command->Stride = desc.Stride;
 
         DeviceBuffers.push_back(desc.IndirectBuffer);
     }
@@ -537,18 +554,22 @@ namespace Nexus::Graphics
     void CommandListStorage::DrawMesh(const DrawMeshDescription &desc)
     {
         auto alloc = Allocate<DrawMeshDescription>(CommandData, CommandType::DrawMesh);
-        alloc.Command->WorkGroupCountX = desc.WorkGroupCountX;
-        alloc.Command->WorkGroupCountY = desc.WorkGroupCountY;
-        alloc.Command->WorkGroupCountZ = desc.WorkGroupCountZ;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->WorkGroupCountX = desc.WorkGroupCountX;
+        command->WorkGroupCountY = desc.WorkGroupCountY;
+        command->WorkGroupCountZ = desc.WorkGroupCountZ;
     }
 
     void CommandListStorage::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
     {
         auto alloc = Allocate<DrawMeshIndirectCommandStorage>(CommandData, CommandType::DrawMeshIndirect);
-        alloc.Command->DeviceBufferIndex = DeviceBuffers.size();
-        alloc.Command->Offset = desc.Offset;
-        alloc.Command->Stride = desc.Stride;
-        alloc.Command->DrawCount = desc.DrawCount;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->DeviceBufferIndex = DeviceBuffers.size();
+        command->Offset = desc.Offset;
+        command->Stride = desc.Stride;
+        command->DrawCount = desc.DrawCount;
 
         DeviceBuffers.push_back(desc.IndirectBuffer);
     }
@@ -556,13 +577,15 @@ namespace Nexus::Graphics
     void CommandListStorage::TraceRays(const TraceRaysDescription &desc)
     {
         auto alloc = Allocate<TraceRaysDescription>(CommandData, CommandType::TraceRays);
-        alloc.Command->RaygenRegion = desc.RaygenRegion;
-        alloc.Command->MissRegion = desc.MissRegion;
-        alloc.Command->HitRegion = desc.HitRegion;
-        alloc.Command->CallableRegion = desc.CallableRegion;
-        alloc.Command->Width = desc.Width;
-        alloc.Command->Height = desc.Height;
-        alloc.Command->Depth = desc.Depth;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->RaygenRegion = desc.RaygenRegion;
+        command->MissRegion = desc.MissRegion;
+        command->HitRegion = desc.HitRegion;
+        command->CallableRegion = desc.CallableRegion;
+        command->Width = desc.Width;
+        command->Height = desc.Height;
+        command->Depth = desc.Depth;
     }
 
     void CommandListStorage::SetResourceSet(const ResourceSetBindingDescription &desc)
@@ -577,16 +600,17 @@ namespace Nexus::Graphics
 
         auto alloc =
             Allocate<ResourceSetBindingCommandStorage>(CommandData, CommandType::ResourceSetBinding, payloadSize);
-        alloc.Command->ResourceSetIndex = ResourceSets.size();
-        alloc.Command->DynamicOffsetCount = desc.DynamicOffsets.size();
+        auto *command = alloc.GetCommand(CommandData);
+        command->ResourceSetIndex = ResourceSets.size();
+        command->DynamicOffsetCount = desc.DynamicOffsets.size();
 
-        std::byte *rawPtr = alloc.Payload;
+        std::byte *rawPtr = alloc.GetPayload(CommandData);
         for (const auto &[name, dynamicOffset] : desc.DynamicOffsets)
         {
             memcpy(rawPtr, name.data(), name.size());
             rawPtr += name.size();
             memcpy(rawPtr, dynamicOffset.data(), dynamicOffset.size() * sizeof(uint32_t));
-            rawPtr += sizeof(dynamicOffset);
+            rawPtr += dynamicOffset.size() * sizeof(uint32_t);
         }
 
         ResourceSets.push_back(desc.TargetResourceSet);
@@ -595,22 +619,27 @@ namespace Nexus::Graphics
     void CommandListStorage::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
     {
         auto alloc = Allocate<ClearColorTargetCommand>(CommandData, CommandType::ClearColourTarget);
-        alloc.Command->Index = index;
-        alloc.Command->Colour = color;
-        alloc.Command->Rect = clearRect;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->Index = index;
+        command->Colour = color;
+        command->Rect = clearRect;
     }
 
     void CommandListStorage::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
     {
         auto alloc = Allocate<ClearDepthStencilTargetCommand>(CommandData, CommandType::ClearDepthTarget);
-        alloc.Command->Value = value;
-        alloc.Command->Rect = clearRect;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->Value = value;
+        command->Rect = clearRect;
     }
 
     void CommandListStorage::SetFramebuffer(FramebufferHandle framebuffer)
     {
         auto alloc = Allocate<FramebufferCommandStorage>(CommandData, CommandType::SetFramebuffer);
-        alloc.Command->FramebufferIndex = Framebuffers.size();
+        auto *command = alloc.GetCommand(CommandData);
+        command->FramebufferIndex = Framebuffers.size();
 
         Framebuffers.push_back(framebuffer);
     }
@@ -618,32 +647,38 @@ namespace Nexus::Graphics
     void CommandListStorage::SetViewport(const Viewport &viewport)
     {
         auto alloc = Allocate<Viewport>(CommandData, CommandType::Viewport);
-        alloc.Command->X = viewport.X;
-        alloc.Command->Y = viewport.Y;
-        alloc.Command->Width = viewport.Width;
-        alloc.Command->Height = viewport.Height;
-        alloc.Command->MinDepth = viewport.MinDepth;
-        alloc.Command->MaxDepth = viewport.MaxDepth;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->X = viewport.X;
+        command->Y = viewport.Y;
+        command->Width = viewport.Width;
+        command->Height = viewport.Height;
+        command->MinDepth = viewport.MinDepth;
+        command->MaxDepth = viewport.MaxDepth;
     }
 
     void CommandListStorage::SetScissor(const Scissor &scissor)
     {
         auto alloc = Allocate<Scissor>(CommandData, CommandType::Scissor);
-        alloc.Command->X = scissor.X;
-        alloc.Command->Y = scissor.Y;
-        alloc.Command->Width = scissor.Width;
-        alloc.Command->Height = scissor.Height;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->X = scissor.X;
+        command->Y = scissor.Y;
+        command->Width = scissor.Width;
+        command->Height = scissor.Height;
     }
 
     void CommandListStorage::ResolveFramebuffer(const ResolveTextureDescription &desc)
     {
         auto alloc = Allocate<ResolveTextureCommandStorage>(CommandData, CommandType::ResolveFramebuffer);
-        alloc.Command->SourceTextureIndex = Textures.size();
-        alloc.Command->DestinationTextureIndex = Textures.size() + 1;
-        alloc.Command->SourceArrayLayer = desc.SourceArrayLayer;
-        alloc.Command->SourceMipLevel = desc.SourceMipLevel;
-        alloc.Command->DestinationArrayLayer = desc.DestinationArrayLayer;
-        alloc.Command->DestinationMipLevel = desc.DestinationMipLevel;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->SourceTextureIndex = Textures.size();
+        command->DestinationTextureIndex = Textures.size() + 1;
+        command->SourceArrayLayer = desc.SourceArrayLayer;
+        command->SourceMipLevel = desc.SourceMipLevel;
+        command->DestinationArrayLayer = desc.DestinationArrayLayer;
+        command->DestinationMipLevel = desc.DestinationMipLevel;
 
         Textures.push_back(desc.Source);
         Textures.push_back(desc.Destination);
@@ -652,7 +687,8 @@ namespace Nexus::Graphics
     void CommandListStorage::StartTimingQuery(TimingQueryHandle query)
     {
         auto alloc = Allocate<TimingQueryCommandStorage>(CommandData, CommandType::StartTimingQuery);
-        alloc.Command->QueryIndex = TimingQueries.size();
+        auto *command = alloc.GetCommand(CommandData);
+        command->QueryIndex = TimingQueries.size();
 
         TimingQueries.push_back(query);
     }
@@ -660,7 +696,8 @@ namespace Nexus::Graphics
     void CommandListStorage::StopTimingQuery(TimingQueryHandle query)
     {
         auto alloc = Allocate<TimingQueryCommandStorage>(CommandData, CommandType::StopTimingQuery);
-        alloc.Command->QueryIndex = TimingQueries.size();
+        auto *command = alloc.GetCommand(CommandData);
+        command->QueryIndex = TimingQueries.size();
 
         TimingQueries.push_back(query);
     }
@@ -670,9 +707,12 @@ namespace Nexus::Graphics
         size_t payloadSize = bufferCopy.Copies.size() * sizeof(BufferCopy);
 
         auto alloc = Allocate<BufferCopyCommandStorage>(CommandData, CommandType::CopyBufferToBuffer, payloadSize);
-        alloc.Command->SourceIndex = DeviceBuffers.size();
-        alloc.Command->DestinationIndex = DeviceBuffers.size() + 1;
-        memcpy(alloc.Payload, bufferCopy.Copies.data(), payloadSize);
+        auto *command = alloc.GetCommand(CommandData);
+        auto *payload = alloc.GetPayload(CommandData);
+
+        command->SourceIndex = DeviceBuffers.size();
+        command->DestinationIndex = DeviceBuffers.size() + 1;
+        memcpy(payload, bufferCopy.Copies.data(), payloadSize);
 
         DeviceBuffers.push_back(bufferCopy.Source);
         DeviceBuffers.push_back(bufferCopy.Destination);
@@ -681,14 +721,16 @@ namespace Nexus::Graphics
     void CommandListStorage::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
     {
         auto alloc = Allocate<BufferTextureCopyCommandStorage>(CommandData, CommandType::CopyBufferToTexture);
-        alloc.Command->BufferIndex = DeviceBuffers.size();
-        alloc.Command->BufferOffset = bufferTextureCopy.BufferOffset;
-        alloc.Command->BufferRowLength = bufferTextureCopy.BufferRowLength;
-        alloc.Command->BufferImageHeight = bufferTextureCopy.BufferImageHeight;
-        alloc.Command->TextureIndex = Textures.size();
-        alloc.Command->TextureOffset = bufferTextureCopy.TextureOffset;
-        alloc.Command->TextureExtent = bufferTextureCopy.TextureExtent;
-        alloc.Command->MipLevel = bufferTextureCopy.MipLevel;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->BufferIndex = DeviceBuffers.size();
+        command->BufferOffset = bufferTextureCopy.BufferOffset;
+        command->BufferRowLength = bufferTextureCopy.BufferRowLength;
+        command->BufferImageHeight = bufferTextureCopy.BufferImageHeight;
+        command->TextureIndex = Textures.size();
+        command->TextureOffset = bufferTextureCopy.TextureOffset;
+        command->TextureExtent = bufferTextureCopy.TextureExtent;
+        command->MipLevel = bufferTextureCopy.MipLevel;
 
         DeviceBuffers.push_back(bufferTextureCopy.BufferHandle);
         Textures.push_back(bufferTextureCopy.Texture);
@@ -697,14 +739,16 @@ namespace Nexus::Graphics
     void CommandListStorage::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
     {
         auto alloc = Allocate<BufferTextureCopyCommandStorage>(CommandData, CommandType::CopyTextureToBuffer);
-        alloc.Command->BufferIndex = DeviceBuffers.size();
-        alloc.Command->BufferOffset = textureBufferCopy.BufferOffset;
-        alloc.Command->BufferRowLength = textureBufferCopy.BufferRowLength;
-        alloc.Command->BufferImageHeight = textureBufferCopy.BufferImageHeight;
-        alloc.Command->TextureIndex = Textures.size();
-        alloc.Command->TextureOffset = textureBufferCopy.TextureOffset;
-        alloc.Command->TextureExtent = textureBufferCopy.TextureExtent;
-        alloc.Command->MipLevel = textureBufferCopy.MipLevel;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->BufferIndex = DeviceBuffers.size();
+        command->BufferOffset = textureBufferCopy.BufferOffset;
+        command->BufferRowLength = textureBufferCopy.BufferRowLength;
+        command->BufferImageHeight = textureBufferCopy.BufferImageHeight;
+        command->TextureIndex = Textures.size();
+        command->TextureOffset = textureBufferCopy.TextureOffset;
+        command->TextureExtent = textureBufferCopy.TextureExtent;
+        command->MipLevel = textureBufferCopy.MipLevel;
 
         DeviceBuffers.push_back(textureBufferCopy.BufferHandle);
         Textures.push_back(textureBufferCopy.Texture);
@@ -713,13 +757,15 @@ namespace Nexus::Graphics
     void CommandListStorage::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
     {
         auto alloc = Allocate<TextureCopyCommandStorage>(CommandData, CommandType::CopyTextureToTexture);
-        alloc.Command->SourceTextureIndex = Textures.size();
-        alloc.Command->DestinationTextureIndex = Textures.size() + 1;
-        alloc.Command->SourceOffset = textureCopy.SourceOffset;
-        alloc.Command->DestinationOffset = textureCopy.DestinationOffset;
-        alloc.Command->Extent = textureCopy.Extent;
-        alloc.Command->SourceMipLevel = textureCopy.SourceMipLevel;
-        alloc.Command->DestinationMipLevel = textureCopy.DestinationMipLevel;
+        auto *command = alloc.GetCommand(CommandData);
+
+        command->SourceTextureIndex = Textures.size();
+        command->DestinationTextureIndex = Textures.size() + 1;
+        command->SourceOffset = textureCopy.SourceOffset;
+        command->DestinationOffset = textureCopy.DestinationOffset;
+        command->Extent = textureCopy.Extent;
+        command->SourceMipLevel = textureCopy.SourceMipLevel;
+        command->DestinationMipLevel = textureCopy.DestinationMipLevel;
 
         Textures.push_back(textureCopy.Source);
         Textures.push_back(textureCopy.Destination);
@@ -730,8 +776,11 @@ namespace Nexus::Graphics
         size_t payloadSize = name.size();
 
         auto alloc = Allocate<size_t>(CommandData, CommandType::BeginDebugGroup, payloadSize);
-        *alloc.Command = payloadSize;
-        memcpy(alloc.Payload, name.data(), name.size());
+        auto *command = alloc.GetCommand(CommandData);
+        auto *payload = alloc.GetPayload(CommandData);
+
+        *command = payloadSize;
+        memcpy(payload, name.data(), name.size());
     }
 
     void CommandListStorage::EndDebugGroup()
@@ -742,20 +791,25 @@ namespace Nexus::Graphics
     void CommandListStorage::InsertDebugMarker(const std::string &name)
     {
         auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::DebugLabel, name.size());
-        alloc.Command->TextLength = name.size();
-        memcpy(alloc.Payload, name.data(), name.size());
+        auto *command = alloc.GetCommand(CommandData);
+        auto *payload = alloc.GetPayload(CommandData);
+        command->TextLength = name.size();
+
+        memcpy(payload, name.data(), name.size());
     }
 
     void CommandListStorage::SetBlendFactor(const BlendFactorDesc &blendFactor)
     {
         auto alloc = Allocate<BlendFactorDesc>(CommandData, CommandType::SetBlendFactor);
-        *alloc.Command = blendFactor;
+        auto *command = alloc.GetCommand(CommandData);
+        *command = blendFactor;
     }
 
     void CommandListStorage::SetStencilReference(uint32_t stencilReference)
     {
         auto alloc = Allocate<uint32_t>(CommandData, CommandType::SetStencilReference);
-        *alloc.Command = stencilReference;
+        auto *command = alloc.GetCommand(CommandData);
+        *command = stencilReference;
     }
 
     void CommandListStorage::BuildAccelerationStructures(
@@ -774,9 +828,11 @@ namespace Nexus::Graphics
         auto alloc = Allocate<AccelerationStructureGeometryBuildCountStorage>(
             CommandData, CommandType::BuildAccelerationStructures, payloadSize
         );
-        alloc.Command->BuildCount = descriptions.size();
+        auto *command = alloc.GetCommand(CommandData);
+        auto *payload = alloc.GetPayload(CommandData);
+        command->BuildCount = descriptions.size();
 
-        std::byte *ptr = alloc.Payload + sizeof(AccelerationStructureGeometryBuildCountStorage);
+        std::byte *ptr = payload + sizeof(AccelerationStructureGeometryBuildCountStorage);
 
         for (const auto &build : descriptions)
         {
@@ -823,7 +879,8 @@ namespace Nexus::Graphics
     {
         auto alloc =
             Allocate<AccelerationStructureCopyDescription>(CommandData, CommandType::CopyAccelerationStructure);
-        *alloc.Command = description;
+        auto *command = alloc.GetCommand(CommandData);
+        *command = description;
     }
 
     void CommandListStorage::CopyAccelerationStructureToDeviceBuffer(
@@ -833,7 +890,8 @@ namespace Nexus::Graphics
         auto alloc = Allocate<AccelerationStructureDeviceBufferCopyDescription>(
             CommandData, CommandType::CopyAccelerationStructure
         );
-        *alloc.Command = description;
+        auto *command = alloc.GetCommand(CommandData);
+        *command = description;
     }
 
     void CommandListStorage::CopyDeviceBufferToAccelerationStructure(
@@ -843,7 +901,8 @@ namespace Nexus::Graphics
         auto alloc = Allocate<DeviceBufferAccelerationStructureCopyDescription>(
             CommandData, CommandType::CopyAccelerationStructure
         );
-        *alloc.Command = description;
+        auto *command = alloc.GetCommand(CommandData);
+        *command = description;
     }
 
     void CommandListStorage::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
@@ -851,11 +910,14 @@ namespace Nexus::Graphics
         size_t payloadSize = name.size() + size;
 
         auto alloc = Allocate<PushConstantsCommandStorage>(CommandData, CommandType::PushConstants, payloadSize);
-        alloc.Command->NameLength = name.size();
-        alloc.Command->Offset = offset;
-        alloc.Command->DataLength = size;
+        auto *command = alloc.GetCommand(CommandData);
+        auto *payload = alloc.GetPayload(CommandData);
 
-        std::byte *rawPtr = alloc.Payload;
+        command->NameLength = name.size();
+        command->Offset = offset;
+        command->DataLength = size;
+
+        std::byte *rawPtr = payload;
         memcpy(rawPtr, name.data(), name.size());
         rawPtr += name.size();
         memcpy(rawPtr, data, size);
@@ -868,12 +930,15 @@ namespace Nexus::Graphics
                              (description.BufferBarriers.size() * sizeof(BufferBarrierCommandStorage));
 
         auto alloc = Allocate<BarrierGroupCommandStorage>(CommandData, CommandType::BarrierGroup, payloadSize);
-        alloc.Command->MemoryBarrierCount = description.MemoryBarriers.size();
-        alloc.Command->TextureBarrierCount = description.TextureBarriers.size();
-        alloc.Command->BufferBarrierCount = description.BufferBarriers.size();
+        auto *command = alloc.GetCommand(CommandData);
+        auto *payload = alloc.GetPayload(CommandData);
+
+        command->MemoryBarrierCount = description.MemoryBarriers.size();
+        command->TextureBarrierCount = description.TextureBarriers.size();
+        command->BufferBarrierCount = description.BufferBarriers.size();
 
         // write memory barriers
-        std::byte *rawPtr = alloc.Payload;
+        std::byte *rawPtr = payload;
         memcpy(
             rawPtr, description.MemoryBarriers.data(), description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc)
         );

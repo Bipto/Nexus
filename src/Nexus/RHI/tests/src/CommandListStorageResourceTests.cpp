@@ -146,3 +146,31 @@ TEST(CommandListStorageResourceTests, ResourceSetMultipleOffsetsPreserveOrder)
 
     EXPECT_EQ(cmd->DynamicOffsetCount, 3u);
 }
+
+TEST(CommandListStorageResourceTests, EmptyResourceSetStoresZeroOffsets)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.SetResourceSet({});
+
+    ASSERT_EQ(storage.ResourceSets.size(), 1u);
+
+    auto *cmd = GetCommand<Nexus::Graphics::ResourceSetBindingCommandStorage>(storage);
+
+    EXPECT_EQ(cmd->DynamicOffsetCount, 0u);
+}
+
+TEST(CommandListStorageResourceTests, ResourceSetIndicesIncrease)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.SetResourceSet({});
+    storage.SetResourceSet({});
+
+    auto *first = FirstCommand(storage);
+    auto *second = NextCommand(first);
+
+    EXPECT_EQ(GetCommand<Nexus::Graphics::ResourceSetBindingCommandStorage>(first)->ResourceSetIndex, 0u);
+
+    EXPECT_EQ(GetCommand<Nexus::Graphics::ResourceSetBindingCommandStorage>(second)->ResourceSetIndex, 1u);
+}

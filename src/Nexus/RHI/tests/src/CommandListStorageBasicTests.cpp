@@ -5,13 +5,120 @@
 
 using namespace TestHelpers;
 
-class CommandListStorageTests : public ::testing::Test
+class CommandListStorageBasicTests : public ::testing::Test
 {
   protected:
     Nexus::Graphics::CommandListStorage Storage;
 };
 
-TEST_F(CommandListStorageTests, ClearRemovesAllRecordedState)
+TEST_F(CommandListStorageBasicTests, NewStorageStartsEmpty)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    EXPECT_TRUE(storage.CommandData.empty());
+    EXPECT_TRUE(storage.Pipelines.empty());
+    EXPECT_TRUE(storage.DeviceBuffers.empty());
+    EXPECT_TRUE(storage.Textures.empty());
+    EXPECT_TRUE(storage.ResourceSets.empty());
+    EXPECT_TRUE(storage.Framebuffers.empty());
+}
+
+TEST_F(CommandListStorageBasicTests, ResetClearsEveryHandleArray)
+{
+    Storage.SetPipeline({});
+    Storage.SetFramebuffer({});
+    Storage.SetVertexBuffer({}, 0);
+    Storage.CopyTextureToTexture({});
+    Storage.StartTimingQuery({});
+
+    Storage.Reset();
+
+    EXPECT_TRUE(Storage.Pipelines.empty());
+    EXPECT_TRUE(Storage.Framebuffers.empty());
+    EXPECT_TRUE(Storage.DeviceBuffers.empty());
+    EXPECT_TRUE(Storage.Textures.empty());
+    EXPECT_TRUE(Storage.TimingQueries.empty());
+    EXPECT_TRUE(Storage.CommandData.empty());
+}
+
+TEST_F(CommandListStorageBasicTests, NextCommandTraversesEntireStream)
+{
+    Storage.SetPipeline({});
+    Storage.SetFramebuffer({});
+    Storage.SetViewport({});
+
+    auto *cmd = FirstCommand(Storage);
+
+    int count = 0;
+
+    while (cmd)
+    {
+        ++count;
+
+        auto *next = NextCommand(cmd);
+
+        if (reinterpret_cast<const std::byte *>(next) >= Storage.CommandData.data() + Storage.CommandData.size())
+            break;
+
+        cmd = next;
+    }
+
+    EXPECT_EQ(count, 3);
+}
+
+TEST_F(CommandListStorageBasicTests, StorageCanBeReusedAfterReset)
+{
+    Storage.SetPipeline({});
+    Storage.Reset();
+
+    Storage.SetFramebuffer({});
+
+    ASSERT_EQ(Storage.Framebuffers.size(), 1u);
+
+    auto *header = FirstCommand(Storage);
+
+    EXPECT_EQ(header->Type, Nexus::Graphics::CommandType::SetFramebuffer);
+}
+
+TEST_F(CommandListStorageBasicTests, StorageCanBeReusedAfterClear)
+{
+    Storage.SetPipeline({});
+    Storage.SetFramebuffer({});
+
+    Storage.Clear();
+
+    Storage.SetStencilReference(123);
+
+    auto *header = FirstCommand(Storage);
+
+    ASSERT_EQ(header->Type, Nexus::Graphics::CommandType::SetStencilReference);
+
+    auto *value = GetCommand<uint32_t>(header);
+
+    EXPECT_EQ(*value, 123u);
+}
+
+TEST_F(CommandListStorageBasicTests, ResetCanBeCalledMultipleTimes)
+{
+    Storage.SetPipeline({});
+
+    Storage.Reset();
+    Storage.Reset();
+    Storage.Reset();
+
+    EXPECT_TRUE(Storage.CommandData.empty());
+    EXPECT_TRUE(Storage.Pipelines.empty());
+
+    Storage.SetPipeline({});
+
+    EXPECT_EQ(Storage.Pipelines.size(), 1u);
+
+    auto *cmd = GetCommand<Nexus::Graphics::SetPipelineCommandStorage>(Storage);
+
+    EXPECT_EQ(cmd->PipelineIndex, 0u);
+}
+
+TEST_F(CommandListStorageBasicTests, ClearRemovesAllRecordedState)
 {
     Storage.Pipelines.emplace_back();
     Storage.DeviceBuffers.emplace_back();
@@ -24,7 +131,7 @@ TEST_F(CommandListStorageTests, ClearRemovesAllRecordedState)
     EXPECT_TRUE(Storage.CommandData.empty());
 }
 
-TEST_F(CommandListStorageTests, ResetReturnsStorageToDefaultState)
+TEST_F(CommandListStorageBasicTests, ResetReturnsStorageToDefaultState)
 {
     Storage.Pipelines.emplace_back();
     Storage.CommandData.resize(64);
@@ -38,7 +145,7 @@ TEST_F(CommandListStorageTests, ResetReturnsStorageToDefaultState)
     EXPECT_TRUE(Storage.ResourceSets.empty());
 }
 
-TEST_F(CommandListStorageTests, SetPipelineWritesPipelineCommand)
+TEST_F(CommandListStorageBasicTests, SetPipelineWritesPipelineCommand)
 {
     Nexus::Graphics::PipelineHandle pipeline{};
 
@@ -55,7 +162,7 @@ TEST_F(CommandListStorageTests, SetPipelineWritesPipelineCommand)
     EXPECT_EQ(cmd->PipelineIndex, 0u);
 }
 
-TEST_F(CommandListStorageTests, PipelineIndicesIncrease)
+TEST_F(CommandListStorageBasicTests, PipelineIndicesIncrease)
 {
     Storage.SetPipeline({});
     Storage.SetPipeline({});
@@ -69,7 +176,7 @@ TEST_F(CommandListStorageTests, PipelineIndicesIncrease)
     EXPECT_EQ(GetCommand<Nexus::Graphics::SetPipelineCommandStorage>(second)->PipelineIndex, 1u);
 }
 
-TEST_F(CommandListStorageTests, SetVertexBufferStoresCorrectValues)
+TEST_F(CommandListStorageBasicTests, SetVertexBufferStoresCorrectValues)
 {
     Nexus::Graphics::VertexBufferView view{};
     view.Offset = 64;
@@ -91,7 +198,7 @@ TEST_F(CommandListStorageTests, SetVertexBufferStoresCorrectValues)
     EXPECT_EQ(cmd->Slot, 5u);
 }
 
-TEST_F(CommandListStorageTests, SetIndexBufferStoresCorrectValues)
+TEST_F(CommandListStorageBasicTests, SetIndexBufferStoresCorrectValues)
 {
     Nexus::Graphics::IndexBufferView view{};
     view.Offset = 128;
@@ -108,7 +215,7 @@ TEST_F(CommandListStorageTests, SetIndexBufferStoresCorrectValues)
     EXPECT_EQ(cmd->BufferFormat, Nexus::Graphics::IndexFormat::UInt16);
 }
 
-TEST_F(CommandListStorageTests, SetFramebufferStoresFramebufferIndex)
+TEST_F(CommandListStorageBasicTests, SetFramebufferStoresFramebufferIndex)
 {
     Storage.SetFramebuffer({});
 
@@ -119,7 +226,7 @@ TEST_F(CommandListStorageTests, SetFramebufferStoresFramebufferIndex)
     EXPECT_EQ(cmd->FramebufferIndex, 0u);
 }
 
-TEST_F(CommandListStorageTests, ViewportIsCopied)
+TEST_F(CommandListStorageBasicTests, ViewportIsCopied)
 {
     Nexus::Graphics::Viewport vp{};
     vp.X = 1;
@@ -141,7 +248,7 @@ TEST_F(CommandListStorageTests, ViewportIsCopied)
     EXPECT_FLOAT_EQ(stored->MaxDepth, vp.MaxDepth);
 }
 
-TEST_F(CommandListStorageTests, ScissorIsCopied)
+TEST_F(CommandListStorageBasicTests, ScissorIsCopied)
 {
     Nexus::Graphics::Scissor s{};
     s.X = 10;
@@ -159,7 +266,7 @@ TEST_F(CommandListStorageTests, ScissorIsCopied)
     EXPECT_EQ(stored->Height, s.Height);
 }
 
-TEST_F(CommandListStorageTests, BlendFactorCopiedVerbatim)
+TEST_F(CommandListStorageBasicTests, BlendFactorCopiedVerbatim)
 {
     Nexus::Graphics::BlendFactorDesc factor{};
     factor.Red = 0.2f;
@@ -177,7 +284,7 @@ TEST_F(CommandListStorageTests, BlendFactorCopiedVerbatim)
     EXPECT_FLOAT_EQ(stored->Alpha, factor.Alpha);
 }
 
-TEST_F(CommandListStorageTests, StencilReferenceStored)
+TEST_F(CommandListStorageBasicTests, StencilReferenceStored)
 {
     Storage.SetStencilReference(42);
 
@@ -186,7 +293,7 @@ TEST_F(CommandListStorageTests, StencilReferenceStored)
     EXPECT_EQ(*value, 42u);
 }
 
-TEST_F(CommandListStorageTests, CommandsRemainSequential)
+TEST_F(CommandListStorageBasicTests, CommandsRemainSequential)
 {
     Storage.SetPipeline({});
     Storage.SetFramebuffer({});

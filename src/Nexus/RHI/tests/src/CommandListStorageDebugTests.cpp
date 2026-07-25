@@ -84,3 +84,44 @@ TEST(CommandListStorageDebugTests, DebugCommandsRemainOrdered)
 
     EXPECT_EQ(third->Type, Nexus::Graphics::CommandType::EndDebugGroup);
 }
+
+TEST(CommandListStorageDebugTests, EmptyDebugMarker)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.InsertDebugMarker("");
+
+    auto *header = FirstCommand(storage);
+
+    EXPECT_EQ(header->Type, Nexus::Graphics::CommandType::DebugLabel);
+
+    auto *cmd = GetCommand<Nexus::Graphics::DebugLabelCommandStorage>(header);
+
+    EXPECT_EQ(cmd->TextLength, 0u);
+}
+
+TEST(CommandListStorageDebugTests, EmptyDebugGroup)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.BeginDebugGroup("");
+
+    auto *header = FirstCommand(storage);
+
+    EXPECT_EQ(header->Type, Nexus::Graphics::CommandType::BeginDebugGroup);
+
+    auto *size = GetCommand<size_t>(header);
+
+    EXPECT_EQ(*size, 0u);
+}
+
+TEST(CommandListStorageDebugTests, EndDebugGroupWritesCommand)
+{
+    Nexus::Graphics::CommandListStorage storage;
+
+    storage.EndDebugGroup();
+
+    auto *header = FirstCommand(storage);
+
+    EXPECT_EQ(header->Type, Nexus::Graphics::CommandType::EndDebugGroup);
+}
