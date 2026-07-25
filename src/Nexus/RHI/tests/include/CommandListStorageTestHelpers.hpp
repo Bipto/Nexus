@@ -17,7 +17,8 @@ namespace TestHelpers
 
     inline const Nexus::Graphics::CommandHeader *FirstCommand(const Nexus::Graphics::CommandListStorage &storage)
     {
-        EXPECT_FALSE(storage.CommandData.empty());
+        if (storage.CommandData.empty())
+            return nullptr;
 
         return reinterpret_cast<const Nexus::Graphics::CommandHeader *>(storage.CommandData.data());
     }
@@ -31,15 +32,11 @@ namespace TestHelpers
 
     template <typename T> const T *GetCommand(const Nexus::Graphics::CommandHeader *header)
     {
-        auto AlignUp = [](uintptr_t value, size_t alignment) {
-            return (value + alignment - 1) & ~(uintptr_t(alignment) - 1);
-        };
+        auto base = reinterpret_cast<const std::byte *>(header);
 
-        auto headerAddr = reinterpret_cast<uintptr_t>(header);
+        size_t commandOffset = AlignUp(sizeof(Nexus::Graphics::CommandHeader), alignof(T));
 
-        auto commandAddr = AlignUp(headerAddr + sizeof(Nexus::Graphics::CommandHeader), alignof(T));
-
-        return reinterpret_cast<const T *>(commandAddr);
+        return reinterpret_cast<const T *>(base + commandOffset);
     }
 
     template <typename T> const T *GetCommand(const Nexus::Graphics::CommandListStorage &storage)
@@ -75,11 +72,17 @@ namespace TestHelpers
         const Nexus::Graphics::CommandHeader *header, size_t commandSize, size_t commandAlignment
     )
     {
-        size_t commandOffset = AlignUp(sizeof(Nexus::Graphics::CommandHeader), commandAlignment);
+        auto AlignUp = [](uintptr_t value, size_t alignment) {
+            return (value + alignment - 1) & ~(uintptr_t(alignment) - 1);
+        };
 
-        size_t payloadOffset = AlignUp(commandOffset + commandSize, alignof(std::max_align_t));
+        uintptr_t headerAddr = reinterpret_cast<uintptr_t>(header);
 
-        return reinterpret_cast<const std::byte *>(header) + payloadOffset;
+        uintptr_t commandAddr = AlignUp(headerAddr + sizeof(Nexus::Graphics::CommandHeader), commandAlignment);
+
+        uintptr_t payloadAddr = AlignUp(commandAddr + commandSize, alignof(std::max_align_t));
+
+        return reinterpret_cast<const std::byte *>(payloadAddr);
     }
 
     inline std::string PayloadString(
