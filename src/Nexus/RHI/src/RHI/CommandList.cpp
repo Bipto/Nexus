@@ -639,7 +639,7 @@ namespace Nexus::Graphics
     {
         auto alloc = Allocate<ResolveTextureCommandStorage>(CommandData, CommandType::ResolveFramebuffer);
         alloc.Command->SourceTextureIndex = Textures.size();
-        alloc.Command->DestinationTextureIndex = Textures.size();
+        alloc.Command->DestinationTextureIndex = Textures.size() + 1;
         alloc.Command->SourceArrayLayer = desc.SourceArrayLayer;
         alloc.Command->SourceMipLevel = desc.SourceMipLevel;
         alloc.Command->DestinationArrayLayer = desc.DestinationArrayLayer;
