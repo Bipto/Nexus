@@ -399,20 +399,6 @@ namespace Nexus::Graphics
         *this = CommandListStorage{};
     }
 
-    void CommandListStorage::Print() const
-    {
-        size_t offset = 0;
-
-        while (offset < CommandData.size())
-        {
-            const auto *header = reinterpret_cast<const CommandHeader *>(CommandData.data() + offset);
-
-            header->Print();
-
-            offset += header->Length;
-        }
-    }
-
     template <typename T>
     Allocation<T> Allocate(std::vector<std::byte> &commandStream, CommandType type, size_t payloadSize = 0)
     {
@@ -979,6 +965,11 @@ namespace Nexus::Graphics
 
             rawPtr += sizeof(BufferBarrierCommandStorage);
         }
+    }
+
+    CommandIterator CommandListStorage::GetCommands()
+    {
+        return CommandIterator(CommandData);
     }
 
     ICommandList::ICommandList(const CommandListDescription &spec)
@@ -1995,9 +1986,9 @@ namespace Nexus::Graphics
         return m_Started;
     }
 
-    void ICommandList::Print() const
+    CommandListStorage &ICommandList::GetStorage()
     {
-        m_CommandListStorage.Print();
+        return m_CommandListStorage;
     }
 
     void ICommandList::EndRendering()

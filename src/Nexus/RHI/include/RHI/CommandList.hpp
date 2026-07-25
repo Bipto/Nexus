@@ -2,8 +2,8 @@
 
 #include <atomic>
 #include <functional>
+#include <iostream>
 #include <mutex>
-#include <print>
 #include <string>
 #include <vector>
 
@@ -1168,11 +1168,6 @@ namespace Nexus::Graphics
                 return "Unknown command";
             }
         }
-
-        void Print() const
-        {
-            std::println("Command Type: {}", GetCommandTypeAsString());
-        }
     };
 
     struct SetVertexBufferCommandStorage
@@ -1420,7 +1415,6 @@ namespace Nexus::Graphics
 
         void Clear();
         void Reset();
-        void Print() const;
 
         void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
         void SetIndexBuffer(IndexBufferView indexBuffer);
@@ -1463,11 +1457,79 @@ namespace Nexus::Graphics
         void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
         void SubmitBarrierGroup(const BarrierGroupDescription &description);
 
-        CommandIterator Commands()
-        {
-            return CommandIterator(CommandData);
-        }
+        CommandIterator GetCommands();
     };
+
+    class CommandListReader
+    {
+      public:
+        explicit CommandListReader(const CommandListStorage &storage)
+            : m_data(storage.CommandData.data()), m_size(storage.CommandData.size())
+        {
+        }
+
+        inline const CommandHeader *First() const;
+
+        inline const CommandHeader *Next(const CommandHeader *current) const;
+
+        template <typename T> const T *GetCommand(const CommandHeader *header) const;
+
+        template <typename Command, typename Payload> const Payload *GetPayload(const CommandHeader *header) const;
+
+      private:
+        const std::byte *m_data;
+        size_t m_size;
+    };
+
+    const CommandHeader *CommandListReader::First() const
+    {
+        if (m_size == 0)
+            return nullptr;
+
+        return reinterpret_cast<const CommandHeader *>(m_data);
+    }
+
+    template <typename T> constexpr T AlignUp(T value, std::size_t alignment)
+    {
+        static_assert(std::is_integral_v<T>);
+        return (value + static_cast<T>(alignment - 1)) & ~static_cast<T>(alignment - 1);
+    }
+
+    const CommandHeader *CommandListReader::Next(const CommandHeader *current) const
+    {
+        if (!current)
+            return nullptr;
+
+        auto *next = reinterpret_cast<const std::byte *>(current) + current->Length;
+
+        auto *end = m_data + m_size;
+
+        if (next >= end)
+            return nullptr;
+
+        return reinterpret_cast<const CommandHeader *>(next);
+    }
+
+    template <typename T> const T *CommandListReader::GetCommand(const CommandHeader *header) const
+    {
+        auto base = reinterpret_cast<const std::byte *>(header);
+
+        auto offset = AlignUp(sizeof(CommandHeader), alignof(T));
+
+        return reinterpret_cast<const T *>(base + offset);
+    }
+
+    template <typename Command, typename Payload>
+    const Payload *CommandListReader::GetPayload(const CommandHeader *header) const
+    {
+        auto base = reinterpret_cast<uintptr_t>(header);
+
+        auto command = AlignUp(base + sizeof(CommandHeader), alignof(Command));
+
+        auto payload = AlignUp(command + sizeof(Command), alignof(Payload));
+
+        return reinterpret_cast<const Payload *>(payload);
+    }
 
     /// @brief A class representing a command list
     class NX_RHI_API ICommandList
@@ -1589,7 +1651,7 @@ namespace Nexus::Graphics
 
         bool IsRecording() const;
 
-        void Print() const;
+        CommandListStorage &GetStorage();
 
       private:
         void EndRendering();

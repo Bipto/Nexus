@@ -50,7 +50,6 @@ namespace Nexus::Graphics
         {
             CommandListOpenGL *commandList = commandLists[i].AsDerived<CommandListOpenGL>();
             m_CommandExecutor.ExecuteCommands(commandList, m_Device);
-            commandList->Print();
             m_CommandExecutor.Reset();
         }
     }

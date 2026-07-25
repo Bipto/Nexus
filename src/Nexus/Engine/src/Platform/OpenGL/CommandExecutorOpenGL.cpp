@@ -26,10 +26,75 @@ namespace Nexus::Graphics
 
         NX_PROFILE_FUNCTION();
 
-        const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
-        for (const auto &command : commands)
+        // const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
+        // for (const auto &command : commands)
+        //{
+        //     command->Execute(this, device);
+        // }
+
+        // auto &storage = commandList->GetStorage();
+        // auto command = storage.GetCommands();
+
+        // while (command.HasNext())
+        //{
+        //     if (command.Get()->Type == CommandType::SetFramebuffer)
+        //     {
+        //     }
+        //    command.Next();
+        // }
+
+        auto &storage = commandList->GetStorage();
+
+        CommandListReader reader(storage);
+
+        for (auto *header = reader.First(); header != nullptr; header = reader.Next(header))
         {
-            command->Execute(this, device);
+            switch (header->Type)
+            {
+            case CommandType::SetFramebuffer:
+            {
+                auto *cmd = reader.GetCommand<FramebufferCommandStorage>(header);
+                auto framebuffer = storage.Framebuffers[cmd->FramebufferIndex];
+
+                if (FramebufferOpenGL *framebufferGL = framebuffer.AsDerived<FramebufferOpenGL>())
+                {
+                    GL::IGLContext *context = m_Device->GetOffscreenContext();
+                    framebufferGL->BindAsDrawBuffer(context);
+                    m_CurrentRenderTarget = framebuffer;
+                }
+
+                break;
+            }
+            case CommandType::ClearColourTarget:
+            {
+                auto *cmd = reader.GetCommand<ClearColorTargetCommand>(header);
+
+                GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
+
+                if (cmd->Rect.has_value())
+                {
+                    Graphics::ClearRect rect = cmd->Rect.value();
+
+                    GLint scissorBox[4];
+                    context->GetIntegerv(GL_SCISSOR_BOX, scissorBox);
+
+                    float scissorY = m_CurrentRenderTarget->GetWidth() - m_CurrentRenderTarget->GetHeight() - rect.Y;
+                    context->Scissor(rect.X, scissorY, rect.Width, rect.Height);
+
+                    float color[] = {cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha};
+                    context->ClearBufferfv(GL_COLOR, cmd->Index, color);
+
+                    context->Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+                }
+                else
+                {
+                    float color[] = {cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha};
+                    context->ClearBufferfv(GL_COLOR, cmd->Index, color);
+                }
+
+                break;
+            }
+            }
         }
     }
 
