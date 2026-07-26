@@ -447,6 +447,6 @@ set_target_properties(Nexus PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR OFF)
 
-if (BUILD_TESTING)
+if (DEFINED BUILD_TESTING)
 	add_subdirectory(tests)
 endif()

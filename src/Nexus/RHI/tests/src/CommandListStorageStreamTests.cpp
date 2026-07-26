@@ -69,7 +69,7 @@ TEST_F(CommandListStorageStreamTests, ManyCommandsCanBeWalked)
 
     size_t visited = 0;
 
-    for (auto iterator = Storage.Commands(); iterator.HasNext(); iterator.Next())
+    for (auto iterator = Storage.GetCommands(); iterator.HasNext(); iterator.Next())
     {
         auto *command = iterator.Get();
         EXPECT_EQ(command->Type, Nexus::Graphics::CommandType::Draw);

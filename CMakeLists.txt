@@ -71,7 +71,7 @@ add_definitions(-DTRACY_ENABLE)
 # ------------------------------------------------------------
 # Testing
 # ------------------------------------------------------------
-if (BUILD_TESTING)
+if (DEFINED BUILD_TESTING)
     enable_testing()
     include(CTest)
 
@@ -85,7 +85,7 @@ endif()
 # ------------------------------------------------------------
 # Benchmarking
 # ------------------------------------------------------------
-if (BUILD_BENCHMARKING)
+if (DEFINED BUILD_BENCHMARKING)
     CPMAddPackage(
         benchmark
         GITHUB_REPOSITORY google/benchmark
