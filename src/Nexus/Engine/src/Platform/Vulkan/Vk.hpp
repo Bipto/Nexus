@@ -194,7 +194,9 @@ namespace Nexus::Vk
 
     VkResult SubmitQueue(
         Graphics::GraphicsDeviceVk *device, VkQueue queue, const std::vector<VkCommandBuffer> commandBuffers,
-        VkPipelineStageFlags waitStageMask, VkFence fence
+        VkPipelineStageFlags waitStageMask, VkPipelineStageFlags2 waitStageMask2, VkFence fence,
+        const VkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount, const VkSemaphore *signalSemaphores,
+        uint32_t signalSemaphoreCount
     );
 
     Graphics::QueueCapabilities GetNxQueueCapabilitiesFromVkQueuePropertyFlags(VkQueueFlags flags);

@@ -25,23 +25,13 @@ namespace Nexus::Graphics
         return m_Resources.Swapchains.CreateShared(std::move(swapchain));
     }
 
-    void CommandQueueOpenGL::SubmitCommandList(CommandListHandle commandList)
-    {
-        SubmitCommandList(commandList, nullptr);
-    }
-
-    void CommandQueueOpenGL::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
+    void CommandQueueOpenGL::SubmitCommandList(CommandListHandle commandList, std::optional<FenceHandle> fence)
     {
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueOpenGL::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
-    {
-        SubmitCommandLists(commandLists, numCommandLists, nullptr);
-    }
-
     void CommandQueueOpenGL::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence
+        CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence
     )
     {
         NX_PROFILE_FUNCTION();

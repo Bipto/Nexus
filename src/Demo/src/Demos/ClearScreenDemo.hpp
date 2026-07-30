@@ -43,7 +43,7 @@ namespace Demos
 
             {
                 NX_PROFILE_SCOPE("Command submission");
-                m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+                m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
                 m_GraphicsDevice->WaitForIdle();
             }
         }

@@ -14,6 +14,182 @@
 
 namespace Nexus::Graphics
 {
+    static void BeginRenderPass(
+        GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
+        VkCommandBuffer commandBuffer
+    )
+    {
+        NX_PROFILE_FUNCTION();
+
+        const GladVulkanContext &context = device->GetVulkanContext();
+
+        if (context.CmdBeginRenderPass2KHR)
+        {
+            VkSubpassBeginInfo subpassInfo = {};
+            subpassInfo.sType = VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO;
+            subpassInfo.pNext = nullptr;
+            subpassInfo.contents = subpassContents;
+
+            context.CmdBeginRenderPass2KHR(commandBuffer, &beginInfo, &subpassInfo);
+        }
+        else
+        {
+            context.CmdBeginRenderPass(commandBuffer, &beginInfo, subpassContents);
+        }
+    }
+
+    static void BeginDynamicRenderingToFramebuffer(
+        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
+    )
+    {
+        NX_PROFILE_FUNCTION();
+
+        const GladVulkanContext &context = device->GetVulkanContext();
+
+        VkRect2D renderArea{};
+        renderArea.offset = {0, 0};
+        renderArea.extent = {framebuffer->GetWidth(), framebuffer->GetHeight()};
+
+        std::vector<VkRenderingAttachmentInfo> colourAttachments;
+
+        // attach colour textures
+        for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount();
+             colourAttachmentIndex++)
+        {
+            FramebufferColourAttachmentDescription textureBinding =
+                framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
+
+            const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture.AsDerived<const TextureVk>();
+            TextureLayout layout = texture->GetTextureLayout(
+                textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel
+            );
+
+            FramebufferColourAttachmentDescription colourAttachmentDesc =
+                framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
+
+            VulkanTextureViewInfo viewInfo = {};
+            viewInfo.BaseMipLevel = colourAttachmentDesc.ColourAttachment.MipLevel;
+            viewInfo.LevelCount = 1;
+            viewInfo.BaseArrayLayer = colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
+            viewInfo.LayerCount = colourAttachmentDesc.ColourAttachment.LayerCount;
+
+            VkRenderingAttachmentInfo colourAttachment = {};
+            colourAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+            colourAttachment.imageView = texture->GetImageView(viewInfo);
+            colourAttachment.imageLayout = Vk::GetImageLayout(device, layout);
+            colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            colourAttachment.clearValue = {};
+
+            // handle the case of submitting a swapchain with multisampling
+            if (colourAttachmentDesc.ResolveAttachment.has_value())
+            {
+                FramebufferTextureDescription resolveDesc = colourAttachmentDesc.ResolveAttachment.value();
+                const TextureVk *resolveAttachment = resolveDesc.TargetTexture.AsDerived<const TextureVk>();
+                TextureLayout resolveLayout =
+                    resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
+
+                VulkanTextureViewInfo viewInfo = {};
+                viewInfo.BaseMipLevel = resolveDesc.MipLevel;
+                viewInfo.LevelCount = 1;
+                viewInfo.BaseArrayLayer = resolveDesc.BaseArrayLayer;
+                viewInfo.LayerCount = resolveDesc.LayerCount;
+
+                colourAttachment.resolveImageView = resolveAttachment->GetImageView(viewInfo);
+                colourAttachment.resolveImageLayout = Vk::GetImageLayout(device, resolveLayout);
+                colourAttachment.resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT;
+            }
+
+            colourAttachments.push_back(colourAttachment);
+        }
+
+        // set up depth attachment (may be unused)
+        VkRenderingAttachmentInfo depthAttachment = {};
+        if (framebuffer->HasDepthTexture())
+        {
+            FramebufferTextureDescription textureBinding = framebuffer->GetDepthTextureBinding().value();
+            FramebufferVk *framebufferVk = framebuffer.AsDerived<FramebufferVk>();
+
+            const TextureVk *texture = framebufferVk->GetVulkanDepthTexture();
+            TextureLayout layout = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
+
+            FramebufferTextureDescription depthAttachmentDesc = framebuffer->GetDepthTextureBinding().value();
+
+            VulkanTextureViewInfo viewInfo = {};
+            viewInfo.BaseMipLevel = depthAttachmentDesc.MipLevel;
+            viewInfo.LevelCount = 1;
+            viewInfo.BaseArrayLayer = depthAttachmentDesc.BaseArrayLayer;
+            viewInfo.LayerCount = depthAttachmentDesc.LayerCount;
+
+            depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+            depthAttachment.imageView = texture->GetImageView(viewInfo);
+            depthAttachment.imageLayout = Vk::GetImageLayout(device, layout);
+            depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            depthAttachment.clearValue = {};
+        }
+
+        VkRenderingInfo renderingInfo = {};
+        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        renderingInfo.renderArea = renderArea;
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = colourAttachments.size();
+        renderingInfo.pColorAttachments = colourAttachments.data();
+
+        if (framebuffer->HasDepthTexture())
+        {
+            renderingInfo.pDepthAttachment = &depthAttachment;
+            renderingInfo.pStencilAttachment = &depthAttachment;
+        }
+        else
+        {
+            renderingInfo.pDepthAttachment = nullptr;
+            renderingInfo.pStencilAttachment = nullptr;
+        }
+
+        context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);
+    }
+
+    static void BeginRenderPassToFramebuffer(
+        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
+    )
+    {
+        NX_PROFILE_FUNCTION();
+
+        const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>();
+
+        VkRenderPassBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        beginInfo.pNext = nullptr;
+        beginInfo.renderPass = framebufferVk->GetRenderPass();
+        beginInfo.framebuffer = framebufferVk->GetFramebuffer();
+        beginInfo.renderArea.offset = {0, 0};
+        beginInfo.renderArea.extent = {framebuffer->GetWidth(), framebuffer->GetHeight()};
+        beginInfo.clearValueCount = 0;
+        beginInfo.pClearValues = nullptr;
+
+        VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
+
+        BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
+    }
+
+    void CommandExecutorVk::StartRenderingToFramebuffer(FramebufferHandle framebuffer)
+    {
+        NX_PROFILE_FUNCTION();
+
+        const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+        if (features.DynamicRenderingAvailable)
+        {
+            BeginDynamicRenderingToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
+        }
+        else
+        {
+            BeginRenderPassToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
+        }
+
+        m_Rendering = true;
+    }
+
     CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
     {
     }
@@ -47,11 +223,12 @@ namespace Nexus::Graphics
             }
 
             m_CurrentRenderTarget = {};
+            m_Rendering = false;
         }
 
         // execute commands
         {
-            NX_PROFILE_SCOPE("CommandExecutorVk::ExecuteCommand");
+            /*NX_PROFILE_SCOPE("CommandExecutorVk::ExecuteCommand");
             const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
             m_Commands = commands;
             for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
@@ -60,6 +237,286 @@ namespace Nexus::Graphics
                 const auto &command = commands.at(m_CurrentCommandIndex);
                 command->Execute(this, device);
             }
+            m_Commands = {};*/
+
+            auto &storage = commandList->GetStorage();
+
+            CommandListReader reader(storage);
+
+            for (const auto *header = reader.First(); header != nullptr; header = reader.Next(header))
+            {
+                switch (header->Type)
+                {
+                case CommandType::SetFramebuffer:
+                {
+                    auto *cmd = reader.GetCommand<FramebufferCommandStorage>(header);
+                    auto framebuffer = storage.Framebuffers[cmd->FramebufferIndex];
+
+                    StopRendering();
+
+                    if (const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>())
+                    {
+                        StartRenderingToFramebuffer(framebuffer);
+                        m_CurrentRenderTarget = framebuffer;
+                        m_RenderSize = {framebuffer->GetWidth(), framebuffer->GetHeight()};
+                    }
+
+                    break;
+                }
+                case CommandType::ClearColourTarget:
+                {
+                    auto *cmd = reader.GetCommand<ClearColorTargetCommand>(header);
+
+                    TryStartRendering();
+
+                    if (!ValidateForClearColour(m_CurrentRenderTarget, cmd->Index) || !ValidateIsRendering())
+                    {
+                        return;
+                    }
+
+                    VkClearAttachment clearAttachment{};
+                    clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                    clearAttachment.clearValue.color = {
+                        cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha
+                    };
+                    clearAttachment.colorAttachment = cmd->Index;
+
+                    VkClearRect clearRect;
+                    clearRect.baseArrayLayer = 0;
+                    clearRect.layerCount = 1;
+
+                    if (cmd->Rect.has_value())
+                    {
+                        Graphics::ClearRect rect = cmd->Rect.value();
+                        clearRect.rect.offset = {rect.X, rect.Y};
+                        clearRect.rect.extent = {rect.Width, rect.Height};
+                    }
+                    else
+                    {
+                        clearRect.rect.offset = {0, 0};
+                        clearRect.rect.extent = {m_RenderSize};
+                    }
+
+                    if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
+                    {
+                        return;
+                    }
+
+                    const GladVulkanContext &context = m_Device->GetVulkanContext();
+                    context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
+
+                    break;
+                }
+                case Graphics::CommandType::BarrierGroup:
+                {
+                    const auto *cmd = reader.GetCommand<BarrierGroupCommandStorage>(header);
+                    std::vector<MemoryBarrierDesc> memoryBarriers(cmd->MemoryBarrierCount);
+                    std::vector<TextureBarrierDesc> textureBarriers(cmd->TextureBarrierCount);
+                    std::vector<BufferBarrierDesc> bufferBarriers(cmd->BufferBarrierCount);
+
+                    const auto *payloadPtr = reader.GetPayloadRaw<BarrierGroupCommandStorage>(header);
+                    memcpy(memoryBarriers.data(), payloadPtr, memoryBarriers.size() * sizeof(MemoryBarrierDesc));
+                    payloadPtr += memoryBarriers.size() * sizeof(MemoryBarrierDesc);
+
+                    for (size_t i = 0; i < textureBarriers.size(); i++)
+                    {
+                        TextureBarrierCommandStorage barrierStorage = {};
+                        memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
+
+                        TextureBarrierDesc &barrier = textureBarriers[i];
+                        barrier.Texture = storage.Textures[barrierStorage.TextureIndex];
+                        barrier.Layout = barrierStorage.Layout;
+                        barrier.BeforeAccess = barrierStorage.BeforeAccess;
+                        barrier.AfterAccess = barrierStorage.AfterAccess;
+                        barrier.BeforeStage = barrierStorage.BeforeStage;
+                        barrier.AfterStage = barrierStorage.AfterStage;
+                        barrier.TextureSubresourceRange = barrierStorage.TextureSubresourceRange;
+
+                        payloadPtr += sizeof(TextureBarrierCommandStorage);
+                    }
+
+                    for (size_t i = 0; i < bufferBarriers.size(); i++)
+                    {
+                        BufferBarrierCommandStorage barrierStorage = {};
+                        memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
+
+                        BufferBarrierDesc &barrierDesc = bufferBarriers[i];
+                        barrierDesc.Buffer = storage.DeviceBuffers[barrierStorage.BufferIndex];
+                        barrierDesc.BeforeAccess = barrierStorage.BeforeAccess;
+                        barrierDesc.AfterAccess = barrierStorage.AfterAccess;
+                        barrierDesc.BeforeStage = barrierStorage.BeforeStage;
+                        barrierDesc.AfterStage = barrierStorage.AfterStage;
+                        barrierDesc.Offset = barrierStorage.Offset;
+                        barrierDesc.Size = barrierStorage.Size;
+
+                        payloadPtr += sizeof(BufferBarrierCommandStorage);
+                    }
+
+                    if (m_Rendering)
+                    {
+                        StopRendering();
+                    }
+
+                    const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+                    // for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to
+                    // be exposed in future
+                    VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+                    std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> ranges;
+
+                    // enumerate through all texture barriers and create the required subresource
+                    // ranges
+                    for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+                    {
+                        const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
+
+                        for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+                             arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
+                                              textureBarrier.TextureSubresourceRange.LayerCount;
+                             arrayLayer++)
+                        {
+                            for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                                 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                                textureBarrier.TextureSubresourceRange.LevelCount;
+                                 mipLevel++)
+                            {
+                                Vk::SubresourceRangeLayout &range = ranges[textureVk->GetImage()].emplace_back();
+                                range.range.aspectMask = Vk::GetAspectFlags(textureVk->IsDepth());
+                                range.range.baseArrayLayer = arrayLayer;
+                                range.range.layerCount = 1;
+                                range.range.baseMipLevel = mipLevel;
+                                range.range.levelCount = 1;
+                                range.layout =
+                                    Vk::GetImageLayout(m_Device, textureVk->GetTextureLayout(arrayLayer, mipLevel));
+                            }
+                        }
+                    }
+
+                    uint32_t srcQueue = VK_QUEUE_FAMILY_IGNORED;
+                    uint32_t dstQueue = VK_QUEUE_FAMILY_IGNORED;
+
+                    // submit a PipelineBarrier2
+                    if (context.CmdPipelineBarrier2)
+                    {
+                        std::vector<VkMemoryBarrier2> memoryBarriersVk = {};
+                        std::vector<VkImageMemoryBarrier2> textureBarriersVk = {};
+                        std::vector<VkBufferMemoryBarrier2> bufferBarriersVk = {};
+
+                        memoryBarriersVk.reserve(memoryBarriers.size());
+                        textureBarriersVk.reserve(textureBarriers.size());
+                        bufferBarriersVk.reserve(bufferBarriers.size());
+
+                        for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
+                        {
+                            Vk::CreateMemoryBarrier2(m_Device, memoryBarrier, memoryBarriersVk);
+                        }
+
+                        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+                        {
+                            VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+                            const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
+                            Vk::CreateTextureBarrier2(
+                                m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
+                                textureBarrier.AfterAccess, textureBarrier.BeforeStage, textureBarrier.AfterStage,
+                                srcQueue, dstQueue, layout, textureBarriersVk, ranges
+                            );
+                        }
+
+                        for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
+                        {
+                            Vk::CreateBufferBarrier2(m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
+                        }
+
+                        VkDependencyInfo dependencyInfo = {};
+                        dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+                        dependencyInfo.pNext = nullptr;
+                        dependencyInfo.dependencyFlags = dependencyFlags;
+                        dependencyInfo.memoryBarrierCount = static_cast<uint32_t>(memoryBarriersVk.size());
+                        dependencyInfo.pMemoryBarriers = memoryBarriersVk.data();
+                        dependencyInfo.bufferMemoryBarrierCount = static_cast<uint32_t>(bufferBarriersVk.size());
+                        dependencyInfo.pBufferMemoryBarriers = bufferBarriersVk.data();
+                        dependencyInfo.imageMemoryBarrierCount = static_cast<uint32_t>(textureBarriersVk.size());
+                        dependencyInfo.pImageMemoryBarriers = textureBarriersVk.data();
+
+                        context.CmdPipelineBarrier2(m_CommandBuffer, std::addressof(dependencyInfo));
+                    }
+                    // submit a legacy pipeline barrier
+                    else
+                    {
+                        std::vector<VkMemoryBarrier> memoryBarriersVk = {};
+                        std::vector<VkImageMemoryBarrier> textureBarriersVk = {};
+                        std::vector<VkBufferMemoryBarrier> bufferBarriersVk = {};
+
+                        memoryBarriersVk.reserve(memoryBarriers.size());
+                        textureBarriersVk.reserve(textureBarriers.size());
+                        bufferBarriersVk.reserve(bufferBarriers.size());
+
+                        VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_NONE;
+                        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_NONE;
+
+                        for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
+                        {
+                            Vk::CreateMemoryBarrier(m_Device, memoryBarrier, memoryBarriersVk);
+                        }
+
+                        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+                        {
+                            VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
+                            const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
+                            Vk::CreateTextureBarrier(
+                                m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
+                                textureBarrier.AfterAccess, textureBarrier.BeforeStage, textureBarrier.AfterStage,
+                                srcQueue, dstQueue, layout, textureBarriersVk, ranges
+                            );
+
+                            srcStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.BeforeStage);
+                            dstStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.AfterStage);
+                        }
+
+                        for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
+                        {
+                            Vk::CreateBufferBarrier(m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
+                            srcStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.BeforeStage);
+                            dstStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.AfterStage);
+                        }
+
+                        context.CmdPipelineBarrier(
+                            m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
+                            static_cast<uint32_t>(memoryBarriers.size()), memoryBarriersVk.data(),
+                            static_cast<uint32_t>(bufferBarriers.size()), bufferBarriersVk.data(),
+                            static_cast<uint32_t>(textureBarriers.size()), textureBarriersVk.data()
+                        );
+                    }
+
+                    // update texture layouts
+                    // enumerate through all texture barriers and create the required subresource
+                    // ranges
+                    for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+                    {
+                        TextureHandle handle = textureBarrier.Texture;
+                        TextureVk *textureVk = handle.AsDerived<TextureVk>();
+
+                        for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+                             arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
+                                              textureBarrier.TextureSubresourceRange.LayerCount;
+                             arrayLayer++)
+                        {
+                            for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                                 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                                textureBarrier.TextureSubresourceRange.LevelCount;
+                                 mipLevel++)
+                            {
+                                textureVk->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
+                            }
+                        }
+                    }
+
+                    break;
+                }
+                }
+            }
+
             m_Commands = {};
         }
 
@@ -1433,182 +1890,6 @@ namespace Nexus::Graphics
     void CommandExecutorVk::ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
-    }
-
-    static void BeginRenderPass(
-        GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
-        VkCommandBuffer commandBuffer
-    )
-    {
-        NX_PROFILE_FUNCTION();
-
-        const GladVulkanContext &context = device->GetVulkanContext();
-
-        if (context.CmdBeginRenderPass2KHR)
-        {
-            VkSubpassBeginInfo subpassInfo = {};
-            subpassInfo.sType = VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO;
-            subpassInfo.pNext = nullptr;
-            subpassInfo.contents = subpassContents;
-
-            context.CmdBeginRenderPass2KHR(commandBuffer, &beginInfo, &subpassInfo);
-        }
-        else
-        {
-            context.CmdBeginRenderPass(commandBuffer, &beginInfo, subpassContents);
-        }
-    }
-
-    static void BeginDynamicRenderingToFramebuffer(
-        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
-    )
-    {
-        NX_PROFILE_FUNCTION();
-
-        const GladVulkanContext &context = device->GetVulkanContext();
-
-        VkRect2D renderArea{};
-        renderArea.offset = {0, 0};
-        renderArea.extent = {framebuffer->GetWidth(), framebuffer->GetHeight()};
-
-        std::vector<VkRenderingAttachmentInfo> colourAttachments;
-
-        // attach colour textures
-        for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount();
-             colourAttachmentIndex++)
-        {
-            FramebufferColourAttachmentDescription textureBinding =
-                framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
-
-            const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture.AsDerived<const TextureVk>();
-            TextureLayout layout = texture->GetTextureLayout(
-                textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel
-            );
-
-            FramebufferColourAttachmentDescription colourAttachmentDesc =
-                framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
-
-            VulkanTextureViewInfo viewInfo = {};
-            viewInfo.BaseMipLevel = colourAttachmentDesc.ColourAttachment.MipLevel;
-            viewInfo.LevelCount = 1;
-            viewInfo.BaseArrayLayer = colourAttachmentDesc.ColourAttachment.BaseArrayLayer;
-            viewInfo.LayerCount = colourAttachmentDesc.ColourAttachment.LayerCount;
-
-            VkRenderingAttachmentInfo colourAttachment = {};
-            colourAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-            colourAttachment.imageView = texture->GetImageView(viewInfo);
-            colourAttachment.imageLayout = Vk::GetImageLayout(device, layout);
-            colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-            colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            colourAttachment.clearValue = {};
-
-            // handle the case of submitting a swapchain with multisampling
-            if (colourAttachmentDesc.ResolveAttachment.has_value())
-            {
-                FramebufferTextureDescription resolveDesc = colourAttachmentDesc.ResolveAttachment.value();
-                const TextureVk *resolveAttachment = resolveDesc.TargetTexture.AsDerived<const TextureVk>();
-                TextureLayout resolveLayout =
-                    resolveAttachment->GetTextureLayout(resolveDesc.BaseArrayLayer, resolveDesc.MipLevel);
-
-                VulkanTextureViewInfo viewInfo = {};
-                viewInfo.BaseMipLevel = resolveDesc.MipLevel;
-                viewInfo.LevelCount = 1;
-                viewInfo.BaseArrayLayer = resolveDesc.BaseArrayLayer;
-                viewInfo.LayerCount = resolveDesc.LayerCount;
-
-                colourAttachment.resolveImageView = resolveAttachment->GetImageView(viewInfo);
-                colourAttachment.resolveImageLayout = Vk::GetImageLayout(device, resolveLayout);
-                colourAttachment.resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT;
-            }
-
-            colourAttachments.push_back(colourAttachment);
-        }
-
-        // set up depth attachment (may be unused)
-        VkRenderingAttachmentInfo depthAttachment = {};
-        if (framebuffer->HasDepthTexture())
-        {
-            FramebufferTextureDescription textureBinding = framebuffer->GetDepthTextureBinding().value();
-            FramebufferVk *framebufferVk = framebuffer.AsDerived<FramebufferVk>();
-
-            const TextureVk *texture = framebufferVk->GetVulkanDepthTexture();
-            TextureLayout layout = texture->GetTextureLayout(textureBinding.BaseArrayLayer, textureBinding.MipLevel);
-
-            FramebufferTextureDescription depthAttachmentDesc = framebuffer->GetDepthTextureBinding().value();
-
-            VulkanTextureViewInfo viewInfo = {};
-            viewInfo.BaseMipLevel = depthAttachmentDesc.MipLevel;
-            viewInfo.LevelCount = 1;
-            viewInfo.BaseArrayLayer = depthAttachmentDesc.BaseArrayLayer;
-            viewInfo.LayerCount = depthAttachmentDesc.LayerCount;
-
-            depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-            depthAttachment.imageView = texture->GetImageView(viewInfo);
-            depthAttachment.imageLayout = Vk::GetImageLayout(device, layout);
-            depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-            depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            depthAttachment.clearValue = {};
-        }
-
-        VkRenderingInfo renderingInfo = {};
-        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-        renderingInfo.renderArea = renderArea;
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = colourAttachments.size();
-        renderingInfo.pColorAttachments = colourAttachments.data();
-
-        if (framebuffer->HasDepthTexture())
-        {
-            renderingInfo.pDepthAttachment = &depthAttachment;
-            renderingInfo.pStencilAttachment = &depthAttachment;
-        }
-        else
-        {
-            renderingInfo.pDepthAttachment = nullptr;
-            renderingInfo.pStencilAttachment = nullptr;
-        }
-
-        context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);
-    }
-
-    static void BeginRenderPassToFramebuffer(
-        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
-    )
-    {
-        NX_PROFILE_FUNCTION();
-
-        const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>();
-
-        VkRenderPassBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        beginInfo.pNext = nullptr;
-        beginInfo.renderPass = framebufferVk->GetRenderPass();
-        beginInfo.framebuffer = framebufferVk->GetFramebuffer();
-        beginInfo.renderArea.offset = {0, 0};
-        beginInfo.renderArea.extent = {framebuffer->GetWidth(), framebuffer->GetHeight()};
-        beginInfo.clearValueCount = 0;
-        beginInfo.pClearValues = nullptr;
-
-        VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
-
-        BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
-    }
-
-    void CommandExecutorVk::StartRenderingToFramebuffer(FramebufferHandle framebuffer)
-    {
-        NX_PROFILE_FUNCTION();
-
-        const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
-        if (features.DynamicRenderingAvailable)
-        {
-            BeginDynamicRenderingToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
-        }
-        else
-        {
-            BeginRenderPassToFramebuffer(m_Device, framebuffer, m_CommandBuffer);
-        }
-
-        m_Rendering = true;
     }
 
     void CommandExecutorVk::StopRendering()

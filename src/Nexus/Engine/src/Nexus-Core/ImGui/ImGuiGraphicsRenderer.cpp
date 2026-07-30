@@ -292,7 +292,7 @@ namespace Nexus::ImGuiUtils
         }
 
         RenderDrawData(ImGui::GetDrawData());
-        UpdateCursor();
+        // UpdateCursor();
 
         m_GraphicsDevice->WaitForIdle();
     }

@@ -48,23 +48,13 @@ namespace Nexus::Graphics
         return m_Resources.Swapchains.CreateShared(std::move(swapchain));
     }
 
-    void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList)
-    {
-        SubmitCommandList(commandList, nullptr);
-    }
-
-    void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
+    void CommandQueueD3D12::SubmitCommandList(CommandListHandle commandList, std::optional<FenceHandle> fence)
     {
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueD3D12::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
-    {
-        SubmitCommandLists(commandLists, numCommandLists, nullptr);
-    }
-
     void CommandQueueD3D12::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence
+        CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence
     )
     {
         std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
@@ -92,7 +82,7 @@ namespace Nexus::Graphics
 
         if (fence)
         {
-            Ref<FenceD3D12> fenceD3D12 = std::dynamic_pointer_cast<FenceD3D12>(fence);
+            FenceD3D12 *fenceD3D12 = fence->AsDerived<FenceD3D12>();
             Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
             m_CommandQueue->Signal(fenceHandle.Get(), 1);
             NX_VALIDATE(

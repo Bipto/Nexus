@@ -3,6 +3,7 @@
 #include "SwapchainVk.hpp"
 
 #include "CommandQueueVk.hpp"
+#include "FenceVk.hpp"
 #include "FramebufferVk.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "PlatformVk.hpp"
@@ -50,56 +51,68 @@ namespace Nexus::Graphics
             return;
         }
 
-        std::vector<VkRectLayerKHR> presentRectLayers = {};
-
-        for (const Graphics::SwapchainPresentDescription::Rectangle &rect : presentDesc.PresentRects)
+        // presentation
         {
-            VkRectLayerKHR rectLayer = {};
-            rectLayer.offset.x = static_cast<int32_t>(rect.X);
-            rectLayer.offset.y = static_cast<int32_t>(rect.Y);
-            rectLayer.extent.width = rect.Width;
-            rectLayer.extent.height = rect.Height;
-            rectLayer.layer = 0;
-            presentRectLayers.push_back(rectLayer);
-        }
+            std::vector<VkRectLayerKHR> presentRectLayers = {};
 
-        VkPresentRegionKHR region = {};
-        region.pRectangles = presentRectLayers.data();
-        region.rectangleCount = static_cast<uint32_t>(presentRectLayers.size());
+            for (const Graphics::SwapchainPresentDescription::Rectangle &rect : presentDesc.PresentRects)
+            {
+                VkRectLayerKHR rectLayer = {};
+                rectLayer.offset.x = static_cast<int32_t>(rect.X);
+                rectLayer.offset.y = static_cast<int32_t>(rect.Y);
+                rectLayer.extent.width = rect.Width;
+                rectLayer.extent.height = rect.Height;
+                rectLayer.layer = 0;
+                presentRectLayers.push_back(rectLayer);
+            }
 
-        VkPresentRegionsKHR presentRegions = {};
-        presentRegions.sType = VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR;
-        presentRegions.pNext = nullptr;
-        presentRegions.swapchainCount = 1;
-        presentRegions.pRegions = &region;
+            VkPresentRegionKHR region = {};
+            region.pRectangles = presentRectLayers.data();
+            region.rectangleCount = static_cast<uint32_t>(presentRectLayers.size());
 
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.pNext = nullptr;
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &m_Swapchain;
-        presentInfo.pImageIndices = &m_CurrentFrameIndex;
+            VkPresentRegionsKHR presentRegions = {};
+            presentRegions.sType = VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR;
+            presentRegions.pNext = nullptr;
+            presentRegions.swapchainCount = 1;
+            presentRegions.pRegions = &region;
 
-        if (presentDesc.PresentRects.size() > 0 && context.KHR_incremental_present)
-        {
-            presentInfo.pNext = &presentRegions;
-        }
+            uint32_t presentIndex = GetCurrentFrameIndex();
 
-        VkResult result = context.QueuePresentKHR(vkQueue, &presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-        {
-            RecreateSwapchain();
-        }
-        else if (result != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to present swapchain image");
-        }
+            VkPresentInfoKHR presentInfo = {};
+            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+            presentInfo.pNext = nullptr;
+            presentInfo.waitSemaphoreCount = 1;
+            presentInfo.pWaitSemaphores = &m_PresentSemaphores[presentIndex];
+            presentInfo.swapchainCount = 1;
+            presentInfo.pSwapchains = &m_Swapchain;
+            presentInfo.pImageIndices = &m_CurrentFrameIndex;
 
-        if (context.QueueWaitIdle(vkQueue) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to wait for present queue");
+            if (presentDesc.PresentRects.size() > 0 && context.KHR_incremental_present)
+            {
+                presentInfo.pNext = &presentRegions;
+            }
+
+            CommandListHandle cmdList = m_CommandLists[presentIndex];
+
+            cmdList->Begin();
+            cmdList->End();
+
+            SwapchainFence &fence = m_Fences[presentIndex];
+
+            m_CommandQueue->SubmitCommandLists(
+                &cmdList, 1, &m_AcquireSemaphores[presentIndex], 1, &m_PresentSemaphores[presentIndex], 1, fence.Fence
+            );
+            fence.Signalled = true;
+
+            VkResult result = context.QueuePresentKHR(vkQueue, &presentInfo);
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+            {
+                RecreateSwapchain();
+            }
+            else if (result != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to present swapchain image");
+            }
         }
 
         m_FrameNumber++;
@@ -168,11 +181,6 @@ namespace Nexus::Graphics
     bool SwapchainVk::IsSwapchainValid() const
     {
         return m_SwapchainValid;
-    }
-
-    const VkSemaphore &SwapchainVk::GetSemaphore()
-    {
-        return m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
     }
 
     void SwapchainVk::CreateSurface(VkInstance instance)
@@ -334,15 +342,32 @@ namespace Nexus::Graphics
 
         for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-            semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            semaphoreCreateInfo.flags = 0;
-
-            if (context.CreateSemaphore(
-                    m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]
-                ) != VK_SUCCESS)
+            // acquire semaphore
             {
-                throw std::runtime_error("Failed to create semaphore");
+                VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+                semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+                semaphoreCreateInfo.flags = 0;
+
+                if (context.CreateSemaphore(
+                        m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_AcquireSemaphores[i]
+                    ) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to create semaphore");
+                }
+            }
+
+            // present semaphore
+            {
+                VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+                semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+                semaphoreCreateInfo.flags = 0;
+
+                if (context.CreateSemaphore(
+                        m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]
+                    ) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to create semaphore");
+                }
             }
         }
     }
@@ -416,6 +441,7 @@ namespace Nexus::Graphics
             CreateResolveAttachment(m_GraphicsDevice);
             CreateSemaphores();
             CreateFramebuffers();
+            CreateSynchronisationPrimitives();
             AcquireNextImage();
             m_SwapchainValid = true;
         }
@@ -437,15 +463,29 @@ namespace Nexus::Graphics
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
         for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
+            context.DestroySemaphore(m_GraphicsDevice->GetVkDevice(), m_AcquireSemaphores[i], nullptr);
             context.DestroySemaphore(m_GraphicsDevice->GetVkDevice(), m_PresentSemaphores[i], nullptr);
         }
     }
 
     bool SwapchainVk::AcquireNextImage()
     {
+        uint32_t presentIndex = GetCurrentFrameIndex();
+
+        // bookkeeping
+        {
+            SwapchainFence &fence = m_Fences[presentIndex];
+
+            if (fence.Signalled)
+            {
+                m_GraphicsDevice->WaitForFences(&fence.Fence, 1, true, UINT64_MAX);
+                m_GraphicsDevice->ResetFences(&fence.Fence, 1);
+            }
+        }
+
         VkResult result = Vk::AcquireNextImage(
-            m_GraphicsDevice, m_Swapchain, UINT64_MAX, m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()],
-            VK_NULL_HANDLE, &m_CurrentFrameIndex
+            m_GraphicsDevice, m_Swapchain, UINT64_MAX, m_AcquireSemaphores[presentIndex], VK_NULL_HANDLE,
+            &m_CurrentFrameIndex
         );
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -459,6 +499,34 @@ namespace Nexus::Graphics
         }
 
         return true;
+    }
+
+    void SwapchainVk::CreateSynchronisationPrimitives()
+    {
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            // create each fence
+            {
+                FenceDescription fenceDesc = {};
+                fenceDesc.DebugName = std::format("SwapchainFence{}", i);
+                fenceDesc.Signalled = false;
+
+                FenceHandle handle = m_GraphicsDevice->CreateFence(fenceDesc);
+                SwapchainFence &fence = m_Fences.emplace_back();
+                fence.Fence = handle;
+                fence.Signalled = false;
+            }
+
+            // create each command list
+            {
+                CommandListDescription commandListDesc = {};
+                commandListDesc.DebugName = std::format("SwapchainCommandList{}", i);
+                commandListDesc.AutomaticBarrierTransitions = true;
+
+                CommandListHandle handle = m_CommandQueue->CreateCommandList(commandListDesc);
+                m_CommandLists.push_back(handle);
+            }
+        }
     }
 
     VkImageView SwapchainVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

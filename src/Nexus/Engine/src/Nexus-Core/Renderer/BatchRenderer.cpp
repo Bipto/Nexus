@@ -525,7 +525,7 @@ namespace Nexus::Graphics
             m_CommandList->CopyBufferToBuffer(bufferCopy);
             m_CommandList->End();
 
-            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
             m_Device->WaitForIdle();
         }
     }
@@ -1337,7 +1337,7 @@ namespace Nexus::Graphics
         m_CommandList->DrawIndexed(drawDesc);
 
         m_CommandList->End();
-        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
 
         FlushTextures(info, m_BlankTextureView);
     }

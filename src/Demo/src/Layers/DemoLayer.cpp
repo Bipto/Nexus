@@ -41,7 +41,7 @@ void DemoLayer::OnRender(Nexus::TimeSpan time, Nexus::IWindow *window)
 
         m_CommandList->End();
 
-        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
     }
 }
 

@@ -277,7 +277,7 @@ namespace Nexus::Graphics
 
             commandList->End();
 
-            m_CommandQueue->SubmitCommandLists(&commandList, 1, nullptr);
+            m_CommandQueue->SubmitCommandLists(&commandList, 1);
             m_Device->WaitForIdle();
 
             TextureHandle colourTexture = framebuffer->GetColorTextureHandle(0);

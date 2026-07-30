@@ -250,7 +250,7 @@ namespace Nexus::Graphics
         });
 
         m_CommandList->End();
-        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
         m_Device->WaitForIdle();
     }
 

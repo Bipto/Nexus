@@ -602,7 +602,9 @@ namespace Nexus::Graphics
         ResourceSets.push_back(desc.TargetResourceSet);
     }
 
-    void CommandListStorage::ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect)
+    void CommandListStorage::ClearColourTarget(
+        uint32_t index, const ClearColourValue &color, std::optional<ClearRect> clearRect
+    )
     {
         auto alloc = Allocate<ClearColorTargetCommand>(CommandData, CommandType::ClearColourTarget);
         auto *command = alloc.GetCommand(CommandData);
@@ -612,7 +614,7 @@ namespace Nexus::Graphics
         command->Rect = clearRect;
     }
 
-    void CommandListStorage::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
+    void CommandListStorage::ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect)
     {
         auto alloc = Allocate<ClearDepthStencilTargetCommand>(CommandData, CommandType::ClearDepthTarget);
         auto *command = alloc.GetCommand(CommandData);
@@ -967,6 +969,11 @@ namespace Nexus::Graphics
         }
     }
 
+    void CommandListStorage::EndRendering()
+    {
+        auto alloc = Allocate<EndRenderingCommandStorage>(CommandData, CommandType::EndRendering);
+    }
+
     CommandIterator CommandListStorage::GetCommands()
     {
         return CommandIterator(CommandData);
@@ -979,7 +986,7 @@ namespace Nexus::Graphics
 
     ICommandList::~ICommandList()
     {
-        m_CommandImpls.clear();
+        m_CommandListStorage.Reset();
     }
 
     void ICommandList::Begin()
@@ -993,7 +1000,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.clear();
         m_CommandListStorage.Clear();
         m_Started = true;
         m_DebugGroups = 0;
@@ -1052,8 +1058,6 @@ namespace Nexus::Graphics
         command.Slot = slot;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetVertexBufferCommandImpl>(command));
-
         m_CommandListStorage.SetVertexBuffer(vertexBuffer, slot);
     }
 
@@ -1072,8 +1076,6 @@ namespace Nexus::Graphics
         command.View = indexBuffer;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetIndexBufferCommandImpl>(indexBuffer));
-
         m_CommandListStorage.SetIndexBuffer(indexBuffer);
     }
 
@@ -1089,8 +1091,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetPipelineCommandImpl>(pipeline));
-
         m_CommandListStorage.SetPipeline(pipeline);
     }
 
@@ -1106,8 +1106,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DrawCommandImpl>(desc));
-
         m_CommandListStorage.Draw(desc);
     }
 
@@ -1123,8 +1121,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DrawIndexedCommandImpl>(desc));
-
         m_CommandListStorage.DrawIndexed(desc);
     }
 
@@ -1140,8 +1136,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DrawIndirectCommandImpl>(desc));
-
         m_CommandListStorage.DrawIndirect(desc);
     }
 
@@ -1157,8 +1151,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DrawIndexedIndirectCommandImpl>(desc));
-
         m_CommandListStorage.DrawIndexedIndirect(desc);
     }
 
@@ -1174,8 +1166,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DispatchCommandImpl>(desc));
-
         m_CommandListStorage.Dispatch(desc);
     }
 
@@ -1191,8 +1181,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DispatchIndirectCommandImpl>(desc));
-
         m_CommandListStorage.DispatchIndirect(desc);
     }
 
@@ -1208,8 +1196,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DrawMeshCommandImpl>(desc));
-
         m_CommandListStorage.DrawMesh(desc);
     }
 
@@ -1225,8 +1211,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<DrawMeshIndirectCommandImpl>(desc));
-
         m_CommandListStorage.DrawMeshIndirect(desc);
     }
 
@@ -1242,8 +1226,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<TraceRaysCommandImpl>(desc));
-
         m_CommandListStorage.TraceRays(desc);
     }
 
@@ -1331,8 +1313,6 @@ namespace Nexus::Graphics
         FlushBarriers();
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetResourceSetCommandImpl>(desc));
-
         m_CommandListStorage.SetResourceSet(desc);
     }
 
@@ -1353,8 +1333,6 @@ namespace Nexus::Graphics
         command.Rect = clearRect;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
-
         m_CommandListStorage.ClearColourTarget(index, color, clearRect);
     }
 
@@ -1375,8 +1353,6 @@ namespace Nexus::Graphics
         command.Rect = std::nullopt;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<ClearColourTargetCommandImpl>(command));
-
         m_CommandListStorage.ClearColourTarget(index, color, {});
     }
 
@@ -1396,8 +1372,6 @@ namespace Nexus::Graphics
         command.Rect = clearRect;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
-
         m_CommandListStorage.ClearDepthTarget(value, clearRect);
     }
 
@@ -1417,8 +1391,6 @@ namespace Nexus::Graphics
         command.Rect = std::nullopt;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<ClearDepthStencilTargetCommandImpl>(command));
-
         m_CommandListStorage.ClearDepthTarget(value, {});
     }
 
@@ -1518,8 +1490,6 @@ namespace Nexus::Graphics
         m_CurrentFramebuffer = framebuffer;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetFramebufferCommandImpl>(framebuffer));
-
         m_CommandListStorage.SetFramebuffer(framebuffer);
     }
 
@@ -1535,8 +1505,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetViewportCommandImpl>(viewport));
-
         m_CommandListStorage.SetViewport(viewport);
     }
 
@@ -1552,8 +1520,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetScissorCommandImpl>(scissor));
-
         m_CommandListStorage.SetScissor(scissor);
     }
 
@@ -1602,8 +1568,6 @@ namespace Nexus::Graphics
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<ResolveFramebufferCommandImpl>(desc));
-
         m_CommandListStorage.ResolveFramebuffer(desc);
     }
 
@@ -1622,8 +1586,6 @@ namespace Nexus::Graphics
         command.Query = query;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<StartTimingQueryCommandImpl>(query));
-
         m_CommandListStorage.StartTimingQuery(query);
     }
 
@@ -1642,8 +1604,6 @@ namespace Nexus::Graphics
         command.Query = query;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<EndTimingQueryCommandImpl>(query));
-
         m_CommandListStorage.StopTimingQuery(query);
     }
 
@@ -1662,8 +1622,6 @@ namespace Nexus::Graphics
         command.BufferCopy = bufferCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyBufferToBufferCommandImpl>(bufferCopy));
-
         m_CommandListStorage.CopyBufferToBuffer(bufferCopy);
     }
 
@@ -1702,8 +1660,6 @@ namespace Nexus::Graphics
         command.BufferTextureCopy = bufferTextureCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyBufferToTextureCommandImpl>(bufferTextureCopy));
-
         m_CommandListStorage.CopyBufferToTexture(bufferTextureCopy);
     }
 
@@ -1742,8 +1698,6 @@ namespace Nexus::Graphics
         command.TextureBufferCopy = textureBufferCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyTextureToBufferCommandImpl>(textureBufferCopy));
-
         m_CommandListStorage.CopyTextureToBuffer(textureBufferCopy);
     }
 
@@ -1797,8 +1751,6 @@ namespace Nexus::Graphics
         command.TextureCopy = textureCopy;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyTextureToTextureCommandImpl>(textureCopy));
-
         m_CommandListStorage.CopyTextureToTexture(textureCopy);
     }
 
@@ -1817,8 +1769,6 @@ namespace Nexus::Graphics
         command.GroupName = name;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<BeginDebugGroupCommandImpl>(name));
-
         m_CommandListStorage.BeginDebugGroup(name);
 
         m_DebugGroups++;
@@ -1838,8 +1788,6 @@ namespace Nexus::Graphics
         EndDebugGroupCommand command;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<EndDebugGroupCommandImpl>());
-
         m_CommandListStorage.EndDebugGroup();
 
         m_DebugGroups--;
@@ -1860,8 +1808,6 @@ namespace Nexus::Graphics
         command.MarkerName = name;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<InsertDebugMarkerCommandImpl>(name));
-
         m_CommandListStorage.InsertDebugMarker(name);
     }
 
@@ -1871,8 +1817,6 @@ namespace Nexus::Graphics
         command.BlendFactor = blendFactor;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetBlendFactorCommandImpl>(blendFactor));
-
         m_CommandListStorage.SetBlendFactor(blendFactor);
     }
 
@@ -1882,8 +1826,6 @@ namespace Nexus::Graphics
         command.StencilReference = stencilReference;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SetStencilReferenceCommandImpl>(stencilReference));
-
         m_CommandListStorage.SetStencilReference(stencilReference);
     }
 
@@ -1895,16 +1837,12 @@ namespace Nexus::Graphics
         command.BuildDescriptions = description;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<BuildAccelerationStructuresCommandImpl>(description));
-
         m_CommandListStorage.BuildAccelerationStructures(description);
     }
 
     void ICommandList::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructuresCommandImpl>(description));
-
         m_CommandListStorage.CopyAccelerationStructure(description);
     }
 
@@ -1913,8 +1851,6 @@ namespace Nexus::Graphics
     )
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyAccelerationStructureToDeviceBufferCommandImpl>(description));
-
         m_CommandListStorage.CopyAccelerationStructureToDeviceBuffer(description);
     }
 
@@ -1923,22 +1859,12 @@ namespace Nexus::Graphics
     )
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<CopyDeviceBufferToAccelerationStructureCommandImpl>(description));
-
         m_CommandListStorage.CopyDeviceBufferToAccelerationStructure(description);
     }
 
     void ICommandList::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-
-        PushConstantsDesc pushConstantDesc = {};
-        pushConstantDesc.Name = name;
-        pushConstantDesc.Offset = offset;
-        pushConstantDesc.Data.resize(size);
-        memcpy(pushConstantDesc.Data.data(), data, size);
-        m_CommandImpls.emplace_back(std::make_unique<PushConstantsCommandImpl>(pushConstantDesc));
-
         m_CommandListStorage.WritePushConstants(name, data, size, offset);
     }
 
@@ -1963,7 +1889,6 @@ namespace Nexus::Graphics
     void ICommandList::FlushBarriers()
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
-        m_CommandImpls.emplace_back(std::make_unique<SubmitBarriersCommandImpl>(m_Barriers));
         m_CommandListStorage.SubmitBarrierGroup(m_Barriers);
         m_Barriers.Clear();
     }
@@ -2000,7 +1925,7 @@ namespace Nexus::Graphics
 
         EndRenderingCommand command = {};
         command.TargetFramebuffer = m_CurrentFramebuffer;
-        m_CommandImpls.emplace_back(std::make_unique<EndRenderingCommandImpl>(command));
+        m_CommandListStorage.EndRendering();
 
         if (m_CurrentFramebuffer->IsOwnedBySwapchain())
         {

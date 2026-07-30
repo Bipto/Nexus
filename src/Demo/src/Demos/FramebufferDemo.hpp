@@ -52,7 +52,7 @@ namespace Demos
                 0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f}
             );
             m_CommandList->End();
-            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
             m_GraphicsDevice->WaitForIdle();
 
             m_CommandList->Begin();
@@ -63,7 +63,7 @@ namespace Demos
 
             m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
             m_CommandList->End();
-            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
             m_GraphicsDevice->WaitForIdle();
         }
 

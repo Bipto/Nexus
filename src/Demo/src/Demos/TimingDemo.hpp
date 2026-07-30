@@ -41,7 +41,7 @@ namespace Demos
             m_CommandList->StopTimingQuery(m_TimingQuery);
             m_CommandList->End();
 
-            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+            m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
             m_GraphicsDevice->WaitForIdle();
 
             m_TimerCounter += time.GetSeconds<float>();

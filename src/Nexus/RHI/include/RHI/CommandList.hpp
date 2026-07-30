@@ -1080,7 +1080,8 @@ namespace Nexus::Graphics
         CopyAccelerationStructureToDeviceBuffer,
         CopyDeviceBufferToAccelerationStructure,
         PushConstants,
-        BarrierGroup
+        BarrierGroup,
+        EndRendering
     };
 
     struct CommandHeader
@@ -1164,6 +1165,8 @@ namespace Nexus::Graphics
                 return "PushConstants";
             case CommandType::BarrierGroup:
                 return "BarrierGroup";
+            case CommandType::EndRendering:
+                return "EndRendering";
             default:
                 return "Unknown command";
             }
@@ -1335,6 +1338,10 @@ namespace Nexus::Graphics
         size_t BufferBarrierCount = 0;
     };
 
+    struct EndRenderingCommandStorage
+    {
+    };
+
     template <typename T> struct Allocation
     {
         size_t CommandOffset;
@@ -1429,8 +1436,8 @@ namespace Nexus::Graphics
         void DrawMeshIndirect(const DrawMeshIndirectDescription &desc);
         void TraceRays(const TraceRaysDescription &desc);
         void SetResourceSet(const ResourceSetBindingDescription &desc);
-        void ClearColourTarget(uint32_t index, const ClearColourValue &color, ClearRect clearRect);
-        void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
+        void ClearColourTarget(uint32_t index, const ClearColourValue &color, std::optional<ClearRect> clearRect);
+        void ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect);
         void SetFramebuffer(FramebufferHandle framebuffer);
         void SetViewport(const Viewport &viewport);
         void SetScissor(const Scissor &scissor);
@@ -1456,6 +1463,7 @@ namespace Nexus::Graphics
         );
         void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
         void SubmitBarrierGroup(const BarrierGroupDescription &description);
+        void EndRendering();
 
         CommandIterator GetCommands();
     };
@@ -1475,6 +1483,8 @@ namespace Nexus::Graphics
         template <typename T> const T *GetCommand(const CommandHeader *header) const;
 
         template <typename Command, typename Payload> const Payload *GetPayload(const CommandHeader *header) const;
+
+        template <typename Command> const std::byte *GetPayloadRaw(const CommandHeader *header) const;
 
       private:
         const std::byte *m_data;
@@ -1529,6 +1539,17 @@ namespace Nexus::Graphics
         auto payload = AlignUp(command + sizeof(Command), alignof(Payload));
 
         return reinterpret_cast<const Payload *>(payload);
+    }
+
+    template <typename Command> const std::byte *CommandListReader::GetPayloadRaw(const CommandHeader *header) const
+    {
+        auto base = reinterpret_cast<uintptr_t>(header);
+
+        auto command = AlignUp(base + sizeof(CommandHeader), alignof(Command));
+
+        auto payload = command + sizeof(Command);
+
+        return reinterpret_cast<const std::byte *>(payload);
     }
 
     /// @brief A class representing a command list

@@ -17,6 +17,12 @@ namespace Nexus::Graphics
 
     class SwapchainVk : public ISwapchain
     {
+        struct SwapchainFence
+        {
+            FenceHandle Fence;
+            bool Signalled = false;
+        };
+
       public:
         SwapchainVk(
             IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec
@@ -41,7 +47,6 @@ namespace Nexus::Graphics
         VkExtent2D GetSwapchainSize() const;
 
         bool IsSwapchainValid() const;
-        const VkSemaphore &GetSemaphore();
 
       private:
         void CreateSurface(VkInstance instance);
@@ -57,6 +62,7 @@ namespace Nexus::Graphics
         void CleanupSemaphores();
 
         bool AcquireNextImage();
+        void CreateSynchronisationPrimitives();
 
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void CreateImage(
@@ -91,7 +97,11 @@ namespace Nexus::Graphics
         uint32_t m_CurrentFrameIndex = 0;
         bool m_SwapchainValid = false;
 
+        VkSemaphore m_AcquireSemaphores[FRAMES_IN_FLIGHT];
         VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
+
+        std::vector<SwapchainFence> m_Fences = {};
+        std::vector<CommandListHandle> m_CommandLists = {};
 
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;

@@ -49,7 +49,7 @@ if (NOT MINGW AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMU
 		)
 
 		target_compile_definitions(Tracy-Static PUBLIC TRACY_ENABLE)
-		target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS)
+		target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS NX_TRACY_AVAILABLE)
 
 		set_target_properties(Tracy-Static PROPERTIES
 			CXX_VISIBILITY_PRESET hidden
@@ -68,7 +68,7 @@ if (NOT MINGW AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMU
 		set_target_properties(Tracy-Shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 		target_compile_definitions(Tracy-Shared PUBLIC TRACY_ENABLE)
-		target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS)
+		target_compile_definitions(Nexus-Core PUBLIC TRACY_IMPORTS NX_TRACY_AVAILABLE)
 
 		set_target_properties(Tracy-Shared PROPERTIES
 			CXX_VISIBILITY_PRESET hidden

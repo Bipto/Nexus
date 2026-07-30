@@ -2415,7 +2415,9 @@ namespace Nexus::Vk
 
     VkResult SubmitQueue(
         Graphics::GraphicsDeviceVk *device, VkQueue queue, const std::vector<VkCommandBuffer> commandBuffers,
-        VkPipelineStageFlags waitStageMask, VkFence fence
+        VkPipelineStageFlags waitStageMask, VkPipelineStageFlags2 waitStageMask2, VkFence fence,
+        const VkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount, const VkSemaphore *signalSemaphores,
+        uint32_t signalSemaphoreCount
     )
     {
         const GladVulkanContext &context = device->GetVulkanContext();
@@ -2423,6 +2425,8 @@ namespace Nexus::Vk
         if (context.QueueSubmit2KHR)
         {
             std::vector<VkCommandBufferSubmitInfoKHR> commandBufferInfos = {};
+            std::vector<VkSemaphoreSubmitInfo> semaphoreWaitInfos = {};
+            std::vector<VkSemaphoreSubmitInfo> semaphoreSignalInfos = {};
 
             for (VkCommandBuffer commandBuffer : commandBuffers)
             {
@@ -2430,19 +2434,41 @@ namespace Nexus::Vk
                 commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
                 commandBufferInfo.pNext = nullptr;
                 commandBufferInfo.commandBuffer = commandBuffer;
-                commandBufferInfo.deviceMask = 0;
+                commandBufferInfo.deviceMask = 1;
+            }
+
+            for (uint32_t i = 0; i < waitSemaphoreCount; i++)
+            {
+                VkSemaphoreSubmitInfo &waitInfo = semaphoreWaitInfos.emplace_back();
+                waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                waitInfo.pNext = nullptr;
+                waitInfo.semaphore = waitSemaphores[i];
+                waitInfo.value = 1;
+                waitInfo.stageMask = waitStageMask2;
+                waitInfo.deviceIndex = 1;
+            }
+
+            for (uint32_t i = 0; i < signalSemaphoreCount; i++)
+            {
+                VkSemaphoreSubmitInfo &waitInfo = semaphoreSignalInfos.emplace_back();
+                waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                waitInfo.pNext = nullptr;
+                waitInfo.semaphore = signalSemaphores[i];
+                waitInfo.value = 1;
+                waitInfo.stageMask = waitStageMask2;
+                waitInfo.deviceIndex = 0;
             }
 
             VkSubmitInfo2KHR submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
             submitInfo.pNext = nullptr;
             submitInfo.flags = 0;
-            submitInfo.waitSemaphoreInfoCount = 0;
-            submitInfo.pWaitSemaphoreInfos = nullptr;
+            submitInfo.waitSemaphoreInfoCount = semaphoreWaitInfos.size();
+            submitInfo.pWaitSemaphoreInfos = semaphoreWaitInfos.data();
             submitInfo.commandBufferInfoCount = commandBufferInfos.size();
             submitInfo.pCommandBufferInfos = commandBufferInfos.data();
-            submitInfo.signalSemaphoreInfoCount = 0;
-            submitInfo.pSignalSemaphoreInfos = nullptr;
+            submitInfo.signalSemaphoreInfoCount = semaphoreSignalInfos.size();
+            submitInfo.pSignalSemaphoreInfos = semaphoreSignalInfos.data();
 
             return context.QueueSubmit2KHR(queue, 1, &submitInfo, fence);
         }
@@ -2450,13 +2476,13 @@ namespace Nexus::Vk
         {
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.waitSemaphoreCount = 0;
-            submitInfo.pWaitSemaphores = nullptr;
+            submitInfo.waitSemaphoreCount = waitSemaphoreCount;
+            submitInfo.pWaitSemaphores = waitSemaphores;
             submitInfo.pWaitDstStageMask = &waitStageMask;
             submitInfo.commandBufferCount = commandBuffers.size();
             submitInfo.pCommandBuffers = commandBuffers.data();
-            submitInfo.signalSemaphoreCount = 0;
-            submitInfo.pSignalSemaphores = nullptr;
+            submitInfo.signalSemaphoreCount = signalSemaphoreCount;
+            submitInfo.pSignalSemaphores = signalSemaphores;
 
             return context.QueueSubmit(queue, 1, &submitInfo, fence);
         }

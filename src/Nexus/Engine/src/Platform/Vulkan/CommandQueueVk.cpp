@@ -49,29 +49,38 @@ namespace Nexus::Graphics
         return m_Resources.Swapchains.CreateShared(std::move(swapchain));
     }
 
-    void CommandQueueVk::SubmitCommandList(CommandListHandle commandList)
-    {
-        SubmitCommandList(commandList, nullptr);
-    }
-
-    void CommandQueueVk::SubmitCommandList(CommandListHandle commandList, Ref<IFence> fence)
+    void CommandQueueVk::SubmitCommandList(CommandListHandle commandList, std::optional<FenceHandle> fence)
     {
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueVk::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists)
+    void CommandQueueVk::SubmitCommandLists(
+        CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence
+    )
     {
-        SubmitCommandLists(commandLists, numCommandLists, nullptr);
+        SubmitCommandLists(commandLists, numCommandLists, nullptr, 0, nullptr, 0, fence);
     }
 
     void CommandQueueVk::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, Ref<IFence> fence
+        CommandListHandle *commandLists, uint32_t numCommandLists, const VkSemaphore *waitSemaphores,
+        uint32_t waitSemaphoreCount, const VkSemaphore *signalSemaphores, uint32_t signalSemaphoreCount,
+        std::optional<FenceHandle> fence
     )
     {
         NX_PROFILE_FUNCTION();
 
         VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        VkPipelineStageFlags2 waitDestStageMask2 = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+
         std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
+
+        VkFence nativeFence = VK_NULL_HANDLE;
+
+        if (fence)
+        {
+            FenceVk *vulkanFence = fence->AsDerived<FenceVk>();
+            nativeFence = vulkanFence->GetHandle();
+        }
 
         // record the commands into the actual vulkan command list
         for (uint32_t i = 0; i < numCommandLists; i++)
@@ -84,16 +93,11 @@ namespace Nexus::Graphics
             commandBuffers[i] = commandList->GetCurrentCommandBuffer();
         }
 
-        VkFence vulkanFence = VK_NULL_HANDLE;
-
-        if (fence)
-        {
-            Ref<FenceVk> fenceVk = std::dynamic_pointer_cast<FenceVk>(fence);
-            vulkanFence = fenceVk->GetHandle();
-        }
-
         NX_VALIDATE(
-            Vk::SubmitQueue(m_Device, m_Queue, commandBuffers, waitDestStageMask, vulkanFence) == VK_SUCCESS,
+            Vk::SubmitQueue(
+                m_Device, m_Queue, commandBuffers, waitDestStageMask, waitDestStageMask2, nativeFence, waitSemaphores,
+                waitSemaphoreCount, signalSemaphores, signalSemaphoreCount
+            ) == VK_SUCCESS,
             "Failed to submit queue"
         );
     }

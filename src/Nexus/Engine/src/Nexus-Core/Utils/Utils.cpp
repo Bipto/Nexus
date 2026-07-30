@@ -344,7 +344,7 @@ namespace Nexus::Utils
         commandList->Begin();
         commandList->CopyBufferToBuffer(bufferCopy);
         commandList->End();
-        commandQueue->SubmitCommandLists(&commandList, 1, nullptr);
+        commandQueue->SubmitCommandLists(&commandList, 1);
         device->WaitForIdle();
 
         return vertexBuffer;
@@ -373,7 +373,7 @@ namespace Nexus::Utils
         commandList->Begin();
         commandList->CopyBufferToBuffer(bufferCopy);
         commandList->End();
-        commandQueue->SubmitCommandLists(&commandList, 1, nullptr);
+        commandQueue->SubmitCommandLists(&commandList, 1);
         device->WaitForIdle();
 
         return indexBuffer;
@@ -402,7 +402,7 @@ namespace Nexus::Utils
         commandList->Begin();
         commandList->CopyBufferToBuffer(bufferCopy);
         commandList->End();
-        commandQueue->SubmitCommandLists(&commandList, 1, nullptr);
+        commandQueue->SubmitCommandLists(&commandList, 1);
         device->WaitForIdle();
 
         return uniformBuffer;

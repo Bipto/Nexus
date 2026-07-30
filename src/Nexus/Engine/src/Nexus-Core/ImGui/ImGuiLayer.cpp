@@ -57,7 +57,7 @@ namespace Nexus
     {
         Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
 
-        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1, nullptr);
+        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
 
         m_ImGuiRenderer->BeforeLayout(time);
         OnImGuiRenderer();
