@@ -32,43 +32,34 @@ namespace Nexus::Graphics
             graphicsDevice->SetObjectName(VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_CommandPool, debugName.c_str());
         }
 
-        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        // create command buffers
         {
-            // create command buffers
+            VkCommandBufferAllocateInfo allocateInfo = {};
+            allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocateInfo.commandPool = m_CommandPool;
+            allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocateInfo.commandBufferCount = 1;
+
+            if (context.AllocateCommandBuffers(m_Device->GetVkDevice(), &allocateInfo, &m_CommandBuffer) != VK_SUCCESS)
             {
-                VkCommandBufferAllocateInfo allocateInfo = {};
-                allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                allocateInfo.commandPool = m_CommandPool;
-                allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocateInfo.commandBufferCount = FRAMES_IN_FLIGHT;
-
-                if (context.AllocateCommandBuffers(m_Device->GetVkDevice(), &allocateInfo, &m_CommandBuffers[i]) !=
-                    VK_SUCCESS)
-                {
-                    throw std::runtime_error("Failed to allocate command buffer");
-                }
-
-                std::string debugName =
-                    spec.DebugName + std::string("- Command Buffer(") + std::to_string(i) + std::string(")");
-                graphicsDevice->SetObjectName(VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_CommandPool, debugName.c_str());
+                throw std::runtime_error("Failed to allocate command buffer");
             }
+
+            std::string debugName = spec.DebugName + std::string("- Command Buffer");
+            graphicsDevice->SetObjectName(VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_CommandPool, debugName.c_str());
         }
     }
 
     CommandListVk::~CommandListVk()
     {
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-
-        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-        {
-            context.FreeCommandBuffers(m_Device->GetVkDevice(), m_CommandPool, 1, &m_CommandBuffers[i]);
-        }
+        context.FreeCommandBuffers(m_Device->GetVkDevice(), m_CommandPool, 1, &m_CommandBuffer);
         context.DestroyCommandPool(m_Device->GetVkDevice(), m_CommandPool, nullptr);
     }
 
     VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
     {
-        return m_CommandBuffers[m_Device->GetCurrentFrameIndex()];
+        return m_CommandBuffer;
     }
 } // namespace Nexus::Graphics
 

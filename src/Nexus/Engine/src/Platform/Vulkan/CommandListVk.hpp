@@ -23,8 +23,7 @@ namespace Nexus::Graphics
         GraphicsDeviceVk *m_Device = nullptr;
         CommandQueueVk *m_Queue = nullptr;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
-        VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];
-        VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
+        VkCommandBuffer m_CommandBuffer;
     };
 } // namespace Nexus::Graphics
 
