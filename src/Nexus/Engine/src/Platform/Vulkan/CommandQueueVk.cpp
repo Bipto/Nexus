@@ -87,7 +87,6 @@ namespace Nexus::Graphics
         {
             CommandListVk *commandList = commandLists[i].AsDerived<CommandListVk>();
             const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
-            m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
             m_CommandExecutor->ExecuteCommands(commandList, m_Device);
             m_CommandExecutor->Reset();
             commandBuffers[i] = commandList->GetCurrentCommandBuffer();

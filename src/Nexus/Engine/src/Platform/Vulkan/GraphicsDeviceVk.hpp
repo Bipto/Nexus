@@ -75,7 +75,6 @@ namespace Nexus::Graphics
 
         VkInstance GetVkInstance();
         VkDevice GetVkDevice();
-        uint32_t GetCurrentFrameIndex();
         VmaAllocator GetAllocator();
 
         uint32_t FindMemoryType(

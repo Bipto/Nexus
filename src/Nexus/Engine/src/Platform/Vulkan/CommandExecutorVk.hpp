@@ -19,8 +19,6 @@ namespace Nexus::Graphics
         void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device) final;
         void Reset() final;
 
-        void SetCommandBuffer(VkCommandBuffer commandBuffer);
-
       private:
         void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;

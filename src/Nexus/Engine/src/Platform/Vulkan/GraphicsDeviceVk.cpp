@@ -285,11 +285,6 @@ namespace Nexus::Graphics
         return m_Device;
     }
 
-    uint32_t GraphicsDeviceVk::GetCurrentFrameIndex()
-    {
-        return m_FrameNumber % FRAMES_IN_FLIGHT;
-    }
-
     VmaAllocator GraphicsDeviceVk::GetAllocator()
     {
         return m_Allocator;

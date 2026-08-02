@@ -17,12 +17,6 @@ namespace Nexus::Graphics
 
     class SwapchainVk : public ISwapchain
     {
-        struct SwapchainFence
-        {
-            FenceHandle Fence;
-            bool Signalled = false;
-        };
-
       public:
         SwapchainVk(
             IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec
@@ -60,6 +54,7 @@ namespace Nexus::Graphics
 
         void CleanupSwapchain();
         void CleanupSemaphores();
+        void CleanupSynchronisationPrimitives();
 
         bool AcquireNextImage();
         void CreateSynchronisationPrimitives();
@@ -100,7 +95,7 @@ namespace Nexus::Graphics
         VkSemaphore m_AcquireSemaphores[FRAMES_IN_FLIGHT];
         VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
 
-        std::vector<SwapchainFence> m_Fences = {};
+        std::vector<FenceHandle> m_Fences = {};
         std::vector<CommandListHandle> m_CommandLists = {};
 
         friend class GraphicsDeviceVk;

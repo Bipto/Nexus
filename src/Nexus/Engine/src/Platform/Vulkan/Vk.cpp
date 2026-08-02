@@ -2445,7 +2445,7 @@ namespace Nexus::Vk
                 waitInfo.semaphore = waitSemaphores[i];
                 waitInfo.value = 1;
                 waitInfo.stageMask = waitStageMask2;
-                waitInfo.deviceIndex = 1;
+                waitInfo.deviceIndex = 0;
             }
 
             for (uint32_t i = 0; i < signalSemaphoreCount; i++)

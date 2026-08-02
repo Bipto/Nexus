@@ -1,7 +1,9 @@
+
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "CommandExecutorVk.hpp"
 
+#include "CommandListVk.hpp"
 #include "DeviceBufferVk.hpp"
 #include "FramebufferVk.hpp"
 #include "PipelineVk.hpp"
@@ -203,6 +205,9 @@ namespace Nexus::Graphics
         NX_PROFILE_FUNCTION();
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
+
+        CommandListVk *commandListVk = (CommandListVk *)commandList;
+        m_CommandBuffer = commandListVk->GetCurrentCommandBuffer();
 
         // begin
         {
@@ -530,12 +535,6 @@ namespace Nexus::Graphics
     void CommandExecutorVk::Reset()
     {
         NX_PROFILE_FUNCTION();
-    }
-
-    void CommandExecutorVk::SetCommandBuffer(VkCommandBuffer commandBuffer)
-    {
-        NX_PROFILE_FUNCTION();
-        m_CommandBuffer = commandBuffer;
     }
 
     void CommandExecutorVk::ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device)

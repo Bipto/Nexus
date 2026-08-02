@@ -35,6 +35,7 @@ namespace Nexus::Graphics
 
         CleanupSwapchain();
         CleanupSemaphores();
+        CleanupSynchronisationPrimitives();
         context.DestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
     }
 
@@ -97,12 +98,16 @@ namespace Nexus::Graphics
             cmdList->Begin();
             cmdList->End();
 
-            SwapchainFence &fence = m_Fences[presentIndex];
+            FenceHandle &fence = m_Fences[presentIndex];
+
+            // we reset the fence so that
+            {
+                m_GraphicsDevice->ResetFences(&fence, 1);
+            }
 
             m_CommandQueue->SubmitCommandLists(
-                &cmdList, 1, &m_AcquireSemaphores[presentIndex], 1, &m_PresentSemaphores[presentIndex], 1, fence.Fence
+                &cmdList, 1, &m_AcquireSemaphores[presentIndex], 1, &m_PresentSemaphores[presentIndex], 1, fence
             );
-            fence.Signalled = true;
 
             VkResult result = context.QueuePresentKHR(vkQueue, &presentInfo);
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
@@ -112,6 +117,10 @@ namespace Nexus::Graphics
             else if (result != VK_SUCCESS)
             {
                 throw std::runtime_error("Failed to present swapchain image");
+            }
+
+            {
+                m_GraphicsDevice->WaitForFences(&fence, 1, true, UINT64_MAX);
             }
         }
 
@@ -169,6 +178,7 @@ namespace Nexus::Graphics
 
         CleanupSwapchain();
         CleanupSemaphores();
+        CleanupSynchronisationPrimitives();
 
         CreateAll();
     }
@@ -468,20 +478,15 @@ namespace Nexus::Graphics
         }
     }
 
+    void SwapchainVk::CleanupSynchronisationPrimitives()
+    {
+        m_Fences.clear();
+        m_CommandLists.clear();
+    }
+
     bool SwapchainVk::AcquireNextImage()
     {
         uint32_t presentIndex = GetCurrentFrameIndex();
-
-        // bookkeeping
-        {
-            SwapchainFence &fence = m_Fences[presentIndex];
-
-            if (fence.Signalled)
-            {
-                m_GraphicsDevice->WaitForFences(&fence.Fence, 1, true, UINT64_MAX);
-                m_GraphicsDevice->ResetFences(&fence.Fence, 1);
-            }
-        }
 
         VkResult result = Vk::AcquireNextImage(
             m_GraphicsDevice, m_Swapchain, UINT64_MAX, m_AcquireSemaphores[presentIndex], VK_NULL_HANDLE,
@@ -509,12 +514,10 @@ namespace Nexus::Graphics
             {
                 FenceDescription fenceDesc = {};
                 fenceDesc.DebugName = std::format("SwapchainFence{}", i);
-                fenceDesc.Signalled = false;
+                fenceDesc.Signalled = true;
 
                 FenceHandle handle = m_GraphicsDevice->CreateFence(fenceDesc);
-                SwapchainFence &fence = m_Fences.emplace_back();
-                fence.Fence = handle;
-                fence.Signalled = false;
+                m_Fences.push_back(handle);
             }
 
             // create each command list
