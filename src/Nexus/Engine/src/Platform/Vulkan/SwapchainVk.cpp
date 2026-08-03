@@ -100,7 +100,7 @@ namespace Nexus::Graphics
 
             FenceHandle &fence = m_Fences[presentIndex];
 
-            // we reset the fence so that
+            // we reset the fence so that we can wait for this frame to be completed in the future
             {
                 m_GraphicsDevice->ResetFences(&fence, 1);
             }
@@ -119,6 +119,7 @@ namespace Nexus::Graphics
                 throw std::runtime_error("Failed to present swapchain image");
             }
 
+            // wait for the frame to be completed
             {
                 m_GraphicsDevice->WaitForFences(&fence, 1, true, UINT64_MAX);
             }

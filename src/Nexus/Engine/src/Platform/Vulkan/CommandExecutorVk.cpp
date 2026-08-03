@@ -16,6 +16,733 @@
 
 namespace Nexus::Graphics
 {
+    static void BindFramebuffer(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<FramebufferCommandStorage>(header);
+        auto framebuffer = storage.Framebuffers[cmd->FramebufferIndex];
+
+        executor->StopRendering();
+
+        if (const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>())
+        {
+            executor->StartRenderingToFramebuffer(framebuffer);
+            executor->m_CurrentRenderTarget = framebuffer;
+            executor->m_RenderSize = {framebuffer->GetWidth(), framebuffer->GetHeight()};
+        }
+    }
+
+    static void ClearColourTarget(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<ClearColorTargetCommand>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForClearColour(executor->m_CurrentRenderTarget, cmd->Index) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        VkClearAttachment clearAttachment{};
+        clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        clearAttachment.clearValue.color = {cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha};
+        clearAttachment.colorAttachment = cmd->Index;
+
+        VkClearRect clearRect;
+        clearRect.baseArrayLayer = 0;
+        clearRect.layerCount = 1;
+
+        if (cmd->Rect.has_value())
+        {
+            Graphics::ClearRect rect = cmd->Rect.value();
+            clearRect.rect.offset = {rect.X, rect.Y};
+            clearRect.rect.extent = {rect.Width, rect.Height};
+        }
+        else
+        {
+            clearRect.rect.offset = {0, 0};
+            clearRect.rect.extent = {executor->m_RenderSize};
+        }
+
+        if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
+        {
+            return;
+        }
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdClearAttachments(executor->m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
+    }
+
+    static void SubmitBarrierGroup(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto *cmd = reader.GetCommand<BarrierGroupCommandStorage>(header);
+        std::vector<MemoryBarrierDesc> memoryBarriers(cmd->MemoryBarrierCount);
+        std::vector<TextureBarrierDesc> textureBarriers(cmd->TextureBarrierCount);
+        std::vector<BufferBarrierDesc> bufferBarriers(cmd->BufferBarrierCount);
+
+        const auto *payloadPtr = reader.GetPayloadRaw<BarrierGroupCommandStorage>(header);
+        memcpy(memoryBarriers.data(), payloadPtr, memoryBarriers.size() * sizeof(MemoryBarrierDesc));
+        payloadPtr += memoryBarriers.size() * sizeof(MemoryBarrierDesc);
+
+        for (size_t i = 0; i < textureBarriers.size(); i++)
+        {
+            TextureBarrierCommandStorage barrierStorage = {};
+            memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
+
+            TextureBarrierDesc &barrier = textureBarriers[i];
+            barrier.Texture = storage.Textures[barrierStorage.TextureIndex];
+            barrier.Layout = barrierStorage.Layout;
+            barrier.BeforeAccess = barrierStorage.BeforeAccess;
+            barrier.AfterAccess = barrierStorage.AfterAccess;
+            barrier.BeforeStage = barrierStorage.BeforeStage;
+            barrier.AfterStage = barrierStorage.AfterStage;
+            barrier.TextureSubresourceRange = barrierStorage.TextureSubresourceRange;
+
+            payloadPtr += sizeof(TextureBarrierCommandStorage);
+        }
+
+        for (size_t i = 0; i < bufferBarriers.size(); i++)
+        {
+            BufferBarrierCommandStorage barrierStorage = {};
+            memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
+
+            BufferBarrierDesc &barrierDesc = bufferBarriers[i];
+            barrierDesc.Buffer = storage.DeviceBuffers[barrierStorage.BufferIndex];
+            barrierDesc.BeforeAccess = barrierStorage.BeforeAccess;
+            barrierDesc.AfterAccess = barrierStorage.AfterAccess;
+            barrierDesc.BeforeStage = barrierStorage.BeforeStage;
+            barrierDesc.AfterStage = barrierStorage.AfterStage;
+            barrierDesc.Offset = barrierStorage.Offset;
+            barrierDesc.Size = barrierStorage.Size;
+
+            payloadPtr += sizeof(BufferBarrierCommandStorage);
+        }
+
+        if (executor->m_Rendering)
+        {
+            executor->StopRendering();
+        }
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        // for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to
+        // be exposed in future
+        VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> ranges;
+
+        // enumerate through all texture barriers and create the required subresource
+        // ranges
+        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+        {
+            const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
+
+            for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+                 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
+                                  textureBarrier.TextureSubresourceRange.LayerCount;
+                 arrayLayer++)
+            {
+                for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                     mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                    textureBarrier.TextureSubresourceRange.LevelCount;
+                     mipLevel++)
+                {
+                    Vk::SubresourceRangeLayout &range = ranges[textureVk->GetImage()].emplace_back();
+                    range.range.aspectMask = Vk::GetAspectFlags(textureVk->IsDepth());
+                    range.range.baseArrayLayer = arrayLayer;
+                    range.range.layerCount = 1;
+                    range.range.baseMipLevel = mipLevel;
+                    range.range.levelCount = 1;
+                    range.layout =
+                        Vk::GetImageLayout(executor->m_Device, textureVk->GetTextureLayout(arrayLayer, mipLevel));
+                }
+            }
+        }
+
+        uint32_t srcQueue = VK_QUEUE_FAMILY_IGNORED;
+        uint32_t dstQueue = VK_QUEUE_FAMILY_IGNORED;
+
+        // submit a PipelineBarrier2
+        if (context.CmdPipelineBarrier2)
+        {
+            std::vector<VkMemoryBarrier2> memoryBarriersVk = {};
+            std::vector<VkImageMemoryBarrier2> textureBarriersVk = {};
+            std::vector<VkBufferMemoryBarrier2> bufferBarriersVk = {};
+
+            memoryBarriersVk.reserve(memoryBarriers.size());
+            textureBarriersVk.reserve(textureBarriers.size());
+            bufferBarriersVk.reserve(bufferBarriers.size());
+
+            for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
+            {
+                Vk::CreateMemoryBarrier2(executor->m_Device, memoryBarrier, memoryBarriersVk);
+            }
+
+            for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+            {
+                VkImageLayout layout = Vk::GetImageLayout(executor->m_Device, textureBarrier.Layout);
+                const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
+                Vk::CreateTextureBarrier2(
+                    executor->m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
+                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout,
+                    textureBarriersVk, ranges
+                );
+            }
+
+            for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
+            {
+                Vk::CreateBufferBarrier2(executor->m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
+            }
+
+            VkDependencyInfo dependencyInfo = {};
+            dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+            dependencyInfo.pNext = nullptr;
+            dependencyInfo.dependencyFlags = dependencyFlags;
+            dependencyInfo.memoryBarrierCount = static_cast<uint32_t>(memoryBarriersVk.size());
+            dependencyInfo.pMemoryBarriers = memoryBarriersVk.data();
+            dependencyInfo.bufferMemoryBarrierCount = static_cast<uint32_t>(bufferBarriersVk.size());
+            dependencyInfo.pBufferMemoryBarriers = bufferBarriersVk.data();
+            dependencyInfo.imageMemoryBarrierCount = static_cast<uint32_t>(textureBarriersVk.size());
+            dependencyInfo.pImageMemoryBarriers = textureBarriersVk.data();
+
+            context.CmdPipelineBarrier2(executor->m_CommandBuffer, std::addressof(dependencyInfo));
+        }
+        // submit a legacy pipeline barrier
+        else
+        {
+            std::vector<VkMemoryBarrier> memoryBarriersVk = {};
+            std::vector<VkImageMemoryBarrier> textureBarriersVk = {};
+            std::vector<VkBufferMemoryBarrier> bufferBarriersVk = {};
+
+            memoryBarriersVk.reserve(memoryBarriers.size());
+            textureBarriersVk.reserve(textureBarriers.size());
+            bufferBarriersVk.reserve(bufferBarriers.size());
+
+            VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_NONE;
+            VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_NONE;
+
+            for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
+            {
+                Vk::CreateMemoryBarrier(executor->m_Device, memoryBarrier, memoryBarriersVk);
+            }
+
+            for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+            {
+                VkImageLayout layout = Vk::GetImageLayout(executor->m_Device, textureBarrier.Layout);
+                const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
+                Vk::CreateTextureBarrier(
+                    executor->m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
+                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout,
+                    textureBarriersVk, ranges
+                );
+
+                srcStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, textureBarrier.BeforeStage);
+                dstStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, textureBarrier.AfterStage);
+            }
+
+            for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
+            {
+                Vk::CreateBufferBarrier(executor->m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
+                srcStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, bufferBarrier.BeforeStage);
+                dstStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, bufferBarrier.AfterStage);
+            }
+
+            context.CmdPipelineBarrier(
+                executor->m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
+                static_cast<uint32_t>(memoryBarriers.size()), memoryBarriersVk.data(),
+                static_cast<uint32_t>(bufferBarriers.size()), bufferBarriersVk.data(),
+                static_cast<uint32_t>(textureBarriers.size()), textureBarriersVk.data()
+            );
+        }
+
+        // update texture layouts
+        // enumerate through all texture barriers and create the required subresource
+        // ranges
+        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+        {
+            TextureHandle handle = textureBarrier.Texture;
+            TextureVk *textureVk = handle.AsDerived<TextureVk>();
+
+            for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+                 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
+                                  textureBarrier.TextureSubresourceRange.LayerCount;
+                 arrayLayer++)
+            {
+                for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                     mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                    textureBarrier.TextureSubresourceRange.LevelCount;
+                     mipLevel++)
+                {
+                    textureVk->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
+                }
+            }
+        }
+    }
+
+    static void SetVertexBuffer(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<SetVertexBufferCommandStorage>(header);
+        const auto &bufferHandle = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        const DeviceBufferVk *vertexBufferVk = bufferHandle.AsDerived<const DeviceBufferVk>();
+        VkBuffer vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
+        VkDeviceSize offsets[] = {cmd->Offset};
+        VkDeviceSize sizes[] = {cmd->Size};
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdBindVertexBuffers2)
+        {
+            context.CmdBindVertexBuffers2(
+                executor->m_CommandBuffer, cmd->Slot, 1, vertexBuffers, offsets, sizes, nullptr
+            );
+        }
+        else if (context.CmdBindVertexBuffers2EXT)
+        {
+            context.CmdBindVertexBuffers2EXT(
+                executor->m_CommandBuffer, cmd->Slot, 1, vertexBuffers, offsets, sizes, nullptr
+            );
+        }
+        else
+        {
+            context.CmdBindVertexBuffers(executor->m_CommandBuffer, cmd->Slot, 1, vertexBuffers, offsets);
+        }
+    }
+
+    static void SetIndexBuffer(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<SetIndexBufferCommandStorage>(header);
+        const auto &bufferHandle = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        const DeviceBufferVk *indexBufferVk = bufferHandle.AsDerived<const DeviceBufferVk>();
+        VkBuffer indexBufferHandle = indexBufferVk->GetVkBuffer();
+        VkIndexType indexType = Vk::GetVulkanIndexBufferFormat(cmd->BufferFormat);
+        VkDeviceSize offset = cmd->Offset;
+        VkDeviceSize size = cmd->Size;
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdBindIndexBuffer2)
+        {
+            context.CmdBindIndexBuffer2(executor->m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+        }
+        else if (context.CmdBindIndexBuffer2KHR)
+        {
+            context.CmdBindIndexBuffer2KHR(executor->m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+        }
+        else
+        {
+            context.CmdBindIndexBuffer(executor->m_CommandBuffer, indexBufferHandle, offset, indexType);
+        }
+    }
+
+    static void SetPipeline(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<SetPipelineCommandStorage>(header);
+        auto &pipelineHandle = storage.Pipelines.at(cmd->PipelineIndex);
+
+        executor->TryStartRendering();
+
+        if (PipelineVk *pipeline = pipelineHandle.AsDerived<PipelineVk>())
+        {
+            executor->m_CurrentlyBoundPipeline = pipelineHandle;
+
+            if (pipelineHandle->GetType() != PipelineType::Graphics &&
+                pipelineHandle->GetType() != PipelineType::Meshlet)
+            {
+                pipeline->Bind(executor->m_CommandBuffer, VK_NULL_HANDLE);
+            }
+            else
+            {
+                // we immediately bind the graphics/meshlet pipeline if dynamic
+                // rendering is available, otherwise we need to know which
+                // VkRenderPass to use with it
+                const VulkanDeviceFeatures &deviceFeatures = executor->m_Device->GetDeviceFeatures();
+                if (deviceFeatures.DynamicRenderingAvailable)
+                {
+                    pipeline->Bind(executor->m_CommandBuffer, VK_NULL_HANDLE);
+                }
+            }
+        }
+    }
+
+    static void SetResourceSet(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<ResourceSetBindingCommandStorage>(header);
+
+        auto &resourceSetHandle = storage.ResourceSets.at(cmd->ResourceSetIndex);
+
+        const std::byte *rawPtr = reader.GetPayloadRaw<const std::byte>(header);
+
+        for (uint32_t i = 0; i < cmd->DynamicOffsetCount; i++)
+        {
+            uint32_t nameLength;
+            memcpy(&nameLength, rawPtr, sizeof(nameLength));
+            rawPtr += sizeof(nameLength);
+
+            std::string name(reinterpret_cast<const char *>(rawPtr), nameLength);
+            rawPtr += nameLength;
+
+            uint32_t offsetCount;
+            memcpy(&offsetCount, rawPtr, sizeof(offsetCount));
+            rawPtr += sizeof(offsetCount);
+
+            std::vector<uint32_t> offsets(offsetCount);
+            memcpy(offsets.data(), rawPtr, offsetCount * sizeof(uint32_t));
+
+            rawPtr += offsetCount * sizeof(uint32_t);
+        }
+    }
+
+    static void Draw(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DrawDescription>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        executor->BindGraphicsPipeline();
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdDraw(
+            executor->m_CommandBuffer, cmd->VertexCount, cmd->InstanceCount, cmd->VertexStart, cmd->InstanceStart
+        );
+    }
+
+    static void DrawIndexed(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DrawIndexedDescription>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        executor->BindGraphicsPipeline();
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdDrawIndexed(
+            executor->m_CommandBuffer, cmd->IndexCount, cmd->InstanceCount, cmd->IndexStart, cmd->VertexStart,
+            cmd->InstanceStart
+        );
+    }
+
+    static void DrawIndirect(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DrawIndirectCommandStorage>(header);
+
+        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        if (const DeviceBufferVk *indirectBuffer = deviceBuffer.AsDerived<const DeviceBufferVk>())
+        {
+            executor->BindGraphicsPipeline();
+
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+            context.CmdDrawIndirect(
+                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset, cmd->DrawCount, cmd->Stride
+            );
+        }
+    }
+
+    static void DrawIndexedIndirect(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DrawIndirectCommandStorage>(header);
+
+        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        if (const DeviceBufferVk *indirectBuffer = deviceBuffer.AsDerived<const DeviceBufferVk>())
+        {
+            executor->BindGraphicsPipeline();
+
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+            context.CmdDrawIndexedIndirect(
+                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset, cmd->DrawCount, cmd->Stride
+            );
+        }
+    }
+
+    static void Dispatch(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DispatchDescription>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForComputeCall(executor->m_CurrentlyBoundPipeline))
+        {
+            return;
+        }
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdDispatch(
+            executor->m_CommandBuffer, cmd->WorkGroupCountX, cmd->WorkGroupCountY, cmd->WorkGroupCountZ
+        );
+    }
+
+    static void DispatchIndirect(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DispatchIndirectCommandStorage>(header);
+
+        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForComputeCall(executor->m_CurrentlyBoundPipeline))
+        {
+            return;
+        }
+
+        if (const DeviceBufferVk *indirectBuffer = deviceBuffer.AsDerived<const DeviceBufferVk>())
+        {
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+            context.CmdDispatchIndirect(executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset);
+        }
+    }
+
+    static void DrawMesh(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DrawMeshDescription>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        executor->BindGraphicsPipeline();
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdDrawMeshTasksEXT)
+        {
+            context.CmdDrawMeshTasksEXT(
+                executor->m_CommandBuffer, cmd->WorkGroupCountX, cmd->WorkGroupCountY, cmd->WorkGroupCountZ
+            );
+        }
+    }
+
+    static void DrawMeshIndirect(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<DrawMeshIndirectCommandStorage>(header);
+
+        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget) ||
+            !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        if (const DeviceBufferVk *indirectBuffer = deviceBuffer.AsDerived<const DeviceBufferVk>())
+        {
+            executor->BindGraphicsPipeline();
+
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+            if (context.CmdDrawMeshTasksIndirectEXT)
+            {
+                context.CmdDrawMeshTasksIndirectEXT(
+                    executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset, cmd->DrawCount, cmd->Stride
+                );
+            }
+        }
+    }
+
+    static void TraceRays(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<TraceRaysDescription>(header);
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdTraceRaysKHR)
+        {
+            VkStridedDeviceAddressRegionKHR raygenRegion = {
+                .deviceAddress = cmd->RaygenRegion.Address,
+                .stride = cmd->RaygenRegion.Size,
+                .size = cmd->RaygenRegion.Size
+            };
+
+            VkStridedDeviceAddressRegionKHR missRegion = {
+                .deviceAddress = cmd->MissRegion.Address, .stride = cmd->MissRegion.Stride, .size = cmd->MissRegion.Size
+            };
+
+            VkStridedDeviceAddressRegionKHR hitRegion = {
+                .deviceAddress = cmd->HitRegion.Address, .stride = cmd->HitRegion.Stride, .size = cmd->HitRegion.Size
+            };
+
+            VkStridedDeviceAddressRegionKHR callableRegion = {
+                .deviceAddress = cmd->CallableRegion.Address,
+                .stride = cmd->CallableRegion.Stride,
+                .size = cmd->CallableRegion.Size
+            };
+
+            context.CmdTraceRaysKHR(
+                executor->m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, cmd->Width,
+                cmd->Height, cmd->Depth
+            );
+        }
+    }
+
+    static void SetViewport(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<Viewport>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForSetViewport(executor->m_CurrentRenderTarget, *cmd))
+        {
+            return;
+        }
+
+        if (cmd->Width == 0 || cmd->Height == 0)
+            return;
+
+        VkViewport vp;
+        vp.x = cmd->X;
+        vp.y = cmd->Height + cmd->Y;
+        vp.width = cmd->Width;
+        vp.height = -cmd->Height;
+        vp.minDepth = cmd->MinDepth;
+        vp.maxDepth = cmd->MaxDepth;
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdSetViewport(executor->m_CommandBuffer, 0, 1, &vp);
+    }
+
+    static void SetScissor(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<Scissor>(header);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForSetScissor(executor->m_CurrentRenderTarget, *cmd))
+        {
+            return;
+        }
+
+        VkRect2D rect;
+        rect.offset = {(int32_t)cmd->X, (int32_t)cmd->Y};
+        rect.extent = {(uint32_t)cmd->Width, (uint32_t)cmd->Height};
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdSetScissor(executor->m_CommandBuffer, 0, 1, &rect);
+    }
+
     static void BeginRenderPass(
         GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
         VkCommandBuffer commandBuffer
@@ -194,6 +921,22 @@ namespace Nexus::Graphics
 
     CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
     {
+        m_DispatchTable[CommandType::SetFramebuffer] = BindFramebuffer;
+        m_DispatchTable[CommandType::ClearColourTarget] = ClearColourTarget;
+        m_DispatchTable[CommandType::BarrierGroup] = SubmitBarrierGroup;
+        m_DispatchTable[CommandType::SetVertexBuffer] = SetVertexBuffer;
+        m_DispatchTable[CommandType::SetIndexBuffer] = SetIndexBuffer;
+        m_DispatchTable[CommandType::SetPipeline] = SetPipeline;
+        m_DispatchTable[CommandType::ResourceSetBinding] = SetResourceSet;
+        m_DispatchTable[CommandType::Draw] = Draw;
+        m_DispatchTable[CommandType::DrawIndexed] = DrawIndexed;
+        m_DispatchTable[CommandType::DrawIndirect] = DrawIndirect;
+        m_DispatchTable[CommandType::DrawIndexedIndirect] = DrawIndexedIndirect;
+        m_DispatchTable[CommandType::DrawMesh] = DrawMesh;
+        m_DispatchTable[CommandType::DrawMeshIndirect] = DrawMeshIndirect;
+        m_DispatchTable[CommandType::TraceRays] = TraceRays;
+        m_DispatchTable[CommandType::Viewport] = SetViewport;
+        m_DispatchTable[CommandType::Scissor] = SetScissor;
     }
 
     CommandExecutorVk::~CommandExecutorVk()
@@ -250,275 +993,9 @@ namespace Nexus::Graphics
 
             for (const auto *header = reader.First(); header != nullptr; header = reader.Next(header))
             {
-                switch (header->Type)
+                if (m_DispatchTable.contains(header->Type))
                 {
-                case CommandType::SetFramebuffer:
-                {
-                    auto *cmd = reader.GetCommand<FramebufferCommandStorage>(header);
-                    auto framebuffer = storage.Framebuffers[cmd->FramebufferIndex];
-
-                    StopRendering();
-
-                    if (const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>())
-                    {
-                        StartRenderingToFramebuffer(framebuffer);
-                        m_CurrentRenderTarget = framebuffer;
-                        m_RenderSize = {framebuffer->GetWidth(), framebuffer->GetHeight()};
-                    }
-
-                    break;
-                }
-                case CommandType::ClearColourTarget:
-                {
-                    auto *cmd = reader.GetCommand<ClearColorTargetCommand>(header);
-
-                    TryStartRendering();
-
-                    if (!ValidateForClearColour(m_CurrentRenderTarget, cmd->Index) || !ValidateIsRendering())
-                    {
-                        return;
-                    }
-
-                    VkClearAttachment clearAttachment{};
-                    clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                    clearAttachment.clearValue.color = {
-                        cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha
-                    };
-                    clearAttachment.colorAttachment = cmd->Index;
-
-                    VkClearRect clearRect;
-                    clearRect.baseArrayLayer = 0;
-                    clearRect.layerCount = 1;
-
-                    if (cmd->Rect.has_value())
-                    {
-                        Graphics::ClearRect rect = cmd->Rect.value();
-                        clearRect.rect.offset = {rect.X, rect.Y};
-                        clearRect.rect.extent = {rect.Width, rect.Height};
-                    }
-                    else
-                    {
-                        clearRect.rect.offset = {0, 0};
-                        clearRect.rect.extent = {m_RenderSize};
-                    }
-
-                    if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
-                    {
-                        return;
-                    }
-
-                    const GladVulkanContext &context = m_Device->GetVulkanContext();
-                    context.CmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
-
-                    break;
-                }
-                case Graphics::CommandType::BarrierGroup:
-                {
-                    const auto *cmd = reader.GetCommand<BarrierGroupCommandStorage>(header);
-                    std::vector<MemoryBarrierDesc> memoryBarriers(cmd->MemoryBarrierCount);
-                    std::vector<TextureBarrierDesc> textureBarriers(cmd->TextureBarrierCount);
-                    std::vector<BufferBarrierDesc> bufferBarriers(cmd->BufferBarrierCount);
-
-                    const auto *payloadPtr = reader.GetPayloadRaw<BarrierGroupCommandStorage>(header);
-                    memcpy(memoryBarriers.data(), payloadPtr, memoryBarriers.size() * sizeof(MemoryBarrierDesc));
-                    payloadPtr += memoryBarriers.size() * sizeof(MemoryBarrierDesc);
-
-                    for (size_t i = 0; i < textureBarriers.size(); i++)
-                    {
-                        TextureBarrierCommandStorage barrierStorage = {};
-                        memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
-
-                        TextureBarrierDesc &barrier = textureBarriers[i];
-                        barrier.Texture = storage.Textures[barrierStorage.TextureIndex];
-                        barrier.Layout = barrierStorage.Layout;
-                        barrier.BeforeAccess = barrierStorage.BeforeAccess;
-                        barrier.AfterAccess = barrierStorage.AfterAccess;
-                        barrier.BeforeStage = barrierStorage.BeforeStage;
-                        barrier.AfterStage = barrierStorage.AfterStage;
-                        barrier.TextureSubresourceRange = barrierStorage.TextureSubresourceRange;
-
-                        payloadPtr += sizeof(TextureBarrierCommandStorage);
-                    }
-
-                    for (size_t i = 0; i < bufferBarriers.size(); i++)
-                    {
-                        BufferBarrierCommandStorage barrierStorage = {};
-                        memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
-
-                        BufferBarrierDesc &barrierDesc = bufferBarriers[i];
-                        barrierDesc.Buffer = storage.DeviceBuffers[barrierStorage.BufferIndex];
-                        barrierDesc.BeforeAccess = barrierStorage.BeforeAccess;
-                        barrierDesc.AfterAccess = barrierStorage.AfterAccess;
-                        barrierDesc.BeforeStage = barrierStorage.BeforeStage;
-                        barrierDesc.AfterStage = barrierStorage.AfterStage;
-                        barrierDesc.Offset = barrierStorage.Offset;
-                        barrierDesc.Size = barrierStorage.Size;
-
-                        payloadPtr += sizeof(BufferBarrierCommandStorage);
-                    }
-
-                    if (m_Rendering)
-                    {
-                        StopRendering();
-                    }
-
-                    const GladVulkanContext &context = m_Device->GetVulkanContext();
-
-                    // for now VK_DEPENDENCY_BY_REGION_BIT is hardcoded, however this may need to
-                    // be exposed in future
-                    VkDependencyFlagBits dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-                    std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> ranges;
-
-                    // enumerate through all texture barriers and create the required subresource
-                    // ranges
-                    for (const TextureBarrierDesc &textureBarrier : textureBarriers)
-                    {
-                        const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-
-                        for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
-                             arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
-                                              textureBarrier.TextureSubresourceRange.LayerCount;
-                             arrayLayer++)
-                        {
-                            for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
-                                 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
-                                                textureBarrier.TextureSubresourceRange.LevelCount;
-                                 mipLevel++)
-                            {
-                                Vk::SubresourceRangeLayout &range = ranges[textureVk->GetImage()].emplace_back();
-                                range.range.aspectMask = Vk::GetAspectFlags(textureVk->IsDepth());
-                                range.range.baseArrayLayer = arrayLayer;
-                                range.range.layerCount = 1;
-                                range.range.baseMipLevel = mipLevel;
-                                range.range.levelCount = 1;
-                                range.layout =
-                                    Vk::GetImageLayout(m_Device, textureVk->GetTextureLayout(arrayLayer, mipLevel));
-                            }
-                        }
-                    }
-
-                    uint32_t srcQueue = VK_QUEUE_FAMILY_IGNORED;
-                    uint32_t dstQueue = VK_QUEUE_FAMILY_IGNORED;
-
-                    // submit a PipelineBarrier2
-                    if (context.CmdPipelineBarrier2)
-                    {
-                        std::vector<VkMemoryBarrier2> memoryBarriersVk = {};
-                        std::vector<VkImageMemoryBarrier2> textureBarriersVk = {};
-                        std::vector<VkBufferMemoryBarrier2> bufferBarriersVk = {};
-
-                        memoryBarriersVk.reserve(memoryBarriers.size());
-                        textureBarriersVk.reserve(textureBarriers.size());
-                        bufferBarriersVk.reserve(bufferBarriers.size());
-
-                        for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
-                        {
-                            Vk::CreateMemoryBarrier2(m_Device, memoryBarrier, memoryBarriersVk);
-                        }
-
-                        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
-                        {
-                            VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-                            const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-                            Vk::CreateTextureBarrier2(
-                                m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
-                                textureBarrier.AfterAccess, textureBarrier.BeforeStage, textureBarrier.AfterStage,
-                                srcQueue, dstQueue, layout, textureBarriersVk, ranges
-                            );
-                        }
-
-                        for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
-                        {
-                            Vk::CreateBufferBarrier2(m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
-                        }
-
-                        VkDependencyInfo dependencyInfo = {};
-                        dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-                        dependencyInfo.pNext = nullptr;
-                        dependencyInfo.dependencyFlags = dependencyFlags;
-                        dependencyInfo.memoryBarrierCount = static_cast<uint32_t>(memoryBarriersVk.size());
-                        dependencyInfo.pMemoryBarriers = memoryBarriersVk.data();
-                        dependencyInfo.bufferMemoryBarrierCount = static_cast<uint32_t>(bufferBarriersVk.size());
-                        dependencyInfo.pBufferMemoryBarriers = bufferBarriersVk.data();
-                        dependencyInfo.imageMemoryBarrierCount = static_cast<uint32_t>(textureBarriersVk.size());
-                        dependencyInfo.pImageMemoryBarriers = textureBarriersVk.data();
-
-                        context.CmdPipelineBarrier2(m_CommandBuffer, std::addressof(dependencyInfo));
-                    }
-                    // submit a legacy pipeline barrier
-                    else
-                    {
-                        std::vector<VkMemoryBarrier> memoryBarriersVk = {};
-                        std::vector<VkImageMemoryBarrier> textureBarriersVk = {};
-                        std::vector<VkBufferMemoryBarrier> bufferBarriersVk = {};
-
-                        memoryBarriersVk.reserve(memoryBarriers.size());
-                        textureBarriersVk.reserve(textureBarriers.size());
-                        bufferBarriersVk.reserve(bufferBarriers.size());
-
-                        VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_NONE;
-                        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_NONE;
-
-                        for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
-                        {
-                            Vk::CreateMemoryBarrier(m_Device, memoryBarrier, memoryBarriersVk);
-                        }
-
-                        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
-                        {
-                            VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
-                            const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-                            Vk::CreateTextureBarrier(
-                                m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
-                                textureBarrier.AfterAccess, textureBarrier.BeforeStage, textureBarrier.AfterStage,
-                                srcQueue, dstQueue, layout, textureBarriersVk, ranges
-                            );
-
-                            srcStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.BeforeStage);
-                            dstStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.AfterStage);
-                        }
-
-                        for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
-                        {
-                            Vk::CreateBufferBarrier(m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
-                            srcStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.BeforeStage);
-                            dstStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.AfterStage);
-                        }
-
-                        context.CmdPipelineBarrier(
-                            m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
-                            static_cast<uint32_t>(memoryBarriers.size()), memoryBarriersVk.data(),
-                            static_cast<uint32_t>(bufferBarriers.size()), bufferBarriersVk.data(),
-                            static_cast<uint32_t>(textureBarriers.size()), textureBarriersVk.data()
-                        );
-                    }
-
-                    // update texture layouts
-                    // enumerate through all texture barriers and create the required subresource
-                    // ranges
-                    for (const TextureBarrierDesc &textureBarrier : textureBarriers)
-                    {
-                        TextureHandle handle = textureBarrier.Texture;
-                        TextureVk *textureVk = handle.AsDerived<TextureVk>();
-
-                        for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
-                             arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
-                                              textureBarrier.TextureSubresourceRange.LayerCount;
-                             arrayLayer++)
-                        {
-                            for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
-                                 mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
-                                                textureBarrier.TextureSubresourceRange.LevelCount;
-                                 mipLevel++)
-                            {
-                                textureVk->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
-                            }
-                        }
-                    }
-
-                    break;
-                }
+                    m_DispatchTable[header->Type](header, reader, storage, this);
                 }
             }
 

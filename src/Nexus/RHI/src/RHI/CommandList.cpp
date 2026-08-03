@@ -578,25 +578,38 @@ namespace Nexus::Graphics
     {
         size_t payloadSize = 0;
 
-        for (const auto &[name, offset] : desc.DynamicOffsets)
+        for (const auto &[name, offsets] : desc.DynamicOffsets)
         {
+            payloadSize += sizeof(uint32_t);
             payloadSize += name.size();
-            payloadSize += offset.size() * sizeof(uint32_t);
+            payloadSize += sizeof(uint32_t);
+            payloadSize += offsets.size() * sizeof(uint32_t);
         }
 
         auto alloc =
             Allocate<ResourceSetBindingCommandStorage>(CommandData, CommandType::ResourceSetBinding, payloadSize);
+
         auto *command = alloc.GetCommand(CommandData);
         command->ResourceSetIndex = ResourceSets.size();
         command->DynamicOffsetCount = desc.DynamicOffsets.size();
 
         std::byte *rawPtr = alloc.GetPayload(CommandData);
-        for (const auto &[name, dynamicOffset] : desc.DynamicOffsets)
+
+        for (const auto &[name, offsets] : desc.DynamicOffsets)
         {
-            memcpy(rawPtr, name.data(), name.size());
-            rawPtr += name.size();
-            memcpy(rawPtr, dynamicOffset.data(), dynamicOffset.size() * sizeof(uint32_t));
-            rawPtr += dynamicOffset.size() * sizeof(uint32_t);
+            uint32_t nameLength = static_cast<uint32_t>(name.size());
+            memcpy(rawPtr, &nameLength, sizeof(nameLength));
+            rawPtr += sizeof(nameLength);
+
+            memcpy(rawPtr, name.data(), nameLength);
+            rawPtr += nameLength;
+
+            uint32_t offsetCount = static_cast<uint32_t>(offsets.size());
+            memcpy(rawPtr, &offsetCount, sizeof(offsetCount));
+            rawPtr += sizeof(offsetCount);
+
+            memcpy(rawPtr, offsets.data(), offsetCount * sizeof(uint32_t));
+            rawPtr += offsetCount * sizeof(uint32_t);
         }
 
         ResourceSets.push_back(desc.TargetResourceSet);

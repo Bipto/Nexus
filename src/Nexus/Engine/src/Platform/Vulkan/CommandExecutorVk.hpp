@@ -62,6 +62,7 @@ namespace Nexus::Graphics
         void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
         void ExecuteCommand(const EndRenderingCommand &command, IGraphicsDevice *device) final;
 
+      public:
         void StartRenderingToFramebuffer(FramebufferHandle framebuffer);
         void StopRendering();
         bool ValidateIsRendering();
@@ -69,7 +70,7 @@ namespace Nexus::Graphics
         void BindGraphicsPipeline();
         void TryStartRendering();
 
-      private:
+      public:
         GraphicsDeviceVk *m_Device = nullptr;
 
         PipelineHandle m_CurrentlyBoundPipeline = {};
@@ -84,6 +85,8 @@ namespace Nexus::Graphics
 
         std::span<const std::unique_ptr<IGraphicsCommand>> m_Commands = {};
         size_t m_CurrentCommandIndex = 0;
+
+        std::map<CommandType, CommandFunc> m_DispatchTable = {};
     };
 } // namespace Nexus::Graphics
 
