@@ -92,7 +92,7 @@ namespace Nexus::Graphics
         std::vector<TextureBarrierDesc> textureBarriers(cmd->TextureBarrierCount);
         std::vector<BufferBarrierDesc> bufferBarriers(cmd->BufferBarrierCount);
 
-        const auto *payloadPtr = reader.GetPayloadRaw<BarrierGroupCommandStorage>(header);
+        const std::byte *payloadPtr = reader.GetPayloadRaw<BarrierGroupCommandStorage>(header);
         memcpy(memoryBarriers.data(), payloadPtr, memoryBarriers.size() * sizeof(MemoryBarrierDesc));
         payloadPtr += memoryBarriers.size() * sizeof(MemoryBarrierDesc);
 
@@ -416,7 +416,10 @@ namespace Nexus::Graphics
 
         auto &resourceSetHandle = storage.ResourceSets.at(cmd->ResourceSetIndex);
 
-        const std::byte *rawPtr = reader.GetPayloadRaw<const std::byte>(header);
+        const std::byte *rawPtr = reader.GetPayloadRaw<ResourceSetBindingCommandStorage>(header);
+
+        ResourceSetBindingDescription bindings = {};
+        bindings.TargetResourceSet = resourceSetHandle;
 
         for (uint32_t i = 0; i < cmd->DynamicOffsetCount; i++)
         {
@@ -431,10 +434,22 @@ namespace Nexus::Graphics
             memcpy(&offsetCount, rawPtr, sizeof(offsetCount));
             rawPtr += sizeof(offsetCount);
 
-            std::vector<uint32_t> offsets(offsetCount);
+            // std::vector<uint32_t> offsets(offsetCount);
+            std::vector<uint32_t> &offsets = bindings.DynamicOffsets[name];
+            offsets.resize(offsetCount);
             memcpy(offsets.data(), rawPtr, offsetCount * sizeof(uint32_t));
 
             rawPtr += offsetCount * sizeof(uint32_t);
+        }
+
+        executor->TryStartRendering();
+
+        if (PipelineVk *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
+        {
+            pipeline->SetResourceSet(executor->m_CommandBuffer, bindings);
+
+            const ResourceSetVk *resourceSet = bindings.TargetResourceSet.AsDerived<const ResourceSetVk>();
+            executor->m_CurrentlyBoundResourceSet = resourceSet;
         }
     }
 
@@ -743,6 +758,67 @@ namespace Nexus::Graphics
         context.CmdSetScissor(executor->m_CommandBuffer, 0, 1, &rect);
     }
 
+    static void PushConstants(
+        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        auto *cmd = reader.GetCommand<PushConstantsCommandStorage>(header);
+        const std::byte *pushConstantsData = reader.GetPayloadRaw<PushConstantsCommandStorage>(header);
+
+        std::string name(reinterpret_cast<const char *>(pushConstantsData), cmd->NameLength);
+        pushConstantsData += cmd->NameLength;
+
+        if (!executor->m_CurrentlyBoundResourceSet)
+            return;
+
+        std::optional<VkShaderStageFlags> stageFlags =
+            executor->m_CurrentlyBoundResourceSet->GetPushConstantsStageFlags(name);
+
+        if (!stageFlags.has_value())
+            return;
+
+        if (PipelineVk *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
+        {
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+            if (context.CmdPushConstants2)
+            {
+                VkPushConstantsInfo pushConstantsInfo = {};
+                pushConstantsInfo.sType = VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO;
+                pushConstantsInfo.pNext = nullptr;
+                pushConstantsInfo.layout = pipeline->GetPipelineLayout();
+                pushConstantsInfo.stageFlags = stageFlags.value();
+                pushConstantsInfo.offset = cmd->Offset;
+                pushConstantsInfo.size = cmd->DataLength;
+                pushConstantsInfo.pValues = pushConstantsData;
+
+                context.CmdPushConstants2(executor->m_CommandBuffer, &pushConstantsInfo);
+            }
+            else if (context.CmdPushConstants2KHR)
+            {
+                VkPushConstantsInfoKHR pushConstantsInfo = {};
+                pushConstantsInfo.sType = VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO_KHR;
+                pushConstantsInfo.pNext = nullptr;
+                pushConstantsInfo.layout = pipeline->GetPipelineLayout();
+                pushConstantsInfo.stageFlags = stageFlags.value();
+                pushConstantsInfo.offset = cmd->Offset;
+                pushConstantsInfo.size = cmd->DataLength;
+                pushConstantsInfo.pValues = pushConstantsData;
+
+                context.CmdPushConstants2KHR(executor->m_CommandBuffer, &pushConstantsInfo);
+            }
+            else
+            {
+                context.CmdPushConstants(
+                    executor->m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(), cmd->Offset,
+                    cmd->DataLength, pushConstantsData
+                );
+            }
+        }
+    }
+
     static void BeginRenderPass(
         GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
         VkCommandBuffer commandBuffer
@@ -937,6 +1013,7 @@ namespace Nexus::Graphics
         m_DispatchTable[CommandType::TraceRays] = TraceRays;
         m_DispatchTable[CommandType::Viewport] = SetViewport;
         m_DispatchTable[CommandType::Scissor] = SetScissor;
+        m_DispatchTable[CommandType::PushConstants] = PushConstants;
     }
 
     CommandExecutorVk::~CommandExecutorVk()
