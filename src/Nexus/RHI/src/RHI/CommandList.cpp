@@ -376,22 +376,7 @@ namespace Nexus::Graphics
 
     void CommandListStorage::Clear()
     {
-        Samplers.clear();
-        Textures.clear();
-        TextureViews.clear();
-        TexelBuffers.clear();
-        AccelerationStructures.clear();
-        TimingQueries.clear();
-        Fences.clear();
-        Framebuffers.clear();
-        ShaderModules.clear();
-        ResourceSets.clear();
-        Pipelines.clear();
-        Surfaces.clear();
-        CommandQueues.clear();
-        DeviceBuffers.clear();
-
-        CommandData.clear();
+        CommandDatas.Clear();
     }
 
     void CommandListStorage::Reset()
@@ -399,597 +384,369 @@ namespace Nexus::Graphics
         *this = CommandListStorage{};
     }
 
-    template <typename T>
-    Allocation<T> Allocate(std::vector<std::byte> &commandStream, CommandType type, size_t payloadSize = 0)
-    {
-        static_assert(std::is_trivially_copyable_v<T>);
-        static_assert(std::is_standard_layout_v<T>);
-
-        constexpr size_t HeaderAlign = alignof(CommandHeader);
-        constexpr size_t CommandAlign = alignof(T);
-        constexpr size_t PayloadAlign = alignof(std::max_align_t);
-
-        auto AlignUp = [](size_t value, size_t alignment) { return (value + alignment - 1) & ~(alignment - 1); };
-
-        // The header is always exactly at the end
-        size_t headerOffset = commandStream.size();
-
-        size_t commandOffset = AlignUp(headerOffset + sizeof(CommandHeader), CommandAlign);
-
-        size_t payloadOffset = AlignUp(commandOffset + sizeof(T), PayloadAlign);
-
-        size_t endOffset = payloadOffset + payloadSize;
-
-        commandStream.resize(endOffset);
-
-        auto *header = reinterpret_cast<CommandHeader *>(commandStream.data() + headerOffset);
-
-        header->Type = type;
-        header->Length = endOffset - headerOffset;
-
-        return {commandOffset, payloadSize ? payloadOffset : SIZE_MAX};
-    }
-
     void CommandListStorage::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
     {
-        auto alloc = Allocate<SetVertexBufferCommandStorage>(CommandData, CommandType::SetVertexBuffer);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::SetVertexBuffer;
+        header.CommandOffset = CommandDatas.SetVertexBufferCommands.size();
 
-        command->DeviceBufferIndex = DeviceBuffers.size();
-        command->Offset = vertexBuffer.Offset;
-        command->Size = vertexBuffer.Size;
-        command->Slot = slot;
-
-        DeviceBuffers.push_back(vertexBuffer.BufferHandle);
+        SetVertexBufferCommand &command = CommandDatas.SetVertexBufferCommands.emplace_back();
+        command.View = vertexBuffer;
+        command.Slot = slot;
     }
 
     void CommandListStorage::SetIndexBuffer(IndexBufferView indexBuffer)
     {
-        auto alloc = Allocate<SetIndexBufferCommandStorage>(CommandData, CommandType::SetIndexBuffer);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::SetIndexBuffer;
+        header.CommandOffset = CommandDatas.SetIndexBufferCommands.size();
 
-        command->DeviceBufferIndex = DeviceBuffers.size();
-        command->Offset = indexBuffer.Offset;
-        command->Size = indexBuffer.Size;
-        command->BufferFormat = indexBuffer.BufferFormat;
-
-        DeviceBuffers.push_back(indexBuffer.BufferHandle);
+        SetIndexBufferCommand &command = CommandDatas.SetIndexBufferCommands.emplace_back();
+        command.View = indexBuffer;
     }
 
     void CommandListStorage::SetPipeline(PipelineHandle pipeline)
     {
-        auto alloc = Allocate<SetPipelineCommandStorage>(CommandData, CommandType::SetPipeline);
-        auto *command = alloc.GetCommand(CommandData);
-        command->PipelineIndex = Pipelines.size();
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::SetPipeline;
+        header.CommandOffset = CommandDatas.SetPipelineCommands.size();
 
-        Pipelines.push_back(pipeline);
+        CommandDatas.SetPipelineCommands.push_back(pipeline);
     }
 
     void CommandListStorage::Draw(const DrawDescription &desc)
     {
-        auto alloc = Allocate<DrawDescription>(CommandData, CommandType::Draw);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::Draw;
+        header.CommandOffset = CommandDatas.DrawCommands.size();
 
-        command->VertexCount = desc.VertexCount;
-        command->InstanceCount = desc.InstanceCount;
-        command->VertexStart = desc.VertexStart;
-        command->InstanceStart = desc.InstanceStart;
+        CommandDatas.DrawCommands.push_back(desc);
     }
 
     void CommandListStorage::DrawIndexed(const DrawIndexedDescription &desc)
     {
-        auto alloc = Allocate<DrawIndexedDescription>(CommandData, CommandType::DrawIndexed);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DrawIndexed;
+        header.CommandOffset = CommandDatas.DrawIndexedCommands.size();
 
-        command->IndexCount = desc.IndexCount;
-        command->InstanceCount = desc.InstanceCount;
-        command->VertexStart = desc.VertexStart;
-        command->IndexStart = desc.IndexStart;
-        command->InstanceStart = desc.InstanceStart;
+        CommandDatas.DrawIndexedCommands.push_back(desc);
     }
 
     void CommandListStorage::DrawIndirect(const DrawIndirectDescription &desc)
     {
-        auto alloc = Allocate<DrawIndirectCommandStorage>(CommandData, CommandType::DrawIndirect);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DrawIndirect;
+        header.CommandOffset = CommandDatas.DrawIndirectCommands.size();
 
-        command->DeviceBufferIndex = DeviceBuffers.size();
-        command->Offset = desc.Offset;
-        command->Stride = desc.Stride;
-        command->DrawCount = desc.DrawCount;
-
-        DeviceBuffers.push_back(desc.IndirectBuffer);
+        CommandDatas.DrawIndirectCommands.push_back(desc);
     }
 
     void CommandListStorage::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
     {
-        // the same structure can be used for both indirect and indexed indirect draw commands
-        auto alloc = Allocate<DrawIndirectCommandStorage>(CommandData, CommandType::DrawIndexedIndirect);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DrawIndexedIndirect;
+        header.CommandOffset = CommandDatas.DrawIndirectIndexedCommands.size();
 
-        command->DeviceBufferIndex = DeviceBuffers.size();
-        command->Offset = desc.Offset;
-        command->Stride = desc.Stride;
-        command->DrawCount = desc.DrawCount;
-
-        DeviceBuffers.push_back(desc.IndirectBuffer);
+        CommandDatas.DrawIndirectIndexedCommands.push_back(desc);
     }
 
     void CommandListStorage::Dispatch(const DispatchDescription &desc)
     {
-        auto alloc = Allocate<DispatchDescription>(CommandData, CommandType::Dispatch);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::Dispatch;
+        header.CommandOffset = CommandDatas.DispatchCommands.size();
 
-        command->WorkGroupCountX = desc.WorkGroupCountX;
-        command->WorkGroupCountY = desc.WorkGroupCountY;
-        command->WorkGroupCountZ = desc.WorkGroupCountZ;
+        CommandDatas.DispatchCommands.push_back(desc);
     }
 
     void CommandListStorage::DispatchIndirect(const DispatchIndirectDescription &desc)
     {
-        auto alloc = Allocate<DispatchIndirectCommandStorage>(CommandData, CommandType::DispatchIndirect);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DispatchIndirect;
+        header.CommandOffset = CommandDatas.DispatchIndirectCommands.size();
 
-        command->DeviceBufferIndex = DeviceBuffers.size();
-        command->Offset = desc.Offset;
-        command->Stride = desc.Stride;
-
-        DeviceBuffers.push_back(desc.IndirectBuffer);
+        CommandDatas.DispatchIndirectCommands.push_back(desc);
     }
 
     void CommandListStorage::DrawMesh(const DrawMeshDescription &desc)
     {
-        auto alloc = Allocate<DrawMeshDescription>(CommandData, CommandType::DrawMesh);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DrawMesh;
+        header.CommandOffset = CommandDatas.DrawMeshCommands.size();
 
-        command->WorkGroupCountX = desc.WorkGroupCountX;
-        command->WorkGroupCountY = desc.WorkGroupCountY;
-        command->WorkGroupCountZ = desc.WorkGroupCountZ;
+        CommandDatas.DrawMeshCommands.push_back(desc);
     }
 
     void CommandListStorage::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
     {
-        auto alloc = Allocate<DrawMeshIndirectCommandStorage>(CommandData, CommandType::DrawMeshIndirect);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DrawMeshIndirect;
+        header.CommandOffset = CommandDatas.DrawMeshIndirectCommands.size();
 
-        command->DeviceBufferIndex = DeviceBuffers.size();
-        command->Offset = desc.Offset;
-        command->Stride = desc.Stride;
-        command->DrawCount = desc.DrawCount;
-
-        DeviceBuffers.push_back(desc.IndirectBuffer);
+        CommandDatas.DrawMeshIndirectCommands.push_back(desc);
     }
 
     void CommandListStorage::TraceRays(const TraceRaysDescription &desc)
     {
-        auto alloc = Allocate<TraceRaysDescription>(CommandData, CommandType::TraceRays);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::TraceRays;
+        header.CommandOffset = CommandDatas.TraceRaysCommands.size();
 
-        command->RaygenRegion = desc.RaygenRegion;
-        command->MissRegion = desc.MissRegion;
-        command->HitRegion = desc.HitRegion;
-        command->CallableRegion = desc.CallableRegion;
-        command->Width = desc.Width;
-        command->Height = desc.Height;
-        command->Depth = desc.Depth;
+        CommandDatas.TraceRaysCommands.push_back(desc);
     }
 
     void CommandListStorage::SetResourceSet(const ResourceSetBindingDescription &desc)
     {
-        size_t payloadSize = 0;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::ResourceSetBinding;
+        header.CommandOffset = CommandDatas.ResourceSetBindingCommands.size();
 
-        for (const auto &[name, offsets] : desc.DynamicOffsets)
-        {
-            payloadSize += sizeof(uint32_t);
-            payloadSize += name.size();
-            payloadSize += sizeof(uint32_t);
-            payloadSize += offsets.size() * sizeof(uint32_t);
-        }
-
-        auto alloc =
-            Allocate<ResourceSetBindingCommandStorage>(CommandData, CommandType::ResourceSetBinding, payloadSize);
-
-        auto *command = alloc.GetCommand(CommandData);
-        command->ResourceSetIndex = ResourceSets.size();
-        command->DynamicOffsetCount = desc.DynamicOffsets.size();
-
-        std::byte *rawPtr = alloc.GetPayload(CommandData);
-
-        for (const auto &[name, offsets] : desc.DynamicOffsets)
-        {
-            uint32_t nameLength = static_cast<uint32_t>(name.size());
-            memcpy(rawPtr, &nameLength, sizeof(nameLength));
-            rawPtr += sizeof(nameLength);
-
-            memcpy(rawPtr, name.data(), nameLength);
-            rawPtr += nameLength;
-
-            uint32_t offsetCount = static_cast<uint32_t>(offsets.size());
-            memcpy(rawPtr, &offsetCount, sizeof(offsetCount));
-            rawPtr += sizeof(offsetCount);
-
-            memcpy(rawPtr, offsets.data(), offsetCount * sizeof(uint32_t));
-            rawPtr += offsetCount * sizeof(uint32_t);
-        }
-
-        ResourceSets.push_back(desc.TargetResourceSet);
+        CommandDatas.ResourceSetBindingCommands.push_back(desc);
     }
 
     void CommandListStorage::ClearColourTarget(
         uint32_t index, const ClearColourValue &color, std::optional<ClearRect> clearRect
     )
     {
-        auto alloc = Allocate<ClearColorTargetCommand>(CommandData, CommandType::ClearColourTarget);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::ClearColourTarget;
+        header.CommandOffset = CommandDatas.ClearColourTargetCommands.size();
 
-        command->Index = index;
-        command->Colour = color;
-        command->Rect = clearRect;
+        ClearColorTargetCommand &command = CommandDatas.ClearColourTargetCommands.emplace_back();
+        command.Index = index;
+        command.Colour = color;
+        command.Rect = clearRect;
     }
 
     void CommandListStorage::ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect)
     {
-        auto alloc = Allocate<ClearDepthStencilTargetCommand>(CommandData, CommandType::ClearDepthTarget);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::ClearDepthTarget;
+        header.CommandOffset = CommandDatas.ClearDepthStencilTargetCommands.size();
 
-        command->Value = value;
-        command->Rect = clearRect;
+        ClearDepthStencilTargetCommand &command = CommandDatas.ClearDepthStencilTargetCommands.emplace_back();
+        command.Value = value;
+        command.Rect = clearRect;
     }
 
     void CommandListStorage::SetFramebuffer(FramebufferHandle framebuffer)
     {
-        auto alloc = Allocate<FramebufferCommandStorage>(CommandData, CommandType::SetFramebuffer);
-        auto *command = alloc.GetCommand(CommandData);
-        command->FramebufferIndex = Framebuffers.size();
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::SetFramebuffer;
+        header.CommandOffset = CommandDatas.FramebufferCommands.size();
 
-        Framebuffers.push_back(framebuffer);
+        CommandDatas.FramebufferCommands.push_back(framebuffer);
     }
 
     void CommandListStorage::SetViewport(const Viewport &viewport)
     {
-        auto alloc = Allocate<Viewport>(CommandData, CommandType::Viewport);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::Viewport;
+        header.CommandOffset = CommandDatas.ViewportCommands.size();
 
-        command->X = viewport.X;
-        command->Y = viewport.Y;
-        command->Width = viewport.Width;
-        command->Height = viewport.Height;
-        command->MinDepth = viewport.MinDepth;
-        command->MaxDepth = viewport.MaxDepth;
+        CommandDatas.ViewportCommands.push_back(viewport);
     }
 
     void CommandListStorage::SetScissor(const Scissor &scissor)
     {
-        auto alloc = Allocate<Scissor>(CommandData, CommandType::Scissor);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::Scissor;
+        header.CommandOffset = CommandDatas.ScissorCommands.size();
 
-        command->X = scissor.X;
-        command->Y = scissor.Y;
-        command->Width = scissor.Width;
-        command->Height = scissor.Height;
+        CommandDatas.ScissorCommands.push_back(scissor);
     }
 
     void CommandListStorage::ResolveFramebuffer(const ResolveTextureDescription &desc)
     {
-        auto alloc = Allocate<ResolveTextureCommandStorage>(CommandData, CommandType::ResolveFramebuffer);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::ResolveFramebuffer;
+        header.CommandOffset = CommandDatas.ResolveCommands.size();
 
-        command->SourceTextureIndex = Textures.size();
-        command->DestinationTextureIndex = Textures.size() + 1;
-        command->SourceArrayLayer = desc.SourceArrayLayer;
-        command->SourceMipLevel = desc.SourceMipLevel;
-        command->DestinationArrayLayer = desc.DestinationArrayLayer;
-        command->DestinationMipLevel = desc.DestinationMipLevel;
-
-        Textures.push_back(desc.Source);
-        Textures.push_back(desc.Destination);
+        CommandDatas.ResolveCommands.push_back(desc);
     }
 
     void CommandListStorage::StartTimingQuery(TimingQueryHandle query)
     {
-        auto alloc = Allocate<TimingQueryCommandStorage>(CommandData, CommandType::StartTimingQuery);
-        auto *command = alloc.GetCommand(CommandData);
-        command->QueryIndex = TimingQueries.size();
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::StartTimingQuery;
+        header.CommandOffset = CommandDatas.StartTimingQueryCommands.size();
 
-        TimingQueries.push_back(query);
+        StartTimingQueryCommand &command = CommandDatas.StartTimingQueryCommands.emplace_back();
+        command.Query = query;
     }
 
     void CommandListStorage::StopTimingQuery(TimingQueryHandle query)
     {
-        auto alloc = Allocate<TimingQueryCommandStorage>(CommandData, CommandType::StopTimingQuery);
-        auto *command = alloc.GetCommand(CommandData);
-        command->QueryIndex = TimingQueries.size();
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::StopTimingQuery;
+        header.CommandOffset = CommandDatas.StopTimingQueryCommands.size();
 
-        TimingQueries.push_back(query);
+        StopTimingQueryCommand &command = CommandDatas.StopTimingQueryCommands.emplace_back();
+        command.Query = query;
     }
 
     void CommandListStorage::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
     {
-        size_t payloadSize = bufferCopy.Copies.size() * sizeof(BufferCopy);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyBufferToBuffer;
+        header.CommandOffset = CommandDatas.CopyBufferToBufferCommands.size();
 
-        auto alloc = Allocate<BufferCopyCommandStorage>(CommandData, CommandType::CopyBufferToBuffer, payloadSize);
-        auto *command = alloc.GetCommand(CommandData);
-        auto *payload = alloc.GetPayload(CommandData);
-
-        command->SourceIndex = DeviceBuffers.size();
-        command->DestinationIndex = DeviceBuffers.size() + 1;
-        memcpy(payload, bufferCopy.Copies.data(), payloadSize);
-
-        DeviceBuffers.push_back(bufferCopy.Source);
-        DeviceBuffers.push_back(bufferCopy.Destination);
+        CopyBufferToBufferCommand &command = CommandDatas.CopyBufferToBufferCommands.emplace_back();
+        command.BufferCopy = bufferCopy;
     }
 
     void CommandListStorage::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
     {
-        auto alloc = Allocate<BufferTextureCopyCommandStorage>(CommandData, CommandType::CopyBufferToTexture);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyBufferToTexture;
+        header.CommandOffset = CommandDatas.CopyBufferToTextureCommands.size();
 
-        command->BufferIndex = DeviceBuffers.size();
-        command->BufferOffset = bufferTextureCopy.BufferOffset;
-        command->BufferRowLength = bufferTextureCopy.BufferRowLength;
-        command->BufferImageHeight = bufferTextureCopy.BufferImageHeight;
-        command->TextureIndex = Textures.size();
-        command->TextureOffset = bufferTextureCopy.TextureOffset;
-        command->TextureExtent = bufferTextureCopy.TextureExtent;
-        command->MipLevel = bufferTextureCopy.MipLevel;
-
-        DeviceBuffers.push_back(bufferTextureCopy.BufferHandle);
-        Textures.push_back(bufferTextureCopy.Texture);
+        CopyBufferToTextureCommand &command = CommandDatas.CopyBufferToTextureCommands.emplace_back();
+        command.BufferTextureCopy = bufferTextureCopy;
     }
 
     void CommandListStorage::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
     {
-        auto alloc = Allocate<BufferTextureCopyCommandStorage>(CommandData, CommandType::CopyTextureToBuffer);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyTextureToBuffer;
+        header.CommandOffset = CommandDatas.CopyTextureToBufferCommands.size();
 
-        command->BufferIndex = DeviceBuffers.size();
-        command->BufferOffset = textureBufferCopy.BufferOffset;
-        command->BufferRowLength = textureBufferCopy.BufferRowLength;
-        command->BufferImageHeight = textureBufferCopy.BufferImageHeight;
-        command->TextureIndex = Textures.size();
-        command->TextureOffset = textureBufferCopy.TextureOffset;
-        command->TextureExtent = textureBufferCopy.TextureExtent;
-        command->MipLevel = textureBufferCopy.MipLevel;
-
-        DeviceBuffers.push_back(textureBufferCopy.BufferHandle);
-        Textures.push_back(textureBufferCopy.Texture);
+        CopyTextureToBufferCommand &command = CommandDatas.CopyTextureToBufferCommands.emplace_back();
+        command.TextureBufferCopy = textureBufferCopy;
     }
 
     void CommandListStorage::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
     {
-        auto alloc = Allocate<TextureCopyCommandStorage>(CommandData, CommandType::CopyTextureToTexture);
-        auto *command = alloc.GetCommand(CommandData);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyTextureToTexture;
+        header.CommandOffset = CommandDatas.CopyBufferToTextureCommands.size();
 
-        command->SourceTextureIndex = Textures.size();
-        command->DestinationTextureIndex = Textures.size() + 1;
-        command->SourceOffset = textureCopy.SourceOffset;
-        command->DestinationOffset = textureCopy.DestinationOffset;
-        command->Extent = textureCopy.Extent;
-        command->SourceMipLevel = textureCopy.SourceMipLevel;
-        command->DestinationMipLevel = textureCopy.DestinationMipLevel;
-
-        Textures.push_back(textureCopy.Source);
-        Textures.push_back(textureCopy.Destination);
+        CopyTextureToTextureCommand &command = CommandDatas.CopyTextureToTextureCommands.emplace_back();
+        command.TextureCopy = textureCopy;
     }
 
     void CommandListStorage::BeginDebugGroup(const std::string &name)
     {
-        size_t payloadSize = name.size();
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::BeginDebugGroup;
+        header.CommandOffset = CommandDatas.BeginDebugGroupCommands.size();
 
-        auto alloc = Allocate<size_t>(CommandData, CommandType::BeginDebugGroup, payloadSize);
-        auto *command = alloc.GetCommand(CommandData);
-        auto *payload = alloc.GetPayload(CommandData);
-
-        *command = payloadSize;
-        memcpy(payload, name.data(), name.size());
+        BeginDebugGroupCommand &command = CommandDatas.BeginDebugGroupCommands.emplace_back();
+        command.GroupName = name;
     }
 
     void CommandListStorage::EndDebugGroup()
     {
-        auto alloc = Allocate<DebugGroupCommandStorage>(CommandData, CommandType::EndDebugGroup);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::EndDebugGroup;
+        header.CommandOffset = CommandDatas.EndRenderingCommands.size();
+
+        EndDebugGroupCommand &command = CommandDatas.EndDebugGroupCommands.emplace_back();
     }
 
     void CommandListStorage::InsertDebugMarker(const std::string &name)
     {
-        auto alloc = Allocate<DebugLabelCommandStorage>(CommandData, CommandType::DebugLabel, name.size());
-        auto *command = alloc.GetCommand(CommandData);
-        auto *payload = alloc.GetPayload(CommandData);
-        command->TextLength = name.size();
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::DebugLabel;
+        header.CommandOffset = CommandDatas.InsertDebugMarkerCommands.size();
 
-        memcpy(payload, name.data(), name.size());
+        InsertDebugMarkerCommand &command = CommandDatas.InsertDebugMarkerCommands.emplace_back();
+        command.MarkerName = name;
     }
 
     void CommandListStorage::SetBlendFactor(const BlendFactorDesc &blendFactor)
     {
-        auto alloc = Allocate<BlendFactorDesc>(CommandData, CommandType::SetBlendFactor);
-        auto *command = alloc.GetCommand(CommandData);
-        *command = blendFactor;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::SetBlendFactor;
+        header.CommandOffset = CommandDatas.SetBlendFactorCommands.size();
+
+        SetBlendFactorCommand &command = CommandDatas.SetBlendFactorCommands.emplace_back();
+        command.BlendFactor = blendFactor;
     }
 
     void CommandListStorage::SetStencilReference(uint32_t stencilReference)
     {
-        auto alloc = Allocate<uint32_t>(CommandData, CommandType::SetStencilReference);
-        auto *command = alloc.GetCommand(CommandData);
-        *command = stencilReference;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::SetStencilReference;
+        header.CommandOffset = CommandDatas.SetStencilReferenceCommands.size();
+
+        SetStencilReferenceCommand &command = CommandDatas.SetStencilReferenceCommands.emplace_back();
+        command.StencilReference = stencilReference;
     }
 
     void CommandListStorage::BuildAccelerationStructures(
         const std::vector<AccelerationStructureGeometryBuildDescription> &descriptions
     )
     {
-        size_t payloadSize = sizeof(AccelerationStructureGeometryBuildCountStorage);
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::BuildAccelerationStructures;
+        header.CommandOffset = CommandDatas.BuildAccelerationStructuresCommands.size();
 
-        for (const auto &build : descriptions)
-        {
-            payloadSize += sizeof(AccelerationStructureGeometryBuildCommandStorage);
-            payloadSize += build.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
-            payloadSize += build.PrimitiveCounts.size() * sizeof(uint32_t);
-        }
-
-        auto alloc = Allocate<AccelerationStructureGeometryBuildCountStorage>(
-            CommandData, CommandType::BuildAccelerationStructures, payloadSize
-        );
-        auto *command = alloc.GetCommand(CommandData);
-        auto *payload = alloc.GetPayload(CommandData);
-        command->BuildCount = descriptions.size();
-
-        std::byte *ptr = payload + sizeof(AccelerationStructureGeometryBuildCountStorage);
-
-        for (const auto &build : descriptions)
-        {
-            auto *command = reinterpret_cast<AccelerationStructureGeometryBuildCommandStorage *>(ptr);
-
-            ptr += sizeof(AccelerationStructureGeometryBuildCommandStorage);
-
-            command->Type = build.Type;
-            command->Flags = build.Flags;
-            command->Mode = build.Mode;
-            command->ScratchBuffer = build.ScratchBuffer;
-
-            command->SourceIndex = AccelerationStructures.size();
-            AccelerationStructures.push_back(build.Source);
-
-            command->DestinationIndex = AccelerationStructures.size();
-            AccelerationStructures.push_back(build.Destination);
-
-            const size_t geometryBytes = build.Geometry.size() * sizeof(AccelerationStructureGeometryDescription);
-
-            command->GeometryOffset = sizeof(AccelerationStructureGeometryBuildCommandStorage);
-            command->GeometryCount = build.Geometry.size();
-
-            if (geometryBytes > 0)
-            {
-                memcpy(ptr, build.Geometry.data(), geometryBytes);
-                ptr += geometryBytes;
-            }
-
-            const size_t primitiveBytes = build.PrimitiveCounts.size() * sizeof(uint32_t);
-
-            command->PrimitiveOffset = command->GeometryOffset + geometryBytes;
-            command->PrimitiveCount = build.PrimitiveCounts.size();
-
-            if (primitiveBytes > 0)
-            {
-                memcpy(ptr, build.PrimitiveCounts.data(), primitiveBytes);
-                ptr += primitiveBytes;
-            }
-        }
+        BuildAccelerationStructuresCommand &command = CommandDatas.BuildAccelerationStructuresCommands.emplace_back();
+        command.BuildDescriptions = descriptions;
     }
 
     void CommandListStorage::CopyAccelerationStructure(const AccelerationStructureCopyDescription &description)
     {
-        auto alloc =
-            Allocate<AccelerationStructureCopyDescription>(CommandData, CommandType::CopyAccelerationStructure);
-        auto *command = alloc.GetCommand(CommandData);
-        *command = description;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyAccelerationStructure;
+        header.CommandOffset = CommandDatas.CopyAccelerationStructuresCommands.size();
+
+        CommandDatas.CopyAccelerationStructuresCommands.push_back(description);
     }
 
     void CommandListStorage::CopyAccelerationStructureToDeviceBuffer(
         const AccelerationStructureDeviceBufferCopyDescription &description
     )
     {
-        auto alloc = Allocate<AccelerationStructureDeviceBufferCopyDescription>(
-            CommandData, CommandType::CopyAccelerationStructure
-        );
-        auto *command = alloc.GetCommand(CommandData);
-        *command = description;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyAccelerationStructureToDeviceBuffer;
+        header.CommandOffset = CommandDatas.CopyAccelerationStructureDeviceBufferCommands.size();
+
+        CommandDatas.CopyAccelerationStructureDeviceBufferCommands.push_back(description);
     }
 
     void CommandListStorage::CopyDeviceBufferToAccelerationStructure(
         const DeviceBufferAccelerationStructureCopyDescription &description
     )
     {
-        auto alloc = Allocate<DeviceBufferAccelerationStructureCopyDescription>(
-            CommandData, CommandType::CopyAccelerationStructure
-        );
-        auto *command = alloc.GetCommand(CommandData);
-        *command = description;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::CopyDeviceBufferToAccelerationStructure;
+        header.CommandOffset = CommandDatas.CopyDeviceBufferAccelerationStructureCommands.size();
+
+        CommandDatas.CopyDeviceBufferAccelerationStructureCommands.push_back(description);
     }
 
     void CommandListStorage::WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset)
     {
-        size_t payloadSize = name.size() + size;
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::PushConstants;
+        header.CommandOffset = CommandDatas.PushConstantsCommands.size();
 
-        auto alloc = Allocate<PushConstantsCommandStorage>(CommandData, CommandType::PushConstants, payloadSize);
-        auto *command = alloc.GetCommand(CommandData);
-        auto *payload = alloc.GetPayload(CommandData);
+        PushConstantsDesc &command = CommandDatas.PushConstantsCommands.emplace_back();
+        command.Name = name;
+        command.Offset = offset;
 
-        command->NameLength = name.size();
-        command->Offset = offset;
-        command->DataLength = size;
-
-        std::byte *rawPtr = payload;
-        memcpy(rawPtr, name.data(), name.size());
-        rawPtr += name.size();
-        memcpy(rawPtr, data, size);
+        command.Data.resize(size);
+        memcpy(command.Data.data(), data, size);
     }
 
     void CommandListStorage::SubmitBarrierGroup(const BarrierGroupDescription &description)
     {
-        size_t payloadSize = (description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc)) +
-                             (description.TextureBarriers.size() * sizeof(TextureBarrierCommandStorage)) +
-                             (description.BufferBarriers.size() * sizeof(BufferBarrierCommandStorage));
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::BarrierGroup;
+        header.CommandOffset = CommandDatas.BarrierGroupCommands.size();
 
-        auto alloc = Allocate<BarrierGroupCommandStorage>(CommandData, CommandType::BarrierGroup, payloadSize);
-        auto *command = alloc.GetCommand(CommandData);
-        auto *payload = alloc.GetPayload(CommandData);
-
-        command->MemoryBarrierCount = description.MemoryBarriers.size();
-        command->TextureBarrierCount = description.TextureBarriers.size();
-        command->BufferBarrierCount = description.BufferBarriers.size();
-
-        // write memory barriers
-        std::byte *rawPtr = payload;
-        memcpy(
-            rawPtr, description.MemoryBarriers.data(), description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc)
-        );
-        rawPtr += description.MemoryBarriers.size() * sizeof(MemoryBarrierDesc);
-
-        // write texture barriers
-        for (const auto &textureBarrier : description.TextureBarriers)
-        {
-            TextureBarrierCommandStorage barrier = {};
-            barrier.TextureIndex = Textures.size();
-            barrier.Layout = textureBarrier.Layout;
-            barrier.BeforeAccess = textureBarrier.BeforeAccess;
-            barrier.AfterAccess = textureBarrier.AfterAccess;
-            barrier.BeforeStage = textureBarrier.BeforeStage;
-            barrier.AfterStage = textureBarrier.AfterStage;
-            barrier.TextureSubresourceRange = textureBarrier.TextureSubresourceRange;
-            memcpy(rawPtr, &barrier, sizeof(barrier));
-
-            Textures.push_back(textureBarrier.Texture);
-
-            rawPtr += sizeof(TextureBarrierCommandStorage);
-        }
-
-        // write buffer barriers
-        for (const auto &bufferBarrier : description.BufferBarriers)
-        {
-            BufferBarrierCommandStorage barrier = {};
-            barrier.BufferIndex = DeviceBuffers.size();
-            barrier.BeforeAccess = bufferBarrier.BeforeAccess;
-            barrier.AfterAccess = bufferBarrier.AfterAccess;
-            barrier.BeforeStage = bufferBarrier.BeforeStage;
-            barrier.AfterStage = bufferBarrier.AfterStage;
-            barrier.Offset = bufferBarrier.Offset;
-            barrier.Size = bufferBarrier.Size;
-            memcpy(rawPtr, &barrier, sizeof(barrier));
-
-            DeviceBuffers.push_back(bufferBarrier.Buffer);
-
-            rawPtr += sizeof(BufferBarrierCommandStorage);
-        }
+        CommandDatas.BarrierGroupCommands.push_back(description);
     }
 
     void CommandListStorage::EndRendering()
     {
-        auto alloc = Allocate<EndRenderingCommandStorage>(CommandData, CommandType::EndRendering);
-    }
+        CommandHeader &header = CommandDatas.Headers.emplace_back();
+        header.Type = CommandType::EndRendering;
+        header.CommandOffset = CommandDatas.EndRenderingCommands.size();
 
-    CommandIterator CommandListStorage::GetCommands()
-    {
-        return CommandIterator(CommandData);
+        CommandDatas.EndRenderingCommands.push_back({});
     }
 
     ICommandList::ICommandList(const CommandListDescription &spec)

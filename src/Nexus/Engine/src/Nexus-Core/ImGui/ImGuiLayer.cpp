@@ -12,8 +12,6 @@ namespace Nexus
         ImGui::SetCurrentContext(context);
         m_ImGuiRenderer->RebuildFontAtlas();
 
-        m_CommandList = m_CommandQueue->CreateCommandList();
-
         ImGuiIO &io = m_ImGuiRenderer->GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     }
@@ -56,8 +54,6 @@ namespace Nexus
     void ImGuiLayer::OnRender(Nexus::TimeSpan time, IWindow *window)
     {
         Graphics::SwapchainHandle swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
-
-        m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
 
         m_ImGuiRenderer->BeforeLayout(time);
         OnImGuiRenderer();

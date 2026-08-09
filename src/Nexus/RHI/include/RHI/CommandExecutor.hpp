@@ -9,7 +9,7 @@
 
 namespace Nexus::Graphics
 {
-    using CommandFunc = void (*)(const CommandHeader *, const CommandListReader &, CommandListStorage &, void *);
+    using CommandFunc = void (*)(const CommandHeader *, CommandListStorage &, void *);
 
     class NX_RHI_API CommandExecutor
     {

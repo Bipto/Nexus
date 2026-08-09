@@ -16,14 +16,10 @@
 
 namespace Nexus::Graphics
 {
-    static void BindFramebuffer(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void BindFramebuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
-
-        auto *cmd = reader.GetCommand<FramebufferCommandStorage>(header);
-        auto framebuffer = storage.Framebuffers[cmd->FramebufferIndex];
+        const auto &framebuffer = storage.CommandDatas.FramebufferCommands.at(header->CommandOffset);
 
         executor->StopRendering();
 
@@ -35,17 +31,15 @@ namespace Nexus::Graphics
         }
     }
 
-    static void ClearColourTarget(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void ClearColourTarget(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<ClearColorTargetCommand>(header);
+        const auto &cmd = storage.CommandDatas.ClearColourTargetCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
-        if (!executor->ValidateForClearColour(executor->m_CurrentRenderTarget, cmd->Index) ||
+        if (!executor->ValidateForClearColour(executor->m_CurrentRenderTarget, cmd.Index) ||
             !executor->ValidateIsRendering())
         {
             return;
@@ -53,16 +47,16 @@ namespace Nexus::Graphics
 
         VkClearAttachment clearAttachment{};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        clearAttachment.clearValue.color = {cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha};
-        clearAttachment.colorAttachment = cmd->Index;
+        clearAttachment.clearValue.color = {cmd.Colour.Red, cmd.Colour.Green, cmd.Colour.Blue, cmd.Colour.Alpha};
+        clearAttachment.colorAttachment = cmd.Index;
 
         VkClearRect clearRect;
         clearRect.baseArrayLayer = 0;
         clearRect.layerCount = 1;
 
-        if (cmd->Rect.has_value())
+        if (cmd.Rect.has_value())
         {
-            Graphics::ClearRect rect = cmd->Rect.value();
+            Graphics::ClearRect rect = cmd.Rect.value();
             clearRect.rect.offset = {rect.X, rect.Y};
             clearRect.rect.extent = {rect.Width, rect.Height};
         }
@@ -81,54 +75,10 @@ namespace Nexus::Graphics
         context.CmdClearAttachments(executor->m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
-    static void SubmitBarrierGroup(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SubmitBarrierGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
-
-        const auto *cmd = reader.GetCommand<BarrierGroupCommandStorage>(header);
-        std::vector<MemoryBarrierDesc> memoryBarriers(cmd->MemoryBarrierCount);
-        std::vector<TextureBarrierDesc> textureBarriers(cmd->TextureBarrierCount);
-        std::vector<BufferBarrierDesc> bufferBarriers(cmd->BufferBarrierCount);
-
-        const std::byte *payloadPtr = reader.GetPayloadRaw<BarrierGroupCommandStorage>(header);
-        memcpy(memoryBarriers.data(), payloadPtr, memoryBarriers.size() * sizeof(MemoryBarrierDesc));
-        payloadPtr += memoryBarriers.size() * sizeof(MemoryBarrierDesc);
-
-        for (size_t i = 0; i < textureBarriers.size(); i++)
-        {
-            TextureBarrierCommandStorage barrierStorage = {};
-            memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
-
-            TextureBarrierDesc &barrier = textureBarriers[i];
-            barrier.Texture = storage.Textures[barrierStorage.TextureIndex];
-            barrier.Layout = barrierStorage.Layout;
-            barrier.BeforeAccess = barrierStorage.BeforeAccess;
-            barrier.AfterAccess = barrierStorage.AfterAccess;
-            barrier.BeforeStage = barrierStorage.BeforeStage;
-            barrier.AfterStage = barrierStorage.AfterStage;
-            barrier.TextureSubresourceRange = barrierStorage.TextureSubresourceRange;
-
-            payloadPtr += sizeof(TextureBarrierCommandStorage);
-        }
-
-        for (size_t i = 0; i < bufferBarriers.size(); i++)
-        {
-            BufferBarrierCommandStorage barrierStorage = {};
-            memcpy(&barrierStorage, payloadPtr, sizeof(barrierStorage));
-
-            BufferBarrierDesc &barrierDesc = bufferBarriers[i];
-            barrierDesc.Buffer = storage.DeviceBuffers[barrierStorage.BufferIndex];
-            barrierDesc.BeforeAccess = barrierStorage.BeforeAccess;
-            barrierDesc.AfterAccess = barrierStorage.AfterAccess;
-            barrierDesc.BeforeStage = barrierStorage.BeforeStage;
-            barrierDesc.AfterStage = barrierStorage.AfterStage;
-            barrierDesc.Offset = barrierStorage.Offset;
-            barrierDesc.Size = barrierStorage.Size;
-
-            payloadPtr += sizeof(BufferBarrierCommandStorage);
-        }
+        const auto &cmd = storage.CommandDatas.BarrierGroupCommands.at(header->CommandOffset);
 
         if (executor->m_Rendering)
         {
@@ -145,7 +95,7 @@ namespace Nexus::Graphics
 
         // enumerate through all texture barriers and create the required subresource
         // ranges
-        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+        for (const TextureBarrierDesc &textureBarrier : cmd.TextureBarriers)
         {
             const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
 
@@ -181,16 +131,16 @@ namespace Nexus::Graphics
             std::vector<VkImageMemoryBarrier2> textureBarriersVk = {};
             std::vector<VkBufferMemoryBarrier2> bufferBarriersVk = {};
 
-            memoryBarriersVk.reserve(memoryBarriers.size());
-            textureBarriersVk.reserve(textureBarriers.size());
-            bufferBarriersVk.reserve(bufferBarriers.size());
+            memoryBarriersVk.reserve(cmd.MemoryBarriers.size());
+            textureBarriersVk.reserve(cmd.TextureBarriers.size());
+            bufferBarriersVk.reserve(cmd.BufferBarriers.size());
 
-            for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
+            for (const MemoryBarrierDesc &memoryBarrier : cmd.MemoryBarriers)
             {
                 Vk::CreateMemoryBarrier2(executor->m_Device, memoryBarrier, memoryBarriersVk);
             }
 
-            for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+            for (const TextureBarrierDesc &textureBarrier : cmd.TextureBarriers)
             {
                 VkImageLayout layout = Vk::GetImageLayout(executor->m_Device, textureBarrier.Layout);
                 const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
@@ -201,7 +151,7 @@ namespace Nexus::Graphics
                 );
             }
 
-            for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
+            for (const BufferBarrierDesc &bufferBarrier : cmd.BufferBarriers)
             {
                 Vk::CreateBufferBarrier2(executor->m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
             }
@@ -226,19 +176,19 @@ namespace Nexus::Graphics
             std::vector<VkImageMemoryBarrier> textureBarriersVk = {};
             std::vector<VkBufferMemoryBarrier> bufferBarriersVk = {};
 
-            memoryBarriersVk.reserve(memoryBarriers.size());
-            textureBarriersVk.reserve(textureBarriers.size());
-            bufferBarriersVk.reserve(bufferBarriers.size());
+            memoryBarriersVk.reserve(cmd.MemoryBarriers.size());
+            textureBarriersVk.reserve(cmd.TextureBarriers.size());
+            bufferBarriersVk.reserve(cmd.BufferBarriers.size());
 
             VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_NONE;
             VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_NONE;
 
-            for (const MemoryBarrierDesc &memoryBarrier : memoryBarriers)
+            for (const MemoryBarrierDesc &memoryBarrier : cmd.MemoryBarriers)
             {
                 Vk::CreateMemoryBarrier(executor->m_Device, memoryBarrier, memoryBarriersVk);
             }
 
-            for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+            for (const TextureBarrierDesc &textureBarrier : cmd.TextureBarriers)
             {
                 VkImageLayout layout = Vk::GetImageLayout(executor->m_Device, textureBarrier.Layout);
                 const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
@@ -252,7 +202,7 @@ namespace Nexus::Graphics
                 dstStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, textureBarrier.AfterStage);
             }
 
-            for (const BufferBarrierDesc &bufferBarrier : bufferBarriers)
+            for (const BufferBarrierDesc &bufferBarrier : cmd.BufferBarriers)
             {
                 Vk::CreateBufferBarrier(executor->m_Device, bufferBarrier, bufferBarriersVk, srcQueue, dstQueue);
                 srcStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, bufferBarrier.BeforeStage);
@@ -261,16 +211,16 @@ namespace Nexus::Graphics
 
             context.CmdPipelineBarrier(
                 executor->m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
-                static_cast<uint32_t>(memoryBarriers.size()), memoryBarriersVk.data(),
-                static_cast<uint32_t>(bufferBarriers.size()), bufferBarriersVk.data(),
-                static_cast<uint32_t>(textureBarriers.size()), textureBarriersVk.data()
+                static_cast<uint32_t>(memoryBarriersVk.size()), memoryBarriersVk.data(),
+                static_cast<uint32_t>(bufferBarriersVk.size()), bufferBarriersVk.data(),
+                static_cast<uint32_t>(textureBarriersVk.size()), textureBarriersVk.data()
             );
         }
 
         // update texture layouts
         // enumerate through all texture barriers and create the required subresource
         // ranges
-        for (const TextureBarrierDesc &textureBarrier : textureBarriers)
+        for (const TextureBarrierDesc &textureBarrier : cmd.TextureBarriers)
         {
             TextureHandle handle = textureBarrier.Texture;
             TextureVk *textureVk = handle.AsDerived<TextureVk>();
@@ -291,14 +241,13 @@ namespace Nexus::Graphics
         }
     }
 
-    static void SetVertexBuffer(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SetVertexBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<SetVertexBufferCommandStorage>(header);
-        const auto &bufferHandle = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+        const auto &cmd = storage.CommandDatas.SetVertexBufferCommands.at(header->CommandOffset);
+
+        const auto &bufferHandle = cmd.View.BufferHandle;
 
         executor->TryStartRendering();
 
@@ -310,37 +259,35 @@ namespace Nexus::Graphics
 
         const DeviceBufferVk *vertexBufferVk = bufferHandle.AsDerived<const DeviceBufferVk>();
         VkBuffer vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
-        VkDeviceSize offsets[] = {cmd->Offset};
-        VkDeviceSize sizes[] = {cmd->Size};
+        VkDeviceSize offsets[] = {cmd.View.Offset};
+        VkDeviceSize sizes[] = {cmd.View.Size};
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
 
         if (context.CmdBindVertexBuffers2)
         {
             context.CmdBindVertexBuffers2(
-                executor->m_CommandBuffer, cmd->Slot, 1, vertexBuffers, offsets, sizes, nullptr
+                executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets, sizes, nullptr
             );
         }
         else if (context.CmdBindVertexBuffers2EXT)
         {
             context.CmdBindVertexBuffers2EXT(
-                executor->m_CommandBuffer, cmd->Slot, 1, vertexBuffers, offsets, sizes, nullptr
+                executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets, sizes, nullptr
             );
         }
         else
         {
-            context.CmdBindVertexBuffers(executor->m_CommandBuffer, cmd->Slot, 1, vertexBuffers, offsets);
+            context.CmdBindVertexBuffers(executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets);
         }
     }
 
-    static void SetIndexBuffer(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SetIndexBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<SetIndexBufferCommandStorage>(header);
-        const auto &bufferHandle = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+        const auto &cmd = storage.CommandDatas.SetIndexBufferCommands.at(header->CommandOffset);
+        const auto &bufferHandle = cmd.View.BufferHandle;
 
         executor->TryStartRendering();
 
@@ -352,9 +299,9 @@ namespace Nexus::Graphics
 
         const DeviceBufferVk *indexBufferVk = bufferHandle.AsDerived<const DeviceBufferVk>();
         VkBuffer indexBufferHandle = indexBufferVk->GetVkBuffer();
-        VkIndexType indexType = Vk::GetVulkanIndexBufferFormat(cmd->BufferFormat);
-        VkDeviceSize offset = cmd->Offset;
-        VkDeviceSize size = cmd->Size;
+        VkIndexType indexType = Vk::GetVulkanIndexBufferFormat(cmd.View.BufferFormat);
+        VkDeviceSize offset = cmd.View.Offset;
+        VkDeviceSize size = cmd.View.Size;
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
 
@@ -372,15 +319,11 @@ namespace Nexus::Graphics
         }
     }
 
-    static void SetPipeline(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SetPipeline(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<SetPipelineCommandStorage>(header);
-        auto &pipelineHandle = storage.Pipelines.at(cmd->PipelineIndex);
-
+        auto &pipelineHandle = storage.CommandDatas.SetPipelineCommands.at(header->CommandOffset);
         executor->TryStartRendering();
 
         if (PipelineVk *pipeline = pipelineHandle.AsDerived<PipelineVk>())
@@ -406,60 +349,27 @@ namespace Nexus::Graphics
         }
     }
 
-    static void SetResourceSet(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SetResourceSet(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
-
-        auto *cmd = reader.GetCommand<ResourceSetBindingCommandStorage>(header);
-
-        auto &resourceSetHandle = storage.ResourceSets.at(cmd->ResourceSetIndex);
-
-        const std::byte *rawPtr = reader.GetPayloadRaw<ResourceSetBindingCommandStorage>(header);
-
-        ResourceSetBindingDescription bindings = {};
-        bindings.TargetResourceSet = resourceSetHandle;
-
-        for (uint32_t i = 0; i < cmd->DynamicOffsetCount; i++)
-        {
-            uint32_t nameLength;
-            memcpy(&nameLength, rawPtr, sizeof(nameLength));
-            rawPtr += sizeof(nameLength);
-
-            std::string name(reinterpret_cast<const char *>(rawPtr), nameLength);
-            rawPtr += nameLength;
-
-            uint32_t offsetCount;
-            memcpy(&offsetCount, rawPtr, sizeof(offsetCount));
-            rawPtr += sizeof(offsetCount);
-
-            // std::vector<uint32_t> offsets(offsetCount);
-            std::vector<uint32_t> &offsets = bindings.DynamicOffsets[name];
-            offsets.resize(offsetCount);
-            memcpy(offsets.data(), rawPtr, offsetCount * sizeof(uint32_t));
-
-            rawPtr += offsetCount * sizeof(uint32_t);
-        }
+        auto &cmd = storage.CommandDatas.ResourceSetBindingCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
         if (PipelineVk *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
         {
-            pipeline->SetResourceSet(executor->m_CommandBuffer, bindings);
+            pipeline->SetResourceSet(executor->m_CommandBuffer, cmd);
 
-            const ResourceSetVk *resourceSet = bindings.TargetResourceSet.AsDerived<const ResourceSetVk>();
+            const ResourceSetVk *resourceSet = cmd.TargetResourceSet.AsDerived<const ResourceSetVk>();
             executor->m_CurrentlyBoundResourceSet = resourceSet;
         }
     }
 
-    static void Draw(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void Draw(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DrawDescription>(header);
+        const auto &cmd = storage.CommandDatas.DrawCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
@@ -473,17 +383,15 @@ namespace Nexus::Graphics
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
         context.CmdDraw(
-            executor->m_CommandBuffer, cmd->VertexCount, cmd->InstanceCount, cmd->VertexStart, cmd->InstanceStart
+            executor->m_CommandBuffer, cmd.VertexCount, cmd.InstanceCount, cmd.VertexStart, cmd.InstanceStart
         );
     }
 
-    static void DrawIndexed(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void DrawIndexed(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DrawIndexedDescription>(header);
+        const auto &cmd = storage.CommandDatas.DrawIndexedCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
@@ -497,20 +405,18 @@ namespace Nexus::Graphics
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
         context.CmdDrawIndexed(
-            executor->m_CommandBuffer, cmd->IndexCount, cmd->InstanceCount, cmd->IndexStart, cmd->VertexStart,
-            cmd->InstanceStart
+            executor->m_CommandBuffer, cmd.IndexCount, cmd.InstanceCount, cmd.IndexStart, cmd.VertexStart,
+            cmd.InstanceStart
         );
     }
 
-    static void DrawIndirect(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void DrawIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DrawIndirectCommandStorage>(header);
+        const auto &cmd = storage.CommandDatas.DrawIndirectCommands.at(header->CommandOffset);
 
-        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+        auto &deviceBuffer = cmd.IndirectBuffer;
 
         executor->TryStartRendering();
 
@@ -526,20 +432,18 @@ namespace Nexus::Graphics
 
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
             context.CmdDrawIndirect(
-                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset, cmd->DrawCount, cmd->Stride
+                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount, cmd.Stride
             );
         }
     }
 
-    static void DrawIndexedIndirect(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void DrawIndexedIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DrawIndirectCommandStorage>(header);
+        const auto &cmd = storage.CommandDatas.DrawIndirectIndexedCommands.at(header->CommandOffset);
 
-        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+        auto &deviceBuffer = cmd.IndirectBuffer;
 
         executor->TryStartRendering();
 
@@ -555,18 +459,16 @@ namespace Nexus::Graphics
 
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
             context.CmdDrawIndexedIndirect(
-                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset, cmd->DrawCount, cmd->Stride
+                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount, cmd.Stride
             );
         }
     }
 
-    static void Dispatch(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void Dispatch(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DispatchDescription>(header);
+        const auto &cmd = storage.CommandDatas.DispatchCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
@@ -576,20 +478,16 @@ namespace Nexus::Graphics
         }
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-        context.CmdDispatch(
-            executor->m_CommandBuffer, cmd->WorkGroupCountX, cmd->WorkGroupCountY, cmd->WorkGroupCountZ
-        );
+        context.CmdDispatch(executor->m_CommandBuffer, cmd.WorkGroupCountX, cmd.WorkGroupCountY, cmd.WorkGroupCountZ);
     }
 
-    static void DispatchIndirect(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void DispatchIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DispatchIndirectCommandStorage>(header);
+        const auto &cmd = storage.CommandDatas.DispatchIndirectCommands.at(header->CommandOffset);
 
-        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+        auto &deviceBuffer = cmd.IndirectBuffer;
 
         executor->TryStartRendering();
 
@@ -601,17 +499,15 @@ namespace Nexus::Graphics
         if (const DeviceBufferVk *indirectBuffer = deviceBuffer.AsDerived<const DeviceBufferVk>())
         {
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-            context.CmdDispatchIndirect(executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset);
+            context.CmdDispatchIndirect(executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset);
         }
     }
 
-    static void DrawMesh(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void DrawMesh(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DrawMeshDescription>(header);
+        const auto &cmd = storage.CommandDatas.DrawMeshCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
@@ -628,20 +524,18 @@ namespace Nexus::Graphics
         if (context.CmdDrawMeshTasksEXT)
         {
             context.CmdDrawMeshTasksEXT(
-                executor->m_CommandBuffer, cmd->WorkGroupCountX, cmd->WorkGroupCountY, cmd->WorkGroupCountZ
+                executor->m_CommandBuffer, cmd.WorkGroupCountX, cmd.WorkGroupCountY, cmd.WorkGroupCountZ
             );
         }
     }
 
-    static void DrawMeshIndirect(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void DrawMeshIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<DrawMeshIndirectCommandStorage>(header);
+        const auto &cmd = storage.CommandDatas.DrawMeshIndirectCommands.at(header->CommandOffset);
 
-        auto &deviceBuffer = storage.DeviceBuffers.at(cmd->DeviceBufferIndex);
+        auto &deviceBuffer = cmd.IndirectBuffer;
 
         executor->TryStartRendering();
 
@@ -660,121 +554,108 @@ namespace Nexus::Graphics
             if (context.CmdDrawMeshTasksIndirectEXT)
             {
                 context.CmdDrawMeshTasksIndirectEXT(
-                    executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd->Offset, cmd->DrawCount, cmd->Stride
+                    executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount, cmd.Stride
                 );
             }
         }
     }
 
-    static void TraceRays(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void TraceRays(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<TraceRaysDescription>(header);
+        const auto &cmd = storage.CommandDatas.TraceRaysCommands.at(header->CommandOffset);
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
 
         if (context.CmdTraceRaysKHR)
         {
             VkStridedDeviceAddressRegionKHR raygenRegion = {
-                .deviceAddress = cmd->RaygenRegion.Address,
-                .stride = cmd->RaygenRegion.Size,
-                .size = cmd->RaygenRegion.Size
+                .deviceAddress = cmd.RaygenRegion.Address,
+                .stride = cmd.RaygenRegion.Size,
+                .size = cmd.RaygenRegion.Size
             };
 
             VkStridedDeviceAddressRegionKHR missRegion = {
-                .deviceAddress = cmd->MissRegion.Address, .stride = cmd->MissRegion.Stride, .size = cmd->MissRegion.Size
+                .deviceAddress = cmd.MissRegion.Address, .stride = cmd.MissRegion.Stride, .size = cmd.MissRegion.Size
             };
 
             VkStridedDeviceAddressRegionKHR hitRegion = {
-                .deviceAddress = cmd->HitRegion.Address, .stride = cmd->HitRegion.Stride, .size = cmd->HitRegion.Size
+                .deviceAddress = cmd.HitRegion.Address, .stride = cmd.HitRegion.Stride, .size = cmd.HitRegion.Size
             };
 
             VkStridedDeviceAddressRegionKHR callableRegion = {
-                .deviceAddress = cmd->CallableRegion.Address,
-                .stride = cmd->CallableRegion.Stride,
-                .size = cmd->CallableRegion.Size
+                .deviceAddress = cmd.CallableRegion.Address,
+                .stride = cmd.CallableRegion.Stride,
+                .size = cmd.CallableRegion.Size
             };
 
             context.CmdTraceRaysKHR(
-                executor->m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, cmd->Width,
-                cmd->Height, cmd->Depth
+                executor->m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, cmd.Width,
+                cmd.Height, cmd.Depth
             );
         }
     }
 
-    static void SetViewport(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SetViewport(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
-
-        auto *cmd = reader.GetCommand<Viewport>(header);
+        const auto &cmd = storage.CommandDatas.ViewportCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
-        if (!executor->ValidateForSetViewport(executor->m_CurrentRenderTarget, *cmd))
+        if (!executor->ValidateForSetViewport(executor->m_CurrentRenderTarget, cmd))
         {
             return;
         }
 
-        if (cmd->Width == 0 || cmd->Height == 0)
+        if (cmd.Width == 0 || cmd.Height == 0)
             return;
 
         VkViewport vp;
-        vp.x = cmd->X;
-        vp.y = cmd->Height + cmd->Y;
-        vp.width = cmd->Width;
-        vp.height = -cmd->Height;
-        vp.minDepth = cmd->MinDepth;
-        vp.maxDepth = cmd->MaxDepth;
+        vp.x = cmd.X;
+        vp.y = cmd.Height + cmd.Y;
+        vp.width = cmd.Width;
+        vp.height = -cmd.Height;
+        vp.minDepth = cmd.MinDepth;
+        vp.maxDepth = cmd.MaxDepth;
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
         context.CmdSetViewport(executor->m_CommandBuffer, 0, 1, &vp);
     }
 
-    static void SetScissor(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void SetScissor(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<Scissor>(header);
+        const auto &cmd = storage.CommandDatas.ScissorCommands.at(header->CommandOffset);
 
         executor->TryStartRendering();
 
-        if (!executor->ValidateForSetScissor(executor->m_CurrentRenderTarget, *cmd))
+        if (!executor->ValidateForSetScissor(executor->m_CurrentRenderTarget, cmd))
         {
             return;
         }
 
         VkRect2D rect;
-        rect.offset = {(int32_t)cmd->X, (int32_t)cmd->Y};
-        rect.extent = {(uint32_t)cmd->Width, (uint32_t)cmd->Height};
+        rect.offset = {(int32_t)cmd.X, (int32_t)cmd.Y};
+        rect.extent = {(uint32_t)cmd.Width, (uint32_t)cmd.Height};
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
         context.CmdSetScissor(executor->m_CommandBuffer, 0, 1, &rect);
     }
 
-    static void PushConstants(
-        const CommandHeader *header, const CommandListReader &reader, CommandListStorage &storage, void *data
-    )
+    static void PushConstants(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
-        auto *cmd = reader.GetCommand<PushConstantsCommandStorage>(header);
-        const std::byte *pushConstantsData = reader.GetPayloadRaw<PushConstantsCommandStorage>(header);
-
-        std::string name(reinterpret_cast<const char *>(pushConstantsData), cmd->NameLength);
-        pushConstantsData += cmd->NameLength;
+        const auto &cmd = storage.CommandDatas.PushConstantsCommands.at(header->CommandOffset);
 
         if (!executor->m_CurrentlyBoundResourceSet)
             return;
 
         std::optional<VkShaderStageFlags> stageFlags =
-            executor->m_CurrentlyBoundResourceSet->GetPushConstantsStageFlags(name);
+            executor->m_CurrentlyBoundResourceSet->GetPushConstantsStageFlags(cmd.Name);
 
         if (!stageFlags.has_value())
             return;
@@ -790,9 +671,9 @@ namespace Nexus::Graphics
                 pushConstantsInfo.pNext = nullptr;
                 pushConstantsInfo.layout = pipeline->GetPipelineLayout();
                 pushConstantsInfo.stageFlags = stageFlags.value();
-                pushConstantsInfo.offset = cmd->Offset;
-                pushConstantsInfo.size = cmd->DataLength;
-                pushConstantsInfo.pValues = pushConstantsData;
+                pushConstantsInfo.offset = cmd.Offset;
+                pushConstantsInfo.size = cmd.Data.size();
+                pushConstantsInfo.pValues = cmd.Data.data();
 
                 context.CmdPushConstants2(executor->m_CommandBuffer, &pushConstantsInfo);
             }
@@ -803,17 +684,374 @@ namespace Nexus::Graphics
                 pushConstantsInfo.pNext = nullptr;
                 pushConstantsInfo.layout = pipeline->GetPipelineLayout();
                 pushConstantsInfo.stageFlags = stageFlags.value();
-                pushConstantsInfo.offset = cmd->Offset;
-                pushConstantsInfo.size = cmd->DataLength;
-                pushConstantsInfo.pValues = pushConstantsData;
+                pushConstantsInfo.offset = cmd.Offset;
+                pushConstantsInfo.size = cmd.Data.size();
+                pushConstantsInfo.pValues = cmd.Data.data();
 
                 context.CmdPushConstants2KHR(executor->m_CommandBuffer, &pushConstantsInfo);
             }
             else
             {
                 context.CmdPushConstants(
-                    executor->m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(), cmd->Offset,
-                    cmd->DataLength, pushConstantsData
+                    executor->m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(), cmd.Offset,
+                    cmd.Data.size(), cmd.Data.data()
+                );
+            }
+        }
+    }
+
+    static void CopyBufferToBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyBufferToBufferCommands.at(header->CommandOffset);
+
+        const DeviceBufferVk *src = cmd.BufferCopy.Source.AsDerived<const DeviceBufferVk>();
+        const DeviceBufferVk *dst = cmd.BufferCopy.Destination.AsDerived<const DeviceBufferVk>();
+
+        if (!src || !dst)
+        {
+            return;
+        }
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdCopyBuffer2KHR)
+        {
+            std::vector<VkBufferCopy2KHR> bufferCopies;
+
+            for (const auto &copy : cmd.BufferCopy.Copies)
+            {
+                VkBufferCopy2KHR &bufferCopy = bufferCopies.emplace_back();
+                bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR;
+                bufferCopy.pNext = nullptr;
+                bufferCopy.srcOffset = copy.ReadOffset;
+                bufferCopy.dstOffset = copy.WriteOffset;
+                bufferCopy.size = copy.Size;
+            }
+
+            VkCopyBufferInfo2KHR copyInfo = {};
+            copyInfo.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2_KHR;
+            copyInfo.pNext = nullptr;
+            copyInfo.srcBuffer = src->GetVkBuffer();
+            copyInfo.dstBuffer = dst->GetVkBuffer();
+            copyInfo.regionCount = bufferCopies.size();
+            copyInfo.pRegions = bufferCopies.data();
+
+            context.CmdCopyBuffer2KHR(executor->m_CommandBuffer, &copyInfo);
+        }
+        else
+        {
+            std::vector<VkBufferCopy> bufferCopies;
+
+            for (const auto &copy : cmd.BufferCopy.Copies)
+            {
+                VkBufferCopy &bufferCopy = bufferCopies.emplace_back();
+                bufferCopy.srcOffset = copy.ReadOffset;
+                bufferCopy.dstOffset = copy.WriteOffset;
+                bufferCopy.size = copy.Size;
+            }
+
+            context.CmdCopyBuffer(
+                executor->m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(),
+                bufferCopies.data()
+            );
+        }
+    }
+
+    static void CopyBufferToTexture(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyBufferToTextureCommands.at(header->CommandOffset);
+        const DeviceBufferVk *buffer = cmd.BufferTextureCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
+        const TextureVk *texture = cmd.BufferTextureCopy.Texture.AsDerived<const TextureVk>();
+        VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
+
+        if (!buffer)
+        {
+            return;
+        }
+
+        const uint32_t copyDepth = 1;
+
+        std::map<uint32_t, VkImageLayout> previousLayouts;
+
+        // perform copy
+        {
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+            VkImageSubresourceLayers imageSubresource = {};
+            imageSubresource.aspectMask = aspectFlags;
+            imageSubresource.mipLevel = cmd.BufferTextureCopy.MipLevel;
+            imageSubresource.baseArrayLayer = 0;
+            imageSubresource.layerCount = 1;
+
+            if (texture->GetType() != TextureType::Texture3D)
+            {
+                imageSubresource.baseArrayLayer = cmd.BufferTextureCopy.TextureOffset.Z;
+                imageSubresource.layerCount = copyDepth;
+            }
+
+            VkOffset3D imageOffset = {};
+            imageOffset.x = cmd.BufferTextureCopy.TextureOffset.X;
+            imageOffset.y = cmd.BufferTextureCopy.TextureOffset.Y;
+            imageOffset.z = 0;
+
+            if (texture->GetType() == TextureType::Texture3D)
+            {
+                imageOffset.z = cmd.BufferTextureCopy.TextureOffset.Z;
+            }
+
+            VkExtent3D imageExtent = {};
+            imageExtent.width = cmd.BufferTextureCopy.TextureExtent.Width;
+            imageExtent.height = cmd.BufferTextureCopy.TextureExtent.Height;
+            imageExtent.depth = copyDepth;
+
+            if (context.CmdCopyBufferToImage2KHR)
+            {
+                VkBufferImageCopy2KHR copyRegion = {};
+                copyRegion.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR;
+                copyRegion.pNext = nullptr;
+                copyRegion.bufferOffset = cmd.BufferTextureCopy.BufferOffset;
+                copyRegion.bufferRowLength = cmd.BufferTextureCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = cmd.BufferTextureCopy.BufferImageHeight;
+                copyRegion.imageSubresource = imageSubresource;
+                copyRegion.imageOffset = imageOffset;
+                copyRegion.imageExtent = imageExtent;
+
+                VkCopyBufferToImageInfo2KHR copyInfo = {};
+                copyInfo.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2_KHR;
+                copyInfo.pNext = nullptr;
+                copyInfo.srcBuffer = buffer->GetVkBuffer();
+                copyInfo.dstImage = texture->GetImage();
+                copyInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                copyInfo.pRegions = &copyRegion;
+                copyInfo.regionCount = 1;
+
+                context.CmdCopyBufferToImage2KHR(executor->m_CommandBuffer, &copyInfo);
+            }
+            else
+            {
+                VkBufferImageCopy copyRegion = {};
+                copyRegion.bufferOffset = cmd.BufferTextureCopy.BufferOffset;
+                copyRegion.bufferRowLength = cmd.BufferTextureCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = cmd.BufferTextureCopy.BufferImageHeight;
+                copyRegion.imageSubresource = imageSubresource;
+                copyRegion.imageOffset = imageOffset;
+                copyRegion.imageExtent = imageExtent;
+
+                context.CmdCopyBufferToImage(
+                    executor->m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(),
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
+                );
+            }
+        }
+    }
+
+    static void CopyTextureToBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyTextureToBufferCommands.at(header->CommandOffset);
+        const DeviceBufferVk *buffer = cmd.TextureBufferCopy.BufferHandle.AsDerived<const DeviceBufferVk>();
+
+        if (!buffer)
+        {
+            return;
+        }
+
+        const TextureVk *texture = cmd.TextureBufferCopy.Texture.AsDerived<const TextureVk>();
+        VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(texture->IsDepth());
+
+        std::map<uint32_t, VkImageLayout> previousLayouts;
+
+        const bool copyDepth = 1;
+
+        // perform copy
+        {
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+            VkImageSubresourceLayers imageSubresource = {};
+            imageSubresource.aspectMask = aspectFlags;
+            imageSubresource.mipLevel = cmd.TextureBufferCopy.MipLevel;
+            imageSubresource.baseArrayLayer = 0;
+            imageSubresource.layerCount = 1;
+
+            if (texture->GetType() != TextureType::Texture3D)
+            {
+                imageSubresource.baseArrayLayer = cmd.TextureBufferCopy.TextureOffset.Z;
+                imageSubresource.layerCount = copyDepth;
+            }
+
+            VkOffset3D imageOffset = {};
+            imageOffset.x = cmd.TextureBufferCopy.TextureOffset.X;
+            imageOffset.y = cmd.TextureBufferCopy.TextureOffset.Y;
+            imageOffset.z = 0;
+
+            if (texture->GetType() == TextureType::Texture3D)
+            {
+                imageOffset.z = cmd.TextureBufferCopy.TextureOffset.Z;
+            }
+
+            VkExtent3D imageExtent = {};
+            imageExtent.width = cmd.TextureBufferCopy.TextureExtent.Width;
+            imageExtent.height = cmd.TextureBufferCopy.TextureExtent.Height;
+            imageExtent.depth = copyDepth;
+
+            if (context.CmdCopyImageToBuffer2KHR)
+            {
+                VkBufferImageCopy2KHR copyRegion = {};
+                copyRegion.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR;
+                copyRegion.pNext = nullptr;
+                copyRegion.bufferOffset = cmd.TextureBufferCopy.BufferOffset;
+                copyRegion.bufferRowLength = cmd.TextureBufferCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = cmd.TextureBufferCopy.BufferImageHeight;
+                copyRegion.imageSubresource = imageSubresource;
+                copyRegion.imageOffset = imageOffset;
+                copyRegion.imageExtent = imageExtent;
+
+                VkCopyImageToBufferInfo2KHR copyInfo = {};
+                copyInfo.sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2_KHR;
+                copyInfo.pNext = nullptr;
+                copyInfo.srcImage = texture->GetImage();
+                copyInfo.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                copyInfo.dstBuffer = buffer->GetVkBuffer();
+                copyInfo.regionCount = 1;
+                copyInfo.pRegions = &copyRegion;
+
+                context.CmdCopyImageToBuffer2KHR(executor->m_CommandBuffer, &copyInfo);
+            }
+            else
+            {
+                VkBufferImageCopy copyRegion = {};
+                copyRegion.bufferOffset = cmd.TextureBufferCopy.BufferOffset;
+                copyRegion.bufferRowLength = cmd.TextureBufferCopy.BufferRowLength;
+                copyRegion.bufferImageHeight = cmd.TextureBufferCopy.BufferImageHeight;
+                copyRegion.imageSubresource = imageSubresource;
+                copyRegion.imageOffset = imageOffset;
+                copyRegion.imageExtent = imageExtent;
+
+                context.CmdCopyImageToBuffer(
+                    executor->m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    buffer->GetVkBuffer(), 1, &copyRegion
+                );
+            }
+        }
+    }
+
+    static void CopyTextureToTexture(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyTextureToTextureCommands.at(header->CommandOffset);
+        const TextureVk *srcTexture = cmd.TextureCopy.Source.AsDerived<const TextureVk>();
+        const TextureVk *dstTexture = cmd.TextureCopy.Destination.AsDerived<const TextureVk>();
+
+        VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(srcTexture->IsDepth());
+        VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(dstTexture->IsDepth());
+
+        std::map<uint32_t, VkImageLayout> srcLayouts;
+        std::map<uint32_t, VkImageLayout> dstLayouts;
+
+        const bool copyDepth = 1;
+
+        // copy image
+        {
+            VkImageSubresourceLayers srcSubresource = {};
+            srcSubresource.aspectMask = srcAspect;
+            srcSubresource.mipLevel = cmd.TextureCopy.SourceMipLevel;
+            srcSubresource.baseArrayLayer = 0;
+            srcSubresource.layerCount = 1;
+
+            if (srcTexture->GetType() != TextureType::Texture3D)
+            {
+                srcSubresource.baseArrayLayer = cmd.TextureCopy.SourceOffset.Z;
+                srcSubresource.layerCount = copyDepth;
+            }
+
+            VkOffset3D srcOffset = {};
+            srcOffset.x = cmd.TextureCopy.SourceOffset.X;
+            srcOffset.y = cmd.TextureCopy.SourceOffset.Y;
+            srcOffset.z = 0;
+
+            if (srcTexture->GetType() != TextureType::Texture2D)
+            {
+                srcOffset.z = cmd.TextureCopy.SourceOffset.Z;
+            }
+
+            VkImageSubresourceLayers dstSubresource = {};
+            dstSubresource.aspectMask = dstAspect;
+            dstSubresource.mipLevel = cmd.TextureCopy.DestinationMipLevel;
+            dstSubresource.baseArrayLayer = 0;
+            dstSubresource.layerCount = 1;
+
+            // we can only set these parameters for array textures, i.e. not 3D
+            // textures
+            if (dstTexture->GetType() != TextureType::Texture3D)
+            {
+                dstSubresource.baseArrayLayer = cmd.TextureCopy.DestinationOffset.Z;
+                dstSubresource.layerCount = copyDepth;
+            }
+
+            VkOffset3D dstOffset = {};
+            dstOffset.x = cmd.TextureCopy.DestinationOffset.X;
+            dstOffset.y = cmd.TextureCopy.DestinationOffset.Y;
+            dstOffset.z = 0;
+
+            if (dstTexture->GetType() != TextureType::Texture2D)
+            {
+                dstOffset.z = cmd.TextureCopy.DestinationOffset.Z;
+            }
+
+            VkExtent3D copyExtent = {};
+            copyExtent.width = cmd.TextureCopy.Extent.Width;
+            copyExtent.height = cmd.TextureCopy.Extent.Height;
+            copyExtent.depth = copyDepth;
+
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+            if (context.CmdCopyImage2KHR)
+            {
+                VkImageCopy2KHR copyRegion = {};
+                copyRegion.sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2_KHR;
+                copyRegion.pNext = nullptr;
+                copyRegion.srcSubresource = srcSubresource;
+                copyRegion.srcOffset = srcOffset;
+                copyRegion.dstSubresource = dstSubresource;
+                copyRegion.dstOffset = dstOffset;
+                copyRegion.extent = copyExtent;
+
+                VkCopyImageInfo2KHR copyInfo = {};
+                copyInfo.sType = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2_KHR;
+                copyInfo.pNext = nullptr;
+                copyInfo.srcImage = srcTexture->GetImage();
+                copyInfo.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                copyInfo.dstImage = dstTexture->GetImage();
+                copyInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                copyInfo.regionCount = 1;
+                copyInfo.pRegions = &copyRegion;
+
+                context.CmdCopyImage2KHR(executor->m_CommandBuffer, &copyInfo);
+            }
+            else
+            {
+                VkImageCopy copyRegion = {};
+
+                // src
+                copyRegion.srcSubresource = srcSubresource;
+                copyRegion.srcOffset = srcOffset;
+
+                // dst
+                copyRegion.dstSubresource = dstSubresource;
+                copyRegion.dstOffset = dstOffset;
+
+                // copy extents
+                copyRegion.extent = copyExtent;
+
+                context.CmdCopyImage(
+                    executor->m_CommandBuffer, srcTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    dstTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
                 );
             }
         }
@@ -1014,6 +1252,10 @@ namespace Nexus::Graphics
         m_DispatchTable[CommandType::Viewport] = SetViewport;
         m_DispatchTable[CommandType::Scissor] = SetScissor;
         m_DispatchTable[CommandType::PushConstants] = PushConstants;
+        m_DispatchTable[CommandType::CopyBufferToBuffer] = CopyBufferToBuffer;
+        m_DispatchTable[CommandType::CopyBufferToTexture] = CopyBufferToTexture;
+        m_DispatchTable[CommandType::CopyTextureToBuffer] = CopyTextureToBuffer;
+        m_DispatchTable[CommandType::CopyTextureToTexture] = CopyTextureToTexture;
     }
 
     CommandExecutorVk::~CommandExecutorVk()
@@ -1064,7 +1306,7 @@ namespace Nexus::Graphics
             }
             m_Commands = {};*/
 
-            auto &storage = commandList->GetStorage();
+            /*auto &storage = commandList->GetStorage();
 
             CommandListReader reader(storage);
 
@@ -1073,6 +1315,16 @@ namespace Nexus::Graphics
                 if (m_DispatchTable.contains(header->Type))
                 {
                     m_DispatchTable[header->Type](header, reader, storage, this);
+                }
+            }*/
+
+            auto &storage = commandList->GetStorage();
+
+            for (const auto &header : storage.CommandDatas.Headers)
+            {
+                if (m_DispatchTable.contains(header.Type))
+                {
+                    m_DispatchTable[header.Type](&header, storage, this);
                 }
             }
 

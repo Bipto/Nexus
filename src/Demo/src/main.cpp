@@ -7,7 +7,6 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     desc.GraphicsCreateInfo.API = Nexus::Graphics::GraphicsAPI::Vulkan;
     desc.GraphicsCreateInfo.Debug = false;
-
     desc.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     desc.WindowProperties.Width = 1280;

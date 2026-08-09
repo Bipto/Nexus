@@ -43,7 +43,7 @@ namespace Nexus::Graphics
         //    command.Next();
         // }
 
-        auto &storage = commandList->GetStorage();
+        /*auto &storage = commandList->GetStorage();
 
         CommandListReader reader(storage);
 
@@ -95,7 +95,7 @@ namespace Nexus::Graphics
                 break;
             }
             }
-        }
+        }*/
     }
 
     void CommandExecutorOpenGL::Reset()

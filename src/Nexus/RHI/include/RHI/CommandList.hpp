@@ -1087,7 +1087,7 @@ namespace Nexus::Graphics
     struct CommandHeader
     {
         CommandType Type = {};
-        size_t Length = 0;
+        size_t CommandOffset = 0;
 
         std::string_view GetCommandTypeAsString() const
         {
@@ -1173,253 +1173,98 @@ namespace Nexus::Graphics
         }
     };
 
-    struct SetVertexBufferCommandStorage
+    struct CommandListCommandData
     {
-        size_t DeviceBufferIndex = 0;
-        size_t Offset = 0;
-        size_t Size = 0;
-        uint32_t Slot = 0;
-    };
-
-    struct SetIndexBufferCommandStorage
-    {
-        size_t DeviceBufferIndex = 0;
-        size_t Offset = 0;
-        size_t Size = 0;
-        IndexFormat BufferFormat = IndexFormat::UInt32;
-    };
-
-    struct SetPipelineCommandStorage
-    {
-        size_t PipelineIndex = 0;
-    };
-
-    struct DrawIndirectCommandStorage
-    {
-        size_t DeviceBufferIndex = 0;
-        size_t Offset = 0;
-        size_t Stride = 0;
-        size_t DrawCount = 0;
-    };
-
-    struct DispatchIndirectCommandStorage
-    {
-        size_t DeviceBufferIndex = 0;
-        size_t Offset = 0;
-        size_t Stride = 0;
-    };
-
-    struct DrawMeshIndirectCommandStorage
-    {
-        size_t DeviceBufferIndex = 0;
-        size_t Offset = 0;
-        size_t Stride = 0;
-        size_t DrawCount = 0;
-    };
-
-    struct ResourceSetBindingCommandStorage
-    {
-        size_t ResourceSetIndex = 0;
-        size_t DynamicOffsetCount = 0;
-    };
-
-    struct FramebufferCommandStorage
-    {
-        size_t FramebufferIndex = 0;
-    };
-
-    struct ResolveTextureCommandStorage
-    {
-        size_t SourceTextureIndex = 0;
-        size_t DestinationTextureIndex = 0;
-        uint32_t SourceArrayLayer = 0;
-        uint32_t SourceMipLevel = 0;
-        uint32_t DestinationArrayLayer = 0;
-        uint32_t DestinationMipLevel = 0;
-    };
-
-    struct TimingQueryCommandStorage
-    {
-        size_t QueryIndex = 0;
-    };
-
-    struct BufferCopyCommandStorage
-    {
-        size_t SourceIndex = 0;
-        size_t DestinationIndex = 0;
-    };
-
-    struct BufferTextureCopyCommandStorage
-    {
-        size_t BufferIndex = 0;
-        uint64_t BufferOffset = 0;
-        uint64_t BufferRowLength = 0;
-        uint64_t BufferImageHeight = 0;
-        size_t TextureIndex = 0;
-        Offset3D TextureOffset = {};
-        Extent2D TextureExtent = {};
-        uint32_t MipLevel = 0;
-    };
-
-    struct TextureCopyCommandStorage
-    {
-        size_t SourceTextureIndex = 0;
-        size_t DestinationTextureIndex = 0;
-        Offset3D SourceOffset = {};
-        Offset3D DestinationOffset = {};
-        Extent2D Extent = {};
-        uint32_t SourceMipLevel = 0;
-        uint32_t DestinationMipLevel = 0;
-    };
-
-    struct DebugGroupCommandStorage
-    {
-    };
-
-    struct DebugLabelCommandStorage
-    {
-        uint32_t TextLength;
-    };
-
-    struct AccelerationStructureGeometryBuildCountStorage
-    {
-        size_t BuildCount = 0;
-    };
-
-    struct AccelerationStructureGeometryBuildCommandStorage
-    {
-        AccelerationStructureType Type = AccelerationStructureType::BottomLevel;
-        uint8_t Flags = 0;
-        AccelerationStructureBuildMode Mode = AccelerationStructureBuildMode::Build;
-        size_t SourceIndex = 0;
-        size_t DestinationIndex = 0;
-        DeviceAddress ScratchBuffer = {};
-
-        size_t GeometryOffset = 0;
-        size_t GeometryCount = 0;
-
-        size_t PrimitiveOffset = 0;
-        size_t PrimitiveCount = 0;
-    };
-
-    struct PushConstantsCommandStorage
-    {
-        size_t NameLength = 0;
-        size_t Offset = 0;
-        size_t DataLength = 0;
-    };
-
-    struct TextureBarrierCommandStorage
-    {
-        size_t TextureIndex = {};
-        TextureLayout Layout = {};
-        BarrierAccess BeforeAccess = {};
-        BarrierAccess AfterAccess = {};
-        BarrierPipelineStage BeforeStage = {};
-        BarrierPipelineStage AfterStage = {};
-        SubresourceRange TextureSubresourceRange = {};
-    };
-
-    struct BufferBarrierCommandStorage
-    {
-        size_t BufferIndex = 0;
-        BarrierAccess BeforeAccess = {};
-        BarrierAccess AfterAccess = {};
-        BarrierPipelineStage BeforeStage = {};
-        BarrierPipelineStage AfterStage = {};
-        size_t Offset = 0;
-        size_t Size = 0;
-    };
-
-    struct BarrierGroupCommandStorage
-    {
-        size_t MemoryBarrierCount = 0;
-        size_t TextureBarrierCount = 0;
-        size_t BufferBarrierCount = 0;
-    };
-
-    struct EndRenderingCommandStorage
-    {
-    };
-
-    template <typename T> struct Allocation
-    {
-        size_t CommandOffset;
-        size_t PayloadOffset;
-
-        T *GetCommand(std::vector<std::byte> &stream)
+        inline void Clear()
         {
-            return reinterpret_cast<T *>(stream.data() + CommandOffset);
+            *this = CommandListCommandData{};
         }
 
-        std::byte *GetPayload(std::vector<std::byte> &stream)
+        inline void Reset()
         {
-            return PayloadOffset != SIZE_MAX ? stream.data() + PayloadOffset : nullptr;
-        }
-    };
-
-    class CommandIterator
-    {
-      public:
-        CommandIterator(std::vector<std::byte> &commandData)
-            : m_Current(nullptr), m_End(commandData.data() + commandData.size())
-        {
-            if (!commandData.empty())
-            {
-                m_Current = reinterpret_cast<CommandHeader *>(commandData.data());
-            }
-        }
-
-        CommandHeader *Get() const
-        {
-            return m_Current;
-        }
-
-        bool HasNext() const
-        {
-            return m_Current != nullptr;
-        }
-
-        void Next()
-        {
-            if (m_Current == nullptr)
-                return;
-
-            auto *next = reinterpret_cast<std::byte *>(m_Current) + m_Current->Length;
-
-            if (next >= m_End)
-            {
-                m_Current = nullptr;
-                return;
-            }
-
-            m_Current = reinterpret_cast<CommandHeader *>(next);
+            Headers.clear();
+            SetVertexBufferCommands.clear();
+            SetIndexBufferCommands.clear();
+            SetPipelineCommands.clear();
+            DrawCommands.clear();
+            DrawIndexedCommands.clear();
+            DrawIndirectCommands.clear();
+            DrawIndirectIndexedCommands.clear();
+            DispatchCommands.clear();
+            DispatchIndirectCommands.clear();
+            DrawMeshCommands.clear();
+            DrawMeshIndirectCommands.clear();
+            ResourceSetBindingCommands.clear();
+            ClearColourTargetCommands.clear();
+            ClearDepthStencilTargetCommands.clear();
+            FramebufferCommands.clear();
+            ViewportCommands.clear();
+            ScissorCommands.clear();
+            ResolveCommands.clear();
+            StartTimingQueryCommands.clear();
+            StopTimingQueryCommands.clear();
+            CopyBufferToBufferCommands.clear();
+            CopyBufferToTextureCommands.clear();
+            CopyTextureToBufferCommands.clear();
+            CopyTextureToTextureCommands.clear();
+            BeginDebugGroupCommands.clear();
+            EndDebugGroupCommands.clear();
+            InsertDebugMarkerCommands.clear();
+            SetBlendFactorCommands.clear();
+            SetStencilReferenceCommands.clear();
+            BuildAccelerationStructuresCommands.clear();
+            CopyAccelerationStructuresCommands.clear();
+            CopyDeviceBufferAccelerationStructureCommands.clear();
+            PushConstantsCommands.clear();
+            BarrierGroupCommands.clear();
+            TraceRaysCommands.clear();
+            EndRenderingCommands.clear();
         }
 
-      private:
-        CommandHeader *m_Current;
-        std::byte *m_End;
+        std::vector<CommandHeader> Headers = {};
+        std::vector<SetVertexBufferCommand> SetVertexBufferCommands = {};
+        std::vector<SetIndexBufferCommand> SetIndexBufferCommands = {};
+        std::vector<PipelineHandle> SetPipelineCommands = {};
+        std::vector<DrawDescription> DrawCommands = {};
+        std::vector<DrawIndexedDescription> DrawIndexedCommands = {};
+        std::vector<DrawIndirectDescription> DrawIndirectCommands = {};
+        std::vector<DrawIndirectIndexedDescription> DrawIndirectIndexedCommands = {};
+        std::vector<DispatchDescription> DispatchCommands = {};
+        std::vector<DispatchIndirectDescription> DispatchIndirectCommands = {};
+        std::vector<DrawMeshDescription> DrawMeshCommands = {};
+        std::vector<DrawMeshIndirectDescription> DrawMeshIndirectCommands = {};
+        std::vector<ResourceSetBindingDescription> ResourceSetBindingCommands = {};
+        std::vector<ClearColorTargetCommand> ClearColourTargetCommands = {};
+        std::vector<ClearDepthStencilTargetCommand> ClearDepthStencilTargetCommands = {};
+        std::vector<FramebufferHandle> FramebufferCommands = {};
+        std::vector<Viewport> ViewportCommands = {};
+        std::vector<Scissor> ScissorCommands = {};
+        std::vector<ResolveTextureDescription> ResolveCommands = {};
+        std::vector<StartTimingQueryCommand> StartTimingQueryCommands = {};
+        std::vector<StopTimingQueryCommand> StopTimingQueryCommands = {};
+        std::vector<CopyBufferToBufferCommand> CopyBufferToBufferCommands = {};
+        std::vector<CopyBufferToTextureCommand> CopyBufferToTextureCommands = {};
+        std::vector<CopyTextureToBufferCommand> CopyTextureToBufferCommands = {};
+        std::vector<CopyTextureToTextureCommand> CopyTextureToTextureCommands = {};
+        std::vector<BeginDebugGroupCommand> BeginDebugGroupCommands = {};
+        std::vector<EndDebugGroupCommand> EndDebugGroupCommands = {};
+        std::vector<InsertDebugMarkerCommand> InsertDebugMarkerCommands = {};
+        std::vector<SetBlendFactorCommand> SetBlendFactorCommands = {};
+        std::vector<SetStencilReferenceCommand> SetStencilReferenceCommands = {};
+        std::vector<BuildAccelerationStructuresCommand> BuildAccelerationStructuresCommands = {};
+        std::vector<AccelerationStructureCopyDescription> CopyAccelerationStructuresCommands = {};
+        std::vector<AccelerationStructureDeviceBufferCopyDescription> CopyAccelerationStructureDeviceBufferCommands =
+            {};
+        std::vector<DeviceBufferAccelerationStructureCopyDescription> CopyDeviceBufferAccelerationStructureCommands =
+            {};
+        std::vector<PushConstantsDesc> PushConstantsCommands = {};
+        std::vector<BarrierGroupDescription> BarrierGroupCommands = {};
+        std::vector<TraceRaysDescription> TraceRaysCommands = {};
+        std::vector<EndRenderingCommand> EndRenderingCommands = {};
     };
 
     struct NX_RHI_API CommandListStorage
     {
-        std::vector<SamplerHandle> Samplers = {};
-        std::vector<TextureHandle> Textures = {};
-        std::vector<TextureViewHandle> TextureViews = {};
-        std::vector<TexelBufferHandle> TexelBuffers = {};
-        std::vector<AccelerationStructureHandle> AccelerationStructures = {};
-        std::vector<TimingQueryHandle> TimingQueries = {};
-        std::vector<FenceHandle> Fences = {};
-        std::vector<FramebufferHandle> Framebuffers = {};
-        std::vector<ShaderModuleHandle> ShaderModules = {};
-        std::vector<ResourceSetHandle> ResourceSets = {};
-        std::vector<PipelineHandle> Pipelines = {};
-        std::vector<SurfaceHandle> Surfaces = {};
-        std::vector<CommandQueueHandle> CommandQueues = {};
-        std::vector<DeviceBufferHandle> DeviceBuffers = {};
-
-        std::vector<std::byte> CommandData = {};
-
         void Clear();
         void Reset();
 
@@ -1465,92 +1310,8 @@ namespace Nexus::Graphics
         void SubmitBarrierGroup(const BarrierGroupDescription &description);
         void EndRendering();
 
-        CommandIterator GetCommands();
+        CommandListCommandData CommandDatas = {};
     };
-
-    class CommandListReader
-    {
-      public:
-        explicit CommandListReader(const CommandListStorage &storage)
-            : m_data(storage.CommandData.data()), m_size(storage.CommandData.size())
-        {
-        }
-
-        inline const CommandHeader *First() const;
-
-        inline const CommandHeader *Next(const CommandHeader *current) const;
-
-        template <typename T> const T *GetCommand(const CommandHeader *header) const;
-
-        template <typename Command, typename Payload> const Payload *GetPayload(const CommandHeader *header) const;
-
-        template <typename Command> const std::byte *GetPayloadRaw(const CommandHeader *header) const;
-
-      private:
-        const std::byte *m_data;
-        size_t m_size;
-    };
-
-    const CommandHeader *CommandListReader::First() const
-    {
-        if (m_size == 0)
-            return nullptr;
-
-        return reinterpret_cast<const CommandHeader *>(m_data);
-    }
-
-    template <typename T> constexpr T AlignUp(T value, std::size_t alignment)
-    {
-        static_assert(std::is_integral_v<T>);
-        return (value + static_cast<T>(alignment - 1)) & ~static_cast<T>(alignment - 1);
-    }
-
-    const CommandHeader *CommandListReader::Next(const CommandHeader *current) const
-    {
-        if (!current)
-            return nullptr;
-
-        auto *next = reinterpret_cast<const std::byte *>(current) + current->Length;
-
-        auto *end = m_data + m_size;
-
-        if (next >= end)
-            return nullptr;
-
-        return reinterpret_cast<const CommandHeader *>(next);
-    }
-
-    template <typename T> const T *CommandListReader::GetCommand(const CommandHeader *header) const
-    {
-        auto base = reinterpret_cast<const std::byte *>(header);
-
-        auto offset = AlignUp(sizeof(CommandHeader), alignof(T));
-
-        return reinterpret_cast<const T *>(base + offset);
-    }
-
-    template <typename Command, typename Payload>
-    const Payload *CommandListReader::GetPayload(const CommandHeader *header) const
-    {
-        auto base = reinterpret_cast<uintptr_t>(header);
-
-        auto command = AlignUp(base + sizeof(CommandHeader), alignof(Command));
-
-        auto payload = AlignUp(command + sizeof(Command), alignof(Payload));
-
-        return reinterpret_cast<const Payload *>(payload);
-    }
-
-    template <typename Command> const std::byte *CommandListReader::GetPayloadRaw(const CommandHeader *header) const
-    {
-        auto base = reinterpret_cast<uintptr_t>(header);
-
-        auto command = AlignUp(base + sizeof(CommandHeader), alignof(Command));
-
-        auto payload = command + sizeof(Command);
-
-        return reinterpret_cast<const std::byte *>(payload);
-    }
 
     /// @brief A class representing a command list
     class NX_RHI_API ICommandList
