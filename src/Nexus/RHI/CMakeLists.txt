@@ -75,10 +75,10 @@ set_target_properties(Nexus-RHI PROPERTIES
 target_compile_definitions(Nexus-RHI PUBLIC NX_RHI_EXPORT=1)
 target_link_libraries(Nexus-RHI PUBLIC Nexus-Core)
 
-if (DEFINED BUILD_TESTING)
-	add_subdirectory(tests)
-endif()
-
-if (DEFINED BUILD_BENCHMARKING)
-	add_subdirectory(benchmarks)
-endif()
+#if (DEFINED BUILD_TESTING)
+#	add_subdirectory(tests)
+#endif()
+#
+#if (DEFINED BUILD_BENCHMARKING)
+#	add_subdirectory(benchmarks)
+#endif()
