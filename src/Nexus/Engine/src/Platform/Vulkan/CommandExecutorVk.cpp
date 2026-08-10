@@ -1322,9 +1322,9 @@ namespace Nexus::Graphics
 
             for (const auto &header : storage.CommandDatas.Headers)
             {
-                if (m_DispatchTable.contains(header.Type))
+                if (auto it = m_DispatchTable.find(header.Type); it != m_DispatchTable.end())
                 {
-                    m_DispatchTable[header.Type](&header, storage, this);
+                    it->second(&header, storage, this);
                 }
             }
 

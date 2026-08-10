@@ -6,6 +6,8 @@
 #include "SwapchainVk.hpp"
 #include "Vk.hpp"
 
+#include <unordered_map>
+
 namespace Nexus::Graphics
 {
     class GraphicsDeviceVk;
@@ -86,7 +88,7 @@ namespace Nexus::Graphics
         std::span<const std::unique_ptr<IGraphicsCommand>> m_Commands = {};
         size_t m_CurrentCommandIndex = 0;
 
-        std::map<CommandType, CommandFunc> m_DispatchTable = {};
+        std::unordered_map<CommandType, CommandFunc> m_DispatchTable = {};
     };
 } // namespace Nexus::Graphics
 
