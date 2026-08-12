@@ -9,6 +9,8 @@
 #include "Nexus-Core/ImGui/ImGuiLayer.hpp"
 #include "RHI/GraphicsDevice.hpp"
 
+#include "Platform/Timings/Timer.hpp"
+
 #include "ImGui/ImGuiLayout.hpp"
 
 class DemoImGuiLayer : public Nexus::ImGuiLayer
@@ -42,4 +44,7 @@ class DemoImGuiLayer : public Nexus::ImGuiLayer
     Nexus::Graphics::IGraphicsDevice *m_GraphicsDevice = nullptr;
 
     Nexus::UI::ImGuiLayout m_Layout = {};
+
+    Nexus::Timings::ExecutionTimer m_FramerateUpdateTimer = {};
+    std::string m_FramerateString = {};
 };

@@ -29,7 +29,7 @@
 #include "../Demos/TimingDemo.hpp"
 #include "../Demos/UniformBufferDemo.hpp"
 
-#include <print>
+#include <format>
 
 namespace
 {
@@ -140,6 +140,20 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
     Nexus::GetApplication()->GetPrimaryWindow(); auto messageBox				=
     Nexus::Platform::CreateMessageBox(messageBoxDesc); messageBox->Show();
         });*/
+
+    // update framerate counter once every second
+    m_FramerateUpdateTimer.Every(
+        [this](Nexus::TimeSpan timespan) {
+            // std::stringstream ss;
+            // float fps = ImGui::GetIO().Framerate;
+            // ss << "Running at: " << std::to_string(fps) << " FPS";
+
+            // m_FramerateString = ss.str();
+
+            m_FramerateString = std::format("Running at {} FPS", static_cast<uint32_t>(ImGui::GetIO().Framerate));
+        },
+        0.5
+    );
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()
@@ -151,6 +165,8 @@ void DemoImGuiLayer::OnImGuiRenderer()
         RenderDemoInfo();
         RenderPerformanceInfo();
         ImGui::End();
+
+        m_FramerateUpdateTimer.Update();
     }
 }
 
@@ -240,10 +256,7 @@ void DemoImGuiLayer::RenderDemoInfo()
             ImGui::Text("%s", deviceName.c_str());
 
             // render framerate
-            std::stringstream ss;
-            float fps = ImGui::GetIO().Framerate;
-            ss << "Running at " << std::to_string(fps) << " FPS";
-            ImGui::Text("%s", ss.str().c_str());
+            ImGui::Text("%s", m_FramerateString.c_str());
             m_CurrentDemo->RenderUI();
         }
     }
