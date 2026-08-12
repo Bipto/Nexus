@@ -1235,27 +1235,27 @@ namespace Nexus::Graphics
 
     CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
     {
-        m_DispatchTable[CommandType::SetFramebuffer] = BindFramebuffer;
-        m_DispatchTable[CommandType::ClearColourTarget] = ClearColourTarget;
-        m_DispatchTable[CommandType::BarrierGroup] = SubmitBarrierGroup;
-        m_DispatchTable[CommandType::SetVertexBuffer] = SetVertexBuffer;
-        m_DispatchTable[CommandType::SetIndexBuffer] = SetIndexBuffer;
-        m_DispatchTable[CommandType::SetPipeline] = SetPipeline;
-        m_DispatchTable[CommandType::ResourceSetBinding] = SetResourceSet;
-        m_DispatchTable[CommandType::Draw] = Draw;
-        m_DispatchTable[CommandType::DrawIndexed] = DrawIndexed;
-        m_DispatchTable[CommandType::DrawIndirect] = DrawIndirect;
-        m_DispatchTable[CommandType::DrawIndexedIndirect] = DrawIndexedIndirect;
-        m_DispatchTable[CommandType::DrawMesh] = DrawMesh;
-        m_DispatchTable[CommandType::DrawMeshIndirect] = DrawMeshIndirect;
-        m_DispatchTable[CommandType::TraceRays] = TraceRays;
-        m_DispatchTable[CommandType::Viewport] = SetViewport;
-        m_DispatchTable[CommandType::Scissor] = SetScissor;
-        m_DispatchTable[CommandType::PushConstants] = PushConstants;
-        m_DispatchTable[CommandType::CopyBufferToBuffer] = CopyBufferToBuffer;
-        m_DispatchTable[CommandType::CopyBufferToTexture] = CopyBufferToTexture;
-        m_DispatchTable[CommandType::CopyTextureToBuffer] = CopyTextureToBuffer;
-        m_DispatchTable[CommandType::CopyTextureToTexture] = CopyTextureToTexture;
+        m_DispatchTable[ToIndex(CommandType::SetFramebuffer)] = BindFramebuffer;
+        m_DispatchTable[ToIndex(CommandType::ClearColourTarget)] = ClearColourTarget;
+        m_DispatchTable[ToIndex(CommandType::BarrierGroup)] = SubmitBarrierGroup;
+        m_DispatchTable[ToIndex(CommandType::SetVertexBuffer)] = SetVertexBuffer;
+        m_DispatchTable[ToIndex(CommandType::SetIndexBuffer)] = SetIndexBuffer;
+        m_DispatchTable[ToIndex(CommandType::SetPipeline)] = SetPipeline;
+        m_DispatchTable[ToIndex(CommandType::ResourceSetBinding)] = SetResourceSet;
+        m_DispatchTable[ToIndex(CommandType::Draw)] = Draw;
+        m_DispatchTable[ToIndex(CommandType::DrawIndexed)] = DrawIndexed;
+        m_DispatchTable[ToIndex(CommandType::DrawIndirect)] = DrawIndirect;
+        m_DispatchTable[ToIndex(CommandType::DrawIndexedIndirect)] = DrawIndexedIndirect;
+        m_DispatchTable[ToIndex(CommandType::DrawMesh)] = DrawMesh;
+        m_DispatchTable[ToIndex(CommandType::DrawMeshIndirect)] = DrawMeshIndirect;
+        m_DispatchTable[ToIndex(CommandType::TraceRays)] = TraceRays;
+        m_DispatchTable[ToIndex(CommandType::Viewport)] = SetViewport;
+        m_DispatchTable[ToIndex(CommandType::Scissor)] = SetScissor;
+        m_DispatchTable[ToIndex(CommandType::PushConstants)] = PushConstants;
+        m_DispatchTable[ToIndex(CommandType::CopyBufferToBuffer)] = CopyBufferToBuffer;
+        m_DispatchTable[ToIndex(CommandType::CopyBufferToTexture)] = CopyBufferToTexture;
+        m_DispatchTable[ToIndex(CommandType::CopyTextureToBuffer)] = CopyTextureToBuffer;
+        m_DispatchTable[ToIndex(CommandType::CopyTextureToTexture)] = CopyTextureToTexture;
     }
 
     CommandExecutorVk::~CommandExecutorVk()
@@ -1295,36 +1295,13 @@ namespace Nexus::Graphics
 
         // execute commands
         {
-            /*NX_PROFILE_SCOPE("CommandExecutorVk::ExecuteCommand");
-            const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
-            m_Commands = commands;
-            for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
-            {
-                NX_PROFILE_SCOPE("CommandExecutorVk Inside Loop");
-                const auto &command = commands.at(m_CurrentCommandIndex);
-                command->Execute(this, device);
-            }
-            m_Commands = {};*/
-
-            /*auto &storage = commandList->GetStorage();
-
-            CommandListReader reader(storage);
-
-            for (const auto *header = reader.First(); header != nullptr; header = reader.Next(header))
-            {
-                if (m_DispatchTable.contains(header->Type))
-                {
-                    m_DispatchTable[header->Type](header, reader, storage, this);
-                }
-            }*/
-
             auto &storage = commandList->GetStorage();
 
             for (const auto &header : storage.CommandDatas.Headers)
             {
-                if (auto it = m_DispatchTable.find(header.Type); it != m_DispatchTable.end())
+                if (auto func = m_DispatchTable[ToIndex(header.Type)])
                 {
-                    it->second(&header, storage, this);
+                    func(&header, storage, this);
                 }
             }
 

@@ -1081,8 +1081,14 @@ namespace Nexus::Graphics
         CopyDeviceBufferToAccelerationStructure,
         PushConstants,
         BarrierGroup,
-        EndRendering
+        EndRendering,
+        Count
     };
+
+    constexpr static size_t ToIndex(CommandType type)
+    {
+        return static_cast<size_t>(type);
+    }
 
     struct CommandHeader
     {

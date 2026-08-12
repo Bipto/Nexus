@@ -88,7 +88,8 @@ namespace Nexus::Graphics
         std::span<const std::unique_ptr<IGraphicsCommand>> m_Commands = {};
         size_t m_CurrentCommandIndex = 0;
 
-        std::unordered_map<CommandType, CommandFunc> m_DispatchTable = {};
+        // std::unordered_map<CommandType, CommandFunc> m_DispatchTable = {};
+        std::array<CommandFunc, static_cast<size_t>(CommandType::Count)> m_DispatchTable = {};
     };
 } // namespace Nexus::Graphics
 
