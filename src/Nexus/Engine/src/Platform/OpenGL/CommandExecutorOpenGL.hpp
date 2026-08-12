@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     class CommandExecutorOpenGL final : public CommandExecutor
     {
       public:
-        CommandExecutorOpenGL() = default;
+        CommandExecutorOpenGL();
         virtual ~CommandExecutorOpenGL();
         void ExecuteCommands(ICommandList *commandList, IGraphicsDevice *device);
         void Reset();
@@ -68,13 +68,15 @@ namespace Nexus::Graphics
             std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall
         );
 
-      private:
+      public:
         GraphicsDeviceOpenGL *m_Device = nullptr;
         PipelineHandle m_CurrentlyBoundPipeline = {};
         FramebufferHandle m_CurrentRenderTarget = {};
         std::map<uint32_t, VertexBufferView> m_CurrentlyBoundVertexBuffers = {};
         std::optional<IndexBufferView> m_BoundIndexBuffer = {};
         std::optional<ResourceSetBindingDescription> m_BoundResourceSet = {};
+
+        std::array<CommandFunc, static_cast<size_t>(CommandType::Count)> m_DispatchTable = {};
     };
 } // namespace Nexus::Graphics
 

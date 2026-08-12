@@ -15,6 +15,623 @@
 
 namespace Nexus::Graphics
 {
+    static void BindFramebuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        auto &cmd = storage.CommandDatas.FramebufferCommands[header->CommandOffset];
+
+        GraphicsDeviceOpenGL *deviceGL = executor->m_Device;
+
+        if (FramebufferOpenGL *framebuffer = cmd.AsDerived<FramebufferOpenGL>())
+        {
+            GL::IGLContext *context = deviceGL->GetOffscreenContext();
+            framebuffer->BindAsDrawBuffer(context);
+            executor->m_CurrentRenderTarget = cmd;
+        }
+    }
+
+    static void ClearColourTarget(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        auto &cmd = storage.CommandDatas.ClearColourTargetCommands[header->CommandOffset];
+
+        if (!executor->ValidateForClearColour(executor->m_CurrentRenderTarget, cmd.Index))
+        {
+            return;
+        }
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        if (cmd.Rect.has_value())
+        {
+            Graphics::ClearRect rect = cmd.Rect.value();
+
+            GLint scissorBox[4];
+            context->GetIntegerv(GL_SCISSOR_BOX, scissorBox);
+
+            float scissorY =
+                executor->m_CurrentRenderTarget->GetWidth() - executor->m_CurrentRenderTarget->GetHeight() - rect.Y;
+            context->Scissor(rect.X, scissorY, rect.Width, rect.Height);
+
+            float color[] = {cmd.Colour.Red, cmd.Colour.Green, cmd.Colour.Blue, cmd.Colour.Alpha};
+            context->ClearBufferfv(GL_COLOR, cmd.Index, color);
+
+            context->Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+        }
+        else
+        {
+            float color[] = {cmd.Colour.Red, cmd.Colour.Green, cmd.Colour.Blue, cmd.Colour.Alpha};
+            context->ClearBufferfv(GL_COLOR, cmd.Index, color);
+        }
+    }
+
+    static void ClearDepthStencil(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        auto &cmd = storage.CommandDatas.ClearDepthStencilTargetCommands[header->CommandOffset];
+
+        if (!executor->ValidateForClearDepth(executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        GLfloat depth = cmd.Value.Depth;
+        GLint stencil = cmd.Value.Stencil;
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        // enable clearing of depth buffer
+        context->SetDepthMask(true);
+        context->ClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
+        context->SetDepthMask(false);
+    }
+
+    static void SubmitBarrierGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        auto &cmd = storage.CommandDatas.BarrierGroupCommands[header->CommandOffset];
+
+        // boolean indicating whether the resources require synchronisation
+        bool requiresFinish = false;
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        if (cmd.TextureBarriers.size() > 0)
+
+        {
+            // if we have any texture barriers and texture barriers are supported, we
+            // synchronise them
+            if (context->SupportsTextureBarriers())
+            {
+                context->TextureBarrier();
+            }
+            // otherwise, we need to use glFinish() them
+            else
+            {
+                requiresFinish = true;
+            }
+        }
+
+        if (cmd.MemoryBarriers.size() > 0)
+        {
+            // if we have any memory barriers and memory barriers are supported, we
+            // synchronise them
+            if (context->SupportsMemoryBarriers())
+            {
+                context->MemoryBarrierEXT(GL_ALL_BARRIER_BITS_EXT);
+            }
+            // otherwise, we need to use glFinish() them
+            else
+            {
+                requiresFinish = true;
+            }
+        }
+
+        // legacy synchronise if required
+        if (requiresFinish)
+        {
+            context->Finish();
+        }
+
+        // update texture layouts
+        // enumerate through all texture barriers and create the required subresource
+        // ranges
+        for (TextureBarrierDesc textureBarrier : cmd.TextureBarriers)
+        {
+            TextureOpenGL *textureGL = textureBarrier.Texture.AsDerived<TextureOpenGL>();
+
+            for (uint32_t arrayLayer = textureBarrier.TextureSubresourceRange.BaseArrayLayer;
+                 arrayLayer < textureBarrier.TextureSubresourceRange.BaseArrayLayer +
+                                  textureBarrier.TextureSubresourceRange.LayerCount;
+                 arrayLayer++)
+            {
+                for (uint32_t mipLevel = textureBarrier.TextureSubresourceRange.BaseMipLevel;
+                     mipLevel < textureBarrier.TextureSubresourceRange.BaseMipLevel +
+                                    textureBarrier.TextureSubresourceRange.LevelCount;
+                     mipLevel++)
+                {
+                    textureGL->SetTextureLayout(arrayLayer, mipLevel, textureBarrier.Layout);
+                }
+            }
+        }
+    }
+
+    static void SetVertexBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.SetVertexBufferCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        executor->m_CurrentlyBoundVertexBuffers[cmd.Slot] = cmd.View;
+    }
+
+    static void SetIndexBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.SetIndexBufferCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        executor->m_BoundIndexBuffer = cmd.View;
+    }
+
+    static void SetPipeline(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.SetPipelineCommands.at(header->CommandOffset);
+
+        if (!cmd.IsValid())
+        {
+            NX_ERROR("Attempting to bind an invalid pipeline");
+            return;
+        }
+
+        executor->m_CurrentlyBoundPipeline = cmd;
+    }
+
+    static void SetResourceSet(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.ResourceSetBindingCommands.at(header->CommandOffset);
+
+        if (!cmd.TargetResourceSet.IsValid())
+        {
+            NX_ERROR("Attempting to update pipeline with invalid resources");
+            return;
+        }
+
+        const ResourceSetOpenGL *resourceSet = cmd.TargetResourceSet.AsDerived<const ResourceSetOpenGL>();
+        executor->m_BoundResourceSet = cmd;
+    }
+
+    static void Draw(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DrawCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        if (executor->m_CurrentlyBoundPipeline.IsValid())
+        {
+            if (executor->m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
+            {
+                GraphicsPipelineOpenGL *pipeline =
+                    executor->m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
+                executor->ExecuteGraphicsCommand(
+                    context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer,
+                    cmd.VertexStart, cmd.InstanceStart,
+                    [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
+                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                        context->DrawArrays(topology, cmd.VertexStart, cmd.VertexCount, cmd.InstanceCount);
+                    }
+                );
+            }
+        }
+    }
+
+    static void DrawIndexed(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DrawIndexedCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        if (executor->m_CurrentlyBoundPipeline.IsValid())
+        {
+            GraphicsPipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
+            GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+            if (pipeline->GetType() == PipelineType::Graphics && executor->m_BoundIndexBuffer)
+            {
+                IndexBufferView &indexBufferView = executor->m_BoundIndexBuffer.value();
+                uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
+                uint32_t offset = (cmd.IndexStart * indexSizeInBytes) + indexBufferView.Offset;
+                GLenum indexFormat = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
+
+                executor->ExecuteGraphicsCommand(
+                    context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer,
+                    cmd.VertexStart, cmd.InstanceStart,
+                    [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
+                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                        context->DrawElements(
+                            topology, cmd.IndexCount, indexFormat, (const void *)(uint64_t)offset, cmd.InstanceCount
+                        );
+                    }
+                );
+            }
+        }
+    }
+
+    static void DrawIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DrawIndirectCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        if (executor->m_CurrentlyBoundPipeline.IsValid())
+        {
+            GraphicsPipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
+
+            GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+            if (pipeline->GetType() == PipelineType::Graphics)
+            {
+                const DeviceBufferOpenGL *indirectBuffer = cmd.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>();
+                if (indirectBuffer && context->IsIndirectRenderingSupported())
+                {
+                    executor->ExecuteGraphicsCommand(
+                        context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer, 0, 0,
+                        [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
+                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+
+                            GLenum topology =
+                                GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                            context->MultiDrawArraysIndirect(
+                                topology, (const void *)(uint64_t)cmd.Offset, cmd.DrawCount, cmd.Stride
+                            );
+
+                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+                        }
+                    );
+                }
+            }
+        }
+    }
+
+    static void DrawIndexedIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DrawIndirectIndexedCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForGraphicsCall(executor->m_CurrentlyBoundPipeline, executor->m_CurrentRenderTarget))
+        {
+            return;
+        }
+
+        if (executor->m_CurrentlyBoundPipeline.IsValid())
+        {
+            GraphicsPipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
+
+            GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+            if (pipeline->GetType() == PipelineType::Graphics && executor->m_BoundIndexBuffer)
+            {
+                IndexBufferView &indexBufferView = executor->m_BoundIndexBuffer.value();
+                uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
+                GLenum indexFormat = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
+
+#if !defined(__EMSCRIPTEN__)
+                const DeviceBufferOpenGL *indirectBuffer = cmd.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>();
+                if (indirectBuffer && context->IsIndirectRenderingSupported())
+                {
+                    executor->ExecuteGraphicsCommand(
+                        context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer, 0, 0,
+                        [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
+                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+
+                            GLenum topology =
+                                GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+
+                            context->MultiDrawElementsIndirect(
+                                topology, indexFormat, (const void *)(uint64_t)cmd.Offset, cmd.DrawCount, cmd.Stride
+                            );
+
+                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+                        }
+                    );
+
+#endif
+                }
+            }
+        }
+    }
+
+    static void Dispatch(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DispatchCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForComputeCall(executor->m_CurrentlyBoundPipeline))
+        {
+            return;
+        }
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        PipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
+
+        if (context->IsComputeSupported())
+        {
+            pipeline->Bind(context);
+            executor->BindResourceSet(context);
+            context->DispatchCompute(cmd.WorkGroupCountX, cmd.WorkGroupCountY, cmd.WorkGroupCountZ);
+            context->MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+        }
+    }
+
+    static void DispatchIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DispatchIndirectCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForComputeCall(executor->m_CurrentlyBoundPipeline))
+        {
+            return;
+        }
+
+        PipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        pipeline->Bind(context);
+        executor->BindResourceSet(context);
+
+        const DeviceBufferOpenGL *indirectBuffer = cmd.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>();
+        if (indirectBuffer && context->IsIndirectRenderingSupported())
+        {
+            context->BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+            context->DispatchComputeIndirect(cmd.Offset);
+            context->MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+            context->BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+        }
+    }
+
+    static void DrawMesh(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DrawMeshCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForComputeCall(executor->m_CurrentlyBoundPipeline))
+        {
+            return;
+        }
+
+        PipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+        if (context->IsMeshTaskSupported())
+        {
+            pipeline->Bind(context);
+            executor->BindResourceSet(context);
+            context->DrawMeshTasksEXT(cmd.WorkGroupCountX, cmd.WorkGroupCountY, cmd.WorkGroupCountZ);
+        }
+    }
+
+    static void DrawMeshIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.DrawMeshIndirectCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForComputeCall(executor->m_CurrentlyBoundPipeline))
+        {
+            return;
+        }
+
+        PipelineOpenGL *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineOpenGL>();
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        const DeviceBufferOpenGL *indirectBuffer = cmd.IndirectBuffer.AsDerived<const DeviceBufferOpenGL>();
+        if (indirectBuffer && context->IsMeshTaskSupported())
+        {
+            pipeline->Bind(context);
+            executor->BindResourceSet(context);
+
+            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+            context->DrawMeshTasksIndirectEXT((GLintptr)cmd.Offset, cmd.DrawCount, cmd.Stride);
+            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+        }
+    }
+
+    static void TraceRays(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+    }
+
+    static void SetViewport(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        auto &cmd = storage.CommandDatas.ViewportCommands[header->CommandOffset];
+
+        if (!executor->ValidateForSetViewport(executor->m_CurrentRenderTarget, cmd))
+        {
+            return;
+        }
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        float left = cmd.X;
+        float bottom = executor->m_CurrentRenderTarget->GetHeight() - (cmd.Y + cmd.Height);
+
+        context->Viewport(left, bottom, cmd.Width, cmd.Height);
+        context->DepthRangef(cmd.MinDepth, cmd.MaxDepth);
+    }
+
+    static void SetScissor(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        auto &cmd = storage.CommandDatas.ScissorCommands[header->CommandOffset];
+
+        if (!executor->ValidateForSetScissor(executor->m_CurrentRenderTarget, cmd))
+        {
+            return;
+        }
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+        float scissorY = executor->m_CurrentRenderTarget->GetHeight() - cmd.Height - cmd.Y;
+        context->Scissor(cmd.X, scissorY, cmd.Width, cmd.Height);
+    }
+
+    static void PushConstants(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.PushConstantsCommands.at(header->CommandOffset);
+
+        if (executor->m_BoundResourceSet.has_value())
+        {
+            ResourceSetOpenGL *resourceSet =
+                executor->m_BoundResourceSet.value().TargetResourceSet.AsDerived<ResourceSetOpenGL>();
+            resourceSet->SetPushConstants(cmd.Name, cmd.Data.data(), cmd.Offset, cmd.Data.size());
+        }
+    }
+
+    static void CopyBufferToBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.CopyBufferToBufferCommands.at(header->CommandOffset);
+
+        // NOTE: This will need a rework for Emscripten backend
+
+        GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)executor->m_Device;
+        GL::IOffscreenContext *offscreenContext = deviceGL->GetOffscreenContext();
+
+        // extract the OpenGL handles from the API objects
+        const DeviceBufferOpenGL *src = cmd.BufferCopy.Source.AsDerived<const DeviceBufferOpenGL>();
+        const DeviceBufferOpenGL *dst = cmd.BufferCopy.Destination.AsDerived<const DeviceBufferOpenGL>();
+
+        // check that the buffer handles are valid
+        if (src && dst)
+        {
+            for (const auto &copy : cmd.BufferCopy.Copies)
+            {
+                offscreenContext->CopyBufferSubData(
+                    src->GetHandle(), dst->GetHandle(), copy.ReadOffset, copy.WriteOffset, copy.Size
+                );
+            }
+        }
+    }
+
+    static void CopyBufferToTexture(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.CopyBufferToTextureCommands.at(header->CommandOffset);
+
+        Graphics::TextureHandle textureHandle = cmd.BufferTextureCopy.Texture;
+
+        if (textureHandle.IsValid())
+        {
+            TextureOpenGL *texture = textureHandle.AsDerived<TextureOpenGL>();
+            GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+
+            GL::CopyBufferToTexture(cmd, context);
+            texture->MarkDirty();
+        }
+    }
+
+    static void CopyTextureToBuffer(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.CopyTextureToBufferCommands.at(header->CommandOffset);
+
+        Graphics::TextureHandle textureHandle = cmd.TextureBufferCopy.Texture;
+        Graphics::DeviceBufferHandle bufferHandle = cmd.TextureBufferCopy.BufferHandle;
+
+        if (bufferHandle.IsValid() && textureHandle.IsValid())
+        {
+            TextureOpenGL *textureOpenGL = textureHandle.AsDerived<TextureOpenGL>();
+            GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+
+            GL::CopyTextureToBuffer(cmd, context);
+        }
+    }
+
+    static void CopyTextureToTexture(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+        const auto &cmd = storage.CommandDatas.CopyTextureToTextureCommands.at(header->CommandOffset);
+
+        Graphics::TextureHandle dstHandle = cmd.TextureCopy.Destination;
+
+        const TextureOpenGL *sourceTexture = cmd.TextureCopy.Source.AsDerived<const TextureOpenGL>();
+        TextureOpenGL *destTexture = dstHandle.AsDerived<TextureOpenGL>();
+
+        const TextureCopyDescription &copyDesc = cmd.TextureCopy;
+
+        const bool copyDepth = 1;
+
+        GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+
+        if (context->SupportsCopyImageSubData())
+        {
+            context->CopyImageSubData(
+                sourceTexture->GetHandle(), sourceTexture->GetTextureType(), copyDesc.SourceMipLevel,
+                copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y, copyDesc.SourceOffset.Z, destTexture->GetHandle(),
+                destTexture->GetTextureType(), copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
+                copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
+                copyDesc.Extent.Height, copyDepth
+            );
+        }
+        else
+        {
+            GL::CopyTextureToTexture(copyDesc, context);
+        }
+
+        destTexture->MarkDirty();
+    }
+
+    CommandExecutorOpenGL::CommandExecutorOpenGL()
+    {
+        m_DispatchTable[ToIndex(CommandType::SetFramebuffer)] = BindFramebuffer;
+        m_DispatchTable[ToIndex(CommandType::ClearColourTarget)] = ClearColourTarget;
+        m_DispatchTable[ToIndex(CommandType::BarrierGroup)] = SubmitBarrierGroup;
+        m_DispatchTable[ToIndex(CommandType::SetVertexBuffer)] = SetVertexBuffer;
+        m_DispatchTable[ToIndex(CommandType::SetIndexBuffer)] = SetIndexBuffer;
+        m_DispatchTable[ToIndex(CommandType::SetPipeline)] = SetPipeline;
+        m_DispatchTable[ToIndex(CommandType::ResourceSetBinding)] = SetResourceSet;
+        m_DispatchTable[ToIndex(CommandType::Draw)] = Draw;
+        m_DispatchTable[ToIndex(CommandType::DrawIndexed)] = DrawIndexed;
+        m_DispatchTable[ToIndex(CommandType::DrawIndirect)] = DrawIndirect;
+        m_DispatchTable[ToIndex(CommandType::DrawIndexedIndirect)] = DrawIndexedIndirect;
+        m_DispatchTable[ToIndex(CommandType::DrawMesh)] = DrawMesh;
+        m_DispatchTable[ToIndex(CommandType::DrawMeshIndirect)] = DrawMeshIndirect;
+        m_DispatchTable[ToIndex(CommandType::TraceRays)] = TraceRays;
+        m_DispatchTable[ToIndex(CommandType::Viewport)] = SetViewport;
+        m_DispatchTable[ToIndex(CommandType::Scissor)] = SetScissor;
+        m_DispatchTable[ToIndex(CommandType::PushConstants)] = PushConstants;
+        m_DispatchTable[ToIndex(CommandType::CopyBufferToBuffer)] = CopyBufferToBuffer;
+        m_DispatchTable[ToIndex(CommandType::CopyBufferToTexture)] = CopyBufferToTexture;
+        m_DispatchTable[ToIndex(CommandType::CopyTextureToBuffer)] = CopyTextureToBuffer;
+        m_DispatchTable[ToIndex(CommandType::CopyTextureToTexture)] = CopyTextureToTexture;
+    }
+
     CommandExecutorOpenGL::~CommandExecutorOpenGL()
     {
         Reset();
@@ -26,76 +643,18 @@ namespace Nexus::Graphics
 
         NX_PROFILE_FUNCTION();
 
-        // const std::vector<std::unique_ptr<IGraphicsCommand>> &commands = commandList->GetCommands();
-        // for (const auto &command : commands)
-        //{
-        //     command->Execute(this, device);
-        // }
-
-        // auto &storage = commandList->GetStorage();
-        // auto command = storage.GetCommands();
-
-        // while (command.HasNext())
-        //{
-        //     if (command.Get()->Type == CommandType::SetFramebuffer)
-        //     {
-        //     }
-        //    command.Next();
-        // }
-
-        /*auto &storage = commandList->GetStorage();
-
-        CommandListReader reader(storage);
-
-        for (auto *header = reader.First(); header != nullptr; header = reader.Next(header))
+        // execute commands
         {
-            switch (header->Type)
+            auto &storage = commandList->GetStorage();
+
+            for (const auto &header : storage.CommandDatas.Headers)
             {
-            case CommandType::SetFramebuffer:
-            {
-                auto *cmd = reader.GetCommand<FramebufferCommandStorage>(header);
-                auto framebuffer = storage.Framebuffers[cmd->FramebufferIndex];
-
-                if (FramebufferOpenGL *framebufferGL = framebuffer.AsDerived<FramebufferOpenGL>())
+                if (auto func = m_DispatchTable[ToIndex(header.Type)])
                 {
-                    GL::IGLContext *context = m_Device->GetOffscreenContext();
-                    framebufferGL->BindAsDrawBuffer(context);
-                    m_CurrentRenderTarget = framebuffer;
+                    func(&header, storage, this);
                 }
-
-                break;
             }
-            case CommandType::ClearColourTarget:
-            {
-                auto *cmd = reader.GetCommand<ClearColorTargetCommand>(header);
-
-                GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
-
-                if (cmd->Rect.has_value())
-                {
-                    Graphics::ClearRect rect = cmd->Rect.value();
-
-                    GLint scissorBox[4];
-                    context->GetIntegerv(GL_SCISSOR_BOX, scissorBox);
-
-                    float scissorY = m_CurrentRenderTarget->GetWidth() - m_CurrentRenderTarget->GetHeight() - rect.Y;
-                    context->Scissor(rect.X, scissorY, rect.Width, rect.Height);
-
-                    float color[] = {cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha};
-                    context->ClearBufferfv(GL_COLOR, cmd->Index, color);
-
-                    context->Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
-                }
-                else
-                {
-                    float color[] = {cmd->Colour.Red, cmd->Colour.Green, cmd->Colour.Blue, cmd->Colour.Alpha};
-                    context->ClearBufferfv(GL_COLOR, cmd->Index, color);
-                }
-
-                break;
-            }
-            }
-        }*/
+        }
     }
 
     void CommandExecutorOpenGL::Reset()

@@ -75,6 +75,49 @@ namespace Nexus::Graphics
         context.CmdClearAttachments(executor->m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
+    static void ClearDepthStencil(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+        const auto &cmd = storage.CommandDatas.ClearDepthStencilTargetCommands.at(header->CommandOffset);
+
+        executor->TryStartRendering();
+
+        if (!executor->ValidateForClearDepth(executor->m_CurrentRenderTarget) || !executor->ValidateIsRendering())
+        {
+            return;
+        }
+
+        VkClearAttachment clearAttachment{};
+        clearAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        clearAttachment.clearValue.depthStencil.depth = cmd.Value.Depth;
+        clearAttachment.clearValue.depthStencil.stencil = cmd.Value.Stencil;
+        clearAttachment.colorAttachment = executor->m_DepthAttachmentIndex;
+
+        VkClearRect clearRect = {};
+        clearRect.baseArrayLayer = 0;
+        clearRect.layerCount = 1;
+
+        if (cmd.Rect.has_value())
+        {
+            Graphics::ClearRect rect = cmd.Rect.value();
+            clearRect.rect.offset = {rect.X, rect.Y};
+            clearRect.rect.extent = {rect.Width, rect.Height};
+        }
+        else
+        {
+            clearRect.rect.offset = {0, 0};
+            clearRect.rect.extent = {executor->m_RenderSize};
+        }
+
+        if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
+        {
+            return;
+        }
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdClearAttachments(executor->m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
+    }
+
     static void SubmitBarrierGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
@@ -1237,6 +1280,7 @@ namespace Nexus::Graphics
     {
         m_DispatchTable[ToIndex(CommandType::SetFramebuffer)] = BindFramebuffer;
         m_DispatchTable[ToIndex(CommandType::ClearColourTarget)] = ClearColourTarget;
+        m_DispatchTable[ToIndex(CommandType::ClearDepthTarget)] = ClearDepthStencil;
         m_DispatchTable[ToIndex(CommandType::BarrierGroup)] = SubmitBarrierGroup;
         m_DispatchTable[ToIndex(CommandType::SetVertexBuffer)] = SetVertexBuffer;
         m_DispatchTable[ToIndex(CommandType::SetIndexBuffer)] = SetIndexBuffer;
