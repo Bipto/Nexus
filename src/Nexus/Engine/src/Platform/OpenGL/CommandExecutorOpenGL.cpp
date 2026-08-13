@@ -607,6 +607,208 @@ namespace Nexus::Graphics
         destTexture->MarkDirty();
     }
 
+    static void Resolve(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.ResolveCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForResolve(cmd))
+        {
+            return;
+        }
+
+        GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+
+        Point2D<uint32_t> size = Utils::GetMipSize(cmd.Source->GetWidth(), cmd.Source->GetHeight(), cmd.SourceMipLevel);
+
+        Graphics::TextureCopyDescription copyDesc = {};
+        copyDesc.Source = cmd.Source;
+        copyDesc.Destination = cmd.Destination;
+        copyDesc.SourceOffset = {0, 0, (int32_t)cmd.SourceArrayLayer};
+        copyDesc.DestinationOffset = {0, 0, (int32_t)cmd.DestinationArrayLayer};
+        copyDesc.SourceMipLevel = cmd.SourceMipLevel;
+        copyDesc.DestinationMipLevel = cmd.DestinationMipLevel;
+        copyDesc.Extent = {size.X, size.Y};
+
+        GL::CopyTextureToTexture(copyDesc, context);
+
+        TextureHandle handle = cmd.Destination;
+        TextureOpenGL *texture = handle.AsDerived<TextureOpenGL>();
+        if (texture)
+        {
+            texture->MarkDirty();
+        }
+    }
+
+    static void StartTimingQuery(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.StartTimingQueryCommands.at(header->CommandOffset);
+
+        if (!cmd.Query.IsValid())
+        {
+            NX_ERROR("Attempting to write a timestamp to an invalid query object");
+            return;
+        }
+
+        TimingQueryHandle queryHandle = cmd.Query;
+        if (TimingQueryOpenGL *query = queryHandle.AsDerived<TimingQueryOpenGL>())
+        {
+            GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+
+            if (context->AreTimestampQueriesSupported())
+            {
+                GLint64 timer;
+                context->GetTimestamp(&timer);
+                query->m_Start = static_cast<uint64_t>(timer);
+            }
+            else
+            {
+                uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                   std::chrono::system_clock::now().time_since_epoch()
+                )
+                                   .count();
+                query->m_Start = now;
+            }
+        }
+    }
+
+    static void StopTimingQuery(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.StopTimingQueryCommands.at(header->CommandOffset);
+
+        if (!cmd.Query.IsValid())
+        {
+            NX_ERROR("Attempting to write a timestamp to an invalid query object");
+            return;
+        }
+
+        TimingQueryHandle queryHandle = cmd.Query;
+        if (TimingQueryOpenGL *query = queryHandle.AsDerived<TimingQueryOpenGL>())
+        {
+            GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+
+            if (context->AreTimestampQueriesSupported())
+            {
+                GLint64 timer;
+                context->GetTimestamp(&timer);
+                query->m_End = static_cast<uint64_t>(timer);
+            }
+            else
+            {
+                uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                   std::chrono::system_clock::now().time_since_epoch()
+                )
+                                   .count();
+                query->m_End = now;
+            }
+        }
+    }
+
+    static void BeginDebugGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.BeginDebugGroupCommands.at(header->CommandOffset);
+
+        GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+        context->PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, cmd.GroupName.c_str());
+    }
+
+    static void EndDebugGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.EndDebugGroupCommands.at(header->CommandOffset);
+
+        GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+        context->PopDebugGroup();
+    }
+
+    static void DebugLabel(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.InsertDebugMarkerCommands.at(header->CommandOffset);
+
+        GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
+        context->DebugMessageInsert(
+            GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1,
+            cmd.MarkerName.c_str()
+        );
+    }
+
+    static void SetBlendFactor(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.SetBlendFactorCommands.at(header->CommandOffset);
+
+        GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+        context->BlendColor(cmd.BlendFactor.Red, cmd.BlendFactor.Green, cmd.BlendFactor.Blue, cmd.BlendFactor.Alpha);
+    }
+
+    static void SetStencilReference(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.SetStencilReferenceCommands.at(header->CommandOffset);
+
+        if (executor->m_CurrentlyBoundPipeline.IsValid())
+        {
+            if (GraphicsPipelineOpenGL *pipelineGL =
+                    executor->m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>())
+            {
+                GL::IOffscreenContext *context = executor->m_Device->GetOffscreenContext();
+
+                pipelineGL->SetStencilReference(context, cmd.StencilReference);
+            }
+        }
+    }
+
+    static void BuildAccelerationStructures(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.BuildAccelerationStructuresCommands.at(header->CommandOffset);
+    }
+
+    static void CopyAccelerationStructures(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyAccelerationStructuresCommands.at(header->CommandOffset);
+    }
+
+    static void CopyAccelerationStructureToDeviceBuffer(
+        const CommandHeader *header, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyAccelerationStructureDeviceBufferCommands.at(header->CommandOffset);
+    }
+
+    static void CopyDeviceBufferToAccelerationStructure(
+        const CommandHeader *header, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyDeviceBufferAccelerationStructureCommands.at(header->CommandOffset);
+    }
+
+    static void EndRendering(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
+
+        const auto &cmd = storage.CommandDatas.EndRenderingCommands.at(header->CommandOffset);
+    }
+
     CommandExecutorOpenGL::CommandExecutorOpenGL()
     {
         m_DispatchTable[ToIndex(CommandType::SetFramebuffer)] = BindFramebuffer;
@@ -630,6 +832,21 @@ namespace Nexus::Graphics
         m_DispatchTable[ToIndex(CommandType::CopyBufferToTexture)] = CopyBufferToTexture;
         m_DispatchTable[ToIndex(CommandType::CopyTextureToBuffer)] = CopyTextureToBuffer;
         m_DispatchTable[ToIndex(CommandType::CopyTextureToTexture)] = CopyTextureToTexture;
+        m_DispatchTable[ToIndex(CommandType::ResolveFramebuffer)] = Resolve;
+        m_DispatchTable[ToIndex(CommandType::StartTimingQuery)] = StartTimingQuery;
+        m_DispatchTable[ToIndex(CommandType::StopTimingQuery)] = StopTimingQuery;
+        m_DispatchTable[ToIndex(CommandType::BeginDebugGroup)] = BeginDebugGroup;
+        m_DispatchTable[ToIndex(CommandType::EndDebugGroup)] = EndDebugGroup;
+        m_DispatchTable[ToIndex(CommandType::DebugLabel)] = DebugLabel;
+        m_DispatchTable[ToIndex(CommandType::SetBlendFactor)] = SetBlendFactor;
+        m_DispatchTable[ToIndex(CommandType::SetStencilReference)] = SetStencilReference;
+        m_DispatchTable[ToIndex(CommandType::BuildAccelerationStructures)] = BuildAccelerationStructures;
+        m_DispatchTable[ToIndex(CommandType::CopyAccelerationStructure)] = CopyAccelerationStructures;
+        m_DispatchTable[ToIndex(CommandType::CopyAccelerationStructureToDeviceBuffer)] =
+            CopyAccelerationStructureToDeviceBuffer;
+        m_DispatchTable[ToIndex(CommandType::CopyDeviceBufferToAccelerationStructure)] =
+            CopyDeviceBufferToAccelerationStructure;
+        m_DispatchTable[ToIndex(CommandType::EndRendering)] = EndRendering;
     }
 
     CommandExecutorOpenGL::~CommandExecutorOpenGL()
