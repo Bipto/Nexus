@@ -55,4 +55,4 @@ Repository contains a full demo suite, containing examples of all supported feat
 
 <img width="1532" height="913" alt="image" src="https://github.com/user-attachments/assets/30cf174c-f9c0-4a78-beb9-0e45f7615f72" />
 
-<img width="1476" height="951" alt="image" src="https://github.com/user-attachments/assets/55dbb00e-800f-4715-af3e-fdfbe165e9e8" />
+<img width="1278" height="756" alt="ezgif-8fbc1b6ca8851061" src="https://github.com/user-attachments/assets/83351e91-e93f-4a17-97a9-d9c7c5078a5d" />
