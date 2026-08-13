@@ -134,8 +134,6 @@ namespace Demos
                 m_CommandList->End();
 
                 m_CommandQueue->SubmitCommandList(m_CommandList);
-
-                m_GraphicsDevice->WaitForIdle();
             }
 
             // TLAS
@@ -238,8 +236,6 @@ namespace Demos
                 m_CommandList->End();
 
                 m_CommandQueue->SubmitCommandList(m_CommandList);
-
-                m_GraphicsDevice->WaitForIdle();
             }
 
             // storage texture
@@ -411,7 +407,6 @@ namespace Demos
                 m_CommandList->End();
 
                 m_CommandQueue->SubmitCommandList(m_CommandList);
-                m_GraphicsDevice->WaitForIdle();
             }
 
             if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
@@ -435,7 +430,6 @@ namespace Demos
                 m_CommandList->End();
 
                 m_CommandQueue->SubmitCommandList(m_CommandList);
-                m_GraphicsDevice->WaitForIdle();
             }
         }
 

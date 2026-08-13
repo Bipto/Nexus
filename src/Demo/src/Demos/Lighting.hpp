@@ -232,7 +232,6 @@ namespace Demos
             m_CommandList->End();
 
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
-            m_GraphicsDevice->WaitForIdle();
 
             m_Rotation += 0.05f * time.GetMilliseconds<float>();
         }

@@ -158,7 +158,6 @@ namespace Demos
             m_CommandList->End();
 
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
-            m_GraphicsDevice->WaitForIdle();
 
             m_ElapsedTime += time;
         }

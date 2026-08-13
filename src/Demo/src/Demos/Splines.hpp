@@ -94,7 +94,6 @@ namespace Demos
             m_CommandList->End();
 
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
-            m_GraphicsDevice->WaitForIdle();
 
             const auto &windowSize = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
@@ -143,7 +142,6 @@ namespace Demos
             }
 
             m_BatchRenderer->End();
-            m_GraphicsDevice->WaitForIdle();
         }
 
         virtual void OnResize(Nexus::Point2D<uint32_t> size) override
