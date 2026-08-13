@@ -1045,9 +1045,14 @@ namespace Nexus::Graphics
 
     enum class CommandType : uint16_t
     {
+        SetFramebuffer,
+        ClearColourTarget,
+        ClearDepthTarget,
+        BarrierGroup,
         SetVertexBuffer,
         SetIndexBuffer,
         SetPipeline,
+        ResourceSetBinding,
         Draw,
         DrawIndexed,
         DrawIndirect,
@@ -1057,19 +1062,17 @@ namespace Nexus::Graphics
         DrawMesh,
         DrawMeshIndirect,
         TraceRays,
-        ResourceSetBinding,
-        ClearColourTarget,
-        ClearDepthTarget,
-        SetFramebuffer,
         Viewport,
         Scissor,
-        ResolveFramebuffer,
-        StartTimingQuery,
-        StopTimingQuery,
+        PushConstants,
         CopyBufferToBuffer,
         CopyBufferToTexture,
         CopyTextureToBuffer,
         CopyTextureToTexture,
+
+        ResolveFramebuffer,
+        StartTimingQuery,
+        StopTimingQuery,
         BeginDebugGroup,
         EndDebugGroup,
         DebugLabel,
@@ -1079,9 +1082,8 @@ namespace Nexus::Graphics
         CopyAccelerationStructure,
         CopyAccelerationStructureToDeviceBuffer,
         CopyDeviceBufferToAccelerationStructure,
-        PushConstants,
-        BarrierGroup,
         EndRendering,
+
         Count
     };
 

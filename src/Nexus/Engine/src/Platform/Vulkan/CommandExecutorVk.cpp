@@ -20,15 +20,7 @@ namespace Nexus::Graphics
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
         const auto &framebuffer = storage.CommandDatas.FramebufferCommands.at(header->CommandOffset);
-
-        executor->StopRendering();
-
-        if (const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>())
-        {
-            executor->StartRenderingToFramebuffer(framebuffer);
-            executor->m_CurrentRenderTarget = framebuffer;
-            executor->m_RenderSize = {framebuffer->GetWidth(), framebuffer->GetHeight()};
-        }
+        executor->BindFramebufferImpl(framebuffer);
     }
 
     static void ClearColourTarget(const CommandHeader *header, CommandListStorage &storage, void *data)
@@ -1100,6 +1092,369 @@ namespace Nexus::Graphics
         }
     }
 
+    static void Resolve(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.ResolveCommands.at(header->CommandOffset);
+
+        if (!executor->ValidateForResolve(cmd))
+        {
+            return;
+        }
+
+        executor->StopRendering();
+
+        auto source = cmd.Source.AsDerived<const TextureVk>();
+        auto destination = cmd.Destination.AsDerived<const TextureVk>();
+
+        Point2D<uint32_t> size = Utils::GetMipSize(cmd.Source->GetWidth(), cmd.Source->GetHeight(), cmd.SourceMipLevel);
+
+        VkImageSubresourceLayers srcSubresource = {};
+        srcSubresource.aspectMask =
+            source->IsDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+        srcSubresource.mipLevel = cmd.SourceMipLevel;
+        srcSubresource.baseArrayLayer = 0;
+        srcSubresource.layerCount = 1;
+
+        if (source->GetType() != TextureType::Texture3D)
+        {
+            srcSubresource.baseArrayLayer = cmd.SourceArrayLayer;
+        }
+
+        VkOffset3D srcOffset = {};
+        srcOffset.x = 0;
+        srcOffset.y = 0;
+        srcOffset.z = 0;
+
+        if (source->GetType() == TextureType::Texture3D)
+        {
+            srcOffset.z = cmd.SourceArrayLayer;
+        }
+
+        VkImageSubresourceLayers dstSubresource = {};
+        dstSubresource.aspectMask = destination->IsDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
+                                                           : VK_IMAGE_ASPECT_COLOR_BIT;
+        dstSubresource.mipLevel = cmd.DestinationMipLevel;
+        dstSubresource.baseArrayLayer = 0;
+        dstSubresource.layerCount = 1;
+
+        if (destination->GetType() != TextureType::Texture3D)
+        {
+            dstSubresource.baseArrayLayer = cmd.DestinationArrayLayer;
+        }
+
+        VkOffset3D dstOffset = {};
+        dstOffset.x = 0;
+        dstOffset.y = 0;
+        dstOffset.z = 0;
+
+        if (destination->GetType() == TextureType::Texture3D)
+        {
+            dstOffset.z = cmd.DestinationArrayLayer;
+        }
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdResolveImage2KHR)
+        {
+            VkImageResolve2KHR resolve = {};
+            resolve.sType = VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR;
+            resolve.pNext = nullptr;
+            resolve.srcOffset = srcOffset;
+            resolve.dstOffset = dstOffset;
+            resolve.extent = {size.X, size.Y, 1};
+            resolve.srcSubresource = srcSubresource;
+            resolve.dstSubresource = dstSubresource;
+
+            VkResolveImageInfo2KHR resolveInfo = {};
+            resolveInfo.sType = VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2_KHR;
+            resolveInfo.pNext = nullptr;
+            resolveInfo.srcImage = source->GetImage();
+            resolveInfo.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            resolveInfo.dstImage = destination->GetImage();
+            resolveInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            resolveInfo.regionCount = 1;
+            resolveInfo.pRegions = &resolve;
+
+            context.CmdResolveImage2KHR(executor->m_CommandBuffer, &resolveInfo);
+        }
+        else
+        {
+            VkImageResolve resolve = {};
+            resolve.srcOffset = srcOffset;
+            resolve.dstOffset = dstOffset;
+            resolve.extent = {size.X, size.Y, 1};
+            resolve.srcSubresource = srcSubresource;
+            resolve.dstSubresource = dstSubresource;
+
+            context.CmdResolveImage(
+                executor->m_CommandBuffer, source->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                destination->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve
+            );
+        }
+
+        executor->BindFramebufferImpl(executor->m_CurrentRenderTarget);
+    }
+
+    static void StartTimingQuery(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.StartTimingQueryCommands.at(header->CommandOffset);
+
+        TimingQueryHandle queryHandle = cmd.Query;
+        if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
+        {
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+            context.CmdResetQueryPool(executor->m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
+            context.CmdWriteTimestamp(
+                executor->m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0
+            );
+        }
+    }
+
+    static void StopTimingQuery(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.StopTimingQueryCommands.at(header->CommandOffset);
+
+        TimingQueryHandle queryHandle = cmd.Query;
+        if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
+        {
+            const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+            context.CmdWriteTimestamp(
+                executor->m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1
+            );
+        }
+    }
+
+    static void BeginDebugGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.BeginDebugGroupCommands.at(header->CommandOffset);
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdBeginDebugUtilsLabelEXT)
+        {
+            VkDebugUtilsLabelEXT labelEXT = {};
+            labelEXT.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+            labelEXT.pNext = nullptr;
+            labelEXT.pLabelName = cmd.GroupName.c_str();
+            labelEXT.color[0] = cmd.Colour.r;
+            labelEXT.color[1] = cmd.Colour.g;
+            labelEXT.color[2] = cmd.Colour.b;
+            labelEXT.color[3] = cmd.Colour.a;
+            context.CmdBeginDebugUtilsLabelEXT(executor->m_CommandBuffer, &labelEXT);
+        }
+        else if (context.CmdDebugMarkerBeginEXT)
+        {
+            VkDebugMarkerMarkerInfoEXT markerInfo = {};
+            markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+            markerInfo.pNext = nullptr;
+            markerInfo.pMarkerName = cmd.GroupName.c_str();
+            markerInfo.color[0] = cmd.Colour.r;
+            markerInfo.color[1] = cmd.Colour.g;
+            markerInfo.color[2] = cmd.Colour.b;
+            markerInfo.color[3] = cmd.Colour.a;
+            context.CmdDebugMarkerBeginEXT(executor->m_CommandBuffer, &markerInfo);
+        }
+    }
+
+    static void EndDebugGroup(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.EndDebugGroupCommands.at(header->CommandOffset);
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        // if this is the last command in the buffer, then we must explicitly stop
+        // rendering to ensure that the implict render pass management occurs in the
+        // correct order
+        if (executor->m_LastCommand)
+        {
+            executor->StopRendering();
+        }
+        // otherwise, if the next command is to set a new render target, we need to
+        // stop rendering to ensure that they show in the correct order in debuggers
+        else
+        {
+            if (executor->m_NextCommandType.has_value() &&
+                executor->m_NextCommandType.value() == CommandType::SetFramebuffer)
+            {
+                executor->StopRendering();
+            }
+        }
+
+        if (context.CmdEndDebugUtilsLabelEXT)
+        {
+            context.CmdEndDebugUtilsLabelEXT(executor->m_CommandBuffer);
+        }
+        else if (context.CmdDebugMarkerEndEXT)
+        {
+            context.CmdDebugMarkerEndEXT(executor->m_CommandBuffer);
+        }
+    }
+
+    static void DebugLabel(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.InsertDebugMarkerCommands.at(header->CommandOffset);
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+
+        if (context.CmdInsertDebugUtilsLabelEXT)
+        {
+            VkDebugUtilsLabelEXT labelEXT = {};
+            labelEXT.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+            labelEXT.pNext = nullptr;
+            labelEXT.pLabelName = cmd.MarkerName.c_str();
+            labelEXT.color[0] = cmd.Colour.r;
+            labelEXT.color[1] = cmd.Colour.g;
+            labelEXT.color[2] = cmd.Colour.b;
+            labelEXT.color[3] = cmd.Colour.a;
+            context.CmdInsertDebugUtilsLabelEXT(executor->m_CommandBuffer, &labelEXT);
+        }
+        else if (context.CmdDebugMarkerInsertEXT)
+        {
+            VkDebugMarkerMarkerInfoEXT markerInfo = {};
+            markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+            markerInfo.pNext = nullptr;
+            markerInfo.pMarkerName = cmd.MarkerName.c_str();
+            markerInfo.color[0] = cmd.Colour.r;
+            markerInfo.color[1] = cmd.Colour.g;
+            markerInfo.color[2] = cmd.Colour.b;
+            markerInfo.color[3] = cmd.Colour.a;
+            context.CmdDebugMarkerInsertEXT(executor->m_CommandBuffer, &markerInfo);
+        }
+    }
+
+    static void SetBlendFactor(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.SetBlendFactorCommands.at(header->CommandOffset);
+
+        float blendConstants[4] = {
+            cmd.BlendFactor.Red, cmd.BlendFactor.Green, cmd.BlendFactor.Blue, cmd.BlendFactor.Alpha
+        };
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdSetBlendConstants(executor->m_CommandBuffer, blendConstants);
+    }
+
+    static void SetStencilReference(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.SetStencilReferenceCommands.at(header->CommandOffset);
+
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        context.CmdSetStencilReference(executor->m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, cmd.StencilReference);
+    }
+
+    static void BuildAccelerationStructures(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.BuildAccelerationStructuresCommands.at(header->CommandOffset);
+
+        // return early if the function is not available to use
+        const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        if (!context.CmdBuildAccelerationStructuresKHR)
+        {
+            return;
+        }
+
+        // create storage for the data
+        std::vector<std::vector<VkAccelerationStructureGeometryKHR>> accelerationStructureGeometries = {};
+        std::vector<VkAccelerationStructureBuildGeometryInfoKHR> buildGeometries = {};
+        std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>> buildRanges = {};
+
+        // loop through all requested builds
+        for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : cmd.BuildDescriptions)
+        {
+            // validate that required members have been filled in correctly
+            NX_VALIDATE(
+                buildGeometryInfo.Destination.IsValid(), "Acceleration structure build must have a destination"
+            );
+            NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
+
+            if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
+            {
+                NX_VALIDATE(buildGeometryInfo.Source.IsValid(), "Acceleration structure update must have a source");
+            }
+
+            // create a new vector to hold the information for the individual build
+            std::vector<uint32_t> primitiveCounts;
+            std::vector<VkAccelerationStructureGeometryKHR> &accelerationStructureGeometry =
+                accelerationStructureGeometries.emplace_back();
+            accelerationStructureGeometry =
+                Vk::GetVulkanAccelerationStructureGeometries(buildGeometryInfo, primitiveCounts);
+
+            // create the new build description
+            buildGeometries.push_back(Vk::GetGeometryBuildInfo(buildGeometryInfo, accelerationStructureGeometry));
+
+            // create a new vector to hold the build range
+            std::vector<VkAccelerationStructureBuildRangeInfoKHR> &geometryBuildRange = buildRanges.emplace_back();
+
+            // iterate through each build range and convert them to Vulkan types
+            for (uint32_t primitiveCount : primitiveCounts)
+            {
+                geometryBuildRange.push_back(Vk::GetAccelerationStructureBuildRange(primitiveCount));
+            }
+        }
+
+        std::vector<const VkAccelerationStructureBuildRangeInfoKHR *> buildRangePtrs;
+        buildRangePtrs.reserve(buildRanges.size());
+        for (const auto &range : buildRanges)
+        {
+            buildRangePtrs.push_back(range.data());
+        }
+
+        // execute the acceleration structure build
+        context.CmdBuildAccelerationStructuresKHR(
+            executor->m_CommandBuffer, buildGeometries.size(), buildGeometries.data(), buildRangePtrs.data()
+        );
+    }
+
+    static void CopyAccelerationStructures(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyAccelerationStructuresCommands.at(header->CommandOffset);
+    }
+
+    static void CopyAccelerationStructureToDeviceBuffer(
+        const CommandHeader *header, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyAccelerationStructureDeviceBufferCommands.at(header->CommandOffset);
+    }
+
+    static void CopyDeviceBufferToAccelerationStructure(
+        const CommandHeader *header, CommandListStorage &storage, void *data
+    )
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.CopyDeviceBufferAccelerationStructureCommands.at(header->CommandOffset);
+    }
+
+    static void EndRendering(const CommandHeader *header, CommandListStorage &storage, void *data)
+    {
+        CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
+
+        const auto &cmd = storage.CommandDatas.EndRenderingCommands.at(header->CommandOffset);
+    }
+
     static void BeginRenderPass(
         GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
         VkCommandBuffer commandBuffer
@@ -1259,6 +1614,18 @@ namespace Nexus::Graphics
         BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
     }
 
+    void CommandExecutorVk::BindFramebufferImpl(FramebufferHandle framebuffer)
+    {
+        StopRendering();
+
+        if (const FramebufferVk *framebufferVk = framebuffer.AsDerived<const FramebufferVk>())
+        {
+            StartRenderingToFramebuffer(framebuffer);
+            m_CurrentRenderTarget = framebuffer;
+            m_RenderSize = {framebuffer->GetWidth(), framebuffer->GetHeight()};
+        }
+    }
+
     void CommandExecutorVk::StartRenderingToFramebuffer(FramebufferHandle framebuffer)
     {
         NX_PROFILE_FUNCTION();
@@ -1300,6 +1667,21 @@ namespace Nexus::Graphics
         m_DispatchTable[ToIndex(CommandType::CopyBufferToTexture)] = CopyBufferToTexture;
         m_DispatchTable[ToIndex(CommandType::CopyTextureToBuffer)] = CopyTextureToBuffer;
         m_DispatchTable[ToIndex(CommandType::CopyTextureToTexture)] = CopyTextureToTexture;
+        m_DispatchTable[ToIndex(CommandType::ResolveFramebuffer)] = Resolve;
+        m_DispatchTable[ToIndex(CommandType::StartTimingQuery)] = StartTimingQuery;
+        m_DispatchTable[ToIndex(CommandType::StopTimingQuery)] = StopTimingQuery;
+        m_DispatchTable[ToIndex(CommandType::BeginDebugGroup)] = BeginDebugGroup;
+        m_DispatchTable[ToIndex(CommandType::EndDebugGroup)] = EndDebugGroup;
+        m_DispatchTable[ToIndex(CommandType::DebugLabel)] = DebugLabel;
+        m_DispatchTable[ToIndex(CommandType::SetBlendFactor)] = SetBlendFactor;
+        m_DispatchTable[ToIndex(CommandType::SetStencilReference)] = SetStencilReference;
+        m_DispatchTable[ToIndex(CommandType::BuildAccelerationStructures)] = BuildAccelerationStructures;
+        m_DispatchTable[ToIndex(CommandType::CopyAccelerationStructure)] = CopyAccelerationStructures;
+        m_DispatchTable[ToIndex(CommandType::CopyAccelerationStructureToDeviceBuffer)] =
+            CopyAccelerationStructureToDeviceBuffer;
+        m_DispatchTable[ToIndex(CommandType::CopyDeviceBufferToAccelerationStructure)] =
+            CopyDeviceBufferToAccelerationStructure;
+        m_DispatchTable[ToIndex(CommandType::EndRendering)] = EndRendering;
     }
 
     CommandExecutorVk::~CommandExecutorVk()
@@ -1341,8 +1723,16 @@ namespace Nexus::Graphics
         {
             auto &storage = commandList->GetStorage();
 
-            for (const auto &header : storage.CommandDatas.Headers)
+            for (size_t commandIndex = 0; commandIndex < storage.CommandDatas.Headers.size(); commandIndex++)
             {
+                m_NextCommandType = commandIndex > storage.CommandDatas.Headers.size()
+                                        ? std::optional<CommandType>{}
+                                        : storage.CommandDatas.Headers[commandIndex + 1].Type;
+
+                m_LastCommand = commandIndex >= storage.CommandDatas.Headers.size();
+
+                const auto &header = storage.CommandDatas.Headers.at(commandIndex);
+
                 if (auto func = m_DispatchTable[ToIndex(header.Type)])
                 {
                     func(&header, storage, this);
@@ -2296,7 +2686,7 @@ namespace Nexus::Graphics
         // if this is the last command in the buffer, then we must explicitly stop
         // rendering to ensure that the implict render pass management occurs in the
         // correct order
-        if (m_CurrentCommandIndex >= m_Commands.size() - 1)
+        if (this->m_LastCommand)
         {
             StopRendering();
         }
@@ -2304,14 +2694,7 @@ namespace Nexus::Graphics
         // stop rendering to ensure that they show in the correct order in debuggers
         else
         {
-            /*RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
-            if (std::holds_alternative<WeakRef<IFramebuffer>>(data))
-            {
-                StopRendering();
-            }*/
-
-            const auto &data = m_Commands.data() + m_CurrentCommandIndex;
-            if (auto command = dynamic_cast<SetFramebufferCommandImpl *>(data->get()))
+            if (this->m_NextCommandType.has_value() && this->m_NextCommandType.value() == CommandType::SetFramebuffer)
             {
                 StopRendering();
             }
