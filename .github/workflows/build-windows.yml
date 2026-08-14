@@ -29,6 +29,7 @@ jobs:
           # -------------------------------------------------------
           # MSVC + MSVC STL
           # -------------------------------------------------------
+
           - name: MSVC
             environment: MSVC
             c_compiler: cl
@@ -44,6 +45,7 @@ jobs:
           # -------------------------------------------------------
           # Clang-CL + MSVC STL
           # -------------------------------------------------------
+
           - name: Clang-CL
             environment: CLANG-CL
             c_compiler: clang-cl
@@ -59,6 +61,7 @@ jobs:
           # -------------------------------------------------------
           # GCC + UCRT + libstdc++
           # -------------------------------------------------------
+
           - name: MinGW-UCRT
             environment: UCRT64
             c_compiler: gcc
@@ -74,6 +77,7 @@ jobs:
           # -------------------------------------------------------
           # Clang + UCRT + libc++
           # -------------------------------------------------------
+
           - name: Clang
             environment: CLANG64
             c_compiler: clang
@@ -99,12 +103,6 @@ jobs:
 
       # ===========================================================
       # Restore sccache cache
-      # ===========================================================
-      #
-      # The toolchain/environment is deliberately part of the key.
-      # This prevents GCC/libstdc++ objects from being reused by
-      # Clang/libc++, etc.
-      #
       # ===========================================================
 
       - name: Restore sccache cache
@@ -136,22 +134,17 @@ jobs:
       # sccache for MSVC / Clang-CL
       # ===========================================================
 
-      - name: Setup sccache (MSVC)
+      - name: Setup sccache (MSVC / Clang-CL)
         if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
         uses: mozilla-actions/sccache-action@v0.0.4
 
       # ===========================================================
       # LLVM for Clang-CL
       # ===========================================================
-      #
-      # Do NOT use the MSYS2 Clang here.
-      #
-      # clang-cl is intentionally the LLVM/Windows compiler paired
-      # with the MSVC headers, libraries and linker environment.
-      # ===========================================================
 
       - name: Install LLVM (Clang-CL)
         if: matrix.environment == 'CLANG-CL'
+        shell: pwsh
         run: |
           choco install llvm -y --no-progress
 
@@ -175,49 +168,48 @@ jobs:
           sdk-version: 26100
 
       # ===========================================================
-      # MSYS2
-      # ===========================================================
-      #
-      # UCRT64:
-      #   GCC
-      #   UCRT
-      #   libstdc++
-      #
-      # CLANG64:
-      #   Clang/LLVM
-      #   UCRT
-      #   libc++
-      #
-      # This is the important distinction from the original
-      # workflow.
+      # MSYS2 - UCRT64
       # ===========================================================
 
-      - name: Setup MSYS2
-        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
+      - name: Setup MSYS2 UCRT64
+        if: matrix.environment == 'UCRT64'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{ matrix.environment }}
+          msystem: UCRT64
           update: true
           install: >-
             base-devel
             git
+            mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-sccache
+            mingw-w64-ucrt-x86_64-ffmpeg
+            mingw-w64-ucrt-x86_64-flac
 
-            ${{ matrix.environment == 'UCRT64' &&
-            'mingw-w64-ucrt-x86_64-toolchain
-             mingw-w64-ucrt-x86_64-cmake
-             mingw-w64-ucrt-x86_64-ninja
-             mingw-w64-ucrt-x86_64-sccache
-             mingw-w64-ucrt-x86_64-ffmpeg
-             mingw-w64-ucrt-x86_64-flac' ||
-            'mingw-w64-clang-x86_64-clang
-             mingw-w64-clang-x86_64-lld
-             mingw-w64-clang-x86_64-libc++
-             mingw-w64-clang-x86_64-libunwind
-             mingw-w64-clang-x86_64-cmake
-             mingw-w64-clang-x86_64-ninja
-             mingw-w64-clang-x86_64-sccache
-             mingw-w64-clang-x86_64-ffmpeg
-             mingw-w64-clang-x86_64-flac' }}
+      # ===========================================================
+      # MSYS2 - CLANG64
+      # ===========================================================
+
+      - name: Setup MSYS2 CLANG64
+        if: matrix.environment == 'CLANG64'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            base-devel
+            git
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-lld
+            mingw-w64-clang-x86_64-libc++
+            mingw-w64-clang-x86_64-libc++abi
+            mingw-w64-clang-x86_64-libunwind
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-sccache
+            mingw-w64-clang-x86_64-ffmpeg
+            mingw-w64-clang-x86_64-flac
 
       # ===========================================================
       # Verify MSYS2 toolchain
@@ -229,10 +221,17 @@ jobs:
         run: |
           set -euxo pipefail
 
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
           echo "========================================"
           echo "MSYSTEM"
           echo "========================================"
           echo "$MSYSTEM"
+
+          echo "========================================"
+          echo "MINGW_PREFIX"
+          echo "========================================"
+          echo "$MINGW_PREFIX"
 
           echo "========================================"
           echo "PATH"
@@ -246,6 +245,9 @@ jobs:
           which g++ || true
           which clang || true
           which clang++ || true
+          which cmake
+          which ninja
+          which sccache
 
           echo "========================================"
           echo "Compiler versions"
@@ -270,11 +272,11 @@ jobs:
           echo "Relevant MSYS2 packages"
           echo "========================================"
           pacman -Q | grep -E \
-            '(^mingw-w64-(ucrt|clang)-x86_64-(gcc|clang|libc\+\+|libunwind|sccache|cmake|ninja))' \
+            '(^mingw-w64-(ucrt|clang)-x86_64-(gcc|clang|libc\+\+|libc\+\+abi|libunwind|sccache|cmake|ninja))' \
             || true
 
       # ===========================================================
-      # Verify that the expected C++ standard library is present
+      # Verify standard library
       # ===========================================================
 
       - name: Verify standard library
@@ -283,13 +285,17 @@ jobs:
         run: |
           set -euxo pipefail
 
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
           echo "========================================"
           echo "C++ standard library"
           echo "========================================"
 
           if [ "$MSYSTEM" = "UCRT64" ]; then
             echo "Expected: libstdc++"
-            test -f "$MINGW_PREFIX/include/c++/version" || true
+
+            test -d "$MINGW_PREFIX/include/c++"
+
             find "$MINGW_PREFIX" \
               \( -name 'libstdc++*.dll' -o -name 'libstdc++*.a' \) \
               -print || true
@@ -301,10 +307,11 @@ jobs:
             test -f "$MINGW_PREFIX/include/c++/v1/format"
 
             find "$MINGW_PREFIX" \
-              \( -name 'libc++*.dll' -o -name 'libc++*.a' \) \
+              \( -name 'libc++*.dll' \
+              -o -name 'libc++*.a' \
+              -o -name 'libunwind*.dll' \
+              -o -name 'libunwind*.a' \) \
               -print || true
-
-            test -f "$MINGW_PREFIX/include/c++/v1/format"
           fi
 
       # ===========================================================
@@ -369,7 +376,14 @@ jobs:
             -S .
 
       # ===========================================================
-      # Configure CMake: MSYS2 UCRT64 / CLANG64
+      # Configure CMake: MSYS2
+      #
+      # IMPORTANT:
+      #
+      # CLANG64 deliberately does NOT use sccache here while we
+      # diagnose std::format/runtime issues.
+      #
+      # Once CLANG64 is proven stable, sccache can be re-enabled.
       # ===========================================================
 
       - name: Configure CMake (MSYS2)
@@ -391,6 +405,10 @@ jobs:
             exit 1
           fi
 
+          echo "========================================"
+          echo "Compiler"
+          echo "========================================"
+
           echo "MSYSTEM=$MSYSTEM"
           echo "MINGW_PREFIX=$MINGW_PREFIX"
           echo "CC=$CC"
@@ -399,19 +417,50 @@ jobs:
           "$CC" --version
           "$CXX" --version
 
-          cmake -B build \
-            -G Ninja \
-            -DCMAKE_C_COMPILER="$CC" \
-            -DCMAKE_CXX_COMPILER="$CXX" \
-            -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-            -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
-            -DNX_PLATFORM_OPENGL=1 \
-            -DNX_PLATFORM_VULKAN=1 \
-            -DNX_PLATFORM_OPENAL=1 \
-            -DBUILD_TESTING=ON \
-            -S .
+          echo "========================================"
+          echo "C++ include search paths"
+          echo "========================================"
+
+          "$CXX" \
+            -std=c++20 \
+            -E -v \
+            -x c++ \
+            /dev/null \
+            >/dev/null
+
+          echo "========================================"
+          echo "CMake"
+          echo "========================================"
+
+          if [ "$MSYSTEM" = "CLANG64" ]; then
+            # Do NOT explicitly add -stdlib=libc++.
+            # CLANG64 is already configured around libc++.
+            cmake -B build \
+              -G Ninja \
+              -DCMAKE_C_COMPILER="$CC" \
+              -DCMAKE_CXX_COMPILER="$CXX" \
+              -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
+              -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
+              -DNX_PLATFORM_OPENGL=1 \
+              -DNX_PLATFORM_VULKAN=1 \
+              -DNX_PLATFORM_OPENAL=1 \
+              -DBUILD_TESTING=ON \
+              -S .
+          else
+            cmake -B build \
+              -G Ninja \
+              -DCMAKE_C_COMPILER="$CC" \
+              -DCMAKE_CXX_COMPILER="$CXX" \
+              -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+              -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
+              -DNX_PLATFORM_OPENGL=1 \
+              -DNX_PLATFORM_VULKAN=1 \
+              -DNX_PLATFORM_OPENAL=1 \
+              -DBUILD_TESTING=ON \
+              -S .
+          fi
 
       # ===========================================================
       # Show CMake compiler configuration
@@ -420,14 +469,16 @@ jobs:
       - name: Show CMake compiler configuration
         shell: pwsh
         run: |
-          Write-Host "===== CMake C compiler ====="
+          Write-Host "===== CMake compiler configuration ====="
+
           if (Test-Path build/CMakeCache.txt) {
             Select-String -Path build/CMakeCache.txt `
-              -Pattern "CMAKE_C_COMPILER:FILEPATH|CMAKE_CXX_COMPILER:FILEPATH|CMAKE_CXX_COMPILER_ID|CMAKE_CXX_COMPILER_VERSION"
+              -Pattern `
+                "CMAKE_C_COMPILER:FILEPATH|CMAKE_CXX_COMPILER:FILEPATH|CMAKE_CXX_COMPILER_ID|CMAKE_CXX_COMPILER_VERSION|CMAKE_CXX_FLAGS"
           }
 
       # ===========================================================
-      # Build
+      # Build: MSVC / Clang-CL
       # ===========================================================
 
       - name: Build (MSVC / Clang-CL)
@@ -435,25 +486,148 @@ jobs:
         run: |
           cmake --build build --parallel
 
+      # ===========================================================
+      # Build: MSYS2
+      # ===========================================================
+
       - name: Build (MSYS2)
         if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
         shell: msys2 {0}
         run: |
           set -euxo pipefail
 
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
           cmake --build build --parallel "$(nproc)"
 
       # ===========================================================
-      # Run tests
+      # CLANG64 std::format smoke test
+      #
+      # This isolates libc++/std::format from the project itself.
       # ===========================================================
 
-      - name: Run tests
-        run: >
-          ctest
-          --test-dir build
-          -C "${{ matrix.build_type }}"
-          --output-on-failure
-          --parallel
+      - name: Test std::format (CLANG64)
+        if: matrix.environment == 'CLANG64'
+        shell: msys2 {0}
+        run: |
+          set -euxo pipefail
+
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
+          cat > /tmp/format-test.cpp <<'EOF'
+          #include <format>
+          #include <iostream>
+          #include <string>
+
+          int main() {
+              std::string s = std::format("hello {}", 42);
+              std::cout << s << '\n';
+              return 0;
+          }
+          EOF
+
+          echo "========================================"
+          echo "Compiling std::format smoke test"
+          echo "========================================"
+
+          clang++ \
+            -std=c++20 \
+            /tmp/format-test.cpp \
+            -o /tmp/format-test.exe
+
+          echo "========================================"
+          echo "Runtime dependencies"
+          echo "========================================"
+
+          ldd /tmp/format-test.exe
+
+          echo "========================================"
+          echo "Running std::format smoke test"
+          echo "========================================"
+
+          timeout 30s /tmp/format-test.exe
+
+      # ===========================================================
+      # Inspect project executable dependencies
+      #
+      # Particularly useful for CLANG64.
+      # ===========================================================
+
+      - name: Inspect CLANG64 runtime dependencies
+        if: matrix.environment == 'CLANG64'
+        shell: msys2 {0}
+        run: |
+          set -euxo pipefail
+
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
+          echo "========================================"
+          echo "CLANG64 runtime libraries"
+          echo "========================================"
+
+          find "$MINGW_PREFIX/bin" \
+            \( -iname 'libc++*.dll' \
+            -o -iname 'libc++abi*.dll' \
+            -o -iname 'libunwind*.dll' \) \
+            -print
+
+          echo "========================================"
+          echo "Project executables"
+          echo "========================================"
+
+          find build \
+            -type f \
+            -iname '*.exe' \
+            -print | head -50
+
+          echo "========================================"
+          echo "Executable dependencies"
+          echo "========================================"
+
+          while IFS= read -r exe; do
+            echo
+            echo "----------------------------------------"
+            echo "$exe"
+            echo "----------------------------------------"
+            ldd "$exe" || true
+          done < <(find build -type f -iname '*.exe' | head -20)
+
+      # ===========================================================
+      # Run tests: MSVC / Clang-CL
+      # ===========================================================
+
+      - name: Run tests (MSVC / Clang-CL)
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
+        shell: pwsh
+        run: |
+          ctest `
+            --test-dir build `
+            -C "${{ matrix.build_type }}" `
+            --output-on-failure `
+            --parallel
+
+      # ===========================================================
+      # Run tests: MSYS2
+      #
+      # IMPORTANT:
+      # Keep execution inside the same MSYS2 environment used to
+      # build the binaries, so libc++, libc++abi, libunwind, UCRT,
+      # etc. are found consistently.
+      # ===========================================================
+
+      - name: Run tests (MSYS2)
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
+        shell: msys2 {0}
+        run: |
+          set -euxo pipefail
+
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
+          ctest \
+            --test-dir build \
+            -C "${{ matrix.build_type }}" \
+            --output-on-failure \
+            --parallel "$(nproc)"
 
       # ===========================================================
       # sccache statistics
@@ -466,9 +640,12 @@ jobs:
           sccache --show-stats
           exit 0
 
-      - name: sccache stats (MSYS2)
-        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
+      - name: sccache stats (UCRT64)
+        if: matrix.environment == 'UCRT64'
         shell: msys2 {0}
         run: |
-          sccache --show-stats || true
+          set -euxo pipefail
+
+          export PATH="$MINGW_PREFIX/bin:$PATH"
+
           sccache --show-stats || true
