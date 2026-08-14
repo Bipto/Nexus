@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "RHI/ShaderDataType.hpp"
 #include "RHI/ShaderResources.hpp"
 
