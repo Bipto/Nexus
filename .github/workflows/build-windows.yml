@@ -457,12 +457,12 @@ jobs:
       # ===========================================================
 
       - name: Run tests
-        run: |
-          ctest \
-            --test-dir build \
-            -C "${{ matrix.build_type }}" \
-            --output-on-failure \
-            --parallel
+        run: >
+          ctest
+          --test-dir build
+          -C "${{ matrix.build_type }}"
+          --output-on-failure
+          --parallel
 
       # ===========================================================
       # sccache statistics
@@ -479,4 +479,5 @@ jobs:
         if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
         shell: msys2 {0}
         run: |
+          sccache --show-stats || true
           sccache --show-stats || true
