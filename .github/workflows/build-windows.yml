@@ -21,88 +21,315 @@ jobs:
       SCCACHE_ERROR_LOG: C:\Users\runneradmin\sccache-error.log
       SCCACHE_IDLE_TIMEOUT: 1200
 
+      # IMPORTANT:
+      # Leave this enabled for the first diagnostic run.
+      #
+      # If std::format works with sccache disabled, remove this line
+      # and investigate the cache/toolchain interaction.
+      SCCACHE_DISABLE: 1
+
     strategy:
       fail-fast: false
+
       matrix:
         include:
-          - { name: MSVC,       c_compiler: cl,        cpp_compiler: cl,        build_type: Release }
-          - { name: MSVC,       c_compiler: cl,        cpp_compiler: cl,        build_type: Debug }
-          - { name: Clang-CL,   c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Release }
-          - { name: Clang-CL,   c_compiler: clang-cl,  cpp_compiler: clang-cl,  build_type: Debug }
-          - { name: Clang,      c_compiler: clang,     cpp_compiler: clang++,   build_type: Release }
-          - { name: Clang,      c_compiler: clang,     cpp_compiler: clang++,   build_type: Debug }
-          - { name: MinGW-UCRT, c_compiler: gcc,       cpp_compiler: g++,       build_type: Release }
-          - { name: MinGW-UCRT, c_compiler: gcc,       cpp_compiler: g++,       build_type: Debug }
+          # -------------------------------------------------------
+          # MSVC + MSVC STL
+          # -------------------------------------------------------
+          - name: MSVC
+            environment: MSVC
+            c_compiler: cl
+            cpp_compiler: cl
+            build_type: Release
+
+          - name: MSVC
+            environment: MSVC
+            c_compiler: cl
+            cpp_compiler: cl
+            build_type: Debug
+
+          # -------------------------------------------------------
+          # Clang-CL + MSVC STL
+          # -------------------------------------------------------
+          - name: Clang-CL
+            environment: CLANG-CL
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+            build_type: Release
+
+          - name: Clang-CL
+            environment: CLANG-CL
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+            build_type: Debug
+
+          # -------------------------------------------------------
+          # GCC + UCRT + libstdc++
+          # -------------------------------------------------------
+          - name: MinGW-UCRT
+            environment: UCRT64
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Release
+
+          - name: MinGW-UCRT
+            environment: UCRT64
+            c_compiler: gcc
+            cpp_compiler: g++
+            build_type: Debug
+
+          # -------------------------------------------------------
+          # Clang + UCRT + libc++
+          # -------------------------------------------------------
+          - name: Clang
+            environment: CLANG64
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Release
+
+          - name: Clang
+            environment: CLANG64
+            c_compiler: clang
+            cpp_compiler: clang++
+            build_type: Debug
 
     steps:
-      - uses: actions/checkout@v4
+      # ===========================================================
+      # Checkout
+      # ===========================================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      # -------------------------
+      # ===========================================================
       # Restore sccache cache
-      # -------------------------
+      # ===========================================================
+      #
+      # The toolchain/environment is deliberately part of the key.
+      # This prevents GCC/libstdc++ objects from being reused by
+      # Clang/libc++, etc.
+      #
+      # SCCACHE_DISABLE=1 means this is currently only a diagnostic
+      # cache restore and won't actually be used by the compiler.
+      # ===========================================================
+
       - name: Restore sccache cache
         uses: actions/cache@v4
         with:
           path: ${{ env.SCCACHE_DIR }}
-          key: sccache-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-${{ hashFiles('**/*.cpp', '**/*.h') }}
+          key: >-
+            sccache-${{ runner.os }}-${{ matrix.environment }}-${{ matrix.name }}-${{ matrix.build_type }}-${{ hashFiles('**/*.cpp', '**/*.cc', '**/*.cxx', '**/*.c', '**/*.h', '**/*.hpp', '**/*.hxx') }}
           restore-keys: |
-            sccache-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-
+            sccache-${{ runner.os }}-${{ matrix.environment }}-${{ matrix.name }}-${{ matrix.build_type }}-
+            sccache-${{ runner.os }}-${{ matrix.environment }}-${{ matrix.name }}-
+            sccache-${{ runner.os }}-${{ matrix.environment }}-
 
-      - name: Setup sccache (Windows)
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
-        uses: mozilla-actions/sccache-action@v0.0.4
+      # ===========================================================
+      # MSVC environment
+      # ===========================================================
 
-      # -------------------------
-      # Install LLVM for Clang-CL
-      # -------------------------
-      - name: Install LLVM (Clang-CL)
-        if: matrix.name == 'Clang-CL'
-        run: |
-          choco install llvm
-          echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Setup MSVC
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
+        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
+        with:
+          arch: x64
 
       - name: Setup Ninja
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
         uses: seanmiddleditch/gha-setup-ninja@v6
+
+      # ===========================================================
+      # sccache for MSVC / Clang-CL
+      # ===========================================================
+
+      - name: Setup sccache (MSVC)
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
+        uses: mozilla-actions/sccache-action@v0.0.4
+
+      # ===========================================================
+      # LLVM for Clang-CL
+      # ===========================================================
+      #
+      # Do NOT use the MSYS2 Clang here.
+      #
+      # clang-cl is intentionally the LLVM/Windows compiler paired
+      # with the MSVC headers, libraries and linker environment.
+      # ===========================================================
+
+      - name: Install LLVM (Clang-CL)
+        if: matrix.environment == 'CLANG-CL'
+        run: |
+          choco install llvm -y --no-progress
+
+          $llvmBin = "C:\Program Files\LLVM\bin"
+
+          if (-not (Test-Path "$llvmBin\clang-cl.exe")) {
+            throw "clang-cl.exe was not installed"
+          }
+
+          echo "$llvmBin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+          & "$llvmBin\clang-cl.exe" --version
+
+      # ===========================================================
+      # Windows SDK
+      # ===========================================================
 
       - name: Install Windows SDK
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
         with:
           sdk-version: 26100
 
-      - name: Setup MSVC
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
-        uses: TheMrMilchmann/setup-msvc-dev@v3.0.1
-        with:
-          arch: x64
+      # ===========================================================
+      # MSYS2
+      # ===========================================================
+      #
+      # UCRT64:
+      #   GCC
+      #   UCRT
+      #   libstdc++
+      #
+      # CLANG64:
+      #   Clang/LLVM
+      #   UCRT
+      #   libc++
+      #
+      # This is the important distinction from the original
+      # workflow.
+      # ===========================================================
 
-      # -------------------------
-      # MSYS2 setup for MinGW + Clang
-      # -------------------------
-      - name: Install MSYS2 toolchains
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
+      - name: Setup MSYS2
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ matrix.environment }}
           update: true
-          install: >
+          install: >-
             base-devel
-            mingw-w64-ucrt-x86_64-toolchain
-            mingw-w64-ucrt-x86_64-clang
-            mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-ninja
-            mingw-w64-ucrt-x86_64-sccache
-            mingw-w64-ucrt-x86_64-ffmpeg
-            mingw-w64-ucrt-x86_64-flac
+            git
+
+            ${{ matrix.environment == 'UCRT64' &&
+            'mingw-w64-ucrt-x86_64-toolchain
+             mingw-w64-ucrt-x86_64-cmake
+             mingw-w64-ucrt-x86_64-ninja
+             mingw-w64-ucrt-x86_64-sccache
+             mingw-w64-ucrt-x86_64-ffmpeg
+             mingw-w64-ucrt-x86_64-flac' ||
+            'mingw-w64-clang-x86_64-clang
+             mingw-w64-clang-x86_64-lld
+             mingw-w64-clang-x86_64-libc++
+             mingw-w64-clang-x86_64-libunwind
+             mingw-w64-clang-x86_64-cmake
+             mingw-w64-clang-x86_64-ninja
+             mingw-w64-clang-x86_64-sccache
+             mingw-w64-clang-x86_64-ffmpeg
+             mingw-w64-clang-x86_64-flac' }}
+
+      # ===========================================================
+      # Verify MSYS2 toolchain
+      # ===========================================================
+
+      - name: Show MSYS2 toolchain
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
+        shell: msys2 {0}
+        run: |
+          set -euxo pipefail
+
+          echo "========================================"
+          echo "MSYSTEM"
+          echo "========================================"
+          echo "$MSYSTEM"
+
+          echo "========================================"
+          echo "PATH"
+          echo "========================================"
+          echo "$PATH"
+
+          echo "========================================"
+          echo "Compiler locations"
+          echo "========================================"
+          which gcc || true
+          which g++ || true
+          which clang || true
+          which clang++ || true
+
+          echo "========================================"
+          echo "Compiler versions"
+          echo "========================================"
+          gcc --version || true
+          g++ --version || true
+          clang --version || true
+          clang++ --version || true
+
+          echo "========================================"
+          echo "CMake / Ninja"
+          echo "========================================"
+          cmake --version
+          ninja --version
+
+          echo "========================================"
+          echo "sccache"
+          echo "========================================"
+          sccache --version
+
+          echo "========================================"
+          echo "Relevant MSYS2 packages"
+          echo "========================================"
+          pacman -Q | grep -E \
+            '(^mingw-w64-(ucrt|clang)-x86_64-(gcc|clang|libc\+\+|libunwind|sccache|cmake|ninja))' \
+            || true
+
+      # ===========================================================
+      # Verify that the expected C++ standard library is present
+      # ===========================================================
+
+      - name: Verify standard library
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
+        shell: msys2 {0}
+        run: |
+          set -euxo pipefail
+
+          echo "========================================"
+          echo "C++ standard library"
+          echo "========================================"
+
+          if [ "$MSYSTEM" = "UCRT64" ]; then
+            echo "Expected: libstdc++"
+            test -f "$MINGW_PREFIX/include/c++/version" || true
+            find "$MINGW_PREFIX" \
+              \( -name 'libstdc++*.dll' -o -name 'libstdc++*.a' \) \
+              -print || true
+          fi
+
+          if [ "$MSYSTEM" = "CLANG64" ]; then
+            echo "Expected: libc++"
+
+            test -f "$MINGW_PREFIX/include/c++/v1/format"
+
+            find "$MINGW_PREFIX" \
+              \( -name 'libc++*.dll' -o -name 'libc++*.a' \) \
+              -print || true
+
+            test -f "$MINGW_PREFIX/include/c++/v1/format"
+          fi
+
+      # ===========================================================
+      # Remove rogue Strawberry ccache
+      # ===========================================================
 
       - name: Remove rogue ccache
+        shell: pwsh
         run: |
           if (Test-Path "C:\Strawberry\c\bin\ccache.exe") {
             Remove-Item "C:\Strawberry\c\bin\ccache.exe" -Force
           }
+
+      # ===========================================================
+      # Vulkan
+      # ===========================================================
 
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
@@ -110,33 +337,39 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      # -------------------------
-      # Restore CPM cache
-      # -------------------------
+      # ===========================================================
+      # CPM cache
+      # ===========================================================
+
       - name: Restore CPM cache
         uses: actions/cache@v4
         with:
           path: .cache
-          key: cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          key: >-
+            cpm-${{ runner.os }}-${{ matrix.environment }}-${{ matrix.name }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
-            cpm-${{ runner.os }}-${{ matrix.name }}-${{ matrix.build_type }}-
-            cpm-${{ runner.os }}-
+            cpm-${{ runner.os }}-${{ matrix.environment }}-${{ matrix.name }}-${{ matrix.build_type }}-
+            cpm-${{ runner.os }}-${{ matrix.environment }}-${{ matrix.name }}-
+            cpm-${{ runner.os }}-${{ matrix.environment }}-
 
-      # -------------------------
-      # Configure CMake (MSVC / Clang-CL)
-      # -------------------------
-      - name: Configure CMake (MSVC/Clang-CL)
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
+      # ===========================================================
+      # Configure CMake: MSVC / Clang-CL
+      # ===========================================================
+
+      - name: Configure CMake (MSVC / Clang-CL)
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
         shell: bash
         run: |
+          set -euxo pipefail
+
           cmake -B build \
             -G Ninja \
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_C_COMPILER="${{ matrix.c_compiler }}" \
+            -DCMAKE_CXX_COMPILER="${{ matrix.cpp_compiler }}" \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
             -DNX_PLATFORM_OPENGL=1 \
             -DNX_PLATFORM_VULKAN=1 \
             -DNX_PLATFORM_OPENAL=1 \
@@ -144,26 +377,42 @@ jobs:
             -DBUILD_TESTING=ON \
             -S .
 
-      # -------------------------
-      # Configure CMake (MSYS2 MinGW / Clang)
-      # -------------------------
+      # ===========================================================
+      # Configure CMake: MSYS2 UCRT64 / CLANG64
+      # ===========================================================
+
       - name: Configure CMake (MSYS2)
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
         shell: msys2 {0}
         run: |
+          set -euxo pipefail
+
           export PATH="$MINGW_PREFIX/bin:$PATH"
 
-          if [ "${{ matrix.name }}" = "Clang" ]; then
+          if [ "$MSYSTEM" = "UCRT64" ]; then
+            export CC=gcc
+            export CXX=g++
+          elif [ "$MSYSTEM" = "CLANG64" ]; then
             export CC=clang
             export CXX=clang++
           else
-            export CC=gcc
-            export CXX=g++
+            echo "Unexpected MSYSTEM: $MSYSTEM"
+            exit 1
           fi
+
+          echo "MSYSTEM=$MSYSTEM"
+          echo "MINGW_PREFIX=$MINGW_PREFIX"
+          echo "CC=$CC"
+          echo "CXX=$CXX"
+
+          "$CC" --version
+          "$CXX" --version
 
           cmake -B build \
             -G Ninja \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER="$CC" \
+            -DCMAKE_CXX_COMPILER="$CXX" \
+            -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
             -DCMAKE_C_COMPILER_LAUNCHER=sccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
             -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" \
@@ -173,32 +422,61 @@ jobs:
             -DBUILD_TESTING=ON \
             -S .
 
-      # -------------------------
+      # ===========================================================
+      # Show CMake compiler configuration
+      # ===========================================================
+
+      - name: Show CMake compiler configuration
+        shell: pwsh
+        run: |
+          Write-Host "===== CMake C compiler ====="
+          if (Test-Path build/CMakeCache.txt) {
+            Select-String -Path build/CMakeCache.txt `
+              -Pattern "CMAKE_C_COMPILER:FILEPATH|CMAKE_CXX_COMPILER:FILEPATH|CMAKE_CXX_COMPILER_ID|CMAKE_CXX_COMPILER_VERSION"
+          }
+
+      # ===========================================================
       # Build
-      # -------------------------
-      - name: Build (MSVC/Clang-CL)
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
-        run: cmake --build build
+      # ===========================================================
+
+      - name: Build (MSVC / Clang-CL)
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
+        run: |
+          cmake --build build --parallel
 
       - name: Build (MSYS2)
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
         shell: msys2 {0}
-        run: cmake --build build
+        run: |
+          set -euxo pipefail
+
+          cmake --build build --parallel "$(nproc)"
+
+      # ===========================================================
+      # Run tests
+      # ===========================================================
 
       - name: Run tests
-        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure --parallel
+        run: |
+          ctest \
+            --test-dir build \
+            -C "${{ matrix.build_type }}" \
+            --output-on-failure \
+            --parallel
 
-      # MSVC / Clang-CL
-      - name: sccache stats (Windows)
-        if: matrix.name == 'MSVC' || matrix.name == 'Clang-CL'
+      # ===========================================================
+      # sccache statistics
+      # ===========================================================
+
+      - name: sccache stats (MSVC / Clang-CL)
+        if: matrix.environment == 'MSVC' || matrix.environment == 'CLANG-CL'
         shell: pwsh
         run: |
           sccache --show-stats
           exit 0
 
-      # MSYS2 builds
       - name: sccache stats (MSYS2)
-        if: matrix.name == 'MinGW-UCRT' || matrix.name == 'Clang'
+        if: matrix.environment == 'UCRT64' || matrix.environment == 'CLANG64'
         shell: msys2 {0}
         run: |
           sccache --show-stats || true
