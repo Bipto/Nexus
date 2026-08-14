@@ -21,13 +21,6 @@ jobs:
       SCCACHE_ERROR_LOG: C:\Users\runneradmin\sccache-error.log
       SCCACHE_IDLE_TIMEOUT: 1200
 
-      # IMPORTANT:
-      # Leave this enabled for the first diagnostic run.
-      #
-      # If std::format works with sccache disabled, remove this line
-      # and investigate the cache/toolchain interaction.
-      SCCACHE_DISABLE: 1
-
     strategy:
       fail-fast: false
 
@@ -112,8 +105,6 @@ jobs:
       # This prevents GCC/libstdc++ objects from being reused by
       # Clang/libc++, etc.
       #
-      # SCCACHE_DISABLE=1 means this is currently only a diagnostic
-      # cache restore and won't actually be used by the compiler.
       # ===========================================================
 
       - name: Restore sccache cache
