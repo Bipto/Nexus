@@ -1,7 +1,5 @@
 #if defined(NX_PLATFORM_OPENGL)
 
-#include <ranges>
-
 #include "PipelineOpenGL.hpp"
 
 #include "DeviceBufferOpenGL.hpp"
@@ -268,8 +266,9 @@ namespace Nexus::Graphics
 
         if (context->SupportsPerTargetColourMask())
         {
-            for (const auto &[index, blendState] : std::views::enumerate(m_Description.ColourBlendStates))
+            for (size_t index = 0; index < m_Description.ColourBlendStates.size(); index++)
             {
+                const auto &blendState = m_Description.ColourBlendStates.at(index);
                 context->SetColourMask(
                     blendState.PixelWriteMask.Red, blendState.PixelWriteMask.Green, blendState.PixelWriteMask.Blue,
                     blendState.PixelWriteMask.Alpha
@@ -296,8 +295,10 @@ namespace Nexus::Graphics
 
         if (context->SupportsPerTargetBlendFunction())
         {
-            for (const auto &[index, blendState] : std::views::enumerate(m_Description.ColourBlendStates))
+            for (size_t index = 0; index < m_Description.ColourBlendStates.size(); index++)
             {
+                const auto &blendState = m_Description.ColourBlendStates.at(index);
+
                 // enable blending for this attachment
                 if (blendState.EnableBlending)
                 {
