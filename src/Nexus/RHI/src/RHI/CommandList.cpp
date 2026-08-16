@@ -740,13 +740,14 @@ namespace Nexus::Graphics
         CommandDatas.BarrierGroupCommands.push_back(description);
     }
 
-    void CommandListStorage::EndRendering()
+    void CommandListStorage::EndRendering(FramebufferHandle handle)
     {
         CommandHeader &header = CommandDatas.Headers.emplace_back();
         header.Type = CommandType::EndRendering;
         header.CommandOffset = CommandDatas.EndRenderingCommands.size();
 
-        CommandDatas.EndRenderingCommands.push_back({});
+        EndRenderingCommand &command = CommandDatas.EndRenderingCommands.emplace_back();
+        command.TargetFramebuffer = handle;
     }
 
     ICommandList::ICommandList(const CommandListDescription &spec)
@@ -1695,7 +1696,7 @@ namespace Nexus::Graphics
 
         EndRenderingCommand command = {};
         command.TargetFramebuffer = m_CurrentFramebuffer;
-        m_CommandListStorage.EndRendering();
+        m_CommandListStorage.EndRendering(m_CurrentFramebuffer);
 
         if (m_CurrentFramebuffer->IsOwnedBySwapchain())
         {

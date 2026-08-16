@@ -1316,7 +1316,7 @@ namespace Nexus::Graphics
         );
         void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
         void SubmitBarrierGroup(const BarrierGroupDescription &description);
-        void EndRendering();
+        void EndRendering(FramebufferHandle handle);
 
         CommandListCommandData CommandDatas = {};
     };

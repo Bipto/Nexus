@@ -110,7 +110,7 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
     RegisterDemo<Demos::ClippingAndTriangulationDemo>("Utils", "Polygon clipping and triangulation");
     RegisterDemo<Demos::Splines>("Utils", "Splines");
 
-    Nexus::UI::IFrame *frame = m_Layout.CreateFrame("ImGui Frame");
+    /*Nexus::UI::IFrame *frame = m_Layout.CreateFrame("ImGui Frame");
     Nexus::UI::IMenubar *menubar = frame->CreateMenubar();
     Nexus::UI::IMenu *fileMenu = menubar->CreateMenu("File");
 
@@ -120,7 +120,7 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
     Nexus::UI::IMenuItem *separator = fileMenu->AppendSeparator();
 
     Nexus::UI::IMenuItem *closeItem = fileMenu->Append("Close");
-    closeItem->OnClick([&]() { m_Application->Close(); });
+    closeItem->OnClick([&]() { m_Application->Close(); });*/
 
     // Nexus::UI::IStatusBar *statusBar = frame->CreateStatusbar();
     // statusBar->SetStatusText("Hello from ImGui");

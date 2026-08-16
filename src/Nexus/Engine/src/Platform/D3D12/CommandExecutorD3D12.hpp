@@ -44,7 +44,7 @@ namespace Nexus::Graphics
 
         void FlushReadbacks(IGraphicsDevice *device);
 
-      private:
+      public:
         void ExecuteCommand(const SetVertexBufferCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const SetIndexBufferCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(PipelineHandle command, IGraphicsDevice *device) final;
@@ -94,16 +94,20 @@ namespace Nexus::Graphics
         void CreateDrawIndexedIndirectSignatureCommand();
         void CreateDispatchIndirectSignatureCommand();
 
+        void SubmitBarrierGroupImpl(const BarrierGroupDescription &barrierGroupDesc);
+        void ResolveTextureImpl(const ResolveTextureDescription &resolveDesc);
+
         Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(
             D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride
         );
 
-      private:
+      public:
         void InsertResourceBarrier(const TextureBarrierDesc &command);
         void InsertTextureBarrier(const TextureBarrierDesc &command);
         Nexus::Graphics::DeviceBufferHandle CreateStagingBuffer(size_t size, bool upload, IGraphicsDevice *device);
 
-      private:
+      public:
+        GraphicsDeviceD3D12 *m_GraphicsDevice = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Device9> m_Device = nullptr;
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
@@ -131,6 +135,8 @@ namespace Nexus::Graphics
 
         std::vector<DeviceBufferHandle> m_UploadBuffers = {};
         std::vector<D3D12ReadbackBufferCopyOperation> m_ReadbackCopies = {};
+
+        std::array<CommandFunc, static_cast<size_t>(CommandType::Count)> m_DispatchTable = {};
     };
 } // namespace Nexus::Graphics
 

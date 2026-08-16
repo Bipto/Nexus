@@ -169,11 +169,12 @@ namespace Nexus::Graphics
     {
         for (size_t i = 0; i < m_CreatedCommandQueues.size(); i++)
         {
-            CommandQueueD3D12 *commandQueue = m_CreatedCommandQueues.at(i).AsDerived<CommandQueueD3D12>();
+            CommandQueueHandle &queueHandle = m_CreatedCommandQueues.at(i);
+            CommandQueueD3D12 *commandQueue = queueHandle.AsDerived<CommandQueueD3D12>();
 
             // check if the command queue pointer has expired, if it has remove it
             // and continue iterating
-            if (!commandQueue)
+            if (!queueHandle.IsValid() || !commandQueue)
             {
                 m_CreatedCommandQueues.erase(m_CreatedCommandQueues.begin() + i);
                 i--;

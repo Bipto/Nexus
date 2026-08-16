@@ -104,7 +104,6 @@ namespace Nexus::Graphics
 
     TextureD3D12::~TextureD3D12()
     {
-        ReleaseHandle(true);
     }
 
     TextureLayout TextureD3D12::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const

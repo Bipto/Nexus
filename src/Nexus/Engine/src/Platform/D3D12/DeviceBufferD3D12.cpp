@@ -59,7 +59,6 @@ namespace Nexus::Graphics
 
     DeviceBufferD3D12::~DeviceBufferD3D12()
     {
-        m_GraphicsDevice->WaitForIdle();
     }
 
     void DeviceBufferD3D12::SetData(const void *data, uint32_t offset, uint32_t size)
