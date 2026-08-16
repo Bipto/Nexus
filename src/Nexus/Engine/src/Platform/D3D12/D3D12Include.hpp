@@ -18,6 +18,6 @@
 
 #include "D3D12MemAlloc.h"
 
-#define BUFFER_COUNT 2
+#define BUFFER_COUNT 3
 
 #endif

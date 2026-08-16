@@ -76,6 +76,12 @@ namespace Nexus::Graphics
         HRESULT hr = m_Swapchain->QueryInterface(IID_PPV_ARGS(&swapchain1));
         UINT presentFlags = 0;
 
+        if (m_Description.ImagePresentMode == PresentMode::Immediate ||
+            m_Description.ImagePresentMode == PresentMode::FifoRelaxed)
+        {
+            presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
+        }
+
         if (SUCCEEDED(hr))
         {
             std::vector<RECT> presentRects = {};
