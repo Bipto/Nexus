@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -20,7 +21,7 @@ namespace Nexus
 {
     enum class ShaderOptimisationLevel
     {
-        None,
+        NoOptimisation,
         Performance,
         Size
     };

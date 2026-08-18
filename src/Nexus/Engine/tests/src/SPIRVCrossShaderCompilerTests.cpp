@@ -23,7 +23,7 @@ TEST(SPIRVShaderCompiler, CompilesValidShader)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,

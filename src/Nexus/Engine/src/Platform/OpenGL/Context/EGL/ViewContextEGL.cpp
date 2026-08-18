@@ -156,7 +156,6 @@ namespace Nexus::GL
 
     ViewContextEGL::~ViewContextEGL()
     {
-        GL::ClearCurrentContext();
         gladLoaderUnloadGLContext(&m_GladContext);
         eglDestroyContext(m_EGLDisplay, m_Context);
     }
@@ -170,54 +169,46 @@ namespace Nexus::GL
     {
         NX_VALIDATE(texture.IsValid(), "Texture cannot be null");
 
-        // retrieve the previous context
-        GL::IGLContext *previousContext = GL::GetCurrentContext();
-
-        // Make the swapchain's context current
-        GL::SetCurrentContext(this);
-
-        GL::ExecuteGLCommands([&](const GladGLContext &context) {
-            // copy the sections requested
-            if (presentDesc.PresentRects.size() > 0)
-            {
-                for (const auto &rect : presentDesc.PresentRects)
-                {
-                    Graphics::TextureCopyDescription copyDesc = {};
-
-                    // framebuffer texture
-                    copyDesc.Source = texture;
-                    copyDesc.SourceOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
-                    copyDesc.SourceMipLevel = 0;
-
-                    // backbuffer
-                    copyDesc.Destination = {};
-                    copyDesc.DestinationMipLevel = 0;
-                    copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
-
-                    copyDesc.Extent = {rect.Width, rect.Height};
-                    GL::CopyTextureToTexture(copyDesc, context);
-                }
-            }
-            // copy the full image
-            else
+        // copy the sections requested
+        if (presentDesc.PresentRects.size() > 0)
+        {
+            for (const auto &rect : presentDesc.PresentRects)
             {
                 Graphics::TextureCopyDescription copyDesc = {};
 
                 // framebuffer texture
                 copyDesc.Source = texture;
-                copyDesc.SourceOffset = {0, 0, 0};
+                copyDesc.SourceOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
                 copyDesc.SourceMipLevel = 0;
 
                 // backbuffer
                 copyDesc.Destination = {};
                 copyDesc.DestinationMipLevel = 0;
-                copyDesc.DestinationOffset = {0, 0, 0};
-                copyDesc.Extent = {texture->GetWidth(), texture->GetHeight()};
-                GL::CopyTextureToTexture(copyDesc, context);
-            }
-        });
+                copyDesc.DestinationOffset = {static_cast<int32_t>(rect.X), static_cast<int32_t>(rect.Y), 0};
 
-        if (glad_eglSwapBuffersWithDamageKHR != nullptr)
+                copyDesc.Extent = {rect.Width, rect.Height};
+                GL::CopyTextureToTexture(copyDesc, this);
+            }
+        }
+        // copy the full image
+        else
+        {
+            Graphics::TextureCopyDescription copyDesc = {};
+
+            // framebuffer texture
+            copyDesc.Source = texture;
+            copyDesc.SourceOffset = {0, 0, 0};
+            copyDesc.SourceMipLevel = 0;
+
+            // backbuffer
+            copyDesc.Destination = {};
+            copyDesc.DestinationMipLevel = 0;
+            copyDesc.DestinationOffset = {0, 0, 0};
+            copyDesc.Extent = {texture->GetWidth(), texture->GetHeight()};
+            GL::CopyTextureToTexture(copyDesc, this);
+        }
+
+        if (glad_eglSwapBuffersWithDamageKHR != nullptr && presentDesc.PresentRects.size() > 0)
         {
             struct EGLRect
             {

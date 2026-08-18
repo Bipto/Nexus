@@ -251,7 +251,7 @@ namespace
     {
         switch (level)
         {
-        case Nexus::ShaderOptimisationLevel::None:
+        case Nexus::ShaderOptimisationLevel::NoOptimisation:
             return shaderc_optimization_level_zero;
         case Nexus::ShaderOptimisationLevel::Size:
             return shaderc_optimization_level_size;

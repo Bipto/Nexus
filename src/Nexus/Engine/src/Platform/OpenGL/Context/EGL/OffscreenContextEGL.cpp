@@ -158,7 +158,6 @@ namespace Nexus::GL
 
     OffscreenContextEGL::~OffscreenContextEGL()
     {
-        GL::ClearCurrentContext();
         gladLoaderUnloadGLContext(&m_GladContext);
         eglDestroyContext(m_EGLDisplay, m_Context);
         eglTerminate(m_EGLDisplay);
