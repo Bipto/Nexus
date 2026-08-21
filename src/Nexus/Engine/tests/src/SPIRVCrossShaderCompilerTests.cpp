@@ -58,7 +58,7 @@ TEST(SPIRVShaderCompiler, FailsOnInvalidShader)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
@@ -93,7 +93,7 @@ TEST(SPIRVShaderCompiler, DeterministicOutput)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
@@ -134,7 +134,7 @@ TEST(SPIRVShaderCompiler, HandlesPreprocessorDefines)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
@@ -169,7 +169,7 @@ TEST(SPIRVShaderCompiler, ErrorMessageContainsLineNumber)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
@@ -204,7 +204,7 @@ TEST(SPIRVShaderCompiler, CompilesLargeShader)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
@@ -239,7 +239,7 @@ TEST(SPIRVShaderCompiler, MultipleSequentialCompilations)
         .OutputCompilationDesc =
             {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
              .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::None,
+             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
              .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
