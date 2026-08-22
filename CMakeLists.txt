@@ -71,7 +71,7 @@ add_definitions(-DTRACY_ENABLE)
 # ------------------------------------------------------------
 # Testing
 # ------------------------------------------------------------
-if (DEFINED BUILD_TESTING)
+if (BUILD_TESTING)
     enable_testing()
     include(CTest)
 
@@ -85,7 +85,7 @@ endif()
 # ------------------------------------------------------------
 # Benchmarking
 # ------------------------------------------------------------
-if (DEFINED BUILD_BENCHMARKING)
+if (BUILD_BENCHMARKING)
     CPMAddPackage(
         benchmark
         GITHUB_REPOSITORY google/benchmark
@@ -101,11 +101,11 @@ endif()
 # ------------------------------------------------------------
 add_subdirectory(src/Nexus)
 
-if (DEFINED NX_BUILD_EDITOR)
+if (NX_BUILD_EDITOR)
     add_subdirectory(src/Editor)
 endif()
 
-if (DEFINED NX_BUILD_DEMO)
+if (NX_BUILD_DEMO)
     add_subdirectory(src/Demo)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
 endif()
