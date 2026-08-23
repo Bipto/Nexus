@@ -1725,9 +1725,10 @@ namespace Nexus::Graphics
 
             for (size_t commandIndex = 0; commandIndex < storage.CommandDatas.Headers.size(); commandIndex++)
             {
-                m_NextCommandType = commandIndex > storage.CommandDatas.Headers.size()
-                                        ? std::optional<CommandType>{}
-                                        : storage.CommandDatas.Headers[commandIndex + 1].Type;
+                m_NextCommandType =
+                    storage.CommandDatas.Headers.size() > 0 && storage.CommandDatas.Headers.size() + 1 > commandIndex
+                        ? std::optional<CommandType>{}
+                        : storage.CommandDatas.Headers[commandIndex + 1].Type;
 
                 m_LastCommand = commandIndex >= storage.CommandDatas.Headers.size();
 
