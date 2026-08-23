@@ -1,3 +1,5 @@
+include (GoogleTest)
+
 add_executable(LoggingUnitTests
     src/LoggingTests.cpp)   
 
@@ -8,7 +10,4 @@ target_link_libraries(LoggingUnitTests
     GTest::gtest_main
 )
 
-add_test(
-    NAME LoggingUnitTests
-    COMMAND LoggingUnitTests
-)
+gtest_discover_tests(LoggingUnitTests DISCOVERY_MODE PRE_TEST)

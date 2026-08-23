@@ -35,11 +35,14 @@ macro(nexus_structure_folders)
 endmacro()
 
 function(copy_directory_to_target_output target dir)
+    get_filename_component(dir_name "${dir}" NAME)
+
     add_custom_command(
-        TARGET ${target} POST_BUILD
+        TARGET ${target}
+        POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/${dir}
-            $<TARGET_FILE_DIR:${target}>/${dir}
+                "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
+                "$<TARGET_FILE_DIR:${target}>/${dir_name}"
         VERBATIM
     )
 endfunction()

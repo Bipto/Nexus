@@ -1,3 +1,5 @@
+include (GoogleTest)
+
 add_executable(CoreUnitTests
     src/NamedJThreadTests.cpp
     src/ResourcePoolTests.cpp
@@ -14,8 +16,4 @@ target_link_libraries(CoreUnitTests
 )
 
 copy_runtime_deps(CoreUnitTests)
-
-add_test(
-    NAME CoreUnitTests
-    COMMAND CoreUnitTests
-)
+gtest_discover_tests(CoreUnitTests DISCOVERY_MODE PRE_TEST)
