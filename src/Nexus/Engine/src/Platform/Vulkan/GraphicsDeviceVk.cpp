@@ -343,10 +343,7 @@ namespace Nexus::Graphics
         Vk::PNextBuilder builder = {};
 
         VkPhysicalDeviceFeatures deviceFeatures = {};
-        deviceFeatures.samplerAnisotropy = VK_TRUE;
-        deviceFeatures.sampleRateShading = VK_TRUE;
-        deviceFeatures.independentBlend = VK_TRUE;
-        deviceFeatures.depthBounds = VK_TRUE;
+        m_Context.GetPhysicalDeviceFeatures(m_PhysicalDevice->GetVkPhysicalDevice(), &deviceFeatures);
 
         VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
         deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
@@ -398,7 +395,7 @@ namespace Nexus::Graphics
             builder.Add(dynamicRenderingFeatures);
         }
 
-        VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {};
+        VkPhysicalDeviceBufferDeviceAddressFeaturesKHR bufferDeviceAddressFeatures = {};
         bufferDeviceAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_KHR;
         bufferDeviceAddressFeatures.pNext = nullptr;
         bufferDeviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
@@ -441,6 +438,22 @@ namespace Nexus::Graphics
         if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
         {
             builder.Add(inlineUniformBlockFeatures);
+        }
+
+        VkPhysicalDeviceMaintenance5Features maintenanceFeatures5 = {};
+        maintenanceFeatures5.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES;
+        maintenanceFeatures5.maintenance5 = VK_TRUE;
+        if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_5_EXTENSION_NAME))
+        {
+            builder.Add(maintenanceFeatures5);
+        }
+
+        VkPhysicalDeviceMaintenance6Features maintenanceFeatures6 = {};
+        maintenanceFeatures6.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES;
+        maintenanceFeatures6.maintenance6 = VK_TRUE;
+        if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_6_EXTENSION_NAME))
+        {
+            builder.Add(maintenanceFeatures6);
         }
 
         VkDeviceCreateInfo createInfo = {};

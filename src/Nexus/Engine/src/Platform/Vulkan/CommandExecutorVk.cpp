@@ -339,12 +339,13 @@ namespace Nexus::Graphics
         VkDeviceSize size = cmd.View.Size;
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+        const GraphicsAPIInfo &apiInfo = executor->m_Device->GetGraphicsAPI();
 
-        if (context.CmdBindIndexBuffer2)
+        if (apiInfo.Major >= 1 && apiInfo.Minor >= 4 && context.CmdBindIndexBuffer2)
         {
             context.CmdBindIndexBuffer2(executor->m_CommandBuffer, indexBufferHandle, offset, size, indexType);
         }
-        else if (context.CmdBindIndexBuffer2KHR)
+        else if (context.KHR_maintenance5 && context.CmdBindIndexBuffer2KHR)
         {
             context.CmdBindIndexBuffer2KHR(executor->m_CommandBuffer, indexBufferHandle, offset, size, indexType);
         }
@@ -698,8 +699,9 @@ namespace Nexus::Graphics
         if (PipelineVk *pipeline = executor->m_CurrentlyBoundPipeline.AsDerived<PipelineVk>())
         {
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
+            const auto &apiInfo = executor->m_Device->GetGraphicsAPI();
 
-            if (context.CmdPushConstants2)
+            if (apiInfo.Major >= 1 && apiInfo.Minor >= 4 && context.CmdPushConstants2)
             {
                 VkPushConstantsInfo pushConstantsInfo = {};
                 pushConstantsInfo.sType = VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO;
@@ -712,7 +714,7 @@ namespace Nexus::Graphics
 
                 context.CmdPushConstants2(executor->m_CommandBuffer, &pushConstantsInfo);
             }
-            else if (context.CmdPushConstants2KHR)
+            else if (context.KHR_maintenance6 && context.CmdPushConstants2KHR)
             {
                 VkPushConstantsInfoKHR pushConstantsInfo = {};
                 pushConstantsInfo.sType = VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO_KHR;

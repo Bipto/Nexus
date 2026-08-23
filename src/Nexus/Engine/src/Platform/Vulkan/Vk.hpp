@@ -5,6 +5,8 @@
 #include "glad/vulkan.h"
 #include "vk_mem_alloc.h"
 
+#include "RHI/APIVersion.hpp"
+
 #include "RHI/AccelerationStructure.hpp"
 #include "RHI/CommandList.hpp"
 #include "RHI/CommandQueue.hpp"
@@ -218,7 +220,8 @@ namespace Nexus::Vk
     void BindDescriptorSets(
         const GladVulkanContext &context, VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint,
         VkPipelineLayout pipelineLayout, uint32_t setIndex, uint32_t setCount, const VkDescriptorSet *descriptorSets,
-        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets, size_t dynamicOffsetCount
+        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets, size_t dynamicOffsetCount,
+        const Graphics::GraphicsAPIInfo &info
     );
 
     struct SubresourceRangeLayout

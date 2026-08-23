@@ -539,12 +539,14 @@ namespace Nexus::Graphics
             }
         }
 
+        const auto &apiInfo = m_Device->GetGraphicsAPI();
+
         for (const auto &[setIndex, descriptorSet] : m_DescriptorSets)
         {
             std::vector<uint32_t> &dynamicOffsets = m_DynamicOffsets[setIndex];
             Vk::BindDescriptorSets(
                 context, cmd, bindPoint, pipeline->GetPipelineLayout(), setIndex, 1, &descriptorSet, m_PipelineStages,
-                dynamicOffsets.data(), dynamicOffsets.size()
+                dynamicOffsets.data(), dynamicOffsets.size(), apiInfo
             );
         }
     }

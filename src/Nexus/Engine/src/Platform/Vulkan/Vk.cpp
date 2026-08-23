@@ -3171,10 +3171,11 @@ namespace Nexus::Vk
     void BindDescriptorSets(
         const GladVulkanContext &context, VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint,
         VkPipelineLayout pipelineLayout, uint32_t setIndex, uint32_t setCount, const VkDescriptorSet *descriptorSets,
-        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets, size_t dynamicOffsetCount
+        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets, size_t dynamicOffsetCount,
+        const Graphics::GraphicsAPIInfo &info
     )
     {
-        if (context.CmdBindDescriptorSets2)
+        if (info.Major >= 1 && info.Minor >= 4 && context.CmdBindDescriptorSets2)
         {
             VkBindDescriptorSetsInfo info = {};
             info.sType = VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO;
