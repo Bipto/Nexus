@@ -53,7 +53,7 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    #if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    #if(NOT WIN32)
     #    return()
     #endif()
 
