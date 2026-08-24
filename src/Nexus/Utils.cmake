@@ -53,9 +53,9 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    #if(NOT WIN32)
-    #    return()
-    #endif()
+    if(NOT WIN32)
+        return()
+    endif()
 
 
     add_custom_command(
