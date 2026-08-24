@@ -47,28 +47,21 @@ function(copy_directory_to_target_output target dir)
     )
 endfunction()
 
-macro(copy_runtime_deps target_name)
-    if(NOT TARGET ${target_name})
+function(copy_runtime_deps target_name)
+    if(NOT TARGET "${target_name}")
         message(WARNING "Target '${target_name}' does not exist.")
         return()
     endif()
 
-    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        return()
-    endif()
-
-
     add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory
-            $<TARGET_FILE_DIR:${target_name}>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        TARGET "${target_name}" POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy -t
+            "$<TARGET_FILE_DIR:${target_name}>"
             $<TARGET_RUNTIME_DLLS:${target_name}>
-            $<TARGET_FILE_DIR:${target_name}>
         COMMAND_EXPAND_LISTS
     )
+endfunction()
 
-endmacro()
 
 macro(import_dll target_name dll_path lib_path)
     add_library(${target_name} SHARED IMPORTED GLOBAL)
