@@ -47,20 +47,20 @@ function(copy_directory_to_target_output target dir)
     )
 endfunction()
 
-macro(copy_runtime_deps target_name)
-    if(NOT TARGET ${target_name})
+function(copy_runtime_deps target_name)
+    if(NOT TARGET "${target_name}")
         message(WARNING "Target '${target_name}' does not exist.")
         return()
     endif()
 
     add_custom_command(
-        TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<$<BOOL:$<TARGET_RUNTIME_DLLS:${target_name}>>:$<TARGET_RUNTIME_DLLS:${target_name}>>
-            $<TARGET_FILE_DIR:${target_name}>
+        TARGET "${target_name}" POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy -t
+            "$<TARGET_FILE_DIR:${target_name}>"
+            $<TARGET_RUNTIME_DLLS:${target_name}>
         COMMAND_EXPAND_LISTS
     )
-endmacro()
+endfunction()
 
 
 macro(import_dll target_name dll_path lib_path)
