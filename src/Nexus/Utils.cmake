@@ -53,9 +53,9 @@ macro(copy_runtime_deps target_name)
         return()
     endif()
 
-    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        return()
-    endif()
+    #if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    #    return()
+    #endif()
 
 
     add_custom_command(
