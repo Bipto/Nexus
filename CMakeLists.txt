@@ -62,19 +62,14 @@ if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-int-conversion")
 endif()
 
-if (MINGW)
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-endif()
-
 add_definitions(-DTRACY_ENABLE)
 
 # ------------------------------------------------------------
 # Testing
 # ------------------------------------------------------------
-if (BUILD_TESTING)
-    enable_testing()
-    include(CTest)
+include(CTest)
 
+if (BUILD_TESTING)
     CPMAddPackage(
         googletest
         GITHUB_REPOSITORY google/googletest
@@ -95,28 +90,4 @@ if (BUILD_BENCHMARKING)
     )
 endif()
 
-
-# ------------------------------------------------------------
-# Subdirectories
-# ------------------------------------------------------------
-add_subdirectory(src/Nexus)
-
-if (NX_BUILD_EDITOR)
-    add_subdirectory(src/Editor)
-endif()
-
-if (NX_BUILD_DEMO)
-    add_subdirectory(src/Demo)
-    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
-endif()
-
-# Disable sccache for Assimp if it was fetched by CPM
-if (TARGET assimp)
-    get_target_property(assimp_source_dir assimp SOURCE_DIR)
-    get_filename_component(assimp_dir "${assimp_source_dir}" DIRECTORY)
-
-    message(STATUS "Disabling sccache for Assimp in: ${assimp_dir}")
-
-    set_property(DIRECTORY "${assimp_dir}" PROPERTY RULE_LAUNCH_COMPILE "")
-    set_property(DIRECTORY "${assimp_dir}" PROPERTY RULE_LAUNCH_LINK "")
-endif()
+add_subdirectory(src)
