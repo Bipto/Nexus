@@ -2,9 +2,8 @@
 
 namespace Nexus::Graphics
 {
-    Nexus::Graphics::TexelBufferOpenGL::TexelBufferOpenGL(
-        const TexelBufferDescription &desc, GraphicsDeviceOpenGL *device
-    )
+    Nexus::Graphics::TexelBufferOpenGL::TexelBufferOpenGL(const TexelBufferDescription &desc,
+                                                          GraphicsDeviceOpenGL *device)
     {
         GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
         m_Handle = context->CreateTexelBuffer(desc).value();

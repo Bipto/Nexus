@@ -88,9 +88,8 @@ namespace Nexus::Graphics
         /// generation
         CompilationResult Generate(const std::string &source, ShaderGenerationOptions options);
 
-        std::vector<uint32_t> GenerateSPIRV(
-            const std::string &source, ShaderStage stage, TargetEnvironment env, SPIRV_Version version, bool debugInfo
-        );
+        std::vector<uint32_t> GenerateSPIRV(const std::string &source, ShaderStage stage, TargetEnvironment env,
+                                            SPIRV_Version version, bool debugInfo);
     };
 
     std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage);

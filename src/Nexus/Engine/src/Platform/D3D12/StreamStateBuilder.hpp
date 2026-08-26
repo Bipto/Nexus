@@ -7,7 +7,8 @@ namespace Nexus::D3D12
 {
     // this seems like the easiest way to force the correct 8 byte alignment for the
     // D3D12 structures
-    template <typename T> struct alignas(8) AlignedSubObject
+    template <typename T>
+    struct alignas(8) AlignedSubObject
     {
         D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type;
         // typename std::aligned_storage<sizeof(T), 8>::type Data;
@@ -27,7 +28,8 @@ namespace Nexus::D3D12
         StreamStateBuilder() = default;
         ~StreamStateBuilder() = default;
 
-        template <typename T> void AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE subobjectType, const T &subobject)
+        template <typename T>
+        void AddSubObject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE subobjectType, const T &subobject)
         {
             static_assert(std::is_trivially_copyable<T>::value, "Object must be trivially copyable");
             AlignedSubObject<T> alignedSubObject{subobjectType, subobject};

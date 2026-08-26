@@ -14,10 +14,8 @@ namespace Nexus::Processors
         {
         }
         virtual ~TextureProcessor() = default;
-        GUID Process(
-            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
-            Project *project
-        ) final;
+        GUID Process(const std::string &filepath, Graphics::IGraphicsDevice *device,
+                     Graphics::CommandQueueHandle commandQueue, Project *project) final;
         virtual std::any Import(const std::string &filepath) final;
         void SetSrgb(bool useSrgb);
         void SetGenerateMips(bool generateMips);
@@ -26,8 +24,6 @@ namespace Nexus::Processors
         bool m_GenerateMips = true;
         bool m_Srgb = false;
     };
-    NX_REGISTER_PROCESSOR(
-        TextureProcessor, Graphics::ITexture, TEXTURE_2D_PROCESSOR_NAME,
-        (std::vector<std::string>{".jpg", ".png", ".dds"})
-    );
+    NX_REGISTER_PROCESSOR(TextureProcessor, Graphics::ITexture, TEXTURE_2D_PROCESSOR_NAME,
+                          (std::vector<std::string>{".jpg", ".png", ".dds"}));
 } // namespace Nexus::Processors

@@ -115,8 +115,7 @@ namespace Nexus::Graphics
         virtual TimingQueryHandle CreateTimingQuery() = 0;
 
         virtual AccelerationStructureHandle CreateAccelerationStructure(
-            const AccelerationStructureDescription &desc
-        ) = 0;
+            const AccelerationStructureDescription &desc) = 0;
 
         virtual TexelBufferHandle CreateTexelBuffer(const TexelBufferDescription &desc) = 0;
 
@@ -146,9 +145,8 @@ namespace Nexus::Graphics
 
         virtual FenceHandle CreateFence(const FenceDescription &desc) = 0;
 
-        virtual FenceWaitResult WaitForFences(
-            FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
-        ) = 0;
+        virtual FenceWaitResult WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll,
+                                              uint64_t timeoutNS) = 0;
 
         virtual ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleDesc) = 0;
 
@@ -161,16 +159,14 @@ namespace Nexus::Graphics
         virtual bool Validate() = 0;
         virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
 
-        virtual PixelFormatProperties GetPixelFormatProperties(
-            PixelFormat format, TextureType type, TextureUsageFlags usage
-        ) const = 0;
+        virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                               TextureUsageFlags usage) const = 0;
 
         virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
         virtual const DeviceLimits &GetPhysicalDeviceLimits() const = 0;
         virtual bool IsIndexBufferFormatSupported(IndexFormat format) const = 0;
         virtual AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
-            const AccelerationStructureGeometryBuildDescription &description
-        ) const = 0;
+            const AccelerationStructureGeometryBuildDescription &description) const = 0;
 
         virtual RayTracingDeviceDescription GetRayTracingDeviceDescription() const = 0;
         virtual AccelerationStructureProperties GetAccelerationStructureProperties() const = 0;

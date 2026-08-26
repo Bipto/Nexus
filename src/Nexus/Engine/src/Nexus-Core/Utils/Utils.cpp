@@ -94,9 +94,8 @@ namespace Nexus::Utils
         points = newPoints;
     }
 
-    std::vector<glm::vec2> SutherlandHodgman(
-        const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon
-    )
+    std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon,
+                                             const std::vector<glm::vec2> &clipPolygon)
     {
         assert(subjectPolygon.size() >= 3 && "The subject polygon must have at least 3 points");
         assert(clipPolygon.size() >= 3 && "The clipping polygon must have at least 3 points");
@@ -137,9 +136,8 @@ namespace Nexus::Utils
         return poly;
     }
 
-    NX_API Nexus::Graphics::Polygon SutherlandHodgman(
-        const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip
-    )
+    NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject,
+                                                      const Nexus::Graphics::Polygon &clip)
     {
         std::vector<glm::vec2> subjectPoints = subject.GetOutline();
         std::vector<glm::vec2> clipPoints = clip.GetOutline();
@@ -253,9 +251,8 @@ namespace Nexus::Utils
         return true;
     }
 
-    std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(
-        const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices
-    )
+    std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon,
+                                                              const std::vector<uint32_t> &indices)
     {
         std::vector<Nexus::Graphics::Triangle2D> triangles;
 
@@ -306,9 +303,8 @@ namespace Nexus::Utils
         return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     }
 
-    Graphics::DeviceBufferHandle CreateUploadBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device
-    )
+    Graphics::DeviceBufferHandle CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                    Graphics::IGraphicsDevice *device)
     {
         Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
         bufferDesc.Access = Graphics::BufferMemoryAccess::Upload;
@@ -321,10 +317,9 @@ namespace Nexus::Utils
         return buffer;
     }
 
-    Graphics::DeviceBufferHandle CreateFilledVertexBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
-    )
+    Graphics::DeviceBufferHandle CreateFilledVertexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                          Graphics::IGraphicsDevice *device,
+                                                          Graphics::CommandQueueHandle commandQueue)
     {
         Graphics::DeviceBufferHandle uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
         Graphics::CommandListHandle commandList = commandQueue->CreateCommandList();
@@ -350,10 +345,9 @@ namespace Nexus::Utils
         return vertexBuffer;
     } // namespace Nexus::Utils
 
-    Graphics::DeviceBufferHandle CreateFilledIndexBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
-    )
+    Graphics::DeviceBufferHandle CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                         Graphics::IGraphicsDevice *device,
+                                                         Graphics::CommandQueueHandle commandQueue)
     {
         Graphics::DeviceBufferHandle uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
         Graphics::CommandListHandle commandList = commandQueue->CreateCommandList();
@@ -379,10 +373,9 @@ namespace Nexus::Utils
         return indexBuffer;
     }
 
-    Graphics::DeviceBufferHandle CreateFilledUniformBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
-    )
+    Graphics::DeviceBufferHandle CreateFilledUniformBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                           Graphics::IGraphicsDevice *device,
+                                                           Graphics::CommandQueueHandle commandQueue)
     {
         Graphics::DeviceBufferHandle uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
         Graphics::CommandListHandle commandList = commandQueue->CreateCommandList();
@@ -437,12 +430,10 @@ namespace Nexus::Utils
                 {
                     for (uint32_t b = 0; b < bytesPerChannel; ++b)
                     {
-                        std::swap(
-                            *(bufferPointer +
-                              (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
-                            *(bufferPointer +
-                              (j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b))
-                        );
+                        std::swap(*(bufferPointer +
+                                    (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
+                                  *(bufferPointer + (j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel +
+                                                     k * bytesPerChannel + b)));
                     }
                 }
             }
@@ -465,12 +456,10 @@ namespace Nexus::Utils
                 {
                     for (uint32_t b = 0; b < bytesPerChannel; ++b)
                     {
-                        std::swap(
-                            *(bufferPointer +
-                              (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
-                            *(bufferPointer +
-                              ((height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b))
-                        );
+                        std::swap(*(bufferPointer +
+                                    (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
+                                  *(bufferPointer + ((height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel +
+                                                     k * bytesPerChannel + b)));
                     }
                 }
             }

@@ -293,8 +293,7 @@ namespace Nexus::Graphics
     }
 
     BuildAccelerationStructuresCommandImpl::BuildAccelerationStructuresCommandImpl(
-        const std::vector<AccelerationStructureGeometryBuildDescription> &description
-    )
+        const std::vector<AccelerationStructureGeometryBuildDescription> &description)
         : m_Description(description)
     {
     }
@@ -306,8 +305,7 @@ namespace Nexus::Graphics
     }
 
     CopyAccelerationStructuresCommandImpl::CopyAccelerationStructuresCommandImpl(
-        const AccelerationStructureCopyDescription &description
-    )
+        const AccelerationStructureCopyDescription &description)
         : m_Description(description)
     {
     }
@@ -318,29 +316,25 @@ namespace Nexus::Graphics
     }
 
     CopyAccelerationStructureToDeviceBufferCommandImpl::CopyAccelerationStructureToDeviceBufferCommandImpl(
-        const AccelerationStructureDeviceBufferCopyDescription &description
-    )
+        const AccelerationStructureDeviceBufferCopyDescription &description)
         : m_Description(description)
     {
     }
 
-    void CopyAccelerationStructureToDeviceBufferCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyAccelerationStructureToDeviceBufferCommandImpl::Execute(CommandExecutor *executor,
+                                                                     IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Description, device);
     }
 
     CopyDeviceBufferToAccelerationStructureCommandImpl::CopyDeviceBufferToAccelerationStructureCommandImpl(
-        const DeviceBufferAccelerationStructureCopyDescription &description
-    )
+        const DeviceBufferAccelerationStructureCopyDescription &description)
         : m_Description(description)
     {
     }
 
-    void CopyDeviceBufferToAccelerationStructureCommandImpl::Execute(
-        CommandExecutor *executor, IGraphicsDevice *device
-    ) const
+    void CopyDeviceBufferToAccelerationStructureCommandImpl::Execute(CommandExecutor *executor,
+                                                                     IGraphicsDevice *device) const
     {
         executor->ExecuteCommand(m_Description, device);
     }
@@ -504,9 +498,8 @@ namespace Nexus::Graphics
         CommandDatas.ResourceSetBindingCommands.push_back(desc);
     }
 
-    void CommandListStorage::ClearColourTarget(
-        uint32_t index, const ClearColourValue &color, std::optional<ClearRect> clearRect
-    )
+    void CommandListStorage::ClearColourTarget(uint32_t index, const ClearColourValue &color,
+                                               std::optional<ClearRect> clearRect)
     {
         CommandHeader &header = CommandDatas.Headers.emplace_back();
         header.Type = CommandType::ClearColourTarget;
@@ -675,8 +668,7 @@ namespace Nexus::Graphics
     }
 
     void CommandListStorage::BuildAccelerationStructures(
-        const std::vector<AccelerationStructureGeometryBuildDescription> &descriptions
-    )
+        const std::vector<AccelerationStructureGeometryBuildDescription> &descriptions)
     {
         CommandHeader &header = CommandDatas.Headers.emplace_back();
         header.Type = CommandType::BuildAccelerationStructures;
@@ -696,8 +688,7 @@ namespace Nexus::Graphics
     }
 
     void CommandListStorage::CopyAccelerationStructureToDeviceBuffer(
-        const AccelerationStructureDeviceBufferCopyDescription &description
-    )
+        const AccelerationStructureDeviceBufferCopyDescription &description)
     {
         CommandHeader &header = CommandDatas.Headers.emplace_back();
         header.Type = CommandType::CopyAccelerationStructureToDeviceBuffer;
@@ -707,8 +698,7 @@ namespace Nexus::Graphics
     }
 
     void CommandListStorage::CopyDeviceBufferToAccelerationStructure(
-        const DeviceBufferAccelerationStructureCopyDescription &description
-    )
+        const DeviceBufferAccelerationStructureCopyDescription &description)
     {
         CommandHeader &header = CommandDatas.Headers.emplace_back();
         header.Type = CommandType::CopyDeviceBufferToAccelerationStructure;
@@ -764,10 +754,8 @@ namespace Nexus::Graphics
     {
         if (m_Started)
         {
-            PushError(
-                "Attempting to begin a command into a CommandList that has not "
-                "been closed"
-            );
+            PushError("Attempting to begin a command into a CommandList that has not "
+                      "been closed");
         }
 
         std::lock_guard<std::mutex> lock(m_Mutex);
@@ -817,10 +805,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -836,10 +822,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -854,10 +838,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -869,10 +851,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -884,10 +864,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -899,10 +877,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -914,10 +890,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -929,10 +903,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -944,10 +916,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -959,10 +929,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -974,10 +942,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -989,10 +955,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1004,10 +968,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1091,10 +1053,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1111,10 +1071,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1131,10 +1089,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1150,10 +1106,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1165,9 +1119,8 @@ namespace Nexus::Graphics
         m_CommandListStorage.ClearDepthTarget(value, {});
     }
 
-    static void TransitionFramebufferLayouts(
-        ICommandList *commandList, FramebufferHandle framebuffer, TextureLayout colourLayout, TextureLayout depthLayout
-    )
+    static void TransitionFramebufferLayouts(ICommandList *commandList, FramebufferHandle framebuffer,
+                                             TextureLayout colourLayout, TextureLayout depthLayout)
     {
         // transition colour attachment layouts
         for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
@@ -1185,12 +1138,11 @@ namespace Nexus::Graphics
                 barrierDesc.BeforeStage = BarrierPipelineStage::NoStage;
                 barrierDesc.AfterStage = BarrierPipelineStage::ColourAttachmentOutput;
                 barrierDesc.Layout = colourLayout;
-                barrierDesc.TextureSubresourceRange = {
-                    .BaseMipLevel = colourAttachment.ColourAttachment.MipLevel,
-                    .LevelCount = 1,
-                    .BaseArrayLayer = colourAttachment.ColourAttachment.BaseArrayLayer,
-                    .LayerCount = colourAttachment.ColourAttachment.LayerCount
-                };
+                barrierDesc.TextureSubresourceRange = {.BaseMipLevel = colourAttachment.ColourAttachment.MipLevel,
+                                                       .LevelCount = 1,
+                                                       .BaseArrayLayer =
+                                                           colourAttachment.ColourAttachment.BaseArrayLayer,
+                                                       .LayerCount = colourAttachment.ColourAttachment.LayerCount};
 
                 commandList->SubmitTextureBarrier(barrierDesc);
 
@@ -1205,12 +1157,10 @@ namespace Nexus::Graphics
                     barrierDesc.BeforeStage = BarrierPipelineStage::ColourAttachmentOutput;
                     barrierDesc.AfterStage = BarrierPipelineStage::AllGraphics;
                     barrierDesc.Layout = colourLayout;
-                    barrierDesc.TextureSubresourceRange = {
-                        .BaseMipLevel = resolveAttachmentDesc.MipLevel,
-                        .LevelCount = 1,
-                        .BaseArrayLayer = resolveAttachmentDesc.BaseArrayLayer,
-                        .LayerCount = resolveAttachmentDesc.LayerCount
-                    };
+                    barrierDesc.TextureSubresourceRange = {.BaseMipLevel = resolveAttachmentDesc.MipLevel,
+                                                           .LevelCount = 1,
+                                                           .BaseArrayLayer = resolveAttachmentDesc.BaseArrayLayer,
+                                                           .LayerCount = resolveAttachmentDesc.LayerCount};
 
                     commandList->SubmitTextureBarrier(barrierDesc);
                 }
@@ -1229,12 +1179,10 @@ namespace Nexus::Graphics
             barrierDesc.BeforeStage = BarrierPipelineStage::NoStage;
             barrierDesc.AfterStage = BarrierPipelineStage::EarlyFragmentTests;
             barrierDesc.Layout = depthLayout;
-            barrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = depthAttachment.MipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = depthAttachment.BaseArrayLayer,
-                .LayerCount = depthAttachment.LayerCount
-            };
+            barrierDesc.TextureSubresourceRange = {.BaseMipLevel = depthAttachment.MipLevel,
+                                                   .LevelCount = 1,
+                                                   .BaseArrayLayer = depthAttachment.BaseArrayLayer,
+                                                   .LayerCount = depthAttachment.LayerCount};
 
             commandList->SubmitTextureBarrier(barrierDesc);
         }
@@ -1246,18 +1194,15 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
         EndRendering();
 
-        TransitionFramebufferLayouts(
-            this, framebuffer, TextureLayout::ColourAttachmentOptimal, TextureLayout::DepthStencilAttachmentOptimal
-        );
+        TransitionFramebufferLayouts(this, framebuffer, TextureLayout::ColourAttachmentOptimal,
+                                     TextureLayout::DepthStencilAttachmentOptimal);
         m_CurrentFramebuffer = framebuffer;
 
         std::lock_guard<std::mutex> lock(m_Mutex);
@@ -1268,10 +1213,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1283,10 +1226,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1298,10 +1239,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1314,12 +1253,10 @@ namespace Nexus::Graphics
             sourceBarrierDesc.BeforeStage = BarrierPipelineStage::ColourAttachmentOutput;
             sourceBarrierDesc.AfterStage = BarrierPipelineStage::Resolve;
             sourceBarrierDesc.Layout = TextureLayout::ResolveSrc;
-            sourceBarrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = desc.SourceMipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = desc.SourceArrayLayer,
-                .LayerCount = 1
-            };
+            sourceBarrierDesc.TextureSubresourceRange = {.BaseMipLevel = desc.SourceMipLevel,
+                                                         .LevelCount = 1,
+                                                         .BaseArrayLayer = desc.SourceArrayLayer,
+                                                         .LayerCount = 1};
             SubmitTextureBarrier(sourceBarrierDesc);
 
             TextureBarrierDesc destBarrierDesc = {};
@@ -1329,12 +1266,10 @@ namespace Nexus::Graphics
             destBarrierDesc.BeforeStage = BarrierPipelineStage::NoStage;
             destBarrierDesc.AfterStage = BarrierPipelineStage::Resolve;
             destBarrierDesc.Layout = TextureLayout::ResolveDest;
-            destBarrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = desc.DestinationMipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = desc.DestinationArrayLayer,
-                .LayerCount = 1
-            };
+            destBarrierDesc.TextureSubresourceRange = {.BaseMipLevel = desc.DestinationMipLevel,
+                                                       .LevelCount = 1,
+                                                       .BaseArrayLayer = desc.DestinationArrayLayer,
+                                                       .LayerCount = 1};
             SubmitTextureBarrier(destBarrierDesc);
         }
 
@@ -1346,10 +1281,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1364,10 +1297,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1382,10 +1313,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1400,10 +1329,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1416,12 +1343,10 @@ namespace Nexus::Graphics
             barrierDesc.BeforeStage = BarrierPipelineStage::Copy;
             barrierDesc.AfterStage = BarrierPipelineStage::Copy;
             barrierDesc.Layout = TextureLayout::TransferDstOptimal;
-            barrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = bufferTextureCopy.MipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
-                .LayerCount = 1
-            };
+            barrierDesc.TextureSubresourceRange = {.BaseMipLevel = bufferTextureCopy.MipLevel,
+                                                   .LevelCount = 1,
+                                                   .BaseArrayLayer = (uint32_t)bufferTextureCopy.TextureOffset.Z,
+                                                   .LayerCount = 1};
             SubmitTextureBarrier(barrierDesc);
         }
 
@@ -1438,10 +1363,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1454,12 +1377,10 @@ namespace Nexus::Graphics
             barrierDesc.BeforeStage = BarrierPipelineStage::Copy;
             barrierDesc.AfterStage = BarrierPipelineStage::Copy;
             barrierDesc.Layout = TextureLayout::TransferSrcOptimal;
-            barrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = textureBufferCopy.MipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
-                .LayerCount = 1
-            };
+            barrierDesc.TextureSubresourceRange = {.BaseMipLevel = textureBufferCopy.MipLevel,
+                                                   .LevelCount = 1,
+                                                   .BaseArrayLayer = (uint32_t)textureBufferCopy.TextureOffset.Z,
+                                                   .LayerCount = 1};
             SubmitTextureBarrier(barrierDesc);
         }
 
@@ -1476,10 +1397,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1492,12 +1411,10 @@ namespace Nexus::Graphics
             sourceBarrierDesc.BeforeStage = BarrierPipelineStage::Copy;
             sourceBarrierDesc.AfterStage = BarrierPipelineStage::Copy;
             sourceBarrierDesc.Layout = TextureLayout::TransferSrcOptimal;
-            sourceBarrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = textureCopy.SourceMipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = (uint32_t)textureCopy.SourceOffset.Z,
-                .LayerCount = 1
-            };
+            sourceBarrierDesc.TextureSubresourceRange = {.BaseMipLevel = textureCopy.SourceMipLevel,
+                                                         .LevelCount = 1,
+                                                         .BaseArrayLayer = (uint32_t)textureCopy.SourceOffset.Z,
+                                                         .LayerCount = 1};
             SubmitTextureBarrier(sourceBarrierDesc);
 
             Graphics::TextureBarrierDesc destBarrierDesc = {};
@@ -1507,12 +1424,10 @@ namespace Nexus::Graphics
             destBarrierDesc.BeforeStage = BarrierPipelineStage::Copy;
             destBarrierDesc.AfterStage = BarrierPipelineStage::Copy;
             destBarrierDesc.Layout = TextureLayout::TransferDstOptimal;
-            destBarrierDesc.TextureSubresourceRange = {
-                .BaseMipLevel = textureCopy.DestinationMipLevel,
-                .LevelCount = 1,
-                .BaseArrayLayer = (uint32_t)textureCopy.DestinationOffset.Z,
-                .LayerCount = 1
-            };
+            destBarrierDesc.TextureSubresourceRange = {.BaseMipLevel = textureCopy.DestinationMipLevel,
+                                                       .LevelCount = 1,
+                                                       .BaseArrayLayer = (uint32_t)textureCopy.DestinationOffset.Z,
+                                                       .LayerCount = 1};
             SubmitTextureBarrier(destBarrierDesc);
         }
 
@@ -1529,10 +1444,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1549,10 +1462,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1568,10 +1479,8 @@ namespace Nexus::Graphics
     {
         if (!m_Started)
         {
-            PushError(
-                "Attempting to record a command into a CommandList without "
-                "calling Begin()"
-            );
+            PushError("Attempting to record a command into a CommandList without "
+                      "calling Begin()");
             return;
         }
 
@@ -1601,8 +1510,7 @@ namespace Nexus::Graphics
     }
 
     void ICommandList::BuildAccelerationStructures(
-        const std::vector<AccelerationStructureGeometryBuildDescription> &description
-    )
+        const std::vector<AccelerationStructureGeometryBuildDescription> &description)
     {
         BuildAccelerationStructuresCommand command;
         command.BuildDescriptions = description;
@@ -1618,16 +1526,14 @@ namespace Nexus::Graphics
     }
 
     void ICommandList::CopyAccelerationStructureToDeviceBuffer(
-        const AccelerationStructureDeviceBufferCopyDescription &description
-    )
+        const AccelerationStructureDeviceBufferCopyDescription &description)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandListStorage.CopyAccelerationStructureToDeviceBuffer(description);
     }
 
     void ICommandList::CopyDeviceBufferToAccelerationStructure(
-        const DeviceBufferAccelerationStructureCopyDescription &description
-    )
+        const DeviceBufferAccelerationStructureCopyDescription &description)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_CommandListStorage.CopyDeviceBufferToAccelerationStructure(description);
@@ -1700,9 +1606,8 @@ namespace Nexus::Graphics
 
         if (m_CurrentFramebuffer->IsOwnedBySwapchain())
         {
-            TransitionFramebufferLayouts(
-                this, m_CurrentFramebuffer, TextureLayout::PresentSrc, TextureLayout::DepthStencilAttachmentOptimal
-            );
+            TransitionFramebufferLayouts(this, m_CurrentFramebuffer, TextureLayout::PresentSrc,
+                                         TextureLayout::DepthStencilAttachmentOptimal);
         }
 
         m_CurrentFramebuffer = {};

@@ -5,10 +5,10 @@
 
 #if defined(NX_TEST_GRAPHICS)
 
-void CreateGraphicsAPIAndDevice(
-    Nexus::Graphics::GraphicsAPI api, std::unique_ptr<Nexus::Graphics::IGraphicsAPI> &graphicsAPI,
-    std::unique_ptr<Nexus::Graphics::IGraphicsDevice> &device, Nexus::Ref<Nexus::Graphics::ICommandQueue> &queue
-)
+void CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI api,
+                                std::unique_ptr<Nexus::Graphics::IGraphicsAPI> &graphicsAPI,
+                                std::unique_ptr<Nexus::Graphics::IGraphicsDevice> &device,
+                                Nexus::Ref<Nexus::Graphics::ICommandQueue> &queue)
 {
     Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {};
     apiCreateInfo.API = api;

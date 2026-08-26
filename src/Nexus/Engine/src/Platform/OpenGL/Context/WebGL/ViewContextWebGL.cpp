@@ -39,10 +39,9 @@ namespace Nexus::GL
         return BoundingClientRect{.Left = left, .Top = top, .Width = width, .Height = height};
     }
 
-    ViewContextWebGL::ViewContextWebGL(
-        const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
-        const ContextDescription &spec
-    )
+    ViewContextWebGL::ViewContextWebGL(const std::string &canvasName,
+                                       Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
+                                       const ContextDescription &spec)
         : m_Device(graphicsDevice), m_Description(spec), m_CanvasName(canvasName)
     {
         CreateFramebuffer();
@@ -88,9 +87,8 @@ namespace Nexus::GL
         glViewport(0, 0, textureWidth, textureHeight);
         glScissor(x, y, textureWidth, textureHeight);
 
-        glBlitFramebuffer(
-            0, 0, textureWidth, textureHeight, x, y, x + textureWidth, y + textureHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR
-        );
+        glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + textureWidth, y + textureHeight,
+                          GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
         if (viewRect.Width != textureWidth || viewRect.Height != textureHeight)
         {

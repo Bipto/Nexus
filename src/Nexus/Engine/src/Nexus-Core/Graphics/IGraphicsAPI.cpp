@@ -27,8 +27,7 @@ namespace Nexus::Graphics
             return new GraphicsAPI_Vk(createInfo);
 #endif
 
-        default:
-        {
+        default: {
             NX_ERROR("Attempting to create unsupported graphics API");
             throw std::runtime_error("Failed to find a valid graphics API");
         }
@@ -41,8 +40,7 @@ namespace Nexus::Graphics
     {
         switch (api)
         {
-        case GraphicsAPI::OpenGL:
-        {
+        case GraphicsAPI::OpenGL: {
 #if defined(NX_PLATFORM_OPENGL)
             return true;
 #else
@@ -50,8 +48,7 @@ namespace Nexus::Graphics
 #endif
         }
 
-        case GraphicsAPI::D3D12:
-        {
+        case GraphicsAPI::D3D12: {
 #if defined(NX_PLATFORM_D3D12)
             return true;
 
@@ -60,8 +57,7 @@ namespace Nexus::Graphics
 #endif
         }
 
-        case GraphicsAPI::Vulkan:
-        {
+        case GraphicsAPI::Vulkan: {
 #if defined(NX_PLATFORM_VULKAN)
             return true;
 #else

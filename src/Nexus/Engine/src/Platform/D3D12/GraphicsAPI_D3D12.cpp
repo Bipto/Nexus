@@ -13,9 +13,8 @@ namespace Nexus::Graphics
         if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
             OutputDebugStringW(L"Reporting live D3D12 objects:\n");
-            debug->ReportLiveObjects(
-                DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL)
-            );
+            debug->ReportLiveObjects(DXGI_DEBUG_ALL,
+                                     DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
         }
     }
 
@@ -26,10 +25,8 @@ namespace Nexus::Graphics
 
         if (createInfo.Debug)
         {
-            NX_VALIDATE(
-                SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))),
-                "Could not create a D3D12 Debug Interface"
-            );
+            NX_VALIDATE(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))),
+                        "Could not create a D3D12 Debug Interface");
             if (m_D3D12Debug)
             {
                 m_D3D12Debug->EnableDebugLayer();
@@ -56,9 +53,8 @@ namespace Nexus::Graphics
         // for (UINT i = 0; m_DXGIFactory->EnumAdapters(i, adapter.GetAddressOf()) !=
         // DXGI_ERROR_NOT_FOUND, i++) {}
 
-        for (UINT i = 0;
-             m_DXGIFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter)) !=
-             DXGI_ERROR_NOT_FOUND;
+        for (UINT i = 0; m_DXGIFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_UNSPECIFIED,
+                                                                   IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND;
              ++i)
         {
             DXGI_ADAPTER_DESC3 desc;

@@ -58,12 +58,10 @@ namespace Nexus::Graphics
         virtual void ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device) = 0;
         virtual void ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device) = 0;
         virtual void ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device) = 0;
-        virtual void ExecuteCommand(
-            const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device
-        ) = 0;
-        virtual void ExecuteCommand(
-            const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device
-        ) = 0;
+        virtual void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command,
+                                    IGraphicsDevice *device) = 0;
+        virtual void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command,
+                                    IGraphicsDevice *device) = 0;
         virtual void ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device) = 0;
         virtual void ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device) = 0;
         virtual void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) = 0;

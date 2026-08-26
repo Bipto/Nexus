@@ -49,10 +49,8 @@ TEST_F(ShaderPreprocessorTests, SingleInclude_ReplacedWithContent)
     auto result = preprocessor->PreprocessShader("", shader, includeDirs);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(
-        result.value(), "vec3 foo;\n"
-                        "void main() {}"
-    );
+    EXPECT_EQ(result.value(), "vec3 foo;\n"
+                              "void main() {}");
 }
 
 TEST_F(ShaderPreprocessorTests, MissingInclude_ReturnsError)
@@ -215,19 +213,15 @@ TEST_F(ShaderPreprocessorTests, IncludeBetweenCode)
     auto result = preprocessor->PreprocessShader("", shader, includeDirs);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(
-        result.value(), "float a;\n"
-                        "vec3 foo;\n"
-                        "float b;"
-    );
+    EXPECT_EQ(result.value(), "float a;\n"
+                              "vec3 foo;\n"
+                              "float b;");
 }
 
 TEST_F(ShaderPreprocessorTests, PragmaOncePreventsDuplicateIncludes)
 {
-    MountText(
-        "common.glsl", "#pragma once\n"
-                       "float x;\n"
-    );
+    MountText("common.glsl", "#pragma once\n"
+                             "float x;\n");
 
     std::string shader = "#include \"common.glsl\"\n"
                          "#include \"common.glsl\"\n"
@@ -236,8 +230,6 @@ TEST_F(ShaderPreprocessorTests, PragmaOncePreventsDuplicateIncludes)
     std::vector<std::string> includeDirs = {};
     auto result = preprocessor->PreprocessShader("", shader, includeDirs);
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(
-        result.value(), "float x;\n"
-                        "void main() {}"
-    );
+    EXPECT_EQ(result.value(), "float x;\n"
+                              "void main() {}");
 }

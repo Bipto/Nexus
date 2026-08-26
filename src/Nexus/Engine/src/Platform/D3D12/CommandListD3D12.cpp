@@ -18,9 +18,8 @@ namespace Nexus::Graphics
     {
         auto d3d12Device = device->GetD3D12Device();
         d3d12Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator));
-        d3d12Device->CreateCommandList1(
-            0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_CommandList)
-        );
+        d3d12Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE,
+                                        IID_PPV_ARGS(&m_CommandList));
 
         // set CommandList name
         {

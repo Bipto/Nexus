@@ -27,10 +27,9 @@ namespace Nexus::GL
     static void PrintErrorMessage(DWORD error)
     {
         LPSTR messageBuffer = nullptr;
-        size_t size = FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL
-        );
+        size_t size =
+            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                           NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
         if (size > 0)
         {
@@ -129,34 +128,32 @@ namespace Nexus::GL
 
     HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec)
     {
-        PIXELFORMATDESCRIPTOR pfd = {
-            sizeof(PIXELFORMATDESCRIPTOR),
-            1,
-            PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-            PFD_TYPE_RGBA,
-            32,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            24,
-            8,
-            0,
-            PFD_MAIN_PLANE,
-            0,
-            0,
-            0,
-            0
-        };
+        PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
+                                     1,
+                                     PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+                                     PFD_TYPE_RGBA,
+                                     32,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     24,
+                                     8,
+                                     0,
+                                     PFD_MAIN_PLANE,
+                                     0,
+                                     0,
+                                     0,
+                                     0};
 
         int pixelFormat;
         UINT numFormats;

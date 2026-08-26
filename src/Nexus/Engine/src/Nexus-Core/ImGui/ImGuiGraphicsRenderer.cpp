@@ -90,12 +90,10 @@ namespace Nexus::ImGuiUtils
 
         m_VertexShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_GraphicsDevice, vertexSource, "ImGui.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Vertex
-        );
+            Nexus::Graphics::ShaderStage::Vertex);
         m_FragmentShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_GraphicsDevice, fragmentSource, "ImGui.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Fragment
-        );
+            Nexus::Graphics::ShaderStage::Fragment);
 
         CreatePipeline();
 
@@ -155,23 +153,17 @@ namespace Nexus::ImGuiUtils
             {Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
              Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"),
              Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::R8G8B8A8_UNorm, "TEXCOORD")},
-            sizeof(ImDrawVert), Nexus::Graphics::StepRate::Vertex
-        )};
+            sizeof(ImDrawVert), Nexus::Graphics::StepRate::Vertex)};
 
         pipelineDesc.DebugName = "ImGui Pipeline";
 
         pipelineDesc.ResourceDescription.Descriptors = {
-            Graphics::ResourceDescriptor{
-                .Name = "PushConstants",
-                .Type = Graphics::ResourceDescriptorType::PushConstants,
-                .CountOrSizeInBytes = sizeof(glm::mat4)
-            },
-            {Graphics::ResourceDescriptor{
-                .Name = "u_Texture",
-                .Type = Graphics::ResourceDescriptorType::CombinedImageSampler,
-                .CountOrSizeInBytes = 1
-            }}
-        };
+            Graphics::ResourceDescriptor{.Name = "PushConstants",
+                                         .Type = Graphics::ResourceDescriptorType::PushConstants,
+                                         .CountOrSizeInBytes = sizeof(glm::mat4)},
+            {Graphics::ResourceDescriptor{.Name = "u_Texture",
+                                          .Type = Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                          .CountOrSizeInBytes = 1}}};
 
         m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
     }
@@ -651,9 +643,8 @@ namespace Nexus::ImGuiUtils
         auto &io = ImGui::GetIO();
 
         ImVec2 pos = drawData->DisplayPos;
-        glm::mat4 mvp = glm::ortho<float>(
-            pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f
-        );
+        glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y,
+                                          pos.y, -1.f, 1.0f);
 
         ImGuiViewport *vp = drawData->OwnerViewport;
 
@@ -719,48 +710,39 @@ namespace Nexus::ImGuiUtils
 
         switch (cursor)
         {
-        case ImGuiMouseCursor_Arrow:
-        {
+        case ImGuiMouseCursor_Arrow: {
             Platform::SetCursor(Nexus::Platform::Cursor::Arrow);
             break;
         }
-        case ImGuiMouseCursor_TextInput:
-        {
+        case ImGuiMouseCursor_TextInput: {
             Platform::SetCursor(Nexus::Platform::Cursor::IBeam);
             break;
         }
-        case ImGuiMouseCursor_ResizeAll:
-        {
+        case ImGuiMouseCursor_ResizeAll: {
             Platform::SetCursor(Nexus::Platform::Cursor::ArrowAllDir);
             break;
         }
-        case ImGuiMouseCursor_ResizeNS:
-        {
+        case ImGuiMouseCursor_ResizeNS: {
             Platform::SetCursor(Nexus::Platform::Cursor::ArrowNS);
             break;
         }
-        case ImGuiMouseCursor_ResizeEW:
-        {
+        case ImGuiMouseCursor_ResizeEW: {
             Platform::SetCursor(Nexus::Platform::Cursor::ArrowWE);
             break;
         }
-        case ImGuiMouseCursor_ResizeNESW:
-        {
+        case ImGuiMouseCursor_ResizeNESW: {
             Platform::SetCursor(Nexus::Platform::Cursor::ArrowNESW);
             break;
         }
-        case ImGuiMouseCursor_ResizeNWSE:
-        {
+        case ImGuiMouseCursor_ResizeNWSE: {
             Platform::SetCursor(Nexus::Platform::Cursor::ArrowNWSE);
             break;
         }
-        case ImGuiMouseCursor_Hand:
-        {
+        case ImGuiMouseCursor_Hand: {
             Platform::SetCursor(Nexus::Platform::Cursor::Hand);
             break;
         }
-        case ImGuiMouseCursor_NotAllowed:
-        {
+        case ImGuiMouseCursor_NotAllowed: {
             Platform::SetCursor(Nexus::Platform::Cursor::No);
             break;
         }

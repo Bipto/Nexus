@@ -17,8 +17,7 @@ namespace Nexus::Audio
         /// @param filepath The path to the audio file to load
         /// @param device The audio device to use to create the audio buffer
         /// @return A created audio buffer containing the data loaded from the file
-        static std::expected<AudioBufferHandle, std::string> LoadAudioFile(
-            const std::string &filepath, AudioDevice *device
-        );
+        static std::expected<AudioBufferHandle, std::string> LoadAudioFile(const std::string &filepath,
+                                                                           AudioDevice *device);
     };
 }; // namespace Nexus::Audio

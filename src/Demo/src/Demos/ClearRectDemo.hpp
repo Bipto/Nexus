@@ -8,10 +8,9 @@ namespace Demos
     class ClearRectDemo : public Demo
     {
       public:
-        ClearRectDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        ClearRectDemo(const std::string &name, Nexus::Application *app,
+                      Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                      Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -49,9 +48,8 @@ namespace Demos
                     clearRect.Y = 0;
                     clearRect.Width = clearWidth;
                     clearRect.Height = clearHeight;
-                    m_CommandList->ClearColourTarget(
-                        0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f}, clearRect
-                    );
+                    m_CommandList->ClearColourTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f},
+                                                     clearRect);
                 }
 
                 {

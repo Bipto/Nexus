@@ -23,12 +23,14 @@ namespace Nexus::Utils
     NX_API glm::vec4 GenerateRandomColour();
     NX_API uint32_t PackColour(const glm::vec4 &colour);
 
-    template <typename T> inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
+    template <typename T>
+    inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
     {
         return newMin + (newMax - newMin) * ((value - oldMin) / (oldMax - oldMin));
     }
 
-    template <typename T> inline T Lerp(T x, T y, T t)
+    template <typename T>
+    inline T Lerp(T x, T y, T t)
     {
         return x * (1 - t) + y * t;
     }
@@ -55,20 +57,17 @@ namespace Nexus::Utils
 
     NX_API void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
 
-    NX_API std::vector<glm::vec2> SutherlandHodgman(
-        const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon
-    );
-    NX_API Nexus::Graphics::Polygon SutherlandHodgman(
-        const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip
-    );
+    NX_API std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon,
+                                                    const std::vector<glm::vec2> &clipPolygon);
+    NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject,
+                                                      const Nexus::Graphics::Polygon &clip);
 
     NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
 
     NX_API bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles);
 
-    NX_API std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(
-        const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices
-    );
+    NX_API std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon,
+                                                                     const std::vector<uint32_t> &indices);
 
     NX_API Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
 
@@ -76,7 +75,8 @@ namespace Nexus::Utils
 
     NX_API std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
 
-    template <typename T> T GetItem(std::span<T> collection, int index)
+    template <typename T>
+    T GetItem(std::span<T> collection, int index)
     {
         int32_t size = static_cast<int32_t>(collection.size());
 
@@ -95,7 +95,8 @@ namespace Nexus::Utils
         }
     }
 
-    template <typename T> inline bool Contains(std::vector<T> items, T toFind)
+    template <typename T>
+    inline bool Contains(std::vector<T> items, T toFind)
     {
         return std::find(items.begin(), items.end(), toFind) != items.end();
     }
@@ -107,7 +108,8 @@ namespace Nexus::Utils
 
     NX_API uint64_t GetCurrentTimeAsInt();
 
-    template <typename T> inline size_t Hash(const T &input)
+    template <typename T>
+    inline size_t Hash(const T &input)
     {
         std::hash<T> hasher;
         return hasher(input);
@@ -137,26 +139,23 @@ namespace Nexus::Utils
         return hash;
     }
 
-    Graphics::DeviceBufferHandle CreateUploadBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device
-    );
+    Graphics::DeviceBufferHandle CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                    Graphics::IGraphicsDevice *device);
 
-    Graphics::DeviceBufferHandle CreateFilledVertexBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
-    );
+    Graphics::DeviceBufferHandle CreateFilledVertexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                          Graphics::IGraphicsDevice *device,
+                                                          Graphics::CommandQueueHandle commandQueue);
 
-    Graphics::DeviceBufferHandle CreateFilledIndexBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *devic,
-        Graphics::CommandQueueHandle commandQueuee
-    );
+    Graphics::DeviceBufferHandle CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                         Graphics::IGraphicsDevice *devic,
+                                                         Graphics::CommandQueueHandle commandQueuee);
 
-    Graphics::DeviceBufferHandle CreateFilledUniformBuffer(
-        const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
-    );
+    Graphics::DeviceBufferHandle CreateFilledUniformBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes,
+                                                           Graphics::IGraphicsDevice *device,
+                                                           Graphics::CommandQueueHandle commandQueue);
 
-    template <typename T> [[nodiscard]] T AlignTo(T value, T alignment)
+    template <typename T>
+    [[nodiscard]] T AlignTo(T value, T alignment)
     {
         static_assert(std::is_integral_v<T>, "AlignTo requires an integral type");
         if (alignment <= 0)
@@ -166,7 +165,8 @@ namespace Nexus::Utils
         return ((value + alignment / 2) / alignment) * alignment;
     }
 
-    template <typename T> [[nodiscard]] T AlignDown(T value, T alignment)
+    template <typename T>
+    [[nodiscard]] T AlignDown(T value, T alignment)
     {
         static_assert(std::is_integral_v<T>, "AlignDown requires an integral type");
         if (alignment <= 0)
@@ -176,7 +176,8 @@ namespace Nexus::Utils
         return (value / alignment) * alignment;
     }
 
-    template <typename T> [[nodiscard]] T AlignUp(T value, T alignment)
+    template <typename T>
+    [[nodiscard]] T AlignUp(T value, T alignment)
     {
         static_assert(std::is_integral_v<T>, "AlignUp requires an integral type");
         if (alignment <= 0)

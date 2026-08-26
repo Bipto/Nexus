@@ -8,9 +8,8 @@ namespace Nexus::Utils
     {
       public:
         ScriptProjectGenerator() = default;
-        void Generate(
-            const std::string &templatePath, const std::string &projectName, const std::string &projectDirectory
-        );
+        void Generate(const std::string &templatePath, const std::string &projectName,
+                      const std::string &projectDirectory);
         void CopyEngineSources(const std::string &templatePath, const std::string &scriptDirectory);
     };
 } // namespace Nexus::Utils

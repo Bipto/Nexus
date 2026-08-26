@@ -21,7 +21,8 @@ namespace Nexus::Assets
 
         const std::map<GUID, AssetInfo> &GetStoredAssets() const;
 
-        template <typename T> std::map<GUID, AssetInfo> GetAllAssetsOfType() const;
+        template <typename T>
+        std::map<GUID, AssetInfo> GetAllAssetsOfType() const;
 
       private:
         std::map<GUID, AssetInfo> m_Assets;

@@ -48,15 +48,13 @@ namespace Nexus::Graphics
 
         switch (presentMode)
         {
-        case Graphics::PresentMode::Immediate:
-        {
+        case Graphics::PresentMode::Immediate: {
             m_ViewContext->SetVSync(false);
             break;
         }
         case Graphics::PresentMode::Mailbox:
         case Graphics::PresentMode::Fifo:
-        case Graphics::PresentMode::FifoRelaxed:
-        {
+        case Graphics::PresentMode::FifoRelaxed: {
             m_ViewContext->SetVSync(true);
             break;
         }

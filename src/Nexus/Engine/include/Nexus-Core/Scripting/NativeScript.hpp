@@ -66,7 +66,8 @@ namespace Nexus::Scripting
             return m_GUID;
         }
 
-        template <typename T> inline T *GetComponent(size_t index = 0)
+        template <typename T>
+        inline T *GetComponent(size_t index = 0)
         {
             Scene *currentScene = GetCurrentScene();
             return currentScene->Registry.GetComponent<T>(GetEntityID(), index);
@@ -108,9 +109,8 @@ namespace Nexus::Scripting
         return ECS::ComponentRegistry::GetRegistry();
     }
 
-    extern "C++" inline NX_SCRIPT_EXPORT void ShareEngineState(
-        Nexus::Application *app, ImGuiContext *context, ImGuiMemAllocFunc allocFunc, ImGuiMemFreeFunc freeFunc
-    )
+    extern "C++" inline NX_SCRIPT_EXPORT void ShareEngineState(Nexus::Application *app, ImGuiContext *context,
+                                                               ImGuiMemAllocFunc allocFunc, ImGuiMemFreeFunc freeFunc)
     {
         Nexus::SetApplication(app);
         ImGui::SetAllocatorFunctions(allocFunc, freeFunc, nullptr);

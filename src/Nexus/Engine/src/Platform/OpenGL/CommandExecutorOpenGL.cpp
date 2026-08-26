@@ -233,10 +233,9 @@ namespace Nexus::Graphics
                     context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer,
                     cmd.VertexStart, cmd.InstanceStart,
                     [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-                        context->DrawArrays(topology, cmd.VertexStart, cmd.VertexCount, cmd.InstanceCount);
-                    }
-                );
+                    GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                    context->DrawArrays(topology, cmd.VertexStart, cmd.VertexCount, cmd.InstanceCount);
+                });
             }
         }
     }
@@ -267,12 +266,10 @@ namespace Nexus::Graphics
                     context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer,
                     cmd.VertexStart, cmd.InstanceStart,
                     [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-                        context->DrawElements(
-                            topology, cmd.IndexCount, indexFormat, (const void *)(uint64_t)offset, cmd.InstanceCount
-                        );
-                    }
-                );
+                    GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                    context->DrawElements(topology, cmd.IndexCount, indexFormat, (const void *)(uint64_t)offset,
+                                          cmd.InstanceCount);
+                });
             }
         }
     }
@@ -301,17 +298,14 @@ namespace Nexus::Graphics
                     executor->ExecuteGraphicsCommand(
                         context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer, 0, 0,
                         [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 
-                            GLenum topology =
-                                GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-                            context->MultiDrawArraysIndirect(
-                                topology, (const void *)(uint64_t)cmd.Offset, cmd.DrawCount, cmd.Stride
-                            );
+                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                        context->MultiDrawArraysIndirect(topology, (const void *)(uint64_t)cmd.Offset, cmd.DrawCount,
+                                                         cmd.Stride);
 
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-                        }
-                    );
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+                    });
                 }
             }
         }
@@ -346,18 +340,15 @@ namespace Nexus::Graphics
                     executor->ExecuteGraphicsCommand(
                         context, pipeline, executor->m_CurrentlyBoundVertexBuffers, executor->m_BoundIndexBuffer, 0, 0,
                         [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 
-                            GLenum topology =
-                                GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
 
-                            context->MultiDrawElementsIndirect(
-                                topology, indexFormat, (const void *)(uint64_t)cmd.Offset, cmd.DrawCount, cmd.Stride
-                            );
+                        context->MultiDrawElementsIndirect(topology, indexFormat, (const void *)(uint64_t)cmd.Offset,
+                                                           cmd.DrawCount, cmd.Stride);
 
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-                        }
-                    );
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+                    });
 
 #endif
                 }
@@ -532,9 +523,8 @@ namespace Nexus::Graphics
         {
             for (const auto &copy : cmd.BufferCopy.Copies)
             {
-                offscreenContext->CopyBufferSubData(
-                    src->GetHandle(), dst->GetHandle(), copy.ReadOffset, copy.WriteOffset, copy.Size
-                );
+                offscreenContext->CopyBufferSubData(src->GetHandle(), dst->GetHandle(), copy.ReadOffset,
+                                                    copy.WriteOffset, copy.Size);
             }
         }
     }
@@ -591,13 +581,12 @@ namespace Nexus::Graphics
 
         if (context->SupportsCopyImageSubData())
         {
-            context->CopyImageSubData(
-                sourceTexture->GetHandle(), sourceTexture->GetTextureType(), copyDesc.SourceMipLevel,
-                copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y, copyDesc.SourceOffset.Z, destTexture->GetHandle(),
-                destTexture->GetTextureType(), copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
-                copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
-                copyDesc.Extent.Height, copyDepth
-            );
+            context->CopyImageSubData(sourceTexture->GetHandle(), sourceTexture->GetTextureType(),
+                                      copyDesc.SourceMipLevel, copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y,
+                                      copyDesc.SourceOffset.Z, destTexture->GetHandle(), destTexture->GetTextureType(),
+                                      copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
+                                      copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
+                                      copyDesc.Extent.Height, copyDepth);
         }
         else
         {
@@ -667,8 +656,7 @@ namespace Nexus::Graphics
             else
             {
                 uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                   std::chrono::system_clock::now().time_since_epoch()
-                )
+                                   std::chrono::system_clock::now().time_since_epoch())
                                    .count();
                 query->m_Start = now;
             }
@@ -701,8 +689,7 @@ namespace Nexus::Graphics
             else
             {
                 uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                   std::chrono::system_clock::now().time_since_epoch()
-                )
+                                   std::chrono::system_clock::now().time_since_epoch())
                                    .count();
                 query->m_End = now;
             }
@@ -736,10 +723,8 @@ namespace Nexus::Graphics
         const auto &cmd = storage.CommandDatas.InsertDebugMarkerCommands.at(header->CommandOffset);
 
         GL::IGLContext *context = executor->m_Device->GetOffscreenContext();
-        context->DebugMessageInsert(
-            GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1,
-            cmd.MarkerName.c_str()
-        );
+        context->DebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0,
+                                    GL_DEBUG_SEVERITY_NOTIFICATION, -1, cmd.MarkerName.c_str());
     }
 
     static void SetBlendFactor(const CommandHeader *header, CommandListStorage &storage, void *data)
@@ -784,18 +769,16 @@ namespace Nexus::Graphics
         const auto &cmd = storage.CommandDatas.CopyAccelerationStructuresCommands.at(header->CommandOffset);
     }
 
-    static void CopyAccelerationStructureToDeviceBuffer(
-        const CommandHeader *header, CommandListStorage &storage, void *data
-    )
+    static void CopyAccelerationStructureToDeviceBuffer(const CommandHeader *header, CommandListStorage &storage,
+                                                        void *data)
     {
         CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
 
         const auto &cmd = storage.CommandDatas.CopyAccelerationStructureDeviceBufferCommands.at(header->CommandOffset);
     }
 
-    static void CopyDeviceBufferToAccelerationStructure(
-        const CommandHeader *header, CommandListStorage &storage, void *data
-    )
+    static void CopyDeviceBufferToAccelerationStructure(const CommandHeader *header, CommandListStorage &storage,
+                                                        void *data)
     {
         CommandExecutorOpenGL *executor = reinterpret_cast<CommandExecutorOpenGL *>(data);
 
@@ -917,8 +900,7 @@ namespace Nexus::Graphics
         GL::IOffscreenContext *context, GraphicsPipelineOpenGL *pipeline,
         const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
         std::optional<Nexus::Graphics::IndexBufferView> indexBuffer, uint32_t vertexOffset, uint32_t instanceOffset,
-        std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall
-    )
+        std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall)
     {
         pipeline->CreateVAO(context);
         pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset, context);
@@ -954,14 +936,12 @@ namespace Nexus::Graphics
             if (m_CurrentlyBoundPipeline->GetType() == PipelineType::Graphics)
             {
                 GraphicsPipelineOpenGL *pipeline = m_CurrentlyBoundPipeline.AsDerived<GraphicsPipelineOpenGL>();
-                ExecuteGraphicsCommand(
-                    context, pipeline, m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, command.VertexStart,
-                    command.InstanceStart,
-                    [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-                        context->DrawArrays(topology, command.VertexStart, command.VertexCount, command.InstanceCount);
-                    }
-                );
+                ExecuteGraphicsCommand(context, pipeline, m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer,
+                                       command.VertexStart, command.InstanceStart,
+                                       [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
+                    GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                    context->DrawArrays(topology, command.VertexStart, command.VertexCount, command.InstanceCount);
+                });
             }
         }
     }
@@ -985,17 +965,13 @@ namespace Nexus::Graphics
                 uint32_t offset = (command.IndexStart * indexSizeInBytes) + indexBufferView.Offset;
                 GLenum indexFormat = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
-                ExecuteGraphicsCommand(
-                    context, pipeline, m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, command.VertexStart,
-                    command.InstanceStart,
-                    [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-                        context->DrawElements(
-                            topology, command.IndexCount, indexFormat, (const void *)(uint64_t)offset,
-                            command.InstanceCount
-                        );
-                    }
-                );
+                ExecuteGraphicsCommand(context, pipeline, m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer,
+                                       command.VertexStart, command.InstanceStart,
+                                       [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
+                    GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                    context->DrawElements(topology, command.IndexCount, indexFormat, (const void *)(uint64_t)offset,
+                                          command.InstanceCount);
+                });
             }
         }
     }
@@ -1021,17 +997,14 @@ namespace Nexus::Graphics
                     ExecuteGraphicsCommand(
                         context, pipeline, m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, 0,
                         [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 
-                            GLenum topology =
-                                GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
-                            context->MultiDrawArraysIndirect(
-                                topology, (const void *)(uint64_t)command.Offset, command.DrawCount, command.Stride
-                            );
+                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                        context->MultiDrawArraysIndirect(topology, (const void *)(uint64_t)command.Offset,
+                                                         command.DrawCount, command.Stride);
 
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-                        }
-                    );
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+                    });
                 }
             }
         }
@@ -1063,19 +1036,16 @@ namespace Nexus::Graphics
                     ExecuteGraphicsCommand(
                         context, pipeline, m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, 0,
                         [&](GraphicsPipelineOpenGL *graphicsPipeline, GL::IOffscreenContext *context) {
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 
-                            GLenum topology =
-                                GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
+                        GLenum topology = GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology);
 
-                            context->MultiDrawElementsIndirect(
-                                topology, indexFormat, (const void *)(uint64_t)command.Offset, command.DrawCount,
-                                command.Stride
-                            );
+                        context->MultiDrawElementsIndirect(topology, indexFormat,
+                                                           (const void *)(uint64_t)command.Offset, command.DrawCount,
+                                                           command.Stride);
 
-                            context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-                        }
-                    );
+                        context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+                    });
 
 #endif
                 }
@@ -1322,8 +1292,7 @@ namespace Nexus::Graphics
             else
             {
                 uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                   std::chrono::system_clock::now().time_since_epoch()
-                )
+                                   std::chrono::system_clock::now().time_since_epoch())
                                    .count();
                 query->m_Start = now;
             }
@@ -1352,8 +1321,7 @@ namespace Nexus::Graphics
             else
             {
                 uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                   std::chrono::system_clock::now().time_since_epoch()
-                )
+                                   std::chrono::system_clock::now().time_since_epoch())
                                    .count();
                 query->m_End = now;
             }
@@ -1403,13 +1371,12 @@ namespace Nexus::Graphics
 
         if (context->SupportsCopyImageSubData())
         {
-            context->CopyImageSubData(
-                sourceTexture->GetHandle(), sourceTexture->GetTextureType(), copyDesc.SourceMipLevel,
-                copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y, copyDesc.SourceOffset.Z, destTexture->GetHandle(),
-                destTexture->GetTextureType(), copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
-                copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
-                copyDesc.Extent.Height, copyDepth
-            );
+            context->CopyImageSubData(sourceTexture->GetHandle(), sourceTexture->GetTextureType(),
+                                      copyDesc.SourceMipLevel, copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y,
+                                      copyDesc.SourceOffset.Z, destTexture->GetHandle(), destTexture->GetTextureType(),
+                                      copyDesc.DestinationMipLevel, copyDesc.DestinationOffset.X,
+                                      copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.Z, copyDesc.Extent.Width,
+                                      copyDesc.Extent.Height, copyDepth);
         }
         else
         {
@@ -1434,18 +1401,15 @@ namespace Nexus::Graphics
     void CommandExecutorOpenGL::ExecuteCommand(const InsertDebugMarkerCommand &command, IGraphicsDevice *device)
     {
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->DebugMessageInsert(
-            GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1,
-            command.MarkerName.c_str()
-        );
+        context->DebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0,
+                                    GL_DEBUG_SEVERITY_NOTIFICATION, -1, command.MarkerName.c_str());
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(const SetBlendFactorCommand &command, IGraphicsDevice *device)
     {
         GL::IOffscreenContext *context = m_Device->GetOffscreenContext();
-        context->BlendColor(
-            command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue, command.BlendFactor.Alpha
-        );
+        context->BlendColor(command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue,
+                            command.BlendFactor.Alpha);
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device)
@@ -1461,27 +1425,23 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(
-        const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device
-    )
+    void CommandExecutorOpenGL::ExecuteCommand(const BuildAccelerationStructuresCommand &command,
+                                               IGraphicsDevice *device)
     {
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(
-        const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device
-    )
+    void CommandExecutorOpenGL::ExecuteCommand(const AccelerationStructureCopyDescription &command,
+                                               IGraphicsDevice *Device)
     {
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(
-        const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorOpenGL::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command,
+                                               IGraphicsDevice *device)
     {
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(
-        const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorOpenGL::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command,
+                                               IGraphicsDevice *device)
     {
     }
 

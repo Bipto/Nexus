@@ -25,10 +25,8 @@ namespace Nexus::Graphics
         createInfo.subresourceRange.baseMipLevel = desc.Range.BaseMipLevel;
         createInfo.subresourceRange.levelCount = desc.Range.LevelCount;
 
-        NX_VALIDATE(
-            context.CreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS,
-            "Failed to create image view"
-        );
+        NX_VALIDATE(context.CreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS,
+                    "Failed to create image view");
 
         device->SetObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t)m_ImageView, desc.DebugName.c_str());
     }

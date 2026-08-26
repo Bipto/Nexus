@@ -15,10 +15,8 @@ namespace Nexus::Graphics
         // create buffer (try to use BufferStorage functions if available, otherwise
         // fall back to using BufferData and a vector of CPU data for mapping)
         GL::IGLContext *context = m_Device->GetOffscreenContext();
-        context->CreateBuffer(
-            m_BufferHandle, GL_COPY_READ_BUFFER, desc.SizeInBytes, nullptr, createFlags, bufferUsage, desc.DebugName,
-            m_PersistentMapping
-        );
+        context->CreateBuffer(m_BufferHandle, GL_COPY_READ_BUFFER, desc.SizeInBytes, nullptr, createFlags, bufferUsage,
+                              desc.DebugName, m_PersistentMapping);
     }
 
     DeviceBufferOpenGL::~DeviceBufferOpenGL()
@@ -29,10 +27,8 @@ namespace Nexus::Graphics
 
     void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
     {
-        NX_VALIDATE(
-            m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
-            "Buffer must have been created with Upload access"
-        );
+        NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
+                    "Buffer must have been created with Upload access");
 
         GL::IGLContext *context = m_Device->GetOffscreenContext();
         context->BufferSubData(m_BufferHandle, GL_COPY_READ_BUFFER, offset, size, data);
@@ -40,10 +36,8 @@ namespace Nexus::Graphics
 
     std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size)
     {
-        NX_VALIDATE(
-            m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
-            "Buffer must have been created with Readback access"
-        );
+        NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
+                    "Buffer must have been created with Readback access");
 
         std::vector<char> data(size);
 
@@ -69,8 +63,7 @@ namespace Nexus::Graphics
         {
             GL::IGLContext *context = m_Device->GetOffscreenContext();
             return reinterpret_cast<uint8_t *>(
-                context->MapBufferRange(m_BufferHandle, 0, m_BufferDescription.SizeInBytes, mapFlags)
-            );
+                context->MapBufferRange(m_BufferHandle, 0, m_BufferDescription.SizeInBytes, mapFlags));
         }
         else
         {

@@ -20,7 +20,8 @@ namespace Nexus
 
 namespace Nexus::ECS
 {
-    template <typename T> struct DataTable
+    template <typename T>
+    struct DataTable
     {
         std::string Key = {};
         T Value = {};
@@ -55,7 +56,8 @@ namespace Nexus::ECS
             return registry;
         }
 
-        template <typename T> void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
+        template <typename T>
+        void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
         {
             const std::type_info &typeInfo = typeid(T);
             const char *typeName = typeInfo.name();

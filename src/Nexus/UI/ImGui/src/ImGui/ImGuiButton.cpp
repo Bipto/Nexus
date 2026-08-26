@@ -4,9 +4,7 @@
 
 namespace Nexus::UI
 {
-    ImGuiButton::ImGuiButton(
-        std::string_view text, std::optional<Position> position, std::optional<Size> size
-    )
+    ImGuiButton::ImGuiButton(std::string_view text, std::optional<Position> position, std::optional<Size> size)
         : m_Text(text), m_Position(position), m_Size(size)
     {
     }

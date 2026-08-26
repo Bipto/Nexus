@@ -10,7 +10,8 @@ namespace Nexus
     /// @brief A class that is used to call a group of functions when an event
     /// occurs
     /// @tparam Args The parameters to use when invoking the event functions
-    template <typename... Args> class EventHandler
+    template <typename... Args>
+    class EventHandler
     {
         using EventFunction = std::function<void(Args...)>;
 
@@ -79,7 +80,8 @@ namespace Nexus
         std::vector<BoundEvent> m_EventFunctions;
     };
 
-    template <typename... Args> class ScopedEvent
+    template <typename... Args>
+    class ScopedEvent
     {
       public:
         ScopedEvent() = default;

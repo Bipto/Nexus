@@ -37,11 +37,9 @@ namespace Nexus::UI
         {
             ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 
-            if (ImGui::Begin(
-                    "##", &m_Open,
-                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking
-                ))
+            if (ImGui::Begin("##", &m_Open,
+                             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                 ImGuiWindowFlags_NoDocking))
             {
                 for (auto &child : m_Children)
                 {
@@ -51,9 +49,7 @@ namespace Nexus::UI
         }
         else
         {
-            if (ImGui::Begin(
-                    m_Title.c_str(), &m_Open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
-                ))
+            if (ImGui::Begin(m_Title.c_str(), &m_Open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
             {
                 for (auto &child : m_Children)
                 {

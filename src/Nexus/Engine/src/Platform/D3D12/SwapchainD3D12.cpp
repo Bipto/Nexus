@@ -22,8 +22,7 @@ namespace Nexus::Graphics
     }
 
     static std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain3>, std::string> QuerySwapchainComInterface(
-        Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain
-    )
+        Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain)
     {
         Microsoft::WRL::ComPtr<IDXGISwapChain3> outputSC;
 
@@ -37,9 +36,8 @@ namespace Nexus::Graphics
         return outputSC;
     }
 
-    SwapchainD3D12::SwapchainD3D12(
-        IGraphicsDevice *device, ICommandQueue *queue, const SwapchainDescription &swapchainSpec
-    )
+    SwapchainD3D12::SwapchainD3D12(IGraphicsDevice *device, ICommandQueue *queue,
+                                   const SwapchainDescription &swapchainSpec)
         : ISwapchain(swapchainSpec), m_CommandQueue(queue)
     {
         // assign the graphics device
@@ -199,10 +197,8 @@ namespace Nexus::Graphics
         ReleaseBuffers();
 
         // resize the swapchains buffers
-        m_Swapchain->ResizeBuffers(
-            BUFFER_COUNT, m_SwapchainWidth, m_SwapchainHeight, DXGI_FORMAT_UNKNOWN,
-            DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
-        );
+        m_Swapchain->ResizeBuffers(BUFFER_COUNT, m_SwapchainWidth, m_SwapchainHeight, DXGI_FORMAT_UNKNOWN,
+                                   DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
 
         // retrieve the new buffers
         GetBuffers();
@@ -260,15 +256,11 @@ namespace Nexus::Graphics
                 framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription{
                     .ColourAttachment =
                         FramebufferTextureDescription{
-                            .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = multisampledTexture
-                        },
+                            .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = multisampledTexture},
                     .ResolveAttachment = FramebufferTextureDescription{
-                        .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle
-                    }
-                }};
+                        .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle}}};
                 framebufferDesc.DepthAttachment = {FramebufferTextureDescription{
-                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment
-                }};
+                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
 
                 framebufferDesc.OwnedBySwapchain = true;
 
@@ -278,11 +270,9 @@ namespace Nexus::Graphics
             else
             {
                 framebufferDesc.ColourAttachments = {FramebufferColourAttachmentDescription{.ColourAttachment{
-                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle
-                }}};
+                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = swapchainTextureHandle}}};
                 framebufferDesc.DepthAttachment = {FramebufferTextureDescription{
-                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment
-                }};
+                    .BaseArrayLayer = 0, .LayerCount = 1, .MipLevel = 0, .TargetTexture = depthAttachment}};
 
                 framebufferDesc.OwnedBySwapchain = true;
 
@@ -307,11 +297,10 @@ namespace Nexus::Graphics
 
         auto value = GetD3D12Surface(m_Description.Surface)
                          .and_then([&](SurfaceD3D12 *surface) {
-                             return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get());
-                         })
-                         .and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) {
-                             return QuerySwapchainComInterface(swapchain);
-                         });
+            return surface->CreateDXGISwapchain(m_Description, commandQueue.Get(), factory.Get());
+        }).and_then([&](Microsoft::WRL::ComPtr<IDXGISwapChain1> swapchain) {
+            return QuerySwapchainComInterface(swapchain);
+        });
 
         if (value.has_value())
         {

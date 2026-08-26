@@ -65,12 +65,10 @@ namespace Nexus::Graphics
 
         auto vertexBuffer = Utils::CreateFilledVertexBuffer(
             fullVertices.data(), fullVertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
-            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue
-        );
+            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue);
 
-        auto indexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue
-        );
+        auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t),
+                                                          sizeof(uint32_t), m_Device, m_CommandQueue);
 
         return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material{});
     }
@@ -81,19 +79,16 @@ namespace Nexus::Graphics
             {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
             {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
             {{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
-            {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}
-        };
+            {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}};
 
         std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
         auto vertexBuffer = Utils::CreateFilledVertexBuffer(
             vertices.data(), vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
-            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue
-        );
+            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue);
 
-        auto indexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue
-        );
+        auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t),
+                                                          sizeof(uint32_t), m_Device, m_CommandQueue);
 
         return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material{});
     }
@@ -103,19 +98,16 @@ namespace Nexus::Graphics
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices = {
             {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
             {{0.0f, 0.5f, 0.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
-            {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}
-        };
+            {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}};
 
         std::vector<unsigned int> indices = {0, 1, 2};
 
         auto vertexBuffer = Utils::CreateFilledVertexBuffer(
             vertices.data(), vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
-            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue
-        );
+            sizeof(VertexPositionTexCoordNormalTangentBitangent), m_Device, m_CommandQueue);
 
-        auto indexBuffer = Utils::CreateFilledIndexBuffer(
-            indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device, m_CommandQueue
-        );
+        auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t),
+                                                          sizeof(uint32_t), m_Device, m_CommandQueue);
 
         return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material{});
     }

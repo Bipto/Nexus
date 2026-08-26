@@ -113,9 +113,8 @@ void say_hello()
 }
 )";
 
-    void ScriptProjectGenerator::Generate(
-        const std::string &templatePath, const std::string &projectName, const std::string &projectDirectory
-    )
+    void ScriptProjectGenerator::Generate(const std::string &templatePath, const std::string &projectName,
+                                          const std::string &projectDirectory)
     {
         std::string scriptDirectory = projectDirectory + std::string("\\") + projectName + std::string("\\Scripts");
         FileSystem::CreateFileDirectory(scriptDirectory);

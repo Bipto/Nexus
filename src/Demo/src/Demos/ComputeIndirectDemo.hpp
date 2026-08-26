@@ -7,10 +7,9 @@ namespace Demos
     class ComputeIndirectDemo : public Demo
     {
       public:
-        ComputeIndirectDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        ComputeIndirectDemo(const std::string &name, Nexus::Application *app,
+                            Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                            Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -43,14 +42,11 @@ namespace Demos
             Nexus::Graphics::ComputePipelineDescription desc = {};
             desc.ComputeShader = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/compute/compute.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Compute
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Compute);
             desc.ResourceDescription.Descriptors = {
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_Image",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::StorageImage,
-                    .CountOrSizeInBytes = 1
-                },
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_Image",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::StorageImage,
+                                                    .CountOrSizeInBytes = 1},
             };
             m_ComputePipeline = m_GraphicsDevice->CreateComputePipeline(desc);
 

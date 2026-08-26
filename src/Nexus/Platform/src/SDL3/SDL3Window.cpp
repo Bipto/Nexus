@@ -127,9 +127,8 @@ namespace Nexus
         SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
         uint32_t flags = GetSDl3WindowFlags(windowProps.Flags);
 
-        m_Window = {
-            SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags), SDL_DestroyWindow
-        };
+        m_Window = {SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags),
+                    SDL_DestroyWindow};
 
         if (m_Window == nullptr)
         {
@@ -534,13 +533,11 @@ namespace Nexus
 
         Win32Info info = {};
         info.hWND = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
         info.hDC =
             reinterpret_cast<uintptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr));
         info.hINSTANCE = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr));
 
         return info;
     }
@@ -551,8 +548,7 @@ namespace Nexus
 
         X11Info info = {};
         info.display = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr));
         info.screen = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0));
         info.window = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0));
 
@@ -565,31 +561,23 @@ namespace Nexus
 
         WaylandInfo info = {};
         info.display = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr));
         info.surface = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr));
         info.viewport = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_VIEWPORT_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_VIEWPORT_POINTER, nullptr));
         info.eglWindow = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER, nullptr));
         info.xdgSurface = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER, nullptr));
         info.xdgToplevel = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER, nullptr));
         info.xdgTopLevelExportHandle =
             SDL_GetStringProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING, "invalid");
         info.xdgPopup = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER, nullptr));
         info.xdgPositioner = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER, nullptr));
 
         return info;
     }
@@ -600,11 +588,9 @@ namespace Nexus
 
         AndroidInfo info = {};
         info.window = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr));
         info.surface = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER, nullptr));
 
         return info;
     }
@@ -615,19 +601,15 @@ namespace Nexus
 
         iOSInfo info = {};
         info.window = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr));
         info.metalViewTagNumber =
             static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER, 0));
         info.openglFramebufferHandle = static_cast<uint32_t>(
-            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER, 0)
-        );
+            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER, 0));
         info.openglRenderbufferHandle = static_cast<uint32_t>(
-            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER, 0)
-        );
+            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER, 0));
         info.openglResolveFramebufferHandle = static_cast<uint32_t>(
-            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER, 0)
-        );
+            SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER, 0));
 
         return info;
     }
@@ -641,8 +623,7 @@ namespace Nexus
             static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER, 0));
         info.drmFd = static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_KMSDRM_DRM_FD_NUMBER, 0));
         info.gbmDevice = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER, nullptr));
 
         return info;
     }
@@ -653,8 +634,7 @@ namespace Nexus
 
         MacOSInfo info = {};
         info.window = reinterpret_cast<uintptr_t>(
-            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr)
-        );
+            SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr));
         info.metalViewTag =
             static_cast<uint32_t>(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER, 0));
 
@@ -1019,56 +999,47 @@ namespace Nexus
             secondsPerTick = 1.0 / m_Description.TicksPerSecond.value();
         }
 
-        m_RenderTimer.Every(
-            [&](Nexus::TimeSpan time) {
-                if (IsMinimized())
-                    return;
+        m_RenderTimer.Every([&](Nexus::TimeSpan time) {
+            if (IsMinimized())
+                return;
 
-                m_RenderFrameRateMonitor.Update();
+            m_RenderFrameRateMonitor.Update();
 
-                if (m_RenderFunc)
-                {
-                    NX_PROFILE_SCOPE("OnRender");
-                    Nexus::Input::SetContext(this);
-                    m_RenderFunc(time);
-                }
-            },
-            secondsPerRender
-        );
+            if (m_RenderFunc)
+            {
+                NX_PROFILE_SCOPE("OnRender");
+                Nexus::Input::SetContext(this);
+                m_RenderFunc(time);
+            }
+        }, secondsPerRender);
 
-        m_UpdateTimer.Every(
-            [&](Nexus::TimeSpan time) {
-                if (IsMinimized())
-                    return;
+        m_UpdateTimer.Every([&](Nexus::TimeSpan time) {
+            if (IsMinimized())
+                return;
 
-                m_UpdateFrameRateMonitor.Update();
+            m_UpdateFrameRateMonitor.Update();
 
-                if (m_UpdateFunc)
-                {
-                    NX_PROFILE_SCOPE("OnUpdate");
-                    Nexus::Input::SetContext(this);
-                    m_UpdateFunc(time);
-                }
-            },
-            secondsPerUpdate
-        );
+            if (m_UpdateFunc)
+            {
+                NX_PROFILE_SCOPE("OnUpdate");
+                Nexus::Input::SetContext(this);
+                m_UpdateFunc(time);
+            }
+        }, secondsPerUpdate);
 
-        m_TickTimer.Every(
-            [&](Nexus::TimeSpan time) {
-                if (IsMinimized())
-                    return;
+        m_TickTimer.Every([&](Nexus::TimeSpan time) {
+            if (IsMinimized())
+                return;
 
-                m_TickFrameRateMonitor.Update();
+            m_TickFrameRateMonitor.Update();
 
-                if (m_TickFunc)
-                {
-                    NX_PROFILE_SCOPE("OnTick");
-                    Nexus::Input::SetContext(this);
-                    m_TickFunc(time);
-                }
-            },
-            secondsPerTick
-        );
+            if (m_TickFunc)
+            {
+                NX_PROFILE_SCOPE("OnTick");
+                Nexus::Input::SetContext(this);
+                m_TickFunc(time);
+            }
+        }, secondsPerTick);
     }
 
     const WindowDescription &SDL3Window::GetDescription() const

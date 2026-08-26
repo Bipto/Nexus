@@ -16,10 +16,9 @@ namespace Demos
     class CubemapDemo : public Demo
     {
       public:
-        CubemapDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        CubemapDemo(const std::string &name, Nexus::Application *app,
+                    Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                    Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
             auto [width, height] = m_Window->GetWindowSizeInPixels();
@@ -55,19 +54,16 @@ namespace Demos
 
             Nexus::Graphics::HdriProcessor processor(
                 Nexus::FileSystem::GetFilePathAbsolute("resources/demo/hdri/hangar_interior_4k.hdr"), m_GraphicsDevice,
-                m_CommandQueue
-            );
+                m_CommandQueue);
             m_Cubemap = processor.Generate(2048);
 
             Nexus::Graphics::TextureViewDescription viewDesc = {};
             viewDesc.TargetTexture = m_Cubemap;
             viewDesc.Format = m_Cubemap->GetPixelFormat();
-            viewDesc.Range = {
-                .BaseMipLevel = 0,
-                .LevelCount = m_Cubemap->GetMipLevels(),
-                .BaseArrayLayer = 0,
-                .LayerCount = m_Cubemap->GetDepthOrArrayLayers()
-            };
+            viewDesc.Range = {.BaseMipLevel = 0,
+                              .LevelCount = m_Cubemap->GetMipLevels(),
+                              .BaseArrayLayer = 0,
+                              .LayerCount = m_Cubemap->GetDepthOrArrayLayers()};
             viewDesc.DebugName = "Cubemap View";
             m_CubemapView = m_GraphicsDevice->CreateTextureView(viewDesc);
 
@@ -212,12 +208,10 @@ namespace Demos
 
             pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/cubemap/cubemap.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/cubemap/cubemap.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment);
 
             pipelineDescription.ColourTargetCount = 1;
             pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
@@ -226,17 +220,13 @@ namespace Demos
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceDescription.Descriptors = {
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_Skybox",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Camera",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                }
-            };
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_Skybox",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1}};
 
             m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
@@ -253,13 +243,12 @@ namespace Demos
 
             dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>(
                 [this](const Nexus::MouseButtonPressedEventArgs &args) {
-                    if (args.Button == Nexus::MouseButton::Right)
-                    {
-                        m_CameraActive = true;
-                        Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
-                    }
+                if (args.Button == Nexus::MouseButton::Right)
+                {
+                    m_CameraActive = true;
+                    Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
                 }
-            );
+            });
 
             dispatcher.Subscribe<Nexus::KeyPressedEventArgs>([this](const Nexus::KeyPressedEventArgs &args) {
                 if (args.ScanCode == Nexus::ScanCode::Escape)

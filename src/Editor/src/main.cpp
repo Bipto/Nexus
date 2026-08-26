@@ -92,9 +92,8 @@ bool MyApp::OnInit()
 
     Nexus::UI::IMenu *helpMenu = menubar->CreateMenu("&Help");
     Nexus::UI::IMenuItem *aboutItem = helpMenu->Append("About");
-    aboutItem->OnClick([this]() {
-        m_Layout.ShowMessageBox("This is a wxWidgets Hello World example", "About Hello World");
-    });
+    aboutItem->OnClick(
+        [this]() { m_Layout.ShowMessageBox("This is a wxWidgets Hello World example", "About Hello World"); });
 
     Nexus::UI::IStatusBar *statusBar = frame->CreateStatusbar();
     statusBar->SetStatusText("Welcome to wxWidgets");
@@ -104,10 +103,8 @@ bool MyApp::OnInit()
 }
 
 MyFrame::MyFrame()
-    : wxFrame(
-          nullptr, wxID_ANY, "Hello World", wxDefaultPosition, wxDefaultSize,
-          wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE
-      ),
+    : wxFrame(nullptr, wxID_ANY, "Hello World", wxDefaultPosition, wxDefaultSize,
+              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE),
       m_mgr(this), m_Engine(Nexus::Graphics::GraphicsAPI::OpenGL, Nexus::Audio::AudioAPI::OpenAL)
 {
     // std::unique_ptr<Nexus::UI::IMenubar> menubar = m_Layout.CreateMainMenubar();
@@ -276,10 +273,8 @@ void MyFrame::CreateGraphicsResources()
     HWND hwnd = reinterpret_cast<HWND>(m_Panel->GetHandle());
     HDC hdc = ::GetDC(hwnd);
 
-    m_Surface = device->CreateSurfaceFromWin32(
-        reinterpret_cast<uintptr_t>(hwnd), reinterpret_cast<uintptr_t>(hdc),
-        reinterpret_cast<uintptr_t>(GetModuleHandle(NULL))
-    );
+    m_Surface = device->CreateSurfaceFromWin32(reinterpret_cast<uintptr_t>(hwnd), reinterpret_cast<uintptr_t>(hdc),
+                                               reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)));
 
     Nexus::Graphics::SwapchainDescription swapchainDesc = {};
     swapchainDesc.Width = m_Panel->GetSize().GetWidth();

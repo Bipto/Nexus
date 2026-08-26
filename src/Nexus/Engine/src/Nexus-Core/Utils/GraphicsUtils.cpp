@@ -9,10 +9,11 @@
 
 namespace
 {
-    Nexus::Graphics::ShaderModuleHandle TryLoadCachedShader(
-        Nexus::Graphics::IGraphicsDevice *device, const std::string &source, const std::string &name,
-        Nexus::Graphics::ShaderStage stage, const std::string &outputDirectory, Nexus::Graphics::ShaderLanguage language
-    )
+    Nexus::Graphics::ShaderModuleHandle TryLoadCachedShader(Nexus::Graphics::IGraphicsDevice *device,
+                                                            const std::string &source, const std::string &name,
+                                                            Nexus::Graphics::ShaderStage stage,
+                                                            const std::string &outputDirectory,
+                                                            Nexus::Graphics::ShaderLanguage language)
     {
         std::size_t hash = std::hash<std::string>{}(source);
         std::string languageString = ShaderLanguageToString(language);
@@ -59,19 +60,19 @@ namespace Nexus::Utils
         throw std::runtime_error("Failed to create surface for window: Unsupported platform");
     }
 
-    Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvFile(
-        Graphics::IGraphicsDevice *graphicsDevice, const std::string &filepath, const std::string &outputDirectory,
-        Graphics::ShaderStage stage
-    )
+    Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+                                                                 const std::string &filepath,
+                                                                 const std::string &outputDirectory,
+                                                                 Graphics::ShaderStage stage)
     {
         std::string shaderSource = Nexus::FileSystem::ReadFileToString(filepath);
         return CreateShaderModuleFromSpirvSource(graphicsDevice, shaderSource, filepath, outputDirectory, stage);
     }
 
-    Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvSource(
-        Graphics::IGraphicsDevice *graphicsDevice, const std::string &source, const std::string &name,
-        const std::string &outputDirectory, Graphics::ShaderStage stage
-    )
+    Graphics::ShaderModuleHandle CreateShaderModuleFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+                                                                   const std::string &source, const std::string &name,
+                                                                   const std::string &outputDirectory,
+                                                                   Graphics::ShaderStage stage)
     {
         Graphics::ShaderModuleDescription moduleSpec;
 
@@ -106,27 +107,27 @@ namespace Nexus::Utils
         return graphicsDevice->CreateShaderModule(moduleSpec);
     }
 
-    Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvSource(
-        Graphics::IGraphicsDevice *graphicsDevice, const std::string &source, const std::string &name,
-        const std::string &outputDirectory, Graphics::ShaderStage stage
-    )
+    Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvSource(Graphics::IGraphicsDevice *graphicsDevice,
+                                                                        const std::string &source,
+                                                                        const std::string &name,
+                                                                        const std::string &outputDirectory,
+                                                                        Graphics::ShaderStage stage)
     {
         Graphics::ShaderLanguage language = graphicsDevice->GetSupportedShaderFormat();
         return TryLoadCachedShader(graphicsDevice, source, name, stage, outputDirectory, language);
     }
 
-    Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvFile(
-        Graphics::IGraphicsDevice *graphicsDevice, const std::string &filepath, const std::string &outputDirectory,
-        Graphics::ShaderStage stage
-    )
+    Graphics::ShaderModuleHandle GetOrCreateCachedShaderFromSpirvFile(Graphics::IGraphicsDevice *graphicsDevice,
+                                                                      const std::string &filepath,
+                                                                      const std::string &outputDirectory,
+                                                                      Graphics::ShaderStage stage)
     {
         std::string source = Nexus::FileSystem::ReadFileToString(filepath);
         return GetOrCreateCachedShaderFromSpirvSource(graphicsDevice, source, filepath, outputDirectory, stage);
     }
 
-    Graphics::TextureHandle CreateTexture2D(
-        Graphics::CommandQueueHandle commandQueue, const char *filepath, bool generateMips, bool srgb
-    )
+    Graphics::TextureHandle CreateTexture2D(Graphics::CommandQueueHandle commandQueue, const char *filepath,
+                                            bool generateMips, bool srgb)
     {
         Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -177,16 +178,14 @@ namespace Nexus::Utils
         return texture;
     }
 
-    Graphics::TextureHandle CreateTexture2D(
-        Graphics::CommandQueueHandle commandQueue, const std::string &filepath, bool generateMips, bool srgb
-    )
+    Graphics::TextureHandle CreateTexture2D(Graphics::CommandQueueHandle commandQueue, const std::string &filepath,
+                                            bool generateMips, bool srgb)
     {
         return CreateTexture2D(commandQueue, filepath.c_str(), generateMips, srgb);
     }
 
     std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(
-        Graphics::CommandQueueHandle commandQueue, const char *filepath, bool generateMips, bool srgb
-    )
+        Graphics::CommandQueueHandle commandQueue, const char *filepath, bool generateMips, bool srgb)
     {
         Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -195,12 +194,10 @@ namespace Nexus::Utils
         Graphics::TextureViewDescription viewDesc = {};
         viewDesc.TargetTexture = texture;
         viewDesc.Format = texture->GetPixelFormat();
-        viewDesc.Range = {
-            .BaseMipLevel = 0,
-            .LevelCount = texture->GetMipLevels(),
-            .BaseArrayLayer = 0,
-            .LayerCount = texture->GetDepthOrArrayLayers()
-        };
+        viewDesc.Range = {.BaseMipLevel = 0,
+                          .LevelCount = texture->GetMipLevels(),
+                          .BaseArrayLayer = 0,
+                          .LayerCount = texture->GetDepthOrArrayLayers()};
         std::string viewName = filepath + std::string(" - View");
         viewDesc.DebugName = viewName;
         Graphics::TextureViewHandle textureView = device->CreateTextureView(viewDesc);
@@ -209,15 +206,13 @@ namespace Nexus::Utils
     }
 
     std::pair<Graphics::TextureHandle, Graphics::TextureViewHandle> CreateTexture2DWithView(
-        Graphics::CommandQueueHandle commandQueue, const std::string &filepath, bool generateMips, bool srgb
-    )
+        Graphics::CommandQueueHandle commandQueue, const std::string &filepath, bool generateMips, bool srgb)
     {
         return CreateTexture2DWithView(commandQueue, filepath.c_str(), generateMips, srgb);
     }
 
-    Graphics::FramebufferHandle CreateFramebuffer(
-        Graphics::IGraphicsDevice *device, const Graphics::FramebufferTextureCreateDescription &desc
-    )
+    Graphics::FramebufferHandle CreateFramebuffer(Graphics::IGraphicsDevice *device,
+                                                  const Graphics::FramebufferTextureCreateDescription &desc)
     {
         Graphics::FramebufferTextureSetDescription framebufferDesc = {};
 
@@ -288,10 +283,9 @@ namespace Nexus::Utils
         return device->CreateFramebuffer(framebufferDesc);
     }
 
-    void WriteToTexture(
-        Graphics::CommandQueueHandle commandQueue, Graphics::TextureHandle texture, uint32_t mipLevel, uint32_t x,
-        uint32_t y, uint32_t z, uint32_t width, uint32_t height, const void *data, size_t size
-    )
+    void WriteToTexture(Graphics::CommandQueueHandle commandQueue, Graphics::TextureHandle texture, uint32_t mipLevel,
+                        uint32_t x, uint32_t y, uint32_t z, uint32_t width, uint32_t height, const void *data,
+                        size_t size)
     {
         Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -323,10 +317,9 @@ namespace Nexus::Utils
         device->WaitForIdle();
     }
 
-    std::vector<char> ReadFromTexture(
-        Graphics::CommandQueueHandle commandQueue, Graphics::TextureHandle texture, uint32_t mipLevel, uint32_t x,
-        uint32_t y, uint32_t z, uint32_t width, uint32_t height
-    )
+    std::vector<char> ReadFromTexture(Graphics::CommandQueueHandle commandQueue, Graphics::TextureHandle texture,
+                                      uint32_t mipLevel, uint32_t x, uint32_t y, uint32_t z, uint32_t width,
+                                      uint32_t height)
     {
         Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -361,10 +354,8 @@ namespace Nexus::Utils
         return buffer->GetData(0, footprint.Size);
     }
 
-    void WriteToBuffer(
-        Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, const void *data, size_t offset,
-        size_t size
-    )
+    void WriteToBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, const void *data,
+                       size_t offset, size_t size)
     {
         Graphics::IGraphicsDevice *device = commandQueue->GetGraphicsDevice();
 
@@ -395,9 +386,8 @@ namespace Nexus::Utils
         device->WaitForIdle();
     }
 
-    std::vector<char> ReadFromBuffer(
-        Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer, size_t offset
-    )
+    std::vector<char> ReadFromBuffer(Graphics::CommandQueueHandle commandQueue, Graphics::DeviceBufferHandle buffer,
+                                     size_t offset)
     {
         size_t dataSize = buffer->GetSizeInBytes() - offset;
 

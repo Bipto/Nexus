@@ -119,77 +119,53 @@ namespace Nexus::Graphics
 
         if (m_Description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
         {
-            NX_VALIDATE(
-                context->IsSparseBindingSupported(), "Context must support the ARB_sparse_texture extension to use "
-                                                     "sparse textures"
-            );
+            NX_VALIDATE(context->IsSparseBindingSupported(),
+                        "Context must support the ARB_sparse_texture extension to use "
+                        "sparse textures");
             context->TextureParameteri(m_Handle, m_TextureType, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
         }
 
         switch (m_GLInternalTextureFormat)
         {
-        case GL::GLInternalTextureFormat::Texture1D:
-        {
-            NX_VALIDATE(
-                context->IsTextureTypeSupported(TextureType::Texture1D, m_Description.Samples),
-                "1D textures are not supported"
-            );
-            context->TexStorage1D(
-                m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width
-            );
+        case GL::GLInternalTextureFormat::Texture1D: {
+            NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture1D, m_Description.Samples),
+                        "1D textures are not supported");
+            context->TexStorage1D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat,
+                                  m_Description.Width);
             break;
         }
         case GL::GLInternalTextureFormat::Texture1DArray:
         case GL::GLInternalTextureFormat::Texture2D:
-        case GL::GLInternalTextureFormat::Cubemap:
-        {
-            NX_VALIDATE(
-                context->IsTextureTypeSupported(TextureType::Texture2D, m_Description.Samples),
-                "2D textures are not supported"
-            );
-            context->TexStorage2D(
-                m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width,
-                m_Description.Height
-            );
+        case GL::GLInternalTextureFormat::Cubemap: {
+            NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture2D, m_Description.Samples),
+                        "2D textures are not supported");
+            context->TexStorage2D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat,
+                                  m_Description.Width, m_Description.Height);
             break;
         }
-        case GL::GLInternalTextureFormat::Texture2DMultisample:
-        {
-            NX_VALIDATE(
-                context->IsTextureTypeSupported(TextureType::Texture2D, m_Description.Samples),
-                "Multisampled 2D textures are not supported"
-            );
-            context->TexStorage2DMultisample(
-                m_Handle, m_TextureType, m_Description.Samples, m_InternalFormat, m_Description.Width,
-                m_Description.Height, GL_TRUE
-            );
+        case GL::GLInternalTextureFormat::Texture2DMultisample: {
+            NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture2D, m_Description.Samples),
+                        "Multisampled 2D textures are not supported");
+            context->TexStorage2DMultisample(m_Handle, m_TextureType, m_Description.Samples, m_InternalFormat,
+                                             m_Description.Width, m_Description.Height, GL_TRUE);
             break;
         }
         case GL::GLInternalTextureFormat::Texture2DArray:
         case GL::GLInternalTextureFormat::CubemapArray:
-        case GL::GLInternalTextureFormat::Texture3D:
-        {
-            NX_VALIDATE(
-                context->IsTextureTypeSupported(TextureType::Texture3D, m_Description.Samples),
-                "3D textures are not supported"
-            );
-            context->TexStorage3D(
-                m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat, m_Description.Width,
-                m_Description.Height, m_Description.DepthOrArrayLayers
-            );
+        case GL::GLInternalTextureFormat::Texture3D: {
+            NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture3D, m_Description.Samples),
+                        "3D textures are not supported");
+            context->TexStorage3D(m_Handle, m_TextureType, m_Description.MipLevels, m_InternalFormat,
+                                  m_Description.Width, m_Description.Height, m_Description.DepthOrArrayLayers);
             break;
         }
 
-        case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-        {
-            NX_VALIDATE(
-                context->IsTextureTypeSupported(TextureType::Texture3D, m_Description.Samples),
-                "Multisampled 3D textures are not supported"
-            );
-            context->TexStorage3DMultisample(
-                m_Handle, m_TextureType, m_Description.Samples, m_InternalFormat, m_Description.Width,
-                m_Description.Height, m_Description.DepthOrArrayLayers, GL_TRUE
-            );
+        case GL::GLInternalTextureFormat::Texture2DArrayMultisample: {
+            NX_VALIDATE(context->IsTextureTypeSupported(TextureType::Texture3D, m_Description.Samples),
+                        "Multisampled 3D textures are not supported");
+            context->TexStorage3DMultisample(m_Handle, m_TextureType, m_Description.Samples, m_InternalFormat,
+                                             m_Description.Width, m_Description.Height,
+                                             m_Description.DepthOrArrayLayers, GL_TRUE);
             break;
         }
         }

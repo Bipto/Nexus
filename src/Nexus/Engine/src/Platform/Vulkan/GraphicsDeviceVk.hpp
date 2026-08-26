@@ -27,9 +27,8 @@ namespace Nexus::Graphics
     class GraphicsDeviceVk final : public IGraphicsDevice
     {
       public:
-        GraphicsDeviceVk(
-            std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config
-        );
+        GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance,
+                         const VulkanDeviceConfig &config);
         GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
         virtual ~GraphicsDeviceVk();
 
@@ -77,24 +76,21 @@ namespace Nexus::Graphics
         VkDevice GetVkDevice();
         VmaAllocator GetAllocator();
 
-        uint32_t FindMemoryType(
-            uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice
-        );
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
+                                std::shared_ptr<PhysicalDeviceVk> physicalDevice);
         Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
         const VulkanDeviceFeatures GetDeviceFeatures() const;
 
         bool Validate() final;
 
-        PixelFormatProperties GetPixelFormatProperties(
-            PixelFormat format, TextureType type, TextureUsageFlags usage
-        ) const final;
+        PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                       TextureUsageFlags usage) const final;
         const DeviceFeatures &GetPhysicalDeviceFeatures() const final;
         const DeviceLimits &GetPhysicalDeviceLimits() const final;
         bool IsIndexBufferFormatSupported(IndexFormat format) const final;
         AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
-            const AccelerationStructureGeometryBuildDescription &description
-        ) const final;
+            const AccelerationStructureGeometryBuildDescription &description) const final;
 
         RayTracingDeviceDescription GetRayTracingDeviceDescription() const final;
         AccelerationStructureProperties GetAccelerationStructureProperties() const final;

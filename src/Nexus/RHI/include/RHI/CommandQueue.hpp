@@ -60,9 +60,8 @@ namespace Nexus::Graphics
         virtual const CommandQueueDescription &GetDescription() const = 0;
         virtual SwapchainHandle CreateSwapchain(const SwapchainDescription &spec) = 0;
         virtual void SubmitCommandList(CommandListHandle commandList, std::optional<FenceHandle> fence = {}) = 0;
-        virtual void SubmitCommandLists(
-            CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence = {}
-        ) = 0;
+        virtual void SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists,
+                                        std::optional<FenceHandle> fence = {}) = 0;
         virtual IGraphicsDevice *GetGraphicsDevice() = 0;
         virtual bool WaitForIdle() = 0;
 

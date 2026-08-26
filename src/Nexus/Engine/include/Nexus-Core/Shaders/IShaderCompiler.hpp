@@ -78,7 +78,6 @@ namespace Nexus
         virtual ~IShaderCompiler() = default;
 
         virtual std::expected<ShaderCompilationResult, std::string> Compile(
-            const ShaderCompilationOptions &options
-        ) const = 0;
+            const ShaderCompilationOptions &options) const = 0;
     };
 } // namespace Nexus

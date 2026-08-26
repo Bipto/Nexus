@@ -12,10 +12,9 @@ namespace Demos
     class UniformBufferDemo : public Demo
     {
       public:
-        UniformBufferDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        UniformBufferDemo(const std::string &name, Nexus::Application *app,
+                          Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                          Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -33,8 +32,7 @@ namespace Demos
             m_Mesh = factory.CreateSprite();
 
             auto [texture, textureView] = Nexus::Utils::CreateTexture2DWithView(
-                m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false
-            );
+                m_CommandQueue, Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
             m_Texture = texture;
             m_TextureView = textureView;
@@ -134,13 +132,11 @@ namespace Demos
 
             pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/uniform_buffers/uniform_buffers.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, Nexus::GetApplication()->GetApplicationPath(),
                 "resources/demo/shaders/uniform_buffers/uniform_buffers.frag.glsl",
-                Nexus::Graphics::ShaderStage::Fragment
-            );
+                Nexus::Graphics::ShaderStage::Fragment);
 
             Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
             transformUniformBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
@@ -156,17 +152,13 @@ namespace Demos
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceDescription.Descriptors = {
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_Texture",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Transform",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                }
-            };
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_Texture",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Transform",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1}};
 
             m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

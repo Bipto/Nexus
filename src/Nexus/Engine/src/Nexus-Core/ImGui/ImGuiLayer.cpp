@@ -19,27 +19,20 @@ namespace Nexus
     bool ImGuiLayer::OnEvent(const Event &event)
     {
         EventDispatcher dispatcher = {};
-        dispatcher.Subscribe<TextInputEventArgs>([this](const TextInputEventArgs &args) {
-            m_ImGuiRenderer->AddTextInput(args);
-        });
-        dispatcher.Subscribe<MouseScrolledEventArgs>([this](const MouseScrolledEventArgs &args) {
-            m_ImGuiRenderer->AddMouseScroll(args);
-        });
-        dispatcher.Subscribe<KeyPressedEventArgs>([this](const KeyPressedEventArgs &args) {
-            m_ImGuiRenderer->AddKeyPressed(args);
-        });
-        dispatcher.Subscribe<KeyReleasedEventArgs>([this](const KeyReleasedEventArgs &args) {
-            m_ImGuiRenderer->AddKeyReleased(args);
-        });
-        dispatcher.Subscribe<MouseMovedEventArgs>([this](const MouseMovedEventArgs &args) {
-            m_ImGuiRenderer->AddMouseMoved(args);
-        });
-        dispatcher.Subscribe<MouseButtonPressedEventArgs>([this](const MouseButtonPressedEventArgs &args) {
-            m_ImGuiRenderer->AddMouseButtonPressed(args);
-        });
-        dispatcher.Subscribe<MouseButtonReleasedEventArgs>([this](const MouseButtonReleasedEventArgs &args) {
-            m_ImGuiRenderer->AddMouseButtonReleased(args);
-        });
+        dispatcher.Subscribe<TextInputEventArgs>(
+            [this](const TextInputEventArgs &args) { m_ImGuiRenderer->AddTextInput(args); });
+        dispatcher.Subscribe<MouseScrolledEventArgs>(
+            [this](const MouseScrolledEventArgs &args) { m_ImGuiRenderer->AddMouseScroll(args); });
+        dispatcher.Subscribe<KeyPressedEventArgs>(
+            [this](const KeyPressedEventArgs &args) { m_ImGuiRenderer->AddKeyPressed(args); });
+        dispatcher.Subscribe<KeyReleasedEventArgs>(
+            [this](const KeyReleasedEventArgs &args) { m_ImGuiRenderer->AddKeyReleased(args); });
+        dispatcher.Subscribe<MouseMovedEventArgs>(
+            [this](const MouseMovedEventArgs &args) { m_ImGuiRenderer->AddMouseMoved(args); });
+        dispatcher.Subscribe<MouseButtonPressedEventArgs>(
+            [this](const MouseButtonPressedEventArgs &args) { m_ImGuiRenderer->AddMouseButtonPressed(args); });
+        dispatcher.Subscribe<MouseButtonReleasedEventArgs>(
+            [this](const MouseButtonReleasedEventArgs &args) { m_ImGuiRenderer->AddMouseButtonReleased(args); });
 
         dispatcher.Dispatch(event);
 

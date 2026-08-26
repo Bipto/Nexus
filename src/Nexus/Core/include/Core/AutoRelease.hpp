@@ -10,7 +10,8 @@ namespace Nexus
     /// @tparam Handle The resource that will be held by the AutoRelease
     /// @tparam Deleter The function to clean up the Handle when it goes out of scope
     /// @tparam InvalidValue The value that indicates that the Handle is invalid
-    template <typename Handle, Handle InvalidValue, typename Deleter> class AutoRelease
+    template <typename Handle, Handle InvalidValue, typename Deleter>
+    class AutoRelease
     {
       public:
         /// @brief A default constructor, creates an invalid handle and no destructor

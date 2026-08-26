@@ -12,9 +12,8 @@
 
 namespace Nexus::Graphics
 {
-    SwapchainVk::SwapchainVk(
-        IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec
-    )
+    SwapchainVk::SwapchainVk(IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue,
+                             const SwapchainDescription &swapchainSpec)
         : ISwapchain(swapchainSpec), m_SwapchainSize{swapchainSpec.Width, swapchainSpec.Height}
     {
         m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
@@ -105,9 +104,8 @@ namespace Nexus::Graphics
                 m_GraphicsDevice->ResetFences(&fence, 1);
             }
 
-            m_CommandQueue->SubmitCommandLists(
-                &cmdList, 1, &m_AcquireSemaphores[presentIndex], 1, &m_PresentSemaphores[presentIndex], 1, fence
-            );
+            m_CommandQueue->SubmitCommandLists(&cmdList, 1, &m_AcquireSemaphores[presentIndex], 1,
+                                               &m_PresentSemaphores[presentIndex], 1, fence);
 
             VkResult result = context.QueuePresentKHR(vkQueue, &presentInfo);
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
@@ -213,19 +211,16 @@ namespace Nexus::Graphics
             }
         }
 
-        context.GetPhysicalDeviceSurfaceCapabilitiesKHR(
-            physicalDevice->GetVkPhysicalDevice(), m_Surface, &m_SurfaceCapabilities
-        );
+        context.GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface,
+                                                        &m_SurfaceCapabilities);
 
         std::vector<VkSurfaceFormatKHR> surfaceFormats;
         uint32_t surfaceFormatCount;
-        context.GetPhysicalDeviceSurfaceFormatsKHR(
-            physicalDevice->GetVkPhysicalDevice(), m_Surface, &surfaceFormatCount, nullptr
-        );
+        context.GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface,
+                                                   &surfaceFormatCount, nullptr);
         surfaceFormats.resize(surfaceFormatCount);
-        context.GetPhysicalDeviceSurfaceFormatsKHR(
-            physicalDevice->GetVkPhysicalDevice(), m_Surface, &surfaceFormatCount, surfaceFormats.data()
-        );
+        context.GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface,
+                                                   &surfaceFormatCount, surfaceFormats.data());
 
         if (surfaceFormats.size() > 0)
         {
@@ -237,14 +232,10 @@ namespace Nexus::Graphics
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-        uint32_t width = std::clamp(
-            m_SwapchainSize.width, m_SurfaceCapabilities.minImageExtent.width,
-            m_SurfaceCapabilities.maxImageExtent.width
-        );
-        uint32_t height = std::clamp(
-            m_SwapchainSize.height, m_SurfaceCapabilities.minImageExtent.height,
-            m_SurfaceCapabilities.maxImageExtent.height
-        );
+        uint32_t width = std::clamp(m_SwapchainSize.width, m_SurfaceCapabilities.minImageExtent.width,
+                                    m_SurfaceCapabilities.maxImageExtent.width);
+        uint32_t height = std::clamp(m_SwapchainSize.height, m_SurfaceCapabilities.minImageExtent.height,
+                                     m_SurfaceCapabilities.maxImageExtent.height);
 
         if (width == 0 || height == 0)
         {
@@ -290,9 +281,8 @@ namespace Nexus::Graphics
 
         context.GetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &swapchainImageCount, nullptr);
         swapchainImages.resize(swapchainImageCount);
-        context.GetSwapchainImagesKHR(
-            m_GraphicsDevice->m_Device, m_Swapchain, &swapchainImageCount, swapchainImages.data()
-        );
+        context.GetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &swapchainImageCount,
+                                      swapchainImages.data());
 
         m_ColourAttachments.clear();
 
@@ -309,8 +299,7 @@ namespace Nexus::Graphics
             desc.Format = Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
 
             TextureHandle handle = m_GraphicsDevice->m_Resources.Textures.CreateShared(
-                std::make_unique<TextureVk>(image, desc, m_GraphicsDevice, false)
-            );
+                std::make_unique<TextureVk>(image, desc, m_GraphicsDevice, false));
             m_ColourAttachments.push_back(handle);
         }
 
@@ -359,9 +348,8 @@ namespace Nexus::Graphics
                 semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
                 semaphoreCreateInfo.flags = 0;
 
-                if (context.CreateSemaphore(
-                        m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_AcquireSemaphores[i]
-                    ) != VK_SUCCESS)
+                if (context.CreateSemaphore(m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr,
+                                            &m_AcquireSemaphores[i]) != VK_SUCCESS)
                 {
                     throw std::runtime_error("Failed to create semaphore");
                 }
@@ -373,9 +361,8 @@ namespace Nexus::Graphics
                 semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
                 semaphoreCreateInfo.flags = 0;
 
-                if (context.CreateSemaphore(
-                        m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]
-                    ) != VK_SUCCESS)
+                if (context.CreateSemaphore(m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr,
+                                            &m_PresentSemaphores[i]) != VK_SUCCESS)
                 {
                     throw std::runtime_error("Failed to create semaphore");
                 }
@@ -426,8 +413,7 @@ namespace Nexus::Graphics
 
             Graphics::FramebufferTextureSetDescription desc = {};
             desc.ColourAttachments = {FramebufferColourAttachmentDescription{
-                .ColourAttachment = colourAttachmentDesc, .ResolveAttachment = resolveAttachmentDescOpt
-            }};
+                .ColourAttachment = colourAttachmentDesc, .ResolveAttachment = resolveAttachmentDescOpt}};
             desc.DepthAttachment = depthAttachmentDesc;
             desc.OwnedBySwapchain = true;
 
@@ -489,10 +475,8 @@ namespace Nexus::Graphics
     {
         uint32_t presentIndex = GetCurrentFrameIndex();
 
-        VkResult result = Vk::AcquireNextImage(
-            m_GraphicsDevice, m_Swapchain, UINT64_MAX, m_AcquireSemaphores[presentIndex], VK_NULL_HANDLE,
-            &m_CurrentFrameIndex
-        );
+        VkResult result = Vk::AcquireNextImage(m_GraphicsDevice, m_Swapchain, UINT64_MAX,
+                                               m_AcquireSemaphores[presentIndex], VK_NULL_HANDLE, &m_CurrentFrameIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -557,11 +541,10 @@ namespace Nexus::Graphics
         return imageView;
     }
 
-    void SwapchainVk::CreateImage(
-        uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-        VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory, VkSampleCountFlagBits samples,
-        GraphicsDeviceVk *graphicsDevice
-    )
+    void SwapchainVk::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+                                  VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image,
+                                  VkDeviceMemory &imageMemory, VkSampleCountFlagBits samples,
+                                  GraphicsDeviceVk *graphicsDevice)
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
@@ -606,9 +589,8 @@ namespace Nexus::Graphics
         context.BindImageMemory(m_GraphicsDevice->GetVkDevice(), image, imageMemory, 0);
     }
 
-    uint32_t SwapchainVk::FindMemoryType(
-        uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice
-    )
+    uint32_t SwapchainVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
+                                         VkPhysicalDevice physicalDevice)
     {
         const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 

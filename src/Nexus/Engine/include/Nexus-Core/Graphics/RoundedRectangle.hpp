@@ -22,18 +22,15 @@ namespace Nexus::Graphics
         {
         }
 
-        RoundedRectangle(
-            const Point2D<float> &position, const Point2D<float> &size, float radiusTL, float radiusTR, float radiusBL,
-            float radiusBR
-        )
+        RoundedRectangle(const Point2D<float> &position, const Point2D<float> &size, float radiusTL, float radiusTR,
+                         float radiusBL, float radiusBR)
             : m_X(position.X), m_Y(position.Y), m_Width(size.X), m_Height(size.Y), m_RadiusTL(radiusTL),
               m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
         {
         }
 
-        RoundedRectangle(
-            float x, float y, float width, float height, float radiusTL, float radiusTR, float radiusBL, float radiusBR
-        )
+        RoundedRectangle(float x, float y, float width, float height, float radiusTL, float radiusTR, float radiusBL,
+                         float radiusBR)
             : m_X(x), m_Y(y), m_Width(width), m_Height(height), m_RadiusTL(radiusTL), m_RadiusTR(radiusTR),
               m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
         {
@@ -185,10 +182,8 @@ namespace Nexus::Graphics
             m_Y += y;
         }
 
-        const void Deconstruct(
-            float *x, float *y, float *width, float *height, float *radiusTL, float *radiusTR, float *radiusBL,
-            float *radiusBR, float *pointsPerCorner
-        ) const
+        const void Deconstruct(float *x, float *y, float *width, float *height, float *radiusTL, float *radiusTR,
+                               float *radiusBL, float *radiusBR, float *pointsPerCorner) const
         {
             if (x)
             {
@@ -314,9 +309,8 @@ namespace Nexus::Graphics
         }
 
       private:
-        std::vector<glm::vec2> CreateCircleRegion(
-            const glm::vec2 &position, float radius, float startAngle, float fillAngle
-        ) const
+        std::vector<glm::vec2> CreateCircleRegion(const glm::vec2 &position, float radius, float startAngle,
+                                                  float fillAngle) const
         {
             std::vector<glm::vec2> border;
 
@@ -327,9 +321,8 @@ namespace Nexus::Graphics
 
             for (uint32_t i = 0; i < m_PointsPerCorner; i++)
             {
-                glm::vec2 point = {
-                    glm::cos(currentAngle) * radius + position.x, glm::sin(currentAngle) * radius + position.y
-                };
+                glm::vec2 point = {glm::cos(currentAngle) * radius + position.x,
+                                   glm::sin(currentAngle) * radius + position.y};
 
                 border.push_back(point);
                 currentAngle += deltaAngle;

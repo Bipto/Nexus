@@ -84,10 +84,8 @@ namespace Nexus::Graphics
         readbackBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
         readbackBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-        d3d12Device->CreateCommittedResource(
-            &readbackHeapProperties, D3D12_HEAP_FLAG_NONE, &readbackBufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
-            IID_PPV_ARGS(&m_ReadbackBuffer)
-        );
+        d3d12Device->CreateCommittedResource(&readbackHeapProperties, D3D12_HEAP_FLAG_NONE, &readbackBufferDesc,
+                                             D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&m_ReadbackBuffer));
     }
 } // namespace Nexus::Graphics
 

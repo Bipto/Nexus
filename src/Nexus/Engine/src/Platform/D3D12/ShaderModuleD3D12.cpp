@@ -58,9 +58,8 @@ namespace Nexus::Graphics
         utils->CreateDefaultIncludeHandler(includeHandler.GetAddressOf());
 
         Microsoft::WRL::ComPtr<IDxcBlobEncoding> sourceBlob;
-        utils->CreateBlob(
-            m_ModuleDescription.Source.c_str(), m_ModuleDescription.Source.length(), CP_UTF8, sourceBlob.GetAddressOf()
-        );
+        utils->CreateBlob(m_ModuleDescription.Source.c_str(), m_ModuleDescription.Source.length(), CP_UTF8,
+                          sourceBlob.GetAddressOf());
 
         std::string entryPoint = GetD3DShaderEntryPoint(shaderModuleSpec.ShadingStage);
         std::wstring wsEntryPoint(entryPoint.begin(), entryPoint.end());
@@ -68,9 +67,8 @@ namespace Nexus::Graphics
         std::string shaderVersion = GetShaderVersion(shaderModuleSpec.ShadingStage);
         std::wstring wsShaderVersion(shaderVersion.begin(), shaderVersion.end());
 
-        std::vector<LPCWSTR> compilationArguments = {
-            L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS
-        };
+        std::vector<LPCWSTR> compilationArguments = {L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(),
+                                                     DXC_ARG_WARNINGS_ARE_ERRORS};
 
 #if defined(DEBUG) || defined(_DEBUG)
         compilationArguments.push_back(DXC_ARG_DEBUG);
@@ -82,10 +80,8 @@ namespace Nexus::Graphics
         sourceBuffer.Encoding = 0;
 
         Microsoft::WRL::ComPtr<IDxcResult> compiledShaderBuffer = {};
-        const HRESULT hr = compiler->Compile(
-            &sourceBuffer, compilationArguments.data(), compilationArguments.size(), includeHandler.Get(),
-            IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf())
-        );
+        const HRESULT hr = compiler->Compile(&sourceBuffer, compilationArguments.data(), compilationArguments.size(),
+                                             includeHandler.Get(), IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf()));
 
         if (FAILED(hr))
         {
@@ -111,8 +107,7 @@ namespace Nexus::Graphics
     {
         switch (componentType)
         {
-        case D3D_REGISTER_COMPONENT_UINT32:
-        {
+        case D3D_REGISTER_COMPONENT_UINT32: {
             switch (componentCount)
             {
             case 1:
@@ -127,8 +122,7 @@ namespace Nexus::Graphics
                 throw std::runtime_error("Failed to find a valid type");
             }
         }
-        case D3D_REGISTER_COMPONENT_SINT32:
-        {
+        case D3D_REGISTER_COMPONENT_SINT32: {
             switch (componentCount)
             {
             case 1:
@@ -143,8 +137,7 @@ namespace Nexus::Graphics
                 throw std::runtime_error("Failed to find a valid type");
             }
         }
-        case D3D_REGISTER_COMPONENT_FLOAT32:
-        {
+        case D3D_REGISTER_COMPONENT_FLOAT32: {
             switch (componentCount)
             {
             case 1:
@@ -182,9 +175,8 @@ namespace Nexus::Graphics
         attribute.StreamIndex = streamIndex;
     }
 
-    static std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(
-        D3D_SHADER_INPUT_TYPE type, UINT flags
-    )
+    static std::pair<ReflectedShaderDataType, StorageResourceAccess> ExtractShaderInputType(D3D_SHADER_INPUT_TYPE type,
+                                                                                            UINT flags)
     {
         switch (type)
         {
@@ -194,8 +186,7 @@ namespace Nexus::Graphics
             return {ReflectedShaderDataType::UniformTextureBuffer, StorageResourceAccess::Read};
         case D3D_SIT_TEXTURE:
             return {ReflectedShaderDataType::Texture, StorageResourceAccess::NoAccess};
-        case D3D_SIT_SAMPLER:
-        {
+        case D3D_SIT_SAMPLER: {
             if (flags & D3D_SIF_COMPARISON_SAMPLER)
             {
                 return {ReflectedShaderDataType::ComparisonSampler, StorageResourceAccess::NoAccess};
@@ -258,10 +249,8 @@ namespace Nexus::Graphics
         }
     }
 
-    static void ExtractResource(
-        ShaderReflectionData &reflectionData, D3D12_SHADER_INPUT_BIND_DESC resource,
-        Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection
-    )
+    static void ExtractResource(ShaderReflectionData &reflectionData, D3D12_SHADER_INPUT_BIND_DESC resource,
+                                Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shaderReflection)
     {
         auto [dataType, storageAccess] = ExtractShaderInputType(resource.Type, resource.uFlags);
 
@@ -276,9 +265,8 @@ namespace Nexus::Graphics
         reflectedResource.InstanceName = resource.Name;
     }
 
-    void ShaderModuleD3D12::ReflectShader(
-        Microsoft::WRL::ComPtr<IDxcUtils> utils, Microsoft::WRL::ComPtr<IDxcResult> compileResult
-    )
+    void ShaderModuleD3D12::ReflectShader(Microsoft::WRL::ComPtr<IDxcUtils> utils,
+                                          Microsoft::WRL::ComPtr<IDxcResult> compileResult)
     {
         m_ReflectionData = {};
 

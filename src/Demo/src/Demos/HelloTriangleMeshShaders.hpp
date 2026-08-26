@@ -7,10 +7,9 @@ namespace Demos
     class HelloTriangleMeshShadersDemo : public Demo
     {
       public:
-        HelloTriangleMeshShadersDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        HelloTriangleMeshShadersDemo(const std::string &name, Nexus::Application *app,
+                                     Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                                     Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -93,12 +92,10 @@ namespace Demos
 
             pipelineDescription.MeshModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/mesh_shaders/hello_triangle_mesh.mesh.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Mesh
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Mesh);
             pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/mesh_shaders/hello_triangle_mesh.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment);
 
             m_Pipeline = m_GraphicsDevice->CreateMeshletPipeline(pipelineDescription);
         }

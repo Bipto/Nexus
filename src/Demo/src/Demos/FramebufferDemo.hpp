@@ -9,10 +9,9 @@ namespace Demos
     class FramebufferDemo : public Demo
     {
       public:
-        FramebufferDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        FramebufferDemo(const std::string &name, Nexus::Application *app,
+                        Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                        Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -49,8 +48,7 @@ namespace Demos
             m_CommandList->Begin();
             m_CommandList->SetFramebuffer(m_Framebuffer);
             m_CommandList->ClearColourTarget(
-                0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f}
-            );
+                0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f});
             m_CommandList->End();
             m_CommandQueue->SubmitCommandLists(&m_CommandList, 1);
 

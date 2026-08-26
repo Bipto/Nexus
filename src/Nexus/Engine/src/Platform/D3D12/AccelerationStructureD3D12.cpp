@@ -3,9 +3,8 @@
 
 namespace Nexus::Graphics
 {
-    AccelerationStructureD3D12::AccelerationStructureD3D12(
-        const AccelerationStructureDescription &desc, GraphicsDeviceD3D12 *device
-    )
+    AccelerationStructureD3D12::AccelerationStructureD3D12(const AccelerationStructureDescription &desc,
+                                                           GraphicsDeviceD3D12 *device)
         : m_Description(desc), m_Device(device)
     {
     }

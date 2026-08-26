@@ -179,11 +179,10 @@ namespace Nexus::Graphics
             {
                 VkImageLayout layout = Vk::GetImageLayout(executor->m_Device, textureBarrier.Layout);
                 const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-                Vk::CreateTextureBarrier2(
-                    executor->m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
-                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout,
-                    textureBarriersVk, ranges
-                );
+                Vk::CreateTextureBarrier2(executor->m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
+                                          textureBarrier.AfterAccess, textureBarrier.BeforeStage,
+                                          textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriersVk,
+                                          ranges);
             }
 
             for (const BufferBarrierDesc &bufferBarrier : cmd.BufferBarriers)
@@ -227,11 +226,10 @@ namespace Nexus::Graphics
             {
                 VkImageLayout layout = Vk::GetImageLayout(executor->m_Device, textureBarrier.Layout);
                 const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-                Vk::CreateTextureBarrier(
-                    executor->m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
-                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout,
-                    textureBarriersVk, ranges
-                );
+                Vk::CreateTextureBarrier(executor->m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
+                                         textureBarrier.AfterAccess, textureBarrier.BeforeStage,
+                                         textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriersVk,
+                                         ranges);
 
                 srcStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, textureBarrier.BeforeStage);
                 dstStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, textureBarrier.AfterStage);
@@ -244,12 +242,10 @@ namespace Nexus::Graphics
                 dstStageMask |= Vk::GetPipelineStageFlags(executor->m_Device, bufferBarrier.AfterStage);
             }
 
-            context.CmdPipelineBarrier(
-                executor->m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
-                static_cast<uint32_t>(memoryBarriersVk.size()), memoryBarriersVk.data(),
-                static_cast<uint32_t>(bufferBarriersVk.size()), bufferBarriersVk.data(),
-                static_cast<uint32_t>(textureBarriersVk.size()), textureBarriersVk.data()
-            );
+            context.CmdPipelineBarrier(executor->m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
+                                       static_cast<uint32_t>(memoryBarriersVk.size()), memoryBarriersVk.data(),
+                                       static_cast<uint32_t>(bufferBarriersVk.size()), bufferBarriersVk.data(),
+                                       static_cast<uint32_t>(textureBarriersVk.size()), textureBarriersVk.data());
         }
 
         // update texture layouts
@@ -301,15 +297,13 @@ namespace Nexus::Graphics
 
         if (context.CmdBindVertexBuffers2)
         {
-            context.CmdBindVertexBuffers2(
-                executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets, sizes, nullptr
-            );
+            context.CmdBindVertexBuffers2(executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets, sizes,
+                                          nullptr);
         }
         else if (context.CmdBindVertexBuffers2EXT)
         {
-            context.CmdBindVertexBuffers2EXT(
-                executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets, sizes, nullptr
-            );
+            context.CmdBindVertexBuffers2EXT(executor->m_CommandBuffer, cmd.Slot, 1, vertexBuffers, offsets, sizes,
+                                             nullptr);
         }
         else
         {
@@ -418,9 +412,8 @@ namespace Nexus::Graphics
         executor->BindGraphicsPipeline();
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-        context.CmdDraw(
-            executor->m_CommandBuffer, cmd.VertexCount, cmd.InstanceCount, cmd.VertexStart, cmd.InstanceStart
-        );
+        context.CmdDraw(executor->m_CommandBuffer, cmd.VertexCount, cmd.InstanceCount, cmd.VertexStart,
+                        cmd.InstanceStart);
     }
 
     static void DrawIndexed(const CommandHeader *header, CommandListStorage &storage, void *data)
@@ -440,10 +433,8 @@ namespace Nexus::Graphics
         executor->BindGraphicsPipeline();
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-        context.CmdDrawIndexed(
-            executor->m_CommandBuffer, cmd.IndexCount, cmd.InstanceCount, cmd.IndexStart, cmd.VertexStart,
-            cmd.InstanceStart
-        );
+        context.CmdDrawIndexed(executor->m_CommandBuffer, cmd.IndexCount, cmd.InstanceCount, cmd.IndexStart,
+                               cmd.VertexStart, cmd.InstanceStart);
     }
 
     static void DrawIndirect(const CommandHeader *header, CommandListStorage &storage, void *data)
@@ -467,9 +458,8 @@ namespace Nexus::Graphics
             executor->BindGraphicsPipeline();
 
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-            context.CmdDrawIndirect(
-                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount, cmd.Stride
-            );
+            context.CmdDrawIndirect(executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount,
+                                    cmd.Stride);
         }
     }
 
@@ -494,9 +484,8 @@ namespace Nexus::Graphics
             executor->BindGraphicsPipeline();
 
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-            context.CmdDrawIndexedIndirect(
-                executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount, cmd.Stride
-            );
+            context.CmdDrawIndexedIndirect(executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset,
+                                           cmd.DrawCount, cmd.Stride);
         }
     }
 
@@ -559,9 +548,8 @@ namespace Nexus::Graphics
 
         if (context.CmdDrawMeshTasksEXT)
         {
-            context.CmdDrawMeshTasksEXT(
-                executor->m_CommandBuffer, cmd.WorkGroupCountX, cmd.WorkGroupCountY, cmd.WorkGroupCountZ
-            );
+            context.CmdDrawMeshTasksEXT(executor->m_CommandBuffer, cmd.WorkGroupCountX, cmd.WorkGroupCountY,
+                                        cmd.WorkGroupCountZ);
         }
     }
 
@@ -589,9 +577,8 @@ namespace Nexus::Graphics
 
             if (context.CmdDrawMeshTasksIndirectEXT)
             {
-                context.CmdDrawMeshTasksIndirectEXT(
-                    executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(), cmd.Offset, cmd.DrawCount, cmd.Stride
-                );
+                context.CmdDrawMeshTasksIndirectEXT(executor->m_CommandBuffer, indirectBuffer->GetVkBuffer(),
+                                                    cmd.Offset, cmd.DrawCount, cmd.Stride);
             }
         }
     }
@@ -606,30 +593,22 @@ namespace Nexus::Graphics
 
         if (context.CmdTraceRaysKHR)
         {
-            VkStridedDeviceAddressRegionKHR raygenRegion = {
-                .deviceAddress = cmd.RaygenRegion.Address,
-                .stride = cmd.RaygenRegion.Size,
-                .size = cmd.RaygenRegion.Size
-            };
+            VkStridedDeviceAddressRegionKHR raygenRegion = {.deviceAddress = cmd.RaygenRegion.Address,
+                                                            .stride = cmd.RaygenRegion.Size,
+                                                            .size = cmd.RaygenRegion.Size};
 
             VkStridedDeviceAddressRegionKHR missRegion = {
-                .deviceAddress = cmd.MissRegion.Address, .stride = cmd.MissRegion.Stride, .size = cmd.MissRegion.Size
-            };
+                .deviceAddress = cmd.MissRegion.Address, .stride = cmd.MissRegion.Stride, .size = cmd.MissRegion.Size};
 
             VkStridedDeviceAddressRegionKHR hitRegion = {
-                .deviceAddress = cmd.HitRegion.Address, .stride = cmd.HitRegion.Stride, .size = cmd.HitRegion.Size
-            };
+                .deviceAddress = cmd.HitRegion.Address, .stride = cmd.HitRegion.Stride, .size = cmd.HitRegion.Size};
 
-            VkStridedDeviceAddressRegionKHR callableRegion = {
-                .deviceAddress = cmd.CallableRegion.Address,
-                .stride = cmd.CallableRegion.Stride,
-                .size = cmd.CallableRegion.Size
-            };
+            VkStridedDeviceAddressRegionKHR callableRegion = {.deviceAddress = cmd.CallableRegion.Address,
+                                                              .stride = cmd.CallableRegion.Stride,
+                                                              .size = cmd.CallableRegion.Size};
 
-            context.CmdTraceRaysKHR(
-                executor->m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, cmd.Width,
-                cmd.Height, cmd.Depth
-            );
+            context.CmdTraceRaysKHR(executor->m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion,
+                                    cmd.Width, cmd.Height, cmd.Depth);
         }
     }
 
@@ -729,10 +708,8 @@ namespace Nexus::Graphics
             }
             else
             {
-                context.CmdPushConstants(
-                    executor->m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(), cmd.Offset,
-                    cmd.Data.size(), cmd.Data.data()
-                );
+                context.CmdPushConstants(executor->m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(),
+                                         cmd.Offset, cmd.Data.size(), cmd.Data.data());
             }
         }
     }
@@ -789,10 +766,8 @@ namespace Nexus::Graphics
                 bufferCopy.size = copy.Size;
             }
 
-            context.CmdCopyBuffer(
-                executor->m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(),
-                bufferCopies.data()
-            );
+            context.CmdCopyBuffer(executor->m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(),
+                                  bufferCopies.size(), bufferCopies.data());
         }
     }
 
@@ -878,10 +853,8 @@ namespace Nexus::Graphics
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
 
-                context.CmdCopyBufferToImage(
-                    executor->m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
-                );
+                context.CmdCopyBufferToImage(executor->m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(),
+                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
             }
         }
     }
@@ -969,10 +942,9 @@ namespace Nexus::Graphics
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
 
-                context.CmdCopyImageToBuffer(
-                    executor->m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    buffer->GetVkBuffer(), 1, &copyRegion
-                );
+                context.CmdCopyImageToBuffer(executor->m_CommandBuffer, texture->GetImage(),
+                                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1,
+                                             &copyRegion);
             }
         }
     }
@@ -1086,10 +1058,9 @@ namespace Nexus::Graphics
                 // copy extents
                 copyRegion.extent = copyExtent;
 
-                context.CmdCopyImage(
-                    executor->m_CommandBuffer, srcTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    dstTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
-                );
+                context.CmdCopyImage(executor->m_CommandBuffer, srcTexture->GetImage(),
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstTexture->GetImage(),
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
             }
         }
     }
@@ -1190,10 +1161,8 @@ namespace Nexus::Graphics
             resolve.srcSubresource = srcSubresource;
             resolve.dstSubresource = dstSubresource;
 
-            context.CmdResolveImage(
-                executor->m_CommandBuffer, source->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                destination->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve
-            );
+            context.CmdResolveImage(executor->m_CommandBuffer, source->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                    destination->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve);
         }
 
         executor->BindFramebufferImpl(executor->m_CurrentRenderTarget);
@@ -1210,9 +1179,8 @@ namespace Nexus::Graphics
         {
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
             context.CmdResetQueryPool(executor->m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
-            context.CmdWriteTimestamp(
-                executor->m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0
-            );
+            context.CmdWriteTimestamp(executor->m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                      queryVk->GetQueryPool(), 0);
         }
     }
 
@@ -1226,9 +1194,8 @@ namespace Nexus::Graphics
         if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
         {
             const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
-            context.CmdWriteTimestamp(
-                executor->m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1
-            );
+            context.CmdWriteTimestamp(executor->m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                      queryVk->GetQueryPool(), 1);
         }
     }
 
@@ -1342,9 +1309,8 @@ namespace Nexus::Graphics
 
         const auto &cmd = storage.CommandDatas.SetBlendFactorCommands.at(header->CommandOffset);
 
-        float blendConstants[4] = {
-            cmd.BlendFactor.Red, cmd.BlendFactor.Green, cmd.BlendFactor.Blue, cmd.BlendFactor.Alpha
-        };
+        float blendConstants[4] = {cmd.BlendFactor.Red, cmd.BlendFactor.Green, cmd.BlendFactor.Blue,
+                                   cmd.BlendFactor.Alpha};
 
         const GladVulkanContext &context = executor->m_Device->GetVulkanContext();
         context.CmdSetBlendConstants(executor->m_CommandBuffer, blendConstants);
@@ -1382,9 +1348,8 @@ namespace Nexus::Graphics
         for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : cmd.BuildDescriptions)
         {
             // validate that required members have been filled in correctly
-            NX_VALIDATE(
-                buildGeometryInfo.Destination.IsValid(), "Acceleration structure build must have a destination"
-            );
+            NX_VALIDATE(buildGeometryInfo.Destination.IsValid(),
+                        "Acceleration structure build must have a destination");
             NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
 
             if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
@@ -1420,9 +1385,8 @@ namespace Nexus::Graphics
         }
 
         // execute the acceleration structure build
-        context.CmdBuildAccelerationStructuresKHR(
-            executor->m_CommandBuffer, buildGeometries.size(), buildGeometries.data(), buildRangePtrs.data()
-        );
+        context.CmdBuildAccelerationStructuresKHR(executor->m_CommandBuffer, buildGeometries.size(),
+                                                  buildGeometries.data(), buildRangePtrs.data());
     }
 
     static void CopyAccelerationStructures(const CommandHeader *header, CommandListStorage &storage, void *data)
@@ -1432,18 +1396,16 @@ namespace Nexus::Graphics
         const auto &cmd = storage.CommandDatas.CopyAccelerationStructuresCommands.at(header->CommandOffset);
     }
 
-    static void CopyAccelerationStructureToDeviceBuffer(
-        const CommandHeader *header, CommandListStorage &storage, void *data
-    )
+    static void CopyAccelerationStructureToDeviceBuffer(const CommandHeader *header, CommandListStorage &storage,
+                                                        void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
         const auto &cmd = storage.CommandDatas.CopyAccelerationStructureDeviceBufferCommands.at(header->CommandOffset);
     }
 
-    static void CopyDeviceBufferToAccelerationStructure(
-        const CommandHeader *header, CommandListStorage &storage, void *data
-    )
+    static void CopyDeviceBufferToAccelerationStructure(const CommandHeader *header, CommandListStorage &storage,
+                                                        void *data)
     {
         CommandExecutorVk *executor = reinterpret_cast<CommandExecutorVk *>(data);
 
@@ -1457,10 +1419,8 @@ namespace Nexus::Graphics
         const auto &cmd = storage.CommandDatas.EndRenderingCommands.at(header->CommandOffset);
     }
 
-    static void BeginRenderPass(
-        GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo, VkSubpassContents subpassContents,
-        VkCommandBuffer commandBuffer
-    )
+    static void BeginRenderPass(GraphicsDeviceVk *device, const VkRenderPassBeginInfo &beginInfo,
+                                VkSubpassContents subpassContents, VkCommandBuffer commandBuffer)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1481,9 +1441,8 @@ namespace Nexus::Graphics
         }
     }
 
-    static void BeginDynamicRenderingToFramebuffer(
-        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
-    )
+    static void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, FramebufferHandle framebuffer,
+                                                   VkCommandBuffer commandBuffer)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1503,9 +1462,8 @@ namespace Nexus::Graphics
                 framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
 
             const TextureVk *texture = textureBinding.ColourAttachment.TargetTexture.AsDerived<const TextureVk>();
-            TextureLayout layout = texture->GetTextureLayout(
-                textureBinding.ColourAttachment.BaseArrayLayer, textureBinding.ColourAttachment.MipLevel
-            );
+            TextureLayout layout = texture->GetTextureLayout(textureBinding.ColourAttachment.BaseArrayLayer,
+                                                             textureBinding.ColourAttachment.MipLevel);
 
             FramebufferColourAttachmentDescription colourAttachmentDesc =
                 framebuffer->GetColorTextureBinding(colourAttachmentIndex).value();
@@ -1593,9 +1551,8 @@ namespace Nexus::Graphics
         context.CmdBeginRenderingKHR(commandBuffer, &renderingInfo);
     }
 
-    static void BeginRenderPassToFramebuffer(
-        GraphicsDeviceVk *device, FramebufferHandle framebuffer, VkCommandBuffer commandBuffer
-    )
+    static void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, FramebufferHandle framebuffer,
+                                             VkCommandBuffer commandBuffer)
     {
         NX_PROFILE_FUNCTION();
 
@@ -1867,9 +1824,8 @@ namespace Nexus::Graphics
         BindGraphicsPipeline();
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.CmdDraw(
-            m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart
-        );
+        context.CmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart,
+                        command.InstanceStart);
     }
 
     void CommandExecutorVk::ExecuteCommand(const DrawIndexedDescription &command, IGraphicsDevice *device)
@@ -1885,10 +1841,8 @@ namespace Nexus::Graphics
         BindGraphicsPipeline();
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
-        context.CmdDrawIndexed(
-            m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart,
-            command.InstanceStart
-        );
+        context.CmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart,
+                               command.VertexStart, command.InstanceStart);
     }
 
     void CommandExecutorVk::ExecuteCommand(const DrawIndirectDescription &command, IGraphicsDevice *device)
@@ -1906,9 +1860,8 @@ namespace Nexus::Graphics
             BindGraphicsPipeline();
 
             const GladVulkanContext &context = m_Device->GetVulkanContext();
-            context.CmdDrawIndirect(
-                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride
-            );
+            context.CmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount,
+                                    command.Stride);
         }
     }
 
@@ -1927,9 +1880,8 @@ namespace Nexus::Graphics
             BindGraphicsPipeline();
 
             const GladVulkanContext &context = m_Device->GetVulkanContext();
-            context.CmdDrawIndexedIndirect(
-                m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride
-            );
+            context.CmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset,
+                                           command.DrawCount, command.Stride);
         }
     }
 
@@ -1980,9 +1932,8 @@ namespace Nexus::Graphics
 
         if (context.CmdDrawMeshTasksEXT)
         {
-            context.CmdDrawMeshTasksEXT(
-                m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ
-            );
+            context.CmdDrawMeshTasksEXT(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY,
+                                        command.WorkGroupCountZ);
         }
     }
 
@@ -2004,9 +1955,8 @@ namespace Nexus::Graphics
 
             if (context.CmdDrawMeshTasksIndirectEXT)
             {
-                context.CmdDrawMeshTasksIndirectEXT(
-                    m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride
-                );
+                context.CmdDrawMeshTasksIndirectEXT(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset,
+                                                    command.DrawCount, command.Stride);
             }
         }
     }
@@ -2037,9 +1987,8 @@ namespace Nexus::Graphics
 
         VkClearAttachment clearAttachment{};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        clearAttachment.clearValue.color = {
-            command.Colour.Red, command.Colour.Green, command.Colour.Blue, command.Colour.Alpha
-        };
+        clearAttachment.clearValue.color = {command.Colour.Red, command.Colour.Green, command.Colour.Blue,
+                                            command.Colour.Alpha};
         clearAttachment.colorAttachment = command.Index;
 
         VkClearRect clearRect;
@@ -2258,10 +2207,8 @@ namespace Nexus::Graphics
             resolve.srcSubresource = srcSubresource;
             resolve.dstSubresource = dstSubresource;
 
-            context.CmdResolveImage(
-                m_CommandBuffer, source->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, destination->GetImage(),
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve
-            );
+            context.CmdResolveImage(m_CommandBuffer, source->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                    destination->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve);
         }
 
         ExecuteCommand(m_CurrentRenderTarget, device);
@@ -2288,9 +2235,8 @@ namespace Nexus::Graphics
         if (TimingQueryVk *queryVk = queryHandle.AsDerived<TimingQueryVk>())
         {
             const GladVulkanContext &context = m_Device->GetVulkanContext();
-            context.CmdWriteTimestamp(
-                m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1
-            );
+            context.CmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(),
+                                      1);
         }
     }
 
@@ -2344,9 +2290,8 @@ namespace Nexus::Graphics
                 bufferCopy.size = copy.Size;
             }
 
-            context.CmdCopyBuffer(
-                m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(), bufferCopies.data()
-            );
+            context.CmdCopyBuffer(m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), bufferCopies.size(),
+                                  bufferCopies.data());
         }
     }
 
@@ -2432,10 +2377,8 @@ namespace Nexus::Graphics
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
 
-                context.CmdCopyBufferToImage(
-                    m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    1, &copyRegion
-                );
+                context.CmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(),
+                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
             }
         }
     }
@@ -2523,10 +2466,8 @@ namespace Nexus::Graphics
                 copyRegion.imageOffset = imageOffset;
                 copyRegion.imageExtent = imageExtent;
 
-                context.CmdCopyImageToBuffer(
-                    m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(),
-                    1, &copyRegion
-                );
+                context.CmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                             buffer->GetVkBuffer(), 1, &copyRegion);
             }
         }
     }
@@ -2640,10 +2581,8 @@ namespace Nexus::Graphics
                 // copy extents
                 copyRegion.extent = copyExtent;
 
-                context.CmdCopyImage(
-                    m_CommandBuffer, srcTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    dstTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion
-                );
+                context.CmdCopyImage(m_CommandBuffer, srcTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     dstTexture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
             }
         }
     }
@@ -2749,9 +2688,8 @@ namespace Nexus::Graphics
     {
         NX_PROFILE_FUNCTION();
 
-        float blendConstants[4] = {
-            command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue, command.BlendFactor.Alpha
-        };
+        float blendConstants[4] = {command.BlendFactor.Red, command.BlendFactor.Green, command.BlendFactor.Blue,
+                                   command.BlendFactor.Alpha};
 
         const GladVulkanContext &context = m_Device->GetVulkanContext();
         context.CmdSetBlendConstants(m_CommandBuffer, blendConstants);
@@ -2785,9 +2723,8 @@ namespace Nexus::Graphics
         for (const AccelerationStructureGeometryBuildDescription &buildGeometryInfo : command.BuildDescriptions)
         {
             // validate that required members have been filled in correctly
-            NX_VALIDATE(
-                buildGeometryInfo.Destination.IsValid(), "Acceleration structure build must have a destination"
-            );
+            NX_VALIDATE(buildGeometryInfo.Destination.IsValid(),
+                        "Acceleration structure build must have a destination");
             NX_VALIDATE(buildGeometryInfo.ScratchBuffer, "Acceleration structure build must have a scratch buffer");
 
             if (buildGeometryInfo.Mode == AccelerationStructureBuildMode::Update)
@@ -2823,9 +2760,8 @@ namespace Nexus::Graphics
         }
 
         // execute the acceleration structure build
-        context.CmdBuildAccelerationStructuresKHR(
-            m_CommandBuffer, buildGeometries.size(), buildGeometries.data(), buildRangePtrs.data()
-        );
+        context.CmdBuildAccelerationStructuresKHR(m_CommandBuffer, buildGeometries.size(), buildGeometries.data(),
+                                                  buildRangePtrs.data());
     }
 
     void CommandExecutorVk::ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device)
@@ -2833,16 +2769,14 @@ namespace Nexus::Graphics
         NX_PROFILE_FUNCTION();
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command,
+                                           IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
     }
 
-    void CommandExecutorVk::ExecuteCommand(
-        const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device
-    )
+    void CommandExecutorVk::ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command,
+                                           IGraphicsDevice *device)
     {
         NX_PROFILE_FUNCTION();
     }
@@ -2892,10 +2826,8 @@ namespace Nexus::Graphics
             }
             else
             {
-                context.CmdPushConstants(
-                    m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(), command.Offset,
-                    command.Data.size(), command.Data.data()
-                );
+                context.CmdPushConstants(m_CommandBuffer, pipeline->GetPipelineLayout(), stageFlags.value(),
+                                         command.Offset, command.Data.size(), command.Data.data());
             }
         }
     }
@@ -2967,11 +2899,10 @@ namespace Nexus::Graphics
             {
                 VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
                 const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-                Vk::CreateTextureBarrier2(
-                    m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
-                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriers,
-                    ranges
-                );
+                Vk::CreateTextureBarrier2(m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
+                                          textureBarrier.AfterAccess, textureBarrier.BeforeStage,
+                                          textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriers,
+                                          ranges);
             }
 
             for (const BufferBarrierDesc &bufferBarrier : command.BufferBarriers)
@@ -3015,11 +2946,10 @@ namespace Nexus::Graphics
             {
                 VkImageLayout layout = Vk::GetImageLayout(m_Device, textureBarrier.Layout);
                 const TextureVk *textureVk = textureBarrier.Texture.AsDerived<const TextureVk>();
-                Vk::CreateTextureBarrier(
-                    m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess, textureBarrier.AfterAccess,
-                    textureBarrier.BeforeStage, textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriers,
-                    ranges
-                );
+                Vk::CreateTextureBarrier(m_Device, textureVk->GetImage(), textureBarrier.BeforeAccess,
+                                         textureBarrier.AfterAccess, textureBarrier.BeforeStage,
+                                         textureBarrier.AfterStage, srcQueue, dstQueue, layout, textureBarriers,
+                                         ranges);
 
                 srcStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.BeforeStage);
                 dstStageMask |= Vk::GetPipelineStageFlags(m_Device, textureBarrier.AfterStage);
@@ -3032,12 +2962,10 @@ namespace Nexus::Graphics
                 dstStageMask |= Vk::GetPipelineStageFlags(m_Device, bufferBarrier.AfterStage);
             }
 
-            context.CmdPipelineBarrier(
-                m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
-                static_cast<uint32_t>(memoryBarriers.size()), memoryBarriers.data(),
-                static_cast<uint32_t>(bufferBarriers.size()), bufferBarriers.data(),
-                static_cast<uint32_t>(textureBarriers.size()), textureBarriers.data()
-            );
+            context.CmdPipelineBarrier(m_CommandBuffer, srcStageMask, dstStageMask, dependencyFlags,
+                                       static_cast<uint32_t>(memoryBarriers.size()), memoryBarriers.data(),
+                                       static_cast<uint32_t>(bufferBarriers.size()), bufferBarriers.data(),
+                                       static_cast<uint32_t>(textureBarriers.size()), textureBarriers.data());
         }
 
         // update texture layouts
@@ -3072,30 +3000,23 @@ namespace Nexus::Graphics
 
         if (context.CmdTraceRaysKHR)
         {
-            VkStridedDeviceAddressRegionKHR raygenRegion = {
-                .deviceAddress = desc.RaygenRegion.Address,
-                .stride = desc.RaygenRegion.Size,
-                .size = desc.RaygenRegion.Size
-            };
+            VkStridedDeviceAddressRegionKHR raygenRegion = {.deviceAddress = desc.RaygenRegion.Address,
+                                                            .stride = desc.RaygenRegion.Size,
+                                                            .size = desc.RaygenRegion.Size};
 
-            VkStridedDeviceAddressRegionKHR missRegion = {
-                .deviceAddress = desc.MissRegion.Address, .stride = desc.MissRegion.Stride, .size = desc.MissRegion.Size
-            };
+            VkStridedDeviceAddressRegionKHR missRegion = {.deviceAddress = desc.MissRegion.Address,
+                                                          .stride = desc.MissRegion.Stride,
+                                                          .size = desc.MissRegion.Size};
 
             VkStridedDeviceAddressRegionKHR hitRegion = {
-                .deviceAddress = desc.HitRegion.Address, .stride = desc.HitRegion.Stride, .size = desc.HitRegion.Size
-            };
+                .deviceAddress = desc.HitRegion.Address, .stride = desc.HitRegion.Stride, .size = desc.HitRegion.Size};
 
-            VkStridedDeviceAddressRegionKHR callableRegion = {
-                .deviceAddress = desc.CallableRegion.Address,
-                .stride = desc.CallableRegion.Stride,
-                .size = desc.CallableRegion.Size
-            };
+            VkStridedDeviceAddressRegionKHR callableRegion = {.deviceAddress = desc.CallableRegion.Address,
+                                                              .stride = desc.CallableRegion.Stride,
+                                                              .size = desc.CallableRegion.Size};
 
-            context.CmdTraceRaysKHR(
-                m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion, desc.Width, desc.Height,
-                desc.Depth
-            );
+            context.CmdTraceRaysKHR(m_CommandBuffer, &raygenRegion, &missRegion, &hitRegion, &callableRegion,
+                                    desc.Width, desc.Height, desc.Depth);
         }
     }
 

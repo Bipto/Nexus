@@ -20,10 +20,9 @@ namespace Demos
     class Demo3D : public Demo
     {
       public:
-        Demo3D(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        Demo3D(const std::string &name, Nexus::Application *app,
+               Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+               Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -40,8 +39,7 @@ namespace Demos
             auto [texture, textureView] = Nexus::Utils::CreateTexture2DWithView(
                 m_CommandQueue,
                 Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg").c_str(),
-                true
-            );
+                true);
 
             m_Texture = texture;
             m_TextureView = textureView;
@@ -87,10 +85,9 @@ namespace Demos
 
         virtual void Render(Nexus::TimeSpan time) override
         {
-            m_TransformUniforms.Transform = glm::rotate(
-                glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds<float>() * 100.0f),
-                glm::vec3(0.0f, 1.0f, 1.0f)
-            );
+            m_TransformUniforms.Transform =
+                glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds<float>() * 100.0f),
+                            glm::vec3(0.0f, 1.0f, 1.0f));
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
             auto [width, height] = m_Window->GetWindowSize();
@@ -171,12 +168,10 @@ namespace Demos
 
             pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/3d/3d.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/3d/3d.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment);
 
             pipelineDescription.ColourTargetCount = 1;
             pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
@@ -185,22 +180,16 @@ namespace Demos
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceDescription.Descriptors = {
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_Texture",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Camera",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Transform",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                }
-            };
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_Texture",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Transform",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1}};
 
             m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

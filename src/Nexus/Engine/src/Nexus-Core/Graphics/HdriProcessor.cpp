@@ -78,9 +78,8 @@ namespace Nexus::Graphics
 
         if (m_Device->GetGraphicsAPI().API == GraphicsAPI::OpenGL)
         {
-            Utils::FlipPixelsHorizontally(
-                pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float
-            );
+            Utils::FlipPixelsHorizontally(pixels.data(), m_Width, m_Height,
+                                          Graphics::PixelFormat::R32_G32_B32_A32_Float);
         }
 
         Graphics::TextureDescription textureDesc = {};
@@ -98,12 +97,10 @@ namespace Nexus::Graphics
         Graphics::TextureViewDescription cubemapViewDesc = {};
         cubemapViewDesc.TargetTexture = m_HdriImage;
         cubemapViewDesc.Format = m_HdriImage->GetPixelFormat();
-        cubemapViewDesc.Range = {
-            .BaseMipLevel = 0,
-            .LevelCount = m_HdriImage->GetMipLevels(),
-            .BaseArrayLayer = 0,
-            .LayerCount = m_HdriImage->GetDepthOrArrayLayers()
-        };
+        cubemapViewDesc.Range = {.BaseMipLevel = 0,
+                                 .LevelCount = m_HdriImage->GetMipLevels(),
+                                 .BaseArrayLayer = 0,
+                                 .LayerCount = m_HdriImage->GetDepthOrArrayLayers()};
         cubemapViewDesc.DebugName = "HDRI View";
         m_HdriView = m_Device->CreateTextureView(cubemapViewDesc);
     }
@@ -137,13 +134,11 @@ namespace Nexus::Graphics
 
         pipelineDescription.VertexModule = Nexus::Utils::CreateShaderModuleFromSpirvSource(
             m_Device, HdriVertexShaderSource, "hdri.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Vertex
-        );
+            Nexus::Graphics::ShaderStage::Vertex);
 
         pipelineDescription.FragmentModule = Nexus::Utils::CreateShaderModuleFromSpirvSource(
             m_Device, HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Fragment
-        );
+            Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.ColourFormats[0] = framebufferSpec.ColourAttachmentFormats[0];
         pipelineDescription.ColourTargetCount = 1;
@@ -152,17 +147,12 @@ namespace Nexus::Graphics
         pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
         pipelineDescription.ResourceDescription.Descriptors = {
-            Nexus::Graphics::ResourceDescriptor{
-                .Name = "u_EquirectangularMap",
-                .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                .CountOrSizeInBytes = 1
-            },
-            Nexus::Graphics::ResourceDescriptor{
-                .Name = "Camera",
-                .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                .CountOrSizeInBytes = 1
-            }
-        };
+            Nexus::Graphics::ResourceDescriptor{.Name = "u_EquirectangularMap",
+                                                .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                .CountOrSizeInBytes = 1},
+            Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                .CountOrSizeInBytes = 1}};
 
         PipelineHandle pipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
         ResourceSetHandle resourceSet = m_Device->CreateResourceSet(pipeline);
@@ -293,16 +283,13 @@ namespace Nexus::Graphics
     {
         TextureHandle cubemap = Generate(size);
 
-        Graphics::TextureViewDescription cubemapViewDesc = {
-            .TargetTexture = cubemap,
-            .Format = cubemap->GetPixelFormat(),
-            .Range =
-                {.BaseMipLevel = 0,
-                 .LevelCount = cubemap->GetMipLevels(),
-                 .BaseArrayLayer = 0,
-                 .LayerCount = cubemap->GetDepthOrArrayLayers()},
-            .DebugName = "Cubemap View"
-        };
+        Graphics::TextureViewDescription cubemapViewDesc = {.TargetTexture = cubemap,
+                                                            .Format = cubemap->GetPixelFormat(),
+                                                            .Range = {.BaseMipLevel = 0,
+                                                                      .LevelCount = cubemap->GetMipLevels(),
+                                                                      .BaseArrayLayer = 0,
+                                                                      .LayerCount = cubemap->GetDepthOrArrayLayers()},
+                                                            .DebugName = "Cubemap View"};
 
         return m_Device->CreateTextureView(cubemapViewDesc);
     }

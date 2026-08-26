@@ -9,9 +9,8 @@ namespace Nexus
 
     void Engine::CreateGraphicsResources()
     {
-        Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {
-            .API = Nexus::Graphics::GraphicsAPI::OpenGL, .Debug = true
-        };
+        Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {.API = Nexus::Graphics::GraphicsAPI::OpenGL,
+                                                                .Debug = true};
         m_GraphicsAPI =
             std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo));
 

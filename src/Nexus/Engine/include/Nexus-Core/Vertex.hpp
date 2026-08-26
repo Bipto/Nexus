@@ -31,8 +31,7 @@ namespace Nexus::Graphics
             Nexus::Graphics::VertexBufferLayout layout = {
                 {{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
                 sizeof(VertexPosition),
-                StepRate::Vertex
-            };
+                StepRate::Vertex};
 
             return layout;
         }
@@ -72,8 +71,7 @@ namespace Nexus::Graphics
                 {{Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
                  {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"}},
                 sizeof(VertexPositionTexCoord),
-                StepRate::Vertex
-            };
+                StepRate::Vertex};
             return layout;
         }
     };
@@ -118,8 +116,7 @@ namespace Nexus::Graphics
                  {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
                  {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"}},
                 sizeof(VertexPositionTexCoordColor),
-                StepRate::Vertex
-            };
+                StepRate::Vertex};
             return layout;
         }
     };
@@ -164,8 +161,7 @@ namespace Nexus::Graphics
                  {Nexus::Graphics::ShaderDataType::R32G32_SFloat, "TEXCOORD"},
                  {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
                 sizeof(VertexPositionTexCoordNormal),
-                StepRate::Vertex
-            };
+                StepRate::Vertex};
             return layout;
         }
     };
@@ -200,10 +196,9 @@ namespace Nexus::Graphics
         /// representing the texture coordinates
         /// @param normal A const reference to 3 floating point values representing
         /// the normal
-        VertexPositionTexCoordNormalTangentBitangent(
-            const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec3 &normal, const glm::vec3 &tangent,
-            const glm::vec3 &bitangent
-        )
+        VertexPositionTexCoordNormalTangentBitangent(const glm::vec3 &position, const glm::vec2 &texCoords,
+                                                     const glm::vec3 &normal, const glm::vec3 &tangent,
+                                                     const glm::vec3 &bitangent)
             : Position(position), TexCoords(texCoords), Normal(normal), Tangent(tangent), Bitangent(bitangent)
         {
         }
@@ -221,8 +216,7 @@ namespace Nexus::Graphics
                  {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
                  {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
                 sizeof(VertexPositionTexCoordNormalTangentBitangent),
-                StepRate::Vertex
-            };
+                StepRate::Vertex};
             return layout;
         }
     };
@@ -260,10 +254,9 @@ namespace Nexus::Graphics
         /// representing the texture coordinates
         /// @param normal A const reference to 3 floating point values representing
         /// the normal
-        VertexPositionTexCoordNormalColourTangentBitangent(
-            const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec3 &normal, const glm::vec4 &colour,
-            const glm::vec3 &tangent, const glm::vec3 &bitangent
-        )
+        VertexPositionTexCoordNormalColourTangentBitangent(const glm::vec3 &position, const glm::vec2 &texCoords,
+                                                           const glm::vec3 &normal, const glm::vec4 &colour,
+                                                           const glm::vec3 &tangent, const glm::vec3 &bitangent)
             : Position(position), TexCoords(texCoords), Normal(normal), Colour(colour), Tangent(tangent),
               Bitangent(bitangent)
         {
@@ -283,8 +276,7 @@ namespace Nexus::Graphics
                  {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"},
                  {Nexus::Graphics::ShaderDataType::R32G32B32_SFloat, "TEXCOORD"}},
                 sizeof(VertexPositionTexCoordNormalColourTangentBitangent),
-                StepRate::Vertex
-            };
+                StepRate::Vertex};
             return layout;
         }
     };
@@ -292,7 +284,6 @@ namespace Nexus::Graphics
     namespace Utilities
     {
         NX_RHI_API std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
-            const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices
-        );
+            const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices);
     }
 } // namespace Nexus::Graphics

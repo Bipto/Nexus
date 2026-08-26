@@ -99,9 +99,8 @@ TEST(NamedJThread, WaitUntilStartedUnblocks)
 
 TEST(NamedJThread, WaitUntilStoppedUnblocks)
 {
-    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    });
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr,
+                          [&](std::stop_token) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); });
 
     t.WaitUntilStopped();
     EXPECT_FALSE(t.IsRunning());
@@ -112,10 +111,8 @@ TEST(NamedJThread, LifecycleCallbacksFire)
     std::atomic<bool> started = false;
     std::atomic<bool> stopped = false;
 
-    Nexus::NamedJThread t(
-        "test", [&]() { started = true; }, [&]() { stopped = true; }, nullptr,
-        [&](std::stop_token) { std::this_thread::sleep_for(std::chrono::milliseconds(5)); }
-    );
+    Nexus::NamedJThread t("test", [&]() { started = true; }, [&]() { stopped = true; }, nullptr,
+                          [&](std::stop_token) { std::this_thread::sleep_for(std::chrono::milliseconds(5)); });
 
     t.Join();
 
@@ -127,10 +124,8 @@ TEST(NamedJThread, OnExceptionFires)
 {
     std::atomic<bool> exceptionCaught = false;
 
-    Nexus::NamedJThread t(
-        "test", []() {}, []() {}, [&](std::exception_ptr exception) { exceptionCaught = true; },
-        [&](std::stop_token) { throw std::runtime_error("boom"); }
-    );
+    Nexus::NamedJThread t("test", []() {}, []() {}, [&](std::exception_ptr exception) { exceptionCaught = true; },
+                          [&](std::stop_token) { throw std::runtime_error("boom"); });
 
     EXPECT_THROW(t.Join(), std::runtime_error);
     EXPECT_TRUE(exceptionCaught.load());
@@ -156,9 +151,8 @@ TEST(NamedJThread, CancellationStopsThread)
 
 TEST(NamedJThread, UptimeIsPositive)
 {
-    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    });
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr,
+                          [&](std::stop_token) { std::this_thread::sleep_for(std::chrono::milliseconds(5)); });
 
     t.Join();
     EXPECT_GT(t.Uptime(), std::chrono::milliseconds(0));
@@ -194,9 +188,8 @@ TEST(NamedJThread, ArgumentForwardingWorks)
 {
     std::atomic<int> result = 0;
 
-    Nexus::NamedJThread t(
-        "test", nullptr, nullptr, nullptr, [&](std::stop_token, int a, int b) { result = a + b; }, 3, 4
-    );
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token, int a, int b) { result = a + b; }, 3,
+                          4);
 
     t.Join();
     EXPECT_EQ(result.load(), 7);

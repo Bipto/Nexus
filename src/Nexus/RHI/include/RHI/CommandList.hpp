@@ -958,8 +958,7 @@ namespace Nexus::Graphics
     {
       public:
         BuildAccelerationStructuresCommandImpl(
-            const std::vector<AccelerationStructureGeometryBuildDescription> &description
-        );
+            const std::vector<AccelerationStructureGeometryBuildDescription> &description);
         ~BuildAccelerationStructuresCommandImpl() final = default;
         void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
@@ -982,8 +981,7 @@ namespace Nexus::Graphics
     {
       public:
         CopyAccelerationStructureToDeviceBufferCommandImpl(
-            const AccelerationStructureDeviceBufferCopyDescription &description
-        );
+            const AccelerationStructureDeviceBufferCopyDescription &description);
         ~CopyAccelerationStructureToDeviceBufferCommandImpl() final = default;
         void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
@@ -995,8 +993,7 @@ namespace Nexus::Graphics
     {
       public:
         CopyDeviceBufferToAccelerationStructureCommandImpl(
-            const DeviceBufferAccelerationStructureCopyDescription &description
-        );
+            const DeviceBufferAccelerationStructureCopyDescription &description);
         ~CopyDeviceBufferToAccelerationStructureCommandImpl() final = default;
         void Execute(CommandExecutor *executor, IGraphicsDevice *device) const final;
 
@@ -1309,11 +1306,9 @@ namespace Nexus::Graphics
         void BuildAccelerationStructures(const std::vector<AccelerationStructureGeometryBuildDescription> &description);
         void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
         void CopyAccelerationStructureToDeviceBuffer(
-            const AccelerationStructureDeviceBufferCopyDescription &description
-        );
+            const AccelerationStructureDeviceBufferCopyDescription &description);
         void CopyDeviceBufferToAccelerationStructure(
-            const DeviceBufferAccelerationStructureCopyDescription &description
-        );
+            const DeviceBufferAccelerationStructureCopyDescription &description);
         void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
         void SubmitBarrierGroup(const BarrierGroupDescription &description);
         void EndRendering(FramebufferHandle handle);
@@ -1418,12 +1413,10 @@ namespace Nexus::Graphics
         void CopyAccelerationStructure(const AccelerationStructureCopyDescription &description);
 
         void CopyAccelerationStructureToDeviceBuffer(
-            const AccelerationStructureDeviceBufferCopyDescription &description
-        );
+            const AccelerationStructureDeviceBufferCopyDescription &description);
 
         void CopyDeviceBufferToAccelerationStructure(
-            const DeviceBufferAccelerationStructureCopyDescription &description
-        );
+            const DeviceBufferAccelerationStructureCopyDescription &description);
 
         void WritePushConstants(const std::string &name, const void *data, size_t size, size_t offset);
 

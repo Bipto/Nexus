@@ -7,10 +7,8 @@
 
 namespace Nexus::Processors
 {
-    GUID TextureProcessor::Process(
-        const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
-        Project *project
-    )
+    GUID TextureProcessor::Process(const std::string &filepath, Graphics::IGraphicsDevice *device,
+                                   Graphics::CommandQueueHandle commandQueue, Project *project)
     {
         std::vector<Graphics::Image> mips = {};
         Graphics::TextureHandle texture =
@@ -22,9 +20,8 @@ namespace Nexus::Processors
             {
                 Point2D<uint32_t> size =
                     Utils::GetMipSize(texture->GetDescription().Width, texture->GetDescription().Height, arrayLayer);
-                Graphics::Image mip = Graphics::Image::FromTexture(
-                    device, commandQueue, texture, arrayLayer, level, 0, 0, 0, size.X, size.Y
-                );
+                Graphics::Image mip = Graphics::Image::FromTexture(device, commandQueue, texture, arrayLayer, level, 0,
+                                                                   0, 0, size.X, size.Y);
 
                 if (device->GetGraphicsAPI().API == Graphics::GraphicsAPI::OpenGL)
                 {

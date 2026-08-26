@@ -6,9 +6,8 @@
 
 namespace Nexus::Graphics
 {
-    std::vector<std::string> GetSupportedInstanceExtensions(
-        const GladVulkanContext &context, std::shared_ptr<PhysicalDeviceVk> physicalDevice
-    )
+    std::vector<std::string> GetSupportedInstanceExtensions(const GladVulkanContext &context,
+                                                            std::shared_ptr<PhysicalDeviceVk> physicalDevice)
     {
         uint32_t count = 0;
         VkResult result = context.EnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
@@ -30,10 +29,10 @@ namespace Nexus::Graphics
         return extensions;
     }
 
-    VkResult CreateDebugUtilsMessengerEXT(
-        const GladVulkanContext &context, VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-        const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger
-    )
+    VkResult CreateDebugUtilsMessengerEXT(const GladVulkanContext &context, VkInstance instance,
+                                          const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                          const VkAllocationCallbacks *pAllocator,
+                                          VkDebugUtilsMessengerEXT *pDebugMessenger)
     {
         auto func =
             (PFN_vkCreateDebugUtilsMessengerEXT)context.GetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -47,14 +46,11 @@ namespace Nexus::Graphics
         }
     }
 
-    void DestroyDebugUtilsMessengerEXT(
-        const GladVulkanContext &context, VkInstance instance, VkDebugUtilsMessengerEXT messenger,
-        const VkAllocationCallbacks *pAllocator
-    )
+    void DestroyDebugUtilsMessengerEXT(const GladVulkanContext &context, VkInstance instance,
+                                       VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks *pAllocator)
     {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)context.GetInstanceProcAddr(
-            instance, "vkDestroyDebugUtilsMessengerEXT"
-        );
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)context.GetInstanceProcAddr(instance,
+                                                                                     "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr)
         {
             func(instance, messenger, pAllocator);
@@ -110,10 +106,10 @@ namespace Nexus::Graphics
         return extensionNames;
     }
 
-    VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData
-    )
+    VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                 VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                 const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                 void *pUserData)
     {
         if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
             std::cerr << "Validation layer: " << pCallbackData->pMessage << std::endl;
@@ -123,15 +119,13 @@ namespace Nexus::Graphics
     GraphicsAPI_Vk::GraphicsAPI_Vk(const GraphicsAPICreateInfo &createInfo) : m_CreateInfo(createInfo)
     {
         Vk::GladLoaderData emptyLoadData = {};
-        gladLoadVulkanContextUserPtr(
-            &m_Context, VK_NULL_HANDLE, (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &emptyLoadData
-        );
+        gladLoadVulkanContextUserPtr(&m_Context, VK_NULL_HANDLE,
+                                     (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &emptyLoadData);
 
         if (createInfo.Debug)
         {
-            NX_VALIDATE(
-                CheckValidationLayerSupport(m_Context), "Validation layers were requested, but are not available"
-            );
+            NX_VALIDATE(CheckValidationLayerSupport(m_Context),
+                        "Validation layers were requested, but are not available");
         }
 
         VkApplicationInfo appInfo = {};
@@ -185,15 +179,12 @@ namespace Nexus::Graphics
         instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
         instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-        NX_VALIDATE(
-            m_Context.CreateInstance(&instanceCreateInfo, nullptr, &m_Instance) == VK_SUCCESS,
-            "Failed to create Vulkan instance"
-        );
+        NX_VALIDATE(m_Context.CreateInstance(&instanceCreateInfo, nullptr, &m_Instance) == VK_SUCCESS,
+                    "Failed to create Vulkan instance");
 
         Vk::GladLoaderData loadData = {.instance = m_Instance, .device = VK_NULL_HANDLE};
-        gladLoadVulkanContextUserPtr(
-            &m_Context, VK_NULL_HANDLE, (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loadData
-        );
+        gladLoadVulkanContextUserPtr(&m_Context, VK_NULL_HANDLE,
+                                     (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loadData);
 
         if (createInfo.Debug)
         {
@@ -254,9 +245,8 @@ namespace Nexus::Graphics
         createInfo.pfnUserCallback = debugCallback;
         createInfo.pUserData = nullptr;
 
-        NX_VALIDATE(
-            CreateDebugUtilsMessengerEXT(m_Context, m_Instance, &createInfo, nullptr, &m_DebugMessenger) == VK_SUCCESS,
-            "Failed to create Debug Messenger"
-        );
+        NX_VALIDATE(CreateDebugUtilsMessengerEXT(m_Context, m_Instance, &createInfo, nullptr, &m_DebugMessenger) ==
+                        VK_SUCCESS,
+                    "Failed to create Debug Messenger");
     }
 } // namespace Nexus::Graphics

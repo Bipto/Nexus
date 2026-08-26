@@ -36,10 +36,8 @@ namespace Nexus
         /// @param ...args The arguments that will be forwarded into Callable
         /// @param
         template <typename Callable, typename... Args>
-        NamedJThread(
-            std::string_view name, std::function<void()> onStart, std::function<void()> onStop,
-            std::function<void(std::exception_ptr)> onException, Callable &&func, Args &&...args
-        );
+        NamedJThread(std::string_view name, std::function<void()> onStart, std::function<void()> onStop,
+                     std::function<void(std::exception_ptr)> onException, Callable &&func, Args &&...args);
 
         /// @brief Move constructor
         /// @param The other object to move into this instance

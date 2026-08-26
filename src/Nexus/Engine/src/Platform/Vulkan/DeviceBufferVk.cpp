@@ -18,13 +18,9 @@ namespace Nexus::Graphics
         else
         {
             VmaAllocationCreateInfo vmaAllocInfo = Vk::GetVmaAllocationCreateInfo(desc, device);
-            NX_VALIDATE(
-                vmaCreateBuffer(
-                    device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation,
-                    nullptr
-                ) == VK_SUCCESS,
-                "Failed to create buffer"
-            );
+            NX_VALIDATE(vmaCreateBuffer(device->GetAllocator(), &bufferCreateInfo, &vmaAllocInfo, &m_Buffer.Buffer,
+                                        &m_Buffer.Allocation, nullptr) == VK_SUCCESS,
+                        "Failed to create buffer");
         }
 
         device->SetObjectName(VK_OBJECT_TYPE_BUFFER, (uint64_t)m_Buffer.Buffer, desc.DebugName.c_str());
@@ -37,10 +33,8 @@ namespace Nexus::Graphics
 
     void DeviceBufferVk::SetData(const void *data, uint32_t offset, uint32_t size)
     {
-        NX_VALIDATE(
-            m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
-            "Buffer must have been created with Upload access"
-        );
+        NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
+                    "Buffer must have been created with Upload access");
 
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
@@ -54,10 +48,8 @@ namespace Nexus::Graphics
 
     std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size)
     {
-        NX_VALIDATE(
-            m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
-            "Buffer must have been created with Readback access"
-        );
+        NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
+                    "Buffer must have been created with Readback access");
 
         std::vector<char> data(size);
 

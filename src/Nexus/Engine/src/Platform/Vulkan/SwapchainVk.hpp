@@ -18,9 +18,8 @@ namespace Nexus::Graphics
     class SwapchainVk : public ISwapchain
     {
       public:
-        SwapchainVk(
-            IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue, const SwapchainDescription &swapchainSpec
-        );
+        SwapchainVk(IGraphicsDevice *graphicsDevice, ICommandQueue *commandQueue,
+                    const SwapchainDescription &swapchainSpec);
         virtual ~SwapchainVk();
 
         void SwapBuffers(const SwapchainPresentDescription &presentDesc) final;
@@ -60,11 +59,9 @@ namespace Nexus::Graphics
         void CreateSynchronisationPrimitives();
 
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-        void CreateImage(
-            uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-            VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory,
-            VkSampleCountFlagBits samples, GraphicsDeviceVk *graphicsDevice
-        );
+        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+                         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image,
+                         VkDeviceMemory &imageMemory, VkSampleCountFlagBits samples, GraphicsDeviceVk *graphicsDevice);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
         uint32_t GetCurrentFrameIndex();
 

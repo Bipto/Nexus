@@ -6,18 +6,15 @@
 
 namespace Nexus::Graphics
 {
-    bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(
-        PipelineHandle pipeline, FramebufferHandle renderTarget
-    )
+    bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(PipelineHandle pipeline,
+                                                                   FramebufferHandle renderTarget)
     {
         bool valid = true;
 
         if (!renderTarget.IsValid())
         {
-            throw std::runtime_error(
-                "Attempting to execute graphics command without a bound render "
-                "target"
-            );
+            throw std::runtime_error("Attempting to execute graphics command without a bound render "
+                                     "target");
             valid = false;
         }
 
@@ -87,10 +84,8 @@ namespace Nexus::Graphics
         {
             if (!target->HasDepthTexture())
             {
-                throw std::runtime_error(
-                    "Attempting to clear depth/stencil target but render target "
-                    "does not contain depth attachment"
-                );
+                throw std::runtime_error("Attempting to clear depth/stencil target but render target "
+                                         "does not contain depth attachment");
                 valid = false;
             }
         }
@@ -126,19 +121,15 @@ namespace Nexus::Graphics
 
             if (viewport.X + viewport.Width > renderTargetWidth)
             {
-                throw std::runtime_error(
-                    "Attempting to set a viewport with a total width that is "
-                    "greater than the width of the bound render target"
-                );
+                throw std::runtime_error("Attempting to set a viewport with a total width that is "
+                                         "greater than the width of the bound render target");
                 valid = false;
             }
 
             if (viewport.Y + viewport.Height > renderTargetHeight)
             {
-                throw std::runtime_error(
-                    "Attempting to set a viewport with a total height that is "
-                    "greater than the height of the bound render target"
-                );
+                throw std::runtime_error("Attempting to set a viewport with a total height that is "
+                                         "greater than the height of the bound render target");
                 valid = false;
             }
         }
@@ -172,19 +163,15 @@ namespace Nexus::Graphics
         {
             if (scissor.X + scissor.Width > target->GetWidth())
             {
-                throw std::runtime_error(
-                    "Attempting to set a scissor with a total width that is greater "
-                    "than the width of the bound render target"
-                );
+                throw std::runtime_error("Attempting to set a scissor with a total width that is greater "
+                                         "than the width of the bound render target");
                 valid = false;
             }
 
             if (scissor.Y + scissor.Height > target->GetHeight())
             {
-                throw std::runtime_error(
-                    "Attempting to set a scissor with a total height that is "
-                    "greater than the height of the bound render target"
-                );
+                throw std::runtime_error("Attempting to set a scissor with a total height that is "
+                                         "greater than the height of the bound render target");
                 valid = false;
             }
         }

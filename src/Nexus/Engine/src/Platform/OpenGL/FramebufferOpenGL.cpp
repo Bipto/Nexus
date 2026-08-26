@@ -7,9 +7,8 @@
 
 namespace Nexus::Graphics
 {
-    FramebufferOpenGL::FramebufferOpenGL(
-        const FramebufferTextureSetDescription &desc, GraphicsDeviceOpenGL *graphicsDevice
-    )
+    FramebufferOpenGL::FramebufferOpenGL(const FramebufferTextureSetDescription &desc,
+                                         GraphicsDeviceOpenGL *graphicsDevice)
         : m_Description(desc), m_Device(graphicsDevice)
     {
         Create();

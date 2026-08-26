@@ -106,11 +106,9 @@ namespace Nexus::IO
       public:
         static std::expected<std::vector<std::byte>, std::string> ReadAllBytes(const std::filesystem::path &path);
         static std::expected<std::string, std::string> ReadAllText(const std::filesystem::path &path);
-        static std::expected<size_t, std::string> WriteAllBytes(
-            const std::filesystem::path &path, const std::byte *data, size_t size
-        );
-        static std::expected<size_t, std::string> WriteAllText(
-            const std::filesystem::path &path, const std::string &text
-        );
+        static std::expected<size_t, std::string> WriteAllBytes(const std::filesystem::path &path,
+                                                                const std::byte *data, size_t size);
+        static std::expected<size_t, std::string> WriteAllText(const std::filesystem::path &path,
+                                                               const std::string &text);
     };
 } // namespace Nexus::IO

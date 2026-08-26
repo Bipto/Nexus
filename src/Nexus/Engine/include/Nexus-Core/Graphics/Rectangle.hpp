@@ -6,7 +6,8 @@
 namespace Nexus::Graphics
 {
     /// @brief A struct representing a rectangle with a position, width and height
-    template <typename T> struct Rectangle
+    template <typename T>
+    struct Rectangle
     {
       public:
         Rectangle() = default;
@@ -108,7 +109,8 @@ namespace Nexus::Graphics
             m_Height += verticalAmount * 2;
         }
 
-        template <typename Other> const Rectangle To() const
+        template <typename Other>
+        const Rectangle To() const
         {
             return {(Other)GetLeft(), (Other)GetTop(), (Other)GetWidth(), (Other)GetHeight()};
         }

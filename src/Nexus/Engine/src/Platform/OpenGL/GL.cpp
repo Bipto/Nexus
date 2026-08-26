@@ -657,8 +657,7 @@ namespace Nexus::GL
     {
         switch (spec.Type)
         {
-        case Graphics::TextureType::Texture1D:
-        {
+        case Graphics::TextureType::Texture1D: {
 #if !defined(__EMSCRIPTEN__)
             if (spec.DepthOrArrayLayers > 1)
             {
@@ -672,8 +671,7 @@ namespace Nexus::GL
             throw std::runtime_error("1D textures are not supported by WebGL");
 #endif
         }
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             if (spec.Samples > 1)
             {
                 if (spec.DepthOrArrayLayers > 1)
@@ -697,13 +695,11 @@ namespace Nexus::GL
                 }
             }
         }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             return GL_TEXTURE_3D;
         }
 
-        case Graphics::TextureType::TextureCube:
-        {
+        case Graphics::TextureType::TextureCube: {
             if (spec.DepthOrArrayLayers > 16)
             {
                 return GL_TEXTURE_CUBE_MAP_ARRAY;
@@ -725,8 +721,7 @@ namespace Nexus::GL
 
         switch (texture->GetType())
         {
-        case Graphics::TextureType::Texture1D:
-        {
+        case Graphics::TextureType::Texture1D: {
             if (desc.Range.LayerCount > 1)
             {
                 return GL_TEXTURE_1D_ARRAY;
@@ -736,8 +731,7 @@ namespace Nexus::GL
                 return GL_TEXTURE_1D;
             }
         }
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             if (texture->GetSampleCount() > 1)
             {
                 if (desc.Range.LayerCount > 1)
@@ -760,12 +754,10 @@ namespace Nexus::GL
                     return GL_TEXTURE_2D;
                 }
             }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             return GL_TEXTURE_3D;
         }
-        case Graphics::TextureType::TextureCube:
-        {
+        case Graphics::TextureType::TextureCube: {
             if (desc.Range.LayerCount > 6)
             {
                 return GL_TEXTURE_CUBE_MAP_ARRAY;
@@ -787,8 +779,7 @@ namespace Nexus::GL
 
         switch (access)
         {
-        case Graphics::BarrierAccess::NoAccess:
-        {
+        case Graphics::BarrierAccess::NoAccess: {
             // we are not synchronizing anything
             return 0;
         }
@@ -802,8 +793,7 @@ namespace Nexus::GL
             supportsByRegion = true;
             return GL_UNIFORM_BARRIER_BIT;
         case Graphics::BarrierAccess::ShaderRead:
-        case Graphics::BarrierAccess::ShaderWrite:
-        {
+        case Graphics::BarrierAccess::ShaderWrite: {
             supportsByRegion = true;
             GLbitfield flags = GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT;
 
@@ -818,8 +808,7 @@ namespace Nexus::GL
         case Graphics::BarrierAccess::ColourAttachmentRead:
         case Graphics::BarrierAccess::ColourAttachmentWrite:
         case Graphics::BarrierAccess::DepthStencilAttachmentRead:
-        case Graphics::BarrierAccess::DepthStencilAttachmentWrite:
-        {
+        case Graphics::BarrierAccess::DepthStencilAttachmentWrite: {
             supportsByRegion = true;
             return GL_FRAMEBUFFER_BARRIER_BIT;
         }
@@ -828,8 +817,7 @@ namespace Nexus::GL
         case Graphics::BarrierAccess::HostRead:
         case Graphics::BarrierAccess::HostWrite:
         case Graphics::BarrierAccess::MemoryRead:
-        case Graphics::BarrierAccess::MemoryWrite:
-        {
+        case Graphics::BarrierAccess::MemoryWrite: {
             return GL_TEXTURE_UPDATE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT;
         }
         case Graphics::BarrierAccess::TransformFeedbackWrite:
@@ -846,8 +834,7 @@ namespace Nexus::GL
     {
         switch (spec.Type)
         {
-        case Graphics::TextureType::Texture1D:
-        {
+        case Graphics::TextureType::Texture1D: {
             if (spec.DepthOrArrayLayers > 1)
             {
                 return GLInternalTextureFormat::Texture1DArray;
@@ -858,8 +845,7 @@ namespace Nexus::GL
             }
         }
 
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             if (spec.Samples > 1)
             {
                 if (spec.DepthOrArrayLayers > 1)
@@ -883,12 +869,10 @@ namespace Nexus::GL
                 }
             }
         }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             return GLInternalTextureFormat::Texture3D;
         }
-        case Graphics::TextureType::TextureCube:
-        {
+        case Graphics::TextureType::TextureCube: {
             if (spec.DepthOrArrayLayers > 6)
             {
                 return GLInternalTextureFormat::CubemapArray;
@@ -915,10 +899,8 @@ namespace Nexus::GL
         switch (status)
         {
         case GL_FRAMEBUFFER_UNDEFINED:
-            throw std::runtime_error(
-                "The specified framebuffer is the default read or write framebuffer "
-                "but the default framebuffer does not exist"
-            );
+            throw std::runtime_error("The specified framebuffer is the default read or write framebuffer "
+                                     "but the default framebuffer does not exist");
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
             throw std::runtime_error("An attachment is incomplete");
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
@@ -940,10 +922,8 @@ namespace Nexus::GL
         }
     }
 
-    void AttachTextureNonDSA(
-        GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth, uint32_t colourIndex,
-        GL::IGLContext *context
-    )
+    void AttachTextureNonDSA(GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth,
+                             uint32_t colourIndex, GL::IGLContext *context)
     {
         context->BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         GLenum attachmentType = GL::GetAttachmentType(isDepth, colourIndex);
@@ -967,45 +947,36 @@ namespace Nexus::GL
         case GLInternalTextureFormat::Texture2DArray:
         case GLInternalTextureFormat::Texture2DArrayMultisample:
         case GLInternalTextureFormat::CubemapArray:
-        case GLInternalTextureFormat::Texture3D:
-        {
+        case GLInternalTextureFormat::Texture3D: {
             if (desc.LayerCount == 1)
             {
-                context->FramebufferTextureLayer(
-                    GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel, desc.BaseArrayLayer
-                );
+                context->FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel,
+                                                 desc.BaseArrayLayer);
             }
             else
             {
-                context->FramebufferTextureMultiviewOVR(
-                    GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel, desc.BaseArrayLayer, desc.LayerCount
-                );
+                context->FramebufferTextureMultiviewOVR(GL_FRAMEBUFFER, attachmentType, textureHandle, desc.MipLevel,
+                                                        desc.BaseArrayLayer, desc.LayerCount);
             }
             break;
         }
         case GLInternalTextureFormat::Cubemap:
-            context->FramebufferTexture2D(
-                GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + desc.BaseArrayLayer, textureTarget, textureHandle,
-                desc.MipLevel
-            );
+            context->FramebufferTexture2D(GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + desc.BaseArrayLayer,
+                                          textureTarget, textureHandle, desc.MipLevel);
             break;
         default:
             throw std::runtime_error("Could not find a valid texture format type");
         }
     }
 
-    void AttachTexture(
-        GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth, uint32_t colourIndex,
-        GL::IGLContext *context
-    )
+    void AttachTexture(GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth,
+                       uint32_t colourIndex, GL::IGLContext *context)
     {
         AttachTextureNonDSA(framebuffer, desc, isDepth, colourIndex, context);
     }
 
-    void GetBaseType(
-        const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized,
-        GLPrimitiveType &primitiveType
-    )
+    void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount,
+                     GLboolean &normalized, GLPrimitiveType &primitiveType)
     {
         switch (element.Type)
         {
@@ -1395,12 +1366,10 @@ namespace Nexus::GL
         if (command.BufferTextureCopy.TextureOffset.Z > 1)
         {
             const Graphics::TextureDescription &textureDesc = texture->GetDescription();
-            NX_VALIDATE(
-                textureDesc.Type == Graphics::TextureType::Texture3D ||
-                    textureDesc.Type == Graphics::TextureType::TextureCube,
-                "Attempting to set data in a multi-layer texture, but texture is "
-                "not multi layer"
-            );
+            NX_VALIDATE(textureDesc.Type == Graphics::TextureType::Texture3D ||
+                            textureDesc.Type == Graphics::TextureType::TextureCube,
+                        "Attempting to set data in a multi-layer texture, but texture is "
+                        "not multi layer");
         }
 
         bool isCompressed = Graphics::IsPixelFormatCompressed(texture->GetDescription().Format);
@@ -1422,46 +1391,39 @@ namespace Nexus::GL
 
         const uint32_t copyDepth = 1;
 
-        NX_VALIDATE(
-            context->IsTextureTypeSupported(texture->GetType(), texture->GetSampleCount()),
-            "Texture type is not supported"
-        );
+        NX_VALIDATE(context->IsTextureTypeSupported(texture->GetType(), texture->GetSampleCount()),
+                    "Texture type is not supported");
 
         switch (texture->GetInternalGLTextureFormat())
         {
-        case GL::GLInternalTextureFormat::Texture1D:
-        {
+        case GL::GLInternalTextureFormat::Texture1D: {
             if (!isCompressed)
             {
                 context->CompressedTexSubImage1D(
                     texture->GetHandle(), texture->GetTextureType(), command.BufferTextureCopy.MipLevel,
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureExtent.Width,
-                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
-                );
+                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset);
             }
             else
             {
-                context->TexSubImage1D(
-                    texture->GetHandle(), texture->GetTextureType(), command.BufferTextureCopy.MipLevel,
-                    command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureExtent.Width,
-                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
-                );
+                context->TexSubImage1D(texture->GetHandle(), texture->GetTextureType(),
+                                       command.BufferTextureCopy.MipLevel, command.BufferTextureCopy.TextureOffset.X,
+                                       command.BufferTextureCopy.TextureExtent.Width, dataFormat, baseType,
+                                       (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset);
             }
             break;
         }
 
         case GL::GLInternalTextureFormat::Texture1DArray:
         case GL::GLInternalTextureFormat::Texture2D:
-        case GL::GLInternalTextureFormat::Texture2DMultisample:
-        {
+        case GL::GLInternalTextureFormat::Texture2DMultisample: {
             if (!isCompressed)
             {
                 context->TexSubImage2D(
                     texture->GetHandle(), texture->GetTextureType(), command.BufferTextureCopy.MipLevel,
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureOffset.Y,
                     command.BufferTextureCopy.TextureExtent.Width, command.BufferTextureCopy.TextureExtent.Height,
-                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
-                );
+                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset);
             }
             else
             {
@@ -1469,13 +1431,11 @@ namespace Nexus::GL
                     texture->GetHandle(), texture->GetTextureType(), command.BufferTextureCopy.MipLevel,
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureOffset.Y,
                     command.BufferTextureCopy.TextureExtent.Width, command.BufferTextureCopy.TextureExtent.Height,
-                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset
-                );
+                    dataFormat, baseType, (const void *)(uint64_t)command.BufferTextureCopy.BufferOffset);
             }
             break;
         }
-        case GL::GLInternalTextureFormat::Cubemap:
-        {
+        case GL::GLInternalTextureFormat::Cubemap: {
             size_t offset = command.BufferTextureCopy.BufferOffset;
 
             if (!isCompressed)
@@ -1485,8 +1445,7 @@ namespace Nexus::GL
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureOffset.Y,
                     command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.TextureExtent.Width,
                     command.BufferTextureCopy.TextureExtent.Height, copyDepth, dataFormat, baseType,
-                    (const void *)offset
-                );
+                    (const void *)offset);
             }
             else
             {
@@ -1495,8 +1454,7 @@ namespace Nexus::GL
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureOffset.Y,
                     command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.TextureExtent.Width,
                     command.BufferTextureCopy.TextureExtent.Height, copyDepth, dataFormat, baseType,
-                    (const void *)offset
-                );
+                    (const void *)offset);
             }
 
             break;
@@ -1504,8 +1462,7 @@ namespace Nexus::GL
         case GL::GLInternalTextureFormat::Texture2DArray:
         case GL::GLInternalTextureFormat::CubemapArray:
         case GL::GLInternalTextureFormat::Texture3D:
-        case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-        {
+        case GL::GLInternalTextureFormat::Texture2DArrayMultisample: {
             size_t offset = command.BufferTextureCopy.BufferOffset;
 
             if (isCompressed)
@@ -1515,8 +1472,7 @@ namespace Nexus::GL
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureOffset.Y,
                     command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.TextureExtent.Width,
                     command.BufferTextureCopy.TextureExtent.Height, copyDepth, dataFormat, baseType,
-                    (const void *)offset
-                );
+                    (const void *)offset);
             }
             else
             {
@@ -1525,8 +1481,7 @@ namespace Nexus::GL
                     command.BufferTextureCopy.TextureOffset.X, command.BufferTextureCopy.TextureOffset.Y,
                     command.BufferTextureCopy.TextureOffset.Z, command.BufferTextureCopy.TextureExtent.Width,
                     command.BufferTextureCopy.TextureExtent.Height, copyDepth, dataFormat, baseType,
-                    (const void *)offset
-                );
+                    (const void *)offset);
             }
 
             break;
@@ -1576,11 +1531,10 @@ namespace Nexus::GL
 
         context->ReadBuffer(framebufferHandle, GL_COLOR_ATTACHMENT0);
 
-        context->ReadPixels(
-            command.TextureBufferCopy.TextureOffset.X, command.TextureBufferCopy.TextureOffset.Y,
-            command.TextureBufferCopy.TextureExtent.Width, command.TextureBufferCopy.TextureExtent.Height, dataFormat,
-            baseType, (void *)(uint64_t)bufferOffset
-        );
+        context->ReadPixels(command.TextureBufferCopy.TextureOffset.X, command.TextureBufferCopy.TextureOffset.Y,
+                            command.TextureBufferCopy.TextureExtent.Width,
+                            command.TextureBufferCopy.TextureExtent.Height, dataFormat, baseType,
+                            (void *)(uint64_t)bufferOffset);
 
         context->DestroyFramebuffer(framebufferHandle);
         context->BindBuffer(GL_PIXEL_PACK_BUFFER, 0);
@@ -1629,13 +1583,12 @@ namespace Nexus::GL
         context->Viewport(0, 0, copyDesc.Extent.Width, copyDesc.Extent.Height);
         context->EnableCapability(GL_SCISSOR_TEST, false);
 
-        context->BlitFramebuffer(
-            sourceFramebufferHandle, destFramebufferHandle, copyDesc.SourceOffset.X, copyDesc.SourceOffset.Y,
-            copyDesc.SourceOffset.X + copyDesc.Extent.Width, copyDesc.SourceOffset.Y + copyDesc.Extent.Height,
-            copyDesc.DestinationOffset.X, copyDesc.DestinationOffset.Y,
-            copyDesc.DestinationOffset.X + copyDesc.Extent.Width, copyDesc.DestinationOffset.Y + copyDesc.Extent.Height,
-            GL_COLOR_BUFFER_BIT, GL_NEAREST
-        );
+        context->BlitFramebuffer(sourceFramebufferHandle, destFramebufferHandle, copyDesc.SourceOffset.X,
+                                 copyDesc.SourceOffset.Y, copyDesc.SourceOffset.X + copyDesc.Extent.Width,
+                                 copyDesc.SourceOffset.Y + copyDesc.Extent.Height, copyDesc.DestinationOffset.X,
+                                 copyDesc.DestinationOffset.Y, copyDesc.DestinationOffset.X + copyDesc.Extent.Width,
+                                 copyDesc.DestinationOffset.Y + copyDesc.Extent.Height, GL_COLOR_BUFFER_BIT,
+                                 GL_NEAREST);
 
         context->DestroyFramebuffer(sourceFramebufferHandle);
         context->DestroyFramebuffer(destFramebufferHandle);

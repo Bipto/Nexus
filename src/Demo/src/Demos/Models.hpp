@@ -21,10 +21,9 @@ namespace Demos
     class ModelDemo : public Demo
     {
       public:
-        ModelDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        ModelDemo(const std::string &name, Nexus::Application *app,
+                  Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                  Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
             auto [width, height] = m_Window->GetWindowSizeInPixels();
@@ -40,8 +39,7 @@ namespace Demos
             m_CommandList = m_CommandQueue->CreateCommandList();
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice, m_CommandQueue);
             m_Model = factory.CreateFrom3DModelFile(
-                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae")
-            );
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae"));
 
             Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
             cameraUniformBufferDesc.Access = Nexus::Graphics::BufferMemoryAccess::Upload;
@@ -227,13 +225,12 @@ namespace Demos
 
             dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>(
                 [this](const Nexus::MouseButtonPressedEventArgs &args) {
-                    if (args.Button == Nexus::MouseButton::Right)
-                    {
-                        m_CameraActive = true;
-                        Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
-                    }
+                if (args.Button == Nexus::MouseButton::Right)
+                {
+                    m_CameraActive = true;
+                    Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
                 }
-            );
+            });
 
             dispatcher.Subscribe<Nexus::KeyPressedEventArgs>([this](const Nexus::KeyPressedEventArgs &args) {
                 if (args.ScanCode == Nexus::ScanCode::Escape)
@@ -265,39 +262,30 @@ namespace Demos
 
             pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/models/models.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex);
 
             pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/models/models.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment);
 
             pipelineDescription.Layouts = {
-                Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()
-            };
+                Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
             pipelineDescription.ColourTargetCount = 1;
             pipelineDescription.ColourFormats[0] = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
             pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
             pipelineDescription.ResourceDescription.Descriptors = {
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_DiffuseMap",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Camera",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Transform",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                }
-            };
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_DiffuseMap",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Transform",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1}};
 
             m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 

@@ -29,9 +29,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceVk::GraphicsDeviceVk(
-        std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config
-    )
+    GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance,
+                                       const VulkanDeviceConfig &config)
         : m_PhysicalDevice(std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice)), m_Instance(instance),
           m_DeviceConfig(config)
     {
@@ -39,10 +38,8 @@ namespace Nexus::Graphics
             std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
 
         Vk::GladLoaderData loaderData = {.instance = m_Instance, .device = m_Device};
-        gladLoadVulkanContextUserPtr(
-            &m_Context, physicalDeviceVk->GetVkPhysicalDevice(),
-            (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loaderData
-        );
+        gladLoadVulkanContextUserPtr(&m_Context, physicalDeviceVk->GetVkPhysicalDevice(),
+                                     (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loaderData);
 
         CreateDevice(physicalDeviceVk);
 
@@ -146,8 +143,7 @@ namespace Nexus::Graphics
     }
 
     AccelerationStructureHandle GraphicsDeviceVk::CreateAccelerationStructure(
-        const AccelerationStructureDescription &desc
-    )
+        const AccelerationStructureDescription &desc)
     {
         auto accelerationStructure = std::make_unique<AccelerationStructureVk>(desc, this);
         return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
@@ -176,9 +172,8 @@ namespace Nexus::Graphics
         return m_Resources.Fences.CreateShared(std::move(fence));
     }
 
-    FenceWaitResult GraphicsDeviceVk::WaitForFences(
-        FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
-    )
+    FenceWaitResult GraphicsDeviceVk::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll,
+                                                    uint64_t timeoutNS)
     {
         std::vector<VkFence> fenceHandles(count);
         for (uint32_t i = 0; i < count; i++)
@@ -297,13 +292,11 @@ namespace Nexus::Graphics
         std::vector<VkQueueFamilyProperties> queueFamilyProperties;
         uint32_t queueFamilyCount;
 
-        m_Context.GetPhysicalDeviceQueueFamilyProperties(
-            physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr
-        );
+        m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount,
+                                                         nullptr);
         queueFamilyProperties.resize(queueFamilyCount);
-        m_Context.GetPhysicalDeviceQueueFamilyProperties(
-            physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data()
-        );
+        m_Context.GetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount,
+                                                         queueFamilyProperties.data());
 
         uint32_t queueFamilyIndex = 0;
         for (const auto &queueFamily : queueFamilyProperties)
@@ -487,10 +480,8 @@ namespace Nexus::Graphics
 
         // load device function pointers
         Vk::GladLoaderData loaderData = {.instance = m_Instance, .device = m_Device};
-        gladLoadVulkanContextUserPtr(
-            &m_Context, m_PhysicalDevice->GetVkPhysicalDevice(),
-            (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loaderData
-        );
+        gladLoadVulkanContextUserPtr(&m_Context, m_PhysicalDevice->GetVkPhysicalDevice(),
+                                     (GLADuserptrloadfunc)Vk::GladFunctionLoaderWithInstance, &loaderData);
     }
 
     void GraphicsDeviceVk::CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance)
@@ -664,18 +655,15 @@ namespace Nexus::Graphics
     }
 
     std::vector<std::string> GraphicsDeviceVk::GetSupportedDeviceExtensions(
-        std::shared_ptr<PhysicalDeviceVk> physicalDevice
-    )
+        std::shared_ptr<PhysicalDeviceVk> physicalDevice)
     {
         uint32_t count = 0;
-        VkResult result = m_Context.EnumerateDeviceExtensionProperties(
-            physicalDevice->GetVkPhysicalDevice(), nullptr, &count, nullptr
-        );
+        VkResult result = m_Context.EnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr,
+                                                                       &count, nullptr);
 
         std::vector<VkExtensionProperties> properties(count);
-        result = m_Context.EnumerateDeviceExtensionProperties(
-            physicalDevice->GetVkPhysicalDevice(), nullptr, &count, properties.data()
-        );
+        result = m_Context.EnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count,
+                                                              properties.data());
 
         if (result != VK_SUCCESS)
         {
@@ -700,9 +688,8 @@ namespace Nexus::Graphics
         return m_Context.GetBufferDeviceAddressKHR(m_Device, &info);
     }
 
-    Vk::AllocatedBuffer GraphicsDeviceVk::CreateBuffer(
-        size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage
-    )
+    Vk::AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage,
+                                                       VmaMemoryUsage memoryUsage)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -736,9 +723,8 @@ namespace Nexus::Graphics
         return m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
     }
 
-    PixelFormatProperties GraphicsDeviceVk::GetPixelFormatProperties(
-        PixelFormat format, TextureType type, TextureUsageFlags usage
-    ) const
+    PixelFormatProperties GraphicsDeviceVk::GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                                     TextureUsageFlags usage) const
     {
         PixelFormatProperties properties = {};
         return properties;
@@ -769,8 +755,7 @@ namespace Nexus::Graphics
     }
 
     AccelerationStructureBuildSizeDescription GraphicsDeviceVk::GetAccelerationStructureBuildSize(
-        const AccelerationStructureGeometryBuildDescription &description
-    ) const
+        const AccelerationStructureGeometryBuildDescription &description) const
     {
         std::vector<uint32_t> primitiveCounts = {};
         std::vector<VkAccelerationStructureGeometryKHR> geometries =
@@ -783,16 +768,14 @@ namespace Nexus::Graphics
 
         if (m_Context.GetAccelerationStructureBuildSizesKHR)
         {
-            m_Context.GetAccelerationStructureBuildSizesKHR(
-                m_Device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR, &buildInfo, primitiveCounts.data(), &buildSizes
-            );
+            m_Context.GetAccelerationStructureBuildSizesKHR(m_Device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR,
+                                                            &buildInfo, primitiveCounts.data(), &buildSizes);
         }
 
-        return AccelerationStructureBuildSizeDescription{
-            .AccelerationStructureSize = buildSizes.accelerationStructureSize,
-            .UpdateScratchSize = buildSizes.updateScratchSize,
-            .BuildScratchSize = buildSizes.buildScratchSize
-        };
+        return AccelerationStructureBuildSizeDescription{.AccelerationStructureSize =
+                                                             buildSizes.accelerationStructureSize,
+                                                         .UpdateScratchSize = buildSizes.updateScratchSize,
+                                                         .BuildScratchSize = buildSizes.buildScratchSize};
     }
 
     RayTracingDeviceDescription GraphicsDeviceVk::GetRayTracingDeviceDescription() const
@@ -898,9 +881,8 @@ namespace Nexus::Graphics
         return m_Context;
     }
 
-    uint32_t GraphicsDeviceVk::FindMemoryType(
-        uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice
-    )
+    uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
+                                              std::shared_ptr<PhysicalDeviceVk> physicalDevice)
     {
         VkPhysicalDeviceMemoryProperties memProperties;
         m_Context.GetPhysicalDeviceMemoryProperties(physicalDevice->GetVkPhysicalDevice(), &memProperties);

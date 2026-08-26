@@ -65,8 +65,7 @@ namespace Nexus::Graphics
         const DeviceLimits &GetPhysicalDeviceLimits() const final;
         bool IsIndexBufferFormatSupported(IndexFormat format) const final;
         AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
-            const AccelerationStructureGeometryBuildDescription &description
-        ) const final;
+            const AccelerationStructureGeometryBuildDescription &description) const final;
         RayTracingDeviceDescription GetRayTracingDeviceDescription() const final;
         AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 
@@ -78,9 +77,8 @@ namespace Nexus::Graphics
 
         Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
         ShaderModuleHandle CreateShaderModule(const ShaderModuleDescription &moduleDesc) final;
-        PixelFormatProperties GetPixelFormatProperties(
-            PixelFormat format, TextureType type, TextureUsageFlags usage
-        ) const final;
+        PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                       TextureUsageFlags usage) const final;
 
       private:
         std::vector<std::string> GetSupportedExtensions(GL::IGLContext *context);

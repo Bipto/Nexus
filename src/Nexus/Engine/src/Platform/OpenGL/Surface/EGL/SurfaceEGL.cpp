@@ -11,9 +11,8 @@ namespace Nexus::Graphics
     {
     }
 
-    std::unique_ptr<GL::IViewContext> SurfaceEGL::CreateOpenGLContext(
-        GraphicsDeviceOpenGL *device, const GL::ContextDescription &desc
-    ) const
+    std::unique_ptr<GL::IViewContext> SurfaceEGL::CreateOpenGLContext(GraphicsDeviceOpenGL *device,
+                                                                      const GL::ContextDescription &desc) const
     {
         GL::OffscreenContextEGL *pbufferEGL = (GL::OffscreenContextEGL *)device->GetOffscreenContext();
         Display *display = reinterpret_cast<Display *>(m_Display);

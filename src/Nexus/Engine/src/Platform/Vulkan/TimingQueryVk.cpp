@@ -30,10 +30,8 @@ namespace Nexus::Graphics
         const GladVulkanContext &context = m_Device->GetVulkanContext();
 
         uint64_t timestamps[2];
-        context.GetQueryPoolResults(
-            m_Device->GetVkDevice(), m_QueryPool, 0, 2, sizeof(timestamps), timestamps, sizeof(uint64_t),
-            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT
-        );
+        context.GetQueryPoolResults(m_Device->GetVkDevice(), m_QueryPool, 0, 2, sizeof(timestamps), timestamps,
+                                    sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
         m_ElapsedTime = ((timestamps[1] - timestamps[0]) * deviceProperties.limits.timestampPeriod) / 1000000.0f;
     }
 

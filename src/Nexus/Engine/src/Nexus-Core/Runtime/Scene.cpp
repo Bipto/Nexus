@@ -14,7 +14,8 @@
 
 namespace YAML
 {
-    template <> struct convert<glm::vec2>
+    template <>
+    struct convert<glm::vec2>
     {
         static Node encode(const glm::vec2 &rhs)
         {
@@ -38,7 +39,8 @@ namespace YAML
         }
     };
 
-    template <> struct convert<glm::vec3>
+    template <>
+    struct convert<glm::vec3>
     {
         static Node encode(const glm::vec3 &rhs)
         {
@@ -64,7 +66,8 @@ namespace YAML
         }
     };
 
-    template <> struct convert<glm::vec4>
+    template <>
+    struct convert<glm::vec4>
     {
         static Node encode(const glm::vec4 &rhs)
         {
@@ -279,10 +282,8 @@ namespace Nexus
         return m_SceneState;
     }
 
-    Scene *Scene::Deserialize(
-        const SceneInfo &info, const std::string &sceneDirectory, Project *project, Graphics::IGraphicsDevice *device,
-        Graphics::CommandQueueHandle commandQueue
-    )
+    Scene *Scene::Deserialize(const SceneInfo &info, const std::string &sceneDirectory, Project *project,
+                              Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue)
     {
         std::string filepath = sceneDirectory + info.Name + std::string(".scene");
 
@@ -331,9 +332,8 @@ namespace Nexus
                         size_t entityComponentIndex = component["HierarchyIndex"].as<size_t>();
                         YAML::Node data = component["Data"];
 
-                        project->DeserializeComponentFromYaml(
-                            scene->Registry, e.ID, componentName, data, entityComponentIndex
-                        );
+                        project->DeserializeComponentFromYaml(scene->Registry, e.ID, componentName, data,
+                                                              entityComponentIndex);
                     }
                 }
             }

@@ -18,9 +18,8 @@ namespace Nexus
     {
     }
 
-    static std::expected<std::string, std::string> ResolveFilepath(
-        std::string_view path, const std::filesystem::path &directory
-    )
+    static std::expected<std::string, std::string> ResolveFilepath(std::string_view path,
+                                                                   const std::filesystem::path &directory)
     {
         std::filesystem::path base = std::filesystem::weakly_canonical(directory);
         std::filesystem::path resolved = std::filesystem::weakly_canonical(base / path);

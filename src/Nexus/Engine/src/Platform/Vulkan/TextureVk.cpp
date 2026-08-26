@@ -76,20 +76,16 @@ namespace Nexus::Graphics
         if (sparseTexture)
         {
             imageInfo.flags = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
-            NX_VALIDATE(
-                context.CreateImage(device->GetVkDevice(), &imageInfo, nullptr, &m_Image) == VK_SUCCESS,
-                "Failed to create image"
-            );
+            NX_VALIDATE(context.CreateImage(device->GetVkDevice(), &imageInfo, nullptr, &m_Image) == VK_SUCCESS,
+                        "Failed to create image");
         }
         else
         {
             VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
 
-            NX_VALIDATE(
-                vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) ==
-                    VK_SUCCESS,
-                "Failed to create image"
-            );
+            NX_VALIDATE(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation,
+                                       nullptr) == VK_SUCCESS,
+                        "Failed to create image");
         }
 
         m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Description.DebugName.c_str());
@@ -177,15 +173,12 @@ namespace Nexus::Graphics
 
             const GladVulkanContext &context = m_GraphicsDevice->GetVulkanContext();
 
-            NX_VALIDATE(
-                context.CreateImageView(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &imageView) ==
-                    VK_SUCCESS,
-                "Failed to create image view"
-            );
+            NX_VALIDATE(context.CreateImageView(m_GraphicsDevice->GetVkDevice(), &createInfo, nullptr, &imageView) ==
+                            VK_SUCCESS,
+                        "Failed to create image view");
 
-            m_GraphicsDevice->SetObjectName(
-                VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t)imageView, m_Description.DebugName.c_str()
-            );
+            m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t)imageView,
+                                            m_Description.DebugName.c_str());
 
             m_ImageViews[desc] = imageView;
             return imageView;
@@ -194,10 +187,8 @@ namespace Nexus::Graphics
 
     TextureLayout TextureVk::GetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel) const
     {
-        NX_VALIDATE(
-            arrayLayer < m_Description.DepthOrArrayLayers,
-            "Array layer is greater than the total number of array layers"
-        );
+        NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers,
+                    "Array layer is greater than the total number of array layers");
         NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
         size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
@@ -206,10 +197,8 @@ namespace Nexus::Graphics
 
     void TextureVk::SetTextureLayout(uint32_t arrayLayer, uint32_t mipLevel, TextureLayout layout)
     {
-        NX_VALIDATE(
-            arrayLayer < m_Description.DepthOrArrayLayers,
-            "Array layer is greater than the total number of array layers"
-        );
+        NX_VALIDATE(arrayLayer < m_Description.DepthOrArrayLayers,
+                    "Array layer is greater than the total number of array layers");
         NX_VALIDATE(mipLevel < m_Description.MipLevels, "Mip level is greater than the total number of mip levels");
 
         size_t index = (size_t)(mipLevel + arrayLayer * m_Description.MipLevels);
@@ -235,9 +224,8 @@ namespace Nexus::Graphics
 
             VkSubresourceLayout subresourceLayout = {};
 
-            context.GetImageSubresourceLayout(
-                m_GraphicsDevice->GetVkDevice(), m_Image, &subresourceInfo, &subresourceLayout
-            );
+            context.GetImageSubresourceLayout(m_GraphicsDevice->GetVkDevice(), m_Image, &subresourceInfo,
+                                              &subresourceLayout);
 
             footprint.Size = static_cast<size_t>(subresourceLayout.size);
 

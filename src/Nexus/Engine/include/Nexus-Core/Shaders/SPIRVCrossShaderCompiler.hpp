@@ -24,7 +24,6 @@ namespace Nexus
     {
       public:
         std::expected<ShaderCompilationResult, std::string> Compile(
-            const ShaderCompilationOptions &options
-        ) const final;
+            const ShaderCompilationOptions &options) const final;
     };
 } // namespace Nexus

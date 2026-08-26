@@ -20,14 +20,14 @@ namespace Nexus
         /// @brief A constructor taking in a reference counted pointer to a graphics
         /// device
         /// @param graphicsDevice A pointer to a graphics device
-        AssetManager(
-            Graphics::IGraphicsDevice *graphicsDevice, Graphics::CommandQueueHandle commandQueue, Project *project
-        )
+        AssetManager(Graphics::IGraphicsDevice *graphicsDevice, Graphics::CommandQueueHandle commandQueue,
+                     Project *project)
             : m_GraphicsDevice(graphicsDevice), m_CommandQueue(commandQueue), m_Project(project)
         {
         }
 
-        template <typename T> Ref<T> GetAsset(GUID id)
+        template <typename T>
+        Ref<T> GetAsset(GUID id)
         {
             std::any value = LoadAsset(id);
             if (value.type() == typeid(Ref<T>))

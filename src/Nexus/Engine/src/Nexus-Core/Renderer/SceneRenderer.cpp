@@ -44,19 +44,18 @@ namespace Nexus::Graphics
         transformsSpriteRenderers.Each(
             [&](Nexus::Entity *entity,
                 const std::tuple<Nexus::Transform *, Nexus::SpriteRendererComponent *> &components) {
-                Nexus::Transform *transform = std::get<0>(components);
-                Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
+            Nexus::Transform *transform = std::get<0>(components);
+            Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
 
-                const Nexus::FirstPersonCamera &camera = m_Renderer3D->GetCamera();
-                glm::mat4 worldMatrix = transform->CreateTransformation();
+            const Nexus::FirstPersonCamera &camera = m_Renderer3D->GetCamera();
+            glm::mat4 worldMatrix = transform->CreateTransformation();
 
-                /*m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
-                                              spriteRenderer->SpriteTexture,
-                                              spriteRenderer->Tiling,
-                                              worldMatrix,
-                                              entity->ID);*/
-            }
-        );
+            /*m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
+                                          spriteRenderer->SpriteTexture,
+                                          spriteRenderer->Tiling,
+                                          worldMatrix,
+                                          entity->ID);*/
+        });
 
         m_BatchRenderer->End();
     }

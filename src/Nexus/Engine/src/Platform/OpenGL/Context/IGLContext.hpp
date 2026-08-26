@@ -43,56 +43,37 @@ namespace Nexus::GL
         void GetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
 
         // 1D textures
-        void CompressedTexSubImage1D(
-            GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width, GLenum format,
-            GLsizei imageSize, const GLvoid *data
-        );
-        void TexSubImage1D(
-            GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type,
-            const GLvoid *pixels
-        );
+        void CompressedTexSubImage1D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width,
+                                     GLenum format, GLsizei imageSize, const GLvoid *data);
+        void TexSubImage1D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width, GLenum format,
+                           GLenum type, const GLvoid *pixels);
 
         // 2D textures
-        void CompressedTexSubImage2D(
-            GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLsizei width,
-            GLsizei height, GLenum format, GLsizei imageSize, const void *data
-        );
-        void TexSubImage2D(
-            GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLsizei width,
-            GLsizei height, GLenum format, GLenum type, const GLvoid *pixels
-        );
+        void CompressedTexSubImage2D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset,
+                                     GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void *data);
+        void TexSubImage2D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLsizei width,
+                           GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
 
         // 3D textures
-        void CompressedTexSubImage3D(
-            GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width,
-            GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void *data
-        );
-        void TexSubImage3D(
-            GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width,
-            GLsizei height, GLsizei depth, GLenum format, GLenum type, const void *pixels
-        );
+        void CompressedTexSubImage3D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset,
+                                     GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format,
+                                     GLsizei imageSize, const void *data);
+        void TexSubImage3D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset, GLint zoffset,
+                           GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type,
+                           const void *pixels);
 
         void TexStorage1D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width);
-        void TexStorage2D(
-            GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height
-        );
-        void TexStorage2DMultisample(
-            GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height,
-            GLboolean fixedsamplelocations
-        );
-        void TexStorage3D(
-            GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height,
-            GLsizei depth
-        );
-        void TexStorage3DMultisample(
-            GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height,
-            GLsizei depth, GLboolean fixedsamplelocations
-        );
+        void TexStorage2D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width,
+                          GLsizei height);
+        void TexStorage2DMultisample(GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat,
+                                     GLsizei width, GLsizei height, GLboolean fixedsamplelocations);
+        void TexStorage3D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat, GLsizei width,
+                          GLsizei height, GLsizei depth);
+        void TexStorage3DMultisample(GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat,
+                                     GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations);
 
-        void TextureView(
-            GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels,
-            GLuint minlayer, GLuint numlayers
-        );
+        void TextureView(GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel,
+                         GLuint numlevels, GLuint minlayer, GLuint numlayers);
 
         bool IsSparseBindingSupported();
 
@@ -101,15 +82,13 @@ namespace Nexus::GL
         void DestroyTextureBuffer(uint32_t handle);
 
         // buffers
-        std::expected<void, std::string> CreateBuffer(
-            GLuint &buffer, GLenum target, GLsizeiptr size, const GLvoid *data, GLbitfield mapFlags, GLenum bufferUsage,
-            const std::string &debugName, bool &supportsPersistentMapping
-        );
+        std::expected<void, std::string> CreateBuffer(GLuint &buffer, GLenum target, GLsizeiptr size,
+                                                      const GLvoid *data, GLbitfield mapFlags, GLenum bufferUsage,
+                                                      const std::string &debugName, bool &supportsPersistentMapping);
 
         void DeleteBuffers(GLsizei n, const GLuint *buffers);
-        void CopyBufferSubData(
-            GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizei size
-        );
+        void CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset,
+                               GLsizei size);
         void BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
         void GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data);
         void *MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access);
@@ -119,27 +98,22 @@ namespace Nexus::GL
         void DestroyFramebuffer(GLuint framebuffer);
         void FramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
         void FramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-        void FramebufferTexture3D(
-            GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer
-        );
+        void FramebufferTexture3D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level,
+                                  GLint layer);
         void FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
-        void FramebufferTextureMultiviewOVR(
-            GLenum target, GLenum attachment, GLuint texture, GLint level, GLint baseViewIndex, GLsizei numViews
-        );
+        void FramebufferTextureMultiviewOVR(GLenum target, GLenum attachment, GLuint texture, GLint level,
+                                            GLint baseViewIndex, GLsizei numViews);
         GLenum CheckFramebufferStatus(GLuint framebuffer, GLenum target);
 
         void ReadBuffer(GLuint framebuffer, GLenum target, GLenum mode);
         void ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data);
-        void BlitFramebuffer(
-            GLuint readFramebuffer, GLuint drawFramebuffer, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
-            GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter
-        );
+        void BlitFramebuffer(GLuint readFramebuffer, GLuint drawFramebuffer, GLint srcX0, GLint srcY0, GLint srcX1,
+                             GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask,
+                             GLenum filter);
 
-        void CopyImageSubData(
-            GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName,
-            GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight,
-            GLsizei srcDepth
-        );
+        void CopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ,
+                              GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ,
+                              GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
         bool SupportsCopyImageSubData();
 
         // samplers
@@ -205,18 +179,14 @@ namespace Nexus::GL
         void BindVertexArray(uint32_t vao);
         void EnableVertexAttribArray(uint32_t vao, uint32_t index);
         void DisableVertexAttribArray(uint32_t vao, uint32_t index);
-        void SetVertexAttribPointer(
-            uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride,
-            uint32_t offset
-        );
+        void SetVertexAttribPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
+                                    GLboolean normalized, GLsizei stride, uint32_t offset);
 
-        void SetVertexAttribIPointer(
-            uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset
-        );
+        void SetVertexAttribIPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride,
+                                     uint32_t offset);
 
-        void SetVertexAttribLPointer(
-            uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride, uint32_t offset
-        );
+        void SetVertexAttribLPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type, GLsizei stride,
+                                     uint32_t offset);
 
         void SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor);
 
@@ -227,17 +197,15 @@ namespace Nexus::GL
         int32_t GetUniformBlockIndex(uint32_t shader, const GLchar *name);
         int32_t GetUniformLocation(uint32_t shader, const GLchar *name);
         void UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
-        void BindImageTexture(
-            GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format
-        );
+        void BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access,
+                              GLenum format);
 
         // draw calls
         void DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount);
         void DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount);
         void MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride);
-        void MultiDrawElementsIndirect(
-            GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride
-        );
+        void MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount,
+                                       GLsizei stride);
         void DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
         void DispatchComputeIndirect(GLintptr indirect);
         void DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
@@ -262,9 +230,8 @@ namespace Nexus::GL
         void GetTimestamp(GLint64 *data);
 
         // debug
-        void DebugMessageInsert(
-            GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message
-        );
+        void DebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                const char *message);
         void ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label);
         void PushDebugGroup(GLenum source, GLuint id, GLsizei length, const char *message);
         void PopDebugGroup();

@@ -28,10 +28,9 @@ namespace Nexus::Graphics
         virtual ~GraphicsPipelineOpenGL();
         virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 
-        void BindBuffers(
-            const std::map<uint32_t, VertexBufferView> &vertexBuffers, std::optional<IndexBufferView> indexBuffer,
-            uint32_t firstVertex, uint32_t firstInstance, GL::IOffscreenContext *context
-        );
+        void BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
+                         std::optional<IndexBufferView> indexBuffer, uint32_t firstVertex, uint32_t firstInstance,
+                         GL::IOffscreenContext *context);
 
         void Bind(GL::IOffscreenContext *context) final;
         uint32_t GetShaderHandle() const final;

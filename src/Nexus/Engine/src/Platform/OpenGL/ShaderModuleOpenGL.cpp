@@ -9,9 +9,8 @@
 
 namespace Nexus::Graphics
 {
-    ShaderModuleOpenGL::ShaderModuleOpenGL(
-        const ShaderModuleDescription &shaderModuleSpec, GraphicsDeviceOpenGL *device
-    )
+    ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleDescription &shaderModuleSpec,
+                                           GraphicsDeviceOpenGL *device)
         : IShaderModule(shaderModuleSpec), m_ShaderStage(GL::GetShaderStage(m_ModuleDescription.ShadingStage)),
           m_Device(device)
     {
@@ -52,10 +51,10 @@ namespace Nexus::Graphics
         return m_Handle;
     }
 
-    static ReflectedShaderDataType StringToReflectedShaderDataType(
-        const std::string &type, ResourceDimension &dimension, StorageResourceAccess &storageResourceAccess,
-        const std::string &memoryQualifier
-    )
+    static ReflectedShaderDataType StringToReflectedShaderDataType(const std::string &type,
+                                                                   ResourceDimension &dimension,
+                                                                   StorageResourceAccess &storageResourceAccess,
+                                                                   const std::string &memoryQualifier)
     {
         dimension = ResourceDimension::NoDimension;
         storageResourceAccess = StorageResourceAccess::NoAccess;
@@ -452,8 +451,7 @@ namespace Nexus::Graphics
         ResourceDimension dimension = {};
         StorageResourceAccess storageResourceAccess = {};
         ReflectedShaderDataType type = StringToReflectedShaderDataType(
-            reflectedBuffer.StorageQualifier, dimension, storageResourceAccess, reflectedBuffer.MemoryQualififers
-        );
+            reflectedBuffer.StorageQualifier, dimension, storageResourceAccess, reflectedBuffer.MemoryQualififers);
 
         ReflectedResource reflectedResource = {};
         reflectedResource.Type = type;

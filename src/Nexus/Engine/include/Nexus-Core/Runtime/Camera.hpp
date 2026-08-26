@@ -21,9 +21,8 @@ namespace Nexus
       public:
         FirstPersonCamera() = default;
 
-        FirstPersonCamera(
-            Graphics::IGraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0}
-        )
+        FirstPersonCamera(Graphics::IGraphicsDevice *device, int width = 1280, int height = 720,
+                          const glm::vec3 &position = {0, 0, 0})
             : m_Device(device), m_Position(position)
         {
             Resize(width, height);
@@ -209,17 +208,14 @@ namespace Nexus
                 // orthographic
                 if (m_ProjectionType == ProjectionType::Orthographic)
                 {
-                    m_Projection = glm::ortho<float>(
-                        (-m_Width / 2) / m_Zoom, (m_Width / 2) / m_Zoom, (-m_Height / 2) / m_Zoom,
-                        (m_Height / 2) / m_Zoom, 0.1f, 10000.0f
-                    );
+                    m_Projection = glm::ortho<float>((-m_Width / 2) / m_Zoom, (m_Width / 2) / m_Zoom,
+                                                     (-m_Height / 2) / m_Zoom, (m_Height / 2) / m_Zoom, 0.1f, 10000.0f);
                 }
                 // perspective
                 else
                 {
-                    m_Projection = glm::perspectiveFov<float>(
-                        glm::radians(m_Zoom), (float)m_Width, (float)m_Height, 0.1f, 1000.0f
-                    );
+                    m_Projection = glm::perspectiveFov<float>(glm::radians(m_Zoom), (float)m_Width, (float)m_Height,
+                                                              0.1f, 1000.0f);
                 }
             }
         }

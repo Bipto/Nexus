@@ -10,9 +10,8 @@
 
 namespace Nexus::Graphics
 {
-    CommandListVk::CommandListVk(
-        GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec
-    )
+    CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue,
+                                 const CommandListDescription &spec)
         : ICommandList(spec), m_Queue(commandQueue), m_Device(graphicsDevice)
     {
         const GladVulkanContext &context = m_Device->GetVulkanContext();

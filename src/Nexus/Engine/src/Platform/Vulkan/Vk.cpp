@@ -412,9 +412,8 @@ namespace Nexus::Vk
         }
     }
 
-    void GetVkFilterFromNexusFormat(
-        Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode
-    )
+    void GetVkFilterFromNexusFormat(Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max,
+                                    VkSamplerMipmapMode &mipmapMode)
     {
         switch (filter)
         {
@@ -653,10 +652,8 @@ namespace Nexus::Vk
 
         if (description.CreateFlags & Graphics::TextureCreateFlags_SparseBinding)
         {
-            flags = VkImageCreateFlagBits(
-                flags | VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT |
-                VK_IMAGE_CREATE_SPARSE_ALIASED_BIT
-            );
+            flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_SPARSE_BINDING_BIT |
+                                          VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT | VK_IMAGE_CREATE_SPARSE_ALIASED_BIT);
         }
 
         return flags;
@@ -682,8 +679,7 @@ namespace Nexus::Vk
     {
         switch (spec.Type)
         {
-        case Graphics::TextureType::Texture1D:
-        {
+        case Graphics::TextureType::Texture1D: {
             if (spec.DepthOrArrayLayers > 1)
             {
                 return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
@@ -693,8 +689,7 @@ namespace Nexus::Vk
                 return VK_IMAGE_VIEW_TYPE_1D;
             }
         }
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             if (spec.DepthOrArrayLayers > 1)
             {
                 return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
@@ -704,12 +699,10 @@ namespace Nexus::Vk
                 return VK_IMAGE_VIEW_TYPE_2D;
             }
         }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             return VK_IMAGE_VIEW_TYPE_3D;
         }
-        case Graphics::TextureType::TextureCube:
-        {
+        case Graphics::TextureType::TextureCube: {
             if (spec.DepthOrArrayLayers > 6)
             {
                 return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
@@ -868,9 +861,8 @@ namespace Nexus::Vk
         }
     }
 
-    static VkBufferUsageFlags GetVkBufferUsage(
-        const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device
-    )
+    static VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc,
+                                               Graphics::GraphicsDeviceVk *device)
     {
         VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
@@ -945,9 +937,8 @@ namespace Nexus::Vk
         return flags;
     }
 
-    VkBufferCreateInfo GetVkBufferCreateInfo(
-        const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device
-    )
+    VkBufferCreateInfo GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc,
+                                             Graphics::GraphicsDeviceVk *device)
     {
         VkBufferUsageFlags bufferUsage = GetVkBufferUsage(desc, device);
 
@@ -958,9 +949,8 @@ namespace Nexus::Vk
         return createInfo;
     }
 
-    VmaAllocationCreateInfo GetVmaAllocationCreateInfo(
-        const Graphics::DeviceBufferDescription &desc, Graphics::GraphicsDeviceVk *device
-    )
+    VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc,
+                                                       Graphics::GraphicsDeviceVk *device)
     {
         VmaAllocationCreateInfo createInfo = {};
         createInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
@@ -1033,37 +1023,32 @@ namespace Nexus::Vk
 
         if (flags & Graphics::AccelerationStructureBuildFlags::AllowUpdate)
         {
-            vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR
-            );
+            vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags |
+                                                                  VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR);
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::AllowCompaction)
         {
             vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR
-            );
+                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR);
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastTrace)
         {
             vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR
-            );
+                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::PreferFastBuild)
         {
             vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR
-            );
+                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR);
         }
 
         if (flags & Graphics::AccelerationStructureBuildFlags::MinimizeMemory)
         {
-            vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(
-                vulkanFlags | VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR
-            );
+            vulkanFlags = VkBuildAccelerationStructureFlagBitsKHR(vulkanFlags |
+                                                                  VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR);
         }
 
         return vulkanFlags;
@@ -1115,13 +1100,11 @@ namespace Nexus::Vk
     }
 
     VkAccelerationStructureGeometryDataKHR GetAccelerationStructureGeometryData(
-        const Graphics::AccelerationStructureGeometryDescription &geometry, uint32_t &primitiveCount
-    )
+        const Graphics::AccelerationStructureGeometryDescription &geometry, uint32_t &primitiveCount)
     {
         switch (geometry.Type)
         {
-        case Graphics::GeometryType::AxisAlignedBoundingBoxes:
-        {
+        case Graphics::GeometryType::AxisAlignedBoundingBoxes: {
             Graphics::AccelerationStructureAABBGeometry aabbs =
                 std::get<Graphics::AccelerationStructureAABBGeometry>(geometry.Geometry);
 
@@ -1138,8 +1121,7 @@ namespace Nexus::Vk
             return VkAccelerationStructureGeometryDataKHR{.aabbs = outAabbs};
         }
 
-        case Graphics::GeometryType::Instance:
-        {
+        case Graphics::GeometryType::Instance: {
             Graphics::AccelerationStructureInstanceGeometry instances =
                 std::get<Graphics::AccelerationStructureInstanceGeometry>(geometry.Geometry);
 
@@ -1155,8 +1137,7 @@ namespace Nexus::Vk
 
             return VkAccelerationStructureGeometryDataKHR{.instances = instanceGeometry};
         }
-        case Graphics::GeometryType::Triangles:
-        {
+        case Graphics::GeometryType::Triangles: {
             Graphics::AccelerationStructureTriangleGeometry triangles =
                 std::get<Graphics::AccelerationStructureTriangleGeometry>(geometry.Geometry);
 
@@ -1250,8 +1231,7 @@ namespace Nexus::Vk
 
     std::vector<VkAccelerationStructureGeometryKHR> GetVulkanAccelerationStructureGeometries(
         const Graphics::AccelerationStructureGeometryBuildDescription &description,
-        std::vector<uint32_t> &primitiveCounts
-    )
+        std::vector<uint32_t> &primitiveCounts)
     {
         std::vector<VkAccelerationStructureGeometryKHR> geometries;
         geometries.reserve(description.Geometry.size());
@@ -1274,8 +1254,7 @@ namespace Nexus::Vk
 
     VkAccelerationStructureBuildGeometryInfoKHR GetGeometryBuildInfo(
         const Graphics::AccelerationStructureGeometryBuildDescription &description,
-        const std::vector<VkAccelerationStructureGeometryKHR> &geometry
-    )
+        const std::vector<VkAccelerationStructureGeometryKHR> &geometry)
     {
         VkAccelerationStructureBuildGeometryInfoKHR buildInfo = {};
         buildInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
@@ -1324,9 +1303,8 @@ namespace Nexus::Vk
         return rangeInfo;
     }
 
-    static VkRenderPass CreateVkRenderPass(
-        const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc
-    )
+    static VkRenderPass CreateVkRenderPass(const GladVulkanContext &context, VkDevice device,
+                                           const VulkanRenderPassDescription &desc)
     {
         std::vector<VkAttachmentDescription> attachments = {};
         std::vector<VkAttachmentReference> colourAttachmentReferences = {};
@@ -1445,16 +1423,13 @@ namespace Nexus::Vk
         createInfo.pDependencies = dependencies.data();
 
         VkRenderPass renderPass = VK_NULL_HANDLE;
-        NX_VALIDATE(
-            context.CreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS,
-            "Failed to create render pass"
-        );
+        NX_VALIDATE(context.CreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS,
+                    "Failed to create render pass");
         return renderPass;
     }
 
-    static VkRenderPass CreateVkRenderPass2(
-        const GladVulkanContext &context, VkDevice device, const VulkanRenderPassDescription &desc
-    )
+    static VkRenderPass CreateVkRenderPass2(const GladVulkanContext &context, VkDevice device,
+                                            const VulkanRenderPassDescription &desc)
     {
         std::vector<VkAttachmentDescription2KHR> attachments = {};
         std::vector<VkAttachmentReference2KHR> colourAttachmentReferences = {};
@@ -1595,10 +1570,8 @@ namespace Nexus::Vk
         createInfo.pCorrelatedViewMasks = nullptr;
 
         VkRenderPass renderPass = VK_NULL_HANDLE;
-        NX_VALIDATE(
-            context.CreateRenderPass2KHR(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS,
-            "Failed to create render pass"
-        );
+        NX_VALIDATE(context.CreateRenderPass2KHR(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS,
+                    "Failed to create render pass");
         return renderPass;
     }
 
@@ -1616,9 +1589,8 @@ namespace Nexus::Vk
         }
     }
 
-    VkFramebuffer CreateFramebuffer(
-        const GladVulkanContext &context, VkDevice device, const VulkanFramebufferDescription &desc
-    )
+    VkFramebuffer CreateFramebuffer(const GladVulkanContext &context, VkDevice device,
+                                    const VulkanFramebufferDescription &desc)
     {
         std::vector<VkImageView> attachments = {};
 
@@ -1648,17 +1620,14 @@ namespace Nexus::Vk
 
         VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
-        NX_VALIDATE(
-            context.CreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS,
-            "Failed to create framebuffer"
-        );
+        NX_VALIDATE(context.CreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS,
+                    "Failed to create framebuffer");
 
         return framebuffer;
     }
 
-    VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(
-        VkShaderStageFlagBits stage, VkShaderModule module
-    )
+    VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage,
+                                                                        VkShaderModule module)
     {
         VkPipelineShaderStageCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -1681,8 +1650,7 @@ namespace Nexus::Vk
 
     VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(
         const Graphics::RasterizerStateDescription &rasterizerDesc,
-        const Graphics::DepthStencilDescription &depthStencilDesc
-    )
+        const Graphics::DepthStencilDescription &depthStencilDesc)
     {
         VkPolygonMode polygonMode = Vk::GetPolygonMode(rasterizerDesc.TriangleFillMode);
         VkCullModeFlags cullingFlags = Vk::GetCullMode(rasterizerDesc.TriangleCullMode);
@@ -1723,8 +1691,7 @@ namespace Nexus::Vk
     }
 
     std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates(
-        uint32_t colourAttachmentCount, const std::array<Graphics::BlendStateDescription, 8> &blendStates
-    )
+        uint32_t colourAttachmentCount, const std::array<Graphics::BlendStateDescription, 8> &blendStates)
     {
         std::vector<VkPipelineColorBlendAttachmentState> colourBlendStates;
 
@@ -1764,8 +1731,7 @@ namespace Nexus::Vk
     }
 
     VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo(
-        const Graphics::DepthStencilDescription &depthStencilDesc
-    )
+        const Graphics::DepthStencilDescription &depthStencilDesc)
     {
         VkPipelineDepthStencilStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -1869,11 +1835,9 @@ namespace Nexus::Vk
         }
     }
 
-    void CreateVertexInputLayout(
-        const std::vector<Graphics::VertexBufferLayout> &layouts,
-        std::vector<VkVertexInputAttributeDescription> &attributeDescriptions,
-        std::vector<VkVertexInputBindingDescription> &inputBindingDescriptions
-    )
+    void CreateVertexInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts,
+                                 std::vector<VkVertexInputAttributeDescription> &attributeDescriptions,
+                                 std::vector<VkVertexInputBindingDescription> &inputBindingDescriptions)
     {
         uint32_t elementIndex = 0;
         for (uint32_t layoutIndex = 0; layoutIndex < layouts.size(); layoutIndex++)
@@ -1916,9 +1880,8 @@ namespace Nexus::Vk
         return createInfo;
     }
 
-    std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(
-        Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device
-    )
+    std::map<std::string, VkShaderStageFlags> GetPushConstantRanges(Graphics::IPipeline *pipeline,
+                                                                    Graphics::GraphicsDeviceVk *device)
     {
         std::map<std::string, VkShaderStageFlags> pushConstants = {};
 
@@ -1943,23 +1906,20 @@ namespace Nexus::Vk
         return pushConstants;
     }
 
-    static std::optional<VkDescriptorType> GetDescriptorType(
-        Graphics::GraphicsDeviceVk *device, Graphics::ResourceDescriptorType resourceType,
-        Graphics::ShaderResource shaderResource
-    )
+    static std::optional<VkDescriptorType> GetDescriptorType(Graphics::GraphicsDeviceVk *device,
+                                                             Graphics::ResourceDescriptorType resourceType,
+                                                             Graphics::ShaderResource shaderResource)
     {
         switch (resourceType)
         {
-        case Graphics::ResourceDescriptorType::PushConstants:
-        {
+        case Graphics::ResourceDescriptorType::PushConstants: {
             return {};
         }
         case Graphics::ResourceDescriptorType::UniformBuffer:
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         case Graphics::ResourceDescriptorType::DynamicUniformBuffer:
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-        case Graphics::ResourceDescriptorType::InlineUniformBlock:
-        {
+        case Graphics::ResourceDescriptorType::InlineUniformBlock: {
             if (device->IsExtensionSupported(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME))
             {
                 return VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
@@ -2007,50 +1967,41 @@ namespace Nexus::Vk
         return setIndex;
     }
 
-    static bool IsCompatibleResource(
-        Graphics::ResourceDescriptorType descriptorType, Graphics::ResourceType reflectedType,
-        uint32_t reflectedResourceCount, uint32_t requestedDescriptorCount
-    )
+    static bool IsCompatibleResource(Graphics::ResourceDescriptorType descriptorType,
+                                     Graphics::ResourceType reflectedType, uint32_t reflectedResourceCount,
+                                     uint32_t requestedDescriptorCount)
     {
         switch (reflectedType)
         {
-        case Graphics::ResourceType::PushConstants:
-        {
+        case Graphics::ResourceType::PushConstants: {
             return descriptorType == Graphics::ResourceDescriptorType::PushConstants;
         }
-        case Graphics::ResourceType::StorageImage:
-        {
+        case Graphics::ResourceType::StorageImage: {
             return descriptorType == Graphics::ResourceDescriptorType::StorageImage &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
-        case Graphics::ResourceType::Texture:
-        {
+        case Graphics::ResourceType::Texture: {
             return descriptorType == Graphics::ResourceDescriptorType::SampledImage &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
-        case Graphics::ResourceType::UniformTextureBuffer:
-        {
+        case Graphics::ResourceType::UniformTextureBuffer: {
             return descriptorType == Graphics::ResourceDescriptorType::UniformTexelBuffer &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
-        case Graphics::ResourceType::StorageTextureBuffer:
-        {
+        case Graphics::ResourceType::StorageTextureBuffer: {
             return descriptorType == Graphics::ResourceDescriptorType::StorageTexelBuffer &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
         case Graphics::ResourceType::Sampler:
-        case Graphics::ResourceType::ComparisonSampler:
-        {
+        case Graphics::ResourceType::ComparisonSampler: {
             return descriptorType == Graphics::ResourceDescriptorType::Sampler &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
-        case Graphics::ResourceType::CombinedImageSampler:
-        {
+        case Graphics::ResourceType::CombinedImageSampler: {
             return descriptorType == Graphics::ResourceDescriptorType::CombinedImageSampler &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
-        case Graphics::ResourceType::UniformBuffer:
-        {
+        case Graphics::ResourceType::UniformBuffer: {
             if (descriptorType == Graphics::ResourceDescriptorType::InlineUniformBlock)
             {
                 return true;
@@ -2062,14 +2013,12 @@ namespace Nexus::Vk
                            reflectedResourceCount == requestedDescriptorCount;
             }
         }
-        case Graphics::ResourceType::StorageBuffer:
-        {
+        case Graphics::ResourceType::StorageBuffer: {
             return descriptorType == Graphics::ResourceDescriptorType::StorageBuffer ||
                    descriptorType == Graphics::ResourceDescriptorType::DynamicStorageBuffer &&
                        reflectedResourceCount == requestedDescriptorCount;
         }
-        case Graphics::ResourceType::AccelerationStructure:
-        {
+        case Graphics::ResourceType::AccelerationStructure: {
             return descriptorType == Graphics::ResourceDescriptorType::AccelerationStructure &&
                    reflectedResourceCount == requestedDescriptorCount;
         }
@@ -2078,10 +2027,8 @@ namespace Nexus::Vk
         }
     }
 
-    static void ValidateVulkanPipelineLayout(
-        const Graphics::ResourceSetDescription &resourceSetDesc,
-        const std::map<std::string, Graphics::ShaderResource> &reflectedResources
-    )
+    static void ValidateVulkanPipelineLayout(const Graphics::ResourceSetDescription &resourceSetDesc,
+                                             const std::map<std::string, Graphics::ShaderResource> &reflectedResources)
     {
         for (const auto &[shaderResourceName, shaderResource] : reflectedResources)
         {
@@ -2091,31 +2038,23 @@ namespace Nexus::Vk
             {
                 if (descriptor.Name == shaderResource.Name)
                 {
-                    NX_VALIDATE(
-                        IsCompatibleResource(
-                            descriptor.Type, shaderResource.Type, shaderResource.ResourceCount,
-                            descriptor.CountOrSizeInBytes
-                        ),
-                        "Mismatch between reflected shader type and requested "
-                        "resource type"
-                    );
+                    NX_VALIDATE(IsCompatibleResource(descriptor.Type, shaderResource.Type, shaderResource.ResourceCount,
+                                                     descriptor.CountOrSizeInBytes),
+                                "Mismatch between reflected shader type and requested "
+                                "resource type");
 
                     found = true;
                 }
             }
 
-            NX_VALIDATE(
-                found, "Resource was specified in shader but was not included in "
-                       "pipeline description"
-            );
+            NX_VALIDATE(found, "Resource was specified in shader but was not included in "
+                               "pipeline description");
         }
     }
 
-    VkPipelineLayout CreatePipelineLayout(
-        Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device,
-        std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
-        std::map<VkDescriptorType, uint32_t> &descriptorCounts
-    )
+    VkPipelineLayout CreatePipelineLayout(Graphics::IPipeline *pipeline, Graphics::GraphicsDeviceVk *device,
+                                          std::map<uint32_t, VkDescriptorSetLayout> &descriptorSetLayouts,
+                                          std::map<VkDescriptorType, uint32_t> &descriptorCounts)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
 
@@ -2186,11 +2125,9 @@ namespace Nexus::Vk
             // doesn't exist in the shader this is incorrect and an error
             else
             {
-                std::string errorMessage = std::format(
-                    "Attempting to bind descriptor with name {} but no resource "
-                    "with this name exists in the shader",
-                    descriptor.Name
-                );
+                std::string errorMessage = std::format("Attempting to bind descriptor with name {} but no resource "
+                                                       "with this name exists in the shader",
+                                                       descriptor.Name);
             }
         }
 
@@ -2210,11 +2147,9 @@ namespace Nexus::Vk
             layoutCreateInfo.bindingCount = set.size();
 
             VkDescriptorSetLayout &layout = descriptorSetLayouts[setIndex];
-            NX_VALIDATE(
-                context.CreateDescriptorSetLayout(device->GetVkDevice(), &layoutCreateInfo, nullptr, &layout) ==
-                    VK_SUCCESS,
-                "Failed to create descriptor set layout"
-            );
+            NX_VALIDATE(context.CreateDescriptorSetLayout(device->GetVkDevice(), &layoutCreateInfo, nullptr, &layout) ==
+                            VK_SUCCESS,
+                        "Failed to create descriptor set layout");
 
             layoutVector.push_back(layout);
         }
@@ -2253,24 +2188,24 @@ namespace Nexus::Vk
         pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
 
         // validate whether the layout was able to be created
-        NX_VALIDATE(
-            context.CreatePipelineLayout(device->GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout) == VK_SUCCESS,
-            "Failed to create pipeline layout"
-        );
+        NX_VALIDATE(context.CreatePipelineLayout(device->GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout) ==
+                        VK_SUCCESS,
+                    "Failed to create pipeline layout");
 
         return layout;
     }
 
-    VkPipeline CreateGraphicsPipeline(
-        VkRenderPass renderPass, Graphics::GraphicsDeviceVk *device,
-        const Graphics::DepthStencilDescription &depthStencilDesc,
-        const Graphics::RasterizerStateDescription &rasterizerDesc, uint32_t samples,
-        const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages, uint32_t colourTargetCount,
-        const std::array<Graphics::PixelFormat, 8> &colourFormats,
-        const std::array<Graphics::BlendStateDescription, 8> &blendStates, Graphics::PixelFormat depthFormat,
-        VkPipelineLayout pipelineLayout, Graphics::Topology topology,
-        const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts, uint32_t *pSampleMask
-    )
+    VkPipeline CreateGraphicsPipeline(VkRenderPass renderPass, Graphics::GraphicsDeviceVk *device,
+                                      const Graphics::DepthStencilDescription &depthStencilDesc,
+                                      const Graphics::RasterizerStateDescription &rasterizerDesc, uint32_t samples,
+                                      const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages,
+                                      uint32_t colourTargetCount,
+                                      const std::array<Graphics::PixelFormat, 8> &colourFormats,
+                                      const std::array<Graphics::BlendStateDescription, 8> &blendStates,
+                                      Graphics::PixelFormat depthFormat, VkPipelineLayout pipelineLayout,
+                                      Graphics::Topology topology,
+                                      const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts,
+                                      uint32_t *pSampleMask)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
         const Graphics::VulkanDeviceFeatures &deviceFeatures = device->GetDeviceFeatures();
@@ -2362,10 +2297,9 @@ namespace Nexus::Vk
         dynamicInfo.pNext = nullptr;
         dynamicInfo.flags = 0;
 
-        std::vector<VkDynamicState> dynamicStates = {
-            VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_BLEND_CONSTANTS,
-            VK_DYNAMIC_STATE_STENCIL_REFERENCE
-        };
+        std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR,
+                                                     VK_DYNAMIC_STATE_BLEND_CONSTANTS,
+                                                     VK_DYNAMIC_STATE_STENCIL_REFERENCE};
 
         dynamicInfo.dynamicStateCount = dynamicStates.size();
         dynamicInfo.pDynamicStates = dynamicStates.data();
@@ -2378,9 +2312,8 @@ namespace Nexus::Vk
 
         VkPipeline pipeline = VK_NULL_HANDLE;
 
-        if (context.CreateGraphicsPipelines(
-                device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline
-            ) != VK_SUCCESS)
+        if (context.CreateGraphicsPipelines(device->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+                                            &pipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create graphics pipeline");
         }
@@ -2388,10 +2321,8 @@ namespace Nexus::Vk
         return pipeline;
     }
 
-    VkResult AcquireNextImage(
-        Graphics::GraphicsDeviceVk *device, VkSwapchainKHR swapchain, uint64_t timeout, VkSemaphore semaphore,
-        VkFence fence, uint32_t *imageIndex
-    )
+    VkResult AcquireNextImage(Graphics::GraphicsDeviceVk *device, VkSwapchainKHR swapchain, uint64_t timeout,
+                              VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
 
@@ -2413,12 +2344,11 @@ namespace Nexus::Vk
         }
     }
 
-    VkResult SubmitQueue(
-        Graphics::GraphicsDeviceVk *device, VkQueue queue, const std::vector<VkCommandBuffer> commandBuffers,
-        VkPipelineStageFlags waitStageMask, VkPipelineStageFlags2 waitStageMask2, VkFence fence,
-        const VkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount, const VkSemaphore *signalSemaphores,
-        uint32_t signalSemaphoreCount
-    )
+    VkResult SubmitQueue(Graphics::GraphicsDeviceVk *device, VkQueue queue,
+                         const std::vector<VkCommandBuffer> commandBuffers, VkPipelineStageFlags waitStageMask,
+                         VkPipelineStageFlags2 waitStageMask2, VkFence fence, const VkSemaphore *waitSemaphores,
+                         uint32_t waitSemaphoreCount, const VkSemaphore *signalSemaphores,
+                         uint32_t signalSemaphoreCount)
     {
         const GladVulkanContext &context = device->GetVulkanContext();
 
@@ -2592,8 +2522,7 @@ namespace Nexus::Vk
         case Graphics::BarrierAccess::MemoryWrite:
             return VK_ACCESS_MEMORY_WRITE_BIT;
 
-        case Graphics::BarrierAccess::TransformFeedbackWrite:
-        {
+        case Graphics::BarrierAccess::TransformFeedbackWrite: {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
@@ -2605,8 +2534,7 @@ namespace Nexus::Vk
                 return VkAccessFlagBits(0);
             }
         }
-        case Graphics::BarrierAccess::AccelerationStructureRead:
-        {
+        case Graphics::BarrierAccess::AccelerationStructureRead: {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2618,8 +2546,7 @@ namespace Nexus::Vk
                 return VkAccessFlagBits(0);
             }
         }
-        case Graphics::BarrierAccess::AccelerationStructureWrite:
-        {
+        case Graphics::BarrierAccess::AccelerationStructureWrite: {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2631,8 +2558,7 @@ namespace Nexus::Vk
                 return VkAccessFlagBits(0);
             }
         }
-        case Graphics::BarrierAccess::VideoDecode:
-        {
+        case Graphics::BarrierAccess::VideoDecode: {
             // this flag is only supported if the video decode queue extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
@@ -2644,8 +2570,7 @@ namespace Nexus::Vk
                 return VkAccessFlagBits(0);
             }
         }
-        case Graphics::BarrierAccess::VideoEncode:
-        {
+        case Graphics::BarrierAccess::VideoEncode: {
             // this flag is only supported if the video decode queue extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
@@ -2663,9 +2588,8 @@ namespace Nexus::Vk
         }
     }
 
-    VkPipelineStageFlagBits GetPipelineStageFlags(
-        Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage
-    )
+    VkPipelineStageFlagBits GetPipelineStageFlags(Graphics::GraphicsDeviceVk *device,
+                                                  Graphics::BarrierPipelineStage stage)
     {
         switch (stage)
         {
@@ -2712,8 +2636,7 @@ namespace Nexus::Vk
             return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
         case Graphics::BarrierPipelineStage::PreRasterizationShaders:
             return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        case Graphics::BarrierPipelineStage::TransformFeedback:
-        {
+        case Graphics::BarrierPipelineStage::TransformFeedback: {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
@@ -2725,8 +2648,7 @@ namespace Nexus::Vk
                 return VkPipelineStageFlagBits(0);
             }
         }
-        case Graphics::BarrierPipelineStage::AccelerationStructure:
-        {
+        case Graphics::BarrierPipelineStage::AccelerationStructure: {
             // this flag is only supported if acceleration structure extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2738,8 +2660,7 @@ namespace Nexus::Vk
                 return VkPipelineStageFlagBits(0);
             }
         }
-        case Graphics::BarrierPipelineStage::RayTracingShader:
-        {
+        case Graphics::BarrierPipelineStage::RayTracingShader: {
             // this flag is only supported if the ray tracing pipeline extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
@@ -2751,8 +2672,7 @@ namespace Nexus::Vk
                 return VkPipelineStageFlagBits(0);
             }
         }
-        case Graphics::BarrierPipelineStage::TaskShader:
-        {
+        case Graphics::BarrierPipelineStage::TaskShader: {
             // this flag is only supported if the mesh shader extension is available,
             // so we need to query this
             if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
@@ -2764,8 +2684,7 @@ namespace Nexus::Vk
                 return VkPipelineStageFlagBits(0);
             }
         }
-        case Graphics::BarrierPipelineStage::MeshShader:
-        {
+        case Graphics::BarrierPipelineStage::MeshShader: {
             // this flag is only supported if the mesh shader extension is available,
             // so we need to query this
             if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
@@ -2824,8 +2743,7 @@ namespace Nexus::Vk
         case Graphics::BarrierAccess::MemoryWrite:
             return VK_ACCESS_2_MEMORY_WRITE_BIT;
 
-        case Graphics::BarrierAccess::TransformFeedbackWrite:
-        {
+        case Graphics::BarrierAccess::TransformFeedbackWrite: {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
@@ -2837,8 +2755,7 @@ namespace Nexus::Vk
                 return VK_ACCESS_2_NONE;
             }
         }
-        case Graphics::BarrierAccess::AccelerationStructureRead:
-        {
+        case Graphics::BarrierAccess::AccelerationStructureRead: {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2850,8 +2767,7 @@ namespace Nexus::Vk
                 return VK_ACCESS_2_NONE;
             }
         }
-        case Graphics::BarrierAccess::AccelerationStructureWrite:
-        {
+        case Graphics::BarrierAccess::AccelerationStructureWrite: {
             // this flag is only supported if the acceleration structure extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2864,8 +2780,7 @@ namespace Nexus::Vk
             }
         }
 
-        case Graphics::BarrierAccess::VideoDecode:
-        {
+        case Graphics::BarrierAccess::VideoDecode: {
             // this flag is only supported if the video decode queue extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
@@ -2877,8 +2792,7 @@ namespace Nexus::Vk
                 return VkAccessFlagBits(0);
             }
         }
-        case Graphics::BarrierAccess::VideoEncode:
-        {
+        case Graphics::BarrierAccess::VideoEncode: {
             // this flag is only supported if the video encode queue extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
@@ -2896,9 +2810,8 @@ namespace Nexus::Vk
         }
     }
 
-    VkPipelineStageFlagBits2 GetPipelineStageFlags2(
-        Graphics::GraphicsDeviceVk *device, Graphics::BarrierPipelineStage stage
-    )
+    VkPipelineStageFlagBits2 GetPipelineStageFlags2(Graphics::GraphicsDeviceVk *device,
+                                                    Graphics::BarrierPipelineStage stage)
     {
         switch (stage)
         {
@@ -2946,8 +2859,7 @@ namespace Nexus::Vk
             return VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
         case Graphics::BarrierPipelineStage::PreRasterizationShaders:
             return VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT;
-        case Graphics::BarrierPipelineStage::TransformFeedback:
-        {
+        case Graphics::BarrierPipelineStage::TransformFeedback: {
             // this flag is only supported if transform feedback extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME))
@@ -2959,8 +2871,7 @@ namespace Nexus::Vk
                 return VK_PIPELINE_STAGE_2_NONE;
             }
         }
-        case Graphics::BarrierPipelineStage::AccelerationStructure:
-        {
+        case Graphics::BarrierPipelineStage::AccelerationStructure: {
             // this flag is only supported if acceleration structure extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME))
@@ -2973,8 +2884,7 @@ namespace Nexus::Vk
                 return VK_PIPELINE_STAGE_2_NONE;
             }
         }
-        case Graphics::BarrierPipelineStage::RayTracingShader:
-        {
+        case Graphics::BarrierPipelineStage::RayTracingShader: {
             // this flag is only supported if the ray tracing pipeline extension is
             // available, so we need to query this
             if (device->IsExtensionSupported(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
@@ -2986,8 +2896,7 @@ namespace Nexus::Vk
                 return VK_PIPELINE_STAGE_2_NONE;
             }
         }
-        case Graphics::BarrierPipelineStage::TaskShader:
-        {
+        case Graphics::BarrierPipelineStage::TaskShader: {
             // this flag is only supported if the mesh shader extension is available,
             // so we need to query this
             if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
@@ -2999,8 +2908,7 @@ namespace Nexus::Vk
                 return VK_PIPELINE_STAGE_2_NONE;
             }
         }
-        case Graphics::BarrierPipelineStage::MeshShader:
-        {
+        case Graphics::BarrierPipelineStage::MeshShader: {
             // this flag is only supported if the mesh shader extension is available,
             // so we need to query this
             if (device->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
@@ -3035,18 +2943,15 @@ namespace Nexus::Vk
         case Graphics::TextureLayout::ShaderReadOnlyOptimal:
             return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         case Graphics::TextureLayout::TransferSrcOptimal:
-        case Graphics::TextureLayout::ResolveSrc:
-        {
+        case Graphics::TextureLayout::ResolveSrc: {
             return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         }
 
         case Graphics::TextureLayout::TransferDstOptimal:
-        case Graphics::TextureLayout::ResolveDest:
-        {
+        case Graphics::TextureLayout::ResolveDest: {
             return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         }
-        case Graphics::TextureLayout::PresentSrc:
-        {
+        case Graphics::TextureLayout::PresentSrc: {
             if (device->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -3056,8 +2961,7 @@ namespace Nexus::Vk
                 return VK_IMAGE_LAYOUT_GENERAL;
             }
         }
-        case Graphics::TextureLayout::VideoEncodeDestination:
-        {
+        case Graphics::TextureLayout::VideoEncodeDestination: {
             if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_ENCODE_DST_KHR;
@@ -3067,8 +2971,7 @@ namespace Nexus::Vk
                 return VK_IMAGE_LAYOUT_GENERAL;
             }
         }
-        case Graphics::TextureLayout::VideoEncodeSource:
-        {
+        case Graphics::TextureLayout::VideoEncodeSource: {
             if (device->IsExtensionSupported(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_ENCODE_SRC_KHR;
@@ -3078,8 +2981,7 @@ namespace Nexus::Vk
                 return VK_IMAGE_LAYOUT_GENERAL;
             }
         }
-        case Graphics::TextureLayout::VideoDecodeDestination:
-        {
+        case Graphics::TextureLayout::VideoDecodeDestination: {
             if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
@@ -3089,8 +2991,7 @@ namespace Nexus::Vk
                 return VK_IMAGE_LAYOUT_GENERAL;
             }
         }
-        case Graphics::TextureLayout::VideoDecodeSource:
-        {
+        case Graphics::TextureLayout::VideoDecodeSource: {
             if (device->IsExtensionSupported(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME))
             {
                 return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
@@ -3111,8 +3012,7 @@ namespace Nexus::Vk
 
         switch (texture->GetType())
         {
-        case Graphics::TextureType::Texture1D:
-        {
+        case Graphics::TextureType::Texture1D: {
             if (desc.Range.LayerCount > 1)
             {
                 return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
@@ -3122,8 +3022,7 @@ namespace Nexus::Vk
                 return VK_IMAGE_VIEW_TYPE_1D;
             }
         }
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             if (desc.Range.LayerCount > 1)
             {
                 return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
@@ -3133,12 +3032,10 @@ namespace Nexus::Vk
                 return VK_IMAGE_VIEW_TYPE_2D;
             }
         }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             return VK_IMAGE_VIEW_TYPE_3D;
         }
-        case Graphics::TextureType::TextureCube:
-        {
+        case Graphics::TextureType::TextureCube: {
             if (desc.Range.LayerCount > 6)
             {
                 return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
@@ -3168,12 +3065,11 @@ namespace Nexus::Vk
         }
     }
 
-    void BindDescriptorSets(
-        const GladVulkanContext &context, VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint,
-        VkPipelineLayout pipelineLayout, uint32_t setIndex, uint32_t setCount, const VkDescriptorSet *descriptorSets,
-        VkShaderStageFlags stageFlags, const uint32_t *dynamicOffsets, size_t dynamicOffsetCount,
-        const Graphics::GraphicsAPIInfo &info
-    )
+    void BindDescriptorSets(const GladVulkanContext &context, VkCommandBuffer commandBuffer,
+                            VkPipelineBindPoint bindPoint, VkPipelineLayout pipelineLayout, uint32_t setIndex,
+                            uint32_t setCount, const VkDescriptorSet *descriptorSets, VkShaderStageFlags stageFlags,
+                            const uint32_t *dynamicOffsets, size_t dynamicOffsetCount,
+                            const Graphics::GraphicsAPIInfo &info)
     {
         if (info.Major >= 1 && info.Minor >= 4 && context.CmdBindDescriptorSets2)
         {
@@ -3192,17 +3088,13 @@ namespace Nexus::Vk
         }
         else
         {
-            context.CmdBindDescriptorSets(
-                commandBuffer, bindPoint, pipelineLayout, setIndex, setCount, descriptorSets, dynamicOffsetCount,
-                dynamicOffsets
-            );
+            context.CmdBindDescriptorSets(commandBuffer, bindPoint, pipelineLayout, setIndex, setCount, descriptorSets,
+                                          dynamicOffsetCount, dynamicOffsets);
         }
     }
 
-    void CreateMemoryBarrier2(
-        Graphics::GraphicsDeviceVk *device, const Graphics::MemoryBarrierDesc &memoryBarrier,
-        std::vector<VkMemoryBarrier2> &memoryBarriers
-    )
+    void CreateMemoryBarrier2(Graphics::GraphicsDeviceVk *device, const Graphics::MemoryBarrierDesc &memoryBarrier,
+                              std::vector<VkMemoryBarrier2> &memoryBarriers)
     {
         VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, memoryBarrier.BeforeAccess);
         VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, memoryBarrier.AfterAccess);
@@ -3219,10 +3111,8 @@ namespace Nexus::Vk
         vkBarrier.dstAccessMask = dstAccess;
     }
 
-    void CreateMemoryBarrier(
-        Graphics::GraphicsDeviceVk *device, const Graphics::MemoryBarrierDesc &memoryBarrier,
-        std::vector<VkMemoryBarrier> &memoryBarriers
-    )
+    void CreateMemoryBarrier(Graphics::GraphicsDeviceVk *device, const Graphics::MemoryBarrierDesc &memoryBarrier,
+                             std::vector<VkMemoryBarrier> &memoryBarriers)
     {
         VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, memoryBarrier.BeforeAccess);
         VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, memoryBarrier.AfterAccess);
@@ -3242,8 +3132,7 @@ namespace Nexus::Vk
         Graphics::BarrierAccess afterAccess, Graphics::BarrierPipelineStage beforeStage,
         Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily, uint32_t dstQueueFamily,
         VkImageLayout newLayout, std::vector<VkImageMemoryBarrier2> &imageBarriers,
-        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges
-    )
+        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges)
     {
         VkAccessFlagBits2 srcAccess = Vk::GetAccessFlags2(device, beforeAccess);
         VkAccessFlagBits2 dstAccess = Vk::GetAccessFlags2(device, afterAccess);
@@ -3277,8 +3166,7 @@ namespace Nexus::Vk
         Graphics::BarrierAccess afterAccess, Graphics::BarrierPipelineStage beforeStage,
         Graphics::BarrierPipelineStage afterStage, uint32_t srcQueueFamily, uint32_t dstQueueFamily,
         VkImageLayout newLayout, std::vector<VkImageMemoryBarrier> &imageBarriers,
-        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges
-    )
+        const std::unordered_map<VkImage, std::deque<Vk::SubresourceRangeLayout>> &subresourceRanges)
     {
         VkAccessFlagBits srcAccess = Vk::GetAccessFlags(device, beforeAccess);
         VkAccessFlagBits dstAccess = Vk::GetAccessFlags(device, afterAccess);
@@ -3305,10 +3193,9 @@ namespace Nexus::Vk
         }
     }
 
-    void CreateBufferBarrier2(
-        Graphics::GraphicsDeviceVk *device, const Graphics::BufferBarrierDesc &bufferBarrierDesc,
-        std::vector<VkBufferMemoryBarrier2> &bufferBarriers, uint32_t srcQueueFamily, uint32_t dstQueueFamily
-    )
+    void CreateBufferBarrier2(Graphics::GraphicsDeviceVk *device, const Graphics::BufferBarrierDesc &bufferBarrierDesc,
+                              std::vector<VkBufferMemoryBarrier2> &bufferBarriers, uint32_t srcQueueFamily,
+                              uint32_t dstQueueFamily)
     {
         const Graphics::DeviceBufferVk *bufferVk = bufferBarrierDesc.Buffer.AsDerived<Graphics::DeviceBufferVk>();
 
@@ -3332,10 +3219,9 @@ namespace Nexus::Vk
         bufferBarrier.size = bufferBarrierDesc.Size;
     }
 
-    void CreateBufferBarrier(
-        Graphics::GraphicsDeviceVk *device, const Graphics::BufferBarrierDesc &bufferBarrierDesc,
-        std::vector<VkBufferMemoryBarrier> &bufferBarriers, uint32_t srcQueueFamily, uint32_t dstQueueFamily
-    )
+    void CreateBufferBarrier(Graphics::GraphicsDeviceVk *device, const Graphics::BufferBarrierDesc &bufferBarrierDesc,
+                             std::vector<VkBufferMemoryBarrier> &bufferBarriers, uint32_t srcQueueFamily,
+                             uint32_t dstQueueFamily)
     {
         const Graphics::DeviceBufferVk *bufferVk = bufferBarrierDesc.Buffer.AsDerived<Graphics::DeviceBufferVk>();
 

@@ -72,18 +72,15 @@ namespace Nexus::D3D12
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipeline(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
-        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
-    );
+        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout);
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
-    );
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::MeshletPipelineDescription &description,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
-    );
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 
     D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc);
     D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
@@ -118,13 +115,13 @@ namespace Nexus::D3D12
     };
 
     // pipeline
-    void CreateRootSignature(
-        const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
-        const Graphics::ResourceSetDescription &requestedResources, Microsoft::WRL::ComPtr<ID3D12Device9> device,
-        Microsoft::WRL::ComPtr<ID3DBlob> &inRootSignatureBlob,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature, DescriptorHandleInfo &descriptorHandleInfo,
-        RootSignatureBindingLocations &rootSignatureBindingLocation, bool requiresInputAssembly
-    );
+    void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
+                             const Graphics::ResourceSetDescription &requestedResources,
+                             Microsoft::WRL::ComPtr<ID3D12Device9> device,
+                             Microsoft::WRL::ComPtr<ID3DBlob> &inRootSignatureBlob,
+                             Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature,
+                             DescriptorHandleInfo &descriptorHandleInfo,
+                             RootSignatureBindingLocations &rootSignatureBindingLocation, bool requiresInputAssembly);
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
     D3D_PRIMITIVE_TOPOLOGY CreatePrimitiveTopology(Graphics::Topology topology);
@@ -142,11 +139,9 @@ namespace Nexus::D3D12
 
     D3D12_RESOURCE_FLAGS GetResourceFlags(uint8_t usage);
 
-    void GetD3D12AccelerationStructureInputs(
-        const Graphics::AccelerationStructureGeometryBuildDescription &description,
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &inputs,
-        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &geometry
-    );
+    void GetD3D12AccelerationStructureInputs(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+                                             D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &inputs,
+                                             std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &geometry);
 
     void GetD3D12FeatureLevelAsMajorMinor(D3D_FEATURE_LEVEL level, uint32_t &major, uint32_t &minor);
 

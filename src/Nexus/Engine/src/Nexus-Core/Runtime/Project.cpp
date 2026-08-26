@@ -13,10 +13,8 @@ const std::string DefaultSceneName = "UntitledScene";
 
 namespace Nexus
 {
-    Project::Project(
-        Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue, const std::string &name,
-        const std::string &directory, bool createDefaultScene
-    )
+    Project::Project(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
+                     const std::string &name, const std::string &directory, bool createDefaultScene)
         : m_Name(name), m_RootDirectory(directory + std::string("\\") + name),
           m_AssetManager(std::make_unique<AssetManager>(device, commandQueue, this))
     {
@@ -48,9 +46,8 @@ namespace Nexus
         Nexus::FileSystem::CreateFileDirectory(assetsDirectory);
     }
 
-    Ref<Project> Project::Deserialize(
-        const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
+    Ref<Project> Project::Deserialize(const std::string &filepath, Graphics::IGraphicsDevice *device,
+                                      Graphics::CommandQueueHandle commandQueue)
     {
         std::string directory = std::filesystem::path(filepath).parent_path().string();
 
@@ -113,9 +110,8 @@ namespace Nexus
         return m_LoadedScene != nullptr;
     }
 
-    void Project::LoadScene(
-        uint32_t index, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
+    void Project::LoadScene(uint32_t index, Graphics::IGraphicsDevice *device,
+                            Graphics::CommandQueueHandle commandQueue)
     {
         if (m_Scenes.size() > index)
         {
@@ -125,9 +121,8 @@ namespace Nexus
         }
     }
 
-    void Project::LoadScene(
-        const std::string &name, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-    )
+    void Project::LoadScene(const std::string &name, Graphics::IGraphicsDevice *device,
+                            Graphics::CommandQueueHandle commandQueue)
     {
         for (size_t i = 0; i < m_Scenes.size(); i++)
         {
@@ -226,9 +221,8 @@ namespace Nexus
 
         if (m_Library)
         {
-            typedef void (*SharedEngineStateFunc)(
-                Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc
-            );
+            typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc,
+                                                  ImGuiMemFreeFunc);
             SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
             if (func)
             {
@@ -425,9 +419,8 @@ namespace Nexus
         throw std::runtime_error("Component does not have a display name");
     }
 
-    void Project::RenderComponentUI(
-        Nexus::ECS::Registry &registry, Nexus::ECS::ComponentPtr component, Nexus::Ref<Nexus::Project> project
-    )
+    void Project::RenderComponentUI(Nexus::ECS::Registry &registry, Nexus::ECS::ComponentPtr component,
+                                    Nexus::Ref<Nexus::Project> project)
     {
         if (m_AvailableComponents.find(component.typeName) != m_AvailableComponents.end())
         {
@@ -454,10 +447,8 @@ namespace Nexus
         throw std::runtime_error("Type is not registed for serialization");
     }
 
-    void Project::DeserializeComponentFromString(
-        ECS::Registry &registry, GUID guid, const std::string &displayName, const std::string &data,
-        size_t entityHierarchyIndex
-    )
+    void Project::DeserializeComponentFromString(ECS::Registry &registry, GUID guid, const std::string &displayName,
+                                                 const std::string &data, size_t entityHierarchyIndex)
     {
         std::string typeName = GetComponentTypeNameFromDisplayName(displayName);
 
@@ -485,10 +476,8 @@ namespace Nexus
         throw std::runtime_error("Type is not registered for serialization");
     }
 
-    void Project::DeserializeComponentFromYaml(
-        ECS::Registry &registry, GUID guid, const std::string &displayName, const YAML::Node &node,
-        size_t entityHierarchyIndex
-    )
+    void Project::DeserializeComponentFromYaml(ECS::Registry &registry, GUID guid, const std::string &displayName,
+                                               const YAML::Node &node, size_t entityHierarchyIndex)
     {
         std::string typeName = GetComponentTypeNameFromDisplayName(displayName);
 

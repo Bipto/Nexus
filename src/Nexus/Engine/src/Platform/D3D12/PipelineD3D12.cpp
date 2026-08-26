@@ -10,17 +10,15 @@
 namespace Nexus::Graphics
 {
 
-    GraphicsPipelineD3D12::GraphicsPipelineD3D12(
-        GraphicsDeviceD3D12 *device, const GraphicsPipelineDescription &description
-    )
+    GraphicsPipelineD3D12::GraphicsPipelineD3D12(GraphicsDeviceD3D12 *device,
+                                                 const GraphicsPipelineDescription &description)
         : IGraphicsPipeline(description), m_Description(description)
     {
         const auto &reflectedShaderResources = GetRequiredShaderResources();
 
-        D3D12::CreateRootSignature(
-            reflectedShaderResources, description.ResourceDescription, device->GetD3D12Device(), m_RootSignatureBlob,
-            m_RootSignature, m_DescriptorHandleInfo, m_RootSignatureBindingLocations, m_Description.Layouts.size() > 0
-        );
+        D3D12::CreateRootSignature(reflectedShaderResources, description.ResourceDescription, device->GetD3D12Device(),
+                                   m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo,
+                                   m_RootSignatureBindingLocations, m_Description.Layouts.size() > 0);
 
         m_InputLayout = D3D12::CreateInputLayout(description.Layouts);
         m_PipelineStateObject = D3D12::CreateGraphicsPipeline(device, description, m_RootSignature, m_InputLayout);
@@ -71,16 +69,14 @@ namespace Nexus::Graphics
         return m_DescriptorHandleInfo;
     }
 
-    MeshletPipelineD3D12::MeshletPipelineD3D12(
-        GraphicsDeviceD3D12 *device, const MeshletPipelineDescription &description
-    )
+    MeshletPipelineD3D12::MeshletPipelineD3D12(GraphicsDeviceD3D12 *device,
+                                               const MeshletPipelineDescription &description)
         : IMeshletPipeline(description)
     {
         const auto &resources = GetRequiredShaderResources();
-        D3D12::CreateRootSignature(
-            resources, description.ResourceDescription, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature,
-            m_DescriptorHandleInfo, m_RootSignatureBindingLocations, false
-        );
+        D3D12::CreateRootSignature(resources, description.ResourceDescription, device->GetD3D12Device(),
+                                   m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo,
+                                   m_RootSignatureBindingLocations, false);
 
         m_PipelineStateObject = D3D12::CreateMeshletPipeline(device, description, m_RootSignature);
         m_PrimitiveTopology = D3D12::CreatePrimitiveTopology(description.PrimitiveTopology);
@@ -122,16 +118,14 @@ namespace Nexus::Graphics
         return m_DescriptorHandleInfo;
     }
 
-    ComputePipelineD3D12::ComputePipelineD3D12(
-        GraphicsDeviceD3D12 *device, const ComputePipelineDescription &description
-    )
+    ComputePipelineD3D12::ComputePipelineD3D12(GraphicsDeviceD3D12 *device,
+                                               const ComputePipelineDescription &description)
         : IComputePipeline(description)
     {
         const auto &resources = GetRequiredShaderResources();
-        D3D12::CreateRootSignature(
-            resources, description.ResourceDescription, device->GetD3D12Device(), m_RootSignatureBlob, m_RootSignature,
-            m_DescriptorHandleInfo, m_RootSignatureBindingLocations, false
-        );
+        D3D12::CreateRootSignature(resources, description.ResourceDescription, device->GetD3D12Device(),
+                                   m_RootSignatureBlob, m_RootSignature, m_DescriptorHandleInfo,
+                                   m_RootSignatureBindingLocations, false);
 
         m_PipelineStateObject = D3D12::CreateComputePipeline(device, description, m_RootSignature);
     }

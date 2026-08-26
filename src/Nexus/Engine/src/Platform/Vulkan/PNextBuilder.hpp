@@ -12,7 +12,8 @@ namespace Nexus::Vk
         PNextBuilder() = default;
         virtual ~PNextBuilder() = default;
 
-        template <typename T> T *Add(T &element)
+        template <typename T>
+        T *Add(T &element)
         {
             element.pNext = nullptr;
             if (!m_Head)

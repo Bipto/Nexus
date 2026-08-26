@@ -54,9 +54,8 @@ namespace Nexus
         /// file is already mounted at the given address, if overwrite is true, the
         /// original data will be replaced by the supplied data
         /// @param data The data that should be stored within this loader
-        std::expected<void, std::string> MountBinaryFile(
-            std::string_view path, bool overwrite, const std::vector<std::byte> &data
-        );
+        std::expected<void, std::string> MountBinaryFile(std::string_view path, bool overwrite,
+                                                         const std::vector<std::byte> &data);
 
         std::expected<void, std::string> MountTextFile(std::string_view path, bool overwrite, const std::string &data);
 

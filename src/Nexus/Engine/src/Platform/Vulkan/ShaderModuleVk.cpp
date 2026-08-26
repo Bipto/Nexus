@@ -12,9 +12,8 @@ namespace Nexus::Graphics
         : IShaderModule(shaderModuleSpec), m_GraphicsDevice(device)
     {
         CreateShaderModule();
-        device->SetObjectName(
-            VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule, shaderModuleSpec.DebugName.c_str()
-        );
+        device->SetObjectName(VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)m_ShaderModule,
+                              shaderModuleSpec.DebugName.c_str());
     }
 
     ShaderModuleVk::~ShaderModuleVk()
@@ -28,9 +27,8 @@ namespace Nexus::Graphics
         return m_ShaderModule;
     }
 
-    static void ExtractAttribute(
-        Attribute &attribute, const spirv_cross::Resource &spirvResource, spirv_cross::Compiler &compiler
-    )
+    static void ExtractAttribute(Attribute &attribute, const spirv_cross::Resource &spirvResource,
+                                 spirv_cross::Compiler &compiler)
     {
         attribute.Binding = compiler.get_decoration(spirvResource.id, spv::DecorationLocation);
         attribute.Name = spirvResource.name;
@@ -39,27 +37,22 @@ namespace Nexus::Graphics
 
         switch (type.basetype)
         {
-        case spirv_cross::SPIRType::BaseType::Boolean:
-        {
+        case spirv_cross::SPIRType::BaseType::Boolean: {
             switch (type.vecsize)
             {
-            case 1:
-            {
+            case 1: {
                 attribute.Type = ReflectedShaderDataType::Boolean;
                 break;
             }
-            case 2:
-            {
+            case 2: {
                 attribute.Type = ReflectedShaderDataType::Boolean2;
                 break;
             }
-            case 3:
-            {
+            case 3: {
                 attribute.Type = ReflectedShaderDataType::Boolean3;
                 break;
             }
-            case 4:
-            {
+            case 4: {
                 attribute.Type = ReflectedShaderDataType::Boolean4;
                 break;
             }
@@ -68,27 +61,22 @@ namespace Nexus::Graphics
             }
             break;
         }
-        case spirv_cross::SPIRType::BaseType::Int:
-        {
+        case spirv_cross::SPIRType::BaseType::Int: {
             switch (type.vecsize)
             {
-            case 1:
-            {
+            case 1: {
                 attribute.Type = ReflectedShaderDataType::Int;
                 break;
             }
-            case 2:
-            {
+            case 2: {
                 attribute.Type = ReflectedShaderDataType::Int2;
                 break;
             }
-            case 3:
-            {
+            case 3: {
                 attribute.Type = ReflectedShaderDataType::Int3;
                 break;
             }
-            case 4:
-            {
+            case 4: {
                 attribute.Type = ReflectedShaderDataType::Int4;
                 break;
             }
@@ -97,27 +85,22 @@ namespace Nexus::Graphics
             }
             break;
         }
-        case spirv_cross::SPIRType::BaseType::UInt:
-        {
+        case spirv_cross::SPIRType::BaseType::UInt: {
             switch (type.vecsize)
             {
-            case 1:
-            {
+            case 1: {
                 attribute.Type = ReflectedShaderDataType::UInt;
                 break;
             }
-            case 2:
-            {
+            case 2: {
                 attribute.Type = ReflectedShaderDataType::UInt2;
                 break;
             }
-            case 3:
-            {
+            case 3: {
                 attribute.Type = ReflectedShaderDataType::UInt3;
                 break;
             }
-            case 4:
-            {
+            case 4: {
                 attribute.Type = ReflectedShaderDataType::UInt4;
                 break;
             }
@@ -126,29 +109,24 @@ namespace Nexus::Graphics
             }
             break;
         }
-        case spirv_cross::SPIRType::BaseType::Float:
-        {
+        case spirv_cross::SPIRType::BaseType::Float: {
             // we are reflecting a matrix
             if (type.columns > 1)
             {
                 switch (type.vecsize)
                 {
-                case 2:
-                {
+                case 2: {
                     switch (type.columns)
                     {
-                    case 2:
-                    {
+                    case 2: {
                         attribute.Type = ReflectedShaderDataType::Mat2x2;
                         break;
                     }
-                    case 3:
-                    {
+                    case 3: {
                         attribute.Type = ReflectedShaderDataType::Mat2x3;
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         attribute.Type = ReflectedShaderDataType::Mat2x4;
                         break;
                     }
@@ -157,22 +135,18 @@ namespace Nexus::Graphics
                     }
                     break;
                 }
-                case 3:
-                {
+                case 3: {
                     switch (type.columns)
                     {
-                    case 2:
-                    {
+                    case 2: {
                         attribute.Type = ReflectedShaderDataType::Mat3x2;
                         break;
                     }
-                    case 3:
-                    {
+                    case 3: {
                         attribute.Type = ReflectedShaderDataType::Mat3x3;
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         attribute.Type = ReflectedShaderDataType::Mat3x4;
                         break;
                     }
@@ -181,22 +155,18 @@ namespace Nexus::Graphics
                     }
                     break;
                 }
-                case 4:
-                {
+                case 4: {
                     switch (type.columns)
                     {
-                    case 2:
-                    {
+                    case 2: {
                         attribute.Type = ReflectedShaderDataType::Mat4x2;
                         break;
                     }
-                    case 3:
-                    {
+                    case 3: {
                         attribute.Type = ReflectedShaderDataType::Mat4x3;
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         attribute.Type = ReflectedShaderDataType::Mat4x4;
                         break;
                     }
@@ -214,23 +184,19 @@ namespace Nexus::Graphics
             {
                 switch (type.vecsize)
                 {
-                case 1:
-                {
+                case 1: {
                     attribute.Type = ReflectedShaderDataType::Float;
                     break;
                 }
-                case 2:
-                {
+                case 2: {
                     attribute.Type = ReflectedShaderDataType::Float2;
                     break;
                 }
-                case 3:
-                {
+                case 3: {
                     attribute.Type = ReflectedShaderDataType::Float3;
                     break;
                 }
-                case 4:
-                {
+                case 4: {
                     attribute.Type = ReflectedShaderDataType::Float4;
                     break;
                 }
@@ -240,29 +206,24 @@ namespace Nexus::Graphics
             }
             break;
         }
-        case spirv_cross::SPIRType::BaseType::Double:
-        {
+        case spirv_cross::SPIRType::BaseType::Double: {
             // we are reflecting a matrix
             if (type.columns > 1)
             {
                 switch (type.vecsize)
                 {
-                case 2:
-                {
+                case 2: {
                     switch (type.columns)
                     {
-                    case 2:
-                    {
+                    case 2: {
                         attribute.Type = ReflectedShaderDataType::DMat2x2;
                         break;
                     }
-                    case 3:
-                    {
+                    case 3: {
                         attribute.Type = ReflectedShaderDataType::DMat2x3;
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         attribute.Type = ReflectedShaderDataType::DMat2x4;
                         break;
                     }
@@ -271,22 +232,18 @@ namespace Nexus::Graphics
                     }
                     break;
                 }
-                case 3:
-                {
+                case 3: {
                     switch (type.columns)
                     {
-                    case 2:
-                    {
+                    case 2: {
                         attribute.Type = ReflectedShaderDataType::DMat3x2;
                         break;
                     }
-                    case 3:
-                    {
+                    case 3: {
                         attribute.Type = ReflectedShaderDataType::DMat3x3;
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         attribute.Type = ReflectedShaderDataType::DMat3x4;
                         break;
                     }
@@ -295,22 +252,18 @@ namespace Nexus::Graphics
                     }
                     break;
                 }
-                case 4:
-                {
+                case 4: {
                     switch (type.columns)
                     {
-                    case 2:
-                    {
+                    case 2: {
                         attribute.Type = ReflectedShaderDataType::DMat4x2;
                         break;
                     }
-                    case 3:
-                    {
+                    case 3: {
                         attribute.Type = ReflectedShaderDataType::DMat4x3;
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         attribute.Type = ReflectedShaderDataType::DMat4x4;
                         break;
                     }
@@ -328,23 +281,19 @@ namespace Nexus::Graphics
             {
                 switch (type.vecsize)
                 {
-                case 1:
-                {
+                case 1: {
                     attribute.Type = ReflectedShaderDataType::Double;
                     break;
                 }
-                case 2:
-                {
+                case 2: {
                     attribute.Type = ReflectedShaderDataType::Double2;
                     break;
                 }
-                case 3:
-                {
+                case 3: {
                     attribute.Type = ReflectedShaderDataType::Double3;
                     break;
                 }
-                case 4:
-                {
+                case 4: {
                     attribute.Type = ReflectedShaderDataType::Double4;
                     break;
                 }
@@ -357,10 +306,8 @@ namespace Nexus::Graphics
         }
     }
 
-    static void ExtractResource(
-        ReflectedResource &reflectedResource, const spirv_cross::Resource &spirvResource,
-        spirv_cross::Compiler &compiler, ReflectedShaderDataType dataType
-    )
+    static void ExtractResource(ReflectedResource &reflectedResource, const spirv_cross::Resource &spirvResource,
+                                spirv_cross::Compiler &compiler, ReflectedShaderDataType dataType)
     {
         uint32_t set = compiler.get_decoration(spirvResource.id, spv::DecorationDescriptorSet);
         uint32_t binding = compiler.get_decoration(spirvResource.id, spv::DecorationBinding);
@@ -385,8 +332,7 @@ namespace Nexus::Graphics
         {
             switch (type.image.dim)
             {
-            case spv::Dim::Dim1D:
-            {
+            case spv::Dim::Dim1D: {
                 if (type.image.arrayed)
                 {
                     reflectedResource.Dimension = ResourceDimension::Texture1DArray;
@@ -398,8 +344,7 @@ namespace Nexus::Graphics
                     break;
                 }
             }
-            case spv::Dim::Dim2D:
-            {
+            case spv::Dim::Dim2D: {
                 if (type.image.arrayed)
                 {
                     if (type.image.ms)
@@ -425,19 +370,16 @@ namespace Nexus::Graphics
                     break;
                 }
             }
-            case spv::Dim::Dim3D:
-            {
+            case spv::Dim::Dim3D: {
                 reflectedResource.Dimension = ResourceDimension::Texture3D;
                 break;
             }
-            case spv::Dim::DimBuffer:
-            {
+            case spv::Dim::DimBuffer: {
                 reflectedResource.ResourceAccess = StorageResourceAccess::Read;
                 dataType = ReflectedShaderDataType::UniformTextureBuffer;
                 break;
             }
-            case spv::Dim::DimCube:
-            {
+            case spv::Dim::DimCube: {
                 if (type.image.arrayed)
                 {
                     reflectedResource.Dimension = ResourceDimension::TextureCubeArray;
@@ -449,13 +391,11 @@ namespace Nexus::Graphics
                     break;
                 }
             }
-            case spv::Dim::DimRect:
-            {
+            case spv::Dim::DimRect: {
                 reflectedResource.Dimension = ResourceDimension::TextureRectangle;
                 break;
             }
-            case spv::Dim::DimSubpassData:
-            {
+            case spv::Dim::DimSubpassData: {
                 reflectedResource.Dimension = ResourceDimension::NoDimension;
                 break;
             }
@@ -568,9 +508,8 @@ namespace Nexus::Graphics
         for (const auto &accelerationStructure : resources.acceleration_structures)
         {
             ReflectedResource &reflectedResource = reflectionData.Resources.emplace_back();
-            ExtractResource(
-                reflectedResource, accelerationStructure, compiler, ReflectedShaderDataType::AccelerationStructure
-            );
+            ExtractResource(reflectedResource, accelerationStructure, compiler,
+                            ReflectedShaderDataType::AccelerationStructure);
         }
 
         for (const auto &pushConstant : resources.push_constant_buffers)

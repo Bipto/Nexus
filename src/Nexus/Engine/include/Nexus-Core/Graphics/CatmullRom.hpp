@@ -5,7 +5,8 @@
 
 namespace Nexus::Graphics
 {
-    template <typename T> class CatmullRom
+    template <typename T>
+    class CatmullRom
     {
       public:
         CatmullRom() = default;

@@ -4,7 +4,8 @@
 
 namespace Nexus::Graphics
 {
-    template <typename T> class Circle
+    template <typename T>
+    class Circle
     {
       public:
         Circle() = default;
@@ -47,7 +48,8 @@ namespace Nexus::Graphics
             return false;
         }
 
-        template <typename Other> const Circle<Other> To() const
+        template <typename Other>
+        const Circle<Other> To() const
         {
             return Circle<Other>(Nexus::Point2D<Other>((Other)m_Position.X, (Other)m_Position.Y), (Other)m_Radius);
         }

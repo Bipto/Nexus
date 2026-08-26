@@ -18,10 +18,8 @@ namespace Nexus::GL
     class ViewContextWebGL : public IViewContext
     {
       public:
-        ViewContextWebGL(
-            const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
-            const ContextDescription &spec
-        );
+        ViewContextWebGL(const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
+                         const ContextDescription &spec);
         virtual ~ViewContextWebGL();
         virtual bool MakeCurrent() override;
         virtual void Swap() override;

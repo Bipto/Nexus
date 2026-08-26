@@ -14,7 +14,8 @@ namespace Nexus
     class EventDispatcher
     {
       public:
-        template <EventType Message> void Subscribe(EventHandlerFunction<Message> handler)
+        template <EventType Message>
+        void Subscribe(EventHandlerFunction<Message> handler)
         {
             // Store erased handler
             auto &handlers = m_Subscribers[typeid(Message)];

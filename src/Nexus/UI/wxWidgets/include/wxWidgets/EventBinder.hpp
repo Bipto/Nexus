@@ -15,14 +15,10 @@ namespace Nexus::UI
         {
             // Store a binder function that knows how to bind this event type
             m_Binder = [win, evt, id](std::shared_ptr<std::function<void()>> cb) {
-                win->Bind(
-                    evt,
-                    [cb](auto &) {
-                        if (*cb)
-                            (*cb)();
-                    },
-                    id
-                );
+                win->Bind(evt, [cb](auto &) {
+                    if (*cb)
+                        (*cb)();
+                }, id);
             };
         }
 

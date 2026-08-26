@@ -45,27 +45,24 @@ namespace Nexus::GL
         return m_HGLRC;
     }
 
-    std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(
-        HDC hdc, const ContextDescription &spec
-    )
+    std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc,
+                                                                                  const ContextDescription &spec)
     {
         int pixelFormat;
         UINT numFormats;
-        int attributes[] = {
-            WGL_DRAW_TO_PBUFFER_ARB,
-            GL_TRUE,
-            WGL_SUPPORT_OPENGL_ARB,
-            GL_TRUE,
-            WGL_PIXEL_TYPE_ARB,
-            WGL_TYPE_RGBA_ARB,
-            WGL_ACCELERATION_ARB,
-            WGL_FULL_ACCELERATION_ARB,
-            WGL_COLOR_BITS_ARB,
-            24,
-            WGL_DEPTH_BITS_ARB,
-            16,
-            0
-        };
+        int attributes[] = {WGL_DRAW_TO_PBUFFER_ARB,
+                            GL_TRUE,
+                            WGL_SUPPORT_OPENGL_ARB,
+                            GL_TRUE,
+                            WGL_PIXEL_TYPE_ARB,
+                            WGL_TYPE_RGBA_ARB,
+                            WGL_ACCELERATION_ARB,
+                            WGL_FULL_ACCELERATION_ARB,
+                            WGL_COLOR_BITS_ARB,
+                            24,
+                            WGL_DEPTH_BITS_ARB,
+                            16,
+                            0};
 
         if (!wglChoosePixelFormatARB(hdc, attributes, NULL, 1, &pixelFormat, &numFormats))
         {

@@ -26,22 +26,18 @@ namespace Nexus
 
         switch (desc.Type)
         {
-        case MessageBoxType::Default:
-        {
+        case MessageBoxType::Default: {
             break;
         }
-        case MessageBoxType::Information:
-        {
+        case MessageBoxType::Information: {
             flags |= SDL_MESSAGEBOX_INFORMATION;
             break;
         }
-        case MessageBoxType::Warning:
-        {
+        case MessageBoxType::Warning: {
             flags |= SDL_MESSAGEBOX_WARNING;
             break;
         }
-        case MessageBoxType::Error:
-        {
+        case MessageBoxType::Error: {
             flags |= SDL_MESSAGEBOX_ERROR;
             break;
         }
@@ -51,13 +47,11 @@ namespace Nexus
 
         switch (desc.Layout)
         {
-        case ButtonLayout::LeftToRight:
-        {
+        case ButtonLayout::LeftToRight: {
             flags |= SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT;
             break;
         }
-        case ButtonLayout::RightToLeft:
-        {
+        case ButtonLayout::RightToLeft: {
             flags |= SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT;
             break;
         }
@@ -68,19 +62,16 @@ namespace Nexus
         return flags;
     }
 
-    static void GetSDLMessageBoxColourScheme(
-        const MessageBoxColourScheme &colourScheme, SDL_MessageBoxColorScheme &sdlScheme
-    )
+    static void GetSDLMessageBoxColourScheme(const MessageBoxColourScheme &colourScheme,
+                                             SDL_MessageBoxColorScheme &sdlScheme)
     {
         sdlScheme.colors[0] = {colourScheme.Background.R, colourScheme.Background.G, colourScheme.Background.B};
         sdlScheme.colors[1] = {colourScheme.Text.R, colourScheme.Text.G, colourScheme.Text.B};
         sdlScheme.colors[2] = {colourScheme.ButtonBorder.R, colourScheme.ButtonBorder.G, colourScheme.ButtonBorder.B};
-        sdlScheme.colors[3] = {
-            colourScheme.ButtonBackground.R, colourScheme.ButtonBackground.G, colourScheme.ButtonBackground.B
-        };
-        sdlScheme.colors[4] = {
-            colourScheme.ButtonSelected.R, colourScheme.ButtonSelected.G, colourScheme.ButtonSelected.B
-        };
+        sdlScheme.colors[3] = {colourScheme.ButtonBackground.R, colourScheme.ButtonBackground.G,
+                               colourScheme.ButtonBackground.B};
+        sdlScheme.colors[4] = {colourScheme.ButtonSelected.R, colourScheme.ButtonSelected.G,
+                               colourScheme.ButtonSelected.B};
     }
 
     MessageBoxSDL3::MessageBoxSDL3(const MessageBoxDescription &description) : m_Description(description)

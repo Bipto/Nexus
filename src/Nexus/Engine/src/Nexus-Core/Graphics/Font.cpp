@@ -4,11 +4,9 @@
 
 #include FT_FREETYPE_H
 
-void LoadCharacter(
-    char character, FT_Face &face, Nexus::Graphics::FontData &data,
-    std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth,
-    uint32_t textureHeight, FT_Render_Mode renderMode
-)
+void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data,
+                   std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos,
+                   uint32_t textureWidth, uint32_t textureHeight, FT_Render_Mode renderMode)
 {
     if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
     {
@@ -47,10 +45,9 @@ void LoadCharacter(
     characters[character] = c;
 }
 
-Nexus::Point2D<uint32_t> FindLargestGlyphSize(
-    const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters,
-    FT_Render_Mode renderMode
-)
+Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face &face,
+                                              const std::vector<Nexus::Graphics::CharacterRange> &ranges,
+                                              uint32_t &numberOfCharacters, FT_Render_Mode renderMode)
 {
     uint32_t width = 0;
     uint32_t height = 0;
@@ -80,10 +77,8 @@ Nexus::Point2D<uint32_t> FindLargestGlyphSize(
 
 namespace Nexus::Graphics
 {
-    Font::Font(
-        const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type,
-        IGraphicsDevice *device
-    )
+    Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges,
+               FontType type, IGraphicsDevice *device)
         : m_CharacterRanges(characterRanges), m_FontSize(size), m_Type(type)
     {
         FT_Library ft;
@@ -134,9 +129,8 @@ namespace Nexus::Graphics
         {
             for (int character = range.Begin; character < range.End; character++)
             {
-                LoadCharacter(
-                    (char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight, renderMode
-                );
+                LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight,
+                              renderMode);
 
                 xPos += m_MaxCharacterSize.X;
 
@@ -151,12 +145,10 @@ namespace Nexus::Graphics
         Graphics::TextureViewDescription viewDesc = {};
         viewDesc.TargetTexture = m_Texture;
         viewDesc.Format = m_Texture->GetPixelFormat();
-        viewDesc.Range = {
-            .BaseMipLevel = 0,
-            .LevelCount = m_Texture->GetMipLevels(),
-            .BaseArrayLayer = 0,
-            .LayerCount = m_Texture->GetDepthOrArrayLayers()
-        };
+        viewDesc.Range = {.BaseMipLevel = 0,
+                          .LevelCount = m_Texture->GetMipLevels(),
+                          .BaseArrayLayer = 0,
+                          .LayerCount = m_Texture->GetDepthOrArrayLayers()};
         viewDesc.DebugName = "Font Texture View";
 
         DeviceBufferDescription bufferDesc = {};

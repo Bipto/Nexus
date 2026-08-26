@@ -30,9 +30,8 @@ namespace Nexus::Graphics
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueOpenGL::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence
-    )
+    void CommandQueueOpenGL::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists,
+                                                std::optional<FenceHandle> fence)
     {
         NX_PROFILE_FUNCTION();
 

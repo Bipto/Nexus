@@ -9,9 +9,9 @@ namespace Nexus::Graphics
     {
     }
 
-    std::expected<VkSurfaceKHR, VkResult> SurfaceX11_Vk::CreateVkSurface(
-        const SwapchainDescription &swapchainDesc, VkInstance instance, const GladVulkanContext &context
-    ) const
+    std::expected<VkSurfaceKHR, VkResult> SurfaceX11_Vk::CreateVkSurface(const SwapchainDescription &swapchainDesc,
+                                                                         VkInstance instance,
+                                                                         const GladVulkanContext &context) const
     {
         Display *display = reinterpret_cast<Display *>(m_Display);
         int screen = static_cast<int>(m_Screen);

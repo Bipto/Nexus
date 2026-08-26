@@ -183,58 +183,47 @@ namespace Nexus::Graphics
 
         switch (resource.Type)
         {
-        case ReflectedShaderDataType::StorageImage:
-        {
+        case ReflectedShaderDataType::StorageImage: {
             output.Type = ResourceType::StorageImage;
             break;
         }
-        case ReflectedShaderDataType::Texture:
-        {
+        case ReflectedShaderDataType::Texture: {
             output.Type = ResourceType::Texture;
             break;
         }
-        case ReflectedShaderDataType::UniformTextureBuffer:
-        {
+        case ReflectedShaderDataType::UniformTextureBuffer: {
             output.Type = ResourceType::UniformTextureBuffer;
             break;
         }
-        case ReflectedShaderDataType::StorageTextureBuffer:
-        {
+        case ReflectedShaderDataType::StorageTextureBuffer: {
             output.Type = ResourceType::StorageTextureBuffer;
             break;
         }
-        case ReflectedShaderDataType::Sampler:
-        {
+        case ReflectedShaderDataType::Sampler: {
             output.Type = ResourceType::Sampler;
             break;
         }
-        case ReflectedShaderDataType::ComparisonSampler:
-        {
+        case ReflectedShaderDataType::ComparisonSampler: {
             output.Type = ResourceType::ComparisonSampler;
             break;
         }
-        case ReflectedShaderDataType::CombinedImageSampler:
-        {
+        case ReflectedShaderDataType::CombinedImageSampler: {
             output.Type = ResourceType::CombinedImageSampler;
             break;
         }
-        case ReflectedShaderDataType::UniformBuffer:
-        {
+        case ReflectedShaderDataType::UniformBuffer: {
             output.Type = ResourceType::UniformBuffer;
             break;
         }
-        case ReflectedShaderDataType::StorageBuffer:
-        {
+        case ReflectedShaderDataType::StorageBuffer: {
             output.Type = ResourceType::StorageBuffer;
             break;
         }
-        case ReflectedShaderDataType::AccelerationStructure:
-        {
+        case ReflectedShaderDataType::AccelerationStructure: {
             output.Type = ResourceType::AccelerationStructure;
             break;
         }
-        case ReflectedShaderDataType::PushConstants:
-        {
+        case ReflectedShaderDataType::PushConstants: {
             output.Type = ResourceType::PushConstants;
             break;
         }
@@ -285,10 +274,8 @@ namespace Nexus::Graphics
 
                         if (newResource == requiredResource)
                         {
-                            throw std::runtime_error(
-                                "Shader resources that share the same name must "
-                                "match across stages"
-                            );
+                            throw std::runtime_error("Shader resources that share the same name must "
+                                                     "match across stages");
                         }
 
                         requiredResource.Stage.AddFlag(module->GetShaderStage());

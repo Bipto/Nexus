@@ -41,20 +41,17 @@ namespace Nexus
       public:
         TextureImporter() = default;
 
-        [[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromDisk(
-            IResourceLoader *loader, std::string_view path
-        ) const;
+        [[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromDisk(IResourceLoader *loader,
+                                                                                     std::string_view path) const;
 
         [[nodiscard]] std::expected<TextureInfo, std::string> GetTextureInfoFromMemory(
-            std::span<std::byte> buffer
-        ) const;
+            std::span<std::byte> buffer) const;
 
         [[nodiscard]] std::expected<TextureData, std::string> LoadImageFromDisk(
-            IResourceLoader *loader, std::string_view path, bool flipVertically, std::optional<uint32_t> desiredChannels
-        ) const;
+            IResourceLoader *loader, std::string_view path, bool flipVertically,
+            std::optional<uint32_t> desiredChannels) const;
 
         [[nodiscard]] std::expected<TextureData, std::string> LoadImageFromMemory(
-            std::span<std::byte> buffer, bool flipVertically, std::optional<uint32_t> desiredChannels
-        ) const;
+            std::span<std::byte> buffer, bool flipVertically, std::optional<uint32_t> desiredChannels) const;
     };
 } // namespace Nexus

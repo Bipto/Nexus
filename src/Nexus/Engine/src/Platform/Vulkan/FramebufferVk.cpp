@@ -10,10 +10,8 @@ namespace Nexus::Graphics
     {
         NX_VALIDATE(desc.ValidateSamples(), "Sample count must match across all textures in a framebuffer");
         NX_VALIDATE(desc.ValidateDimensions(), "The dimensions of all textures in a framebuffer must match");
-        NX_VALIDATE(
-            desc.ValidateUsageFlags(), "The usage flags of all textures must be "
-                                       "correct for usage in a framebuffer"
-        );
+        NX_VALIDATE(desc.ValidateUsageFlags(), "The usage flags of all textures must be "
+                                               "correct for usage in a framebuffer");
 
         CreateRenderPass();
         CreateFramebuffer();

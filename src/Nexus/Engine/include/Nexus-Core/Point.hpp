@@ -8,7 +8,8 @@ namespace Nexus
 {
     /// @brief  A struct containing a pair of values
     /// @tparam T A type to contain within the point
-    template <typename T> struct Point2D
+    template <typename T>
+    struct Point2D
     {
       public:
         /// @brief A default constructor creating an empty object
@@ -28,7 +29,8 @@ namespace Nexus
         {
         }
 
-        template <typename Other> const Point2D<Other> To() const
+        template <typename Other>
+        const Point2D<Other> To() const
         {
             return Point2D<Other>((Other)X, (Other)Y);
         }
@@ -55,7 +57,8 @@ namespace Nexus
 
     /// @brief  A struct containing three values
     /// @tparam T A type to contain within the point
-    template <typename T> struct Point3D
+    template <typename T>
+    struct Point3D
     {
       public:
         /// @brief A default constructor creating an empty object
@@ -75,7 +78,8 @@ namespace Nexus
         {
         }
 
-        template <typename Other> const Point3D<Other> To() const
+        template <typename Other>
+        const Point3D<Other> To() const
         {
             return Point3D<Other>((Other)X, (Other)Y, (Other)Z);
         }

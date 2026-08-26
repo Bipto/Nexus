@@ -43,10 +43,8 @@ namespace Nexus::Graphics
         resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
         resourceDesc.Flags = D3D12::GetResourceFlags(desc.Usage);
 
-        HRESULT hr = allocator->CreateResource2(
-            &allocationDesc, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &m_Allocation,
-            IID_PPV_ARGS(&m_BufferHandle)
-        );
+        HRESULT hr = allocator->CreateResource2(&allocationDesc, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                                &m_Allocation, IID_PPV_ARGS(&m_BufferHandle));
 
         if (FAILED(hr))
         {
@@ -63,10 +61,8 @@ namespace Nexus::Graphics
 
     void DeviceBufferD3D12::SetData(const void *data, uint32_t offset, uint32_t size)
     {
-        NX_VALIDATE(
-            m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
-            "Buffer must be created on with Upload access."
-        );
+        NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload,
+                    "Buffer must be created on with Upload access.");
 
         bool alreadyMapped = m_MappedHandle != nullptr;
         uint8_t *dst = m_MappedHandle;
@@ -86,10 +82,8 @@ namespace Nexus::Graphics
 
     std::vector<char> DeviceBufferD3D12::GetData(uint32_t offset, uint32_t size)
     {
-        NX_VALIDATE(
-            m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
-            "Buffer must be created on with Readnack access."
-        );
+        NX_VALIDATE(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback,
+                    "Buffer must be created on with Readnack access.");
         std::vector<char> data(size);
 
         bool alreadyMapped = m_MappedHandle != nullptr;

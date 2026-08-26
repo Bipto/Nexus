@@ -12,9 +12,8 @@ namespace Nexus
         {
             static std::random_device rd;
             static std::mt19937_64 e2(rd());
-            static std::uniform_int_distribution<uint64_t> dist(
-                std::llround(std::pow(2, 61)), std::llround(std::pow(2, 62))
-            );
+            static std::uniform_int_distribution<uint64_t> dist(std::llround(std::pow(2, 61)),
+                                                                std::llround(std::pow(2, 62)));
 
             Value = dist(e2);
         }

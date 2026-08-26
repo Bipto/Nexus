@@ -24,10 +24,8 @@ namespace Nexus::Graphics
         ~ResourceSetVk();
         void Flush() final;
 
-        void Bind(
-            const GladVulkanContext &context, VkCommandBuffer cmd, PipelineVk *pipeline, VkPipelineBindPoint bindPoint,
-            const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets
-        );
+        void Bind(const GladVulkanContext &context, VkCommandBuffer cmd, PipelineVk *pipeline,
+                  VkPipelineBindPoint bindPoint, const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets);
 
         const std::map<uint32_t, VkDescriptorSet> &GetDescriptorSets() const;
         std::optional<VkShaderStageFlags> GetPushConstantsStageFlags(const std::string &name) const;

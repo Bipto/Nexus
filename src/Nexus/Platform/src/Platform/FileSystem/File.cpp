@@ -45,9 +45,8 @@ namespace Nexus::IO
         return std::string(reinterpret_cast<const char *>(result->data()), result->size());
     }
 
-    std::expected<size_t, std::string> File::WriteAllBytes(
-        const std::filesystem::path &path, const std::byte *data, size_t size
-    )
+    std::expected<size_t, std::string> File::WriteAllBytes(const std::filesystem::path &path, const std::byte *data,
+                                                           size_t size)
     {
         IO::FileStream fileStream(path, IO::FileMode::WriteNewBinary);
         return fileStream.Write(data, size);

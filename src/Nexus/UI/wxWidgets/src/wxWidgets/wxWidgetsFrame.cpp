@@ -5,10 +5,8 @@
 namespace Nexus::UI
 {
     wxWidgetsFrame::wxWidgetsFrame(const std::string &title)
-        : m_Frame(new wxFrame(
-              nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
-              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE
-          ))
+        : m_Frame(new wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+                              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE))
     {
         m_Frame->Show(true);
     }

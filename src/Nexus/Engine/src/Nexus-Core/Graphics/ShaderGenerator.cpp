@@ -79,9 +79,8 @@ namespace Nexus::Graphics
         }
     }
 
-    void SetHLSLUniformNames(
-        spirv_cross::CompilerHLSL &compiler, const spirv_cross::SmallVector<spirv_cross::Resource> &resources
-    )
+    void SetHLSLUniformNames(spirv_cross::CompilerHLSL &compiler,
+                             const spirv_cross::SmallVector<spirv_cross::Resource> &resources)
     {
         for (const auto &resource : resources)
         {
@@ -153,8 +152,7 @@ namespace Nexus::Graphics
         // compile to shader language
         switch (options.OutputFormat)
         {
-        case ShaderLanguage::GLSL:
-        {
+        case ShaderLanguage::GLSL: {
             spirv_cross::CompilerGLSL compiler(spirv_binary);
             glOptions.version = 450;
             glOptions.es = false;
@@ -162,8 +160,7 @@ namespace Nexus::Graphics
             output.Source = compiler.compile();
             break;
         }
-        case ShaderLanguage::GLSLES:
-        {
+        case ShaderLanguage::GLSLES: {
             spirv_cross::CompilerGLSL compiler(spirv_binary);
             glOptions.version = 300;
             glOptions.es = true;
@@ -171,8 +168,7 @@ namespace Nexus::Graphics
             output.Source = compiler.compile();
             break;
         }
-        case ShaderLanguage::HLSL:
-        {
+        case ShaderLanguage::HLSL: {
             spirv_cross::CompilerHLSL compiler(spirv_binary);
 
             const std::string name = GetD3DShaderEntryPoint(options.Stage);
@@ -195,8 +191,7 @@ namespace Nexus::Graphics
             output.Source = compiler.compile();
             break;
         }
-        case ShaderLanguage::Vulkan_SPIRV:
-        {
+        case ShaderLanguage::Vulkan_SPIRV: {
             spirv_cross::CompilerGLSL compiler(spirv_binary);
             glOptions.version = 450;
             glOptions.es = false;
@@ -218,38 +213,32 @@ namespace Nexus::Graphics
         return output;
     }
 
-    static void GetShadercTargetEnvironment(
-        TargetEnvironment env, shaderc_target_env &shaderc_env, shaderc_env_version &shaderc_env_version
-    )
+    static void GetShadercTargetEnvironment(TargetEnvironment env, shaderc_target_env &shaderc_env,
+                                            shaderc_env_version &shaderc_env_version)
     {
         switch (env)
         {
-        case TargetEnvironment::Vulkan_1_0:
-        {
+        case TargetEnvironment::Vulkan_1_0: {
             shaderc_env = shaderc_target_env_vulkan;
             shaderc_env_version = shaderc_env_version_vulkan_1_0;
             break;
         }
-        case TargetEnvironment::Vulkan_1_1:
-        {
+        case TargetEnvironment::Vulkan_1_1: {
             shaderc_env = shaderc_target_env_vulkan;
             shaderc_env_version = shaderc_env_version_vulkan_1_1;
             break;
         }
-        case TargetEnvironment::Vulkan_1_2:
-        {
+        case TargetEnvironment::Vulkan_1_2: {
             shaderc_env = shaderc_target_env_vulkan;
             shaderc_env_version = shaderc_env_version_vulkan_1_2;
             break;
         }
-        case TargetEnvironment::Vulkan_1_3:
-        {
+        case TargetEnvironment::Vulkan_1_3: {
             shaderc_env = shaderc_target_env_vulkan;
             shaderc_env_version = shaderc_env_version_vulkan_1_3;
             break;
         }
-        case TargetEnvironment::OpenGL:
-        {
+        case TargetEnvironment::OpenGL: {
             shaderc_env = shaderc_target_env_opengl;
             shaderc_env_version = shaderc_env_version_opengl_4_5;
             break;
@@ -282,9 +271,8 @@ namespace Nexus::Graphics
         }
     }
 
-    std::vector<uint32_t> ShaderGenerator::GenerateSPIRV(
-        const std::string &source, ShaderStage stage, TargetEnvironment env, SPIRV_Version version, bool debugInfo
-    )
+    std::vector<uint32_t> ShaderGenerator::GenerateSPIRV(const std::string &source, ShaderStage stage,
+                                                         TargetEnvironment env, SPIRV_Version version, bool debugInfo)
     {
         return std::vector<uint32_t>();
     }

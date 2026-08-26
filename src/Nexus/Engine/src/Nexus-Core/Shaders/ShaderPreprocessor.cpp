@@ -13,8 +13,7 @@ namespace
 {
     static std::expected<std::string, std::string> ResolveIncludePath(
         Nexus::IResourceLoader *resourceLoader, const std::string &originalPath, const std::string &includePath,
-        const std::vector<std::string> &includeDirectories
-    )
+        const std::vector<std::string> &includeDirectories)
     {
         std::filesystem::path shaderPath = originalPath;
         std::filesystem::path shaderDirectory = shaderPath.parent_path();
@@ -76,8 +75,8 @@ namespace Nexus
     }
 
     std::expected<std::string, std::string> ShaderPreprocessor::PreprocessShader(
-        const std::string &shaderPath, const std::string &shaderText, const std::vector<std::string> &includeDirectories
-    ) const
+        const std::string &shaderPath, const std::string &shaderText,
+        const std::vector<std::string> &includeDirectories) const
     {
         std::vector<std::string> includeStack;
         std::unordered_set<std::string> onceIncluded;
@@ -90,8 +89,7 @@ namespace Nexus
     std::expected<std::string, std::string> ShaderPreprocessor::PreprocessShader(
         const std::string &shaderPath, const std::string &shaderText,
         const std::vector<std::string> &includeDirectories, std::vector<std::string> &includeStack,
-        std::unordered_set<std::string> &onceIncluded, const std::string &currentFile
-    ) const
+        std::unordered_set<std::string> &onceIncluded, const std::string &currentFile) const
     {
         static const std::regex includeRegex(R"(^\s*#include\s+[<"]([^">]+)[">](.*)$)");
         static const std::regex pragmaOnceRegex(R"(^\s*#pragma\s+once\b)");

@@ -17,8 +17,7 @@ namespace Nexus::Graphics
         IPipeline *pipeline, std::map<uint32_t, std::vector<uint32_t>> &offsetData,
         std::map<std::string, ResourceSetVk::DynamicOffsetDescription> &memberOffsets,
         VkShaderStageFlags &pipelineStages,
-        const std::map<std::string, Nexus::Graphics::ShaderResource> &shaderResources
-    )
+        const std::map<std::string, Nexus::Graphics::ShaderResource> &shaderResources)
     {
         const ResourceSetDescription &resourceSetDesc = pipeline->GetResourceSetDescription();
 
@@ -129,9 +128,8 @@ namespace Nexus::Graphics
         }
 
         m_PushConstantRanges = Vk::GetPushConstantRanges(pipeline.GetResource(), device);
-        CreateDynamicOffsetDataAndStageFlags(
-            pipeline.GetResource(), m_DynamicOffsets, m_DynamicOffsetMap, m_PipelineStages, m_ShaderResources
-        );
+        CreateDynamicOffsetDataAndStageFlags(pipeline.GetResource(), m_DynamicOffsets, m_DynamicOffsetMap,
+                                             m_PipelineStages, m_ShaderResources);
     }
 
     ResourceSetVk::~ResourceSetVk()
@@ -140,11 +138,11 @@ namespace Nexus::Graphics
         context.DestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
     }
 
-    static void GenerateWriteBufferDescriptor(
-        const std::string &resourceName, std::map<std::string, VkDescriptorBufferInfo> &buffersToWrite,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkBuffer buffer, size_t offset, size_t size,
-        VkDescriptorType descriptorType, uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet
-    )
+    static void GenerateWriteBufferDescriptor(const std::string &resourceName,
+                                              std::map<std::string, VkDescriptorBufferInfo> &buffersToWrite,
+                                              std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkBuffer buffer,
+                                              size_t offset, size_t size, VkDescriptorType descriptorType,
+                                              uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet)
     {
         VkDescriptorBufferInfo &bufferInfo = buffersToWrite[resourceName];
         bufferInfo.buffer = buffer;
@@ -165,8 +163,7 @@ namespace Nexus::Graphics
         const std::string &resourceName,
         std::map<std::string, VkWriteDescriptorSetInlineUniformBlockEXT> &blocksToWrite,
         std::vector<VkWriteDescriptorSet> &descriptorSetWrites, const void *data, size_t dataSize, uint32_t binding,
-        uint32_t arrayElement, VkDescriptorSet descriptorSet
-    )
+        uint32_t arrayElement, VkDescriptorSet descriptorSet)
     {
         VkWriteDescriptorSetInlineUniformBlockEXT &blockInfo = blocksToWrite[resourceName];
         blockInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT;
@@ -183,12 +180,12 @@ namespace Nexus::Graphics
         descriptorInfo.descriptorType = VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
     }
 
-    static void GenerateWriteImageDescriptor(
-        const std::string &resourceName, std::map<std::string, VkDescriptorImageInfo> &imagesToWrite,
-        std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkImageView imageView, VkImageLayout imageLayout,
-        VkSampler sampler, VkDescriptorType descriptorType, uint32_t binding, uint32_t arrayElement,
-        VkDescriptorSet descriptorSet
-    )
+    static void GenerateWriteImageDescriptor(const std::string &resourceName,
+                                             std::map<std::string, VkDescriptorImageInfo> &imagesToWrite,
+                                             std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
+                                             VkImageView imageView, VkImageLayout imageLayout, VkSampler sampler,
+                                             VkDescriptorType descriptorType, uint32_t binding, uint32_t arrayElement,
+                                             VkDescriptorSet descriptorSet)
     {
         VkDescriptorImageInfo &imageInfo = imagesToWrite[resourceName];
         imageInfo.imageView = imageView;
@@ -210,8 +207,7 @@ namespace Nexus::Graphics
         const std::string &resourceName,
         std::map<std::string, VkWriteDescriptorSetAccelerationStructureKHR> &accelerationStructuresToWrite,
         std::vector<VkWriteDescriptorSet> &descriptorSetWrites, VkAccelerationStructureKHR accelerationStructure,
-        uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet
-    )
+        uint32_t binding, uint32_t arrayElement, VkDescriptorSet descriptorSet)
     {
         VkWriteDescriptorSetAccelerationStructureKHR &asWrite = accelerationStructuresToWrite[resourceName];
         asWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
@@ -229,11 +225,11 @@ namespace Nexus::Graphics
         descriptorInfo.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 
-    static void GenerateWriteTexelBufferDescriptor(
-        const std::string &resourceName, std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
-        VkBufferView bufferView, uint32_t binding, VkDescriptorSet descriptorSet, VkDescriptorType descriptorType,
-        uint32_t arrayElement
-    )
+    static void GenerateWriteTexelBufferDescriptor(const std::string &resourceName,
+                                                   std::vector<VkWriteDescriptorSet> &descriptorSetWrites,
+                                                   VkBufferView bufferView, uint32_t binding,
+                                                   VkDescriptorSet descriptorSet, VkDescriptorType descriptorType,
+                                                   uint32_t arrayElement)
     {
         VkWriteDescriptorSet &descriptorInfo = descriptorSetWrites.emplace_back();
         descriptorInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -266,11 +262,10 @@ namespace Nexus::Graphics
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
-                    GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
-                        view.Size, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, resource.Binding, arrayIndex,
-                        m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteBufferDescriptor(resource.Name, buffersToWrite, descriptorSetWrites,
+                                                  buffer->GetVkBuffer(), view.Offset, view.Size,
+                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, resource.Binding, arrayIndex,
+                                                  m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.UniformBuffers[name][arrayIndex] = view;
                 }
@@ -287,11 +282,10 @@ namespace Nexus::Graphics
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
-                    GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
-                        view.Size, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, arrayIndex, resource.Binding,
-                        m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteBufferDescriptor(resource.Name, buffersToWrite, descriptorSetWrites,
+                                                  buffer->GetVkBuffer(), view.Offset, view.Size,
+                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, arrayIndex,
+                                                  resource.Binding, m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.DynamicUniformBuffers[name][arrayIndex] = view;
                 }
@@ -303,10 +297,9 @@ namespace Nexus::Graphics
         {
             const ShaderResource &resource = m_ShaderResources.at(name);
 
-            GenerateWriteInlineUniformBlockDescriptor(
-                resource.Name, inlineBlocksToWrite, descriptorSetWrites, inlineData.data(), inlineData.size(),
-                resource.Binding, 0, m_DescriptorSets.at(resource.Set)
-            );
+            GenerateWriteInlineUniformBlockDescriptor(resource.Name, inlineBlocksToWrite, descriptorSetWrites,
+                                                      inlineData.data(), inlineData.size(), resource.Binding, 0,
+                                                      m_DescriptorSets.at(resource.Set));
 
             m_BoundResources.InlineUniformBlocks[name] = inlineData;
         }
@@ -321,11 +314,10 @@ namespace Nexus::Graphics
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
-                    GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
-                        view.SizeInBytes, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, resource.Binding, arrayIndex,
-                        m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteBufferDescriptor(resource.Name, buffersToWrite, descriptorSetWrites,
+                                                  buffer->GetVkBuffer(), view.Offset, view.SizeInBytes,
+                                                  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, resource.Binding, arrayIndex,
+                                                  m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.StorageBuffers[name][arrayIndex] = view;
                 }
@@ -342,11 +334,10 @@ namespace Nexus::Graphics
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
-                    GenerateWriteBufferDescriptor(
-                        resource.Name, buffersToWrite, descriptorSetWrites, buffer->GetVkBuffer(), view.Offset,
-                        view.SizeInBytes, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, resource.Binding, arrayIndex,
-                        m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteBufferDescriptor(resource.Name, buffersToWrite, descriptorSetWrites,
+                                                  buffer->GetVkBuffer(), view.Offset, view.SizeInBytes,
+                                                  VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, resource.Binding,
+                                                  arrayIndex, m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.DynamicStorageBuffers[name][arrayIndex] = view;
                 }
@@ -369,11 +360,10 @@ namespace Nexus::Graphics
                     viewInfo.BaseArrayLayer = storageImage.ArrayLayer;
                     viewInfo.LayerCount = 1;
 
-                    GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites, texture->GetImageView(viewInfo),
-                        VK_IMAGE_LAYOUT_GENERAL, VK_NULL_HANDLE, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, resource.Binding,
-                        arrayIndex, m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteImageDescriptor(name, imagesToWrite, descriptorSetWrites,
+                                                 texture->GetImageView(viewInfo), VK_IMAGE_LAYOUT_GENERAL,
+                                                 VK_NULL_HANDLE, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, resource.Binding,
+                                                 arrayIndex, m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.StorageImages[name][arrayIndex] = storageImage;
                 }
@@ -393,12 +383,11 @@ namespace Nexus::Graphics
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
-                    GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites, textureView->GetVkImageView(),
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler->GetSampler(),
-                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, resource.Binding, arrayIndex,
-                        m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteImageDescriptor(name, imagesToWrite, descriptorSetWrites,
+                                                 textureView->GetVkImageView(),
+                                                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler->GetSampler(),
+                                                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, resource.Binding,
+                                                 arrayIndex, m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.CombinedImageSamplers[name][arrayIndex] = combinedImageSampler;
                 }
@@ -419,8 +408,7 @@ namespace Nexus::Graphics
                     GenerateWriteImageDescriptor(
                         name, imagesToWrite, descriptorSetWrites, textureView->GetVkImageView(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_NULL_HANDLE, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                        resource.Binding, arrayIndex, m_DescriptorSets.at(resource.Set)
-                    );
+                        resource.Binding, arrayIndex, m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.SampledImages[name][arrayIndex] = sampledImage;
                 }
@@ -438,11 +426,10 @@ namespace Nexus::Graphics
                 {
                     const ShaderResource &resource = m_ShaderResources.at(name);
 
-                    GenerateWriteImageDescriptor(
-                        name, imagesToWrite, descriptorSetWrites, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_UNDEFINED,
-                        samplerVk->GetSampler(), VK_DESCRIPTOR_TYPE_SAMPLER, resource.Binding, arrayIndex,
-                        m_DescriptorSets.at(resource.Set)
-                    );
+                    GenerateWriteImageDescriptor(name, imagesToWrite, descriptorSetWrites, VK_NULL_HANDLE,
+                                                 VK_IMAGE_LAYOUT_UNDEFINED, samplerVk->GetSampler(),
+                                                 VK_DESCRIPTOR_TYPE_SAMPLER, resource.Binding, arrayIndex,
+                                                 m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.Samplers[name][arrayIndex] = sampler;
                 }
@@ -462,8 +449,7 @@ namespace Nexus::Graphics
 
                     GenerateWriteAccelerationStructureDescriptor(
                         name, accelerationStructuresToWrite, descriptorSetWrites, accelerationStructureVk->GetHandle(),
-                        resource.Binding, arrayIndex, m_DescriptorSets.at(resource.Set)
-                    );
+                        resource.Binding, arrayIndex, m_DescriptorSets.at(resource.Set));
 
                     m_BoundResources.AccelerationStructures[name][arrayIndex] = accelerationStructure;
                 }
@@ -482,8 +468,7 @@ namespace Nexus::Graphics
 
                     GenerateWriteTexelBufferDescriptor(
                         resource.Name, descriptorSetWrites, texelBufferVk->GetVkBufferView(), resource.Binding,
-                        m_DescriptorSets.at(resource.Set), VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, arrayIndex
-                    );
+                        m_DescriptorSets.at(resource.Set), VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, arrayIndex);
 
                     m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
@@ -502,8 +487,7 @@ namespace Nexus::Graphics
 
                     GenerateWriteTexelBufferDescriptor(
                         resource.Name, descriptorSetWrites, texelBufferVk->GetVkBufferView(), resource.Binding,
-                        m_DescriptorSets.at(resource.Set), VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, arrayIndex
-                    );
+                        m_DescriptorSets.at(resource.Set), VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, arrayIndex);
 
                     m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
@@ -511,15 +495,13 @@ namespace Nexus::Graphics
         }
 
         // perform the descriptor set update
-        context.UpdateDescriptorSets(
-            m_Device->GetVkDevice(), descriptorSetWrites.size(), descriptorSetWrites.data(), 0, nullptr
-        );
+        context.UpdateDescriptorSets(m_Device->GetVkDevice(), descriptorSetWrites.size(), descriptorSetWrites.data(), 0,
+                                     nullptr);
     }
 
-    void ResourceSetVk::Bind(
-        const GladVulkanContext &context, VkCommandBuffer cmd, PipelineVk *pipeline, VkPipelineBindPoint bindPoint,
-        const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets
-    )
+    void ResourceSetVk::Bind(const GladVulkanContext &context, VkCommandBuffer cmd, PipelineVk *pipeline,
+                             VkPipelineBindPoint bindPoint,
+                             const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets)
     {
         // iterate through all dynamic offsets and enter their values into the
         // correct spot in the buffer
@@ -544,10 +526,8 @@ namespace Nexus::Graphics
         for (const auto &[setIndex, descriptorSet] : m_DescriptorSets)
         {
             std::vector<uint32_t> &dynamicOffsets = m_DynamicOffsets[setIndex];
-            Vk::BindDescriptorSets(
-                context, cmd, bindPoint, pipeline->GetPipelineLayout(), setIndex, 1, &descriptorSet, m_PipelineStages,
-                dynamicOffsets.data(), dynamicOffsets.size(), apiInfo
-            );
+            Vk::BindDescriptorSets(context, cmd, bindPoint, pipeline->GetPipelineLayout(), setIndex, 1, &descriptorSet,
+                                   m_PipelineStages, dynamicOffsets.data(), dynamicOffsets.size(), apiInfo);
         }
     }
 

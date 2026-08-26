@@ -36,10 +36,9 @@ namespace Nexus::Graphics
         const GladVulkanContext &context = m_Device->GetVulkanContext();
 
         VkBool32 presentSupport = false;
-        context.GetPhysicalDeviceSurfaceSupportKHR(
-            physicalDeviceVk->GetVkPhysicalDevice(), m_Description.QueueFamilyIndex, swapchain->GetSurface(),
-            &presentSupport
-        );
+        context.GetPhysicalDeviceSurfaceSupportKHR(physicalDeviceVk->GetVkPhysicalDevice(),
+                                                   m_Description.QueueFamilyIndex, swapchain->GetSurface(),
+                                                   &presentSupport);
 
         if (!presentSupport)
         {
@@ -54,18 +53,16 @@ namespace Nexus::Graphics
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueVk::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence
-    )
+    void CommandQueueVk::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists,
+                                            std::optional<FenceHandle> fence)
     {
         SubmitCommandLists(commandLists, numCommandLists, nullptr, 0, nullptr, 0, fence);
     }
 
-    void CommandQueueVk::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, const VkSemaphore *waitSemaphores,
-        uint32_t waitSemaphoreCount, const VkSemaphore *signalSemaphores, uint32_t signalSemaphoreCount,
-        std::optional<FenceHandle> fence
-    )
+    void CommandQueueVk::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists,
+                                            const VkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount,
+                                            const VkSemaphore *signalSemaphores, uint32_t signalSemaphoreCount,
+                                            std::optional<FenceHandle> fence)
     {
         NX_PROFILE_FUNCTION();
 
@@ -92,13 +89,10 @@ namespace Nexus::Graphics
             commandBuffers[i] = commandList->GetCurrentCommandBuffer();
         }
 
-        NX_VALIDATE(
-            Vk::SubmitQueue(
-                m_Device, m_Queue, commandBuffers, waitDestStageMask, waitDestStageMask2, nativeFence, waitSemaphores,
-                waitSemaphoreCount, signalSemaphores, signalSemaphoreCount
-            ) == VK_SUCCESS,
-            "Failed to submit queue"
-        );
+        NX_VALIDATE(Vk::SubmitQueue(m_Device, m_Queue, commandBuffers, waitDestStageMask, waitDestStageMask2,
+                                    nativeFence, waitSemaphores, waitSemaphoreCount, signalSemaphores,
+                                    signalSemaphoreCount) == VK_SUCCESS,
+                    "Failed to submit queue");
     }
 
     IGraphicsDevice *CommandQueueVk::GetGraphicsDevice()

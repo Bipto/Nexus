@@ -10,9 +10,8 @@
 
 namespace Nexus::Audio
 {
-    std::expected<AudioBufferHandle, std::string> LoadAudioFileToBuffer(
-        const std::string &filepath, AudioDevice *device
-    )
+    std::expected<AudioBufferHandle, std::string> LoadAudioFileToBuffer(const std::string &filepath,
+                                                                        AudioDevice *device)
     {
         if (!device)
             return std::unexpected("Audio device was invalid");
@@ -47,9 +46,8 @@ namespace Nexus::Audio
         return buffer;
     }
 
-    std::expected<AudioBufferHandle, std::string> AudioLoader::LoadAudioFile(
-        const std::string &filepath, AudioDevice *device
-    )
+    std::expected<AudioBufferHandle, std::string> AudioLoader::LoadAudioFile(const std::string &filepath,
+                                                                             AudioDevice *device)
     {
         std::filesystem::path path = filepath;
 

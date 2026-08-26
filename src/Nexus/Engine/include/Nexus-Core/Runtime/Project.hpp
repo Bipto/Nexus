@@ -26,16 +26,13 @@ namespace Nexus
     class NX_API Project
     {
       public:
-        Project(
-            Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue, const std::string &name,
-            const std::string &directory, bool createDefaultScene
-        );
+        Project(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue, const std::string &name,
+                const std::string &directory, bool createDefaultScene);
         Project() = default;
         ~Project();
         void Serialize();
-        static Ref<Project> Deserialize(
-            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-        );
+        static Ref<Project> Deserialize(const std::string &filepath, Graphics::IGraphicsDevice *device,
+                                        Graphics::CommandQueueHandle commandQueue);
 
         Scene *GetLoadedScene()
         {
@@ -57,9 +54,8 @@ namespace Nexus
         bool IsSceneLoaded() const;
 
         void LoadScene(uint32_t index, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
-        void LoadScene(
-            const std::string &name, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-        );
+        void LoadScene(const std::string &name, Graphics::IGraphicsDevice *device,
+                       Graphics::CommandQueueHandle commandQueue);
         void CreateNewScene(const std::string &name);
         void ReloadCurrentScene(Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
 
@@ -95,19 +91,14 @@ namespace Nexus
         std::string GetComponentTypeNameFromDisplayName(const std::string &displayName) const;
         std::string GetDisplayNameFromComponent(ECS::ComponentPtr component) const;
 
-        void RenderComponentUI(
-            ECS::Registry &registry, ECS::ComponentPtr component, Nexus::Ref<Nexus::Project> project
-        );
+        void RenderComponentUI(ECS::Registry &registry, ECS::ComponentPtr component,
+                               Nexus::Ref<Nexus::Project> project);
         std::string SerializeComponentToString(ECS::Registry &registry, ECS::ComponentPtr component);
-        void DeserializeComponentFromString(
-            ECS::Registry &registry, GUID guid, const std::string &displayName, const std::string &data,
-            size_t entityHierarchyIndex
-        );
+        void DeserializeComponentFromString(ECS::Registry &registry, GUID guid, const std::string &displayName,
+                                            const std::string &data, size_t entityHierarchyIndex);
         YAML::Node SerializeComponentToYaml(ECS::Registry &registry, ECS::ComponentPtr component);
-        void DeserializeComponentFromYaml(
-            ECS::Registry &registry, GUID guid, const std::string &displayName, const YAML::Node &node,
-            size_t entityHierarchyIndex
-        );
+        void DeserializeComponentFromYaml(ECS::Registry &registry, GUID guid, const std::string &displayName,
+                                          const YAML::Node &node, size_t entityHierarchyIndex);
 
         void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
         Assets::AssetRegistry &GetAssetRegistry();
@@ -140,7 +131,8 @@ namespace Nexus
 
 namespace YAML
 {
-    template <> struct convert<Nexus::SceneInfo>
+    template <>
+    struct convert<Nexus::SceneInfo>
     {
         static Node encode(const Nexus::SceneInfo &rhs)
         {

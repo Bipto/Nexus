@@ -16,10 +16,9 @@ namespace Demos
     class InstancingDemo : public Demo
     {
       public:
-        InstancingDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        InstancingDemo(const std::string &name, Nexus::Application *app,
+                       Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                       Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
             auto [width, height] = m_Window->GetWindowSizeInPixels();
@@ -39,22 +38,19 @@ namespace Demos
 
             auto [diffuseMap, diffuseMapView] = Nexus::Utils::CreateTexture2DWithView(
                 m_CommandQueue,
-                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"), true
-            );
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"), true);
             m_DiffuseMap = diffuseMap;
             m_DiffuseMapView = diffuseMapView;
 
             auto [normalMap, normalMapView] = Nexus::Utils::CreateTexture2DWithView(
                 m_CommandQueue,
-                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"), true
-            );
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"), true);
             m_NormalMap = normalMap;
             m_NormalMapView = normalMapView;
 
             auto [specularMap, specularMapView] = Nexus::Utils::CreateTexture2DWithView(
                 m_CommandQueue,
-                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"), true
-            );
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"), true);
             m_SpecularMap = specularMap;
             m_SpecularMapView = specularMapView;
 
@@ -253,12 +249,10 @@ namespace Demos
 
             pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/instancing/instancing.vert.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvFile(
                 m_GraphicsDevice, "resources/demo/shaders/instancing/instancing.frag.glsl",
-                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
-            );
+                Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment);
 
             Nexus::Graphics::VertexBufferLayout instanceLayout = {
                 {{Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
@@ -266,12 +260,10 @@ namespace Demos
                  {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"},
                  {Nexus::Graphics::ShaderDataType::R32G32B32A32_SFloat, "TEXCOORD"}},
                 sizeof(glm::mat4),
-                Nexus::Graphics::StepRate::Instance
-            };
+                Nexus::Graphics::StepRate::Instance};
 
-            pipelineDescription.Layouts = {
-                {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()}, instanceLayout
-            };
+            pipelineDescription.Layouts = {{Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()},
+                                           instanceLayout};
 
             pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
             pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
@@ -282,27 +274,21 @@ namespace Demos
             pipelineDescription.Samples = Nexus::GetApplication()->GetPrimarySwapchain()->GetDescription().Samples;
 
             pipelineDescription.ResourceDescription.Descriptors = {
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_DiffuseMap",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_NormalMap",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "u_SpecularMap",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                    .CountOrSizeInBytes = 1
-                },
-                Nexus::Graphics::ResourceDescriptor{
-                    .Name = "Camera",
-                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                    .CountOrSizeInBytes = 1
-                }
-            };
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_DiffuseMap",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_NormalMap",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "u_SpecularMap",
+                                                    .Type =
+                                                        Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                    .CountOrSizeInBytes = 1},
+                Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                    .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                    .CountOrSizeInBytes = 1}};
 
             m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
@@ -314,13 +300,12 @@ namespace Demos
 
             dispatcher.Subscribe<Nexus::MouseButtonPressedEventArgs>(
                 [this](const Nexus::MouseButtonPressedEventArgs &args) {
-                    if (args.Button == Nexus::MouseButton::Right)
-                    {
-                        m_CameraActive = true;
-                        Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
-                    }
+                if (args.Button == Nexus::MouseButton::Right)
+                {
+                    m_CameraActive = true;
+                    Nexus::GetApplication()->GetPrimaryWindow()->SetRelativeMouseMode(true);
                 }
-            );
+            });
 
             dispatcher.Subscribe<Nexus::KeyPressedEventArgs>([this](const Nexus::KeyPressedEventArgs &args) {
                 if (args.ScanCode == Nexus::ScanCode::Escape)

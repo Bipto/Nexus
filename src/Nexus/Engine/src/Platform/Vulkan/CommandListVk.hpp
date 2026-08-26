@@ -12,9 +12,8 @@ namespace Nexus::Graphics
     class CommandListVk : public ICommandList
     {
       public:
-        CommandListVk(
-            GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue, const CommandListDescription &spec
-        );
+        CommandListVk(GraphicsDeviceVk *graphicsDevice, CommandQueueVk *commandQueue,
+                      const CommandListDescription &spec);
         virtual ~CommandListVk();
 
         VkCommandBuffer &GetCurrentCommandBuffer();

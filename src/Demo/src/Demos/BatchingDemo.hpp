@@ -9,10 +9,9 @@ namespace Demos
     class BatchingDemo : public Demo
     {
       public:
-        BatchingDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        BatchingDemo(const std::string &name, Nexus::Application *app,
+                     Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                     Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -27,8 +26,7 @@ namespace Demos
             uint32_t sampleCount = swapchain->GetDescription().Samples;
             m_CommandList = m_CommandQueue->CreateCommandList();
             m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-                new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount)
-            );
+                new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_CommandQueue, false, sampleCount));
             GenerateShapes();
         }
 

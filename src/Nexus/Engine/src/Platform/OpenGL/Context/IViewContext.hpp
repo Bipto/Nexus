@@ -21,9 +21,8 @@ namespace Nexus::GL
         virtual ~IViewContext()
         {
         }
-        virtual void Swap(
-            Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc
-        ) = 0;
+        virtual void Swap(Graphics::TextureHandle texture,
+                          const Graphics::SwapchainPresentDescription &presentDesc) = 0;
         virtual void SetVSync(bool enabled) = 0;
         virtual const ContextDescription &GetDescription() const = 0;
 

@@ -23,10 +23,8 @@ namespace Nexus::GL
         wc.style = CS_OWNDC;
         RegisterClass(&wc);
 
-        HWND hwnd = CreateWindowEx(
-            0, className, "TempWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            NULL, NULL, NULL, NULL
-        );
+        HWND hwnd = CreateWindowEx(0, className, "TempWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+                                   CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, NULL, NULL);
 
         if (!IsWindow(hwnd))
         {
@@ -37,34 +35,32 @@ namespace Nexus::GL
 
         HDC hdc = GetDC(hwnd);
 
-        PIXELFORMATDESCRIPTOR pfd = {
-            sizeof(PIXELFORMATDESCRIPTOR),
-            1,
-            PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-            PFD_TYPE_RGBA,
-            32,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            24,
-            8,
-            0,
-            PFD_MAIN_PLANE,
-            0,
-            0,
-            0,
-            0
-        };
+        PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
+                                     1,
+                                     PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+                                     PFD_TYPE_RGBA,
+                                     32,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     24,
+                                     8,
+                                     0,
+                                     PFD_MAIN_PLANE,
+                                     0,
+                                     0,
+                                     0,
+                                     0};
 
         int pixelFormat = ChoosePixelFormat(hdc, &pfd);
         SetPixelFormat(hdc, pixelFormat, &pfd);

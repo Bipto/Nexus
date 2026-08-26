@@ -48,39 +48,27 @@ namespace Nexus::Graphics
         void WriteStorageTexelBuffer(TexelBufferHandle texelBuffer, const std::string &name);
 
         // arrays
-        void WriteUniformBuffers(
-            const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count
-        );
-        void WriteDynamicUniformBuffers(
-            const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement, size_t count
-        );
-        void WriteStorageBuffers(
-            const StorageBufferView *views, const std::string &name, size_t startElement, size_t count
-        );
-        void WriteDynamicStorageBuffers(
-            const StorageBufferView *storageBuffers, const std::string &name, size_t startElement, size_t count
-        );
-        void WriteStorageImages(
-            const StorageImageView *views, const std::string &name, size_t startElement, size_t count
-        );
-        void WriteCombinedImageSamplers(
-            const CombinedImageSampler *combinedImageSamplers, const std::string &name, size_t startElement,
-            size_t count
-        );
-        void WriteSampledImages(
-            TextureViewHandle *textureViews, const std::string &name, size_t startElement, size_t count
-        );
+        void WriteUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name, size_t startElement,
+                                 size_t count);
+        void WriteDynamicUniformBuffers(const UniformBufferView *uniformBuffers, const std::string &name,
+                                        size_t startElement, size_t count);
+        void WriteStorageBuffers(const StorageBufferView *views, const std::string &name, size_t startElement,
+                                 size_t count);
+        void WriteDynamicStorageBuffers(const StorageBufferView *storageBuffers, const std::string &name,
+                                        size_t startElement, size_t count);
+        void WriteStorageImages(const StorageImageView *views, const std::string &name, size_t startElement,
+                                size_t count);
+        void WriteCombinedImageSamplers(const CombinedImageSampler *combinedImageSamplers, const std::string &name,
+                                        size_t startElement, size_t count);
+        void WriteSampledImages(TextureViewHandle *textureViews, const std::string &name, size_t startElement,
+                                size_t count);
         void WriteSamplers(SamplerHandle *samplers, const std::string &name, size_t startElement, size_t count);
-        void WriteAccelerationStructures(
-            AccelerationStructureHandle *accelerationStructures, const std::string &name, size_t startElement,
-            size_t count
-        );
-        void WriteUniformTexelBuffers(
-            TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count
-        );
-        void WriteStorageTexelBuffers(
-            TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement, size_t count
-        );
+        void WriteAccelerationStructures(AccelerationStructureHandle *accelerationStructures, const std::string &name,
+                                         size_t startElement, size_t count);
+        void WriteUniformTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement,
+                                      size_t count);
+        void WriteStorageTexelBuffers(TexelBufferHandle *texelBuffers, const std::string &name, size_t startElement,
+                                      size_t count);
 
         virtual void Flush() = 0;
 

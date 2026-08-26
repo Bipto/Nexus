@@ -108,20 +108,18 @@ namespace Nexus::Graphics
 
         m_Handle = context->CreateTexture(m_ViewType).value();
 
-        context->TextureView(
-            m_Handle, m_ViewType, texture->GetHandle(), internalFormat, m_Description.Range.BaseMipLevel,
-            m_Description.Range.LevelCount, m_Description.Range.BaseArrayLayer, m_Description.Range.LayerCount
-        );
+        context->TextureView(m_Handle, m_ViewType, texture->GetHandle(), internalFormat,
+                             m_Description.Range.BaseMipLevel, m_Description.Range.LevelCount,
+                             m_Description.Range.BaseArrayLayer, m_Description.Range.LayerCount);
 
         context->ObjectLabel(GL_TEXTURE, m_Handle, -1, m_Description.DebugName.c_str());
     }
 
     void TextureViewOpenGL::CreateEmulatedView()
     {
-        Point2D<uint32_t> mipSize = Utils::GetMipSize(
-            m_Description.TargetTexture->GetDescription().Width, m_Description.TargetTexture->GetDescription().Height,
-            m_Description.Range.BaseMipLevel
-        );
+        Point2D<uint32_t> mipSize =
+            Utils::GetMipSize(m_Description.TargetTexture->GetDescription().Width,
+                              m_Description.TargetTexture->GetDescription().Height, m_Description.Range.BaseMipLevel);
 
         const TextureDescription &originalDesc = m_Description.TargetTexture->GetDescription();
 
@@ -152,10 +150,9 @@ namespace Nexus::Graphics
             for (uint32_t mip = m_Description.Range.BaseMipLevel;
                  mip < m_Description.Range.BaseMipLevel + m_Description.Range.LevelCount; mip++)
             {
-                auto [mipWidth, mipHeight] = Utils::GetMipSize(
-                    m_Description.TargetTexture->GetDescription().Width,
-                    m_Description.TargetTexture->GetDescription().Height, mip
-                );
+                auto [mipWidth, mipHeight] =
+                    Utils::GetMipSize(m_Description.TargetTexture->GetDescription().Width,
+                                      m_Description.TargetTexture->GetDescription().Height, mip);
 
                 Graphics::TextureCopyDescription copyDesc = {};
                 copyDesc.Source = m_Description.TargetTexture;

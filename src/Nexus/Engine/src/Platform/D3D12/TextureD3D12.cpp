@@ -46,9 +46,8 @@ namespace Nexus::Graphics
             textureDesc.Layout = D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE;
 
             Microsoft::WRL::ComPtr<ID3D12Device9> device = m_Device->GetD3D12Device();
-            hr = device->CreateReservedResource(
-                &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture)
-            );
+            hr = device->CreateReservedResource(&textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                                IID_PPV_ARGS(&m_Texture));
         }
         else
         {
@@ -59,10 +58,8 @@ namespace Nexus::Graphics
             allocationDesc.Flags = D3D12MA::ALLOCATION_FLAG_COMMITTED;
 
             Microsoft::WRL::ComPtr<D3D12MA::Allocator> allocator = device->GetAllocator();
-            hr = allocator->CreateResource(
-                &allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &m_Allocation,
-                IID_PPV_ARGS(&m_Texture)
-            );
+            hr = allocator->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                           &m_Allocation, IID_PPV_ARGS(&m_Texture));
         }
 
         if (FAILED(hr))
@@ -78,9 +75,8 @@ namespace Nexus::Graphics
         m_TextureLayout.resize(spec.DepthOrArrayLayers * spec.MipLevels, TextureLayout::Undefined);
     }
 
-    TextureD3D12::TextureD3D12(
-        Microsoft::WRL::ComPtr<ID3D12Resource2> handle, const TextureDescription &spec, GraphicsDeviceD3D12 *device
-    )
+    TextureD3D12::TextureD3D12(Microsoft::WRL::ComPtr<ID3D12Resource2> handle, const TextureDescription &spec,
+                               GraphicsDeviceD3D12 *device)
         : m_Texture(handle), m_Device(device), ITexture(spec)
     {
         NX_VALIDATE(spec.DepthOrArrayLayers >= 1, "Texture must have at least one array layer");
@@ -135,9 +131,8 @@ namespace Nexus::Graphics
         UINT64 totalBytes = {};
 
         D3D12_RESOURCE_DESC resourceDesc = m_Texture->GetDesc();
-        device->GetCopyableFootprints(
-            &resourceDesc, subresourceIndex, 1, 0, &placedFootprint, &numRows, &rowSizeInBytes, &totalBytes
-        );
+        device->GetCopyableFootprints(&resourceDesc, subresourceIndex, 1, 0, &placedFootprint, &numRows,
+                                      &rowSizeInBytes, &totalBytes);
 
         SubresourceFootprint footprint = {};
         footprint.Size = totalBytes;

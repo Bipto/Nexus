@@ -98,8 +98,7 @@ namespace Nexus::OpenGL
 				\[\s*\d*\s*\]
 
 				)*)\s*;)",
-                std::regex::ECMAScript
-            );
+                std::regex::ECMAScript);
 
             auto begin = std::sregex_iterator(inputSource.begin(), inputSource.end(), pattern);
             auto end = std::sregex_iterator();
@@ -122,8 +121,7 @@ namespace Nexus::OpenGL
         {
             std::regex pattern(
                 R"((?:layout\s*\(\s*([^)]+)\s*\)\s*)?((?:\w+\s+)*)(uniform|buffer|shared)\s+(\w+)\s*\{([\s\S]*?)\}\s*([^;]*);)",
-                std::regex::ECMAScript
-            );
+                std::regex::ECMAScript);
 
             auto begin = std::sregex_iterator(inputSource.begin(), inputSource.end(), pattern);
             auto end = std::sregex_iterator();

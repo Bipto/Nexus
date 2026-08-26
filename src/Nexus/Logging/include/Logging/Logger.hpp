@@ -27,7 +27,8 @@ namespace Nexus::Logging
     class Logger
     {
       public:
-        template <typename T, typename... Args> T *RegisterSink(Args &&...args)
+        template <typename T, typename... Args>
+        T *RegisterSink(Args &&...args)
         {
             static_assert(std::is_base_of_v<ILogSink, T>, "T must derive from ILogSink");
 
@@ -40,28 +41,33 @@ namespace Nexus::Logging
         void RemoveSink(ILogSink *sink);
         size_t GetSinkCount() const;
 
-        template <typename... Args> void Trace(std::format_string<Args...> fmt, Args &&...args)
+        template <typename... Args>
+        void Trace(std::format_string<Args...> fmt, Args &&...args)
         {
             Log(LogLevel::Trace, fmt, std::forward<Args>(args)...);
         }
 
-        template <typename... Args> void Info(std::format_string<Args...> fmt, Args &&...args)
+        template <typename... Args>
+        void Info(std::format_string<Args...> fmt, Args &&...args)
         {
             Log(LogLevel::Info, fmt, std::forward<Args>(args)...);
         }
 
-        template <typename... Args> void Warning(std::format_string<Args...> fmt, Args &&...args)
+        template <typename... Args>
+        void Warning(std::format_string<Args...> fmt, Args &&...args)
         {
             Log(LogLevel::Warning, fmt, std::forward<Args>(args)...);
         }
 
-        template <typename... Args> void Error(std::format_string<Args...> fmt, Args &&...args)
+        template <typename... Args>
+        void Error(std::format_string<Args...> fmt, Args &&...args)
         {
             Log(LogLevel::Error, fmt, std::forward<Args>(args)...);
         }
 
       private:
-        template <typename... Args> void Log(LogLevel level, std::format_string<Args...> fmt, Args &&...args)
+        template <typename... Args>
+        void Log(LogLevel level, std::format_string<Args...> fmt, Args &&...args)
         {
             auto message = std::format(fmt, std::forward<Args>(args)...);
 

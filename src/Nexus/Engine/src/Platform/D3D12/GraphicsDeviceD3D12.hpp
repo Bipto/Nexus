@@ -24,9 +24,8 @@ namespace Nexus::Graphics
     class GraphicsDeviceD3D12 final : public IGraphicsDevice
     {
       public:
-        GraphicsDeviceD3D12(
-            std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory
-        );
+        GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice,
+                            Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
         ~GraphicsDeviceD3D12();
 
         std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const final;
@@ -78,17 +77,15 @@ namespace Nexus::Graphics
 
         bool Validate() final;
 
-        PixelFormatProperties GetPixelFormatProperties(
-            PixelFormat format, TextureType type, TextureUsageFlags usage
-        ) const final;
+        PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                       TextureUsageFlags usage) const final;
         const DeviceFeatures &GetPhysicalDeviceFeatures() const final;
         const DeviceLimits &GetPhysicalDeviceLimits() const final;
         const D3D12DeviceFeatures &GetD3D12DeviceFeatures() const;
 
         bool IsIndexBufferFormatSupported(IndexFormat format) const final;
         AccelerationStructureBuildSizeDescription GetAccelerationStructureBuildSize(
-            const AccelerationStructureGeometryBuildDescription &description
-        ) const final;
+            const AccelerationStructureGeometryBuildDescription &description) const final;
         RayTracingDeviceDescription GetRayTracingDeviceDescription() const final;
         AccelerationStructureProperties GetAccelerationStructureProperties() const final;
 

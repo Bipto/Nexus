@@ -2,8 +2,7 @@
 
 namespace Nexus::UI
 {
-    wxWidgetsStatusBar::wxWidgetsStatusBar(wxFrame *frame)
-        : m_Frame(frame), m_StatusBar(m_Frame->CreateStatusBar())
+    wxWidgetsStatusBar::wxWidgetsStatusBar(wxFrame *frame) : m_Frame(frame), m_StatusBar(m_Frame->CreateStatusBar())
     {
     }
 

@@ -9,10 +9,9 @@ namespace Demos
     class AudioDemo : public Demo
     {
       public:
-        AudioDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        AudioDemo(const std::string &name, Nexus::Application *app,
+                  Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                  Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -26,21 +25,17 @@ namespace Demos
             m_CommandList = m_CommandQueue->CreateCommandList();
 
             auto loadedData = Nexus::Audio::AudioLoader::LoadAudioFile(
-                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice
-            );
+                Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav"), m_AudioDevice);
             loadedData
                 .transform([this](auto buffer) {
-                    m_AudioBuffer = buffer;
-                    m_AudioSource = m_AudioDevice->CreateAudioSource();
-                    m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
-                    return buffer;
-                })
-                .or_else([](const std::string &error) {
-                    std::cerr << "Failed to load audio file: " << error << std::endl;
-                    return std::expected<Nexus::Audio::AudioBufferHandle, std::string>(
-                        Nexus::Audio::AudioBufferHandle{}
-                    );
-                });
+                m_AudioBuffer = buffer;
+                m_AudioSource = m_AudioDevice->CreateAudioSource();
+                m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
+                return buffer;
+            }).or_else([](const std::string &error) {
+                std::cerr << "Failed to load audio file: " << error << std::endl;
+                return std::expected<Nexus::Audio::AudioBufferHandle, std::string>(Nexus::Audio::AudioBufferHandle{});
+            });
         }
 
         virtual void Render(Nexus::TimeSpan time) override

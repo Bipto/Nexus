@@ -142,18 +142,15 @@ DemoImGuiLayer::DemoImGuiLayer(Nexus::Application *app, Nexus::Graphics::Command
         });*/
 
     // update framerate counter once every second
-    m_FramerateUpdateTimer.Every(
-        [this](Nexus::TimeSpan timespan) {
-            // std::stringstream ss;
-            // float fps = ImGui::GetIO().Framerate;
-            // ss << "Running at: " << std::to_string(fps) << " FPS";
+    m_FramerateUpdateTimer.Every([this](Nexus::TimeSpan timespan) {
+        // std::stringstream ss;
+        // float fps = ImGui::GetIO().Framerate;
+        // ss << "Running at: " << std::to_string(fps) << " FPS";
 
-            // m_FramerateString = ss.str();
+        // m_FramerateString = ss.str();
 
-            m_FramerateString = std::format("Running at {} FPS", static_cast<uint32_t>(ImGui::GetIO().Framerate));
-        },
-        0.5
-    );
+        m_FramerateString = std::format("Running at {} FPS", static_cast<uint32_t>(ImGui::GetIO().Framerate));
+    }, 0.5);
 }
 
 void DemoImGuiLayer::OnImGuiRenderer()
@@ -193,8 +190,7 @@ void DemoImGuiLayer::RenderDemoList()
                     if (ImGui::IsItemClicked())
                     {
                         m_CurrentDemo = std::shared_ptr<Demos::Demo>(
-                            pair.CreationFunction(m_Application, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue)
-                        );
+                            pair.CreationFunction(m_Application, pair.Name, m_ImGuiRenderer.get(), m_CommandQueue));
                         m_CurrentDemo->Load();
 
                         if (m_CallbackFunction)

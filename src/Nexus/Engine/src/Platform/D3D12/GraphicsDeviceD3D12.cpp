@@ -25,9 +25,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceD3D12::GraphicsDeviceD3D12(
-        std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory
-    )
+    GraphicsDeviceD3D12::GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice,
+                                             Microsoft::WRL::ComPtr<IDXGIFactory7> factory)
         : m_DxgiFactory(factory), m_PhysicalDevice(physicalDevice)
     {
         std::shared_ptr<PhysicalDeviceD3D12> physicalDeviceD3D12 =
@@ -35,9 +34,8 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter = physicalDeviceD3D12->GetAdapter();
 
         // create the D3D12Device
-        if (SUCCEEDED(D3D12CreateDevice(
-                adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), IID_PPV_ARGS(&m_Device)
-            )))
+        if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(),
+                                        IID_PPV_ARGS(&m_Device))))
         {
             // Create a command queue to submit work to the GPU
             D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
@@ -132,8 +130,7 @@ namespace Nexus::Graphics
     }
 
     AccelerationStructureHandle GraphicsDeviceD3D12::CreateAccelerationStructure(
-        const AccelerationStructureDescription &desc
-    )
+        const AccelerationStructureDescription &desc)
     {
         auto accelerationStructure = std::make_unique<AccelerationStructureD3D12>(desc, this);
         return m_Resources.AccelerationStructures.CreateShared(std::move(accelerationStructure));
@@ -231,9 +228,8 @@ namespace Nexus::Graphics
         return m_Resources.Fences.CreateShared(std::move(fence));
     }
 
-    FenceWaitResult GraphicsDeviceD3D12::WaitForFences(
-        FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
-    )
+    FenceWaitResult GraphicsDeviceD3D12::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll,
+                                                       uint64_t timeoutNS)
     {
         std::vector<HANDLE> eventHandles(count);
         for (uint32_t i = 0; i < count; i++)
@@ -266,10 +262,9 @@ namespace Nexus::Graphics
         QueueFamilyInfo &info = queueFamilies.emplace_back();
         info.QueueFamily = 0;
         info.QueueCount = std::numeric_limits<uint32_t>::max();
-        info.Capabilities = QueueCapabilities(
-            QueueCapabilities::Graphics | QueueCapabilities::Compute | QueueCapabilities::Transfer |
-            QueueCapabilities::SparseBinding | QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode
-        );
+        info.Capabilities = QueueCapabilities(QueueCapabilities::Graphics | QueueCapabilities::Compute |
+                                              QueueCapabilities::Transfer | QueueCapabilities::SparseBinding |
+                                              QueueCapabilities::VideoEncode | QueueCapabilities::VideoDecode);
 
         return queueFamilies;
     }
@@ -296,9 +291,8 @@ namespace Nexus::Graphics
         return m_Device && m_DxgiFactory;
     }
 
-    PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(
-        PixelFormat format, TextureType type, TextureUsageFlags usage
-    ) const
+    PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                                        TextureUsageFlags usage) const
     {
         PixelFormatProperties properties = {};
         return properties;
@@ -334,8 +328,7 @@ namespace Nexus::Graphics
     }
 
     AccelerationStructureBuildSizeDescription GraphicsDeviceD3D12::GetAccelerationStructureBuildSize(
-        const AccelerationStructureGeometryBuildDescription &description
-    ) const
+        const AccelerationStructureGeometryBuildDescription &description) const
     {
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
@@ -345,11 +338,10 @@ namespace Nexus::Graphics
 
         m_Device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
 
-        return AccelerationStructureBuildSizeDescription{
-            .AccelerationStructureSize = prebuildInfo.ResultDataMaxSizeInBytes,
-            .UpdateScratchSize = prebuildInfo.UpdateScratchDataSizeInBytes,
-            .BuildScratchSize = prebuildInfo.ScratchDataSizeInBytes
-        };
+        return AccelerationStructureBuildSizeDescription{.AccelerationStructureSize =
+                                                             prebuildInfo.ResultDataMaxSizeInBytes,
+                                                         .UpdateScratchSize = prebuildInfo.UpdateScratchDataSizeInBytes,
+                                                         .BuildScratchSize = prebuildInfo.ScratchDataSizeInBytes};
     }
 
     RayTracingDeviceDescription GraphicsDeviceD3D12::GetRayTracingDeviceDescription() const
@@ -484,9 +476,8 @@ namespace Nexus::Graphics
         if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
             OutputDebugStringW(L"Reporting live D3D12 objects:\n");
-            debug->ReportLiveObjects(
-                DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL)
-            );
+            debug->ReportLiveObjects(DXGI_DEBUG_ALL,
+                                     DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
         }
     } // namespace Nexus::Graphics
 } // namespace Nexus::Graphics

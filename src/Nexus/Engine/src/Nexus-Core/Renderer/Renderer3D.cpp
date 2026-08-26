@@ -295,9 +295,8 @@ namespace Nexus::Graphics
 
             m_CubemapResourceSet->Flush();
 
-            CombinedImageSampler skyboxCiSampelr = {
-                .ImageTexture = environment.EnvironmentCubemap, .ImageSampler = environment.CubemapSampler
-            };
+            CombinedImageSampler skyboxCiSampelr = {.ImageTexture = environment.EnvironmentCubemap,
+                                                    .ImageSampler = environment.CubemapSampler};
 
             Nexus::Graphics::ResourceSetBindingDescription resourceBindingDesc = {};
             resourceBindingDesc.TargetResourceSet = m_CubemapResourceSet;
@@ -405,25 +404,22 @@ namespace Nexus::Graphics
 
             // diffuse
             {
-                Graphics::CombinedImageSampler ciSampler = {
-                    .ImageTexture = diffuseTexture, .ImageSampler = m_ModelSampler
-                };
+                Graphics::CombinedImageSampler ciSampler = {.ImageTexture = diffuseTexture,
+                                                            .ImageSampler = m_ModelSampler};
                 resourceSet->WriteCombinedImageSampler(ciSampler, "diffuseMapSampler");
             }
 
             // normal
             {
-                Graphics::CombinedImageSampler ciSampler = {
-                    .ImageTexture = normalTexture, .ImageSampler = m_ModelSampler
-                };
+                Graphics::CombinedImageSampler ciSampler = {.ImageTexture = normalTexture,
+                                                            .ImageSampler = m_ModelSampler};
                 resourceSet->WriteCombinedImageSampler(ciSampler, "normalMapSampler");
             }
 
             // specular
             {
-                Graphics::CombinedImageSampler ciSampler = {
-                    .ImageTexture = specularTexture, .ImageSampler = m_ModelSampler
-                };
+                Graphics::CombinedImageSampler ciSampler = {.ImageTexture = specularTexture,
+                                                            .ImageSampler = m_ModelSampler};
                 resourceSet->WriteCombinedImageSampler(ciSampler, "specularMapSampler");
             }
 
@@ -529,13 +525,11 @@ namespace Nexus::Graphics
 
         pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_CubemapVertexShader, "cubemap.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Vertex
-        );
+            Nexus::Graphics::ShaderStage::Vertex);
 
         pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_CubemapFragmentShader, "cubemap.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Fragment
-        );
+            Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.ColourTargetCount = 2;
         pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
@@ -549,17 +543,12 @@ namespace Nexus::Graphics
         pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
         pipelineDescription.ResourceDescription.Descriptors = {
-            {Nexus::Graphics::ResourceDescriptor{
-                 .Name = "Camera",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                 .CountOrSizeInBytes = 1
-             },
-             Nexus::Graphics::ResourceDescriptor{
-                 .Name = "skybox",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                 .CountOrSizeInBytes = 1
-             }}
-        };
+            {Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                 .CountOrSizeInBytes = 1},
+             Nexus::Graphics::ResourceDescriptor{.Name = "skybox",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                 .CountOrSizeInBytes = 1}}};
 
         m_CubemapPipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
         m_CubemapResourceSet = m_Device->CreateResourceSet(m_CubemapPipeline);
@@ -589,16 +578,13 @@ namespace Nexus::Graphics
 
         pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_ModelVertexShader, "model.vert.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Vertex
-        );
+            Nexus::Graphics::ShaderStage::Vertex);
         pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_ModelFragmentShader, "model.frag.glsl", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Fragment
-        );
+            Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.Layouts = {
-            Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()
-        };
+            Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
         pipelineDescription.ColourTargetCount = 2;
         pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
@@ -615,32 +601,21 @@ namespace Nexus::Graphics
         pipelineDescription.ColourBlendStates[0].AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
         pipelineDescription.ResourceDescription.Descriptors = {
-            {Nexus::Graphics::ResourceDescriptor{
-                 .Name = "Camera",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                 .CountOrSizeInBytes = 1
-             },
-             Nexus::Graphics::ResourceDescriptor{
-                 .Name = "Transform",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
-                 .CountOrSizeInBytes = 1
-             },
-             Nexus::Graphics::ResourceDescriptor{
-                 .Name = "diffuseMapSampler",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                 .CountOrSizeInBytes = 1
-             },
-             Nexus::Graphics::ResourceDescriptor{
-                 .Name = "normalMapSampler",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                 .CountOrSizeInBytes = 1
-             },
-             Nexus::Graphics::ResourceDescriptor{
-                 .Name = "specularMapSampler",
-                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-                 .CountOrSizeInBytes = 1
-             }}
-        };
+            {Nexus::Graphics::ResourceDescriptor{.Name = "Camera",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                 .CountOrSizeInBytes = 1},
+             Nexus::Graphics::ResourceDescriptor{.Name = "Transform",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::UniformBuffer,
+                                                 .CountOrSizeInBytes = 1},
+             Nexus::Graphics::ResourceDescriptor{.Name = "diffuseMapSampler",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                 .CountOrSizeInBytes = 1},
+             Nexus::Graphics::ResourceDescriptor{.Name = "normalMapSampler",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                 .CountOrSizeInBytes = 1},
+             Nexus::Graphics::ResourceDescriptor{.Name = "specularMapSampler",
+                                                 .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                 .CountOrSizeInBytes = 1}}};
 
         m_ModelPipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
 
@@ -672,12 +647,10 @@ namespace Nexus::Graphics
 
         pipelineDescription.VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_ClearGBufferVertexShader, "clearscreen.vert.glsl",
-            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex
-        );
+            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Vertex);
         pipelineDescription.FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_ClearGBufferFragmentShader, "clearscreen.frag.glsl",
-            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment
-        );
+            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.Layouts = {m_FullscreenQuad.GetVertexBufferLayout()};
 

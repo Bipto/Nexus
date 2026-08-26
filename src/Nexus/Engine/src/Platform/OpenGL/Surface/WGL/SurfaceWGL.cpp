@@ -11,9 +11,8 @@ namespace Nexus::Graphics
     {
     }
 
-    std::unique_ptr<GL::IViewContext> SurfaceWGL::CreateOpenGLContext(
-        GraphicsDeviceOpenGL *device, const GL::ContextDescription &desc
-    ) const
+    std::unique_ptr<GL::IViewContext> SurfaceWGL::CreateOpenGLContext(GraphicsDeviceOpenGL *device,
+                                                                      const GL::ContextDescription &desc) const
     {
         GL::OffscreenContextWGL *pbufferWGL = (GL::OffscreenContextWGL *)device->GetOffscreenContext();
         HWND hwnd = reinterpret_cast<HWND>(m_HWND);

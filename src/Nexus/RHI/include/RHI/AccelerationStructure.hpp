@@ -119,8 +119,8 @@ namespace Nexus::Graphics
         NoDuplicateAnyhit = BIT(1)
     };
 
-    typedef std::variant<
-        AccelerationStructureTriangleGeometry, AccelerationStructureAABBGeometry, AccelerationStructureInstanceGeometry>
+    typedef std::variant<AccelerationStructureTriangleGeometry, AccelerationStructureAABBGeometry,
+                         AccelerationStructureInstanceGeometry>
         AccelerationStructureGeometry;
 
     struct AccelerationStructureGeometryDescription

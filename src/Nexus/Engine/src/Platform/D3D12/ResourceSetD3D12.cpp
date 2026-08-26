@@ -75,8 +75,7 @@ namespace Nexus::Graphics
         {
             switch (descriptorTableInfo.Source)
             {
-            case D3D12::DescriptorHandleSource::ISampler:
-            {
+            case D3D12::DescriptorHandleSource::ISampler: {
                 D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle =
                     m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
                 descriptorHandle.ptr +=
@@ -86,8 +85,7 @@ namespace Nexus::Graphics
 
                 break;
             }
-            case D3D12::DescriptorHandleSource::SRV_UAV_CBV:
-            {
+            case D3D12::DescriptorHandleSource::SRV_UAV_CBV: {
                 D3D12_GPU_DESCRIPTOR_HANDLE descriptorHandle =
                     m_SRV_UAV_CBV_DescriptorHeap->GetGPUDescriptorHandleForHeapStart();
                 descriptorHandle.ptr +=
@@ -126,10 +124,8 @@ namespace Nexus::Graphics
         }
     }
 
-    static void CreateConstantBufferView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device, const DeviceBufferD3D12 *buffer, size_t offset,
-        size_t sizeInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
-    )
+    static void CreateConstantBufferView(Microsoft::WRL::ComPtr<ID3D12Device9> device, const DeviceBufferD3D12 *buffer,
+                                         size_t offset, size_t sizeInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
     {
         Microsoft::WRL::ComPtr<ID3D12Resource2> bufferHandle = buffer->GetHandle();
 
@@ -143,11 +139,10 @@ namespace Nexus::Graphics
         device->CreateConstantBufferView(&desc, cpuHandle);
     }
 
-    static void CreateSrvBufferView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device, Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset,
-        size_t sizeInBytes, size_t strideInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress,
-        DXGI_FORMAT format
-    )
+    static void CreateSrvBufferView(Microsoft::WRL::ComPtr<ID3D12Device9> device,
+                                    Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset, size_t sizeInBytes,
+                                    size_t strideInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress,
+                                    DXGI_FORMAT format)
     {
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
         srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -173,11 +168,10 @@ namespace Nexus::Graphics
         device->CreateShaderResourceView(buffer.Get(), &srvDesc, cpuHandle);
     }
 
-    static void CreateUavBufferView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device, Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset,
-        size_t sizeInBytes, size_t strideInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress,
-        DXGI_FORMAT format
-    )
+    static void CreateUavBufferView(Microsoft::WRL::ComPtr<ID3D12Device9> device,
+                                    Microsoft::WRL::ComPtr<ID3D12Resource2> buffer, size_t offset, size_t sizeInBytes,
+                                    size_t strideInBytes, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle, bool byteAddress,
+                                    DXGI_FORMAT format)
     {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
         uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
@@ -203,10 +197,8 @@ namespace Nexus::Graphics
         device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uavDesc, cpuHandle);
     }
 
-    static void CreateSrvTextureView(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device, const TextureViewD3D12 *textureView,
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
-    )
+    static void CreateSrvTextureView(Microsoft::WRL::ComPtr<ID3D12Device9> device, const TextureViewD3D12 *textureView,
+                                     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
     {
         const TextureD3D12 *texture = textureView->GetTexture().AsDerived<const TextureD3D12>();
 
@@ -216,9 +208,8 @@ namespace Nexus::Graphics
         device->CreateShaderResourceView(resourceHandle.Get(), &srv, cpuHandle);
     }
 
-    static void CreateSampler(
-        Microsoft::WRL::ComPtr<ID3D12Device9> device, const SamplerD3D12 *sampler, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle
-    )
+    static void CreateSampler(Microsoft::WRL::ComPtr<ID3D12Device9> device, const SamplerD3D12 *sampler,
+                              D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
     {
         const Graphics::SamplerDescription &desc = sampler->GetSamplerDescription();
 
@@ -298,17 +289,15 @@ namespace Nexus::Graphics
 
                     if (readonly)
                     {
-                        CreateSrvBufferView(
-                            device, buffer->GetHandle(), view.Offset, view.SizeInBytes, buffer->GetStrideInBytes(),
-                            descriptorHandles.at(arrayIndex), byteAddress, DXGI_FORMAT_UNKNOWN
-                        );
+                        CreateSrvBufferView(device, buffer->GetHandle(), view.Offset, view.SizeInBytes,
+                                            buffer->GetStrideInBytes(), descriptorHandles.at(arrayIndex), byteAddress,
+                                            DXGI_FORMAT_UNKNOWN);
                     }
                     else
                     {
-                        CreateUavBufferView(
-                            device, buffer->GetHandle(), view.Offset, view.SizeInBytes, buffer->GetStrideInBytes(),
-                            descriptorHandles.at(arrayIndex), byteAddress, DXGI_FORMAT_UNKNOWN
-                        );
+                        CreateUavBufferView(device, buffer->GetHandle(), view.Offset, view.SizeInBytes,
+                                            buffer->GetStrideInBytes(), descriptorHandles.at(arrayIndex), byteAddress,
+                                            DXGI_FORMAT_UNKNOWN);
                     }
 
                     m_BoundResources.StorageBuffers[name][arrayIndex] = view;
@@ -433,10 +422,8 @@ namespace Nexus::Graphics
                     D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
                     DXGI_FORMAT pixelFormat = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
 
-                    CreateSrvBufferView(
-                        device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(), buffer->GetStrideInBytes(),
-                        textureHandle, false, pixelFormat
-                    );
+                    CreateSrvBufferView(device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(),
+                                        buffer->GetStrideInBytes(), textureHandle, false, pixelFormat);
 
                     m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
@@ -459,10 +446,8 @@ namespace Nexus::Graphics
                     D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = srv_crb_uavDescriptorHandles.at(arrayIndex);
                     DXGI_FORMAT pixelFormat = D3D12::GetD3D12PixelFormat(texelBuffer->GetDescription().Format);
 
-                    CreateUavBufferView(
-                        device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(), buffer->GetStrideInBytes(),
-                        textureHandle, false, pixelFormat
-                    );
+                    CreateUavBufferView(device, buffer->GetHandle(), 0, buffer->GetSizeInBytes(),
+                                        buffer->GetStrideInBytes(), textureHandle, false, pixelFormat);
 
                     m_BoundResources.UniformTexelBuffers[name][arrayIndex] = texelBuffer;
                 }
@@ -490,10 +475,9 @@ namespace Nexus::Graphics
         return m_DescriptorHeapArray;
     }
 
-    void ResourceSetD3D12::SetPushConstants(
-        const std::string &name, const void *data, size_t offset, size_t size, bool isGraphics,
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList
-    )
+    void ResourceSetD3D12::SetPushConstants(const std::string &name, const void *data, size_t offset, size_t size,
+                                            bool isGraphics,
+                                            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList)
     {
         if (m_PushConstants.contains(name))
         {
@@ -503,23 +487,19 @@ namespace Nexus::Graphics
 
             if (isGraphics)
             {
-                commandList->SetGraphicsRoot32BitConstants(
-                    rootParameterIndex, count32BitConstants, data, offset32BitConstants
-                );
+                commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, count32BitConstants, data,
+                                                           offset32BitConstants);
             }
             else
             {
-                commandList->SetComputeRoot32BitConstants(
-                    rootParameterIndex, count32BitConstants, data, offset32BitConstants
-                );
+                commandList->SetComputeRoot32BitConstants(rootParameterIndex, count32BitConstants, data,
+                                                          offset32BitConstants);
             }
         }
     }
 
-    void ResourceSetD3D12::Bind(
-        bool isGraphics, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList,
-        const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets
-    )
+    void ResourceSetD3D12::Bind(bool isGraphics, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList,
+                                const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets)
     {
         commandList->SetDescriptorHeaps(m_DescriptorHeapArray.size(), m_DescriptorHeapArray.data());
 
@@ -610,14 +590,12 @@ namespace Nexus::Graphics
                         if (isGraphics)
                         {
                             commandList->SetGraphicsRootConstantBufferView(
-                                rootBinding.RootParameterIndex + uniformBufferIndex, bufferAddress
-                            );
+                                rootBinding.RootParameterIndex + uniformBufferIndex, bufferAddress);
                         }
                         else
                         {
                             commandList->SetComputeRootConstantBufferView(
-                                rootBinding.RootParameterIndex + uniformBufferIndex, bufferAddress
-                            );
+                                rootBinding.RootParameterIndex + uniformBufferIndex, bufferAddress);
                         }
                     }
                 }
@@ -653,14 +631,12 @@ namespace Nexus::Graphics
                         if (isGraphics)
                         {
                             commandList->SetGraphicsRootShaderResourceView(
-                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
-                            );
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress);
                         }
                         else
                         {
                             commandList->SetComputeRootShaderResourceView(
-                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
-                            );
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress);
                         }
                     }
                 }
@@ -696,14 +672,12 @@ namespace Nexus::Graphics
                         if (isGraphics)
                         {
                             commandList->SetGraphicsRootUnorderedAccessView(
-                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
-                            );
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress);
                         }
                         else
                         {
                             commandList->SetGraphicsRootUnorderedAccessView(
-                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress
-                            );
+                                rootBinding.RootParameterIndex + storageBufferIndex, bufferAddress);
                         }
                     }
                 }

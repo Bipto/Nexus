@@ -25,20 +25,18 @@ namespace Nexus::GL
 
         document.body.prepend(newCanvas);
 
-        window.addEventListener(
-            'resize',
-            function(event) {
-                var element = document.getElementById(UTF8ToString(id));
+        window.addEventListener('resize',
+                                function(event) {
+                                    var element = document.getElementById(UTF8ToString(id));
 
-                // style.width/height resizes the physical control, .width/height
-                // resizes the OpenGL virtual canvas
-                //.width/height need to be scaled to physical pixels while
-                // style.width/height needs to be in CSS pixel units
-                element.width = window.innerWidth;
-                element.height = window.innerHeight;
-            },
-            true
-        );
+                                    // style.width/height resizes the physical control, .width/height
+                                    // resizes the OpenGL virtual canvas
+                                    //.width/height need to be scaled to physical pixels while
+                                    // style.width/height needs to be in CSS pixel units
+                                    element.width = window.innerWidth;
+                                    element.height = window.innerHeight;
+                                },
+                                true);
     });
 
     OffscreenContextWebGL::OffscreenContextWebGL(const std::string &canvasName) : m_CanvasName(canvasName)

@@ -31,12 +31,10 @@ namespace Nexus::Graphics
 
         ShaderModuleHandle m_VertexModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Vertex
-        );
+            Nexus::Graphics::ShaderStage::Vertex);
         ShaderModuleHandle m_FragmentModule = Nexus::Utils::GetOrCreateCachedShaderFromSpirvSource(
             m_Device, c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::GetApplication()->GetApplicationPath(),
-            Nexus::Graphics::ShaderStage::Fragment
-        );
+            Nexus::Graphics::ShaderStage::Fragment);
 
         // set up pipeline for rendering
         Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
@@ -52,19 +50,17 @@ namespace Nexus::Graphics
 
         pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
 
-        pipelineDescription.ResourceDescription.Descriptors = {Nexus::Graphics::ResourceDescriptor{
-            .Name = "u_Texture",
-            .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
-            .CountOrSizeInBytes = 1
-        }};
+        pipelineDescription.ResourceDescription.Descriptors = {
+            Nexus::Graphics::ResourceDescriptor{.Name = "u_Texture",
+                                                .Type = Nexus::Graphics::ResourceDescriptorType::CombinedImageSampler,
+                                                .CountOrSizeInBytes = 1}};
 
         m_Pipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
         m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
     }
 
-    std::vector<char> MipmapGenerator::GenerateMip(
-        TextureHandle texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom, uint32_t arrayLayer
-    )
+    std::vector<char> MipmapGenerator::GenerateMip(TextureHandle texture, uint32_t levelToGenerate,
+                                                   uint32_t levelToGenerateFrom, uint32_t arrayLayer)
     {
         std::vector<char> pixels = {};
 
@@ -90,12 +86,10 @@ namespace Nexus::Graphics
             Nexus::Graphics::TextureViewDescription viewDesc = {};
             viewDesc.TargetTexture = texture;
             viewDesc.Format = texture->GetPixelFormat();
-            viewDesc.Range = {
-                .BaseMipLevel = 0,
-                .LevelCount = texture->GetMipLevels(),
-                .BaseArrayLayer = 0,
-                .LayerCount = texture->GetDepthOrArrayLayers()
-            };
+            viewDesc.Range = {.BaseMipLevel = 0,
+                              .LevelCount = texture->GetMipLevels(),
+                              .BaseArrayLayer = 0,
+                              .LayerCount = texture->GetDepthOrArrayLayers()};
             viewDesc.DebugName = "Mipmap Generator Texture View";
             TextureViewHandle textureView = m_Device->CreateTextureView(viewDesc);
 

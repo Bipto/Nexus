@@ -19,9 +19,8 @@ namespace Nexus::Graphics
         {
             for (const auto &copy : command.BufferCopy.Copies)
             {
-                offscreenContext->CopyBufferSubData(
-                    src->GetHandle(), dst->GetHandle(), copy.ReadOffset, copy.WriteOffset, copy.Size
-                );
+                offscreenContext->CopyBufferSubData(src->GetHandle(), dst->GetHandle(), copy.ReadOffset,
+                                                    copy.WriteOffset, copy.Size);
             }
         }
     }

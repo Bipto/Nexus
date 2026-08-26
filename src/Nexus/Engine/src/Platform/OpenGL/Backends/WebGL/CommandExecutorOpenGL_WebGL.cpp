@@ -12,12 +12,10 @@ namespace Nexus::Graphics
         dst->Bind(GL_COPY_WRITE_BUFFER);
 
         std::vector<char> bufferData(command.BufferCopy.Size);
-        glGetBufferSubData(
-            GL_COPY_READ_BUFFER, command.BufferCopy.ReadOffset, command.BufferCopy.Size, bufferData.data()
-        );
-        glBufferSubData(
-            GL_COPY_WRITE_BUFFER, command.BufferCopy.WriteOffset, command.BufferCopy.Size, bufferData.data()
-        );
+        glGetBufferSubData(GL_COPY_READ_BUFFER, command.BufferCopy.ReadOffset, command.BufferCopy.Size,
+                           bufferData.data());
+        glBufferSubData(GL_COPY_WRITE_BUFFER, command.BufferCopy.WriteOffset, command.BufferCopy.Size,
+                        bufferData.data());
 
         GL::ClearBufferBinding(GL_COPY_READ_BUFFER);
         GL::ClearBufferBinding(GL_COPY_WRITE_BUFFER);

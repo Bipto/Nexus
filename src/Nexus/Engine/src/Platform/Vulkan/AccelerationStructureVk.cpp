@@ -2,9 +2,8 @@
 
 namespace Nexus::Graphics
 {
-    AccelerationStructureVk::AccelerationStructureVk(
-        const AccelerationStructureDescription &desc, GraphicsDeviceVk *device
-    )
+    AccelerationStructureVk::AccelerationStructureVk(const AccelerationStructureDescription &desc,
+                                                     GraphicsDeviceVk *device)
         : m_Description(desc), m_Device(device)
     {
         const DeviceBufferVk *destinationBuffer = desc.Buffer.AsDerived<const DeviceBufferVk>();
@@ -23,11 +22,9 @@ namespace Nexus::Graphics
         const GladVulkanContext &context = m_Device->GetVulkanContext();
         if (context.CreateAccelerationStructureKHR)
         {
-            NX_VALIDATE(
-                context.CreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr, &m_Handle) ==
-                    VK_SUCCESS,
-                "Failed to create acceleration structure"
-            );
+            NX_VALIDATE(context.CreateAccelerationStructureKHR(device->GetVkDevice(), &createInfo, nullptr,
+                                                               &m_Handle) == VK_SUCCESS,
+                        "Failed to create acceleration structure");
         }
 
         m_Device->SetObjectName(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR, (uint64_t)m_Handle, desc.DebugName.c_str());

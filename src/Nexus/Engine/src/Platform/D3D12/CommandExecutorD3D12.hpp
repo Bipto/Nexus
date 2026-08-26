@@ -76,12 +76,10 @@ namespace Nexus::Graphics
         void ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device) final;
-        void ExecuteCommand(
-            const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device
-        ) final;
-        void ExecuteCommand(
-            const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device
-        ) final;
+        void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command,
+                            IGraphicsDevice *device) final;
+        void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command,
+                            IGraphicsDevice *device) final;
         void ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
@@ -98,8 +96,7 @@ namespace Nexus::Graphics
         void ResolveTextureImpl(const ResolveTextureDescription &resolveDesc);
 
         Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(
-            D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride
-        );
+            D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
 
       public:
         void InsertResourceBarrier(const TextureBarrierDesc &command);

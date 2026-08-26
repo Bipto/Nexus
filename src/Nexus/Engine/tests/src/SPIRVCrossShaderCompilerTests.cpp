@@ -15,20 +15,17 @@ TEST(SPIRVShaderCompiler, CompilesValidShader)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "ValidShader"
-    };
+        .DebugName = "ValidShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
     auto result = compiler.Compile(compilationOptions);
@@ -50,20 +47,17 @@ TEST(SPIRVShaderCompiler, FailsOnInvalidShader)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "InvalidShader"
-    };
+        .DebugName = "InvalidShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
     auto result = compiler.Compile(compilationOptions);
@@ -85,20 +79,17 @@ TEST(SPIRVShaderCompiler, DeterministicOutput)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "ValidShader"
-    };
+        .DebugName = "ValidShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
     auto result = compiler.Compile(compilationOptions);
@@ -126,20 +117,17 @@ TEST(SPIRVShaderCompiler, HandlesPreprocessorDefines)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "ValidShader"
-    };
+        .DebugName = "ValidShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
     auto result = compiler.Compile(compilationOptions);
@@ -161,20 +149,17 @@ TEST(SPIRVShaderCompiler, ErrorMessageContainsLineNumber)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "InvalidShader"
-    };
+        .DebugName = "InvalidShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
     auto result = compiler.Compile(compilationOptions);
@@ -196,20 +181,17 @@ TEST(SPIRVShaderCompiler, CompilesLargeShader)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "LargeShader"
-    };
+        .DebugName = "LargeShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
     auto result = compiler.Compile(compilationOptions);
@@ -231,20 +213,17 @@ TEST(SPIRVShaderCompiler, MultipleSequentialCompilations)
                 .SourceText = shaderSource,
                 .SourceBinary = {},
             },
-        .InputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
-             .ShaderVersion = {.Major = 4, .Minor = 5},
-             .EntryPoint = "main",
-             .Defines = {}},
-        .OutputCompilationDesc =
-            {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
-             .ShaderVersion = {.Major = 1, .Minor = 6},
-             .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
-             .Debug = true},
+        .InputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::GLSL,
+                                 .ShaderVersion = {.Major = 4, .Minor = 5},
+                                 .EntryPoint = "main",
+                                 .Defines = {}},
+        .OutputCompilationDesc = {.ShaderLanguage = Nexus::Graphics::ShaderLanguage::Vulkan_SPIRV,
+                                  .ShaderVersion = {.Major = 1, .Minor = 6},
+                                  .OptimisationLevel = Nexus::ShaderOptimisationLevel::NoOptimisation,
+                                  .Debug = true},
         .Environment = {.API = Nexus::Graphics::GraphicsAPI::Vulkan, .Major = 1, .Minor = 4},
         .Stage = Nexus::Graphics::ShaderStage::Vertex,
-        .DebugName = "ValidShader"
-    };
+        .DebugName = "ValidShader"};
 
     Nexus::SPIRVCrossShaderCompiler compiler = {};
 

@@ -10,9 +10,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsPipelineOpenGL::GraphicsPipelineOpenGL(
-        const GraphicsPipelineDescription &description, GraphicsDeviceOpenGL *device
-    )
+    GraphicsPipelineOpenGL::GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description,
+                                                   GraphicsDeviceOpenGL *device)
         : IGraphicsPipeline(description), m_Device(device)
     {
         CreateShader();
@@ -27,10 +26,9 @@ namespace Nexus::Graphics
         return m_Description;
     }
 
-    void GraphicsPipelineOpenGL::BindBuffers(
-        const std::map<uint32_t, VertexBufferView> &vertexBuffers, std::optional<IndexBufferView> indexBuffer,
-        uint32_t firstVertex, uint32_t firstInstance, GL::IOffscreenContext *context
-    )
+    void GraphicsPipelineOpenGL::BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
+                                             std::optional<IndexBufferView> indexBuffer, uint32_t firstVertex,
+                                             uint32_t firstInstance, GL::IOffscreenContext *context)
     {
         uint32_t index = 0;
         for (const auto &[slot, vertexBufferView] : vertexBuffers)
@@ -87,20 +85,17 @@ namespace Nexus::Graphics
                     // baseType, normalized, stride, (void *)(element.Offset +
                     // offset)));
 
-                    context->SetVertexAttribPointer(
-                        m_VAO, vertexBufferOpenGL->GetHandle(), index, componentCount, baseType, normalized, stride,
-                        static_cast<uint32_t>(element.Offset + offset)
-                    );
+                    context->SetVertexAttribPointer(m_VAO, vertexBufferOpenGL->GetHandle(), index, componentCount,
+                                                    baseType, normalized, stride,
+                                                    static_cast<uint32_t>(element.Offset + offset));
                 }
                 else if (primitiveType == GL::GLPrimitiveType::Int)
                 {
                     // glCall(context.VertexAttribIPointer(index, componentCount,
                     // baseType, stride, (void *)(element.Offset + offset)));
 
-                    context->SetVertexAttribIPointer(
-                        m_VAO, vertexBufferOpenGL->GetHandle(), index, componentCount, baseType, stride,
-                        static_cast<uint32_t>(element.Offset + offset)
-                    );
+                    context->SetVertexAttribIPointer(m_VAO, vertexBufferOpenGL->GetHandle(), index, componentCount,
+                                                     baseType, stride, static_cast<uint32_t>(element.Offset + offset));
                 }
                 else
                 {
@@ -162,9 +157,8 @@ namespace Nexus::Graphics
 
             GLenum stencilCompareFunc =
                 GL::GetComparisonFunction(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
-            context->SetStencilFunc(
-                GL_FRONT, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask
-            );
+            context->SetStencilFunc(GL_FRONT, stencilCompareFunc, stencilReference,
+                                    m_Description.DepthStencilDesc.StencilCompareMask);
         }
 
         // back face
@@ -179,9 +173,8 @@ namespace Nexus::Graphics
 
             GLenum stencilCompareFunc =
                 GL::GetComparisonFunction(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
-            context->SetStencilFunc(
-                GL_BACK, stencilCompareFunc, stencilReference, m_Description.DepthStencilDesc.StencilCompareMask
-            );
+            context->SetStencilFunc(GL_BACK, stencilCompareFunc, stencilReference,
+                                    m_Description.DepthStencilDesc.StencilCompareMask);
         }
     }
 
@@ -218,9 +211,8 @@ namespace Nexus::Graphics
 
     void GraphicsPipelineOpenGL::SetupRasterizer(GL::IOffscreenContext *context)
     {
-        context->EnableCapability(
-            GL_CULL_FACE, m_Description.RasterizerStateDesc.TriangleCullMode != CullMode::CullNone
-        );
+        context->EnableCapability(GL_CULL_FACE,
+                                  m_Description.RasterizerStateDesc.TriangleCullMode != CullMode::CullNone);
 
         switch (m_Description.RasterizerStateDesc.TriangleCullMode)
         {
@@ -269,19 +261,15 @@ namespace Nexus::Graphics
             for (size_t index = 0; index < m_Description.ColourBlendStates.size(); index++)
             {
                 const auto &blendState = m_Description.ColourBlendStates.at(index);
-                context->SetColourMask(
-                    blendState.PixelWriteMask.Red, blendState.PixelWriteMask.Green, blendState.PixelWriteMask.Blue,
-                    blendState.PixelWriteMask.Alpha
-                );
+                context->SetColourMask(blendState.PixelWriteMask.Red, blendState.PixelWriteMask.Green,
+                                       blendState.PixelWriteMask.Blue, blendState.PixelWriteMask.Alpha);
             }
         }
         else
         {
             const auto &colourBlendState = m_Description.ColourBlendStates[0];
-            context->SetColourMask(
-                colourBlendState.PixelWriteMask.Red, colourBlendState.PixelWriteMask.Green,
-                colourBlendState.PixelWriteMask.Blue, colourBlendState.PixelWriteMask.Alpha
-            );
+            context->SetColourMask(colourBlendState.PixelWriteMask.Red, colourBlendState.PixelWriteMask.Green,
+                                   colourBlendState.PixelWriteMask.Blue, colourBlendState.PixelWriteMask.Alpha);
         }
 
         // vulkan requires scissor test to be enabled, for compatibility this is
@@ -308,10 +296,8 @@ namespace Nexus::Graphics
                     auto destinationColourFunction = GL::GetBlendFactor(blendState.DestinationColourBlend);
                     auto destinationAlphaFunction = GL::GetBlendFactor(blendState.DestinationAlphaBlend);
 
-                    context->SetBlendFunctionSeparatei(
-                        index, sourceColourFunction, destinationColourFunction, sourceAlphaFunction,
-                        destinationAlphaFunction
-                    );
+                    context->SetBlendFunctionSeparatei(index, sourceColourFunction, destinationColourFunction,
+                                                       sourceAlphaFunction, destinationAlphaFunction);
 
                     auto colourBlendFunction = GL::GetBlendFunction(blendState.ColorBlendFunction);
                     auto alphaBlendFunction = GL::GetBlendFunction(blendState.AlphaBlendFunction);
@@ -336,9 +322,8 @@ namespace Nexus::Graphics
             auto destinationColourFunction = GL::GetBlendFactor(blendState.DestinationColourBlend);
             auto destinationAlphaFunction = GL::GetBlendFactor(blendState.DestinationAlphaBlend);
 
-            context->SetBlendFunctionSeparate(
-                sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction
-            );
+            context->SetBlendFunctionSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction,
+                                              destinationAlphaFunction);
 
             auto colourBlendFunction = GL::GetBlendFunction(blendState.ColorBlendFunction);
             auto alphaBlendFunction = GL::GetBlendFunction(blendState.AlphaBlendFunction);
@@ -363,47 +348,40 @@ namespace Nexus::Graphics
         if (m_Description.FragmentModule.IsValid())
         {
             auto glFragmentModule = m_Description.FragmentModule.AsDerived<ShaderModuleOpenGL>();
-            NX_VALIDATE(
-                glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader"
-            );
+            NX_VALIDATE(glFragmentModule->GetShaderStage() == ShaderStage::Fragment,
+                        "Shader module is not a fragment shader");
             modules.push_back(glFragmentModule);
         }
 
         if (m_Description.GeometryModule.IsValid())
         {
             auto glGeometryModule = m_Description.GeometryModule.AsDerived<ShaderModuleOpenGL>();
-            NX_VALIDATE(
-                glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader"
-            );
+            NX_VALIDATE(glGeometryModule->GetShaderStage() == ShaderStage::Geometry,
+                        "Shader module is not a geometry shader");
             modules.push_back(glGeometryModule);
         }
 
         if (m_Description.TesselationControlModule.IsValid())
         {
             auto glTesselationControlModule = m_Description.TesselationControlModule.AsDerived<ShaderModuleOpenGL>();
-            NX_VALIDATE(
-                glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
-                "Shader module is not a tesselation control shader"
-            );
+            NX_VALIDATE(glTesselationControlModule->GetShaderStage() == ShaderStage::TessellationControl,
+                        "Shader module is not a tesselation control shader");
             modules.push_back(glTesselationControlModule);
         }
 
         if (m_Description.TesselationEvaluationModule.IsValid())
         {
             auto glEvaluationModule = m_Description.TesselationEvaluationModule.AsDerived<ShaderModuleOpenGL>();
-            NX_VALIDATE(
-                glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
-                "Shader module is not a tesselation evaluation shader"
-            );
+            NX_VALIDATE(glEvaluationModule->GetShaderStage() == ShaderStage::TessellationEvaluation,
+                        "Shader module is not a tesselation evaluation shader");
             modules.push_back(glEvaluationModule);
         }
 
         if (m_Description.VertexModule.IsValid())
         {
             auto glVertexModule = m_Description.VertexModule.AsDerived<ShaderModuleOpenGL>();
-            NX_VALIDATE(
-                glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader"
-            );
+            NX_VALIDATE(glVertexModule->GetShaderStage() == ShaderStage::Vertex,
+                        "Shader module is not a vertex shader");
             modules.push_back(glVertexModule);
         }
 
@@ -430,9 +408,8 @@ namespace Nexus::Graphics
         }
     }
 
-    ComputePipelineOpenGL::ComputePipelineOpenGL(
-        const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device
-    )
+    ComputePipelineOpenGL::ComputePipelineOpenGL(const ComputePipelineDescription &description,
+                                                 GraphicsDeviceOpenGL *device)
         : IComputePipeline(description), m_Device(device)
     {
         CreateShader();
@@ -454,10 +431,8 @@ namespace Nexus::Graphics
 
     void ComputePipelineOpenGL::CreateShader()
     {
-        NX_VALIDATE(
-            m_Description.ComputeShader->GetShaderStage() == ShaderStage::Compute,
-            "Compute Pipeline shader must be ShaderStage::Compute"
-        );
+        NX_VALIDATE(m_Description.ComputeShader->GetShaderStage() == ShaderStage::Compute,
+                    "Compute Pipeline shader must be ShaderStage::Compute");
 
         const Nexus::Graphics::ShaderModuleOpenGL *computeShader =
             m_Description.ComputeShader.AsDerived<const Nexus::Graphics::ShaderModuleOpenGL>();

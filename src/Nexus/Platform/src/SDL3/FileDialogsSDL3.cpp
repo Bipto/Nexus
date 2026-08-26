@@ -63,11 +63,10 @@ namespace Nexus
         }
     }
 
-    static FileDialogResult ShowSDL3DialogBox(
-        IWindow *window, std::vector<SDL_DialogFileFilter> &filters, std::optional<std::string> defaultLocation,
-        std::optional<bool> allowMany, const std::string &title, const std::string &acceptString,
-        const std::string &cancelString, SDL_FileDialogType dialogType
-    )
+    static FileDialogResult ShowSDL3DialogBox(IWindow *window, std::vector<SDL_DialogFileFilter> &filters,
+                                              std::optional<std::string> defaultLocation, std::optional<bool> allowMany,
+                                              const std::string &title, const std::string &acceptString,
+                                              const std::string &cancelString, SDL_FileDialogType dialogType)
     {
         // create the properties to use when displaying the dialog
         SDL_PropertiesID properties = SDL_CreateProperties();
@@ -123,10 +122,9 @@ namespace Nexus
 
     FileDialogResult OpenFileDialogSDL3::Show()
     {
-        return ShowSDL3DialogBox(
-            m_Description.WindowHandle, m_Filters, m_Description.DefaultLocation, m_Description.AllowMany,
-            m_Description.TitleString, m_Description.AcceptString, m_Description.CancelString, SDL_FILEDIALOG_OPENFILE
-        );
+        return ShowSDL3DialogBox(m_Description.WindowHandle, m_Filters, m_Description.DefaultLocation,
+                                 m_Description.AllowMany, m_Description.TitleString, m_Description.AcceptString,
+                                 m_Description.CancelString, SDL_FILEDIALOG_OPENFILE);
     }
 
     SaveFileDialogSDL3::SaveFileDialogSDL3(const SaveFileDialogDescription &desc) : m_Description(desc)
@@ -145,10 +143,9 @@ namespace Nexus
 
     FileDialogResult SaveFileDialogSDL3::Show()
     {
-        return ShowSDL3DialogBox(
-            m_Description.WindowHandle, m_Filters, m_Description.DefaultLocation, std::nullopt,
-            m_Description.TitleString, m_Description.AcceptString, m_Description.CancelString, SDL_FILEDIALOG_OPENFILE
-        );
+        return ShowSDL3DialogBox(m_Description.WindowHandle, m_Filters, m_Description.DefaultLocation, std::nullopt,
+                                 m_Description.TitleString, m_Description.AcceptString, m_Description.CancelString,
+                                 SDL_FILEDIALOG_OPENFILE);
     }
 
     OpenFolderDialogSDL3::OpenFolderDialogSDL3(const OpenFolderDialogDescription &desc) : m_Description(desc)
@@ -161,10 +158,9 @@ namespace Nexus
 
     FileDialogResult OpenFolderDialogSDL3::Show()
     {
-        return ShowSDL3DialogBox(
-            m_Description.WindowHandle, m_Filters, m_Description.DefaultLocation, m_Description.AllowMany,
-            m_Description.TitleString, m_Description.AcceptString, m_Description.CancelString, SDL_FILEDIALOG_OPENFOLDER
-        );
+        return ShowSDL3DialogBox(m_Description.WindowHandle, m_Filters, m_Description.DefaultLocation,
+                                 m_Description.AllowMany, m_Description.TitleString, m_Description.AcceptString,
+                                 m_Description.CancelString, SDL_FILEDIALOG_OPENFOLDER);
     }
 
 } // namespace Nexus

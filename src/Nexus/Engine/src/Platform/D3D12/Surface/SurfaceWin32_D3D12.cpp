@@ -10,8 +10,7 @@ namespace Nexus::Graphics
     }
 
     std::expected<Microsoft::WRL::ComPtr<IDXGISwapChain1>, std::string> SurfaceWin32_D3D12::CreateDXGISwapchain(
-        const SwapchainDescription &swapchainDesc, ID3D12CommandQueue *commandQueue, IDXGIFactory2 *factory
-    ) const
+        const SwapchainDescription &swapchainDesc, ID3D12CommandQueue *commandQueue, IDXGIFactory2 *factory) const
     {
         // set up properties for the swapchain
         DXGI_SWAP_CHAIN_DESC1 dxgiSwapchainDesc{};
@@ -35,10 +34,8 @@ namespace Nexus::Graphics
 
         // create the swapchain and query for the correct swapchain type
         Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
-        HRESULT hr = factory->CreateSwapChainForHwnd(
-            commandQueue, reinterpret_cast<HWND>(m_Hwnd), &dxgiSwapchainDesc, &fullscreenDesc, nullptr,
-            sc1.GetAddressOf()
-        );
+        HRESULT hr = factory->CreateSwapChainForHwnd(commandQueue, reinterpret_cast<HWND>(m_Hwnd), &dxgiSwapchainDesc,
+                                                     &fullscreenDesc, nullptr, sc1.GetAddressOf());
 
         if (FAILED(hr))
         {

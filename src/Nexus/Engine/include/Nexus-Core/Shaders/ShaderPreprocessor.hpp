@@ -32,8 +32,7 @@ namespace Nexus
         /// during the preprocessing stage
         std::expected<std::string, std::string> PreprocessShader(
             const std::string &shaderPath, const std::string &shaderText,
-            const std::vector<std::string> &includeDirectories
-        ) const;
+            const std::vector<std::string> &includeDirectories) const;
 
       private:
         /// @brief A method that contains the implementation of the preprocessing
@@ -51,11 +50,12 @@ namespace Nexus
         /// @return A string representing the fully processed shader that is ready to
         /// be used futher, or a string containing a description of what went wrong
         /// during the preprocessing stage
-        std::expected<std::string, std::string> PreprocessShader(
-            const std::string &shaderPath, const std::string &shaderText,
-            const std::vector<std::string> &includeDirectories, std::vector<std::string> &includeStack,
-            std::unordered_set<std::string> &onceIncluded, const std::string &currentFile
-        ) const;
+        std::expected<std::string, std::string> PreprocessShader(const std::string &shaderPath,
+                                                                 const std::string &shaderText,
+                                                                 const std::vector<std::string> &includeDirectories,
+                                                                 std::vector<std::string> &includeStack,
+                                                                 std::unordered_set<std::string> &onceIncluded,
+                                                                 const std::string &currentFile) const;
 
       private:
         /// @brief A resource loader that is used to load any files included by the

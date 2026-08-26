@@ -32,27 +32,32 @@ namespace Nexus
             return timeSpan;
         }
 
-        template <typename T> T GetNanoseconds() const
+        template <typename T>
+        T GetNanoseconds() const
         {
             return (T)m_Nanoseconds;
         }
 
-        template <typename T> T GetMilliseconds() const
+        template <typename T>
+        T GetMilliseconds() const
         {
             return (T)(GetNanoseconds<T>() / 1'000'000);
         }
 
-        template <typename T> T GetSeconds() const
+        template <typename T>
+        T GetSeconds() const
         {
             return (T)(GetMilliseconds<T>() / 1000);
         }
 
-        template <typename T> T GetMinutes() const
+        template <typename T>
+        T GetMinutes() const
         {
             return (T)(GetSeconds<T>() / 60);
         }
 
-        template <typename T> T GetHours() const
+        template <typename T>
+        T GetHours() const
         {
             return (T)(GetMinutes<T>() / 60);
         }

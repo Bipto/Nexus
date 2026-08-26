@@ -50,13 +50,11 @@ namespace Nexus::Timings
         }
 
       private:
-        void AddFunction(
-            std::function<void(Nexus::TimeSpan)> func, std::optional<double> seconds, ExecutionPolicy policy
-        )
+        void AddFunction(std::function<void(Nexus::TimeSpan)> func, std::optional<double> seconds,
+                         ExecutionPolicy policy)
         {
             FunctionToExecute funcToExecute = {
-                .Func = func, .WhenToExecute = seconds, .Timer = Nexus::TimeSpan::FromNanoseconds(0), .Policy = policy
-            };
+                .Func = func, .WhenToExecute = seconds, .Timer = Nexus::TimeSpan::FromNanoseconds(0), .Policy = policy};
             m_Functions.push_back(funcToExecute);
         }
 

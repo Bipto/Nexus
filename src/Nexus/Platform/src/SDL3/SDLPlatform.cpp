@@ -155,15 +155,13 @@ namespace Nexus::Platform
 
             const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode(id);
 
-            Monitor monitor{
-                .Position = {displayBounds.x, displayBounds.y},
-                .Size = {displayBounds.w, displayBounds.h},
-                .WorkPosition = {usableBounds.x, usableBounds.y},
-                .WorkSize = {usableBounds.w, usableBounds.h},
-                .DPI = dpi,
-                .RefreshRate = displayMode->refresh_rate,
-                .Name = name
-            };
+            Monitor monitor{.Position = {displayBounds.x, displayBounds.y},
+                            .Size = {displayBounds.w, displayBounds.h},
+                            .WorkPosition = {usableBounds.x, usableBounds.y},
+                            .WorkSize = {usableBounds.w, usableBounds.h},
+                            .DPI = dpi,
+                            .RefreshRate = displayMode->refresh_rate,
+                            .Name = name};
 
             monitors.push_back(monitor);
         }
@@ -275,9 +273,8 @@ namespace Nexus::Platform
             IWindow *window = m_WindowsToClose[i];
             delete window;
             m_Windows.erase(std::remove(m_Windows.begin(), m_Windows.end(), window), m_Windows.end());
-            m_WindowsToClose.erase(
-                std::remove(m_WindowsToClose.begin(), m_WindowsToClose.end(), window), m_WindowsToClose.end()
-            );
+            m_WindowsToClose.erase(std::remove(m_WindowsToClose.begin(), m_WindowsToClose.end(), window),
+                                   m_WindowsToClose.end());
             i--;
         }
 
@@ -303,8 +300,7 @@ namespace Nexus::Platform
 
         switch (event.type)
         {
-        case SDL_EVENT_KEY_DOWN:
-        {
+        case SDL_EVENT_KEY_DOWN: {
             auto nexusKeyCode = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
             auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
             auto mods = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
@@ -322,8 +318,7 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_KEY_UP:
-        {
+        case SDL_EVENT_KEY_UP: {
             auto nexusKeyCode = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
             auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
 
@@ -338,18 +333,15 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_WINDOW_HIDDEN:
-        {
+        case SDL_EVENT_WINDOW_HIDDEN: {
             window->InvokeHideCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_SHOWN:
-        {
+        case SDL_EVENT_WINDOW_SHOWN: {
             window->InvokeShowCallback();
             break;
         }
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        {
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
             auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.button.which);
             std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
@@ -376,8 +368,7 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-        {
+        case SDL_EVENT_MOUSE_BUTTON_UP: {
             auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.button.which);
             std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
@@ -403,8 +394,7 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_MOUSE_MOTION:
-        {
+        case SDL_EVENT_MOUSE_MOTION: {
             std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
             float scale = window->GetDisplayScale();
 
@@ -425,8 +415,7 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_MOUSE_WHEEL:
-        {
+        case SDL_EVENT_MOUSE_WHEEL: {
             std::pair<int32_t, int32_t> windowPos = window->GetWindowPosition();
             float scale = window->GetDisplayScale();
 
@@ -446,37 +435,30 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-        {
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
             window->Close();
             break;
         }
-        case SDL_EVENT_FINGER_DOWN:
-        {
+        case SDL_EVENT_FINGER_DOWN: {
             break;
         }
-        case SDL_EVENT_FINGER_UP:
-        {
+        case SDL_EVENT_FINGER_UP: {
             break;
         }
-        case SDL_EVENT_FINGER_MOTION:
-        {
+        case SDL_EVENT_FINGER_MOTION: {
             break;
         }
-        case SDL_EVENT_FINGER_CANCELED:
-        {
+        case SDL_EVENT_FINGER_CANCELED: {
             break;
         }
-        case SDL_EVENT_TEXT_INPUT:
-        {
+        case SDL_EVENT_TEXT_INPUT: {
             TextInputEventArgs &args = eventQueue.Add<TextInputEventArgs>();
             args.Text = event.text.text;
             window->InvokeTextInputCallback(args);
 
             break;
         }
-        case SDL_EVENT_TEXT_EDITING:
-        {
+        case SDL_EVENT_TEXT_EDITING: {
             TextEditEventArgs &textEditArgs = eventQueue.Add<TextEditEventArgs>();
             textEditArgs.Text = event.edit.text;
             textEditArgs.Start = event.edit.start;
@@ -485,24 +467,21 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_WINDOW_RESIZED:
-        {
+        case SDL_EVENT_WINDOW_RESIZED: {
             WindowResizedEventArgs &resizeEventArgs = eventQueue.Add<WindowResizedEventArgs>();
             resizeEventArgs.Size = {(uint32_t)event.window.data1, (uint32_t)event.window.data2};
             window->InvokeResizeCallback(resizeEventArgs);
 
             break;
         }
-        case SDL_EVENT_WINDOW_MOVED:
-        {
+        case SDL_EVENT_WINDOW_MOVED: {
             WindowMovedEventArgs &movedEventArgs = eventQueue.Add<WindowMovedEventArgs>();
             movedEventArgs.Position = {event.window.data1, event.window.data2};
             window->InvokeMoveCallback(movedEventArgs);
 
             break;
         }
-        case SDL_EVENT_DROP_FILE:
-        {
+        case SDL_EVENT_DROP_FILE: {
             Nexus::FileDropType type = Nexus::SDL3::GetFileDropType(event.drop.type);
             std::string sourceApp = {};
             std::string sourceData = {};
@@ -534,73 +513,59 @@ namespace Nexus::Platform
 
             break;
         }
-        case SDL_EVENT_WINDOW_FOCUS_GAINED:
-        {
+        case SDL_EVENT_WINDOW_FOCUS_GAINED: {
             window->InvokeFocusGainCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_FOCUS_LOST:
-        {
+        case SDL_EVENT_WINDOW_FOCUS_LOST: {
             window->InvokeFocusLostCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_MAXIMIZED:
-        {
+        case SDL_EVENT_WINDOW_MAXIMIZED: {
             window->InvokeMaximizedCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_MINIMIZED:
-        {
+        case SDL_EVENT_WINDOW_MINIMIZED: {
             window->InvokeMinimizedCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_RESTORED:
-        {
+        case SDL_EVENT_WINDOW_RESTORED: {
             window->InvokeRestoreCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_MOUSE_ENTER:
-        {
+        case SDL_EVENT_WINDOW_MOUSE_ENTER: {
             window->InvokeMouseEnterCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-        {
+        case SDL_EVENT_WINDOW_MOUSE_LEAVE: {
             window->InvokeMouseLeaveCallback();
             break;
         }
-        case SDL_EVENT_WINDOW_EXPOSED:
-        {
+        case SDL_EVENT_WINDOW_EXPOSED: {
             window->InvokeExposeCallback();
             break;
         }
-        case SDL_EVENT_KEYBOARD_ADDED:
-        {
+        case SDL_EVENT_KEYBOARD_ADDED: {
             Nexus::Platform::OnKeyboardAdded.Invoke(event.kdevice.which);
             break;
         }
-        case SDL_EVENT_KEYBOARD_REMOVED:
-        {
+        case SDL_EVENT_KEYBOARD_REMOVED: {
             Nexus::Platform::OnKeyboardRemoved.Invoke(event.kdevice.which);
             break;
         }
-        case SDL_EVENT_MOUSE_ADDED:
-        {
+        case SDL_EVENT_MOUSE_ADDED: {
             Nexus::Platform::OnMouseAdded.Invoke(event.mdevice.which);
             break;
         }
-        case SDL_EVENT_MOUSE_REMOVED:
-        {
+        case SDL_EVENT_MOUSE_REMOVED: {
             Nexus::Platform::OnMouseRemoved.Invoke(event.mdevice.which);
             break;
         }
-        case SDL_EVENT_GAMEPAD_ADDED:
-        {
+        case SDL_EVENT_GAMEPAD_ADDED: {
             Nexus::Platform::OnGamepadAdded.Invoke(event.cdevice.which);
             break;
         }
-        case SDL_EVENT_GAMEPAD_REMOVED:
-        {
+        case SDL_EVENT_GAMEPAD_REMOVED: {
             Nexus::Platform::OnGamepadRemoved.Invoke(event.cdevice.which);
             break;
         }
@@ -941,18 +906,15 @@ namespace Nexus::Platform
     {
         switch (accuracy)
         {
-        case DelayAccuracy::Milliseconds:
-        {
+        case DelayAccuracy::Milliseconds: {
             SDL_Delay(timespan.GetMilliseconds<uint32_t>());
             break;
         }
-        case DelayAccuracy::Nanoseconds:
-        {
+        case DelayAccuracy::Nanoseconds: {
             SDL_DelayNS(timespan.GetNanoseconds<uint64_t>());
             break;
         }
-        case DelayAccuracy::Precise:
-        {
+        case DelayAccuracy::Precise: {
             SDL_DelayPrecise(timespan.GetNanoseconds<uint64_t>());
             break;
         }

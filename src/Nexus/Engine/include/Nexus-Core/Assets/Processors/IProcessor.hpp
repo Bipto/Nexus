@@ -20,10 +20,8 @@ namespace Nexus::Processors
         }
 
         virtual ~IProcessor() = default;
-        virtual GUID Process(
-            const std::string &filepath, Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue,
-            Project *project
-        ) = 0;
+        virtual GUID Process(const std::string &filepath, Graphics::IGraphicsDevice *device,
+                             Graphics::CommandQueueHandle commandQueue, Project *project) = 0;
         virtual std::any Import(const std::string &filepath) = 0;
 
         const std::string &GetName() const
@@ -64,9 +62,8 @@ namespace Nexus::Processors
         }
 
         template <typename T>
-        static void AddProcessor(
-            const std::string &name, const std::type_info &assetType, const std::vector<std::string> &extensions
-        )
+        static void AddProcessor(const std::string &name, const std::type_info &assetType,
+                                 const std::vector<std::string> &extensions)
         {
             ProcessorInfo info = {};
             info.CreationFunction = []() { return new T(); };

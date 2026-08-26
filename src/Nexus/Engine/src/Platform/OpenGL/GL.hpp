@@ -80,15 +80,11 @@ namespace Nexus::GL
 
     GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureDescription &spec);
     void ValidateFramebuffer(GLuint framebuffer, GL::IGLContext *context);
-    void AttachTexture(
-        GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth, uint32_t colourIndex,
-        GL::IGLContext *context
-    );
+    void AttachTexture(GLuint framebuffer, const Graphics::FramebufferTextureDescription &desc, bool isDepth,
+                       uint32_t colourIndex, GL::IGLContext *context);
 
-    void GetBaseType(
-        const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized,
-        GLPrimitiveType &primitiveType
-    );
+    void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount,
+                     GLboolean &normalized, GLPrimitiveType &primitiveType);
 
     GLenum GetGLImageAspect(bool isDepth);
     GLenum GetAttachmentType(bool isDepth, uint32_t index);

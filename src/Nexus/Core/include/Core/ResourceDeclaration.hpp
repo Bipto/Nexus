@@ -1,8 +1,11 @@
 #pragma once
 
-template <typename Tag> struct HandleT;
-template <typename T, typename ID> class SharedHandle;
-template <typename T, typename ID> class ResourcePool;
+template <typename Tag>
+struct HandleT;
+template <typename T, typename ID>
+class SharedHandle;
+template <typename T, typename ID>
+class ResourcePool;
 
 #define DEFINE_RESOURCE(ResourceName, ResourceType)                                                                    \
     struct ResourceName##Tag                                                                                           \

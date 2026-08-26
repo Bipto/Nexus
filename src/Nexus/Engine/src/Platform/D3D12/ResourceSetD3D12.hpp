@@ -21,15 +21,11 @@ namespace Nexus::Graphics
         const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> &GetDescriptorTables() const;
         const std::vector<ID3D12DescriptorHeap *> &GetDescriptorHeaps() const;
 
-        void SetPushConstants(
-            const std::string &name, const void *data, size_t offset, size_t size, bool isGraphics,
-            Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList
-        );
+        void SetPushConstants(const std::string &name, const void *data, size_t offset, size_t size, bool isGraphics,
+                              Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList);
 
-        void Bind(
-            bool isGraphics, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList,
-            const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets
-        );
+        void Bind(bool isGraphics, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList,
+                  const std::map<std::string, std::vector<uint32_t>> &dynamicOffsets);
 
       private:
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap = nullptr;

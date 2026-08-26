@@ -10,9 +10,8 @@
 
 namespace Nexus::GL
 {
-    ViewContextEGL::ViewContextEGL(
-        EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer, const ContextDescription &spec
-    )
+    ViewContextEGL::ViewContextEGL(EGLDisplay display, EGLNativeWindowType window, OffscreenContextEGL *pbuffer,
+                                   const ContextDescription &spec)
         : m_EGLDisplay(display), m_PBuffer(pbuffer), m_Description(spec)
     {
         std::vector<EGLint> configAttribs;
@@ -223,12 +222,10 @@ namespace Nexus::GL
             for (size_t i = 0; i < presentDesc.PresentRects.size(); i++)
             {
                 const auto &presentRect = presentDesc.PresentRects.at(i);
-                presentRects[i] = {
-                    .x = static_cast<EGLint>(presentRect.X),
-                    .y = static_cast<EGLint>(presentRect.Y),
-                    .width = static_cast<EGLint>(presentRect.Width),
-                    .height = static_cast<EGLint>(presentRect.Height)
-                };
+                presentRects[i] = {.x = static_cast<EGLint>(presentRect.X),
+                                   .y = static_cast<EGLint>(presentRect.Y),
+                                   .width = static_cast<EGLint>(presentRect.Width),
+                                   .height = static_cast<EGLint>(presentRect.Height)};
             }
             eglSwapBuffersWithDamageKHR(m_EGLDisplay, m_Surface, &presentRects[0].x, presentRects.size());
         }

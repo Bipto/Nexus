@@ -26,10 +26,8 @@
 
 namespace Nexus::Graphics
 {
-    static void glDebugCallback(
-        GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message,
-        const void *userParam
-    )
+    static void glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                const GLchar *message, const void *userParam)
     {
         if (type == GL_DEBUG_TYPE_ERROR)
         {
@@ -110,9 +108,8 @@ namespace Nexus::Graphics
         m_Features = offscreenContext->GetDeviceFeatures();
     }
 
-    PixelFormatProperties GraphicsDeviceOpenGL::GetPixelFormatProperties(
-        PixelFormat format, TextureType type, TextureUsageFlags usage
-    ) const
+    PixelFormatProperties GraphicsDeviceOpenGL::GetPixelFormatProperties(PixelFormat format, TextureType type,
+                                                                         TextureUsageFlags usage) const
     {
         PixelFormatProperties properties = {};
         return properties;
@@ -143,8 +140,7 @@ namespace Nexus::Graphics
     }
 
     AccelerationStructureBuildSizeDescription GraphicsDeviceOpenGL::GetAccelerationStructureBuildSize(
-        const AccelerationStructureGeometryBuildDescription &description
-    ) const
+        const AccelerationStructureGeometryBuildDescription &description) const
     {
         NX_VALIDATE(0, "Ray tracing not supported on OpenGL backend");
         return AccelerationStructureBuildSizeDescription();
@@ -257,8 +253,7 @@ namespace Nexus::Graphics
     }
 
     AccelerationStructureHandle GraphicsDeviceOpenGL::CreateAccelerationStructure(
-        const AccelerationStructureDescription &desc
-    )
+        const AccelerationStructureDescription &desc)
     {
         return {};
     }
@@ -289,9 +284,8 @@ namespace Nexus::Graphics
         return m_Resources.Fences.CreateShared(std::move(fence));
     }
 
-    FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(
-        FenceHandle *fences, uint32_t count, bool waitAll, uint64_t timeoutNS
-    )
+    FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(FenceHandle *fences, uint32_t count, bool waitAll,
+                                                        uint64_t timeoutNS)
     {
         std::vector<FenceWaitResult> success(count);
 

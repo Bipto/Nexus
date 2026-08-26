@@ -49,12 +49,10 @@ namespace Nexus::Graphics
         void ExecuteCommand(const SetStencilReferenceCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const BuildAccelerationStructuresCommand &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const AccelerationStructureCopyDescription &command, IGraphicsDevice *Device) final;
-        void ExecuteCommand(
-            const AccelerationStructureDeviceBufferCopyDescription &command, IGraphicsDevice *device
-        ) final;
-        void ExecuteCommand(
-            const DeviceBufferAccelerationStructureCopyDescription &command, IGraphicsDevice *device
-        ) final;
+        void ExecuteCommand(const AccelerationStructureDeviceBufferCopyDescription &command,
+                            IGraphicsDevice *device) final;
+        void ExecuteCommand(const DeviceBufferAccelerationStructureCopyDescription &command,
+                            IGraphicsDevice *device) final;
         void ExecuteCommand(const PushConstantsDesc &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const BarrierGroupDescription &command, IGraphicsDevice *device) final;
         void ExecuteCommand(const TraceRaysDescription &desc, IGraphicsDevice *device) final;
@@ -65,8 +63,7 @@ namespace Nexus::Graphics
             GL::IOffscreenContext *context, GraphicsPipelineOpenGL *pipeline,
             const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
             std::optional<Nexus::Graphics::IndexBufferView> indexBuffer, uint32_t vertexOffset, uint32_t instanceOffset,
-            std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall
-        );
+            std::function<void(GraphicsPipelineOpenGL *pipeline, GL::IOffscreenContext *context)> drawCall);
 
       public:
         GraphicsDeviceOpenGL *m_Device = nullptr;

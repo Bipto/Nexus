@@ -62,10 +62,8 @@ namespace Nexus
         SceneState GetSceneState();
 
       public:
-        static Scene *Deserialize(
-            const SceneInfo &info, const std::string &sceneDirectory, Project *project,
-            Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue
-        );
+        static Scene *Deserialize(const SceneInfo &info, const std::string &sceneDirectory, Project *project,
+                                  Graphics::IGraphicsDevice *device, Graphics::CommandQueueHandle commandQueue);
 
       public:
         GUID Guid = {};

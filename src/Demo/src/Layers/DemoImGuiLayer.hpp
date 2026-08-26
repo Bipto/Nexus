@@ -26,7 +26,8 @@ class DemoImGuiLayer : public Nexus::ImGuiLayer
     void RenderDemoInfo();
     void RenderPerformanceInfo();
 
-    template <typename T> void RegisterDemo(const std::string &menuName, const std::string &name)
+    template <typename T>
+    void RegisterDemo(const std::string &menuName, const std::string &name)
     {
         DemoInfo &info = m_DemoInfos[menuName].emplace_back();
         info.Name = name;

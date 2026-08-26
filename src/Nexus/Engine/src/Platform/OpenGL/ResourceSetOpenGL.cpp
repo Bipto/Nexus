@@ -54,8 +54,7 @@ namespace Nexus::Graphics
                     if (descriptor.CountOrSizeInBytes == 1)
                     {
                         int32_t location = context->GetProgramResourceIndex(
-                            pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, descriptor.Name.c_str()
-                        );
+                            pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, descriptor.Name.c_str());
                         m_BindingLocations[descriptor.Name] = {location};
                     }
                     else
@@ -66,8 +65,7 @@ namespace Nexus::Graphics
                             ss << descriptor.Name << "[" << std::to_string(i) << "]";
 
                             int32_t location = context->GetProgramResourceIndex(
-                                pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, ss.str().c_str()
-                            );
+                                pipelineGL->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, ss.str().c_str());
                             m_BindingLocations[descriptor.Name].push_back(location);
                         }
                     }
@@ -292,9 +290,8 @@ namespace Nexus::Graphics
         }
     }
 
-    void ResourceSetOpenGL::Bind(
-        const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle, GL::IOffscreenContext *context
-    )
+    void ResourceSetOpenGL::Bind(const ResourceSetBindingDescription &bindingDesc, uint32_t programHandle,
+                                 GL::IOffscreenContext *context)
     {
         uint32_t uniformBufferBindingPoint = 0;
         uint32_t storageBufferBindingPoint = 0;
@@ -307,9 +304,8 @@ namespace Nexus::Graphics
             if (bindingIndex != -1)
             {
                 context->UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
-                context->BindBufferRange(
-                    GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), 0, buffer->GetSizeInBytes()
-                );
+                context->BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), 0,
+                                         buffer->GetSizeInBytes());
                 uniformBufferBindingPoint++;
             }
         }
@@ -328,9 +324,8 @@ namespace Nexus::Graphics
                 if (buffer && bindingIndex != -1)
                 {
                     context->UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
-                    context->BindBufferRange(
-                        GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), view.Offset, view.Size
-                    );
+                    context->BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(),
+                                             view.Offset, view.Size);
                     uniformBufferBindingPoint++;
                 }
             }
@@ -358,9 +353,8 @@ namespace Nexus::Graphics
                 if (buffer && bindingIndex != -1)
                 {
                     context->UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
-                    context->BindBufferRange(
-                        GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(), dynamicOffset, view.Size
-                    );
+                    context->BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, buffer->GetHandle(),
+                                             dynamicOffset, view.Size);
                     uniformBufferBindingPoint++;
                 }
             }
@@ -373,10 +367,8 @@ namespace Nexus::Graphics
             if (bindingIndex != -1)
             {
                 context->UniformBlockBinding(programHandle, bindingIndex, uniformBufferBindingPoint);
-                context->BindBufferRange(
-                    GL_UNIFORM_BUFFER, uniformBufferBindingPoint, uniformBuffer->GetHandle(), 0,
-                    uniformBuffer->GetSizeInBytes()
-                );
+                context->BindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBindingPoint, uniformBuffer->GetHandle(), 0,
+                                         uniformBuffer->GetSizeInBytes());
                 uniformBufferBindingPoint++;
             }
         }
@@ -395,10 +387,8 @@ namespace Nexus::Graphics
                 if (buffer && bindingIndex != -1)
                 {
                     context->ShaderStorageBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
-                    context->BindBufferRange(
-                        GL_SHADER_STORAGE_BUFFER, storageBufferBindingPoint, buffer->GetHandle(), view.Offset,
-                        view.SizeInBytes
-                    );
+                    context->BindBufferRange(GL_SHADER_STORAGE_BUFFER, storageBufferBindingPoint, buffer->GetHandle(),
+                                             view.Offset, view.SizeInBytes);
                     storageBufferBindingPoint++;
                 }
             }
@@ -425,10 +415,8 @@ namespace Nexus::Graphics
                 if (buffer && bindingIndex != -1)
                 {
                     context->ShaderStorageBlockBinding(programHandle, bindingIndex, storageBufferBindingPoint);
-                    context->BindBufferRange(
-                        GL_SHADER_STORAGE_BUFFER, storageBufferBindingPoint, buffer->GetHandle(), dynamicOffset,
-                        view.SizeInBytes
-                    );
+                    context->BindBufferRange(GL_SHADER_STORAGE_BUFFER, storageBufferBindingPoint, buffer->GetHandle(),
+                                             dynamicOffset, view.SizeInBytes);
                     storageBufferBindingPoint++;
                 }
             }
@@ -452,10 +440,8 @@ namespace Nexus::Graphics
                     GLenum access = GL::GetAccessMask(storageImage.Access);
                     bool isLayered = storageImage.ArrayLayer != 0;
 
-                    context->BindImageTexture(
-                        bindingIndex, texture->GetHandle(), storageImage.MipLevel, isLayered ? GL_TRUE : GL_FALSE,
-                        storageImage.ArrayLayer, access, format
-                    );
+                    context->BindImageTexture(bindingIndex, texture->GetHandle(), storageImage.MipLevel,
+                                              isLayered ? GL_TRUE : GL_FALSE, storageImage.ArrayLayer, access, format);
 
                     if (storageImage.Access == ShaderAccess::ReadWrite)
                     {

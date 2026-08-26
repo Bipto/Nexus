@@ -84,9 +84,8 @@ namespace Nexus
             {
                 if (std::filesystem::exists(FilePath))
                 {
-                    Graphics::MeshFactory factory(
-                        Nexus::GetApplication()->GetGraphicsDevice(), Nexus::GetApplication()->GetGraphicsCommandQueue()
-                    );
+                    Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice(),
+                                                  Nexus::GetApplication()->GetGraphicsCommandQueue());
                     Model = factory.CreateFrom3DModelFile(FilePath);
                 }
             }
@@ -106,40 +105,39 @@ namespace Nexus
         }
     };
 
-    NX_REGISTER_COMPONENT(
-        ModelRenderer,
+    NX_REGISTER_COMPONENT(ModelRenderer,
 
-        [](void *data, Nexus::Ref<Nexus::Project> project) {
-            Nexus::ModelRenderer *renderer = static_cast<Nexus::ModelRenderer *>(data);
-            ImGui::Text("%s", renderer->FilePath.c_str());
-            ImGui::SameLine();
-            ImGui::PushID(Nexus::GUID{});
+                          [](void *data, Nexus::Ref<Nexus::Project> project) {
+                              Nexus::ModelRenderer *renderer = static_cast<Nexus::ModelRenderer *>(data);
+                              ImGui::Text("%s", renderer->FilePath.c_str());
+                              ImGui::SameLine();
+                              ImGui::PushID(Nexus::GUID{});
 
-            ImGui::Button("+");
-            if (ImGui::IsItemClicked())
-            {
-                std::vector<Nexus::FileDialogFilter> filters;
-                filters.push_back(Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"});
+                              ImGui::Button("+");
+                              if (ImGui::IsItemClicked())
+                              {
+                                  std::vector<Nexus::FileDialogFilter> filters;
+                                  filters.push_back(Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"});
 
-                Nexus::OpenFileDialogDescription fileDialogDesc = {};
-                fileDialogDesc.WindowHandle = Nexus::GetApplication()->GetPrimaryWindow();
-                fileDialogDesc.Filters = filters;
+                                  Nexus::OpenFileDialogDescription fileDialogDesc = {};
+                                  fileDialogDesc.WindowHandle = Nexus::GetApplication()->GetPrimaryWindow();
+                                  fileDialogDesc.Filters = filters;
 
-                std::unique_ptr<Nexus::OpenFileDialog> dialog =
-                    std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(fileDialogDesc));
-                Nexus::FileDialogResult result = dialog->Show();
+                                  std::unique_ptr<Nexus::OpenFileDialog> dialog =
+                                      std::unique_ptr<Nexus::OpenFileDialog>(
+                                          Nexus::Platform::CreateOpenFileDialog(fileDialogDesc));
+                                  Nexus::FileDialogResult result = dialog->Show();
 
-                if (result.FilePaths.size() > 0)
-                {
-                    std::string filepath = result.FilePaths[0];
-                    renderer->FilePath = filepath;
-                    renderer->LoadModel();
-                }
-            }
+                                  if (result.FilePaths.size() > 0)
+                                  {
+                                      std::string filepath = result.FilePaths[0];
+                                      renderer->FilePath = filepath;
+                                      renderer->LoadModel();
+                                  }
+                              }
 
-            ImGui::PopID();
-        }
-    );
+                              ImGui::PopID();
+                          });
 
     struct NativeScriptComponent
     {
@@ -185,42 +183,41 @@ namespace Nexus
         }
     };
 
-    NX_REGISTER_COMPONENT(
-        NativeScriptComponent,
+    NX_REGISTER_COMPONENT(NativeScriptComponent,
 
-        [](void *data, Nexus::Ref<Nexus::Project> project) {
-            if (!project)
-                return;
+                          [](void *data, Nexus::Ref<Nexus::Project> project) {
+                              if (!project)
+                                  return;
 
-            Nexus::NativeScriptComponent *component = static_cast<Nexus::NativeScriptComponent *>(data);
+                              Nexus::NativeScriptComponent *component =
+                                  static_cast<Nexus::NativeScriptComponent *>(data);
 
-            auto availableScripts = project->GetCachedAvailableScripts();
+                              auto availableScripts = project->GetCachedAvailableScripts();
 
-            std::string previewText = "None";
-            if (!component->ScriptName.empty())
-            {
-                previewText = component->ScriptName;
-            }
+                              std::string previewText = "None";
+                              if (!component->ScriptName.empty())
+                              {
+                                  previewText = component->ScriptName;
+                              }
 
-            if (ImGui::BeginCombo("Script", previewText.c_str()))
-            {
-                if (ImGui::Selectable("None"))
-                {
-                    component->ScriptName = "";
-                }
+                              if (ImGui::BeginCombo("Script", previewText.c_str()))
+                              {
+                                  if (ImGui::Selectable("None"))
+                                  {
+                                      component->ScriptName = "";
+                                  }
 
-                for (const auto &name : availableScripts)
-                {
-                    if (ImGui::Selectable(name.c_str()))
-                    {
-                        component->ScriptName = name;
-                    }
-                }
+                                  for (const auto &name : availableScripts)
+                                  {
+                                      if (ImGui::Selectable(name.c_str()))
+                                      {
+                                          component->ScriptName = name;
+                                      }
+                                  }
 
-                ImGui::EndCombo();
-            }
-        }
-    );
+                                  ImGui::EndCombo();
+                              }
+                          });
 
     struct SpriteRendererComponent
     {
@@ -256,62 +253,62 @@ namespace Nexus
                 Nexus::Graphics::IGraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
 
                 auto [texture, view] = Utils::CreateTexture2DWithView(
-                    Nexus::GetApplication()->GetGraphicsCommandQueue(), TexturePath, true, false
-                );
+                    Nexus::GetApplication()->GetGraphicsCommandQueue(), TexturePath, true, false);
                 SpriteTexture = texture;
                 SpriteTextureView = view;
             }
         }
     };
 
-    NX_REGISTER_COMPONENT(
-        SpriteRendererComponent,
+    NX_REGISTER_COMPONENT(SpriteRendererComponent,
 
-        [&](void *data, Nexus::Ref<Nexus::Project> project) {
-            if (!project)
-                return;
+                          [&](void *data, Nexus::Ref<Nexus::Project> project) {
+                              if (!project)
+                                  return;
 
-            Nexus::SpriteRendererComponent *component = static_cast<Nexus::SpriteRendererComponent *>(data);
+                              Nexus::SpriteRendererComponent *component =
+                                  static_cast<Nexus::SpriteRendererComponent *>(data);
 
-            ImGui::ColorEdit4("Colour", glm::value_ptr(component->SpriteColour));
-            ImGui::DragFloat("Tiling", &component->Tiling);
+                              ImGui::ColorEdit4("Colour", glm::value_ptr(component->SpriteColour));
+                              ImGui::DragFloat("Tiling", &component->Tiling);
 
-            ImGui::Text("%s", component->TexturePath.c_str());
-            ImGui::SameLine();
-            ImGui::PushID(Nexus::GUID{});
+                              ImGui::Text("%s", component->TexturePath.c_str());
+                              ImGui::SameLine();
+                              ImGui::PushID(Nexus::GUID{});
 
-            ImGui::Button("+");
-            if (ImGui::IsItemClicked())
-            {
-                std::vector<Nexus::FileDialogFilter> filters;
-                filters.push_back(Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"});
+                              ImGui::Button("+");
+                              if (ImGui::IsItemClicked())
+                              {
+                                  std::vector<Nexus::FileDialogFilter> filters;
+                                  filters.push_back(Nexus::FileDialogFilter{.Name = "All files", .Pattern = "*"});
 
-                Nexus::OpenFileDialogDescription dialogDesc = {};
-                dialogDesc.WindowHandle = Nexus::GetApplication()->GetPrimaryWindow();
-                dialogDesc.Filters = filters;
-                dialogDesc.AllowMany = false;
+                                  Nexus::OpenFileDialogDescription dialogDesc = {};
+                                  dialogDesc.WindowHandle = Nexus::GetApplication()->GetPrimaryWindow();
+                                  dialogDesc.Filters = filters;
+                                  dialogDesc.AllowMany = false;
 
-                std::unique_ptr<Nexus::OpenFileDialog> dialog =
-                    std::unique_ptr<Nexus::OpenFileDialog>(Nexus::Platform::CreateOpenFileDialog(dialogDesc));
-                Nexus::FileDialogResult result = dialog->Show();
+                                  std::unique_ptr<Nexus::OpenFileDialog> dialog =
+                                      std::unique_ptr<Nexus::OpenFileDialog>(
+                                          Nexus::Platform::CreateOpenFileDialog(dialogDesc));
+                                  Nexus::FileDialogResult result = dialog->Show();
 
-                if (result.FilePaths.size() > 0)
-                {
-                    std::string filepath = result.FilePaths[0];
-                    component->TexturePath = filepath;
-                    component->LoadTexture();
-                }
-            }
+                                  if (result.FilePaths.size() > 0)
+                                  {
+                                      std::string filepath = result.FilePaths[0];
+                                      component->TexturePath = filepath;
+                                      component->LoadTexture();
+                                  }
+                              }
 
-            ImGui::PopID();
-        }
-    );
+                              ImGui::PopID();
+                          });
 
 } // namespace Nexus
 
 namespace YAML
 {
-    template <> struct convert<Nexus::Transform>
+    template <>
+    struct convert<Nexus::Transform>
     {
         static Node encode(const Nexus::Transform &rhs)
         {
@@ -349,7 +346,8 @@ namespace YAML
         }
     };
 
-    template <> struct convert<Nexus::ModelRenderer>
+    template <>
+    struct convert<Nexus::ModelRenderer>
     {
         static Node encode(const Nexus::ModelRenderer &rhs)
         {
@@ -371,7 +369,8 @@ namespace YAML
         }
     };
 
-    template <> struct convert<Nexus::NativeScriptComponent>
+    template <>
+    struct convert<Nexus::NativeScriptComponent>
     {
         static Node encode(const Nexus::NativeScriptComponent &rhs)
         {
@@ -392,7 +391,8 @@ namespace YAML
         }
     };
 
-    template <> struct convert<Nexus::SpriteRendererComponent>
+    template <>
+    struct convert<Nexus::SpriteRendererComponent>
     {
         static Node encode(const Nexus::SpriteRendererComponent &rhs)
         {

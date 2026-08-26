@@ -53,9 +53,8 @@ namespace Nexus::Graphics
         SubmitCommandLists(&commandList, 1, fence);
     }
 
-    void CommandQueueD3D12::SubmitCommandLists(
-        CommandListHandle *commandLists, uint32_t numCommandLists, std::optional<FenceHandle> fence
-    )
+    void CommandQueueD3D12::SubmitCommandLists(CommandListHandle *commandLists, uint32_t numCommandLists,
+                                               std::optional<FenceHandle> fence)
     {
         std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
 
@@ -85,10 +84,8 @@ namespace Nexus::Graphics
             FenceD3D12 *fenceD3D12 = fence->AsDerived<FenceD3D12>();
             Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
             m_CommandQueue->Signal(fenceHandle.Get(), 1);
-            NX_VALIDATE(
-                SUCCEEDED(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent())),
-                "Failed to set event on completion"
-            );
+            NX_VALIDATE(SUCCEEDED(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent())),
+                        "Failed to set event on completion");
         }
 
         m_CommandExecutor->FlushReadbacks(m_Device);

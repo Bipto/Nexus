@@ -8,12 +8,14 @@
 
 namespace Nexus
 {
-    template <typename T, typename Handle> class ResourcePool;
+    template <typename T, typename Handle>
+    class ResourcePool;
 
     /// @brief A class representing a unique handle to a resource in a resource pool
     /// @tparam Tag A template type to customise the resource pointed to by the
     /// handle
-    template <typename Tag> struct HandleT
+    template <typename Tag>
+    struct HandleT
     {
       public:
         /// @brief A default constructor to initialise an empty object
@@ -59,7 +61,8 @@ namespace Nexus
     /// multiple objects
     /// @tparam T The resource that is pointed to by the handle
     /// @tparam Handle The handle that references the resource
-    template <typename T, typename Handle> class SharedHandle
+    template <typename T, typename Handle>
+    class SharedHandle
     {
       public:
         /// @brief A default constructor to create an empty shared handle
@@ -111,12 +114,14 @@ namespace Nexus
         /// @brief A function that returns a resource as a derived type
         /// @tparam Derived The derived type to return
         /// @return A pointer to the derived type
-        template <typename Derived> Derived *AsDerived();
+        template <typename Derived>
+        Derived *AsDerived();
 
         /// @brief A function that returns a resource as a derived type
         /// @tparam Derived The derived type to return
         /// @return A pointer to the derived type
-        template <typename Derived> const Derived *AsDerived() const;
+        template <typename Derived>
+        const Derived *AsDerived() const;
 
         /// @brief A defaulted spaceship operator to handle comparisons between
         /// handles
@@ -138,7 +143,8 @@ namespace Nexus
     /// @brief
     /// @tparam T
     /// @tparam Handle
-    template <typename T, typename Handle> class UniqueHandle
+    template <typename T, typename Handle>
+    class UniqueHandle
     {
         /// @brief
       public:
@@ -209,12 +215,14 @@ namespace Nexus
         /// @brief A function that returns a resource as a derived type
         /// @tparam Derived The derived type to return
         /// @return A pointer to the derived type
-        template <typename Derived> Derived *AsDerived();
+        template <typename Derived>
+        Derived *AsDerived();
 
         /// @brief A function that returns a resource as a derived type
         /// @tparam Derived The derived type to return
         /// @return A pointer to the derived type
-        template <typename Derived> const Derived *AsDerived() const;
+        template <typename Derived>
+        const Derived *AsDerived() const;
 
         /// @brief A defaulted spaceship operator to handle comparisons between
         /// handles
@@ -233,7 +241,8 @@ namespace Nexus
     /// @brief A class representing a collection of resources, identified by handles
     /// @tparam T A template parameter of the resource to store in the pool
     /// @tparam Handle A template type of a handle type to identify the resource
-    template <typename T, typename Handle> class ResourcePool
+    template <typename T, typename Handle>
+    class ResourcePool
     {
       public:
         /// @brief A using statement to simplify creating a unique handle
@@ -266,7 +275,8 @@ namespace Nexus
         /// @tparam ...Args A template of the function parameter types
         /// @param ...args The parameter values to be use to construct the object
         /// @return A handle representing the stored resource
-        template <typename... Args> Handle Emplace(Args &&...args);
+        template <typename... Args>
+        Handle Emplace(Args &&...args);
 
         /// @brief A method that releases an object from within the resource pool
         /// @param handle The handle of the resource to be freed
@@ -283,7 +293,8 @@ namespace Nexus
         /// @tparam ...Args The types of the variables passed into the constructor
         /// @param ...args The values of the variables passed into the constructor
         /// @return A shared handle to the resource
-        template <typename... Args> SharedHandle<T, Handle> EmplaceShared(Args &&...args);
+        template <typename... Args>
+        SharedHandle<T, Handle> EmplaceShared(Args &&...args);
 
         /// @brief A method that creates a unique handle from an existing resource
         /// @param resource The resource that should be entered into the resource
@@ -296,7 +307,8 @@ namespace Nexus
         /// @tparam ...Args The types of the variables passed into the constructor
         /// @param ...args The values of the variables passed into the constructor
         /// @return A unique handle to the resource
-        template <typename... Args> UniqueHandle<T, Handle> EmplaceUnique(Args &&...args);
+        template <typename... Args>
+        UniqueHandle<T, Handle> EmplaceUnique(Args &&...args);
 
         /// @brief A method that retrieves a pointer to the resource from within the
         /// resource pool

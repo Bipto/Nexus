@@ -53,10 +53,8 @@ TEST_F(MemoryResourceLoaderTest, LoadBytes_MountFileFailsIfExistsAndNoOverwrite)
     auto mountResult = loader.MountBinaryFile("file.bin", false, data2);
 
     ASSERT_FALSE(mountResult.has_value());
-    EXPECT_EQ(
-        mountResult.error(), "Attempting to mount file to path, however a file "
-                             "already exists and overwrite is disabled: file.bin"
-    );
+    EXPECT_EQ(mountResult.error(), "Attempting to mount file to path, however a file "
+                                   "already exists and overwrite is disabled: file.bin");
 }
 
 TEST_F(MemoryResourceLoaderTest, LoadBytes_MountFileOverwritesWhenAllowed)

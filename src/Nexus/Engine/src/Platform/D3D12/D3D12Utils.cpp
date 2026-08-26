@@ -487,8 +487,7 @@ namespace Nexus::D3D12
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipelineTraditional(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
-        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
-    )
+        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout)
     {
         std::vector<DXGI_FORMAT> rtvFormats;
 
@@ -519,10 +518,8 @@ namespace Nexus::D3D12
         if (description.FragmentModule.IsValid())
         {
             auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
-                "Shader module is not a fragment shader"
-            );
+            NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
+                        "Shader module is not a fragment shader");
             auto blob = d3d12FragmentModule->GetBlob();
 
             pipelineDesc.PS.BytecodeLength = blob->GetBufferSize();
@@ -532,10 +529,8 @@ namespace Nexus::D3D12
         if (description.GeometryModule.IsValid())
         {
             auto d3d12GeometryModule = description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry,
-                "Shader module is not a geometry shader"
-            );
+            NX_VALIDATE(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry,
+                        "Shader module is not a geometry shader");
             auto blob = d3d12GeometryModule->GetBlob();
 
             pipelineDesc.GS.BytecodeLength = blob->GetBufferSize();
@@ -546,10 +541,8 @@ namespace Nexus::D3D12
         {
             auto d3d12TesselationControlModule =
                 description.TesselationControlModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
-                "Shader module is not a tesselation control shader"
-            );
+            NX_VALIDATE(d3d12TesselationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
+                        "Shader module is not a tesselation control shader");
             auto blob = d3d12TesselationControlModule->GetBlob();
 
             pipelineDesc.HS.BytecodeLength = blob->GetBufferSize();
@@ -560,10 +553,9 @@ namespace Nexus::D3D12
         {
             auto d3d12TesselationEvaluationModule =
                 description.TesselationEvaluationModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12TesselationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
-                "Shader module is not a tesselation evaluation shader"
-            );
+            NX_VALIDATE(d3d12TesselationEvaluationModule->GetShaderStage() ==
+                            Graphics::ShaderStage::TessellationEvaluation,
+                        "Shader module is not a tesselation evaluation shader");
             auto blob = d3d12TesselationEvaluationModule->GetBlob();
 
             pipelineDesc.DS.BytecodeLength = blob->GetBufferSize();
@@ -573,10 +565,8 @@ namespace Nexus::D3D12
         if (description.VertexModule.IsValid())
         {
             auto d3d12VertexModule = description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex,
-                "Shader module is not a vertex shader"
-            );
+            NX_VALIDATE(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex,
+                        "Shader module is not a vertex shader");
             auto blob = d3d12VertexModule->GetBlob();
 
             pipelineDesc.VS.BytecodeLength = blob->GetBufferSize();
@@ -627,8 +617,7 @@ namespace Nexus::D3D12
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipelineStream(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
-        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
-    )
+        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout)
     {
         D3D12::StreamStateBuilder builder;
         ID3D12RootSignature *rootSignaturePtr = rootSignature.Get();
@@ -637,10 +626,8 @@ namespace Nexus::D3D12
         if (description.VertexModule.IsValid())
         {
             auto d3d12VertexModule = description.VertexModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex,
-                "Shader module is not a vertex shader"
-            );
+            NX_VALIDATE(d3d12VertexModule->GetShaderStage() == Graphics::ShaderStage::Vertex,
+                        "Shader module is not a vertex shader");
             auto blob = d3d12VertexModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -652,10 +639,8 @@ namespace Nexus::D3D12
         if (description.FragmentModule.IsValid())
         {
             auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
-                "Shader module is not a fragment shader"
-            );
+            NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
+                        "Shader module is not a fragment shader");
             auto blob = d3d12FragmentModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -668,10 +653,9 @@ namespace Nexus::D3D12
         {
             auto d3d12TessellationEvaluationModule =
                 description.TesselationEvaluationModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12TessellationEvaluationModule->GetShaderStage() == Graphics::ShaderStage::TessellationEvaluation,
-                "Shader module is not a tessellation evaluation shader"
-            );
+            NX_VALIDATE(d3d12TessellationEvaluationModule->GetShaderStage() ==
+                            Graphics::ShaderStage::TessellationEvaluation,
+                        "Shader module is not a tessellation evaluation shader");
             auto blob = d3d12TessellationEvaluationModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -684,10 +668,8 @@ namespace Nexus::D3D12
         {
             auto d3d12TessellationControlModule =
                 description.TesselationControlModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
-                "Shader module is not a tessellation control shader"
-            );
+            NX_VALIDATE(d3d12TessellationControlModule->GetShaderStage() == Graphics::ShaderStage::TessellationControl,
+                        "Shader module is not a tessellation control shader");
             auto blob = d3d12TessellationControlModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -699,10 +681,8 @@ namespace Nexus::D3D12
         if (description.GeometryModule.IsValid())
         {
             auto d3d12GeometryModule = description.GeometryModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry,
-                "Shader module is not a geometry shader"
-            );
+            NX_VALIDATE(d3d12GeometryModule->GetShaderStage() == Graphics::ShaderStage::Geometry,
+                        "Shader module is not a geometry shader");
             auto blob = d3d12GeometryModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -790,8 +770,7 @@ namespace Nexus::D3D12
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGraphicsPipeline(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::GraphicsPipelineDescription &description,
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
-        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout
-    )
+        const std::vector<D3D12_INPUT_ELEMENT_DESC> &inputLayout)
     {
         const Graphics::D3D12DeviceFeatures &features = device->GetD3D12DeviceFeatures();
         if (features.SupportsPipelineStreams)
@@ -806,14 +785,11 @@ namespace Nexus::D3D12
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipelineStream(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
-    )
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
     {
         auto d3d12ComputeShader = description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
-        NX_VALIDATE(
-            d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
-            "Shader provided to ComputePipelineDescription is not a compute shader"
-        );
+        NX_VALIDATE(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
+                    "Shader provided to ComputePipelineDescription is not a compute shader");
 
         auto blob = d3d12ComputeShader->GetBlob();
 
@@ -855,14 +831,11 @@ namespace Nexus::D3D12
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipelineTraditional(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
-    )
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
     {
         auto d3d12ComputeShader = description.ComputeShader.AsDerived<Graphics::ShaderModuleD3D12>();
-        NX_VALIDATE(
-            d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
-            "Shader provided to ComputePipelineDescription is not a compute shader"
-        );
+        NX_VALIDATE(d3d12ComputeShader->GetShaderStage() == Graphics::ShaderStage::Compute,
+                    "Shader provided to ComputePipelineDescription is not a compute shader");
 
         auto blob = d3d12ComputeShader->GetBlob();
 
@@ -896,8 +869,7 @@ namespace Nexus::D3D12
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateComputePipeline(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::ComputePipelineDescription &description,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
-    )
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
     {
         const Graphics::D3D12DeviceFeatures &features = device->GetD3D12DeviceFeatures();
         if (features.SupportsPipelineStreams)
@@ -912,8 +884,7 @@ namespace Nexus::D3D12
 
     Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateMeshletPipeline(
         Graphics::GraphicsDeviceD3D12 *device, const Graphics::MeshletPipelineDescription &description,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature
-    )
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature)
     {
         D3D12::StreamStateBuilder builder;
         ID3D12RootSignature *rootSignaturePtr = rootSignature.Get();
@@ -922,9 +893,8 @@ namespace Nexus::D3D12
         if (description.TaskModule.IsValid())
         {
             auto d3d12TaskModule = description.TaskModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task, "Shader module is not a task shader"
-            );
+            NX_VALIDATE(d3d12TaskModule->GetShaderStage() == Graphics::ShaderStage::Task,
+                        "Shader module is not a task shader");
             auto blob = d3d12TaskModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -936,9 +906,8 @@ namespace Nexus::D3D12
         if (description.MeshModule.IsValid())
         {
             auto d3d12MeshModule = description.MeshModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh, "Shader module is not a mesh shader"
-            );
+            NX_VALIDATE(d3d12MeshModule->GetShaderStage() == Graphics::ShaderStage::Mesh,
+                        "Shader module is not a mesh shader");
             auto blob = d3d12MeshModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -950,10 +919,8 @@ namespace Nexus::D3D12
         if (description.FragmentModule.IsValid())
         {
             auto d3d12FragmentModule = description.FragmentModule.AsDerived<Graphics::ShaderModuleD3D12>();
-            NX_VALIDATE(
-                d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
-                "Shader module is not a fragment shader"
-            );
+            NX_VALIDATE(d3d12FragmentModule->GetShaderStage() == Graphics::ShaderStage::Fragment,
+                        "Shader module is not a fragment shader");
             auto blob = d3d12FragmentModule->GetBlob();
 
             D3D12_SHADER_BYTECODE byteCode = {};
@@ -1112,8 +1079,7 @@ namespace Nexus::D3D12
             }
             break;
 
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             if (desc.Range.LayerCount > 1)
             {
                 if (texture->GetSampleCount() > 1)
@@ -1147,15 +1113,13 @@ namespace Nexus::D3D12
 
             break;
         }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
             srvDesc.Texture3D.MostDetailedMip = desc.Range.BaseMipLevel;
             srvDesc.Texture3D.MipLevels = desc.Range.LevelCount;
             break;
         }
-        case Graphics::TextureType::TextureCube:
-        {
+        case Graphics::TextureType::TextureCube: {
             if (desc.Range.LayerCount > 6)
             {
                 srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
@@ -1189,14 +1153,12 @@ namespace Nexus::D3D12
 
         switch (textureDesc.Type)
         {
-        case Graphics::TextureType::Texture1D:
-        {
+        case Graphics::TextureType::Texture1D: {
             uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1D;
             uav.Texture1D.MipSlice = view.MipLevel;
             break;
         }
-        case Graphics::TextureType::Texture2D:
-        {
+        case Graphics::TextureType::Texture2D: {
             {
                 uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
                 uav.Texture2D.MipSlice = view.MipLevel;
@@ -1204,8 +1166,7 @@ namespace Nexus::D3D12
             }
             break;
         }
-        case Graphics::TextureType::Texture3D:
-        {
+        case Graphics::TextureType::Texture3D: {
             uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
             uav.Texture3D.MipSlice = view.MipLevel;
             uav.Texture3D.FirstWSlice = view.ArrayLayer;
@@ -1224,14 +1185,12 @@ namespace Nexus::D3D12
         switch (access)
         {
         case Graphics::StorageResourceAccess::Read:
-        case Graphics::StorageResourceAccess::ReadStructured:
-        {
+        case Graphics::StorageResourceAccess::ReadStructured: {
             readonly = true;
             byteAddress = false;
             return;
         }
-        case Graphics::StorageResourceAccess::ReadByteAddress:
-        {
+        case Graphics::StorageResourceAccess::ReadByteAddress: {
             readonly = true;
             byteAddress = true;
             return;
@@ -1241,14 +1200,12 @@ namespace Nexus::D3D12
         case Graphics::StorageResourceAccess::ReadWriteStructured:
         case Graphics::StorageResourceAccess::AppendStructured:
         case Graphics::StorageResourceAccess::ConsumeStructured:
-        case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter:
-        {
+        case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter: {
             readonly = false;
             byteAddress = false;
             return;
         }
-        case Graphics::StorageResourceAccess::ReadWriteByteAddress:
-        {
+        case Graphics::StorageResourceAccess::ReadWriteByteAddress: {
             readonly = false;
             byteAddress = true;
             return;
@@ -1308,31 +1265,26 @@ namespace Nexus::D3D12
         switch (resource.Type)
         {
         case Graphics::ResourceType::AccelerationStructure:
-        case Graphics::ResourceType::Texture:
-        {
+        case Graphics::ResourceType::Texture: {
             return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
         }
         case Graphics::ResourceType::Sampler:
-        case Graphics::ResourceType::ComparisonSampler:
-        {
+        case Graphics::ResourceType::ComparisonSampler: {
             return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
         }
-        case Graphics::ResourceType::UniformBuffer:
-        {
+        case Graphics::ResourceType::UniformBuffer: {
             return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
         }
         case Graphics::ResourceType::StorageImage:
         case Graphics::ResourceType::StorageTextureBuffer:
         case Graphics::ResourceType::CombinedImageSampler:
         case Graphics::ResourceType::StorageBuffer:
-        case Graphics::ResourceType::UniformTextureBuffer:
-        {
+        case Graphics::ResourceType::UniformTextureBuffer: {
             switch (resource.Access)
             {
             case Graphics::StorageResourceAccess::Read:
             case Graphics::StorageResourceAccess::ReadByteAddress:
-            case Graphics::StorageResourceAccess::ReadStructured:
-            {
+            case Graphics::StorageResourceAccess::ReadStructured: {
                 return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
             }
             case Graphics::StorageResourceAccess::Write:
@@ -1342,8 +1294,7 @@ namespace Nexus::D3D12
             case Graphics::StorageResourceAccess::AppendStructured:
             case Graphics::StorageResourceAccess::ConsumeStructured:
             case Graphics::StorageResourceAccess::ReadWriteStructuredWithCounter:
-            case Graphics::StorageResourceAccess::FeedbackTexture:
-            {
+            case Graphics::StorageResourceAccess::FeedbackTexture: {
                 return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
             }
             default:
@@ -1368,8 +1319,7 @@ namespace Nexus::D3D12
     };
 
     static std::optional<Graphics::ResourceDescriptor> GetDescriptorFromResourceSetDesc(
-        const std::string &name, const Graphics::ResourceSetDescription &resourceSetDesc
-    )
+        const std::string &name, const Graphics::ResourceSetDescription &resourceSetDesc)
     {
         for (const Graphics::ResourceDescriptor &descriptor : resourceSetDesc.Descriptors)
         {
@@ -1382,12 +1332,11 @@ namespace Nexus::D3D12
         return {};
     }
 
-    static void CreateDescriptorRangeMap(
-        const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
-        const Graphics::ResourceSetDescription &requestedResources,
-        std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorRangeMap,
-        std::map<std::string, uint32_t> &rootParameterIndexes, DescriptorHandleInfo &descriptorHandleInfo
-    )
+    static void CreateDescriptorRangeMap(const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
+                                         const Graphics::ResourceSetDescription &requestedResources,
+                                         std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorRangeMap,
+                                         std::map<std::string, uint32_t> &rootParameterIndexes,
+                                         DescriptorHandleInfo &descriptorHandleInfo)
     {
         uint32_t samplerIndex = 0;
         uint32_t nonSamplerIndex = 0;
@@ -1564,9 +1513,8 @@ namespace Nexus::D3D12
         }
     }
 
-    static void FindCombinedImageSamplers(
-        const std::map<std::string, Graphics::ShaderResource> &resources, DescriptorHandleInfo &descriptorHandleInfo
-    )
+    static void FindCombinedImageSamplers(const std::map<std::string, Graphics::ShaderResource> &resources,
+                                          DescriptorHandleInfo &descriptorHandleInfo)
     {
         // loop through all resources to find textures
         for (const auto &[textureName, textureInfo] : resources)
@@ -1593,12 +1541,11 @@ namespace Nexus::D3D12
         }
     }
 
-    static void CreateDescriptorRanges(
-        const std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorMap,
-        DescriptorHandleInfo &descriptorHandleInfo, std::vector<D3D12_ROOT_PARAMETER> &rootParameters,
-        std::map<std::string, uint32_t> &rootParameterIndexes,
-        RootSignatureBindingLocations &rootSignatureBindingLocation
-    )
+    static void CreateDescriptorRanges(const std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> &descriptorMap,
+                                       DescriptorHandleInfo &descriptorHandleInfo,
+                                       std::vector<D3D12_ROOT_PARAMETER> &rootParameters,
+                                       std::map<std::string, uint32_t> &rootParameterIndexes,
+                                       RootSignatureBindingLocations &rootSignatureBindingLocation)
     {
         size_t currentSamplerOffset = 0;
         size_t currentNonSamplerOffset = 0;
@@ -1722,26 +1669,24 @@ namespace Nexus::D3D12
         }
     }
 
-    void CreateRootSignature(
-        const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
-        const Graphics::ResourceSetDescription &requestedResources, Microsoft::WRL::ComPtr<ID3D12Device9> device,
-        Microsoft::WRL::ComPtr<ID3DBlob> &inRootSignatureBlob,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature, DescriptorHandleInfo &descriptorHandleInfo,
-        RootSignatureBindingLocations &rootSignatureBindingLocation, bool requiresInputAssembly
-    )
+    void CreateRootSignature(const std::map<std::string, Graphics::ShaderResource> &reflectedResources,
+                             const Graphics::ResourceSetDescription &requestedResources,
+                             Microsoft::WRL::ComPtr<ID3D12Device9> device,
+                             Microsoft::WRL::ComPtr<ID3DBlob> &inRootSignatureBlob,
+                             Microsoft::WRL::ComPtr<ID3D12RootSignature> &inRootSignature,
+                             DescriptorHandleInfo &descriptorHandleInfo,
+                             RootSignatureBindingLocations &rootSignatureBindingLocation, bool requiresInputAssembly)
     {
         // create storage for descriptor ranges and root parameters
         std::map<D3D12_SHADER_VISIBILITY, DescriptorRangeInfo> descriptorRanges = {};
         std::vector<D3D12_ROOT_PARAMETER> rootParameters = {};
         std::map<std::string, uint32_t> rootParameterIndexes = {};
 
-        CreateDescriptorRangeMap(
-            reflectedResources, requestedResources, descriptorRanges, rootParameterIndexes, descriptorHandleInfo
-        );
+        CreateDescriptorRangeMap(reflectedResources, requestedResources, descriptorRanges, rootParameterIndexes,
+                                 descriptorHandleInfo);
         FindCombinedImageSamplers(reflectedResources, descriptorHandleInfo);
-        CreateDescriptorRanges(
-            descriptorRanges, descriptorHandleInfo, rootParameters, rootParameterIndexes, rootSignatureBindingLocation
-        );
+        CreateDescriptorRanges(descriptorRanges, descriptorHandleInfo, rootParameters, rootParameterIndexes,
+                               rootSignatureBindingLocation);
 
         D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
@@ -1836,14 +1781,11 @@ namespace Nexus::D3D12
 
         // serialize the root signature and report any errors if they occur
         Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
-        if (SUCCEEDED(D3D12SerializeRootSignature(
-                &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob
-            )))
+        if (SUCCEEDED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+                                                  &inRootSignatureBlob, &errorBlob)))
         {
-            device->CreateRootSignature(
-                0, inRootSignatureBlob->GetBufferPointer(), inRootSignatureBlob->GetBufferSize(),
-                IID_PPV_ARGS(&inRootSignature)
-            );
+            device->CreateRootSignature(0, inRootSignatureBlob->GetBufferPointer(),
+                                        inRootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&inRootSignature));
         }
         else
         {
@@ -1869,15 +1811,13 @@ namespace Nexus::D3D12
                                                                 ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA
                                                                 : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
-                D3D12_INPUT_ELEMENT_DESC desc = {
-                    element.Name.c_str(),
-                    elementIndex,
-                    D3D12::GetD3D12BaseType(element),
-                    layoutIndex,
-                    (UINT)element.Offset,
-                    classification,
-                    0
-                };
+                D3D12_INPUT_ELEMENT_DESC desc = {element.Name.c_str(),
+                                                 elementIndex,
+                                                 D3D12::GetD3D12BaseType(element),
+                                                 layoutIndex,
+                                                 (UINT)element.Offset,
+                                                 classification,
+                                                 0};
 
                 if (layout.IsInstanceBuffer())
                 {
@@ -2067,14 +2007,12 @@ namespace Nexus::D3D12
     {
         switch (presentMode)
         {
-        case Graphics::PresentMode::Immediate:
-        {
+        case Graphics::PresentMode::Immediate: {
             return 0;
         }
         case Graphics::PresentMode::Mailbox:
         case Graphics::PresentMode::Fifo:
-        case Graphics::PresentMode::FifoRelaxed:
-        {
+        case Graphics::PresentMode::FifoRelaxed: {
             return 1;
         }
         default:
@@ -2302,9 +2240,8 @@ namespace Nexus::D3D12
         }
     }
 
-    static D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS GetAccelerationStructureBuildFlags(
-        uint8_t flags, bool performUpdate
-    )
+    static D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS GetAccelerationStructureBuildFlags(uint8_t flags,
+                                                                                                  bool performUpdate)
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
@@ -2407,8 +2344,7 @@ namespace Nexus::D3D12
     static void GetAccelerationStructureBuildGeometry(
         const Graphics::AccelerationStructureGeometryBuildDescription &description,
         std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &outputGeometry, bool &isInstance,
-        D3D12_GPU_VIRTUAL_ADDRESS &instanceAddress, uint32_t &instanceCount
-    )
+        D3D12_GPU_VIRTUAL_ADDRESS &instanceAddress, uint32_t &instanceCount)
     {
         isInstance = false;
 
@@ -2420,14 +2356,12 @@ namespace Nexus::D3D12
 
             switch (buildGeometry.Type)
             {
-            case Graphics::GeometryType::AxisAlignedBoundingBoxes:
-            {
+            case Graphics::GeometryType::AxisAlignedBoundingBoxes: {
                 Graphics::AccelerationStructureAABBGeometry aabbs =
                     std::get<Graphics::AccelerationStructureAABBGeometry>(buildGeometry.Geometry);
 
-                D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE address = {
-                    .StartAddress = aabbs.AABBs, .StrideInBytes = aabbs.Stride
-                };
+                D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE address = {.StartAddress = aabbs.AABBs,
+                                                                .StrideInBytes = aabbs.Stride};
 
                 D3D12_RAYTRACING_GEOMETRY_DESC &geometryDesc = outputGeometry.emplace_back();
                 geometryDesc.Type = GetRayTracingGeometryType(buildGeometry.Type);
@@ -2436,14 +2370,12 @@ namespace Nexus::D3D12
                 geometryDesc.AABBs.AABBCount = aabbs.Count;
                 break;
             }
-            case Graphics::GeometryType::Triangles:
-            {
+            case Graphics::GeometryType::Triangles: {
                 Graphics::AccelerationStructureTriangleGeometry triangles =
                     std::get<Graphics::AccelerationStructureTriangleGeometry>(buildGeometry.Geometry);
 
                 D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE vertexDataAddress = {
-                    .StartAddress = triangles.VertexBuffer, .StrideInBytes = triangles.VertexBufferStride
-                };
+                    .StartAddress = triangles.VertexBuffer, .StrideInBytes = triangles.VertexBufferStride};
                 D3D12_GPU_VIRTUAL_ADDRESS indexDataAddress = triangles.IndexBuffer;
                 D3D12_GPU_VIRTUAL_ADDRESS transformDataAddress = triangles.TransformBuffer;
 
@@ -2472,8 +2404,7 @@ namespace Nexus::D3D12
                 break;
             }
 
-            case Graphics::GeometryType::Instance:
-            {
+            case Graphics::GeometryType::Instance: {
                 Graphics::AccelerationStructureInstanceGeometry instances =
                     std::get<Graphics::AccelerationStructureInstanceGeometry>(buildGeometry.Geometry);
 
@@ -2487,11 +2418,9 @@ namespace Nexus::D3D12
         }
     }
 
-    void GetD3D12AccelerationStructureInputs(
-        const Graphics::AccelerationStructureGeometryBuildDescription &description,
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &inputs,
-        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &geometry
-    )
+    void GetD3D12AccelerationStructureInputs(const Graphics::AccelerationStructureGeometryBuildDescription &description,
+                                             D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &inputs,
+                                             std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> &geometry)
     {
         bool performUpdate = description.Mode == Graphics::AccelerationStructureBuildMode::Update;
 
@@ -2522,68 +2451,57 @@ namespace Nexus::D3D12
         switch (level)
         {
         case D3D_FEATURE_LEVEL_1_0_GENERIC:
-        case D3D_FEATURE_LEVEL_1_0_CORE:
-        {
+        case D3D_FEATURE_LEVEL_1_0_CORE: {
             major = 1;
             minor = 0;
             return;
         }
-        case D3D_FEATURE_LEVEL_9_1:
-        {
+        case D3D_FEATURE_LEVEL_9_1: {
             major = 9;
             minor = 1;
             return;
         }
-        case D3D_FEATURE_LEVEL_9_2:
-        {
+        case D3D_FEATURE_LEVEL_9_2: {
             major = 9;
             minor = 2;
             return;
         }
-        case D3D_FEATURE_LEVEL_9_3:
-        {
+        case D3D_FEATURE_LEVEL_9_3: {
             major = 9;
             minor = 3;
             return;
         }
-        case D3D_FEATURE_LEVEL_10_0:
-        {
+        case D3D_FEATURE_LEVEL_10_0: {
             major = 10;
             minor = 0;
             return;
         }
-        case D3D_FEATURE_LEVEL_10_1:
-        {
+        case D3D_FEATURE_LEVEL_10_1: {
             major = 10;
             minor = 1;
             return;
         }
-        case D3D_FEATURE_LEVEL_11_0:
-        {
+        case D3D_FEATURE_LEVEL_11_0: {
             major = 11;
             minor = 0;
             return;
         }
-        case D3D_FEATURE_LEVEL_11_1:
-        {
+        case D3D_FEATURE_LEVEL_11_1: {
             major = 11;
             minor = 1;
             return;
         }
-        case D3D_FEATURE_LEVEL_12_0:
-        {
+        case D3D_FEATURE_LEVEL_12_0: {
             major = 12;
             minor = 0;
             return;
         }
-        case D3D_FEATURE_LEVEL_12_1:
-        {
+        case D3D_FEATURE_LEVEL_12_1: {
             major = 12;
             minor = 1;
             return;
         }
-        case D3D_FEATURE_LEVEL_12_2:
-        {
+        case D3D_FEATURE_LEVEL_12_2: {
             major = 12;
             minor = 2;
             return;

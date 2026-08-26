@@ -80,9 +80,8 @@ namespace Nexus::Platform
     NX_PLATFORM_API std::string GetCurrentExecutableDirectory();
     NX_PLATFORM_API std::string GetCurrentUserFolder(IO::UserFolder folder);
 
-    NX_PLATFORM_API std::string CopyFileTo(
-        const std::string &source, const std::string &destination, bool overwriteIfExists
-    );
+    NX_PLATFORM_API std::string CopyFileTo(const std::string &source, const std::string &destination,
+                                           bool overwriteIfExists);
     NX_PLATFORM_API std::string CreateDirectoryAt(const std::string &path);
     NX_PLATFORM_API IO::PathInfo GetPathInfo(const std::string &path);
     NX_PLATFORM_API std::string RemovePath(const std::string &path);

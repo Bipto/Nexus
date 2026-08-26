@@ -10,8 +10,7 @@ namespace Nexus::Graphics
     {
       public:
         virtual ~SurfaceOpenGL() = default;
-        virtual std::unique_ptr<GL::IViewContext> CreateOpenGLContext(
-            GraphicsDeviceOpenGL *device, const GL::ContextDescription &desc
-        ) const = 0;
+        virtual std::unique_ptr<GL::IViewContext> CreateOpenGLContext(GraphicsDeviceOpenGL *device,
+                                                                      const GL::ContextDescription &desc) const = 0;
     };
 } // namespace Nexus::Graphics

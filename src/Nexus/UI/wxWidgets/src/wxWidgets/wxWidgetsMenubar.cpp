@@ -7,13 +7,10 @@
 
 namespace Nexus::UI
 {
-    wxWidgetsTextMenuItem::wxWidgetsTextMenuItem(
-        const std::string &text, wxMenu *menu, wxFrame *frame
-    )
+    wxWidgetsTextMenuItem::wxWidgetsTextMenuItem(const std::string &text, wxMenu *menu, wxFrame *frame)
         : m_Frame(frame), m_MenuItem(menu->Append(wxNewId(), text))
     {
-        m_OnClickEventBinder =
-            std::make_unique<EventBinder>(m_Frame, wxEVT_MENU, m_MenuItem->GetId());
+        m_OnClickEventBinder = std::make_unique<EventBinder>(m_Frame, wxEVT_MENU, m_MenuItem->GetId());
     }
 
     void wxWidgetsTextMenuItem::OnClick(std::function<void()> handler)
@@ -24,8 +21,7 @@ namespace Nexus::UI
     wxWidgetsSeparatorMenuItem::wxWidgetsSeparatorMenuItem(wxMenu *menu, wxFrame *frame)
         : m_Frame(frame), m_MenuItem(menu->AppendSeparator())
     {
-        m_OnClickEventBinder =
-            std::make_unique<EventBinder>(m_Frame, wxEVT_MENU, m_MenuItem->GetId());
+        m_OnClickEventBinder = std::make_unique<EventBinder>(m_Frame, wxEVT_MENU, m_MenuItem->GetId());
     }
 
     void wxWidgetsSeparatorMenuItem::OnClick(std::function<void()> handler)

@@ -9,10 +9,9 @@ namespace Demos
     class RayTracingDemo : public Demo
     {
       public:
-        RayTracingDemo(
-            const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
-            Nexus::Graphics::CommandQueueHandle commandQueue
-        )
+        RayTracingDemo(const std::string &name, Nexus::Application *app,
+                       Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer,
+                       Nexus::Graphics::CommandQueueHandle commandQueue)
             : Demo(name, app, imGuiRenderer, commandQueue)
         {
         }
@@ -43,10 +42,8 @@ namespace Demos
                 vertexBufferDesc.SizeInBytes = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
                 vertexBufferDesc.DebugName = "Acceleration Structure Vertex Buffer";
                 m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
-                Nexus::Utils::WriteToBuffer(
-                    m_CommandQueue, m_VertexBuffer, vertices.data(), 0,
-                    vertices.size() * sizeof(Nexus::Graphics::VertexPosition)
-                );
+                Nexus::Utils::WriteToBuffer(m_CommandQueue, m_VertexBuffer, vertices.data(), 0,
+                                            vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
                 std::vector<uint32_t> indices = {0, 1, 2};
 
@@ -57,9 +54,8 @@ namespace Demos
                 indexBufferDesc.SizeInBytes = indices.size() * sizeof(uint32_t);
                 indexBufferDesc.DebugName = "Acceleration Structure Index Buffer";
                 m_IndexBuffer = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
-                Nexus::Utils::WriteToBuffer(
-                    m_CommandQueue, m_IndexBuffer, indices.data(), 0, indices.size() * sizeof(uint32_t)
-                );
+                Nexus::Utils::WriteToBuffer(m_CommandQueue, m_IndexBuffer, indices.data(), 0,
+                                            indices.size() * sizeof(uint32_t));
             }
 
             // BLAS
@@ -164,10 +160,8 @@ namespace Demos
                 transformBufferDesc.StrideInBytes = sizeof(Nexus::Graphics::AccelerationStructureInstance);
                 transformBufferDesc.SizeInBytes = sizeof(Nexus::Graphics::AccelerationStructureInstance);
                 m_TransformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformBufferDesc);
-                Nexus::Utils::WriteToBuffer(
-                    m_CommandQueue, m_TransformBuffer, &instance, 0,
-                    sizeof(Nexus::Graphics::AccelerationStructureInstance)
-                );
+                Nexus::Utils::WriteToBuffer(m_CommandQueue, m_TransformBuffer, &instance, 0,
+                                            sizeof(Nexus::Graphics::AccelerationStructureInstance));
 
                 Nexus::Graphics::AccelerationStructureInstanceGeometry instanceDesc = {};
                 instanceDesc.InstanceBuffer = m_TransformBuffer->GetDeviceAddress(0);
@@ -265,24 +259,15 @@ namespace Demos
                 if (m_GraphicsDevice->GetGraphicsAPI().API == Nexus::Graphics::GraphicsAPI::Vulkan)
                 {
                     Nexus::Graphics::RayTracingPipelineDescription pipelineDesc = {};
-                    pipelineDesc.Shaders.push_back(
-                        Nexus::Utils::CreateShaderModuleFromSpirvFile(
-                            m_GraphicsDevice, "resources/demo/shaders/ray_tracing/raygen.rgen",
-                            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::RayGeneration
-                        )
-                    );
-                    pipelineDesc.Shaders.push_back(
-                        Nexus::Utils::CreateShaderModuleFromSpirvFile(
-                            m_GraphicsDevice, "resources/demo/shaders/ray_tracing/miss.rmiss",
-                            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::RayMiss
-                        )
-                    );
-                    pipelineDesc.Shaders.push_back(
-                        Nexus::Utils::CreateShaderModuleFromSpirvFile(
-                            m_GraphicsDevice, "resources/demo/shaders/ray_tracing/closesthit.rchit",
-                            Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::RayClosestHit
-                        )
-                    );
+                    pipelineDesc.Shaders.push_back(Nexus::Utils::CreateShaderModuleFromSpirvFile(
+                        m_GraphicsDevice, "resources/demo/shaders/ray_tracing/raygen.rgen",
+                        Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::RayGeneration));
+                    pipelineDesc.Shaders.push_back(Nexus::Utils::CreateShaderModuleFromSpirvFile(
+                        m_GraphicsDevice, "resources/demo/shaders/ray_tracing/miss.rmiss",
+                        Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::RayMiss));
+                    pipelineDesc.Shaders.push_back(Nexus::Utils::CreateShaderModuleFromSpirvFile(
+                        m_GraphicsDevice, "resources/demo/shaders/ray_tracing/closesthit.rchit",
+                        Nexus::GetApplication()->GetApplicationPath(), Nexus::Graphics::ShaderStage::RayClosestHit));
 
                     Nexus::Graphics::ShaderGroup rayGenGroup = {};
                     rayGenGroup.Type = Nexus::Graphics::ShaderGroupType::General;
@@ -310,17 +295,14 @@ namespace Demos
                     pipelineDesc.MaxRecursionDepth = 1;
                     pipelineDesc.DebugName = "Ray Tracing Pipeline";
                     pipelineDesc.ResourceDescription.Descriptors = {
-                        Nexus::Graphics::ResourceDescriptor{
-                            .Name = "outputImage",
-                            .Type = Nexus::Graphics::ResourceDescriptorType::StorageImage,
-                            .CountOrSizeInBytes = 1
-                        },
+                        Nexus::Graphics::ResourceDescriptor{.Name = "outputImage",
+                                                            .Type =
+                                                                Nexus::Graphics::ResourceDescriptorType::StorageImage,
+                                                            .CountOrSizeInBytes = 1},
                         Nexus::Graphics::ResourceDescriptor{
                             .Name = "topLevelAS",
                             .Type = Nexus::Graphics::ResourceDescriptorType::AccelerationStructure,
-                            .CountOrSizeInBytes = 1
-                        }
-                    };
+                            .CountOrSizeInBytes = 1}};
 
                     m_Pipeline = m_GraphicsDevice->CreateRayTracingPipeline(pipelineDesc);
 
@@ -383,11 +365,9 @@ namespace Demos
                 // Regions
                 m_RaygenRegion = {.Address = m_SBT->GetDeviceAddress(0 * recordStride), .Size = recordStride};
                 m_MissRegion = {
-                    .Address = m_SBT->GetDeviceAddress(1 * recordStride), .Stride = recordStride, .Size = recordStride
-                };
+                    .Address = m_SBT->GetDeviceAddress(1 * recordStride), .Stride = recordStride, .Size = recordStride};
                 m_HitRegion = {
-                    .Address = m_SBT->GetDeviceAddress(2 * recordStride), .Stride = recordStride, .Size = recordStride
-                };
+                    .Address = m_SBT->GetDeviceAddress(2 * recordStride), .Stride = recordStride, .Size = recordStride};
                 m_CallableRegion = {.Address = 0, .Stride = 0, .Size = 0};
             }
         }
