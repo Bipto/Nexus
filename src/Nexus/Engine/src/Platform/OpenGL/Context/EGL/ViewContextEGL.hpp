@@ -24,7 +24,6 @@ namespace Nexus::GL
         virtual void SetVSync(bool enabled) override;
         virtual const ContextDescription &GetDescription() const override;
         virtual bool Validate() override;
-        virtual const GladGLContext &GetContext() const override;
 
       private:
         EGLDisplay m_EGLDisplay = {};

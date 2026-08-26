@@ -178,9 +178,4 @@ namespace Nexus::GL
         return m_EGLDisplay != 0 && m_Context != 0;
     }
 
-    const GladGLContext &OffscreenContextEGL::GetContext() const
-    {
-        return m_GladContext;
-    }
-
 } // namespace Nexus::GL

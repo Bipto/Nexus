@@ -252,9 +252,4 @@ namespace Nexus::GL
     {
         return m_EGLDisplay != 0 && m_NativeWindow != 0 && m_Surface != 0 && m_Context != 0;
     }
-
-    const GladGLContext &ViewContextEGL::GetContext() const
-    {
-        return m_GladContext;
-    }
 } // namespace Nexus::GL

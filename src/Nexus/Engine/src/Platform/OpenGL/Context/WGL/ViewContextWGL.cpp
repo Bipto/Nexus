@@ -240,9 +240,4 @@ namespace Nexus::GL
     {
         return m_HWND != nullptr && m_HDC != nullptr && m_HGLRC != nullptr;
     }
-
-    const GladGLContext &ViewContextWGL::GetContext() const
-    {
-        return m_Context;
-    }
 } // namespace Nexus::GL

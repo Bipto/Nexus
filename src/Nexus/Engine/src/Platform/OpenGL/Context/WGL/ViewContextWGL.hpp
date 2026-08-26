@@ -18,7 +18,6 @@ namespace Nexus::GL
         void SetVSync(bool enabled) final;
         const ContextDescription &GetDescription() const final;
         bool Validate() final;
-        const GladGLContext &GetContext() const final;
 
       private:
         HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextDescription &spec);

@@ -19,7 +19,6 @@ namespace Nexus::GL
         virtual ~OffscreenContextEGL();
         bool MakeCurrent() final;
         bool Validate() final;
-        const GladGLContext &GetContext() const final;
 
         EGLContext GetEGLContext();
 

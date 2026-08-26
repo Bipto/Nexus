@@ -119,9 +119,4 @@ namespace Nexus::GL
     {
         return m_HGLRC != nullptr && m_PBuffer != nullptr && m_HDC != nullptr;
     }
-
-    const GladGLContext &OffscreenContextWGL::GetContext() const
-    {
-        return m_Context;
-    }
 } // namespace Nexus::GL

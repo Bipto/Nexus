@@ -26,7 +26,6 @@ namespace Nexus::GL
 
         virtual bool MakeCurrent() = 0;
         virtual bool Validate() = 0;
-        virtual const GladGLContext &GetContext() const = 0;
 
         // textures
         std::expected<uint32_t, std::string> CreateTexture(GLenum textureType);

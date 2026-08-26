@@ -15,7 +15,6 @@ namespace Nexus::GL
         virtual ~OffscreenContextWGL();
         bool MakeCurrent() final;
         bool Validate() final;
-        const GladGLContext &GetContext() const final;
 
         HGLRC GetHGLRC();
 
