@@ -1,0 +1,271 @@
+name: Build (Emscripten)
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  build-emscripten:
+    name: Build (Emscripten - ${{ matrix.build_type }})
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        build_type:
+          - Release
+          - Debug
+
+    env:
+      EM_VERSION: 6.0.5
+      EM_CACHE_FOLDER: ${{ github.workspace }}/emsdk-cache
+
+    steps:
+      # ===========================================================
+      # Checkout
+      # ===========================================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # ===========================================================
+      # Emscripten SDK cache
+      # ===========================================================
+
+      - name: Restore Emscripten cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.EM_CACHE_FOLDER }}
+          key: >-
+            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-${{ matrix.build_type }}-
+            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-
+
+      # ===========================================================
+      # Setup Emscripten
+      # ===========================================================
+
+      - name: Setup Emscripten
+        uses: emscripten-core/setup-emsdk@v15
+        with:
+          version: ${{ env.EM_VERSION }}
+          actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}
+
+      # ===========================================================
+      # Verify Emscripten
+      # ===========================================================
+
+      - name: Show Emscripten toolchain
+        shell: pwsh
+        run: |
+          Write-Host "========================================"
+          Write-Host "Emscripten"
+          Write-Host "========================================"
+
+          emcc --version
+          em++ --version
+
+          Write-Host "========================================"
+          Write-Host "Node.js"
+          Write-Host "========================================"
+
+          node --version
+
+          Write-Host "========================================"
+          Write-Host "Python"
+          Write-Host "========================================"
+
+          python --version
+
+          Write-Host "========================================"
+          Write-Host "CMake"
+          Write-Host "========================================"
+
+          cmake --version
+
+          Write-Host "========================================"
+          Write-Host "Ninja"
+          Write-Host "========================================"
+
+          ninja --version
+
+          Write-Host "========================================"
+          Write-Host "Emscripten environment"
+          Write-Host "========================================"
+
+          emcc -v
+
+      # ===========================================================
+      # Verify Emscripten compiler
+      # ===========================================================
+
+      - name: Test Emscripten compiler
+        shell: pwsh
+        run: |
+          @'
+          #include <iostream>
+          #include <string>
+
+          int main()
+          {
+              std::string message = "Hello from Emscripten";
+              std::cout << message << std::endl;
+              return 0;
+          }
+          '@ | Set-Content -Path format-test.cpp
+
+          em++ `
+            -std=c++20 `
+            -O0 `
+            format-test.cpp `
+            -o format-test.html
+
+          if (-not (Test-Path format-test.html)) {
+            throw "Emscripten compiler test failed"
+          }
+
+          if (-not (Test-Path format-test.js)) {
+            throw "Emscripten JS output missing"
+          }
+
+          if (-not (Test-Path format-test.wasm)) {
+            throw "Emscripten WASM output missing"
+          }
+
+      # ===========================================================
+      # CPM cache
+      # ===========================================================
+
+      - name: Restore CPM cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: >-
+            cpm-${{ runner.os }}-Emscripten-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            cpm-${{ runner.os }}-Emscripten-${{ matrix.build_type }}-
+            cpm-${{ runner.os }}-Emscripten-
+
+      # ===========================================================
+      # Configure CMake
+      # ===========================================================
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          emcmake cmake `
+            -B build `
+            -G Ninja `
+            -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" `
+            -DCPM_SOURCE_CACHE="${{ github.workspace }}/.cache" `
+            -DNX_PLATFORM_OPENGL=1 `
+            -DNX_PLATFORM_VULKAN=0 `
+            -DNX_PLATFORM_OPENAL=1 `
+            -DBUILD_TESTING=ON `
+            -S .
+
+      # ===========================================================
+      # Show CMake compiler configuration
+      # ===========================================================
+
+      - name: Show CMake compiler configuration
+        shell: pwsh
+        run: |
+          Write-Host "===== CMake compiler configuration ====="
+
+          if (Test-Path build/CMakeCache.txt) {
+            Select-String `
+              -Path build/CMakeCache.txt `
+              -Pattern `
+                "CMAKE_C_COMPILER:FILEPATH|CMAKE_CXX_COMPILER:FILEPATH|CMAKE_C_COMPILER_ID|CMAKE_CXX_COMPILER_ID|CMAKE_C_COMPILER_VERSION|CMAKE_CXX_COMPILER_VERSION|CMAKE_CXX_FLAGS"
+          }
+
+      # ===========================================================
+      # Build
+      # ===========================================================
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build build --parallel
+
+      # ===========================================================
+      # Inspect generated WebAssembly
+      # ===========================================================
+
+      - name: Inspect WebAssembly output
+        shell: pwsh
+        run: |
+          Write-Host "========================================"
+          Write-Host "Generated files"
+          Write-Host "========================================"
+
+          Get-ChildItem `
+            -Path build `
+            -Recurse `
+            -File `
+            | Where-Object {
+                $_.Extension -in @(
+                  ".wasm",
+                  ".js",
+                  ".html",
+                  ".data"
+                )
+              } `
+            | Select-Object FullName, Length
+
+      # ===========================================================
+      # Validate WebAssembly files
+      # ===========================================================
+
+      - name: Validate WebAssembly output
+        shell: pwsh
+        run: |
+          $wasmFiles = Get-ChildItem `
+            -Path build `
+            -Recurse `
+            -Filter *.wasm
+
+          if ($wasmFiles.Count -eq 0) {
+            Write-Warning "No .wasm files were produced."
+            exit 0
+          }
+
+          foreach ($wasm in $wasmFiles) {
+            Write-Host "Validating $($wasm.FullName)"
+
+            wasm-validate "$($wasm.FullName)"
+          }
+
+      # ===========================================================
+      # Run tests
+      #
+      # NOTE:
+      # Native ctest execution is not equivalent to Emscripten.
+      # Tests producing WebAssembly generally need to run through
+      # Node.js or a browser.
+      # ===========================================================
+
+      - name: Run tests with Node.js
+        shell: pwsh
+        run: |
+          Write-Host "========================================"
+          Write-Host "CTest tests"
+          Write-Host "========================================"
+
+          ctest `
+            --test-dir build `
+            -C "${{ matrix.build_type }}" `
+            --output-on-failure `
+            --parallel
