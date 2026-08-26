@@ -21,13 +21,7 @@ The project is split into multiple components including Audio, Core, Engine, Pla
 
 # Building
 
-Windows
 ```cmd
-cmake -S . -B build
-```
-
-Linux
-```bash
 cmake -S . -B build
 ```
 
