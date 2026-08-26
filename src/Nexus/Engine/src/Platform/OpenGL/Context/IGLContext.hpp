@@ -282,7 +282,9 @@ namespace Nexus::GL
         bool SupportsSparseBuffers();
         bool SupportsTextureViews();
 
+#if !defined(__EMSCRIPTEN__)
       protected:
         GladGLContext m_Context = {};
+#endif
     };
 } // namespace Nexus::GL

@@ -13,17 +13,21 @@ namespace Nexus::Graphics
         bool Dirty = false;
     };
 
-    class DeviceBufferOpenGL : public DeviceBuffer
+    class DeviceBufferOpenGL final : public IDeviceBuffer
     {
       public:
         DeviceBufferOpenGL(const DeviceBufferDescription &desc);
         virtual ~DeviceBufferOpenGL();
-        virtual void SetData(const void *data, uint32_t offset, uint32_t size) final;
-        virtual std::vector<char> GetData(uint32_t offset, uint32_t size) const final;
-        virtual const DeviceBufferDescription &GetDescription() const final;
+        void SetData(const void *data, uint32_t offset, uint32_t size) final;
+        std::vector<char> GetData(uint32_t offset, uint32_t size) final;
+        const DeviceBufferDescription &GetDescription() const final;
+        DeviceAddress GetDeviceAddress(size_t offset) const final;
 
-        void Bind(GLenum target);
-        void BindRange(GLenum target, uint32_t slot, size_t offset, size_t size);
+        [[nodiscard]] uint8_t *Map() final;
+        void Unmap() final;
+        void FlushRange(BufferRange range) final;
+
+        uint32_t GetHandle() const;
 
         /// @brief This function will be implemented only on WebGL2 backend, due to
         /// requiring separate buffers for different usages

@@ -61,6 +61,29 @@ namespace Nexus::Graphics
         return m_BufferDescription;
     }
 
+    DeviceAddress DeviceBufferOpenGL::GetDeviceAddress(size_t offset) const
+    {
+    }
+
+    uint8_t *DeviceBufferOpenGL::Map()
+    {
+        return m_BufferStorage.data();
+    }
+
+    void DeviceBufferOpenGL::Unmap()
+    {
+    }
+
+    void DeviceBufferOpenGL::FlushRange(BufferRange range)
+    {
+        SetData(m_BufferStorage.data(), static_cast<uint32_t>(offset), static_cast<uint32_t>(size));
+    }
+
+    uint32_t DeviceBufferOpenGL::GetHandle() const
+    {
+        return m_BufferHandle;
+    }
+
     void DeviceBufferOpenGL::MarkDirty()
     {
         for (auto &[target, bufferData] : m_BufferHandles)

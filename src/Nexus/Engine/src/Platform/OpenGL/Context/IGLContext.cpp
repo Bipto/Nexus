@@ -8,12 +8,18 @@ namespace Nexus::GL
 {
     IGLContext::~IGLContext()
     {
+#if !defined(__EMSCRIPTEN__)
         gladLoaderUnloadGLContext(&m_Context);
+#endif
     }
 
     bool IGLContext::LoadFunctions()
     {
+#if !defined(__EMSCRIPTEN__)
         return gladLoaderLoadGLContext(&m_Context);
+#else
+        return true;
+#endif
     }
 
     std::expected<uint32_t, std::string> IGLContext::CreateTexture(GLenum textureType)
@@ -22,6 +28,7 @@ namespace Nexus::GL
 
         GLuint textureHandle = 0;
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CreateTextures)
         {
             m_Context.CreateTextures(textureType, 1, &textureHandle);
@@ -31,6 +38,10 @@ namespace Nexus::GL
             m_Context.GenTextures(1, &textureHandle);
             m_Context.BindTexture(textureType, textureHandle);
         }
+#else
+        glGenTextures(1, &textureHandle);
+        glBindTexture(textureType, textureHandle);
+#endif
 
         return textureHandle;
     }
@@ -38,13 +49,19 @@ namespace Nexus::GL
     void IGLContext::DestroyTexture(uint32_t handle)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.DeleteTextures(1, &handle);
+#else
+        glDeleteTextures(1, &handle);
+#endif
     }
 
     void IGLContext::BindTexture(GLenum textureType, GLuint handle, GLuint slot)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.BindTextureUnit != nullptr)
         {
             glCall(m_Context.BindTextureUnit(slot, handle));
@@ -54,6 +71,10 @@ namespace Nexus::GL
             glCall(m_Context.ActiveTexture(GL_TEXTURE0 + slot));
             glCall(m_Context.BindTexture(textureType, handle));
         }
+#else
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(textureType, handle);
+#endif
     }
 
     void IGLContext::TextureParameteri(GLuint texture, GLenum textureType, GLenum pname, GLint param)
