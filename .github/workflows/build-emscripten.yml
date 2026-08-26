@@ -25,7 +25,7 @@ jobs:
 
     env:
       EM_VERSION: 6.0.5
-      EM_CACHE_FOLDER: ${{ github.workspace }}/emsdk-cache
+      EM_CACHE_FOLDER: emsdk-cache
 
     steps:
       # ===========================================================
@@ -47,9 +47,8 @@ jobs:
         with:
           path: ${{ env.EM_CACHE_FOLDER }}
           key: >-
-            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
-            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-${{ matrix.build_type }}-
             emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-
 
       # ===========================================================
@@ -246,15 +245,19 @@ jobs:
             Write-Host "Validating $($wasm.FullName)"
 
             wasm-validate "$($wasm.FullName)"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "wasm-validate failed for $($wasm.FullName)"
+            }
           }
 
       # ===========================================================
       # Run tests
       #
       # NOTE:
-      # Native ctest execution is not equivalent to Emscripten.
-      # Tests producing WebAssembly generally need to run through
-      # Node.js or a browser.
+      # Emscripten targets generally cannot be tested with ordinary
+      # native CTest execution. This step assumes your CTest setup
+      # knows how to execute the generated Emscripten targets.
       # ===========================================================
 
       - name: Run tests with Node.js
