@@ -1,7 +1,7 @@
 ---
 BasedOnStyle: Microsoft
 AccessModifierOffset: -2
-AlignAfterOpenBracket: BlockIndent
+AlignAfterOpenBracket: Align
 AlignArrayOfStructures: None
 AlignConsecutiveAssignments:
   Enabled: false
@@ -92,7 +92,7 @@ BinPackLongBracedList: true
 BinPackParameters: BinPack
 BitFieldColonSpacing: Both
 BraceWrapping:
-  AfterCaseLabel: true
+  AfterCaseLabel: false
   AfterClass: true
   AfterControlStatement: Always
   AfterEnum: true
@@ -120,14 +120,14 @@ BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: Always
 BreakBeforeInlineASMColon: OnlyMultiline
-BreakBeforeTemplateCloser: false
+BreakBeforeTemplateCloser: true
 BreakBeforeTernaryOperators: true
 BreakBinaryOperations: Never
 BreakConstructorInitializers: BeforeColon
 BreakFunctionDefinitionParameters: false
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
-BreakTemplateDeclarations: MultiLine
+BreakTemplateDeclarations: Yes
 ColumnLimit: 120
 CommentPragmas: "^ IWYU pragma:"
 CompactNamespaces: false
@@ -190,7 +190,7 @@ KeepEmptyLines:
   AtStartOfBlock: true
   AtStartOfFile: true
 KeepFormFeed: false
-LambdaBodyIndentation: Signature
+LambdaBodyIndentation: OuterScope
 LineEnding: DeriveLF
 MacroBlockBegin: ""
 MacroBlockEnd: ""
