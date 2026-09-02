@@ -71,7 +71,8 @@ namespace Nexus::Graphics
         float *data = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &channels, requestedChannels);
 
         std::vector<unsigned char> pixels;
-        size_t bufferSize = m_Width * m_Height * requestedChannels * sizeof(float);
+        size_t bufferSize =
+            static_cast<size_t>(m_Width) * static_cast<size_t>(m_Height) * requestedChannels * sizeof(float);
         pixels.resize(bufferSize);
         memcpy(pixels.data(), data, pixels.size());
         stbi_image_free(data);

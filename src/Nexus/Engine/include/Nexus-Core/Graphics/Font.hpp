@@ -28,7 +28,7 @@ namespace Nexus::Graphics
         {
             m_Width = width;
             m_Height = height;
-            m_Pixels.resize(m_Width * m_Height);
+            m_Pixels.resize(static_cast<size_t>(m_Width * m_Height));
         }
 
         std::vector<uint8_t> &GetPixels()

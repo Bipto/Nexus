@@ -157,7 +157,8 @@ namespace Nexus::Utils
         }
 
         auto texture = device->CreateTexture(spec);
-        size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
+        size_t bufferSize =
+            static_cast<size_t>(spec.Width) * static_cast<size_t>(spec.Height) * GetPixelFormatSizeInBytes(spec.Format);
 
         Utils::WriteToTexture(commandQueue, texture, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 
