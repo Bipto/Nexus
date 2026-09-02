@@ -20,8 +20,8 @@ namespace Nexus::Graphics
         m_OffscreenContext = std::make_unique<GL::OffscreenContextEGL>(spec, display);
         m_OffscreenContext->MakeCurrent();
 
-        std::string vendor = (const char *)m_OffscreenContext->GetString(GL_VENDOR);
-        std::string renderer = (const char *)m_OffscreenContext->GetString(GL_RENDERER);
+        std::string vendor = static_cast<const char *>(m_OffscreenContext->GetString(GL_VENDOR));
+        std::string renderer = static_cast<const char *>(m_OffscreenContext->GetString(GL_RENDERER));
 
         m_DeviceName = vendor + " " + renderer;
     }
