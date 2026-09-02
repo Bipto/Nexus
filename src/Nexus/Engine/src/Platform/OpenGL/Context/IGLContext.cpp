@@ -81,6 +81,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureParameteri)
         {
             m_Context.TextureParameteri(texture, pname, param);
@@ -90,10 +91,16 @@ namespace Nexus::GL
             m_Context.BindTexture(textureType, texture);
             m_Context.TexParameteri(textureType, pname, param);
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexParameteri(textureType, pname, param);
+#endif
     }
 
     bool IGLContext::IsTextureTypeSupported(Graphics::TextureType type, uint32_t arrayLayers)
     {
+
+#if !defined(__EMSCRIPTEN__)
         switch (type)
         {
         case Graphics::TextureType::Texture1D:
@@ -118,7 +125,7 @@ namespace Nexus::GL
         case Graphics::TextureType::Texture3D: {
             if (arrayLayers > 1)
             {
-                return false;
+                return m_Context.VERSION_4_0;
             }
             else
             {
@@ -138,42 +145,111 @@ namespace Nexus::GL
         default:
             return false;
         }
+#else
+        switch (type)
+        {
+        case Graphics::TextureType::Texture1D:
+            if (arrayLayers > 1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        case Graphics::TextureType::Texture2D: {
+            return true;
+        }
+        case Graphics::TextureType::Texture3D: {
+            if (arrayLayers > 1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        case Graphics::TextureType::TextureCube: {
+            if (arrayLayers > 1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        default:
+            return false;
+        }
+#endif
     }
 
     GLuint IGLContext::CreateShader(GLenum shaderType)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         return m_Context.CreateShader(shaderType);
+#else
+        return glCreateShader(shaderType);
+#endif
     }
 
     void IGLContext::DeleteShader(GLuint shader)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.DeleteShader(shader);
+#else
+        glDeleteShader(shader);
+#endif
     }
 
     void IGLContext::ShaderSource(GLuint shader, GLsizei count, const GLchar **string, const GLint *length)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.ShaderSource(shader, count, string, length);
+#else
+        glShaderSource(shader, count, string, length);
+#endif
     }
 
     void IGLContext::CompileShader(GLuint shader)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.CompileShader(shader);
+#else
+        glCompileShader(shader);
+#endif
     }
 
     void IGLContext::GetShaderiv(GLuint shader, GLenum pname, GLint *params)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.GetShaderiv(shader, pname, params);
+#else
+        glGetShaderiv(shader, pname, params);
+#endif
     }
 
     void IGLContext::GetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.GetShaderInfoLog(shader, maxLength, length, infoLog);
+#else
+        glGetShaderInfoLog(shader, maxLength, length, infoLog);
+#endif
     }
 
     void IGLContext::CompressedTexSubImage1D(GLuint texture, GLenum textureType, GLint level, GLint xoffset,
@@ -181,6 +257,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CompressedTextureSubImage1D)
         {
             glCall(m_Context.CompressedTextureSubImage1D(texture, level, xoffset, width, format, imageSize, data));
@@ -190,6 +267,9 @@ namespace Nexus::GL
             glCall(m_Context.BindTexture(textureType, texture));
             glCall(m_Context.CompressedTexSubImage1D(textureType, level, xoffset, width, format, imageSize, data));
         }
+#else
+        throw std::runtime_error("Compressed texture1Ds are not supported in WebGL2");
+#endif
     }
 
     void IGLContext::TexSubImage1D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLsizei width,
@@ -197,6 +277,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureSubImage1D)
         {
             glCall(m_Context.TextureSubImage1D(texture, level, xoffset, width, format, type, pixels));
@@ -206,6 +287,10 @@ namespace Nexus::GL
             glCall(m_Context.BindTexture(textureType, texture));
             glCall(m_Context.TexSubImage1D(textureType, level, xoffset, width, format, type, pixels));
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexSubImage1D(textureType, leve, xoffset, width, format, type, pixels);
+#endif
     }
 
     void IGLContext::CompressedTexSubImage2D(GLuint texture, GLenum textureType, GLint level, GLint xoffset,
@@ -214,6 +299,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CompressedTextureSubImage2D)
         {
             glCall(m_Context.CompressedTextureSubImage2D(texture, level, xoffset, yoffset, width, height, format,
@@ -225,6 +311,9 @@ namespace Nexus::GL
             glCall(m_Context.CompressedTexSubImage2D(textureType, level, xoffset, yoffset, width, height, format,
                                                      imageSize, data));
         }
+#else
+        throw std::runtime_error("Compressed texture2Ds are not supported in WebGL2");
+#endif
     }
 
     void IGLContext::TexSubImage2D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset,
@@ -232,6 +321,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureSubImage2D)
         {
             glCall(m_Context.TextureSubImage2D(texture, level, xoffset, yoffset, width, height, format, type, pixels));
@@ -241,6 +331,10 @@ namespace Nexus::GL
             glCall(m_Context.BindTexture(textureType, texture));
             glCall(m_Context.TexSubImage2D(textureType, level, xoffset, yoffset, width, height, format, type, pixels));
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexSubImage2D(textureType, level, xoffset, yoffset, width, height, format, type, pixels);
+#endif
     }
 
     void IGLContext::CompressedTexSubImage3D(GLuint texture, GLenum textureType, GLint level, GLint xoffset,
@@ -249,6 +343,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CompressedTextureSubImage3D)
         {
             glCall(m_Context.CompressedTextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height,
@@ -260,6 +355,9 @@ namespace Nexus::GL
             glCall(m_Context.CompressedTexSubImage3D(textureType, level, xoffset, yoffset, zoffset, width, height,
                                                      depth, format, imageSize, data));
         }
+#else
+        throw std::runtime_error("Compressed texture3Ds are not supported in WebGL2");
+#endif
     }
 
     void IGLContext::TexSubImage3D(GLuint texture, GLenum textureType, GLint level, GLint xoffset, GLint yoffset,
@@ -268,6 +366,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureSubImage3D)
         {
             glCall(m_Context.TextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height, depth, format,
@@ -279,6 +378,10 @@ namespace Nexus::GL
             glCall(m_Context.TexSubImage3D(textureType, level, xoffset, yoffset, zoffset, width, height, depth, format,
                                            type, pixels));
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexSubImage3D(textureType, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+#endif
     }
 
     void IGLContext::TexStorage1D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat,
@@ -286,6 +389,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureStorage1D)
         {
             m_Context.TextureStorage1D(texture, levels, internalformat, width);
@@ -295,6 +399,10 @@ namespace Nexus::GL
             m_Context.BindTexture(textureType, texture);
             m_Context.TexStorage1D(textureType, levels, internalformat, width);
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexStorage1D(textureType, levels, internalformat, width);
+#endif
     }
 
     void IGLContext::TexStorage2D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat,
@@ -302,6 +410,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureStorage2D)
         {
             m_Context.TextureStorage2D(texture, levels, internalformat, width, height);
@@ -311,6 +420,10 @@ namespace Nexus::GL
             m_Context.BindTexture(textureType, texture);
             m_Context.TexStorage2D(textureType, levels, internalformat, width, height);
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexStorage2D(textureType, levels, internalformat, width, height);
+#endif
     }
 
     void IGLContext::TexStorage2DMultisample(GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat,
@@ -318,6 +431,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureStorage2DMultisample)
         {
             m_Context.TextureStorage2DMultisample(texture, samples, internalformat, width, height,
@@ -329,6 +443,9 @@ namespace Nexus::GL
             m_Context.TexStorage2DMultisample(textureType, samples, internalformat, width, height,
                                               fixedsamplelocations);
         }
+#else
+        throw std::runtime_error("Multisampled texture2Ds are not supported by WebGL2");
+#endif
     }
 
     void IGLContext::TexStorage3D(GLuint texture, GLenum textureType, GLsizei levels, GLenum internalformat,
@@ -336,6 +453,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureStorage3D)
         {
             m_Context.TextureStorage3D(texture, levels, internalformat, width, height, depth);
@@ -345,6 +463,10 @@ namespace Nexus::GL
             m_Context.BindTexture(textureType, texture);
             m_Context.TexStorage3D(textureType, levels, internalformat, width, height, depth);
         }
+#else
+        glBindTexture(textureType, texture);
+        glTexStorage3D(textureType, levels, internalformat, width, height, depth);
+#endif
     }
 
     void IGLContext::TexStorage3DMultisample(GLuint texture, GLenum textureType, GLsizei samples, GLenum internalformat,
@@ -353,6 +475,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureStorage3DMultisample)
         {
             m_Context.TextureStorage3DMultisample(texture, samples, internalformat, width, height, depth,
@@ -364,6 +487,9 @@ namespace Nexus::GL
             m_Context.TexStorage3DMultisample(textureType, samples, internalformat, width, height, depth,
                                               fixedsamplelocations);
         }
+#else
+        throw std::runtime_error("Multisampled texture3Ds are not supported by WebGL2");
+#endif
     }
 
     void IGLContext::TextureView(GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat,
@@ -371,12 +497,20 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         m_Context.TextureView(texture, target, origtexture, internalformat, minlevel, numlevels, minlayer, numlayers);
+#else
+        throw std::runtime_error("TextureViews are not supported by WebGL2");
+#endif
     }
 
     bool IGLContext::IsSparseBindingSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.ARB_sparse_texture;
+#else
+        return false;
+#endif
     }
 
     std::expected<uint32_t, std::string> IGLContext::CreateTexelBuffer(const Graphics::TexelBufferDescription &desc)
@@ -390,6 +524,7 @@ namespace Nexus::GL
 
         uint32_t handle = 0;
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CreateTextures != nullptr && m_Context.TextureBufferRange != nullptr)
         {
             m_Context.CreateTextures(GL_TEXTURE_BUFFER, 1, &handle);
@@ -406,6 +541,11 @@ namespace Nexus::GL
         {
             return std::unexpected("Texel buffers are not supported");
         }
+#else
+        glGenTextures(1, &handle);
+        glBindTexture(GL_TEXTURE_BUFFER, handle);
+        glTexBufferRangeEXT(GL_TEXTURE_BUFFER, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes);
+#endif
 
         return handle;
     }
@@ -413,7 +553,12 @@ namespace Nexus::GL
     void IGLContext::DestroyTextureBuffer(uint32_t handle)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DeleteTextures(1, &handle));
+#else
+        glDeleteTextures(1, &handle);
+#endif
     }
 
     std::expected<void, std::string> IGLContext::CreateBuffer(GLuint &buffer, GLenum target, GLsizeiptr size,
@@ -423,6 +568,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         // try to use persistent mapping if the functionality is available
         if (m_Context.ARB_buffer_storage || m_Context.VERSION_4_4)
         {
@@ -461,12 +607,23 @@ namespace Nexus::GL
         }
 
         return std::expected<void, std::string>{};
+#else
+        glGenBuffers(1, &buffer);
+        glBindBuffer(GL_COPY_READ_BUFFER, buffer);
+        glBufferData(GL_COPY_READ_BUFFER, size, nullptr, bufferUsage);
+
+#endif
     }
 
     void IGLContext::DeleteBuffers(GLsizei n, const GLuint *buffers)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DeleteBuffers(n, buffers));
+#else
+        glDeleteBuffers(n, buffers);
+#endif
     }
 
     void IGLContext::CopyBufferSubData(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset,
@@ -474,6 +631,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         // use DSA if it is available
         if (m_Context.ARB_direct_state_access || m_Context.EXT_direct_state_access)
         {
@@ -495,12 +653,16 @@ namespace Nexus::GL
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, 0));
             glCall(m_Context.BindBuffer(GL_COPY_WRITE_BUFFER, 0));
         }
+#else
+        throw std::runtime_error("CopyBufferSubData is not supported");
+#endif
     }
 
     void IGLContext::BufferSubData(GLuint buffer, GLenum target, GLintptr offset, GLsizeiptr size, const void *data)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.NamedBufferSubData)
         {
             glCall(m_Context.NamedBufferSubData(buffer, offset, size, data));
@@ -510,12 +672,17 @@ namespace Nexus::GL
             glCall(m_Context.BindBuffer(target, buffer));
             glCall(m_Context.BufferSubData(target, offset, size, data));
         }
+#else
+        glBindBuffer(target, buffer);
+        glBufferSubData(target, offset, size, data);
+#endif
     }
 
     void IGLContext::GetBufferSubData(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.GetNamedBufferSubData)
         {
             glCall(m_Context.GetNamedBufferSubData(buffer, offset, size, data));
@@ -537,12 +704,17 @@ namespace Nexus::GL
 
             m_Context.UnmapBuffer(GL_COPY_READ_BUFFER);
         }
+#else
+        glBindBuffer(GL_COPY_READ_BUFFER, buffer);
+        glGetBufferSubData(GL_COPY_READ_BUFFER, offset, size, data);
+#endif
     }
 
     void *IGLContext::MapBufferRange(GLuint buffer, GLintptr offset, GLsizei length, GLbitfield access)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.MapNamedBufferRange)
         {
             return m_Context.MapNamedBufferRange(buffer, offset, length, access);
@@ -552,6 +724,10 @@ namespace Nexus::GL
             glCall(m_Context.BindBuffer(GL_COPY_READ_BUFFER, buffer));
             return m_Context.MapBufferRange(GL_COPY_READ_BUFFER, offset, length, access);
         }
+#else
+        glBindBuffer(GL_COPY_READ_BUFFER, buffer);
+        return glMapBufferRange(GL_COPY_READ_BUFFER, offset, length, access);
+#endif
     }
     GLuint IGLContext::CreateFramebuffer()
     {
@@ -559,6 +735,7 @@ namespace Nexus::GL
 
         GLuint framebuffer = 0;
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CreateFramebuffers)
         {
             m_Context.CreateFramebuffers(1, &framebuffer);
@@ -567,6 +744,9 @@ namespace Nexus::GL
         {
             m_Context.GenFramebuffers(1, &framebuffer);
         }
+#else
+        glGenFramebuffers(1, &framebuffer);
+#endif
 
         return framebuffer;
     }
@@ -574,33 +754,57 @@ namespace Nexus::GL
     void IGLContext::DestroyFramebuffer(GLuint framebuffer)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.DeleteFramebuffers(1, &framebuffer);
+#else
+        glDeleteFramebuffers(1, &framebuffer);
+#endif
     }
 
     void IGLContext::FramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
                                           GLint level)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTexture1D(target, attachment, textarget, texture, level));
+#else
+        glFramebufferTexture1D(target, attachment, textarget, texture, level);
+#endif
     }
 
     void IGLContext::FramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
                                           GLint level)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTexture2D(target, attachment, textarget, texture, level));
+#else
+        glFramebufferTexture2D(target, attachment, textarget, texture, level);
+#endif
     }
 
     void IGLContext::FramebufferTexture3D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
                                           GLint level, GLint layer)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTexture3D(target, attachment, textarget, texture, level, layer));
+#else
+        glFramebufferTexture3D(target, attachment, textarget, texture, level, layer)
+#endif
     }
 
     void IGLContext::FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
     {
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTextureLayer(target, attachment, texture, level, layer));
+#else
+        glFramebufferTextureLayer(target, attachment, texture, level, layer);
+#endif
     }
 
     void IGLContext::FramebufferTextureMultiviewOVR(GLenum target, GLenum attachment, GLuint texture, GLint level,
@@ -608,13 +812,18 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTextureMultiviewOVR(target, attachment, texture, level, baseViewIndex, numViews));
+#else
+        throw std::runtime_error("This extension has not been implemented here for WebGL2");
+#endif
     }
 
     GLenum IGLContext::CheckFramebufferStatus(GLuint framebuffer, GLenum target)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CheckNamedFramebufferStatus)
         {
             return m_Context.CheckNamedFramebufferStatus(framebuffer, target);
@@ -624,6 +833,10 @@ namespace Nexus::GL
             BindFramebuffer(target, framebuffer);
             return m_Context.CheckFramebufferStatus(target);
         }
+#else
+        BindFramebuffer(target, framebuffer);
+        return glCheckFramebufferStatus(target);
+#endif
     }
 
     void IGLContext::ReadBuffer(GLuint framebuffer, GLenum target, GLenum mode)
