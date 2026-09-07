@@ -843,6 +843,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.NamedFramebufferReadBuffer)
         {
             m_Context.NamedFramebufferReadBuffer(framebuffer, mode);
@@ -852,13 +853,22 @@ namespace Nexus::GL
             BindFramebuffer(target, framebuffer);
             m_Context.ReadBuffer(mode);
         }
+#else
+        BindFramebuffer(target, framebuffer);
+        glReadBuffer(mode);
+#endif
     }
 
     void IGLContext::ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type,
                                 GLvoid *data)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.ReadPixels(x, y, width, height, format, type, data);
+#else
+        glReadPixels(x, y, width, height, format, type, data);
+#endif
     }
 
     void IGLContext::BlitFramebuffer(GLuint readFramebuffer, GLuint drawFramebuffer, GLint srcX0, GLint srcY0,
@@ -867,6 +877,7 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.BlitNamedFramebuffer)
         {
             m_Context.BlitNamedFramebuffer(readFramebuffer, drawFramebuffer, srcX0, srcY0, srcX1, srcY1, dstX0, dstY0,
@@ -882,19 +893,35 @@ namespace Nexus::GL
             m_Context.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
             m_Context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         }
+#else
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFramebuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFramebuffer);
+
+        glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+#endif
     }
 
     void IGLContext::CopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY,
                                       GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX,
                                       GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth)
     {
+#if !defined(__EMSCRIPTEN__)
         m_Context.CopyImageSubData(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX,
                                    dstY, dstZ, srcWidth, srcHeight, srcDepth);
+#else
+#endif
     }
 
     bool IGLContext::SupportsCopyImageSubData()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.CopyImageSubData != nullptr;
+#else
+        return false;
+#endif
     }
 
     std::expected<uint32_t, std::string> IGLContext::CreateSampler(const Graphics::SamplerDescription &desc)
@@ -902,12 +929,21 @@ namespace Nexus::GL
         MakeCurrent();
 
         uint32_t handle = 0;
-        glCall(m_Context.GenSamplers(1, &handle));
+
+#if !defined(__EMSCRIPTEN__)
+        if (m_Context.CreateSamplers)
+        {
+            glCall(m_Context.CreateSamplers(1, &handle));
+        }
+        else
+        {
+            glCall(m_Context.GenSamplers(1, &handle));
+            glCall(m_Context.BindSampler(0, handle));
+        }
 
         if (m_Context.KHR_debug)
         {
             // the sampler must have been bound at least once to name it
-            glCall(m_Context.BindSampler(0, handle));
             glCall(m_Context.ObjectLabelKHR(GL_SAMPLER, handle, -1, desc.DebugName.c_str()));
         }
 
@@ -951,6 +987,51 @@ namespace Nexus::GL
             glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
             glCall(m_Context.SamplerParameteri(handle, GL_TEXTURE_COMPARE_FUNC, comparisonFunction));
         }
+#else
+        glCall(glGenSamplers(1, &handle));
+        glCall(glBindSampler(0, handle));
+
+        bool useMips = desc.MinimumLOD != 0 || desc.MaximumLOD != 0;
+
+        GLenum min, max;
+        GL::GetSamplerFilter(desc.SampleFilter, min, max, useMips);
+
+        // texture sampling options
+        glCall(glSamplerParameteri(handle, GL_TEXTURE_MIN_FILTER, min));
+        glCall(glSamplerParameteri(handle, GL_TEXTURE_MAG_FILTER, max));
+        glCall(glSamplerParameteri(handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(desc.AddressModeU)));
+        glCall(glSamplerParameteri(handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(desc.AddressModeV)));
+        glCall(glSamplerParameteri(handle, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(desc.AddressModeW)));
+
+        // texture anisotropy
+        if (desc.SampleFilter == Graphics::SamplerFilter::Anisotropic)
+        {
+            glCall(glSamplerParameterf(handle, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, desc.MaximumAnisotropy));
+        }
+
+        const glm::vec4 color = Nexus::Utils::ColourFromBorderColour(desc.TextureBorderColor);
+
+        // border colour
+        GLfloat border[] = {color.r, color.g, color.b, color.a};
+        glCall(glSamplerParameterfv(handle, GL_TEXTURE_BORDER_COLOR, border));
+
+        // LOD
+        glCall(glSamplerParameterf(handle, GL_TEXTURE_MIN_LOD, desc.MinimumLOD));
+        glCall(glSamplerParameterf(handle, GL_TEXTURE_MAX_LOD, desc.MaximumLOD));
+
+        if (m_Context.EXT_texture_lod_bias)
+        {
+            glCall(glSamplerParameterf(handle, GL_TEXTURE_LOD_BIAS_EXT, desc.LODBias));
+        }
+
+        // texture comparison
+        if (desc.SamplerComparisonFunction != Graphics::ComparisonFunction::Never)
+        {
+            auto comparisonFunction = GL::GetComparisonFunction(desc.SamplerComparisonFunction);
+            glCall(glSamplerParameteri(handle, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+            glCall(glSamplerParameteri(handle, GL_TEXTURE_COMPARE_FUNC, comparisonFunction));
+        }
+#endif
 
         return handle;
     }
@@ -958,18 +1039,30 @@ namespace Nexus::GL
     void IGLContext::DestroySampler(uint32_t handle)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DeleteSamplers(1, &handle));
+#else
+        glCall(glDeleteSamplers(1, &handle));
+#endif
     }
 
     void IGLContext::BindSampler(uint32_t handle, uint32_t slot)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindSampler(slot, handle));
+#else
+        glCall(glBindSampler(slot, handle));
+#endif
     }
 
     std::expected<GLsync, std::string> IGLContext::CreateFence(const Graphics::FenceDescription &desc)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         GLsync handle = m_Context.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
         // wait for the new fence to be signalled
@@ -986,6 +1079,19 @@ namespace Nexus::GL
         {
             m_Context.ObjectPtrLabelKHR(handle, -1, desc.DebugName.c_str());
         }
+#else
+        GLsync handle = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+
+        // wait for the new fence to be signalled
+        if (desc.Signalled)
+        {
+            GLenum result = WaitForFence(handle, 0);
+            if (result == GL_WAIT_FAILED)
+            {
+                throw std::runtime_error("Failed to wait for fence");
+            }
+        }
+#endif
 
         return handle;
     }
@@ -993,7 +1099,12 @@ namespace Nexus::GL
     void IGLContext::DestroyFence(GLsync handle)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.DeleteSync(handle);
+#else
+        glDeleteSync(handle);
+#endif
     }
 
     bool IGLContext::IsSignalled(GLsync handle)
@@ -1001,58 +1112,104 @@ namespace Nexus::GL
         MakeCurrent();
 
         GLint status = -1;
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.GetSynciv(handle, GL_SYNC_STATUS, sizeof(status), nullptr, &status);
+#else
+        glGetSynciv(handle, GL_SYNC_STATUS, sizeof(status), nullptr, &status);
+#endif
         return status == GL_SIGNALED;
     }
 
     GLenum IGLContext::WaitForFence(GLsync handle, uint64_t timeout)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         return m_Context.ClientWaitSync(handle, GL_SYNC_FLUSH_COMMANDS_BIT, timeout);
+#else
+        return glClientWaitSync(handle, GL_SYNC_FLUSH_COMMANDS_BIT, timeout);
+#endif
     }
 
     uint32_t IGLContext::CreateProgram()
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         return m_Context.CreateProgram();
+#else
+        return glCreateProgram();
+#endif
     }
 
     void IGLContext::AttachShaderModule(uint32_t program, uint32_t shader)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.AttachShader(program, shader));
+#else
+        glCall(glAttachShader(program, shader));
+#endif
     }
 
     void IGLContext::LinkProgram(uint32_t program)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.LinkProgram(program));
+#else
+        glCall(glLinkProgram(program));
+#endif
     }
 
     int IGLContext::GetProgramiv(uint32_t program, GLenum parameter)
     {
         MakeCurrent();
         int returnValue = 0;
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.GetProgramiv(program, parameter, &returnValue));
+#else
+        glCall(glGetProgramiv(program, parameter, &returnValue));
+#endif
+
         return returnValue;
     }
 
     void IGLContext::GetProgramInfoLog(uint32_t program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.GetProgramInfoLog(program, maxLength, nullptr, infoLog));
+#else
+        glCall(glGetProgramInfoLog(program, maxLength, nullptr, infoLog));
+#endif
     }
 
     void IGLContext::DetachShader(uint32_t program, uint32_t shader)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DetachShader(program, shader));
+#else
+        glCall(glDetachShader(program, shader));
+#endif
     }
 
     void IGLContext::UseShader(uint32_t program)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.UseProgram(program));
+#else
+        glCall(glUseProgram(program));
+#endif
     }
 
     // pipeline state
@@ -1060,84 +1217,140 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
-        if (enable)
-        {
-            glCall(m_Context.Enable(capability));
-        }
-        else
-        {
-            glCall(m_Context.Disable(capability));
-        }
+#if !defined(__EMSCRIPTEN__)
+        enable ? glCall(m_Context.Enable(capability) : m_Context.Disable(capability));
+#else
+        enable ? glCall(glEnable(capability) : glDisable(capability));
+#endif
     }
 
     void IGLContext::SetStencilMask(uint32_t mask)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.StencilMask(mask));
+#else
+        glCall(glStencilMask(mask));
+#endif
     }
 
     void IGLContext::SetStencilOp(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.StencilOpSeparate(face, sfail, dpfail, dppass));
+#else
+        glCall(glStencilOpSeparate(face, sfail, dpfail, dppass));
+#endif
     }
 
     void IGLContext::SetStencilFunc(GLenum face, GLenum func, GLint ref, GLuint mask)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.StencilFuncSeparate(face, func, ref, mask));
+#else
+        glCall(glStencilFuncSeparate(face, func, ref, mask));
+#endif
     }
 
     void IGLContext::EnableDepthMask(bool enable)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DepthMask(enable ? GL_TRUE : GL_FALSE));
+#else
+        glCall(glDepthMask(enable ? GL_TRUE : GL_FALSE));
+#endif
     }
 
     bool IGLContext::IsDepthBoundsSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.DepthBoundsEXT != nullptr;
+#else
+        return false;
+#endif
     }
 
     void IGLContext::SetDepthBounds(float min, float max)
     {
         MakeCurrent();
-        glCall(m_Context.DepthBoundsEXT(min, max));
+
+#if !defined(__EMSCRIPTEN__)
+        if (m_Context.DepthBoundsEXT)
+        {
+            glCall(m_Context.DepthBoundsEXT(min, max));
+        }
+#endif
     }
 
     void IGLContext::SetDepthMask(bool enabled)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DepthMask(enabled ? GL_TRUE : GL_FALSE));
+#else
+        glCall(glDepthMask(enabled ? GL_TRUE : GL_FALSE));
+#endif
     }
 
     void IGLContext::SetDepthFunction(GLenum func)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DepthFunc(func));
+#else
+        glCall(glDepthFunc(func));
+#endif
     }
 
     void IGLContext::SetFaceCulling(GLenum cullMode)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.CullFace(cullMode));
+#else
+        glCall(glCullFace(cullMode));
+#endif
     }
 
     bool IGLContext::IsDepthClampSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.EXT_depth_clamp == 1;
+#else
+        return false;
+#endif
     }
 
     void IGLContext::SetPolygonMode(GLenum face, GLenum mode)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.PolygonMode(face, mode));
+#else
+        glCall(glPolygonMode(face, mode));
+#endif
     }
 
     void IGLContext::SetFrontFace(GLenum face)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FrontFace(face));
+#else
+        glCall(glFrontFace(face));
+#endif
     }
 
     bool IGLContext::SupportsPerTargetColourMask()
