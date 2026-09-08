@@ -1355,88 +1355,156 @@ namespace Nexus::GL
 
     bool IGLContext::SupportsPerTargetColourMask()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.ColorMaski != nullptr;
+#else
+        return true;
+#endif
     }
 
     void IGLContext::SetColourMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.ColorMask(red, green, blue, alpha));
+#else
+        glCall(glColorMask(red, green, blue, alpha));
+#endif
     }
 
     void IGLContext::SetColourMaski(uint32_t index, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.ColorMaski(index, red, green, blue, alpha));
+#else
+        glCall(glColorMaski(index, red, green, blue, alpha));
+#endif
     }
 
     bool IGLContext::SupportsPerTargetBlendFunction()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.BlendFunci != nullptr;
+#else
+        return true;
+#endif
     }
 
     void IGLContext::SetBlendFunction(GLenum sfactor, GLenum dfactor)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendFunc(sfactor, dfactor));
+#else
+        glCall(glBlendFunc(sfactor, dfactor));
+#endif
     }
 
     void IGLContext::SetBlendFunctioni(uint32_t index, GLenum sfactor, GLenum dfactor)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendFunci(index, sfactor, dfactor));
+#else
+        glCall(glBlendFunci(index, sfactor, dfactor));
+#endif
     }
 
     void IGLContext::SetBlendFunctionSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha));
+#else
+        glCall(glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha));
+#endif
     }
 
     void IGLContext::SetBlendFunctionSeparatei(uint32_t index, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha,
                                                GLenum dstAlpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
+#else
+        glCall(glBlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
+#endif
     }
 
     void IGLContext::SetBlendEquation(GLenum mode)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendEquation(mode));
+#else
+        glCall(glBlendEquation(mode));
+#endif
     }
 
     void IGLContext::SetBlendEquationi(uint32_t index, GLenum mode)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendEquationi(index, mode));
+#else
+        glCall(glBlendEquationi(index, mode));
+#endif
     }
 
     void IGLContext::SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendEquationSeparate(modeRGB, modeAlpha));
+#else
+        glCall(glBlendEquationSeparate(modeRGB, modeAlpha));
+#endif
     }
 
     void IGLContext::SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendEquationSeparatei(index, modeRGB, modeAlpha));
+#else
+        glCall(glBlendEquationSeparatei(index, modeRGB, modeAlpha));
+#endif
     }
 
     void IGLContext::BlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendColor(red, green, blue, alpha));
+#else
+        glCall(glBlendColor(red, green, blue, alpha));
+#endif
     }
 
     bool IGLContext::SupportsTextureBarriers()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.TextureBarrier != nullptr || m_Context.TextureBarrierNV != nullptr;
+#else
+        return false;
+#endif
     }
 
     void IGLContext::TextureBarrier()
     {
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.TextureBarrier)
         {
             glCall(m_Context.TextureBarrier());
@@ -1445,24 +1513,36 @@ namespace Nexus::GL
         {
             glCall(m_Context.TextureBarrierNV());
         }
+#endif
     }
 
     bool IGLContext::SupportsMemoryBarriers()
     {
+
+#if !defined(__EMSCRIPTEN__)
         return m_Context.MemoryBarrierEXT != nullptr;
+#else
+        return false;
+#endif
     }
 
     void IGLContext::MemoryBarrierEXT(GLbitfield barriers)
     {
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.MemoryBarrierEXT)
         {
             glCall(m_Context.MemoryBarrierEXT(barriers));
         }
+#endif
     }
 
     void IGLContext::Finish()
     {
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.Finish());
+#else
+        glCall(glFinish());
+#endif
     }
 
     // buffers
@@ -1471,6 +1551,7 @@ namespace Nexus::GL
         MakeCurrent();
         uint32_t handle = 0;
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.CreateVertexArrays != nullptr)
         {
             glCall(m_Context.CreateVertexArrays(1, &handle));
@@ -1479,6 +1560,9 @@ namespace Nexus::GL
         {
             glCall(m_Context.GenVertexArrays(1, &handle));
         }
+#else
+        glCall(glGenVertexArrays(1, &handle));
+#endif
 
         return handle;
     }
@@ -1486,32 +1570,54 @@ namespace Nexus::GL
     void IGLContext::DestroyVertexArray(uint32_t vao)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindVertexArray(0));
         glCall(m_Context.DeleteVertexArrays(1, &vao));
+#else
+        glCall(glBindVertexArray(0));
+        glCall(glDeleteVertexArrays(1, &vao));
+#endif
     }
 
     void IGLContext::BindBuffer(GLenum target, GLuint buffer)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindBuffer(target, buffer));
+#else
+        glCall(glBindBuffer(target, buffer));
+#endif
     }
 
     void IGLContext::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindBufferRange(target, index, buffer, offset, size));
+#else
+        glCall(glBindBufferRange(target, index, buffer, offset, size));
+#endif
     }
 
     void IGLContext::BindVertexArray(uint32_t vao)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindVertexArray(vao));
+#else
+        glCall(glBindVertexArray(vao));
+#endif
     }
 
     void IGLContext::EnableVertexAttribArray(uint32_t vao, uint32_t index)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.EnableVertexArrayAttrib != nullptr)
         {
             glCall(m_Context.EnableVertexArrayAttrib(vao, index));
@@ -1525,12 +1631,17 @@ namespace Nexus::GL
             glCall(m_Context.BindVertexArray(vao));
             glCall(m_Context.EnableVertexAttribArray(index));
         }
+#else
+        glCall(glBindVertexArray(vao));
+        glCall(glEnableVertexAttribArray(index));
+#endif
     }
 
     void IGLContext::DisableVertexAttribArray(uint32_t vao, uint32_t index)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.DisableVertexArrayAttrib != nullptr)
         {
             glCall(m_Context.DisableVertexArrayAttrib(vao, index));
@@ -1544,59 +1655,104 @@ namespace Nexus::GL
             glCall(m_Context.BindVertexArray(vao));
             glCall(m_Context.EnableVertexAttribArray(index));
         }
+#else
+        glCall(glBindVertexArray(vao));
+        glCall(glEnableVertexAttribArray(index));
+#endif
     }
 
     void IGLContext::SetVertexAttribPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
                                             GLboolean normalized, GLsizei stride, uint32_t offset)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
         glCall(m_Context.VertexAttribPointer(index, size, type, normalized, stride,
                                              reinterpret_cast<const GLvoid *>(offset)));
+#else
+        glCall(glBindVertexArray(vao));
+        glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+        glCall(glVertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<const GLvoid *>(offset)));
+#endif
     }
 
     void IGLContext::SetVertexAttribIPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
                                              GLsizei stride, uint32_t offset)
     {
         MakeCurrent();
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
         glCall(m_Context.VertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+#else
+        glCall(glBindVertexArray(vao));
+        glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+        glCall(glVertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+#endif
     }
 
     void IGLContext::SetVertexAttribLPointer(uint32_t vao, uint32_t vbo, GLuint index, GLint size, GLenum type,
                                              GLsizei stride, uint32_t offset)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
         glCall(m_Context.VertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+#else
+        glCall(glBindVertexArray(vao));
+        glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+        glCall(glVertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+#endif
     }
 
     void IGLContext::SetVertexAttribDivisor(uint32_t vao, GLuint index, GLuint divisor)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindVertexArray(vao));
         glCall(m_Context.VertexAttribDivisor(index, divisor));
+#else
+        glCall(glBindVertexArray(vao));
+        glCall(glVertexAttribDivisor(index, divisor));
+#endif
     }
 
     bool IGLContext::AreStorageBuffersSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.ARB_shader_storage_buffer_object || (m_Context.VERSION_4_5 == 1 || m_Context.ES_VERSION_3_1);
+#else
+        return false;
+#endif
     }
 
     void IGLContext::ShaderStorageBlockBinding(uint32_t shader, GLuint storageBlockIndex, GLuint storageBlockBinding)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.ShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
+#else
+        glCall(glShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
+#endif
     }
 
     int32_t IGLContext::GetProgramResourceIndex(uint32_t shader, GLenum programInterface, const char *name)
     {
         MakeCurrent();
         int32_t location = 0;
+
+#if !defined(__EMSCRIPTEN__)
         glCall(location = m_Context.GetProgramResourceIndex(shader, programInterface, name));
+#else
+        glCall(location = glGetProgramResourceIndex(shader, programInterface, name));
+#endif
+
         return location;
     }
 
@@ -1604,7 +1760,13 @@ namespace Nexus::GL
     {
         MakeCurrent();
         int32_t location = 0;
+
+#if !defined(__EMSCRIPTEN__)
         glCall(location = m_Context.GetUniformBlockIndex(shader, name));
+#else
+        glCall(location = glGetUniformBlockIndex(shader, name));
+#endif
+
         return location;
     }
 
@@ -1612,21 +1774,36 @@ namespace Nexus::GL
     {
         MakeCurrent();
         int32_t location = 0;
+
+#if !defined(__EMSCRIPTEN__)
         glCall(location = m_Context.GetUniformLocation(shader, name));
+#else
+        glCall(location = glGetUniformLocation(shader, name));
+#endif
         return location;
     }
 
     void IGLContext::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding));
+#else
+        glCall(glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding));
+#endif
     }
 
     void IGLContext::BindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer,
                                       GLenum access, GLenum format)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindImageTexture(unit, texture, level, layered, layer, access, format));
+#else
+        glCall(glBindImageTexture(unit, texture, level, layered, layer, access, format));
+#endif
     }
 
     void IGLContext::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
