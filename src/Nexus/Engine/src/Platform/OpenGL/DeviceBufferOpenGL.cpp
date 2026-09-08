@@ -1,5 +1,3 @@
-#include "DeviceBufferOpenGL_Default.hpp"
-
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 
 namespace Nexus::Graphics
