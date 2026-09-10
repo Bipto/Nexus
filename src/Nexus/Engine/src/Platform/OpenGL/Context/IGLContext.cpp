@@ -1809,6 +1809,8 @@ namespace Nexus::GL
     void IGLContext::DrawArrays(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         if (primcount == 1)
         {
             glCall(m_Context.DrawArrays(mode, first, count));
@@ -1817,11 +1819,23 @@ namespace Nexus::GL
         {
             glCall(m_Context.DrawArraysInstanced(mode, first, count, primcount));
         }
+#else
+        if (primcount == 1)
+        {
+            glCall(glDrawArrays(mode, first, count));
+        }
+        else
+        {
+            glCall(glDrawArraysInstanced(mode, first, count, primcount));
+        }
+#endif
     }
 
     void IGLContext::DrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         if (primcount == 1)
         {
             glCall(m_Context.DrawElements(mode, count, type, indices));
@@ -1830,11 +1844,23 @@ namespace Nexus::GL
         {
             glCall(m_Context.DrawElementsInstanced(mode, count, type, indices, primcount));
         }
+#else
+        if (primcount == 1)
+        {
+            glCall(glDrawElements(mode, count, type, indices));
+        }
+        else
+        {
+            glCall(glDrawElementsInstanced(mode, count, type, indices, primcount));
+        }
+#endif
     }
 
     void IGLContext::MultiDrawArraysIndirect(GLenum mode, const void *indirect, GLsizei drawCount, GLsizei stride)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.MultiDrawArraysIndirect)
         {
             glCall(m_Context.MultiDrawArraysIndirect(mode, indirect, drawCount, stride));
@@ -1848,12 +1874,15 @@ namespace Nexus::GL
                 offset += stride;
             }
         }
+#endif
     }
 
     void IGLContext::MultiDrawElementsIndirect(GLenum mode, GLenum type, const void *indirect, GLsizei drawcount,
                                                GLsizei stride)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.MultiDrawElementsIndirect)
         {
             glCall(m_Context.MultiDrawElementsIndirect(mode, type, indirect, drawcount, stride));
@@ -1867,32 +1896,43 @@ namespace Nexus::GL
                 offset += stride;
             }
         }
+#endif
     }
 
     void IGLContext::DispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DispatchCompute(num_groups_x, num_groups_y, num_groups_z));
+#endif
     }
 
     void IGLContext::DispatchComputeIndirect(GLintptr indirect)
     {
         MakeCurrent();
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DispatchComputeIndirect(indirect));
+#endif
     }
 
     void IGLContext::DrawMeshTasksEXT(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.DrawMeshTasksEXT)
         {
             glCall(m_Context.DrawMeshTasksEXT(num_groups_x, num_groups_y, num_groups_z));
         }
+#endif
     }
 
     void IGLContext::DrawMeshTasksIndirectEXT(GLintptr indirect, GLintptr drawCount, GLsizei stride)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.MultiDrawMeshTasksIndirectEXT)
         {
             glCall(m_Context.MultiDrawMeshTasksIndirectEXT((GLintptr)indirect, drawCount, stride));
@@ -1906,83 +1946,135 @@ namespace Nexus::GL
             }
             indirectOffset += stride;
         }
+#endif
     }
 
     void IGLContext::ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
     {
         MakeCurrent();
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.ClearBufferfv(buffer, drawbuffer, value));
+#else
+        glCall(glClearBufferfv(buffer, drawbuffer, value));
+#endif
     }
 
     void IGLContext::ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.ClearBufferfi(buffer, drawbuffer, depth, stencil));
+#else
+        glCall(glClearBufferfi(buffer, drawbuffer, depth, stencil));
+#endif
     }
 
     void IGLContext::GetIntegerv(GLenum pname, GLint *data)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.GetIntegerv(pname, data));
+#else
+        glCall(glGetIntegerv(pname, data));
+#endif
     }
 
     void IGLContext::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.Scissor(x, y, width, height));
+#else
+        glCall(glScissor(x, y, width, height));
+#endif
     }
 
     void IGLContext::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.Viewport(x, y, width, height));
+#else
+        glCall(glViewport(x, y, width, height));
+#endif
     }
 
     void IGLContext::DepthRangef(GLfloat nearVal, GLfloat farVal)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.DepthRangef(nearVal, farVal));
+#else
+        glCall(glDepthRangef(nearVal, farVal));
+#endif
     }
 
     bool IGLContext::IsComputeSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.DispatchCompute != nullptr;
+#else
+        return false;
+#endif
     }
 
     bool IGLContext::IsIndirectRenderingSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.DrawArraysIndirect != nullptr && m_Context.DrawElementsIndirect != nullptr;
+#else
+        return false;
+#endif
     }
 
     bool IGLContext::IsMeshTaskSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.DrawMeshTasksEXT != nullptr && m_Context.DrawMeshTasksIndirectEXT != nullptr;
+#else
+        return false;
+#endif
     }
 
     void IGLContext::BindFramebuffer(GLenum target, GLuint framebuffer)
     {
-        m_Context.BindFramebuffer(target, framebuffer);
+#if !defined(__EMSCRIPTEN__)
+        glCall(m_Context.BindFramebuffer(target, framebuffer));
+#else
+        glCall(glBindFramebuffer(target, framebuffer));
+#endif
     }
 
     void IGLContext::DrawBuffers(GLuint framebuffer, GLsizei n, const GLenum *bufs)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.NamedFramebufferDrawBuffers)
         {
-            m_Context.NamedFramebufferDrawBuffers(framebuffer, n, bufs);
+            glCall(m_Context.NamedFramebufferDrawBuffers(framebuffer, n, bufs));
         }
         else
         {
             BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-            m_Context.DrawBuffers(n, bufs);
+            glCall(m_Context.DrawBuffers(n, bufs));
         }
+#else
+        BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+        glCall(glDrawBuffers(n, bufs));
+#endif
     }
 
     void IGLContext::ReadBuffer(GLuint framebuffer, GLenum mode)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.NamedFramebufferReadBuffer)
         {
             m_Context.NamedFramebufferReadBuffer(framebuffer, mode);
@@ -1992,18 +2084,29 @@ namespace Nexus::GL
             BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
             m_Context.ReadBuffer(mode);
         }
+#else
+#endif
     }
 
     bool IGLContext::AreTimestampQueriesSupported()
     {
+#if !defined(__EMSCRIPTEN__)
         return (m_Context.VERSION_3_2 == 1 || m_Context.ES_VERSION_3_0 == 1 || m_Context.ARB_timer_query == 1 ||
                 m_Context.EXT_disjoint_timer_query == 1);
+#else
+        return false;
+#endif
     }
 
     void IGLContext::GetTimestamp(GLint64 *data)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         glCall(m_Context.GetInteger64v(GL_TIMESTAMP, data));
+#else
+        glCall(glGetInteger64v(GL_TIMESTAMP, data));
+#endif
     }
 
     void IGLContext::DebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
@@ -2011,16 +2114,19 @@ namespace Nexus::GL
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.DebugMessageInsert != nullptr)
         {
             m_Context.DebugMessageInsert(source, type, id, severity, length, message);
         }
+#endif
     }
 
     void IGLContext::ObjectLabel(GLenum identifier, GLuint name, GLsizei length, const char *label)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.ObjectLabel)
         {
             m_Context.ObjectLabel(identifier, name, length, label);
@@ -2029,36 +2135,43 @@ namespace Nexus::GL
         {
             m_Context.ObjectLabelKHR(identifier, name, length, label);
         }
+#endif
     }
 
     void IGLContext::PushDebugGroup(GLenum source, GLuint id, GLsizei length, const char *message)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.PushDebugGroup)
         {
             m_Context.PushDebugGroup(source, id, length, message);
         }
+#endif
     }
 
     void IGLContext::PopDebugGroup()
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.PopDebugGroup)
         {
             m_Context.PopDebugGroup();
         }
+#endif
     }
 
     void IGLContext::DebugMessageCallback(DebugCallback callback, void *userParam)
     {
         MakeCurrent();
 
+#if !defined(__EMSCRIPTEN__)
         if (m_Context.DebugMessageCallback)
         {
             m_Context.DebugMessageCallback(callback, userParam);
         }
+#endif
     }
 
     Graphics::DeviceFeatures IGLContext::GetDeviceFeatures()
@@ -2067,6 +2180,7 @@ namespace Nexus::GL
 
         Graphics::DeviceFeatures features = {};
 
+#if !defined(__EMSCRIPTEN__)
         features.SupportsGeometryShaders = m_Context.ARB_geometry_shader4 || m_Context.EXT_geometry_shader == 1;
         features.SupportsTesselationShaders = m_Context.ARB_tessellation_shader == 1;
         features.SupportsComputeShaders = m_Context.ARB_compute_shader == 1;
@@ -2090,6 +2204,10 @@ namespace Nexus::GL
             m_Context.ARB_draw_buffers_blend == 1 || m_Context.EXT_draw_buffers_indexed == 1;
         features.SupportsMeshTaskShaders = m_Context.EXT_mesh_shader == 1;
         features.SupportsDepthBoundsTesting = m_Context.EXT_depth_bounds_test == 1;
+#else
+        GLint maxImageSamples = 0;
+        glGetIntegerv(GL_MAX_IMAGE_SAMPLES, &maxImageSamples);
+#endif
 
         return features;
     }
@@ -2097,39 +2215,71 @@ namespace Nexus::GL
     const GLubyte *IGLContext::GetString(GLenum name)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         return m_Context.GetString(name);
+#else
+        return glGetString(name);
+#endif
     }
 
     const GLubyte *IGLContext::GetStringi(GLenum name, GLuint index)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         return m_Context.GetStringi(name, index);
+#else
+        return glGetStringi(name, index);
+#endif
     }
 
     void IGLContext::PixelStoref(GLenum pname, GLfloat param)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.PixelStoref(pname, param);
+#else
+        glPixelStoref(pname, param);
+#endif
     }
 
     void IGLContext::PixelStorei(GLenum pname, GLint param)
     {
         MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
         m_Context.PixelStorei(pname, param);
+#else
+        glPixelStorei(pname, param);
+#endif
     }
 
     bool IGLContext::SupportsSparseTextures()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.ARB_sparse_texture;
+#else
+        return false;
+#endif
     }
 
     bool IGLContext::SupportsSparseBuffers()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.ARB_sparse_buffer;
+#else
+        return false;
+#endif
     }
 
     bool IGLContext::SupportsTextureViews()
     {
+#if !defined(__EMSCRIPTEN__)
         return m_Context.TextureView != nullptr;
+#else
+        return false;
+#endif
     }
 } // namespace Nexus::GL
