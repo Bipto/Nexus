@@ -289,7 +289,7 @@ namespace Nexus::GL
         }
 #else
         glBindTexture(textureType, texture);
-        glTexSubImage1D(textureType, leve, xoffset, width, format, type, pixels);
+        glTexSubImage1D(textureType, level, xoffset, width, format, type, pixels);
 #endif
     }
 
@@ -400,8 +400,7 @@ namespace Nexus::GL
             m_Context.TexStorage1D(textureType, levels, internalformat, width);
         }
 #else
-        glBindTexture(textureType, texture);
-        glTexStorage1D(textureType, levels, internalformat, width);
+        throw std::runtime_error("1D textures are not supported by WebGL");
 #endif
     }
 
@@ -542,9 +541,7 @@ namespace Nexus::GL
             return std::unexpected("Texel buffers are not supported");
         }
 #else
-        glGenTextures(1, &handle);
-        glBindTexture(GL_TEXTURE_BUFFER, handle);
-        glTexBufferRangeEXT(GL_TEXTURE_BUFFER, internalFormat, buffer->GetHandle(), desc.Offset, desc.SizeInBytes);
+        throw std::runtime_error("Texel buffers are not supported by WebGL2");
 #endif
 
         return handle;
@@ -770,7 +767,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTexture1D(target, attachment, textarget, texture, level));
 #else
-        glFramebufferTexture1D(target, attachment, textarget, texture, level);
+        throw std::runtime_error("1D textures are not supported by WebGL2");
 #endif
     }
 

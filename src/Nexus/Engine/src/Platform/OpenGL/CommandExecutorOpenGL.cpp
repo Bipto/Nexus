@@ -354,9 +354,8 @@ namespace Nexus::Graphics
 
                         context->BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
                     });
-
-#endif
                 }
+#endif
             }
         }
     }

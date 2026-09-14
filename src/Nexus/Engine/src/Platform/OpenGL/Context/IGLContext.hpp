@@ -15,6 +15,18 @@
 #include "RHI/Texture.hpp"
 #include <RHI/SamplerState.hpp>
 
+// fill in missing defines
+#if defined(__EMSCRIPTEN__)
+#define GL_DEPTH_BOUNDS_TEST_EXT -1
+#define GL_DEPTH_CLAMP -1
+#define GL_FILL -1
+#define GL_LINE -1
+#define GL_TEXTURE_SPARSE_ARB -1
+#define GL_MAP_PERSISTENT_BIT -1
+#define GL_MAP_COHERENT_BIT -1
+#define GL_DYNAMIC_STORAGE_BIT -1
+#endif
+
 namespace Nexus::GL
 {
     class IGLContext

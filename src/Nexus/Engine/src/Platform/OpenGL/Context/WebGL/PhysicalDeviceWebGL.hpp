@@ -19,8 +19,6 @@ namespace Nexus::Graphics
       private:
         std::unique_ptr<GL::OffscreenContextWebGL> m_OffscreenContext = nullptr;
         std::string m_DeviceName = {};
-        PhysicalDeviceFeatures m_Features = {};
-        PhysicalDeviceLimits m_Limits = {};
     };
 } // namespace Nexus::Graphics
 

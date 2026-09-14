@@ -91,3 +91,15 @@ if (BUILD_BENCHMARKING)
 endif()
 
 add_subdirectory(src)
+
+if(EMSCRIPTEN)
+    add_compile_options(
+        -pthread
+        -fexperimental-library
+    )
+
+    add_link_options(
+        -pthread
+        -fexperimental-library
+    )
+endif()

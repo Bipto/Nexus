@@ -15,17 +15,17 @@ namespace Nexus::GL
         double Width = 0;
         double Height = 0;
     };
-    class ViewContextWebGL : public IViewContext
+    class ViewContextWebGL final : public IViewContext
     {
       public:
         ViewContextWebGL(const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
                          const ContextDescription &spec);
-        virtual ~ViewContextWebGL();
-        virtual bool MakeCurrent() override;
-        virtual void Swap() override;
-        virtual void SetVSync(bool enabled) override;
-        virtual const ContextDescription &GetDescription() const override;
-        virtual bool Validate() override;
+        ~ViewContextWebGL() final;
+        bool MakeCurrent() final;
+        void Swap(Graphics::TextureHandle texture, const Graphics::SwapchainPresentDescription &presentDesc) final;
+        void SetVSync(bool enabled) final;
+        const ContextDescription &GetDescription() const final;
+        bool Validate() final;
         void HandleResize();
 
       private:
@@ -36,7 +36,7 @@ namespace Nexus::GL
         ContextDescription m_Description = {};
         std::string m_CanvasName = {};
 
-        Ref<Graphics::Framebuffer> m_Framebuffer = nullptr;
+        Ref<Graphics::IFramebuffer> m_Framebuffer = nullptr;
         BoundingClientRect m_BoundingClientRect = {};
         inline static bool s_WindowResizeRegistered = false;
     };

@@ -23,6 +23,12 @@ set_target_properties(Nexus-Core PROPERTIES
 	CXX_EXTENSIONS OFF
 	COMPILE_WARNING_AS_ERROR ON)
 
+if(EMSCRIPTEN)
+    target_compile_options(Nexus-Core PUBLIC -pthread)
+    target_link_options(Nexus-Core PUBLIC -pthread)
+endif()
+
+
 if (BUILD_TESTING)
 	add_subdirectory(tests)
 endif()

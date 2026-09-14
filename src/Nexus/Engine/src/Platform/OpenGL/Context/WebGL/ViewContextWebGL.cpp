@@ -8,7 +8,8 @@
 #include <emscripten/val.h>
 
 #include "Nexus-Core/Point.hpp"
-#include "Nexus-Core/Timings/Profiler.hpp"
+
+#include "Profiling/Profiler.hpp"
 
 namespace Nexus::GL
 {
@@ -59,7 +60,8 @@ namespace Nexus::GL
         return true;
     }
 
-    void Nexus::GL::ViewContextWebGL::Swap()
+    void Nexus::GL::ViewContextWebGL::Swap(Graphics::TextureHandle texture,
+                                           const Graphics::SwapchainPresentDescription &presentDesc)
     {
         NX_PROFILE_FUNCTION();
 

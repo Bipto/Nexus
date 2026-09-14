@@ -1,5 +1,3 @@
-#pragma once
-
 #if defined(NX_PLATFORM_WEBGL)
 
 #include "Nexus-Core/nxpch.hpp"
