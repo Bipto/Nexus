@@ -56,7 +56,7 @@ namespace Nexus::GL
     {
         Ref<Graphics::FramebufferOpenGL> framebufferOpenGL =
             std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
-        framebufferOpenGL->BindAsDrawBuffer();
+        framebufferOpenGL->BindAsDrawBuffer(this);
         return true;
     }
 

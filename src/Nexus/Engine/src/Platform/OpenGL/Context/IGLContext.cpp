@@ -288,8 +288,7 @@ namespace Nexus::GL
             glCall(m_Context.TexSubImage1D(textureType, level, xoffset, width, format, type, pixels));
         }
 #else
-        glBindTexture(textureType, texture);
-        glTexSubImage1D(textureType, level, xoffset, width, format, type, pixels);
+        throw std::runtime_error("1D textures are not supported by WebGL");
 #endif
     }
 
@@ -791,7 +790,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.FramebufferTexture3D(target, attachment, textarget, texture, level, layer));
 #else
-        glFramebufferTexture3D(target, attachment, textarget, texture, level, layer)
+        throw std::runtime_error("3D textures are not supported by WebGL2");
 #endif
     }
 
@@ -1334,8 +1333,6 @@ namespace Nexus::GL
 
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.PolygonMode(face, mode));
-#else
-        glCall(glPolygonMode(face, mode));
 #endif
     }
 

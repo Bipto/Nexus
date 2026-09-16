@@ -25,6 +25,7 @@
 #define GL_MAP_PERSISTENT_BIT -1
 #define GL_MAP_COHERENT_BIT -1
 #define GL_DYNAMIC_STORAGE_BIT -1
+
 #endif
 
 namespace Nexus::GL
