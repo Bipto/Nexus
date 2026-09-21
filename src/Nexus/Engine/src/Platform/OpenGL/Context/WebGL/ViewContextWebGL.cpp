@@ -68,8 +68,7 @@ namespace Nexus::GL
         OffscreenContextWebGL *offscreenContext = (OffscreenContextWebGL *)m_Device->GetOffscreenContext();
         std::string offscreenCanvasName = offscreenContext->GetCanvasName();
 
-        uint32_t textureWidth = m_Framebuffer->GetFramebufferSpecification().Width;
-        uint32_t textureHeight = m_Framebuffer->GetFramebufferSpecification().Height;
+        auto [textureWidth, textureHeight] = m_FramebufferSize;
 
         Ref<Graphics::FramebufferOpenGL> framebufferOpenGL =
             std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
@@ -102,7 +101,7 @@ namespace Nexus::GL
     {
     }
 
-    const ContextSpecification &Nexus::GL::ViewContextWebGL::GetDescription() const
+    const ContextDescription &Nexus::GL::ViewContextWebGL::GetDescription() const
     {
         return m_Description;
     }
@@ -116,17 +115,20 @@ namespace Nexus::GL
     {
         BoundingClientRect rect = GetBoundingClientRect(m_CanvasName);
 
-        Graphics::FramebufferSpecification framebufferSpec = {};
+        Graphics::FramebufferDescription framebufferSpec = {};
         framebufferSpec.Width = (uint32_t)rect.Width;
         framebufferSpec.Height = (uint32_t)rect.Height;
 
-        std::cout << "Creating framebuffer: [Width: " << framebufferSpec.Width << ", Height: " << framebufferSpec.Height
-                  << "]" << std::endl;
+        // std::cout << "Creating framebuffer: [Width: " << framebufferSpec.Width << ", Height: " <<
+        // framebufferSpec.Height
+        //           << "]" << std::endl;
 
-        framebufferSpec.ColourAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-        framebufferSpec.DepthAttachmentSpecification = Graphics::PixelFormat::D24_UNorm_S8_UInt;
+        framebufferSpec.ColourAttachmentDescription.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+        framebufferSpec.DepthAttachmentDescription = Graphics::PixelFormat::D24_UNorm_S8_UInt;
         framebufferSpec.Samples = 1;
         m_Framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
+
+        m_FramebufferSize = {framebufferSpec.Width, framebufferSpec.Height};
     }
 
     bool ViewContextWebGL::Validate()

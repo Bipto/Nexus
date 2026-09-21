@@ -1015,11 +1015,6 @@ namespace Nexus::GL
         glCall(glSamplerParameterf(handle, GL_TEXTURE_MIN_LOD, desc.MinimumLOD));
         glCall(glSamplerParameterf(handle, GL_TEXTURE_MAX_LOD, desc.MaximumLOD));
 
-        if (m_Context.EXT_texture_lod_bias)
-        {
-            glCall(glSamplerParameterf(handle, GL_TEXTURE_LOD_BIAS_EXT, desc.LODBias));
-        }
-
         // texture comparison
         if (desc.SamplerComparisonFunction != Graphics::ComparisonFunction::Never)
         {
@@ -1681,9 +1676,7 @@ namespace Nexus::GL
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
         glCall(m_Context.VertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
 #else
-        glCall(glBindVertexArray(vao));
-        glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-        glCall(glVertexAttribIPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+        throw std::runtime_error("glVertexAttribIPointer is not supported by WebGL");
 #endif
     }
 
@@ -1697,9 +1690,7 @@ namespace Nexus::GL
         glCall(m_Context.BindBuffer(GL_ARRAY_BUFFER, vbo));
         glCall(m_Context.VertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
 #else
-        glCall(glBindVertexArray(vao));
-        glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-        glCall(glVertexAttribLPointer(index, size, type, stride, reinterpret_cast<const GLvoid *>(offset)));
+        throw std::runtime_error("glVertexAttribLPointer is not supported by WebGL");
 #endif
     }
 
@@ -1732,7 +1723,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.ShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
 #else
-        glCall(glShaderStorageBlockBinding(shader, storageBlockIndex, storageBlockBinding));
+        throw std::runtime_error("Shader storage buffers are not supported by WebGL");
 #endif
     }
 
@@ -2235,7 +2226,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         m_Context.PixelStoref(pname, param);
 #else
-        glPixelStoref(pname, param);
+        throw std::runtime_error("glPixelStoragef is not supported by WebGL2");
 #endif
     }
 
