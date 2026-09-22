@@ -14,7 +14,10 @@ class FileResourceLoaderTest : public ::testing::Test
 
     void SetUp() override
     {
-        tempDir = fs::temp_directory_path() / "file_loader_test";
+        tempDir =
+            fs::temp_directory_path() /
+            fs::path("file_loader_test_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+
         fs::create_directories(tempDir);
     }
 
@@ -26,7 +29,11 @@ class FileResourceLoaderTest : public ::testing::Test
     void WriteFile(const fs::path &path, std::string_view content)
     {
         std::ofstream out(path, std::ios::binary);
-        out << content;
+        ASSERT_TRUE(out.is_open()) << "Failed to open " << path;
+
+        out.write(content.data(), static_cast<std::streamsize>(content.size()));
+
+        ASSERT_TRUE(out.good()) << "Failed to write " << path;
     }
 };
 
