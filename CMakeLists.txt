@@ -13,6 +13,12 @@ project(Nexus
 
 message(STATUS "Configuring Nexus version ${PROJECT_VERSION}")
 
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
 # ------------------------------------------------------------
 # MSVC: Use embedded debug info (/Z7) instead of /Zi
 # This is the correct modern CMake way (CMake 3.25+)
@@ -29,6 +35,16 @@ if (MSVC)
     # Optional: profiling
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PROFILE")
 endif()
+
+# ------------------------------------------------------------
+# Emscripten specific configuration
+# Enable  threading globally
+# ------------------------------------------------------------
+if(EMSCRIPTEN)
+    add_compile_options(-pthread)
+    add_link_options(-pthread)
+endif()
+
 
 # ------------------------------------------------------------
 # sccache integration

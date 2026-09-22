@@ -29,16 +29,11 @@ namespace Nexus::GL
         void HandleResize();
 
       private:
-        void CreateFramebuffer();
-
-      private:
         Nexus::Graphics::GraphicsDeviceOpenGL *m_Device = nullptr;
         ContextDescription m_Description = {};
         std::string m_CanvasName = {};
 
-        Ref<Graphics::IFramebuffer> m_Framebuffer = nullptr;
         BoundingClientRect m_BoundingClientRect = {};
-        std::pair<uint32_t, uint32_t> m_FramebufferSize = {};
         inline static bool s_WindowResizeRegistered = false;
     };
 }; // namespace Nexus::GL

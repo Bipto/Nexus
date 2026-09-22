@@ -45,7 +45,6 @@ namespace Nexus::GL
                                        const ContextDescription &spec)
         : m_Device(graphicsDevice), m_Description(spec), m_CanvasName(canvasName)
     {
-        CreateFramebuffer();
     }
 
     ViewContextWebGL::~ViewContextWebGL()
@@ -54,9 +53,6 @@ namespace Nexus::GL
 
     bool Nexus::GL::ViewContextWebGL::MakeCurrent()
     {
-        Ref<Graphics::FramebufferOpenGL> framebufferOpenGL =
-            std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
-        framebufferOpenGL->BindAsDrawBuffer(this);
         return true;
     }
 
@@ -68,13 +64,8 @@ namespace Nexus::GL
         OffscreenContextWebGL *offscreenContext = (OffscreenContextWebGL *)m_Device->GetOffscreenContext();
         std::string offscreenCanvasName = offscreenContext->GetCanvasName();
 
-        auto [textureWidth, textureHeight] = m_FramebufferSize;
-
-        Ref<Graphics::FramebufferOpenGL> framebufferOpenGL =
-            std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
-
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, framebufferOpenGL->GetHandle());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        // glBindFramebuffer(GL_READ_FRAMEBUFFER, framebufferOpenGL->GetHandle());
+        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
         BoundingClientRect fullscreenRect = GetBoundingClientRect(offscreenCanvasName);
         BoundingClientRect viewRect = GetBoundingClientRect(m_CanvasName);
@@ -84,17 +75,27 @@ namespace Nexus::GL
         float width = viewRect.Width;
         float height = viewRect.Height;
 
-        glEnable(GL_SCISSOR_TEST);
-        glViewport(0, 0, textureWidth, textureHeight);
-        glScissor(x, y, textureWidth, textureHeight);
+        // glEnable(GL_SCISSOR_TEST);
+        // glViewport(0, 0, textureWidth, textureHeight);
+        // glScissor(x, y, textureWidth, textureHeight);
 
-        glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + textureWidth, y + textureHeight,
-                          GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        // glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + textureWidth, y + textureHeight,
+        //                   GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-        if (viewRect.Width != textureWidth || viewRect.Height != textureHeight)
-        {
-            CreateFramebuffer();
-        }
+        Graphics::TextureCopyDescription copyDesc = {};
+
+        // framebuffer texture
+        copyDesc.Source = texture;
+        copyDesc.SourceOffset = {0, 0, 0};
+        copyDesc.SourceMipLevel = 0;
+
+        // backbuffer
+        copyDesc.Destination = {};
+        copyDesc.DestinationMipLevel = 0;
+        copyDesc.DestinationOffset = {static_cast<int32_t>(x), static_cast<int32_t>(y), 0};
+
+        copyDesc.Extent = {texture->GetWidth(), texture->GetHeight()};
+        GL::CopyTextureToTexture(copyDesc, this);
     }
 
     void Nexus::GL::ViewContextWebGL::SetVSync(bool enabled)
@@ -109,26 +110,6 @@ namespace Nexus::GL
     void Nexus::GL::ViewContextWebGL::HandleResize()
     {
         CreateFramebuffer();
-    }
-
-    void Nexus::GL::ViewContextWebGL::CreateFramebuffer()
-    {
-        BoundingClientRect rect = GetBoundingClientRect(m_CanvasName);
-
-        Graphics::FramebufferDescription framebufferSpec = {};
-        framebufferSpec.Width = (uint32_t)rect.Width;
-        framebufferSpec.Height = (uint32_t)rect.Height;
-
-        // std::cout << "Creating framebuffer: [Width: " << framebufferSpec.Width << ", Height: " <<
-        // framebufferSpec.Height
-        //           << "]" << std::endl;
-
-        framebufferSpec.ColourAttachmentDescription.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-        framebufferSpec.DepthAttachmentDescription = Graphics::PixelFormat::D24_UNorm_S8_UInt;
-        framebufferSpec.Samples = 1;
-        m_Framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
-
-        m_FramebufferSize = {framebufferSpec.Width, framebufferSpec.Height};
     }
 
     bool ViewContextWebGL::Validate()
