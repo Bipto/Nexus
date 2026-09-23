@@ -145,10 +145,17 @@ jobs:
       - name: Install WABT (WebAssembly Binary Toolkit)
         shell: pwsh
         run: |
-          Write-Host "Installing WABT..."
-          curl -L -o wabt.zip https://github.com/WebAssembly/wabt/releases/download/1.0.36/wabt-1.0.36-windows.zip
-          Expand-Archive wabt.zip -DestinationPath wabt
+          Write-Host "Downloading WABT..."
+          Invoke-WebRequest `
+            -Uri "https://github.com/WebAssembly/wabt/releases/download/1.0.36/wabt-1.0.36-windows.zip" `
+            -OutFile "wabt.zip"
+
+          Write-Host "Extracting WABT..."
+          Expand-Archive -Path "wabt.zip" -DestinationPath "wabt" -Force
+
+          Write-Host "Adding WABT to PATH..."
           $env:PATH = "$env:PATH;${{ github.workspace }}\wabt\bin"
+
 
       # ===========================================================
       # CPM cache
