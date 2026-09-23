@@ -147,7 +147,7 @@ jobs:
         run: |
           Write-Host "Downloading WABT..."
           Invoke-WebRequest `
-            -Uri "https://github.com/WebAssembly/wabt/releases/download/1.0.36/wabt-1.0.36-windows.zip" `
+            -Uri "https://github.com/WebAssembly/wabt/releases/download/1.0.42/wabt-1.0.42-windows-x64.tar.gz" `
             -OutFile "wabt.zip"
 
           Write-Host "Extracting WABT..."
@@ -155,7 +155,6 @@ jobs:
 
           Write-Host "Adding WABT to PATH..."
           $env:PATH = "$env:PATH;${{ github.workspace }}\wabt\bin"
-
 
       # ===========================================================
       # CPM cache
