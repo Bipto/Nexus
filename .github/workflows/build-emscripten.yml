@@ -121,28 +121,32 @@ jobs:
       # WABT
       # ===========================================================
 
-      - name: Validate WebAssembly output
-  shell: pwsh
-  run: |
-    $wasmFiles = Get-ChildItem `
-      -Path build `
-      -Recurse `
-      -Filter *.wasm
+      - name: Install WABT
+        shell: pwsh
+        run: |
+          $archive = "wabt-${env:WABT_VERSION}-windows-x64.tar.gz"
+          $url = "https://github.com/WebAssembly/wabt/releases/download/${env:WABT_VERSION}/$archive"
 
-    if ($wasmFiles.Count -eq 0) {
-      throw "No .wasm files were produced."
-    }
+          Invoke-WebRequest `
+            -Uri $url `
+            -OutFile $archive
 
-    foreach ($wasm in $wasmFiles) {
-      Write-Host "Validating $($wasm.FullName)"
+          tar -xzf $archive
 
-      wasm-validate --enable-threads "$($wasm.FullName)"
+          $wabtBin = Join-Path `
+            $PWD `
+            "wabt-${env:WABT_VERSION}\bin"
 
-      if ($LASTEXITCODE -ne 0) {
-        throw "wasm-validate failed for $($wasm.FullName)"
-      }
-    }
+          if (-not (Test-Path $wabtBin)) {
+            throw "WABT bin directory not found: $wabtBin"
+          }
 
+          Add-Content $env:GITHUB_PATH $wabtBin
+
+      - name: Verify WABT
+        shell: pwsh
+        run: |
+          wasm-validate --version
 
       # ===========================================================
       # CPM cache
@@ -239,7 +243,9 @@ jobs:
           foreach ($wasm in $wasmFiles) {
             Write-Host "Validating $($wasm.FullName)"
 
-            wasm-validate "$($wasm.FullName)"
+            wasm-validate `
+              --enable-threads `
+              "$($wasm.FullName)"
 
             if ($LASTEXITCODE -ne 0) {
               throw "wasm-validate failed for $($wasm.FullName)"
@@ -284,4 +290,4 @@ jobs:
             build/**/*.wasm
             build/**/*.js
             build/**/*.html
-            build/**/*.da
+            build/**/*.data
