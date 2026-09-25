@@ -18,6 +18,12 @@ target_link_libraries(EngineUnitTests
     GTest::gtest_main
 )
 
+if(EMSCRIPTEN)
+    target_link_options(EngineUnitTests PRIVATE
+        "-sALLOW_MEMORY_GROWTH=1"
+    )
+endif()
+
 copy_runtime_deps(EngineUnitTests)
 copy_directory_to_target_output(EngineUnitTests resources)
 

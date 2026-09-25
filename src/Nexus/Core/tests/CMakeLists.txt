@@ -15,5 +15,11 @@ target_link_libraries(CoreUnitTests
     GTest::gtest_main
 )
 
+if(EMSCRIPTEN)
+    target_link_options(CoreUnitTests PRIVATE
+        "-sALLOW_MEMORY_GROWTH=1"
+    )
+endif()
+
 copy_runtime_deps(CoreUnitTests)
 gtest_discover_tests(CoreUnitTests DISCOVERY_MODE PRE_TEST)
