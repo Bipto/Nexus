@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 jobs:
   build-emscripten:
@@ -17,7 +16,6 @@ jobs:
 
     strategy:
       fail-fast: false
-
       matrix:
         build_type:
           - Release
@@ -26,6 +24,7 @@ jobs:
     env:
       EM_VERSION: 6.0.5
       EM_CACHE_FOLDER: emsdk-cache
+      WABT_VERSION: 1.0.42
 
     steps:
       # ===========================================================
@@ -36,10 +35,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 0
+          fetch-depth: 1
 
       # ===========================================================
-      # Emscripten SDK cache
+      # Emscripten cache
       # ===========================================================
 
       - name: Restore Emscripten cache
@@ -47,9 +46,9 @@ jobs:
         with:
           path: ${{ env.EM_CACHE_FOLDER }}
           key: >-
-            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}
           restore-keys: |
-            emscripten-${{ runner.os }}-${{ env.EM_VERSION }}-
+            emscripten-${{ runner.os }}-
 
       # ===========================================================
       # Setup Emscripten
@@ -62,48 +61,26 @@ jobs:
           actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}
 
       # ===========================================================
-      # Verify Emscripten
+      # Toolchain diagnostics
       # ===========================================================
 
-      - name: Show Emscripten toolchain
+      - name: Show toolchain versions
         shell: pwsh
         run: |
-          Write-Host "========================================"
-          Write-Host "Emscripten"
-          Write-Host "========================================"
-
+          Write-Host "=== Emscripten ==="
           emcc --version
-          em++ --version
 
-          Write-Host "========================================"
-          Write-Host "Node.js"
-          Write-Host "========================================"
-
+          Write-Host "=== Node.js ==="
           node --version
 
-          Write-Host "========================================"
-          Write-Host "Python"
-          Write-Host "========================================"
-
+          Write-Host "=== Python ==="
           python --version
 
-          Write-Host "========================================"
-          Write-Host "CMake"
-          Write-Host "========================================"
-
+          Write-Host "=== CMake ==="
           cmake --version
 
-          Write-Host "========================================"
-          Write-Host "Ninja"
-          Write-Host "========================================"
-
+          Write-Host "=== Ninja ==="
           ninja --version
-
-          Write-Host "========================================"
-          Write-Host "Emscripten environment"
-          Write-Host "========================================"
-
-          emcc -v
 
       # ===========================================================
       # Verify Emscripten compiler
@@ -114,15 +91,13 @@ jobs:
         run: |
           @'
           #include <iostream>
-          #include <string>
 
           int main()
           {
-              std::string message = "Hello from Emscripten";
-              std::cout << message << std::endl;
+              std::cout << "Hello from Emscripten\n";
               return 0;
           }
-          '@ | Set-Content -Path format-test.cpp
+          '@ | Set-Content format-test.cpp
 
           em++ `
             -std=c++20 `
@@ -130,31 +105,48 @@ jobs:
             format-test.cpp `
             -o format-test.html
 
-          if (-not (Test-Path format-test.html)) {
-            throw "Emscripten compiler test failed"
+          $required = @(
+            "format-test.html",
+            "format-test.js",
+            "format-test.wasm"
+          )
+
+          foreach ($file in $required) {
+            if (-not (Test-Path $file)) {
+              throw "Expected Emscripten output missing: $file"
+            }
           }
 
-          if (-not (Test-Path format-test.js)) {
-            throw "Emscripten JS output missing"
-          }
+      # ===========================================================
+      # WABT
+      # ===========================================================
 
-          if (-not (Test-Path format-test.wasm)) {
-            throw "Emscripten WASM output missing"
-          }
-
-      - name: Install WABT (WebAssembly Binary Toolkit)
+      - name: Install WABT
         shell: pwsh
         run: |
-          Write-Host "Downloading WABT..."
+          $archive = "wabt-${env:WABT_VERSION}-windows-x64.tar.gz"
+          $url = "https://github.com/WebAssembly/wabt/releases/download/${env:WABT_VERSION}/$archive"
+
           Invoke-WebRequest `
-            -Uri "https://github.com/WebAssembly/wabt/releases/download/1.0.42/wabt-1.0.42-windows-x64.tar.gz" `
-            -OutFile "wabt.zip"
+            -Uri $url `
+            -OutFile $archive
 
-          Write-Host "Extracting WABT..."
-          Expand-Archive -Path "wabt.zip" -DestinationPath "wabt" -Force
+          tar -xzf $archive
 
-          Write-Host "Adding WABT to PATH..."
-          $env:PATH = "$env:PATH;${{ github.workspace }}\wabt\bin"
+          $wabtBin = Join-Path `
+            $PWD `
+            "wabt-${env:WABT_VERSION}\bin"
+
+          if (-not (Test-Path $wabtBin)) {
+            throw "WABT bin directory not found: $wabtBin"
+          }
+
+          Add-Content $env:GITHUB_PATH $wabtBin
+
+      - name: Verify WABT
+        shell: pwsh
+        run: |
+          wasm-validate --version
 
       # ===========================================================
       # CPM cache
@@ -165,13 +157,18 @@ jobs:
         with:
           path: .cache
           key: >-
-            cpm-${{ runner.os }}-Emscripten-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+            cpm-${{ runner.os }}-Emscripten-${{
+              hashFiles(
+                '**/CMakeLists.txt',
+                '**/*.cmake',
+                '**/CMakePresets.json'
+              )
+            }}
           restore-keys: |
-            cpm-${{ runner.os }}-Emscripten-${{ matrix.build_type }}-
             cpm-${{ runner.os }}-Emscripten-
 
       # ===========================================================
-      # Configure CMake
+      # Configure
       # ===========================================================
 
       - name: Configure CMake
@@ -189,22 +186,6 @@ jobs:
             -S .
 
       # ===========================================================
-      # Show CMake compiler configuration
-      # ===========================================================
-
-      - name: Show CMake compiler configuration
-        shell: pwsh
-        run: |
-          Write-Host "===== CMake compiler configuration ====="
-
-          if (Test-Path build/CMakeCache.txt) {
-            Select-String `
-              -Path build/CMakeCache.txt `
-              -Pattern `
-                "CMAKE_C_COMPILER:FILEPATH|CMAKE_CXX_COMPILER:FILEPATH|CMAKE_C_COMPILER_ID|CMAKE_CXX_COMPILER_ID|CMAKE_C_COMPILER_VERSION|CMAKE_CXX_COMPILER_VERSION|CMAKE_CXX_FLAGS"
-          }
-
-      # ===========================================================
       # Build
       # ===========================================================
 
@@ -214,17 +195,15 @@ jobs:
           cmake --build build --parallel
 
       # ===========================================================
-      # Inspect generated WebAssembly
+      # Inspect output
       # ===========================================================
 
       - name: Inspect WebAssembly output
         shell: pwsh
         run: |
-          Write-Host "========================================"
-          Write-Host "Generated files"
-          Write-Host "========================================"
+          Write-Host "=== Generated WebAssembly files ==="
 
-          Get-ChildItem `
+          $files = Get-ChildItem `
             -Path build `
             -Recurse `
             -File `
@@ -235,11 +214,18 @@ jobs:
                   ".html",
                   ".data"
                 )
-              } `
-            | Select-Object FullName, Length
+              }
+
+          if ($files.Count -eq 0) {
+            throw "No WebAssembly output files were produced."
+          }
+
+          $files |
+            Select-Object FullName, Length |
+            Format-Table -AutoSize
 
       # ===========================================================
-      # Validate WebAssembly files
+      # Validate WebAssembly
       # ===========================================================
 
       - name: Validate WebAssembly output
@@ -251,14 +237,15 @@ jobs:
             -Filter *.wasm
 
           if ($wasmFiles.Count -eq 0) {
-            Write-Warning "No .wasm files were produced."
-            exit 0
+            throw "No .wasm files were produced."
           }
 
           foreach ($wasm in $wasmFiles) {
             Write-Host "Validating $($wasm.FullName)"
 
-            wasm-validate "$($wasm.FullName)"
+            wasm-validate `
+              --enable-threads `
+              "$($wasm.FullName)"
 
             if ($LASTEXITCODE -ne 0) {
               throw "wasm-validate failed for $($wasm.FullName)"
@@ -266,23 +253,41 @@ jobs:
           }
 
       # ===========================================================
-      # Run tests
-      #
-      # NOTE:
-      # Emscripten targets generally cannot be tested with ordinary
-      # native CTest execution. This step assumes your CTest setup
-      # knows how to execute the generated Emscripten targets.
+      # Show registered tests
       # ===========================================================
 
-      - name: Run tests with Node.js
+      - name: Show CTest tests
         shell: pwsh
         run: |
-          Write-Host "========================================"
-          Write-Host "CTest tests"
-          Write-Host "========================================"
+          ctest `
+            --test-dir build `
+            -C "${{ matrix.build_type }}" `
+            -N
 
+      # ===========================================================
+      # Run tests
+      # ===========================================================
+
+      - name: Run tests
+        shell: pwsh
+        run: |
           ctest `
             --test-dir build `
             -C "${{ matrix.build_type }}" `
             --output-on-failure `
             --parallel
+
+      # ===========================================================
+      # Upload generated output
+      # ===========================================================
+
+      - name: Upload WebAssembly artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-${{ matrix.build_type }}
+          if-no-files-found: error
+          path: |
+            build/**/*.wasm
+            build/**/*.js
+            build/**/*.html
+            build/**/*.data
