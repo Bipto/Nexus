@@ -19,8 +19,11 @@ target_link_libraries(EngineUnitTests
 )
 
 if(EMSCRIPTEN)
-    target_link_options(EngineUnitTests PRIVATE
-        "-sALLOW_MEMORY_GROWTH=1"
+    set_target_properties(
+        EngineUnitTests
+        PROPERTIES
+        LINK_FLAGS
+        "--std=c++23 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS -pthread -fexperimental-library"
     )
 endif()
 
