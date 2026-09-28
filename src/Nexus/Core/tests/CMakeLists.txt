@@ -21,7 +21,16 @@ if(EMSCRIPTEN)
         CoreUnitTests
         PROPERTIES
         LINK_FLAGS
-        "--std=c++23 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS -pthread -fexperimental-library"
+            "--std=c++23
+            -O3
+            -sALLOW_MEMORY_GROWTH=1
+            -sUSE_WEBGL2=1
+            -sFULL_ES2=1
+            -sFULL_ES3=1
+            -sNO_DISABLE_EXCEPTION_CATCHING
+            -lopenal
+            -lembind
+            -pthread"
     )
 endif()
 
