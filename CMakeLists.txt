@@ -43,6 +43,7 @@ endif()
 if(EMSCRIPTEN)
     add_compile_options(-pthread)
     add_link_options(-pthread)
+    add_link_options("-sALLOW_MEMORY_GROWTH=1")
 endif()
 
 
