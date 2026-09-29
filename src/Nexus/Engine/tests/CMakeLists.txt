@@ -26,6 +26,7 @@ if(EMSCRIPTEN)
             "--std=c++23
             -O3
             -sALLOW_MEMORY_GROWTH=1
+            -sNODERAWSOCKETS=1
             -sUSE_WEBGL2=1
             -sFULL_ES2=1
             -sFULL_ES3=1
