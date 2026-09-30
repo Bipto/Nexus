@@ -358,7 +358,7 @@ namespace
         Nexus::Graphics::ShaderVersion shaderVersion, bool es, std::span<const std::byte> binaryData)
     {
         // check that the data does contain a valid amount of SPIR-V
-        if (binaryData.size_bytes() / sizeof(uint32_t) != 0)
+        if ((binaryData.size_bytes() > sizeof(uint32_t)) && (binaryData.size_bytes() / sizeof(uint32_t) != 0))
         {
             return std::unexpected("binaryData does not containg valid SPIR-V");
         }
