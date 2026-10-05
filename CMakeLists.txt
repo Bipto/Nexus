@@ -38,9 +38,10 @@ if(EMSCRIPTEN)
     add_compile_options(-pthread)
     add_link_options(-pthread)
     add_link_options("-sALLOW_MEMORY_GROWTH=1")
-    add_link_options("-sEXCEPTION_CATCHING_ALLOWED=1")
     add_link_options("-sSTACK_SIZE=8388608")
     add_link_options("-sSTACK_OVERFLOW_CHECK=2")
+    add_compile_options("-fexceptions")
+    add_link_options("-fexceptions")
 endif()
 
 
