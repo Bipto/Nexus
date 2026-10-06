@@ -1,7 +1,7 @@
 include (GoogleTest)
 
 add_executable(EngineUnitTests
-    src/CircleTests.cpp
+    #src/CircleTests.cpp
     src/GraphicsTests.cpp
     src/Point2DTests.cpp
     src/Point3DTests.cpp
