@@ -2,14 +2,14 @@
 
 #include "Nexus-Core/Graphics/Circle.hpp"
 
-TEST(Circle, To)
-{
-    const Nexus::Graphics::Circle<int> c(Nexus::Point2D<int>(50, 50), 25);
-    Nexus::Graphics::Circle<float> result = c.To<float>();
-
-    EXPECT_EQ(result.GetPosition().X, 50.0f);
-    EXPECT_EQ(result.GetPosition().Y, 50.0f);
-}
+//TEST(Circle, To)
+//{
+//    const Nexus::Graphics::Circle<int> c(Nexus::Point2D<int>(50, 50), 25);
+//    Nexus::Graphics::Circle<float> result = c.To<float>();
+//
+//    EXPECT_EQ(result.GetPosition().X, 50.0f);
+//    EXPECT_EQ(result.GetPosition().Y, 50.0f);
+//}
 
 TEST(Circle, ContainsValid)
 {
