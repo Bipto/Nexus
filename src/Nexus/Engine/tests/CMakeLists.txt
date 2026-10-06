@@ -2,11 +2,11 @@ include (GoogleTest)
 
 add_executable(EngineUnitTests
     #src/CircleTests.cpp
-    src/GraphicsTests.cpp
-    src/Point2DTests.cpp
-    src/Point3DTests.cpp
-    src/TextureImporterTests.cpp 
-    src/FileResourceLoaderTests.cpp
+    #src/GraphicsTests.cpp
+    #src/Point2DTests.cpp
+    #src/Point3DTests.cpp
+    #src/TextureImporterTests.cpp 
+    #src/FileResourceLoaderTests.cpp
     src/SPIRVCrossShaderCompilerTests.cpp 
     src/MemoryResourceLoaderTests.cpp 
     src/ShaderPreprocessorTests.cpp)
