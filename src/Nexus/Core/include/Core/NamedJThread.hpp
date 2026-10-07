@@ -110,6 +110,10 @@ namespace Nexus
         /// @return A boolean indicating whether the thread is currently running
         bool IsRunning() const;
 
+        /// @brief A function that gets the name of the current thread
+        /// @return A string containing the name of the thread
+        static std::string GetCurrentThreadName();
+
       private:
         /// @brief A string containing the debug name of the thread
         std::string m_Name;
