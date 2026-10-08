@@ -30,7 +30,8 @@ if(EMSCRIPTEN)
             -sNO_DISABLE_EXCEPTION_CATCHING
             -lopenal
             -lembind
-            -pthread"
+            -pthread
+            -sPTHREAD_POOL_SIZE=4"
     )
 endif()
 

@@ -124,26 +124,19 @@ TEST(NamedJThread, UptimeIsPositive)
     EXPECT_GT(t.Uptime(), std::chrono::milliseconds(0));
 }
 
-// TEST(NamedJThread, RunningStateTransitions)
-//{
-//     std::atomic<bool> inside = false;
-//
-//     Nexus::NamedJThread t("test", nullptr, nullptr, nullptr, [&](std::stop_token) {
-//         inside.store(true, std::memory_order_release);
-//         std::this_thread::sleep_for(std::chrono::milliseconds(5));
-//     });
-//
-//     t.WaitUntilStarted();
-//
-//     while (!inside.load(std::memory_order_acquire))
-//         std::this_thread::yield();
-//
-//     EXPECT_TRUE(t.IsRunning());
-//
-//     t.Join();
-//
-//     EXPECT_FALSE(t.IsRunning());
-// }
+TEST(NamedJThread, RunningStateTransitions)
+{
+    Nexus::NamedJThread t("test", nullptr, nullptr, nullptr,
+                          [](std::stop_token) { std::this_thread::sleep_for(std::chrono::milliseconds(50)); });
+
+    t.WaitUntilStarted();
+
+    EXPECT_TRUE(t.IsRunning());
+
+    t.Join();
+
+    EXPECT_FALSE(t.IsRunning());
+}
 
 TEST(NamedJThread, DescribeReturnsString)
 {
