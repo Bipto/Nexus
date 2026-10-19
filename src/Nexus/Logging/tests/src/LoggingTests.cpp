@@ -4,7 +4,7 @@
 
 #include <memory>
 
-class TestLogSink : public Nexus::Logging::ILogSink
+class TestLogSink final : public Nexus::Logging::ILogSink
 {
   public:
     struct LogRecord

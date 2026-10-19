@@ -607,7 +607,7 @@ namespace Nexus::GL
         glGenBuffers(1, &buffer);
         glBindBuffer(GL_COPY_READ_BUFFER, buffer);
         glBufferData(GL_COPY_READ_BUFFER, size, nullptr, bufferUsage);
-
+        return std::expected<void, std::string>{};
 #endif
     }
 

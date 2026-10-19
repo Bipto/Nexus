@@ -41,13 +41,13 @@ namespace Nexus
 
         /// @brief Move constructor
         /// @param The other object to move into this instance
-        NamedJThread(NamedJThread &&) noexcept = default;
+        NamedJThread(NamedJThread &&) noexcept = delete;
 
         /// @brief Move assignment operator
         /// @param An r-value reference to the other instance to move into this
         /// object
         /// @return A reference to the current instance
-        NamedJThread &operator=(NamedJThread &&) noexcept = default;
+        NamedJThread &operator=(NamedJThread &&) noexcept = delete;
 
         /// @brief The copy constructor is not supported by this class
         /// @param A reference to thread to copy
