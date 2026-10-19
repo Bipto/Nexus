@@ -192,6 +192,7 @@ jobs:
             -DNX_PLATFORM_VULKAN=0 `
             -DNX_PLATFORM_OPENAL=1 `
             -DBUILD_TESTING=ON `
+            -DNX_BUILD_DEMO=ON `
             -S .
 
       # ===========================================================

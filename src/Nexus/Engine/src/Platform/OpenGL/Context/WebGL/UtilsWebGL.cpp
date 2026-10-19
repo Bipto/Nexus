@@ -11,7 +11,7 @@ namespace Nexus::GL
         return true;
     }
 
-    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices()
+    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices([[maybe_unused]] bool debug)
     {
         std::shared_ptr<Graphics::PhysicalDeviceWebGL> physicalDevice =
             std::make_unique<Graphics::PhysicalDeviceWebGL>("WebGL2");

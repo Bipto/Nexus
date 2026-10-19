@@ -103,7 +103,6 @@ namespace Nexus::GL
     // this function should be called by IGraphicsAPI
     /// @return A boolean indicating whether OpenGL was able to be initialized
     bool LoadOpenGL();
-    std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
     std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug);
 
 } // namespace Nexus::GL

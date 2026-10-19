@@ -372,6 +372,7 @@ jobs:
             -DNX_PLATFORM_OPENAL=1 \
             -DNX_PLATFORM_D3D12=ON \
             -DBUILD_TESTING=ON \
+            -DNX_BUILD_DEMO=ON \
             -S .
 
       # ===========================================================
