@@ -59,3 +59,9 @@ if (ANDROID)
     set_target_properties(Demo PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 endif()
+
+if (EMSCRIPTEN)
+    target_link_options(Demo PRIVATE
+        "-sBINARYEN_EXTRA_PASSES=--pass-arg=max-func-params@30"
+    )
+endif()

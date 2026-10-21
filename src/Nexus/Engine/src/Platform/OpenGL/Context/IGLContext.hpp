@@ -182,6 +182,7 @@ namespace Nexus::GL
         void SetBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
         void SetBlendEquationSeparatei(uint32_t index, GLenum modeRGB, GLenum modeAlpha);
         void BlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+        void EnableBlending(uint32_t attachment, bool enabled);
 
         // synchronisation
         bool SupportsTextureBarriers();

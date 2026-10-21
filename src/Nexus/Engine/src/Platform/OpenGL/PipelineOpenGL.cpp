@@ -287,6 +287,8 @@ namespace Nexus::Graphics
             {
                 const auto &blendState = m_Description.ColourBlendStates.at(index);
 
+                context->EnableBlending(index, blendState.EnableBlending);
+
                 // enable blending for this attachment
                 if (blendState.EnableBlending)
                 {

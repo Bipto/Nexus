@@ -4,6 +4,104 @@
 #include "Platform/OpenGL/DeviceBufferOpenGL.hpp"
 #include "Platform/OpenGL/GL.hpp"
 
+#if defined(__EMSCRIPTEN__)
+#include <GLES3/gl3.h>
+#include <emscripten.h>
+#include <emscripten/html5.h>
+
+EM_JS(void, enableiOES, (GLenum target, GLuint index), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.enableiOES(target, index);
+});
+
+EM_JS(void, disableiOES, (GLenum target, GLuint index), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.disableiOES(target, index);
+});
+
+EM_JS(void, blendEquationiOES, (GLuint buf, GLenum mode), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.blendEquationiOES(buf, mode);
+});
+
+EM_JS(void, blendEquationSeparateiOES, (GLuint buf, GLenum modeRGB, GLenum modeAlpha), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.blendEquationSeparateiOES(buf, modeRGB, modeAlpha);
+});
+
+EM_JS(void, blendFunciOES, (GLuint buf, GLenum src, GLenum dst), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.blendFunciOES(buf, src, dst);
+});
+
+EM_JS(void, blendFuncSeparateiOES, (GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.blendFuncSeparateiOES(buf, srcRGB, dstRGB, srcAlpha, dstAlpha);
+});
+
+EM_JS(void, colorMaskiOES, (GLuint buf, GLboolean r, GLboolean g, GLboolean b, GLboolean a), {
+    const gl = GLctx;
+    const ext = gl.getExtension('OES_draw_buffers_indexed');
+
+    if (!ext)
+    {
+        console.error('OES_draw_buffers_indexed unavailable');
+        return;
+    }
+
+    ext.colorMaskiOES(buf, r, g, b, a);
+});
+
+#endif
+
 namespace Nexus::GL
 {
     IGLContext::~IGLContext()
@@ -1400,7 +1498,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendFunci(index, sfactor, dfactor));
 #else
-        glCall(glBlendFunci(index, sfactor, dfactor));
+        glCall(blendFunciOES(index, sfactor, dfactor));
 #endif
     }
 
@@ -1423,7 +1521,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
 #else
-        glCall(glBlendFuncSeparatei(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
+        glCall(blendFuncSeparateiOES(index, srcRGB, dstRGB, srcAlpha, dstAlpha));
 #endif
     }
 
@@ -1445,7 +1543,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendEquationi(index, mode));
 #else
-        glCall(glBlendEquationi(index, mode));
+        glCall(blendEquationiOES(index, mode));
 #endif
     }
 
@@ -1467,7 +1565,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BlendEquationSeparatei(index, modeRGB, modeAlpha));
 #else
-        glCall(glBlendEquationSeparatei(index, modeRGB, modeAlpha));
+        glCall(blendEquationSeparateiOES(index, modeRGB, modeAlpha));
 #endif
     }
 
@@ -1479,6 +1577,17 @@ namespace Nexus::GL
         glCall(m_Context.BlendColor(red, green, blue, alpha));
 #else
         glCall(glBlendColor(red, green, blue, alpha));
+#endif
+    }
+
+    void IGLContext::EnableBlending(uint32_t attachment, bool enabled)
+    {
+        MakeCurrent();
+
+#if !defined(__EMSCRIPTEN__)
+        enabled ? m_Context.Enablei(GL_BLEND, attachment) : m_Context.Disablei(GL_BLEND, attachment);
+#else
+        enabled ? enableiOES(GL_BLEND, attachment) : disableiOES(GL_BLEND, attachment);
 #endif
     }
 
@@ -1735,7 +1844,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(location = m_Context.GetProgramResourceIndex(shader, programInterface, name));
 #else
-        glCall(location = glGetProgramResourceIndex(shader, programInterface, name));
+        throw std::runtime_error("glGetProgramResourceIndex is not supported through Emscripten");
 #endif
 
         return location;
@@ -1787,7 +1896,7 @@ namespace Nexus::GL
 #if !defined(__EMSCRIPTEN__)
         glCall(m_Context.BindImageTexture(unit, texture, level, layered, layer, access, format));
 #else
-        glCall(glBindImageTexture(unit, texture, level, layered, layer, access, format));
+        throw std::runtime_error("glBindImageTexture is not supported through Emscripten");
 #endif
     }
 
