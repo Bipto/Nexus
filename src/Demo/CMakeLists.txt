@@ -34,7 +34,7 @@ if (EMSCRIPTEN)
         Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++23 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS -pthread -fexperimental-library --preload-file=${CMAKE_CURRENT_SOURCE_DIR}/resources@resources"
+        "--std=c++23 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS -pthread -fexperimental-library --preload-file=${CMAKE_CURRENT_SOURCE_DIR}/resources@resources"
     )
 
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lidbfs.js")
