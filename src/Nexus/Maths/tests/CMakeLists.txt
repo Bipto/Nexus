@@ -1,0 +1,33 @@
+include (GoogleTest)
+
+add_executable(MathsUnitTests
+    src/Vector2Tests.cpp)   
+
+target_link_libraries(MathsUnitTests 
+    PRIVATE 
+    Nexus-Maths 
+    GTest::gtest 
+    GTest::gtest_main
+)
+
+if(EMSCRIPTEN)
+    set_target_properties(
+        MathsUnitTests
+        PROPERTIES
+        LINK_FLAGS
+            "--std=c++23
+            -O3
+            -sALLOW_MEMORY_GROWTH=1
+            -sUSE_WEBGL2=1
+            -sFULL_ES2=1
+            -sFULL_ES3=1
+            -sNO_DISABLE_EXCEPTION_CATCHING
+            -lopenal
+            -lembind
+            -pthread
+            -sPTHREAD_POOL_SIZE=4"
+    )
+endif()
+
+copy_runtime_deps(MathsUnitTests)
+gtest_discover_tests(MathsUnitTests DISCOVERY_MODE PRE_TEST)
