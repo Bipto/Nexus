@@ -289,8 +289,8 @@ target_link_libraries(Nexus PUBLIC stb)
 
 CPMAddPackage(
 	NAME assimp
-	GITHUB_REPOSITORY Bipto/assimp
-	GIT_TAG 87743b3
+	GITHUB_REPOSITORY assimp/assimp
+	GIT_TAG 6.0.6
 	OPTIONS
 		"ASSIMP_BUILD_ASSIMP_TOOLS OFF"
 		"ASSIMP_BUILD_SAMPLES OFF"
